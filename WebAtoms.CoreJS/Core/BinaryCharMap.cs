@@ -66,6 +66,17 @@ namespace WebAtoms.CoreJS.Core {
             return false;
         }
 
+        public T GetOrCreate(IEnumerable<char> key, Func<T> factory)
+        {
+            ref var node = ref GetTrieNode(key, true);
+            if (node.State == State.HasValue)
+            {
+                return node.Value;
+            }
+            node.State = State.HasValue;
+            return node.Value = factory();
+        }
+
         public bool Remove(IEnumerable<char> key)
         {
             ref var node = ref GetTrieNode(key, false);
@@ -78,7 +89,7 @@ namespace WebAtoms.CoreJS.Core {
             return false;
         }
 
-        private void Save(IEnumerable<char> key, T value)
+        public void Save(IEnumerable<char> key, T value)
         {
             ref var node = ref GetTrieNode(key, true);
             if (node.IsEmpty)
