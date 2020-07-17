@@ -7,6 +7,49 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
+    internal abstract class BaseMap<TKey, TValue>
+    {
+        protected TrieNode[] Buffer;
+
+        public IEnumerable<KeyValuePair<TKey, TValue>> AllValues()
+        {
+            foreach (var a in Enumerate(0))
+            {
+                yield return a;
+            }
+        }
+
+        protected abstract IEnumerable<KeyValuePair<TKey,TValue>> Enumerate(uint index);
+
+
+        internal class NodeValue
+        {
+            public TKey Key;
+            public TValue Value;
+        }
+
+        internal struct TrieNode
+        {
+
+            internal static TrieNode Empty = new TrieNode
+            {
+                FirstChildIndex = uint.MaxValue
+            };
+
+            internal bool IsEmpty => FirstChildIndex == 0;
+
+            /// <summary>
+            /// Index to next node set...
+            /// </summary>
+            internal UInt32 FirstChildIndex;
+
+            /// <summary>
+            /// Value of the current node
+            /// </summary>
+            internal NodeValue Value;
+        }
+    }
+
     internal static class ByteEnumerableExtensions {
 
         public static IEnumerable<byte> ToBytes(this UInt32 input)
@@ -36,10 +79,8 @@ namespace WebAtoms.CoreJS.Core
         //}
     }
 
-    internal class BinaryByteMap<T>
+    internal class BinaryByteMap<T>: BaseMap<uint, T>
     {
-
-        private TrieNode<T>[] Buffer;
 
         private uint next = 4;
 
@@ -47,7 +88,27 @@ namespace WebAtoms.CoreJS.Core
 
         protected BinaryByteMap()
         {
-            Buffer = new TrieNode<T>[grow];
+            Buffer = new TrieNode[grow];
+        }
+
+        protected override IEnumerable<KeyValuePair<uint, T>> Enumerate(uint index)
+        {
+            var last = index + 4;
+            for (uint i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                var fi = node.FirstChildIndex;
+                var v = node.Value;
+                if (v != null)
+                {
+                    yield return new KeyValuePair<uint, T>(v.Key, v.Value);
+                }
+                if (fi == 0)
+                {
+                    continue;
+                }
+                foreach (var a in Enumerate(fi)) yield return a;
+            }
         }
 
         public T this[uint input]
@@ -67,9 +128,9 @@ namespace WebAtoms.CoreJS.Core
         public bool TryGetValue(uint key, out T value)
         {
             ref var node = ref GetTrieNode(key, false);
-            if (node.State == State.HasValue)
+            if (node.Value != null)
             {
-                value = node.Value;
+                value = node.Value.Value;
                 return true;
             }
             value = default;
@@ -79,10 +140,9 @@ namespace WebAtoms.CoreJS.Core
         public bool Remove(uint value)
         {
             ref var node = ref GetTrieNode(value, false);
-            if (node.State == State.HasValue)
+            if (node.Value != null)
             {
-                node.State = State.Initialized;
-                node.Value = default;
+                node.Value = null;
                 return true;
             }
             return false;
@@ -91,17 +151,12 @@ namespace WebAtoms.CoreJS.Core
         protected void Save(uint key, T value)
         {
             ref var node = ref GetTrieNode(key, true);
-            if (node.IsEmpty)
-            {
-                throw new InvalidOperationException();
-            }
-            node.Value = value;
-            node.State = State.HasValue;
+            node.Value = new NodeValue { Key = key, Value = value };
         }
 
-        private ref TrieNode<T> GetTrieNode(uint key, bool create = false)
+        private ref TrieNode GetTrieNode(uint key, bool create = false)
         {
-            ref var node = ref TrieNode<T>.Empty;
+            ref var node = ref TrieNode.Empty;
             uint start = (uint)((uint)0x3 << (int)30);
             uint index = 0;
             // incremenet of two bits...
@@ -131,14 +186,12 @@ namespace WebAtoms.CoreJS.Core
                 this.EnsureCapacity(position);
             }
             ref var v = ref Buffer[position];
-            if (v.State == State.None)
+            if (v.FirstChildIndex == 0)
             {
                 if (!create)
                 {
                     return uint.MaxValue;
                 }
-                // initailize..
-                v.State = State.Initialized;
                 v.FirstChildIndex = next;
                 next += 4;
                 this.EnsureCapacity(v.FirstChildIndex);
@@ -153,7 +206,7 @@ namespace WebAtoms.CoreJS.Core
             if (this.Buffer.Length <= i1)
             {
                 // add 16  more...
-                var b = new TrieNode<T>[i1 + grow];
+                var b = new TrieNode[i1 + grow];
                 Array.Copy(this.Buffer, b, this.Buffer.Length);
                 this.Buffer = b;
             }

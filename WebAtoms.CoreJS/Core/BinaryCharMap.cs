@@ -6,10 +6,14 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("WebAtoms.CoreJS.Tests")]
 namespace WebAtoms.CoreJS.Core {
 
-    internal class BinaryCharMap<T>
+    internal class CharMapValue<T>
     {
+        public string Key;
+        public T Value;
+    }
 
-        private TrieNode<T>[] Buffer;
+    internal class BinaryCharMap<T>: BaseMap<string, T>
+    {
 
         private uint next = 16;
 
@@ -22,25 +26,30 @@ namespace WebAtoms.CoreJS.Core {
 
         public BinaryCharMap()
         {
-            Buffer = new TrieNode<T>[grow];
+            Buffer = new TrieNode[grow];
         }
 
-        //public IEnumerable<KeyValuePair<string, T>> AllValues()
-        //{
-        //    uint index = 0;
-        //    ushort ch = 0;
-        //    while (true)
-        //    {
-        //        if (Buffer[index].State == State.None)
-        //        {
-        //            break;
-        //        }
+        protected override IEnumerable<KeyValuePair<string, T>> Enumerate(uint index)
+        {
+            var last = index + 16;
+            for (uint i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                var fi = node.FirstChildIndex;
+                var v = node.Value;
+                if (v != null)
+                {
+                    yield return new KeyValuePair<string, T>(v.Key, v.Value);
+                }
+                if (fi == 0)
+                {
+                    continue;
+                }
+                foreach (var a in Enumerate(fi)) yield return a;
+            }
+        }
 
-
-        //    }
-        //}
-
-        public T this[IEnumerable<char> input]
+        public T this[string input]
         {
             get
             {
@@ -54,53 +63,48 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public bool TryGetValue(IEnumerable<char> key, out T value)
+        public bool TryGetValue(string key, out T value)
         {
             ref var node = ref GetTrieNode(key);
-            if (node.State == State.HasValue)
+            if (node.Value != null)
             {
-                value = node.Value;
+                value = node.Value.Value;
                 return true;
             }
             value = default;
             return false;
         }
 
-        public T GetOrCreate(IEnumerable<char> key, Func<T> factory)
+        public T GetOrCreate(string key, Func<T> factory)
         {
             ref var node = ref GetTrieNode(key, true);
-            if (node.State == State.HasValue)
+            if (node.Value != null)
             {
-                return node.Value;
+                return node.Value.Value;
             }
-            node.State = State.HasValue;
-            return node.Value = factory();
+            var v = factory();
+            node.Value = new NodeValue { Key = key, Value = v };
+            return v;
         }
 
-        public bool Remove(IEnumerable<char> key)
+        public bool Remove(string key)
         {
             ref var node = ref GetTrieNode(key, false);
-            if (node.State == State.HasValue)
+            if (node.Value != null)
             {
-                node.State = State.Initialized;
-                node.Value = default;
+                node.Value = null;
                 return true;
             }
             return false;
         }
 
-        public void Save(IEnumerable<char> key, T value)
+        public void Save(string key, T value)
         {
             ref var node = ref GetTrieNode(key, true);
-            if (node.IsEmpty)
-            {
-                throw new InvalidOperationException();
-            }
-            node.Value = value;
-            node.State = State.HasValue;
+            node.Value = new NodeValue { Key = key, Value = value };
         }
 
-        private ref TrieNode<T> GetTrieNode(IEnumerable<char> key, bool create = false)
+        private ref TrieNode GetTrieNode(IEnumerable<char> key, bool create = false)
         {
             uint index = 0;
             foreach (var ch in key)
@@ -117,7 +121,7 @@ namespace WebAtoms.CoreJS.Core {
                 index = GetNode(index + b4, create);
                 if (index == uint.MaxValue)
                 {
-                    return ref TrieNode<T>.Empty;
+                    return ref TrieNode.Empty;
                 }
             }
 
@@ -136,16 +140,14 @@ namespace WebAtoms.CoreJS.Core {
                 this.EnsureCapacity(position);
             }
             ref var v = ref Buffer[position];
-            if (v.State == State.None)
+            if (v.FirstChildIndex == 0)
             {
                 if (!create)
                 {
                     return uint.MaxValue;
                 }
-                // initailize..
-                v.State = State.Initialized;
                 v.FirstChildIndex = next;
-                next += 4;
+                next += 16;
                 this.EnsureCapacity(v.FirstChildIndex);
             }
             return v.FirstChildIndex;
@@ -153,64 +155,16 @@ namespace WebAtoms.CoreJS.Core {
             // return v.FirstChildIndex;
         }
 
-        private uint SaveNode(uint position)
-        {
-            this.EnsureCapacity(position);
-            var v1 = Buffer[position];
-            if (v1.FirstChildIndex == 0)
-            {
-                if (v1.State == State.None)
-                {
-                    // initailize..
-                    v1.State = State.Initialized;
-                    v1.FirstChildIndex = next;
-                    next += 16;
-                    Buffer[position] = v1;
-                }
-            }
-            return v1.FirstChildIndex;
-        }
-
-
         void EnsureCapacity(uint i1)
         {
             if (this.Buffer.Length <= i1)
             {
                 // add 16  more...
-                var b = new TrieNode<T>[i1 + grow];
+                var b = new TrieNode[i1 + grow];
                 Array.Copy(this.Buffer, b, this.Buffer.Length);
                 this.Buffer = b;
             }
         }
     }
-
-    internal enum State: byte
-    {
-        None = 0,
-        Initialized = 1,
-        HasValue = 2
-    }
-
-    internal struct TrieNode<T>
-    {
-
-        internal static TrieNode<T> Empty = new TrieNode<T> {
-            FirstChildIndex = uint.MaxValue
-        };
-
-        internal bool IsEmpty => FirstChildIndex == uint.MaxValue;
-
-        internal State State;
-
-        /// <summary>
-        /// Index to next node set...
-        /// </summary>
-        internal UInt32 FirstChildIndex;
-
-        /// <summary>
-        /// Value of the current node
-        /// </summary>
-        internal T Value;
-    }    
 
 }
