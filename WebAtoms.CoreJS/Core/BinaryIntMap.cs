@@ -11,6 +11,20 @@ namespace WebAtoms.CoreJS.Core
     {
         protected TrieNode[] Buffer;
 
+        public TValue this[TKey input]
+        {
+            get
+            {
+                if (this.TryGetValue(input, out var t))
+                    return t;
+                return default;
+            }
+            set
+            {
+                this.Save(input, value);
+            }
+        }
+
         public IEnumerable<KeyValuePair<TKey, TValue>> AllValues()
         {
             foreach (var a in Enumerate(0))
@@ -20,6 +34,49 @@ namespace WebAtoms.CoreJS.Core
         }
 
         protected abstract IEnumerable<KeyValuePair<TKey,TValue>> Enumerate(uint index);
+
+        public TValue GetOrCreate(TKey key, Func<TValue> factory)
+        {
+            ref var node = ref GetTrieNode(key, true);
+            if (node.Value != null)
+            {
+                return node.Value.Value;
+            }
+            var v = factory();
+            node.Value = new NodeValue { Key = key, Value = v };
+            return v;
+        }
+
+        protected abstract ref TrieNode GetTrieNode(TKey key, bool create = false);
+
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            ref var node = ref GetTrieNode(key);
+            if (node.Value != null)
+            {
+                value = node.Value.Value;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        public bool Remove(TKey key)
+        {
+            ref var node = ref GetTrieNode(key, false);
+            if (node.Value != null)
+            {
+                node.Value = null;
+                return true;
+            }
+            return false;
+        }
+
+        public void Save(TKey key, TValue value)
+        {
+            ref var node = ref GetTrieNode(key, true);
+            node.Value = new NodeValue { Key = key, Value = value };
+        }
 
 
         internal class NodeValue
@@ -111,50 +168,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public T this[uint input]
-        {
-            get
-            {
-                if (this.TryGetValue(input, out var t))
-                    return t;
-                return default;
-            }
-            set
-            {
-                this.Save(input, value);
-            }
-        }
-
-        public bool TryGetValue(uint key, out T value)
-        {
-            ref var node = ref GetTrieNode(key, false);
-            if (node.Value != null)
-            {
-                value = node.Value.Value;
-                return true;
-            }
-            value = default;
-            return false;
-        }
-
-        public bool Remove(uint value)
-        {
-            ref var node = ref GetTrieNode(value, false);
-            if (node.Value != null)
-            {
-                node.Value = null;
-                return true;
-            }
-            return false;
-        }
-
-        protected void Save(uint key, T value)
-        {
-            ref var node = ref GetTrieNode(key, true);
-            node.Value = new NodeValue { Key = key, Value = value };
-        }
-
-        private ref TrieNode GetTrieNode(uint key, bool create = false)
+        protected override ref TrieNode GetTrieNode(uint key, bool create = false)
         {
             ref var node = ref TrieNode.Empty;
             uint start = (uint)((uint)0x3 << (int)30);

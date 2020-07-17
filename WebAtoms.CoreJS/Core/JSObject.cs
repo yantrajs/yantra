@@ -9,17 +9,19 @@ namespace WebAtoms.CoreJS.Core
 
         public JSObject()
         {
-            ownProperties = new BinaryUInt32Map<JSValue>();
+            ownProperties = new BinaryUInt32Map<JSProperty>();
         }
 
-        public override JSValue this[JSValue key] {
-            get => throw new NotImplementedException(); 
-            set => throw new NotImplementedException(); 
-        }
-        public static void SetupPrototype(JSObject obj)
+        internal static JSProperty hasOwnProperty = new JSProperty
         {
-            throw new NotImplementedException();
-        }
+            value = new JSFunction((t, a) =>
+            {
+                return JSUndefined.Value;
+            })
+        };
+
+        internal static JSProperty toString = JSProperty.Function(
+            (t, a) => new JSString(t.ToString()));
 
     }
 }

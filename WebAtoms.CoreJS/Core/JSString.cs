@@ -12,7 +12,7 @@ namespace WebAtoms.CoreJS.Core
         {
             this.value = value;
         }
-        internal JSString(string value, uint key)
+        internal JSString(string value, uint key = 0)
         {
             this.value = value;
             this.Key = key;
@@ -20,23 +20,31 @@ namespace WebAtoms.CoreJS.Core
 
         public uint Key { get; private set; }
 
-        public override JSValue this[JSValue key] {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
-
         public override string ToString()
         {
             return value;
         }
-        public static JSObject CreatePrototype(JSContext context, JSObject prototype)
-        {
-            var str = new JSObject();
-            str.prototype = prototype;
-            context[KeyStrings.String] = str;
-            return str;
 
-        }
+        public override int Length => value.Length;
+
+
+        internal static JSProperty toString = JSProperty.Function((t, a) => t);
+
+        internal static JSProperty substr = JSProperty.Function((t, a) =>
+        {
+            var j = t as JSString;
+            if (a.Length == 1)
+                return new JSString(j.value.Substring(a[0].IntValue));
+            if (a.Length == 2)
+                return new JSString(j.value.Substring(a[0].IntValue, a[1].IntValue));
+            return JSUndefined.Value;
+        });
+
+        internal static JSProperty length = new JSProperty {
+            get = new JSFunction( (t, a) => new JSNumber(t.Length)),
+            set = new JSFunction((t, a) => a[0])
+        };
+
 
     }
 }

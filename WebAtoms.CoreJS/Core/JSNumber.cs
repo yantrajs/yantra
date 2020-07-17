@@ -14,24 +14,14 @@ namespace WebAtoms.CoreJS.Core
             this.value = value;
         }
 
-        public override JSValue this[JSValue key]
-        {
-            get => throw new InvalidOperationException($"Cannot get {key} of {this}");
-            set => throw new InvalidOperationException($"Cannot set {key} of {this}");
-        }
+        public override int IntValue => (int)value;
+
+        public override double DoubleValue => value;
 
         public override string ToString()
         {
             return value.ToString();
         }
 
-        public static JSObject CreatePrototype(JSContext context, JSObject prototype)
-        {
-            var number = new JSObject();
-            number.prototype = prototype;
-            context[KeyStrings.Number] = number;
-            return number;
-
-        }
     }
 }

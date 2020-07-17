@@ -49,62 +49,7 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public T this[string input]
-        {
-            get
-            {
-                if (this.TryGetValue(input, out var t))
-                    return t;
-                return default;
-            }
-            set
-            {
-                this.Save(input, value);
-            }
-        }
-
-        public bool TryGetValue(string key, out T value)
-        {
-            ref var node = ref GetTrieNode(key);
-            if (node.Value != null)
-            {
-                value = node.Value.Value;
-                return true;
-            }
-            value = default;
-            return false;
-        }
-
-        public T GetOrCreate(string key, Func<T> factory)
-        {
-            ref var node = ref GetTrieNode(key, true);
-            if (node.Value != null)
-            {
-                return node.Value.Value;
-            }
-            var v = factory();
-            node.Value = new NodeValue { Key = key, Value = v };
-            return v;
-        }
-
-        public bool Remove(string key)
-        {
-            ref var node = ref GetTrieNode(key, false);
-            if (node.Value != null)
-            {
-                node.Value = null;
-                return true;
-            }
-            return false;
-        }
-
-        public void Save(string key, T value)
-        {
-            ref var node = ref GetTrieNode(key, true);
-            node.Value = new NodeValue { Key = key, Value = value };
-        }
-
-        private ref TrieNode GetTrieNode(IEnumerable<char> key, bool create = false)
+        protected override ref TrieNode GetTrieNode(string key, bool create = false)
         {
             uint index = 0;
             foreach (var ch in key)

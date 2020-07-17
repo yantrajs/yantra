@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 
 namespace WebAtoms.CoreJS.Core {
     public abstract class JSValue {
@@ -16,21 +18,117 @@ namespace WebAtoms.CoreJS.Core {
 
         public bool IsString => this is JSString;
 
+        public virtual int Length {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
 
-        internal BinaryUInt32Map<JSValue> ownProperties;
+        public virtual double DoubleValue { get => throw new NotImplementedException(); }
+
+        public virtual int IntValue { get => throw new NotImplementedException(); }
+
+        internal BinaryUInt32Map<JSProperty> ownProperties;
 
         internal JSValue prototype;
 
-        public abstract JSValue this [JSValue key]
+        internal JSProperty GetInternalProperty(JSString key, bool inherited = true)
         {
-            get;
-            set;
+            if(ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
+            {
+                return r;
+            }
+            if(inherited && prototype != null)
+                return prototype.GetInternalProperty(key, inherited);
+            return JSProperty.Empty;
+        }
+
+        public IEnumerable<KeyValuePair<string,JSValue>> Entries
+        {
+            get
+            {
+                if (ownProperties == null)
+                    yield break;
+                foreach(var p in this.ownProperties.AllValues())
+                {
+                    if (p.Value.value != null)
+                    {
+                        yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), p.Value.value);
+                        continue;
+                    }
+                    if (p.Value.get != null)
+                    {
+                        var g = p.Value.get;
+                        g = g.InvokeFunction(this, JSArguments.Empty);
+                        yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), g);
+                        continue;
+                    }
+                }
+            }
+        }
+
+        public virtual JSValue this[JSValue key]
+        {
+            get
+            {
+                JSProperty p = JSProperty.Empty;
+                if (key is JSString j)
+                    p = GetInternalProperty(j, true);
+                else if (key is JSNumber)
+                    return this[(uint)key.IntValue];
+                if (p.IsEmpty)
+                    return JSUndefined.Value;
+                if (p.value != null)
+                    return p.value;
+                return p.get.InvokeFunction(this, JSArguments.Empty);
+            }
+            set
+            {
+                JSProperty p = JSProperty.Empty;
+                if (key is JSString j)
+                    p = GetInternalProperty(j, true);
+                else if (key is JSNumber)
+                {
+                    this[(uint)key.IntValue] = value;
+                    return;
+                }
+                if (p.IsEmpty) {
+                    // create one..
+                    var kjs = KeyStrings.GetOrCreate(key.ToString());
+                    ownProperties[kjs.Key] = new JSProperty {
+                        key = kjs,
+                        value = value
+                    };
+                    return;
+                }
+                p.set.InvokeFunction(this, JSArguments.From(value));
+            }
+        }
+
+        public virtual JSValue this[uint key]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public virtual JSValue InvokeFunction(JSValue thisValue, JSValue args)
         {
             throw new NotImplementedException();
         }
+
+        public virtual JSValue InvokeMethod(JSString name, JSValue args)
+        {
+            var fx = this[name];
+            if (fx.IsUndefined)
+                throw new InvalidOperationException();
+            return fx.InvokeFunction(this, args);
+        }
+
     }
 
 

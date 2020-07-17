@@ -15,6 +15,7 @@ namespace WebAtoms.CoreJS.Core
         public readonly static JSString Function;
         public readonly static JSString toString;
         public readonly static JSString name;
+        public readonly static JSString length;
         public readonly static JSString prototype;
         public readonly static JSString apply;
         public readonly static JSString call;
@@ -29,6 +30,7 @@ namespace WebAtoms.CoreJS.Core
             String = GetOrCreate("String");
             Array = GetOrCreate("Array");
             Function = GetOrCreate("Function");
+            length = GetOrCreate("length");
             apply = GetOrCreate("apply");
             call = GetOrCreate("call");
         }
