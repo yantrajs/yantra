@@ -40,8 +40,8 @@ namespace WebAtoms.CoreJS.Core
 
             (JSObject p, uint key, Type type) CreatePrototype(JSString name, Type type)
             {
-                var r = new JSObject();
-                r.prototype = obj ?? r;
+                var r = new JSFunction(JSFunction.empty);
+                r.prototypeChain = obj ?? r;
                 this[name] = r;
                 return (r, name.Key, type);
             }
@@ -91,35 +91,35 @@ namespace WebAtoms.CoreJS.Core
         public JSObject CreateObject()
         {
             var v = new JSObject();
-            v.prototype = this[KeyStrings.Object];
+            v.prototypeChain = this[KeyStrings.Object];
             return v;
         }
 
         public JSValue CreateNumber(double n)
         {
             var v = new JSNumber(n);
-            v.prototype = this[KeyStrings.Number];
+            v.prototypeChain = this[KeyStrings.Number];
             return v;
         }
 
         public JSString CreateString(string value)
         {
             var v = new JSString(value, 0);
-            v.prototype = this[KeyStrings.String];
+            v.prototypeChain = this[KeyStrings.String];
             return v;
         }
 
         public JSFunction CreateFunction(JSFunctionDelegate fx)
         {
             var v = new JSFunction(fx);
-            v.prototype = this[KeyStrings.Function];
+            v.prototypeChain = this[KeyStrings.Function];
             return v;
         }
 
         public JSArray CreateArray()
         {
             var v = new JSArray();
-            v.prototype = this[KeyStrings.Array];
+            v.prototypeChain = this[KeyStrings.Array];
             return v;
         }
 

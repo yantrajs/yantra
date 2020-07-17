@@ -29,7 +29,7 @@ namespace WebAtoms.CoreJS.Core {
 
         internal BinaryUInt32Map<JSProperty> ownProperties;
 
-        internal JSValue prototype;
+        internal JSValue prototypeChain;
 
         internal JSProperty GetInternalProperty(JSString key, bool inherited = true)
         {
@@ -41,8 +41,8 @@ namespace WebAtoms.CoreJS.Core {
             {
                 return r;
             }
-            if(inherited && prototype != null)
-                return prototype.GetInternalProperty(key, inherited);
+            if(inherited && prototypeChain != null)
+                return prototypeChain.GetInternalProperty(key, inherited);
             return JSProperty.Empty;
         }
 
@@ -138,6 +138,10 @@ namespace WebAtoms.CoreJS.Core {
             return fx.InvokeFunction(this, args);
         }
 
+        internal static JSProperty __proto__ = JSProperty.Property(
+            get: (t, a) => t.prototypeChain,
+            set: (t, a) => t.prototypeChain = a[0]
+        );
     }
 
 

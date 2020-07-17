@@ -17,6 +17,7 @@ namespace WebAtoms.CoreJS.Core
         public readonly static JSString name;
         public readonly static JSString length;
         public readonly static JSString prototype;
+        public readonly static JSString constructor;
         public readonly static JSString apply;
         public readonly static JSString call;
 
@@ -24,6 +25,7 @@ namespace WebAtoms.CoreJS.Core
         {
             toString = GetOrCreate("toString");
             name = GetOrCreate("name");
+            constructor = GetOrCreate("constructor");
             prototype = GetOrCreate("prototype");
             Number = GetOrCreate("Number");
             Object = GetOrCreate("Object");
