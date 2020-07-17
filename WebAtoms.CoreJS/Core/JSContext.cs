@@ -8,7 +8,7 @@ using System.Threading;
 namespace WebAtoms.CoreJS.Core
 {
 
-    public delegate JSValue JSFunctionDelegate(JSValue thisValue, JSValue arguments);
+    public delegate JSValue JSFunctionDelegate(JSValue thisValue, JSArray arguments);
 
     public class JSContext: JSObject, IDisposable
     {
@@ -88,6 +88,13 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        public JSObject CreateObject()
+        {
+            var v = new JSObject();
+            v.prototype = this[KeyStrings.Object];
+            return v;
+        }
+
         public JSValue CreateNumber(double n)
         {
             var v = new JSNumber(n);
@@ -106,6 +113,13 @@ namespace WebAtoms.CoreJS.Core
         {
             var v = new JSFunction(fx);
             v.prototype = this[KeyStrings.Function];
+            return v;
+        }
+
+        public JSArray CreateArray()
+        {
+            var v = new JSArray();
+            v.prototype = this[KeyStrings.Array];
             return v;
         }
 

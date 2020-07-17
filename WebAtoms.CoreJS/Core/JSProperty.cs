@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Core
     {
 
         public static JSProperty Empty = new JSProperty() { IsEmpty = true };
-        public JSValue key;
+        public JSString key;
         public JSValue get;
         public JSValue set;
 

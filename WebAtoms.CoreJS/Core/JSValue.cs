@@ -33,6 +33,10 @@ namespace WebAtoms.CoreJS.Core {
 
         internal JSProperty GetInternalProperty(JSString key, bool inherited = true)
         {
+            if (key.Key == 0)
+            {
+                key = KeyStrings.GetOrCreate(key.ToString());
+            }
             if(ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
             {
                 return r;
@@ -116,12 +120,17 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public virtual JSValue InvokeFunction(JSValue thisValue, JSValue args)
+        public virtual JSValue CreateInstance(JSArray args)
         {
             throw new NotImplementedException();
         }
 
-        public virtual JSValue InvokeMethod(JSString name, JSValue args)
+        public virtual JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual JSValue InvokeMethod(JSString name, JSArray args)
         {
             var fx = this[name];
             if (fx.IsUndefined)

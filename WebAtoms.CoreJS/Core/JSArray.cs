@@ -10,6 +10,30 @@ namespace WebAtoms.CoreJS.Core
 
         internal uint _length;
 
+        public IEnumerable<JSValue> All
+        {
+            get
+            {
+                int i = 0;
+                foreach(var a in elements.AllValues())
+                {
+                    var index = a.Key;
+                    while (index > i)
+                    {
+                        yield return JSUndefined.Value;
+                        i++;
+                    }
+                    yield return a.Value;
+                    i++;
+                }
+                while (i < _length)
+                {
+                    yield return JSUndefined.Value;
+                    i++;
+                }
+            }
+        }
+
         public override int Length { 
             get => (int)_length; 
             set => _length = (uint)value; 
@@ -37,11 +61,23 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSProperty push = JSProperty.Function((t, a) => {
             var ta = (JSArray)t;
-            ta[ta._length] = a[0];
+            foreach(var item in a.All)
+            {
+                ta.elements[ta._length] = item;
+                ta._length++;
+            }
             return new JSNumber(ta._length);
         });
 
-        public JSValue Slice(int value)
+        internal static JSProperty pop = JSProperty.Function((t, a) => {
+            var ta = (JSArray)t;
+            var n = ta._length - 1;
+            var r = ta.elements[n];
+            ta._length = n;
+            return r;
+        });
+
+        public JSArray Slice(int value)
         {
             JSArray a = new JSArray();
             for (uint i = (uint)value; i < _length; i++)
