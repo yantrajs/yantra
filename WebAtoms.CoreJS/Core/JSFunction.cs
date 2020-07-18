@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
@@ -9,22 +10,39 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSFunctionDelegate empty = (_, __) => JSUndefined.Value;
 
-        private JSValue proto;
+        internal readonly JSObject prototype;
+
+        private string source;
 
         internal JSFunctionDelegate f;
-        internal JSFunction(JSFunctionDelegate f)
+        internal JSFunction(
+            JSFunctionDelegate f,
+            string name = null,
+            string source = null)
         {
             this.f = f;
-            proto = new JSObject();
-            proto[KeyStrings.constructor] = this;
-            this[KeyStrings.prototype] = proto;
+            this.source = source 
+                ?? $"function {name ?? "native"}() {{ [native] }}";
+            prototype = new JSObject();
+            prototype[KeyStrings.constructor] = this;
+            this[KeyStrings.prototype] = prototype;
+
+            this[KeyStrings.name] = name != null
+                ? KeyStrings.GetOrCreate(name)
+                : KeyStrings.native;
+
+        }
+
+        public override string ToString()
+        {
+            return source;
         }
 
         public override JSValue CreateInstance(JSArray args)
         {
             var cx = JSContext.Current;
             JSValue obj = cx.CreateObject();
-            obj.prototypeChain = proto;
+            obj.prototypeChain = prototype;
             obj = f(obj, args);
             return obj;
         }
@@ -34,22 +52,39 @@ namespace WebAtoms.CoreJS.Core
             return f(thisValue, args);
         }
 
-        internal static JSProperty call = JSProperty.Function((t, a) => {
-            JSArray ar = a;
-            return t.InvokeFunction(ar[0], ar.Slice(1));
-        });
+        public static JSValue Call(JSValue receiver, JSArray p)
+        {
+            return receiver.InvokeFunction(p[0], p.Slice(1));
+        }
 
-        internal static JSProperty apply = JSProperty.Function((t, a) => {
+        public static JSValue Apply(JSValue t, JSArray a){
             JSArray ar = a;
             return t.InvokeFunction(ar[0], ar[1] as JSArray);
-        });
+        }
 
-        internal static JSProperty bind = JSProperty.Function((t, a) => {
+        public static JSValue Bind(JSValue t, JSArray a) {
             var fOriginal = (JSFunction)t;
             var tx = a[0];
             var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));
             return fx;
-        });
+        }
 
+        public static JSFunction Create()
+        {
+            var fx = new JSFunction(JSFunction.empty, "Function");
+            var p = fx.prototype;
+            p.DefineProperty(KeyStrings.call, new JSProperty {
+                value = new JSFunction(Call)
+            });
+            p.DefineProperty(KeyStrings.apply, new JSProperty
+            {
+                value = new JSFunction(Apply)
+            });
+            p.DefineProperty(KeyStrings.bind, new JSProperty
+            {
+                value = new JSFunction(Bind)
+            });
+            return fx;
+        }
     }
 }

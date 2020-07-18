@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -38,55 +39,30 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            (JSObject p, uint key, Type type) CreatePrototype(JSString name, Type type)
+            JSValue CreatePrototype(JSString name, Func<JSFunction> factory)
             {
-                var r = new JSFunction(JSFunction.empty);
-                r.prototypeChain = obj ?? r;
+                var r = new JSFunction(JSFunction.empty, name.ToString());
                 this[name] = r;
-                return (r, name.Key, type);
+                r.prototypeChain = obj;
+                var cached = cache.GetOrCreate(name.Key, factory);
+                var target = r.prototype.ownProperties;
+                foreach(var p in cached.prototype.ownProperties.AllValues())
+                {
+                    target[p.Key] = p.Value;
+                }
+                return r;
             }
 
             // create object prototype...
-            var objProtoType = CreatePrototype(KeyStrings.Object, typeof(JSObject));
-            obj = objProtoType.p;
-            var str = CreatePrototype(KeyStrings.String, typeof(JSString));
-            var number = CreatePrototype(KeyStrings.Number, typeof(JSNumber));
-            var array = CreatePrototype(KeyStrings.Array, typeof(JSArray));
-            var function = CreatePrototype(KeyStrings.Function, typeof(JSFunction));
+            CreatePrototype(KeyStrings.Object, JSObject.Create);
+            CreatePrototype(KeyStrings.String, JSString.Create);
+            CreatePrototype(KeyStrings.Number, JSNumber.Create);
+            CreatePrototype(KeyStrings.Array, JSArray.Create);
+            CreatePrototype(KeyStrings.Function, JSFunction.Create);
 
-            SetupPrototype(objProtoType);
-            SetupPrototype(number);
-            SetupPrototype(array);
-            SetupPrototype(str);
-            SetupPrototype(function);
         }
+        private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
 
-        private static BinaryUInt32Map<JSValue> cache = new BinaryUInt32Map<JSValue>();
-        private void SetupPrototype((JSObject target, uint key, Type type) prot)
-        {
-            var (target, key, type) = prot;
-            var p = cache.GetOrCreate(key, () => {
-                var cp = new JSObject();
-                foreach(var f in type.GetFields(
-                    System.Reflection.BindingFlags.NonPublic 
-                    | System.Reflection.BindingFlags.Static
-                    | System.Reflection.BindingFlags.FlattenHierarchy)
-                .Where(x => x.FieldType == typeof(JSProperty)))
-                {
-                    var ks = KeyStrings.GetOrCreate(f.Name);
-                    var jsp = (JSProperty)f.GetValue(null);
-                    jsp.key = ks;
-                    f.SetValue(null,jsp);
-                    cp.ownProperties[ks.Key] = jsp;
-                }
-
-                return cp;
-            });
-            foreach(var a in p.ownProperties.AllValues())
-            {
-                target.ownProperties[a.Key] = a.Value;
-            }
-        }
 
         public JSObject CreateObject()
         {

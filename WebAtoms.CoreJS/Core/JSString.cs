@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
@@ -27,10 +29,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override int Length => value.Length;
 
-
-        internal static JSProperty toString = JSProperty.Function((t, a) => t);
-
-        internal static JSProperty substr = JSProperty.Function((t, a) =>
+        public static JSValue Substring(JSValue t, JSArray a) 
         {
             var j = t as JSString;
             if (a.Length == 1)
@@ -38,13 +37,24 @@ namespace WebAtoms.CoreJS.Core
             if (a.Length == 2)
                 return new JSString(j.value.Substring(a[0].IntValue, a[1].IntValue));
             return JSUndefined.Value;
-        });
+        }
 
-        internal static JSProperty length = new JSProperty {
-            get = new JSFunction( (t, a) => new JSNumber(t.Length)),
-            set = new JSFunction((t, a) => a[0])
-        };
+        internal static JSFunction Create()
+        {
+            var r = new JSFunction(JSFunction.empty);
+            var p = r.prototype;
 
+            p.DefineProperty(KeyStrings.length, JSProperty.Property(
+                (t, a) => new JSNumber(t.Length),
+                (t, a) => a[0]));
+            
+            p.DefineProperty(KeyStrings.toString, JSProperty.Function((t, a) => t));
+
+            var substr = JSProperty.Function(Substring);
+            p.DefineProperty(KeyStrings.GetOrCreate("substr"), substr);
+            p.DefineProperty(KeyStrings.GetOrCreate("substring"), substr);
+            return r;
+        }
 
     }
 }

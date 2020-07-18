@@ -72,6 +72,19 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        public bool TryRemove(TKey key, out TValue value)
+        {
+            ref var node = ref GetTrieNode(key, false);
+            if (node.Value != null)
+            {
+                value = node.Value.Value;
+                node.Value = null;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
         public void Save(TKey key, TValue value)
         {
             ref var node = ref GetTrieNode(key, true);

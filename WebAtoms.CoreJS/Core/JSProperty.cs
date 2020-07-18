@@ -8,8 +8,7 @@ namespace WebAtoms.CoreJS.Core
     public struct JSProperty
     {
 
-        public static JSProperty Empty = new JSProperty() { IsEmpty = true };
-        public JSString key;
+        public JSValue key;
         public JSValue get;
         public JSValue set;
 
@@ -19,12 +18,10 @@ namespace WebAtoms.CoreJS.Core
 
         public bool enumerable;
 
-        public bool IsEmpty { get; private set; }
-
-
+        public bool IsEmpty => get == null && set == null && value == null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSProperty Function(JSFunctionDelegate d)
+        internal static JSProperty Function(JSFunctionDelegate d)
         {
             return new JSProperty {
                 value = new JSFunction(d)
@@ -32,23 +29,22 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSProperty Property(JSFunctionDelegate get, JSFunctionDelegate set)
+        internal static JSProperty Property(JSValue d)
         {
             return new JSProperty
             {
-                get = new JSFunction(get),
-                set = new JSFunction(set)
+                value = d
             };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSProperty Property(JSValue value)
+        internal static JSProperty Property(JSFunctionDelegate get, JSFunctionDelegate set = null)
         {
             return new JSProperty
             {
-                value = value
+                get = new JSFunction(get),
+                set = set != null ? new JSFunction(set): null
             };
         }
-
     }
 }

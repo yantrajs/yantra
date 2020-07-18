@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
@@ -23,5 +24,10 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
+        internal static JSFunction Create()
+        {
+            var r = new JSFunction(JSFunction.empty, "Number");
+            return r;
+        }
     }
 }

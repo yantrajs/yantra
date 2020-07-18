@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 
 namespace WebAtoms.CoreJS.Core {
     public abstract class JSValue {
@@ -43,7 +44,7 @@ namespace WebAtoms.CoreJS.Core {
             }
             if(inherited && prototypeChain != null)
                 return prototypeChain.GetInternalProperty(key, inherited);
-            return JSProperty.Empty;
+            return new JSProperty();
         }
 
         public IEnumerable<KeyValuePair<string,JSValue>> Entries
@@ -74,7 +75,7 @@ namespace WebAtoms.CoreJS.Core {
         {
             get
             {
-                JSProperty p = JSProperty.Empty;
+                JSProperty p = new JSProperty();
                 if (key is JSString j)
                     p = GetInternalProperty(j, true);
                 else if (key is JSNumber)
@@ -87,7 +88,7 @@ namespace WebAtoms.CoreJS.Core {
             }
             set
             {
-                JSProperty p = JSProperty.Empty;
+                JSProperty p = new JSProperty();
                 if (key is JSString j)
                     p = GetInternalProperty(j, true);
                 else if (key is JSNumber)
@@ -130,6 +131,11 @@ namespace WebAtoms.CoreJS.Core {
             throw new NotImplementedException();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual JSValue InvokeMethod(string name, JSArray args)
+        {
+            return InvokeMethod(KeyStrings.GetOrCreate(name), args);
+        }
         public virtual JSValue InvokeMethod(JSString name, JSArray args)
         {
             var fx = this[name];
@@ -138,10 +144,11 @@ namespace WebAtoms.CoreJS.Core {
             return fx.InvokeFunction(this, args);
         }
 
-        internal static JSProperty __proto__ = JSProperty.Property(
-            get: (t, a) => t.prototypeChain,
-            set: (t, a) => t.prototypeChain = a[0]
-        );
+        [JSExport("__proto__", JSPropertyType.Get)]
+        public static JSValue GetPrototypeChain(JSValue t, JSArray a) => t.prototypeChain;
+
+        [JSExport("__proto__", JSPropertyType.Set)]
+        public static JSValue SetPrototypeChain(JSValue t, JSArray a) => t.prototypeChain = a[0];
     }
 
 
