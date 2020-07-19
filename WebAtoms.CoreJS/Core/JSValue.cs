@@ -186,12 +186,6 @@ namespace WebAtoms.CoreJS.Core {
                 throw new InvalidOperationException();
             return fx.InvokeFunction(this, args);
         }
-
-        [JSExport("__proto__", JSPropertyType.Get)]
-        public static JSValue GetPrototypeChain(JSValue t, JSArray a) => t.prototypeChain;
-
-        [JSExport("__proto__", JSPropertyType.Set)]
-        public static JSValue SetPrototypeChain(JSValue t, JSArray a) => t.prototypeChain = a[0];
     }
 
 

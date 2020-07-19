@@ -57,8 +57,14 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSFunction(JSFunction.empty, "Object");
             var p = r.prototype;
             p.DefineProperty(KeyStrings.toString, JSProperty.Function(ToString));
+            p.DefineProperty(KeyStrings.__proto__, JSProperty.Property(
+                get: (t,a) => t.prototypeChain,
+                set: (t,a) => t.prototypeChain = a[0]
+            ));
 
             r.DefineProperty("create", JSProperty.Function(Create));
+
+
             return r;
         }
 
