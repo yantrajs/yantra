@@ -10,7 +10,7 @@ namespace WebAtoms.CoreJS.Core
 
         private double value;
 
-        internal JSNumber(double value)
+        internal JSNumber(double value): base(JSContext.Current.NumberPrototype)
         {
             this.value = value;
         }

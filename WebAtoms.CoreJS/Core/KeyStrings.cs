@@ -7,31 +7,93 @@ using System.Threading;
 
 namespace WebAtoms.CoreJS.Core
 {
+
+    public interface IKeyString
+    {
+        uint Key { get; }
+    }
+    public struct KeyString
+    {
+        public static implicit operator KeyString(string value)
+        {
+            return KeyStrings.GetOrCreate(value);
+        }
+
+        public static implicit operator String(KeyString value)
+        {
+            return value.Value;
+        }
+
+        //public static bool operator == (KeyString a, KeyString b) {
+        //    return a.Key == b.Key;
+        //}
+        //public static bool operator != (KeyString a, KeyString b)
+        //{
+        //    return a.Key != b.Key;
+        //}
+
+        //public static bool operator ==(KeyString a, string b)
+        //{
+        //    return a.Value == b;
+        //}
+        //public static bool operator !=(KeyString a, string b)
+        //{
+        //    return a.Value != b;
+        //}
+
+        public readonly string Value;
+        public readonly uint Key;
+        internal KeyString(string value, uint key)
+        {
+            this.Value = value;
+            this.Key = key;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is KeyString k)
+                return Key == k.Key;
+            if (obj is string sv)
+                return Value == sv;
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)Key;
+        }
+
+        public override string ToString()
+        {
+            return Value;
+        }
+    }
+
     internal static class KeyStrings
     {
-        public readonly static JSString Number;
-        public readonly static JSString Object;
-        public readonly static JSString String;
-        public readonly static JSString Array;
-        public readonly static JSString Function;
-        public readonly static JSString toString;
-        public readonly static JSString name;
-        public readonly static JSString length;
-        public readonly static JSString prototype;
-        public readonly static JSString constructor;
-        public readonly static JSString apply;
-        public readonly static JSString call;
-        public readonly static JSString bind;
-        public readonly static JSString native;
-        public readonly static JSString __proto__;
+        public readonly static KeyString Number;
+        public readonly static KeyString Object;
+        public readonly static KeyString String;
+        public readonly static KeyString Array;
+        public readonly static KeyString Function;
+        public readonly static KeyString toString;
+        public readonly static KeyString name;
+        public readonly static KeyString length;
+        public readonly static KeyString prototype;
+        public readonly static KeyString constructor;
+        public readonly static KeyString apply;
+        public readonly static KeyString call;
+        public readonly static KeyString bind;
+        public readonly static KeyString native;
+        public readonly static KeyString __proto__;
 
         static KeyStrings()
         {
 
-            JSString Create(string key)
+            KeyString Create(string key)
             {
                 var i = NextID++;
-                var js = new JSString(key, (uint)i);
+                var js = new KeyString(key, (uint)i);
                 map[key] = js;
                 return js;
             }
@@ -53,18 +115,18 @@ namespace WebAtoms.CoreJS.Core
             native = Create("native");
         }
 
-        private static BinaryCharMap<JSString> map = new BinaryCharMap<JSString>();
+        private static BinaryCharMap<KeyString> map = new BinaryCharMap<KeyString>();
 
         private static int NextID = 1;
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSString GetOrCreate(string key)
+        public static KeyString GetOrCreate(string key)
         {
             lock(map) return map.GetOrCreate(key, () =>
             {
                 var i = (uint)Interlocked.Increment(ref NextID);
-                return new JSString(key, i);
+                return new KeyString(key, i);
             });
         }
 

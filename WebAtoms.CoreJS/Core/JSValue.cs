@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
@@ -32,12 +33,13 @@ namespace WebAtoms.CoreJS.Core {
 
         internal JSValue prototypeChain;
 
-        internal JSProperty GetInternalProperty(JSString key, bool inherited = true)
+        protected JSValue(JSValue prototype)
         {
-            if (key.Key == 0)
-            {
-                key = KeyStrings.GetOrCreate(key.ToString());
-            }
+            this.prototypeChain = prototype;
+        }
+
+        internal JSProperty GetInternalProperty(KeyString key, bool inherited = true)
+        {
             if(ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
             {
                 return r;
@@ -67,6 +69,37 @@ namespace WebAtoms.CoreJS.Core {
                         yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), g);
                         continue;
                     }
+                }
+            }
+        }
+
+        public JSValue this[JSName name]
+        {
+            get
+            {
+                var p = GetInternalProperty(name.Key);
+                if (p.IsEmpty) return JSUndefined.Value;
+                return p.value ?? p.get.InvokeFunction(this, JSArguments.Empty);
+            }
+            set
+            {
+                var p = GetInternalProperty(name.Key);
+                if (p.IsEmpty)
+                {
+                    p = new JSProperty {
+                        key = name,
+                        value = value
+                    };
+                    ownProperties[name.Key.Key] = p;
+                    return;
+                }
+                if (p.set != null)
+                {
+                    p.set.InvokeFunction(this, JSArguments.From(value));
+                }else
+                {
+                    p.value = value;
+                    ownProperties[name.Key.Key] = p;
                 }
             }
         }
@@ -105,7 +138,14 @@ namespace WebAtoms.CoreJS.Core {
                     };
                     return;
                 }
-                p.set.InvokeFunction(this, JSArguments.From(value));
+                if (p.set != null)
+                {
+                    p.set.InvokeFunction(this, JSArguments.From(value));
+                }else
+                {
+                    p.value = value;
+                    ownProperties[p.key.Key.Key] = p;
+                }
             }
         }
 
@@ -132,9 +172,12 @@ namespace WebAtoms.CoreJS.Core {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(string name, JSArray args)
+        public virtual JSValue InvokeMethod(JSName name, JSArray args)
         {
-            return InvokeMethod(KeyStrings.GetOrCreate(name), args);
+            var fx = this[name];
+            if (fx.IsUndefined)
+                throw new MethodAccessException();
+            return fx.InvokeFunction(this, args);
         }
         public virtual JSValue InvokeMethod(JSString name, JSArray args)
         {

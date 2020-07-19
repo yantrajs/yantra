@@ -10,14 +10,20 @@ namespace WebAtoms.CoreJS.Core
     {
         private string value;
 
-        private JSString(string value)
+        public JSString(string value): this(value, 0)
         {
-            this.value = value;
+            prototypeChain = JSContext.Current.StringPrototype;
         }
-        internal JSString(string value, uint key = 0)
+        internal JSString(string value, uint key = 0): base(JSContext.Current.StringPrototype)
         {
             this.value = value;
             this.Key = key;
+
+        }
+
+        public static implicit operator KeyString(JSString value)
+        {
+            return value.ToString();
         }
 
         public uint Key { get; private set; }

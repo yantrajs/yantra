@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
         internal JSFunction(
             JSFunctionDelegate f,
             string name = null,
-            string source = null)
+            string source = null): base(JSContext.Current?.FunctionPrototype)
         {
             this.f = f;
             this.source = source 
@@ -28,8 +28,8 @@ namespace WebAtoms.CoreJS.Core
             this[KeyStrings.prototype] = prototype;
 
             this[KeyStrings.name] = name != null
-                ? KeyStrings.GetOrCreate(name)
-                : KeyStrings.native;
+                ? new JSString(name)
+                : new JSString("native");
 
         }
 
@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS.Core
             return fx;
         }
 
-        public static JSFunction Create()
+        public new static JSFunction Create()
         {
             var fx = new JSFunction(JSFunction.empty, "Function");
             var p = fx.prototype;

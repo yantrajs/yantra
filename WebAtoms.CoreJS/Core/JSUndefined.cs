@@ -5,7 +5,7 @@ namespace WebAtoms.CoreJS.Core
 {
     public sealed class JSUndefined : JSValue
     {
-        private JSUndefined()
+        private JSUndefined():base(null)
         {
 
         }

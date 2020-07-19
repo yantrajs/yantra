@@ -8,7 +8,7 @@ namespace WebAtoms.CoreJS.Core
     public struct JSProperty
     {
 
-        public JSValue key;
+        public JSName key;
         public JSValue get;
         public JSValue set;
 

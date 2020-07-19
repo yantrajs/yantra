@@ -7,7 +7,12 @@ namespace WebAtoms.CoreJS.Core
     public class JSObject : JSValue
     {
 
-        public JSObject()
+        public JSObject(): base(JSContext.Current?.ObjectPrototype)
+        {
+            ownProperties = new BinaryUInt32Map<JSProperty>();
+        }
+
+        protected JSObject(JSValue prototype): base(prototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
         }
@@ -20,9 +25,9 @@ namespace WebAtoms.CoreJS.Core
             })
         };
 
-        public JSValue DefineProperty(JSString name, JSProperty p)
+        public JSValue DefineProperty(KeyString name, JSProperty p)
         {
-            var key = name.Key == 0 ? KeyStrings.GetOrCreate(name.ToString()).Key : name.Key;
+            var key = name.Key;
             var old = this.ownProperties[key];
             if (!old.IsEmpty)
             {
@@ -36,6 +41,14 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
+        public static JSValue Create(JSValue t, JSArray a)
+        {
+            var p = a[0];
+            if (p.IsUndefined)
+                p = JSContext.Current.ObjectPrototype;
+            return new JSObject(p);
+        }
+
 
         public static JSValue ToString(JSValue t, JSArray a) => new JSString(t.ToString());
 
@@ -43,7 +56,9 @@ namespace WebAtoms.CoreJS.Core
         {
             var r = new JSFunction(JSFunction.empty, "Object");
             var p = r.prototype;
-            r.prototype.DefineProperty(KeyStrings.toString, JSProperty.Function(ToString));
+            p.DefineProperty(KeyStrings.toString, JSProperty.Function(ToString));
+
+            r.DefineProperty("create", JSProperty.Function(Create));
             return r;
         }
 

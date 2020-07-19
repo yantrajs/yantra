@@ -5,7 +5,7 @@ namespace WebAtoms.CoreJS.Core
 {
     public sealed class JSNull : JSValue
     {
-        private JSNull()
+        private JSNull(): base(null)
         {
 
         }

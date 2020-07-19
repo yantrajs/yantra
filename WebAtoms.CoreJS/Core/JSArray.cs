@@ -12,6 +12,11 @@ namespace WebAtoms.CoreJS.Core
 
         internal uint _length;
 
+        public JSArray(): base(JSContext.Current.ArrayPrototype)
+        {
+            
+        }
+
         public IEnumerable<JSValue> All
         {
             get
@@ -51,7 +56,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal static JSValue Push (JSValue t, JSArray a){
+        public static JSValue Push (JSValue t, JSArray a){
             var ta = (JSArray)t;
             foreach(var item in a.All)
             {
@@ -61,7 +66,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSNumber(ta._length);
         }
 
-        internal static JSValue Pop(JSValue t, JSArray a)
+        public static JSValue Pop(JSValue t, JSArray a)
         {
             var ta = (JSArray)t;
             if (ta._length == 0)
@@ -70,15 +75,6 @@ namespace WebAtoms.CoreJS.Core
             ta.elements.TryRemove(ta._length - 1, out r);
             ta._length--;
             return r ?? JSUndefined.Value;
-        }
-
-
-        public static JSValue pop(JSValue t, JSArray a){
-            var ta = (JSArray)t;
-            var n = ta._length - 1;
-            var r = ta.elements[n];
-            ta._length = n;
-            return r;
         }
 
         public static JSArray Slice(JSValue t, JSArray a){
@@ -105,6 +101,11 @@ namespace WebAtoms.CoreJS.Core
             return a;
         }
 
+        public static JSArray From(JSValue t, JSArray a)
+        {
+            return a;
+        }
+
         internal new static JSFunction Create()
         {
             var r = new JSFunction(JSFunction.empty, "Array");
@@ -115,9 +116,11 @@ namespace WebAtoms.CoreJS.Core
                 set: (t, a) => new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue)
             ));
 
-            p.DefineProperty(KeyStrings.GetOrCreate("slice"), JSProperty.Function(Slice));
-            p.DefineProperty(KeyStrings.GetOrCreate("push"), JSProperty.Function(Push));
-            p.DefineProperty(KeyStrings.GetOrCreate("pop"), JSProperty.Function(Pop));
+            p.DefineProperty("slice", JSProperty.Function(Slice));
+            p.DefineProperty("push", JSProperty.Function(Push));
+            p.DefineProperty("pop", JSProperty.Function(Pop));
+
+            r.DefineProperty("from", JSProperty.Function(From));
 
 
             return r;
