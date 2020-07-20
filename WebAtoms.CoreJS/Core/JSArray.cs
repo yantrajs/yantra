@@ -125,5 +125,16 @@ namespace WebAtoms.CoreJS.Core
 
             return r;
         }
+
+        internal static JSArray NewInstance(params JSValue[] list)
+        {
+            var a = new JSArray();
+            uint i = 0;
+            foreach(var item in list)
+            {
+                a[i++] = item;
+            }
+            return a;
+        }
     }
 }
