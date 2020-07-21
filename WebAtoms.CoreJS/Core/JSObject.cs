@@ -17,21 +17,13 @@ namespace WebAtoms.CoreJS.Core
             ownProperties = new BinaryUInt32Map<JSProperty>();
         }
 
-        internal static JSProperty hasOwnProperty = new JSProperty
-        {
-            value = new JSFunction((t, a) =>
-            {
-                return JSUndefined.Value;
-            })
-        };
-
         public JSValue DefineProperty(KeyString name, JSProperty p)
         {
             var key = name.Key;
             var old = this.ownProperties[key];
             if (!old.IsEmpty)
             {
-                if (!old.configurable)
+                if (!old.IsConfigurable)
                 {
                     throw new UnauthorizedAccessException();
                 }
@@ -59,7 +51,8 @@ namespace WebAtoms.CoreJS.Core
             p.DefineProperty(KeyStrings.toString, JSProperty.Function(ToString));
             p.DefineProperty(KeyStrings.__proto__, JSProperty.Property(
                 get: (t,a) => t.prototypeChain,
-                set: (t,a) => t.prototypeChain = a[0]
+                set: (t,a) => t.prototypeChain = a[0],
+                JSPropertyAttributes.Property
             ));
 
             r.DefineProperty("create", JSProperty.Function(Create));

@@ -57,7 +57,9 @@ namespace WebAtoms.CoreJS.Core {
                     yield break;
                 foreach(var p in this.ownProperties.AllValues())
                 {
-                    if (p.Value.value != null)
+                    if (!p.Value.IsEnumerable)
+                        continue;
+                    if (p.Value.IsValue)
                     {
                         yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), p.Value.value);
                         continue;
@@ -79,21 +81,19 @@ namespace WebAtoms.CoreJS.Core {
             {
                 var p = GetInternalProperty(name.Key);
                 if (p.IsEmpty) return JSUndefined.Value;
-                return p.value ?? p.get.InvokeFunction(this, JSArguments.Empty);
+                return p.IsValue ? p.value : p.get.InvokeFunction(this, JSArguments.Empty);
             }
             set
             {
                 var p = GetInternalProperty(name.Key);
                 if (p.IsEmpty)
                 {
-                    p = new JSProperty {
-                        key = name,
-                        value = value
-                    };
+                    p = JSProperty.Property(value, JSPropertyAttributes.Property | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
+                    p.key = name;
                     ownProperties[name.Key.Key] = p;
                     return;
                 }
-                if (p.set != null)
+                if (!p.IsValue && p.set != null)
                 {
                     p.set.InvokeFunction(this, JSArguments.From(value));
                 }else
@@ -115,7 +115,7 @@ namespace WebAtoms.CoreJS.Core {
                     return this[(uint)key.IntValue];
                 if (p.IsEmpty)
                     return JSUndefined.Value;
-                if (p.value != null)
+                if (p.IsValue)
                     return p.value;
                 return p.get.InvokeFunction(this, JSArguments.Empty);
             }
@@ -132,13 +132,14 @@ namespace WebAtoms.CoreJS.Core {
                 if (p.IsEmpty) {
                     // create one..
                     var kjs = KeyStrings.GetOrCreate(key.ToString());
-                    ownProperties[kjs.Key] = new JSProperty {
-                        key = kjs,
-                        value = value
-                    };
+                    var px = JSProperty.Property(
+                        value,
+                        JSPropertyAttributes.Value | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
+                    px.key = kjs;
+                    ownProperties[kjs.Key] = px;
                     return;
                 }
-                if (p.set != null)
+                if (!p.IsValue && p.set != null)
                 {
                     p.set.InvokeFunction(this, JSArguments.From(value));
                 }else

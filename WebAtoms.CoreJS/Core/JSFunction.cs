@@ -73,17 +73,9 @@ namespace WebAtoms.CoreJS.Core
         {
             var fx = new JSFunction(JSFunction.empty, "Function");
             var p = fx.prototype;
-            p.DefineProperty(KeyStrings.call, new JSProperty {
-                value = new JSFunction(Call)
-            });
-            p.DefineProperty(KeyStrings.apply, new JSProperty
-            {
-                value = new JSFunction(Apply)
-            });
-            p.DefineProperty(KeyStrings.bind, new JSProperty
-            {
-                value = new JSFunction(Bind)
-            });
+            p.DefineProperty(KeyStrings.call, JSProperty.Function(Call));
+            p.DefineProperty(KeyStrings.apply, JSProperty.Function(Apply));
+            p.DefineProperty(KeyStrings.bind, JSProperty.Function(Bind));
             return fx;
         }
     }
