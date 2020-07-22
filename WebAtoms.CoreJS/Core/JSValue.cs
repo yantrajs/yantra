@@ -20,6 +20,8 @@ namespace WebAtoms.CoreJS.Core {
 
         public bool IsString => this is JSString;
 
+        public bool IsBoolean => this is JSBoolean;
+
         public virtual int Length {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();

@@ -30,6 +30,14 @@ namespace WebAtoms.CoreJS.Core
         
         public JSValue ArrayPrototype { get; }
 
+        public JSValue BooleanPrototype { get; }
+
+        public JSBoolean True { get; }
+
+        public JSBoolean False { get; }
+
+        public JSNumber NaN { get; }
+
         public static JSContext Current
         {
             get
@@ -68,6 +76,11 @@ namespace WebAtoms.CoreJS.Core
             NumberPrototype = CreatePrototype(KeyStrings.Number, JSNumber.Create);
             ArrayPrototype = CreatePrototype(KeyStrings.Array, JSArray.Create);
             FunctionPrototype = CreatePrototype(KeyStrings.Function, JSFunction.Create);
+            BooleanPrototype = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
+
+            True = new JSBoolean(true, BooleanPrototype);
+            False = new JSBoolean(false, BooleanPrototype);
+            NaN = new JSNumber(double.NaN, NumberPrototype);
 
         }
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
