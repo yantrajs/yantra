@@ -15,23 +15,25 @@ namespace WebAtoms.CoreJS.Tests.Core
         [TestMethod]
         public void PushPop()
         {
-            var a = context.CreateArray();
-            var n = a.InvokeMethod("push", JSArguments.From(11, 22 ,44));
+            dynamic a = context.CreateArray();
+            JSValue n = a.push(11, 22 ,44);
 
             Assert.AreEqual(3, n.IntValue);
-            Assert.AreEqual(3, a.Length);
+            Assert.AreEqual(3, (a as JSValue).Length);
 
-            n = a.InvokeMethod("push", JSArguments.From(55));
+            n = a.push(55);
 
             Assert.AreEqual(4, n.IntValue);
-            Assert.AreEqual(4, a.Length);
+            Assert.AreEqual(4, (a as JSValue).Length);
 
-            n = a.InvokeMethod("pop", JSArguments.Empty);
+            n = a.pop();
 
             Assert.AreEqual(55, n.IntValue);
-            Assert.AreEqual(3, a.Length);
+            Assert.AreEqual(3, (a as JSValue).Length);
 
-            Assert.AreEqual(3, a[KeyStrings.length].IntValue);
+            n = a.length;
+
+            Assert.AreEqual(3, n.IntValue);
 
         }
 

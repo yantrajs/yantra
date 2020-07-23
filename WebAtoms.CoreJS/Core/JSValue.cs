@@ -226,12 +226,35 @@ namespace WebAtoms.CoreJS.Core {
             return target.InvokeMethod(name, a);
         }
 
-        public static JSArguments __CreateArguments(JSValue[] args)
+        public static JSArguments __CreateArguments(object[] args)
         {
-            return new JSArguments(args);
+            var alist = args.Select((p) => {
+                if (p == null)
+                    return JSNull.Value;
+                switch(p)
+                {
+                    case double d:
+                        return new JSNumber(d);
+                    case int i:
+                        return new JSNumber(i);
+                    case float f:
+                        return new JSNumber(f);
+                    case decimal ds:
+                        return new JSNumber((double)ds);
+                    case bool b:
+                        return b ? JSContext.Current.True : JSContext.Current.False;
+                    case string s:
+                        return new JSString(s);
+                    case JSValue v:
+                        return v;
+                    default:
+                        throw new NotSupportedException($"Cannot convert type {p.GetType()} to JSValue");
+                }
+            }).ToList();
+            return new JSArguments(alist.ToArray());
         }
 
-        public static JSValue __GetMethod(JSValue value, object name)
+        public static object __GetMethod(JSValue value, object name)
         {
             if (name == null)
                 throw new ArgumentNullException();
@@ -337,7 +360,8 @@ namespace WebAtoms.CoreJS.Core {
             BindingRestrictions restrictions =
                 BindingRestrictions.GetTypeRestriction(Expression, LimitType);
 
-            var argList = Expression.NewArrayInit(typeof(JSValue), args.Select(x => x.Expression).ToArray());
+            var argList = Expression.NewArrayInit(typeof(object),
+                args.Select(x => Expression.Convert(x.Expression, typeof(object))).ToArray());
 
             var ce = Expression.Call(_createArguments, argList);
 
