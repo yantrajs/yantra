@@ -27,6 +27,11 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        public override string ToString()
+        {
+            return _value ? "true" : "false";
+        }
+
         internal static JSFunction Create()
         {
             var r = new JSFunction((t, a) => IsTrue(a[0]) ? JSContext.Current.True : JSContext.Current.False);

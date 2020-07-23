@@ -32,6 +32,8 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual double DoubleValue { get => throw new NotImplementedException(); }
 
+        public bool BooleanValue => JSBoolean.IsTrue(this);
+
         public virtual int IntValue { get => throw new NotImplementedException(); }
 
         internal BinaryUInt32Map<JSProperty> ownProperties;

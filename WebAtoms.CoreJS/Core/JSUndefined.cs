@@ -18,5 +18,10 @@ namespace WebAtoms.CoreJS.Core
             set => throw new InvalidOperationException($"Cannot set {key} of undefined");
         }
 
+        public override string ToString()
+        {
+            return "undefined";
+        }
+
     }
 }

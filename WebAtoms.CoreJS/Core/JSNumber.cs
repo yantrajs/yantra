@@ -58,7 +58,7 @@ namespace WebAtoms.CoreJS.Core
         {
             if (a._length > 0 && a[0] is JSNumber n)
             {
-                if (n.value == double.NaN)
+                if (double.IsNaN(n.value))
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS.Core
             if (a._length > 0 && a[0] is JSNumber n)
             {
                 var v = n.value;
-                if (v > MinSafeInteger && v < MaxSafeInteger)
+                if (v >= MinSafeInteger && v <= MaxSafeInteger)
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
@@ -92,8 +92,59 @@ namespace WebAtoms.CoreJS.Core
                 var text = p.JSTrim();
                 if (text.Length > 0)
                 {
+                    int start = 0;
+                    char ch;
+                    bool hasDot = false;
+                    bool hasE = false;
+                    do {
+                        ch = text[start];
+                        if (char.IsDigit(ch))
+                        {
+                            start ++;
+                            continue;
+                        }
+                        if (ch == '.')
+                        {
+                            if (!hasDot)
+                            {
+                                hasDot = true;
+                                start++;
+                                continue;
+                            }
+                            break;
+                        }
+                        if (ch == 'E' || ch == 'e')
+                        {
+                            if (!hasE)
+                            {
+                                hasE = true;
+                                start++;
+                                if (start < text.Length)
+                                {
+                                    var next = text[start];
+                                    if (next == '+' || next == '-')
+                                    {
+                                        start++;
+                                        continue;
+                                    }
+                                }
+                                continue;
+                            }
+                            break;
+                        }
+                        break;
+                    } while (start < text.Length);
+                    if (text.Length > start)
+                        text = text.Substring(0, start);
+                    if (text.EndsWith("e+"))
+                        text += "0";
+                    if (text.EndsWith("e"))
+                        text += "+0";
                     if (double.TryParse(text, out var d))
+                    {
                         return new JSNumber(d);
+                    }
+                    return nan;
                 }
             }
             return nan;
@@ -117,6 +168,21 @@ namespace WebAtoms.CoreJS.Core
                 var text = p.JSTrim();
                 if (text.Length > 0)
                 {
+
+                    var start = 0;
+                    do {
+                        var ch = text[start];
+                        if (char.IsDigit(ch))
+                        {
+                            start++;
+                            continue;
+                        }
+                        break;
+                    } while (start < text.Length);
+                    if (text.Length > start)
+                    {
+                        text = text.Substring(0, start);
+                    }
                     if (a._length > 1)
                     {
                         var b = ParseInt(t, JSArguments.From(a[1]));

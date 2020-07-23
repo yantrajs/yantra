@@ -13,10 +13,13 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
         [TestMethod]
         public void ExponentialTest()
         {
+            var Number = DynamicContext.Number;
             string Expo(JSValue x, JSValue f = null) {
                 f = f ?? JSUndefined.Value;
-                dynamic c = context;
-                return c.Number.parseFloat(x).toExponential(f).ToString();
+                return Number
+                    .parseFloat(x)
+                    .toExponential(f)
+                    .ToString();
             }
 
             dynamic n = new JSNumber(123456);
@@ -26,5 +29,99 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
 
         }
 
+        [TestMethod]
+        public void FiniteTest()
+        {
+            var Number = DynamicContext.Number;
+            var i = double.PositiveInfinity;
+            JSBoolean b = Number.isFinite(i);
+
+
+            Assert.IsFalse(b.BooleanValue);
+            b = Number.isFinite(4);
+            Assert.IsTrue(b.BooleanValue);
+        }
+
+        [TestMethod]
+        public void IsIntegerTest()
+        {
+            var Number = DynamicContext.Number;
+            bool Fits(double x, double y)
+            {
+                var b = Number.isInteger(y / x);
+                return JSBoolean.IsTrue(b);
+            }
+
+            Assert.IsTrue(Fits(5, 10));
+            Assert.IsFalse(Fits(7, 10));
+        }
+
+        [TestMethod]
+        public void NaNTest()
+        {
+            var Number = DynamicContext.Number;
+            bool IsNaN(object x)
+            {
+                JSBoolean b = Number.isNaN(x);
+                return JSBoolean.IsTrue(b);
+            }
+
+            Assert.IsTrue(IsNaN(double.NaN));
+            Assert.IsFalse(IsNaN(4));
+
+            Assert.IsTrue(IsNaN(Number.parseFloat("ab")));
+
+        }
+
+        [TestMethod]
+        public void IsSafeInteger()
+        {
+            var Number = DynamicContext.Number;
+            bool IsSafeInteger(object x)
+            {
+                JSBoolean b = Number.isSafeInteger(x);
+                return JSBoolean.IsTrue(b);
+            }
+
+            var lossy = (double)Math.Pow((double)2, (double)53);
+            Assert.IsFalse(IsSafeInteger(lossy));
+            Assert.IsTrue(IsSafeInteger(lossy - (double)1));
+
+        }
+
+        [TestMethod]
+        public void ParseFloat()
+        {
+            var Number = DynamicContext.Number;
+            bool IsNumber(object x)
+            {
+                JSNumber n = Number.parseFloat(x);
+                return !double.IsNaN(n.value);
+            }
+
+            Assert.IsFalse(IsNumber("a"));
+            Assert.IsTrue(IsNumber("1.34343abcd"));
+            Assert.IsTrue(IsNumber("1.34343eabcd"));
+            Assert.IsTrue(IsNumber("1.34343e+abcd"));
+            Assert.IsTrue(IsNumber("1.34343e+1abcd"));
+        }
+
+
+        //[TestMethod]
+        //public void ParseInteger()
+        //{
+        //    var Number = DynamicContext.Number;
+        //    bool IsNumber(object x)
+        //    {
+        //        JSNumber n = Number.parseInt(x);
+        //        return !double.IsNaN(n.value);
+        //    }
+
+        //    Assert.IsFalse(IsNumber("a"));
+        //    Assert.IsTrue(IsNumber("1.34343abcd"));
+        //    Assert.IsTrue(IsNumber("1.34343eabcd"));
+        //    Assert.IsTrue(IsNumber("1.34343e+abcd"));
+        //    Assert.IsTrue(IsNumber("1.34343e+1abcd"));
+        //}
     }
 }

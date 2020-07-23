@@ -41,6 +41,10 @@ namespace WebAtoms.CoreJS.Core
             return new JSObject(p);
         }
 
+        public override string ToString()
+        {
+            return "[object object]";
+        }
 
         public static JSValue ToString(JSValue t, JSArray a) => new JSString(t.ToString());
 

@@ -14,6 +14,8 @@ namespace WebAtoms.CoreJS.Core
 
         private string source;
 
+        private string name;
+
         internal JSFunctionDelegate f;
         internal JSFunction(
             JSFunctionDelegate f,
@@ -21,6 +23,7 @@ namespace WebAtoms.CoreJS.Core
             string source = null): base(JSContext.Current?.FunctionPrototype)
         {
             this.f = f;
+            this.name = name ?? "native";
             this.source = source 
                 ?? $"function {name ?? "native"}() {{ [native] }}";
             prototype = new JSObject();
@@ -35,7 +38,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override string ToString()
         {
-            return source;
+            return name;
         }
 
         public override JSValue CreateInstance(JSArray args)

@@ -16,5 +16,10 @@ namespace WebAtoms.CoreJS.Core
             get => throw new InvalidOperationException($"Cannot get {key} of null");
             set => throw new InvalidOperationException($"Cannot set {key} of null");
         }
+
+        public override string ToString()
+        {
+            return "null";
+        }
     }
 }

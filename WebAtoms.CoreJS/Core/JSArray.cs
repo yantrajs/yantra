@@ -17,6 +17,11 @@ namespace WebAtoms.CoreJS.Core
             
         }
 
+        public override string ToString()
+        {
+            return $"[{string.Join(",", All)}]";
+        }
+
         public IEnumerable<JSValue> All
         {
             get
