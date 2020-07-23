@@ -32,6 +32,10 @@ namespace WebAtoms.CoreJS.Core
 
         public JSValue BooleanPrototype { get; }
 
+        public JSValue TypeErrorPrototype { get; }
+
+        public JSValue ErrorPrototype { get; }
+
         public JSBoolean True { get; }
 
         public JSBoolean False { get; }
@@ -56,11 +60,11 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            JSValue CreatePrototype(KeyString name, Func<JSFunction> factory)
+            JSValue CreatePrototype(JSName name, Func<JSFunction> factory, JSValue prototypeChain = null)
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
                 this[name] = r;
-                r.prototypeChain = obj;
+                r.prototypeChain = prototypeChain ?? obj;
                 var cached = cache.GetOrCreate(name.Key, factory);
                 var target = r.prototype.ownProperties;
                 foreach(var p in cached.prototype.ownProperties.AllValues())
@@ -77,6 +81,8 @@ namespace WebAtoms.CoreJS.Core
             ArrayPrototype = CreatePrototype(KeyStrings.Array, JSArray.Create);
             FunctionPrototype = CreatePrototype(KeyStrings.Function, JSFunction.Create);
             BooleanPrototype = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
+            ErrorPrototype = CreatePrototype(JSError.KeyError, JSError.Create);
+            TypeErrorPrototype = CreatePrototype(JSTypeError.KeyTypeError, JSTypeError.Create, ErrorPrototype);
 
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
@@ -114,6 +120,16 @@ namespace WebAtoms.CoreJS.Core
         {
             var v = new JSArray();
             return v;
+        }
+
+        internal JSException TypeError(string message)
+        {
+            return Error(message, TypeErrorPrototype);
+        }
+
+        internal JSException Error(string message, JSValue prototype)
+        {
+            return new JSException(message, prototype);
         }
 
     }

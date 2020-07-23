@@ -14,14 +14,22 @@ namespace WebAtoms.CoreJS.Core
     }
     public struct KeyString
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator KeyString(string value)
         {
             return KeyStrings.GetOrCreate(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator String(KeyString value)
         {
             return value.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator uint(KeyString value)
+        {
+            return value.Key;
         }
 
         //public static bool operator == (KeyString a, KeyString b) {

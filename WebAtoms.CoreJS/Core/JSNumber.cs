@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -87,7 +88,7 @@ namespace WebAtoms.CoreJS.Core
                     case JSUndefined _:
                         return nan;
                 }
-                var text = p.InvokeMethod("toString", JSArguments.Empty).ToString().Trim();
+                var text = p.JSTrim();
                 if (text.Length > 0)
                 {
                     if (double.TryParse(text, out var d))
@@ -112,7 +113,7 @@ namespace WebAtoms.CoreJS.Core
                     case JSUndefined _:
                         return nan;
                 }
-                var text = p.InvokeMethod("toString", JSArguments.Empty).ToString().Trim();
+                var text = p.JSTrim();
                 if (text.Length > 0)
                 {
                     if (a._length > 1)
@@ -131,6 +132,14 @@ namespace WebAtoms.CoreJS.Core
                 }
             }
             return nan;
+        }
+
+        public static JSString ToExponential(JSValue t, JSArray a)
+        {
+            var p = t;
+            if (!(p is JSNumber n))
+                throw JSContext.Current.TypeError($"Number.prototype.toExponential requires that 'this' be a Number");
+            return new JSString(n.value.ToString("E"));
         }
 
 
@@ -174,6 +183,8 @@ namespace WebAtoms.CoreJS.Core
             r.DefineProperty("parseFloat", JSProperty.Function(ParseFloat));
 
             r.DefineProperty("parseInt", JSProperty.Function(ParseInt));
+
+            prototype.DefineProperty("toExponential", JSProperty.Function(ToExponential));
 
             return r;
         }

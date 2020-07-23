@@ -8,7 +8,7 @@ namespace WebAtoms.CoreJS.Core
 {
     public class JSString : JSValue
     {
-        private string value;
+        internal readonly string value;
 
         public JSString(string value): this(value, 0)
         {
