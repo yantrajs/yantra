@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
@@ -134,6 +135,14 @@ namespace WebAtoms.CoreJS.Core
             return nan;
         }
 
+        public static JSString ToString(JSValue t, JSArray a)
+        {
+            var p = t;
+            if (!(p is JSNumber n))
+                throw JSContext.Current.TypeError($"Number.prototype.toExponential requires that 'this' be a Number");
+            return new JSString(n.value.ToString());
+        }
+
         public static JSString ToExponential(JSValue t, JSArray a)
         {
             var p = t;
@@ -142,6 +151,65 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("E"));
         }
 
+        public static JSString ToFixed(JSValue t, JSArray a)
+        {
+            var p = t;
+            if (!(p is JSNumber n))
+                throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
+            if (a._length > 0 && a[0] is JSNumber n1)
+            {
+                if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
+                    throw JSContext.Current.RangeError("toFixed() digitis argument must be between 0 and 100");
+                var i = (int)n1.value;
+                return new JSString(n.value.ToString($"N{i}"));
+            }
+            return new JSString(n.value.ToString("N0"));
+        }
+
+        public static JSString ToPrecision(JSValue t, JSArray a)
+        {
+            var p = t;
+            if (!(p is JSNumber n))
+                throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
+            if (a._length > 0 && a[0] is JSNumber n1)
+            {
+                if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
+                    throw JSContext.Current.RangeError("toPrecision() digitis argument must be between 0 and 100");
+                var i = (int)n1.value;
+                var d = n1.value;
+                // increase i for below 1
+                while (d < 1)
+                {
+                    d = d * 10;
+                    i++;
+                }
+                return new JSString(n.value.ToString($"N{i}"));
+            }
+            return new JSString(n.value.ToString("N2"));
+        }
+
+        public static JSString ToLocaleString(JSValue t, JSArray a)
+        {
+            var p = t;
+            if (!(p is JSNumber n))
+                throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
+            if(a._length > 0)
+            {
+                var p1 = a[0];
+                switch (p1)
+                {
+                    case JSNull _:
+                    case JSUndefined _:
+                        throw JSContext.Current.TypeError($"Cannot convert undefined or null to object");
+                }
+                var text = p1.ToString();
+                var ci = CultureInfo.GetCultureInfo(text);
+                if (ci == null)
+                    throw JSContext.Current.RangeError("Incorrect locale information provided");
+                return new JSString( n.value.ToString(ci.NumberFormat));
+            }
+            return new JSString(n.value.ToString("N2"));
+        }
 
         internal static JSFunction Create()
         {
@@ -185,6 +253,14 @@ namespace WebAtoms.CoreJS.Core
             r.DefineProperty("parseInt", JSProperty.Function(ParseInt));
 
             prototype.DefineProperty("toExponential", JSProperty.Function(ToExponential));
+
+            prototype.DefineProperty("toFixed", JSProperty.Function(ToFixed));
+
+            prototype.DefineProperty("toPrecision", JSProperty.Function(ToPrecision));
+
+            prototype.DefineProperty("toLocaleString", JSProperty.Function(ToLocaleString));
+
+            prototype.DefineProperty("toString", JSProperty.Function(ToString));
 
             return r;
         }

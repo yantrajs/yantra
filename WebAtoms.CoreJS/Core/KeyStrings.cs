@@ -26,12 +26,6 @@ namespace WebAtoms.CoreJS.Core
             return value.Value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator uint(KeyString value)
-        {
-            return value.Key;
-        }
-
         //public static bool operator == (KeyString a, KeyString b) {
         //    return a.Key == b.Key;
         //}

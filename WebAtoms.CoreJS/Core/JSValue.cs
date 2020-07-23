@@ -90,7 +90,7 @@ namespace WebAtoms.CoreJS.Core {
                 var p = GetInternalProperty(name.Key);
                 if (p.IsEmpty)
                 {
-                    p = JSProperty.Property(value, JSPropertyAttributes.Property | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
+                    p = JSProperty.Property(value, JSPropertyAttributes.Value | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
                     p.key = name;
                     ownProperties[name.Key.Key] = p;
                     return;
@@ -172,6 +172,11 @@ namespace WebAtoms.CoreJS.Core {
         public virtual JSValue InvokeFunction(JSValue thisValue, JSArray args)
         {
             throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return (InvokeMethod(KeyStrings.toString, JSArguments.Empty) as JSString)?.value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

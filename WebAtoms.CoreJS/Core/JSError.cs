@@ -13,11 +13,13 @@ namespace WebAtoms.CoreJS.Core
 
         public static readonly KeyString KeyError = "Error";
 
+        public static readonly KeyString KeyRangeError = "RangeError";
+
 
         protected JSError( JSValue message, JSValue stack,  JSValue prototype) : base(prototype)
         {
-            ownProperties[KeyMessage] = JSProperty.Property(message, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly);
-            ownProperties[KeyStack] = JSProperty.Property(stack, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly);
+            this.DefineProperty(KeyMessage, JSProperty.Property(message, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
+            this.DefineProperty(KeyStack, JSProperty.Property(stack, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
         }
 
         internal JSError(JSValue message, JSValue stack) : this(message, stack, JSContext.Current.ErrorPrototype)

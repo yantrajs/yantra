@@ -36,6 +36,8 @@ namespace WebAtoms.CoreJS.Core
 
         public JSValue ErrorPrototype { get; }
 
+        public JSValue RangeErrorPrototype { get; }
+
         public JSBoolean True { get; }
 
         public JSBoolean False { get; }
@@ -65,7 +67,7 @@ namespace WebAtoms.CoreJS.Core
                 var r = new JSFunction(JSFunction.empty, name.ToString());
                 this[name] = r;
                 r.prototypeChain = prototypeChain ?? obj;
-                var cached = cache.GetOrCreate(name.Key, factory);
+                var cached = cache.GetOrCreate(name.Key.Key, factory);
                 var target = r.prototype.ownProperties;
                 foreach(var p in cached.prototype.ownProperties.AllValues())
                 {
@@ -83,6 +85,7 @@ namespace WebAtoms.CoreJS.Core
             BooleanPrototype = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
             ErrorPrototype = CreatePrototype(JSError.KeyError, JSError.Create);
             TypeErrorPrototype = CreatePrototype(JSTypeError.KeyTypeError, JSTypeError.Create, ErrorPrototype);
+            RangeErrorPrototype = CreatePrototype(JSTypeError.KeyRangeError, JSTypeError.Create, ErrorPrototype);
 
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
@@ -125,6 +128,11 @@ namespace WebAtoms.CoreJS.Core
         internal JSException TypeError(string message)
         {
             return Error(message, TypeErrorPrototype);
+        }
+
+        internal JSException RangeError(string message)
+        {
+            return Error(message, RangeErrorPrototype);
         }
 
         internal JSException Error(string message, JSValue prototype)

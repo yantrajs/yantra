@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -7,11 +8,13 @@ namespace WebAtoms.CoreJS.Core
         public readonly KeyString Key;
         readonly string displayName;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator JSName(KeyString input)
         {
             return new JSName(input);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator JSName(string input)
         {
             return new JSName(input);
