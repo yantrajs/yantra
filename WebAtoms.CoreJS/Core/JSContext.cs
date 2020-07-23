@@ -73,6 +73,11 @@ namespace WebAtoms.CoreJS.Core
                 {
                     target[p.Key] = p.Value;
                 }
+                var ro = r.ownProperties;
+                foreach(var p in cached.ownProperties.AllValues())
+                {
+                    ro[p.Key] = p.Value;
+                }
                 return r.prototype;
             }
 
