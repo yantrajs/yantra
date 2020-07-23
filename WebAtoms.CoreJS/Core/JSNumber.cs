@@ -148,7 +148,15 @@ namespace WebAtoms.CoreJS.Core
             var p = t;
             if (!(p is JSNumber n))
                 throw JSContext.Current.TypeError($"Number.prototype.toExponential requires that 'this' be a Number");
-            return new JSString(n.value.ToString("E"));
+            if (a._length > 0 && a[0] is JSNumber n1)
+            {
+                var v = n1.value;
+                if (double.IsNaN(v) || v > 100 || v < 1)
+                    throw JSContext.Current.RangeError("toExponential() digitis argument must be between 0 and 100");
+                var fx = $"#.{new string('#',(int)v)}e+0";
+                return new JSString(n.value.ToString(fx));
+            }
+            return new JSString(n.value.ToString("#.#################e+0"));
         }
 
         public static JSString ToFixed(JSValue t, JSArray a)

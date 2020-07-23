@@ -13,14 +13,16 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
         [TestMethod]
         public void ExponentialTest()
         {
-            string Expo(double x, double f) {
-                return context["Number"]
-                    .InvokeMethod("parseFloat", JSArguments.From(x))
-                    .InvokeMethod("toExponential", JSArguments.From(f))
-                    .ToString();
+            string Expo(JSValue x, JSValue f = null) {
+                f = f ?? JSUndefined.Value;
+                dynamic c = context;
+                return c.Number.parseFloat(x).toExponential(f).ToString();
             }
 
-            // Assert.AreEqual("1.23e+5", Expo(123456, 2));
+            dynamic n = new JSNumber(123456);
+            Assert.AreEqual("1.23e+5", Expo(n, new JSNumber(2)));
+            Assert.AreEqual("1.23456e+5", Expo(n));
+            Assert.AreEqual("NaN", Expo(new JSString("oink")));
 
         }
 
