@@ -249,25 +249,25 @@ namespace WebAtoms.CoreJS.Core
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
                     throw JSContext.Current.RangeError("toPrecision() digitis argument must be between 0 and 100");
                 var i = (int)n1.value;
-                var d = n1.value;
+                var d = n.value;
+                var prefix = 'G';
                 if (d < 1)
                 {
+                    prefix = 'F';
                     // increase i for below 1
                     while (d < 1)
                     {
                         d = d * 10;
                         i++;
                     }
-                } else
-                {
-                    while (d > 10)
-                    {
-
-                    }
+                    i--;
                 }
-                return new JSString(n.value.ToString($"F{i}"));
+                var txt = n.value.ToString($"{prefix}{i}")
+                    .ToLower()
+                    .Replace("e+0","0e+");
+                return new JSString(txt);
             }
-            return new JSString(n.value.ToString("F2"));
+            return new JSString(n.value.ToString("G2"));
         }
 
         public static JSString ToLocaleString(JSValue t, JSArray a)

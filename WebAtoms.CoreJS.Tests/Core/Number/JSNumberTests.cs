@@ -47,16 +47,16 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
         [TestMethod]
         public void Precision()
         {
-            //var Number = DynamicContext.Number;
-            //string Precision(object x)
-            //{
-            //    JSString s = Number.parseFloat(x).toPrecision(4);
-            //    return s.value;
-            //}
+            var Number = DynamicContext.Number;
+            string Precision(object x)
+            {
+                JSString s = Number.parseFloat(x).toPrecision(4);
+                return s.value;
+            }
 
-            //Assert.AreEqual("123.5", Precision(123.456));
-            //Assert.AreEqual("0.004000", Precision(0.004));
-            //Assert.AreEqual("1.230e+5", Precision("1.23e+5"));
+            Assert.AreEqual("123.5", Precision(123.456));
+            Assert.AreEqual("0.004000", Precision(0.004));
+            Assert.AreEqual("1.230e+5", Precision("1.23e+5"));
         }
 
         [TestMethod]
