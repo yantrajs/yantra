@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
+using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -168,34 +169,32 @@ namespace WebAtoms.CoreJS.Core
                 var text = p.JSTrim();
                 if (text.Length > 0)
                 {
-
-                    var start = 0;
-                    do {
-                        var ch = text[start];
-                        if (char.IsDigit(ch))
-                        {
-                            start++;
-                            continue;
-                        }
-                        break;
-                    } while (start < text.Length);
-                    if (text.Length > start)
+                    var radix = 10;
+                    if (a._length > 2)
                     {
-                        text = text.Substring(0, start);
-                    }
-                    if (a._length > 1)
-                    {
-                        var b = ParseInt(t, JSArguments.From(a[1]));
-                        if (!double.IsNaN(b.value) && b.value > 0)
+                        var a1 = a[1];
+                        switch(a1)
                         {
-                            if (b.value != 10)
-                            {
-                                throw new NotSupportedException();
-                            }
+                            case JSUndefined _:
+                            case JSNull _:
+                                radix = 10;
+                                break;
+                            case JSNumber jn:
+                                radix = (int)jn.value;
+                                break;
+                            default:
+                                double ra1 = NumberParser.ParseInt(a1.ToString().Trim(), 10, false);
+                                if (!double.IsNaN(ra1))
+                                {
+                                    radix = (int)ra1;
+                                    if (radix < 0 || radix == 1 || radix > 36)
+                                        return nan;
+                                }
+                                break;
                         }
                     }
-                    if (int.TryParse(text, out var d))
-                        return new JSNumber(d);
+                    var d = NumberParser.ParseInt(text.Trim(), radix, false);
+                    return new JSNumber(d);
                 }
             }
             return nan;

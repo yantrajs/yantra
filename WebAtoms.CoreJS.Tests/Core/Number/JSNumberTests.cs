@@ -107,21 +107,23 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
         }
 
 
-        //[TestMethod]
-        //public void ParseInteger()
-        //{
-        //    var Number = DynamicContext.Number;
-        //    bool IsNumber(object x)
-        //    {
-        //        JSNumber n = Number.parseInt(x);
-        //        return !double.IsNaN(n.value);
-        //    }
+        [TestMethod]
+        public void ParseInteger()
+        {
+            var Number = DynamicContext.Number;
+            bool IsNumber(object x)
+            {
+                JSNumber n = Number.parseInt(x);
+                return !double.IsNaN(n.value);
+            }
 
-        //    Assert.IsFalse(IsNumber("a"));
-        //    Assert.IsTrue(IsNumber("1.34343abcd"));
-        //    Assert.IsTrue(IsNumber("1.34343eabcd"));
-        //    Assert.IsTrue(IsNumber("1.34343e+abcd"));
-        //    Assert.IsTrue(IsNumber("1.34343e+1abcd"));
-        //}
+            Assert.IsFalse(IsNumber("a"));
+            Assert.IsTrue(IsNumber("1g.34343abcd"));
+            Assert.IsTrue(IsNumber("1.34343eabcd"));
+            Assert.IsTrue(IsNumber("1.34343e+abcd"));
+            Assert.IsTrue(IsNumber("1.34343e+1abcd"));
+
+            
+        }
     }
 }
