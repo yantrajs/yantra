@@ -105,5 +105,51 @@ namespace WebAtoms.CoreJS.Core
                 Attributes = attributes
             };
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSProperty Function(
+            KeyString key,
+            JSFunctionDelegate d,
+            JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable)
+        {
+            return new JSProperty
+            {
+                key = key,
+                value = new JSFunction(d),
+                Attributes = attributes
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSProperty Property(
+            KeyString key,
+            JSValue d,
+            JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable | JSPropertyAttributes.Enumerable)
+        {
+            return new JSProperty
+            {
+                key = key,
+                value = d,
+                Attributes = attributes
+            };
+        }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSProperty Property(
+            KeyString key,
+            JSFunctionDelegate get,
+            JSFunctionDelegate set = null,
+            JSPropertyAttributes attributes = JSPropertyAttributes.Property | JSPropertyAttributes.Configurable | JSPropertyAttributes.Enumerable)
+        {
+            return new JSProperty
+            {
+                key = key,
+                get = new JSFunction(get),
+                set = set != null ? new JSFunction(set) : null,
+                Attributes = attributes
+            };
+        }
     }
 }

@@ -15,6 +15,8 @@ namespace WebAtoms.CoreJS.Core
 
         public static readonly KeyString KeyRangeError = "RangeError";
 
+        public const string Cannot_convert_undefined_or_null_to_object = "Cannot convert undefined or null to object";
+
 
         protected JSError( JSValue message, JSValue stack,  JSValue prototype) : base(prototype)
         {

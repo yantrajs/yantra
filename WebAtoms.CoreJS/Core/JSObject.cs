@@ -33,12 +33,37 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
-        public JSValue PropertyIsEnumerable(JSValue t, JSArray a)
+        public void DefineProperties(params JSProperty[] list)
         {
+            foreach (var p in list)
+            {
+                var key = p.key.Key.Key;
+                var old = this.ownProperties[key];
+                if (!old.IsEmpty)
+                {
+                    if (!old.IsConfigurable)
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+                }
+                this.ownProperties[key] = p;
+            }
+        }
+
+        public static JSValue PropertyIsEnumerable(JSValue t, JSArray a)
+        {
+            switch(t)
+            {
+                case JSUndefined _:
+                case JSNull _:
+                    throw JSContext.Current.Error("Cannot convert undefined or null to object");
+            }
             if (a._length > 0)
             {
                 var text = a[0].ToString();
                 var px = t.GetInternalProperty(text, false);
+                if (!px.IsEmpty && px.IsEnumerable)
+                    return JSContext.Current.True;
             }
             return JSContext.Current.False;
         }
@@ -58,23 +83,170 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue ToString(JSValue t, JSArray a) => new JSString(t.ToString());
 
+        internal static JSValue StaticCreate(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue Assign(JSValue t, JSArray a)
+        {
+            if (a._length == 0)
+                throw JSContext.Current.Error(JSError.Cannot_convert_undefined_or_null_to_object);
+            var first = a[0];
+            if (first is JSNull || first is JSUndefined)
+                throw JSContext.Current.Error(JSError.Cannot_convert_undefined_or_null_to_object);
+            if (a._length == 1 || !(first is JSObject))
+                return first;
+            var second = a[1];
+            if (!(second is JSObject))
+                return first;
+            foreach(var item in second.ownProperties.AllValues())
+            {
+                a.ownProperties[item.Key] = item.Value;
+            }
+            return t;
+        }
+
+        internal static JSValue _Entries(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue Freeze(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue HasOwnProperty(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue IsPrototypeOf(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue _DefineProperties(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue _DefineProperty(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
         internal static JSFunction Create()
         {
             var r = new JSFunction(JSFunction.empty, "Object");
             var p = r.prototype;
-            p.DefineProperty(KeyStrings.toString, JSProperty.Function(ToString));
-            p.DefineProperty(KeyStrings.__proto__, JSProperty.Property(
-                get: (t,a) => t.prototypeChain,
-                set: (t,a) => t.prototypeChain = a[0],
-                JSPropertyAttributes.Property
-            ));
+            
+            p.DefineProperties(
+               
+                JSProperty.Property(KeyStrings.__proto__,
+                    get: (t, a) => t.prototypeChain,
+                    set: (t, a) => t.prototypeChain = a[0], JSPropertyAttributes.Property
+                ),
 
-            p.DefineProperty("propertyIsEnumerable", JSProperty.Function(PropertyIsEnumerable));
 
-            r.DefineProperty("create", JSProperty.Function(Create));
+                JSProperty.Function("hasOwnProperty", HasOwnProperty),
+                JSProperty.Function("isPrototypeOf", IsPrototypeOf),
+                JSProperty.Function("propertyIsEnumerable", PropertyIsEnumerable),
+
+                JSProperty.Function(KeyStrings.toString, ToString)
+            );
+
+            r.DefineProperties(
+                JSProperty.Function("assign", Assign),
+                JSProperty.Function("create", StaticCreate),
+                JSProperty.Function("defineProperties", _DefineProperties),
+                JSProperty.Function("defineProperty", _DefineProperty),
+                JSProperty.Function("entries", _Entries),
+                JSProperty.Function("freeze", Freeze),
+                JSProperty.Function("fromEntries", _FromEntries),
+                JSProperty.Function("getOwnPropertyDescriptor", _GetOwnPropertyDescriptor),
+                JSProperty.Function("getOwnPropertyDescriptors", _GetOwnPropertyDescriptors),
+                JSProperty.Function("getOwnPropertyNames", _GetOwnPropertyNames),
+                JSProperty.Function("getOwnPropertySymbols", _GetOwnPropertySymbols),
+                JSProperty.Function("getPrototypeOf", _GetPrototypeOf),
+                JSProperty.Function("is", _Is),
+                JSProperty.Function("isExtensible", _IsExtensible),
+                JSProperty.Function("isFrozen", _IsFrozen),
+                JSProperty.Function("isSealed", _IsSealed),
+                JSProperty.Function("keys", _Keys),
+                JSProperty.Function("preventExtensions", _PreventExtensions),
+                JSProperty.Function("seal", _Seal),
+                JSProperty.Function("setPrototypeOf", _SetPrototypeOf),
+                JSProperty.Function("values", _Values)
+            );
 
 
             return r;
+        }
+        internal static JSValue _FromEntries(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue _Is(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _IsExtensible(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _IsFrozen(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _IsSealed(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _Keys(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _PreventExtensions(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+
+        internal static JSValue _Seal(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _SetPrototypeOf(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _Values(JSValue t, JSArray a)
+        {
+            return t;
+        }
+
+        internal static JSValue _GetOwnPropertyDescriptor(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _GetOwnPropertyDescriptors(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _GetOwnPropertyNames(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _GetOwnPropertySymbols(JSValue t, JSArray a)
+        {
+            return t;
+        }
+        internal static JSValue _GetPrototypeOf(JSValue t, JSArray a)
+        {
+            return t;
         }
 
     }
