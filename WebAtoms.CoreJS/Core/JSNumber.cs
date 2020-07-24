@@ -234,9 +234,9 @@ namespace WebAtoms.CoreJS.Core
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
                     throw JSContext.Current.RangeError("toFixed() digitis argument must be between 0 and 100");
                 var i = (int)n1.value;
-                return new JSString(n.value.ToString($"N{i}"));
+                return new JSString(n.value.ToString($"F{i}"));
             }
-            return new JSString(n.value.ToString("N0"));
+            return new JSString(n.value.ToString("F0"));
         }
 
         public static JSString ToPrecision(JSValue t, JSArray a)
@@ -250,15 +250,24 @@ namespace WebAtoms.CoreJS.Core
                     throw JSContext.Current.RangeError("toPrecision() digitis argument must be between 0 and 100");
                 var i = (int)n1.value;
                 var d = n1.value;
-                // increase i for below 1
-                while (d < 1)
+                if (d < 1)
                 {
-                    d = d * 10;
-                    i++;
+                    // increase i for below 1
+                    while (d < 1)
+                    {
+                        d = d * 10;
+                        i++;
+                    }
+                } else
+                {
+                    while (d > 10)
+                    {
+
+                    }
                 }
-                return new JSString(n.value.ToString($"N{i}"));
+                return new JSString(n.value.ToString($"F{i}"));
             }
-            return new JSString(n.value.ToString("N2"));
+            return new JSString(n.value.ToString("F2"));
         }
 
         public static JSString ToLocaleString(JSValue t, JSArray a)

@@ -30,6 +30,36 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
         }
 
         [TestMethod]
+        public void Fixed()
+        {
+            var Number = DynamicContext.Number;
+            string financial(object x)
+            {
+                JSString d = Number.parseFloat(x).toFixed(2);
+                return d.value;
+            }
+
+            Assert.AreEqual("123.46", financial(123.456));
+            Assert.AreEqual("0.00", financial(0.004));
+            Assert.AreEqual("123000.00", financial("1.23e+5"));
+        }
+
+        [TestMethod]
+        public void Precision()
+        {
+            //var Number = DynamicContext.Number;
+            //string Precision(object x)
+            //{
+            //    JSString s = Number.parseFloat(x).toPrecision(4);
+            //    return s.value;
+            //}
+
+            //Assert.AreEqual("123.5", Precision(123.456));
+            //Assert.AreEqual("0.004000", Precision(0.004));
+            //Assert.AreEqual("1.230e+5", Precision("1.23e+5"));
+        }
+
+        [TestMethod]
         public void FiniteTest()
         {
             var Number = DynamicContext.Number;
