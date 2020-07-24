@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -130,17 +131,26 @@ namespace WebAtoms.CoreJS.Core
             return v;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSException TypeError(string message)
         {
             return Error(message, TypeErrorPrototype);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSException RangeError(string message)
         {
             return Error(message, RangeErrorPrototype);
         }
 
-        internal JSException Error(string message, JSValue prototype)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSException Error(string message)
+        {
+            return Error(message, ErrorPrototype);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private JSException Error(string message, JSValue prototype)
         {
             return new JSException(message, prototype);
         }

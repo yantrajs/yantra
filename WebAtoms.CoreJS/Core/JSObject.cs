@@ -33,6 +33,16 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
+        public JSValue PropertyIsEnumerable(JSValue t, JSArray a)
+        {
+            if (a._length > 0)
+            {
+                var text = a[0].ToString();
+                var px = t.GetInternalProperty(text, false);
+            }
+            return JSContext.Current.False;
+        }
+
         public static JSValue Create(JSValue t, JSArray a)
         {
             var p = a[0];
@@ -58,6 +68,8 @@ namespace WebAtoms.CoreJS.Core
                 set: (t,a) => t.prototypeChain = a[0],
                 JSPropertyAttributes.Property
             ));
+
+            p.DefineProperty("propertyIsEnumerable", JSProperty.Function(PropertyIsEnumerable));
 
             r.DefineProperty("create", JSProperty.Function(Create));
 

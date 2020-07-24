@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core {
             this.prototypeChain = prototype;
         }
 
-        internal JSProperty GetInternalProperty(KeyString key, bool inherited = true)
+        internal virtual JSProperty GetInternalProperty(KeyString key, bool inherited = true)
         {
             if(ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
             {
