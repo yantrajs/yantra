@@ -13,7 +13,19 @@ namespace WebAtoms.CoreJS.Core
         Property = 2,
         Configurable = 8,
         Enumerable = 16,
-        Readonly = 32
+        Readonly = 32,
+
+        // shortcuts..
+        EnumerableConfigurableValue = Value | Enumerable | Configurable,
+        EnumerableConfigurableReadonlyValue = Value | Enumerable | Configurable | Readonly,
+        ConfigurableValue = Value | Configurable,
+        ConfigurableReadonlyValue = Value | Configurable | Readonly,
+
+        EnumerableConfigurableProperty = Property | Enumerable | Configurable,
+        EnumerableConfigurableReadonlyProperty = Property | Enumerable | Configurable | Readonly,
+        ConfigurableProperty = Property | Configurable,
+        ConfigurableReadonlyProperty = Property | Configurable | Readonly,
+
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -81,7 +93,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Property(
             JSValue d,
-            JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable | JSPropertyAttributes.Enumerable)
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
             return new JSProperty
             {
@@ -96,7 +108,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSProperty Property(
             JSFunctionDelegate get, 
             JSFunctionDelegate set = null, 
-            JSPropertyAttributes attributes = JSPropertyAttributes.Property | JSPropertyAttributes.Configurable | JSPropertyAttributes.Enumerable)
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
             return new JSProperty
             {
@@ -110,7 +122,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSProperty Function(
             KeyString key,
             JSFunctionDelegate d,
-            JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable)
+            JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableValue)
         {
             return new JSProperty
             {
@@ -124,7 +136,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSProperty Property(
             KeyString key,
             JSValue d,
-            JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable | JSPropertyAttributes.Enumerable)
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
             return new JSProperty
             {
@@ -141,7 +153,7 @@ namespace WebAtoms.CoreJS.Core
             KeyString key,
             JSFunctionDelegate get,
             JSFunctionDelegate set = null,
-            JSPropertyAttributes attributes = JSPropertyAttributes.Property | JSPropertyAttributes.Configurable | JSPropertyAttributes.Enumerable)
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
             return new JSProperty
             {

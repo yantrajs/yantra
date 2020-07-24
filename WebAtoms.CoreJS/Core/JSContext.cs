@@ -45,6 +45,8 @@ namespace WebAtoms.CoreJS.Core
 
         public JSNumber NaN { get; }
 
+        public JSObject JSON { get; }
+
         public static JSContext Current
         {
             get
@@ -96,7 +98,8 @@ namespace WebAtoms.CoreJS.Core
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
             NaN = new JSNumber(double.NaN, NumberPrototype);
-
+            CreatePrototype(JSJSON.JSON, JSJSON.Create);
+            JSON = this[JSJSON.JSON] as JSObject;
         }
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
 

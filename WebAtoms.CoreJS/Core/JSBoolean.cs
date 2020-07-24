@@ -6,7 +6,7 @@ namespace WebAtoms.CoreJS.Core
 {
     public class JSBoolean : JSValue
     {
-        private bool _value;
+        internal readonly bool _value;
 
         internal JSBoolean(bool _value, JSValue prototype) : base(prototype)
         {

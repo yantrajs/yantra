@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core {
     public abstract class JSValue: IDynamicMetaObjectProvider {
@@ -274,10 +275,11 @@ namespace WebAtoms.CoreJS.Core {
             return value[name.ToString()];
         }
 
-        public static JSValue __SetMethod(JSValue target, object name, JSValue value)
+        public static JSValue __SetMethod(JSValue target, object name, object _value)
         {
             if (name == null)
                 throw new ArgumentNullException();
+            JSValue value = TypeConverter.FromBasic(_value);
             switch (name)
             {
                 case string s: return target[s] = value;

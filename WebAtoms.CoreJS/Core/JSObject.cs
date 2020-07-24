@@ -88,7 +88,7 @@ namespace WebAtoms.CoreJS.Core
             return t;
         }
 
-        internal static JSValue Assign(JSValue t, JSArray a)
+        internal static JSValue _Assign(JSValue t, JSArray a)
         {
             if (a._length == 0)
                 throw JSContext.Current.Error(JSError.Cannot_convert_undefined_or_null_to_object);
@@ -158,7 +158,7 @@ namespace WebAtoms.CoreJS.Core
             );
 
             r.DefineProperties(
-                JSProperty.Function("assign", Assign),
+                JSProperty.Function("assign", _Assign),
                 JSProperty.Function("create", StaticCreate),
                 JSProperty.Function("defineProperties", _DefineProperties),
                 JSProperty.Function("defineProperty", _DefineProperty),
@@ -186,7 +186,30 @@ namespace WebAtoms.CoreJS.Core
         }
         internal static JSValue _FromEntries(JSValue t, JSArray a)
         {
-            return t;
+            if (a._length == 0)
+            {
+                throw JSContext.Current.TypeError(JSTypeError.NotIterable("undefined"));
+            }
+            var v = a[0];
+            if (v is JSUndefined || v is JSNull)
+            {
+                throw JSContext.Current.TypeError(JSTypeError.NotIterable("undefined"));
+            }
+            var r = new JSObject();
+            if ((v is JSArray va))
+            {
+                foreach(var item in va.elements.AllValues())
+                {
+                    var vi = item.Value;
+                    if (!(vi is JSArray ia))
+                        throw JSContext.Current.TypeError(JSTypeError.NotEntry(vi));
+                    var first = ia[0].ToString();
+                    var second = ia[1];
+                    r.DefineProperty(first, JSProperty.Property(first, second,
+                        JSPropertyAttributes.EnumerableConfigurableValue));
+                }
+            }
+            return r;
         }
 
         internal static JSValue _Is(JSValue t, JSArray a)
