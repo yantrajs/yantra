@@ -29,7 +29,7 @@ namespace WebAtoms.CoreJS.Core {
             Buffer = new TrieNode[grow];
         }
 
-        protected override IEnumerable<KeyValuePair<string, T>> Enumerate(uint index)
+        protected override IEnumerable<(string key, T value, uint index)> Enumerate(uint index)
         {
             var last = index + 16;
             for (uint i = index; i < last; i++)
@@ -39,7 +39,7 @@ namespace WebAtoms.CoreJS.Core {
                 var v = node.Value;
                 if (v != null)
                 {
-                    yield return new KeyValuePair<string, T>(v.Key, v.Value);
+                    yield return (v.Key, v.Value, i);
                 }
                 if (fi == 0)
                 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSArray: JSObject
+    public class JSArray: JSObject, IList<JSValue>
     {
         internal BinaryUInt32Map<JSValue> elements = new BinaryUInt32Map<JSValue>();
 
@@ -50,6 +51,12 @@ namespace WebAtoms.CoreJS.Core
             get => (int)_length; 
             set => _length = (uint)value; 
         }
+
+        int ICollection<JSValue>.Count => (int)this._length;
+
+        bool ICollection<JSValue>.IsReadOnly => false;
+
+        JSValue IList<JSValue>.this[int index] { get => this[(uint)index]; set => this[(uint)index] = value; }
 
         public override JSValue this[uint key] {
             get => elements[key] ?? JSUndefined.Value;
@@ -140,6 +147,85 @@ namespace WebAtoms.CoreJS.Core
                 a[i++] = item;
             }
             return a;
+        }
+
+        
+
+        int IList<JSValue>.IndexOf(JSValue item)
+        {
+            if (this.elements.TryGetKeyOf(item, out var index))
+                return (int)index;
+            return -1;
+        }
+
+        void IList<JSValue>.Insert(int index, JSValue item)
+        {
+            var ui = (uint)index;
+            var length = this._length;
+            if (length >= ui)
+            {
+                this._length = ui + 1;
+                this.elements[ui] = item;
+                return;
+            }
+
+            var toInsert = item;
+
+            while (ui > length - 1)
+            {
+                var nextIndex = ui + 1;
+                this.elements[ui] = toInsert;
+                toInsert = this.elements[nextIndex];
+            }
+        }
+
+        void IList<JSValue>.RemoveAt(int index)
+        {
+            this.elements.RemoveAt((uint)index);
+        }
+
+        void ICollection<JSValue>.Add(JSValue item)
+        {
+            this.elements[this._length++] = item;
+        }
+
+        void ICollection<JSValue>.Clear()
+        {
+            this.elements = new BinaryUInt32Map<JSValue>();
+            this._length = 0;
+        }
+
+        bool ICollection<JSValue>.Contains(JSValue item)
+        {
+            return this.elements.TryGetKeyOf(item, out var _);
+        }
+
+        void ICollection<JSValue>.CopyTo(JSValue[] array, int arrayIndex)
+        {
+            var en = this.All.GetEnumerator();
+            while (arrayIndex-- > 0 && en.MoveNext()) ;
+            while (en.MoveNext())
+            {
+                array[arrayIndex++] = en.Current;
+            }
+        }
+
+        bool ICollection<JSValue>.Remove(JSValue item)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator<JSValue> IEnumerable<JSValue>.GetEnumerator()
+        {
+            foreach(var item in this.All)
+            {
+                yield return item;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<JSValue>)this).GetEnumerator();
         }
     }
 }

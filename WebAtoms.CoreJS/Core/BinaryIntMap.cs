@@ -25,15 +25,42 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public IEnumerable<KeyValuePair<TKey, TValue>> AllValues()
+        public IEnumerable<(TKey Key, TValue Value)> AllValues()
         {
             foreach (var a in Enumerate(0))
             {
-                yield return a;
+                yield return (a.key, a.value);
             }
         }
 
-        protected abstract IEnumerable<KeyValuePair<TKey,TValue>> Enumerate(uint index);
+        protected abstract IEnumerable<(TKey key, TValue value, uint index)> Enumerate(uint index);
+
+        public bool TryGetKeyOf(TValue value, out TKey key)
+        {
+            foreach(var (k, v, _) in Enumerate(0))
+            {
+                if (v.Equals(value))
+                {
+                    key = k;
+                    return true;
+                }
+            }
+            key = default;
+            return false;
+        }
+
+        public bool RemoveValue(TValue value)
+        {
+            foreach(var (_,v,i) in Enumerate(0))
+            {
+                if (v.Equals(value))
+                {
+                    Buffer[i].Value = null;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public TValue GetOrCreate(TKey key, Func<TValue> factory)
         {
@@ -61,7 +88,7 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
-        public bool Remove(TKey key)
+        public bool RemoveAt(TKey key)
         {
             ref var node = ref GetTrieNode(key, false);
             if (node.Value != null)
@@ -161,7 +188,7 @@ namespace WebAtoms.CoreJS.Core
             Buffer = new TrieNode[grow];
         }
 
-        protected override IEnumerable<KeyValuePair<uint, T>> Enumerate(uint index)
+        protected override IEnumerable<(uint key, T value, uint index)> Enumerate(uint index)
         {
             var last = index + 4;
             for (uint i = index; i < last; i++)
@@ -171,7 +198,7 @@ namespace WebAtoms.CoreJS.Core
                 var v = node.Value;
                 if (v != null)
                 {
-                    yield return new KeyValuePair<uint, T>(v.Key, v.Value);
+                    yield return (v.Key, v.Value, i);
                 }
                 if (fi == 0)
                 {

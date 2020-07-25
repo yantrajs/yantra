@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Tests
 
 
 
-            tm.Remove("k2");
+            tm.RemoveAt(i2);
 
             Assert.IsNull(tm["k2"]);
         }
@@ -47,7 +47,7 @@ namespace WebAtoms.CoreJS.Tests
 
 
 
-            im.Remove(i2);
+            im.RemoveAt(i2);
 
             Assert.IsNull(im[i2]);
         }
