@@ -134,5 +134,10 @@ namespace WebAtoms.CoreJS.Core
             });
         }
 
+        internal static KeyString NewSymbol(string name)
+        {
+            return new KeyString($"Symbol({name})", (uint)Interlocked.Increment(ref NextID));
+        }
+
     }
 }

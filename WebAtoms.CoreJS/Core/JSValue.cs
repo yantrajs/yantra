@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core {
@@ -67,18 +68,7 @@ namespace WebAtoms.CoreJS.Core {
                 {
                     if (!p.Value.IsEnumerable)
                         continue;
-                    if (p.Value.IsValue)
-                    {
-                        yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), p.Value.value);
-                        continue;
-                    }
-                    if (p.Value.get != null)
-                    {
-                        var g = p.Value.get;
-                        g = g.InvokeFunction(this, JSArguments.Empty);
-                        yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), g);
-                        continue;
-                    }
+                    yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), this.GetValue(p.Value));
                 }
             }
         }
@@ -338,7 +328,7 @@ namespace WebAtoms.CoreJS.Core {
 
             Expression self = Expression.Convert(Expression, LimitType);
             Expression p0 = Expression.Convert(value.Expression, typeof(object));
-            Expression name = indexes[0].Expression;
+            Expression name = Expression.Convert(indexes[0].Expression, typeof(object));
             Expression call = Expression.Call(_setMethod, self, name, p0);
 
             return new DynamicMetaObject(call, restrictions);
@@ -350,7 +340,7 @@ namespace WebAtoms.CoreJS.Core {
                 BindingRestrictions.GetTypeRestriction(Expression, LimitType);
 
             Expression self = Expression.Convert(Expression, LimitType);
-            Expression name = indexes[0].Expression;
+            Expression name = Expression.Convert(indexes[0].Expression, typeof(object));
             Expression call = Expression.Call(_getMethod, self, name);
 
             return new DynamicMetaObject(call, restrictions);

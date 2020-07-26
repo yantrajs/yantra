@@ -6,7 +6,7 @@ namespace WebAtoms.CoreJS.Core
     public struct JSName
     {
         public readonly KeyString Key;
-        readonly string displayName;
+        public readonly bool IsSymbol;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator JSName(KeyString input)
@@ -15,14 +15,20 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator JSName(JSSymbol input)
+        {
+            return new JSName(input.Key, true);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator JSName(string input)
         {
             return new JSName(input);
         }
 
-        public JSName(KeyString key, string displayName = null)
+        private JSName(KeyString key, bool isSymbol = false)
         {
-            this.displayName = displayName ?? key.Value;
+            this.IsSymbol = isSymbol;
             this.Key = key;
         }
 
@@ -44,7 +50,16 @@ namespace WebAtoms.CoreJS.Core
 
         public override string ToString()
         {
-            return this.displayName;
+            return this.Key.Value;
+        }
+
+        public JSValue ToJSValue()
+        {
+            if (IsSymbol)
+            {
+                return new JSSymbol(Key);
+            }
+            return new JSString(Key.Value);
         }
     }
 }

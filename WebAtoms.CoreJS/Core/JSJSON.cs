@@ -1,8 +1,11 @@
 ﻿using Esprima.Ast;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Schema;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -26,18 +29,55 @@ namespace WebAtoms.CoreJS.Core
             if (f is JSUndefined)
                 return f;
             var sb = new StringBuilder();
-            Stringify(sb, f, a[1], a[2]);
+            Func<(JSValue target, JSValue key, JSValue value),JSValue> replacer = null;
+            string indent = "";
+
+            // build replacer...
+            if (a._length > 1)
+            {
+                var r = a[1];
+                if (r is JSFunction rf)
+                {
+                    replacer = (item) =>
+                     rf.f(item.target, JSArguments.From(item.key, item.value));
+                } else if (r is JSArray ra)
+                {
+
+                    BinaryCharMap<int> map = null;
+                    
+                    replacer = (item) =>
+                    {
+                        if (map == null)
+                        {
+                            map = new BinaryCharMap<int>();
+                            foreach (var ritem in ra.All)
+                            {
+                                map[ritem.ToString()] = 1;
+                            }
+                        }
+                        if (map.TryGetValue(item.key.ToString(), out var a1))
+                            return item.value;
+                        return JSUndefined.Value;
+                    };
+                }
+            }
+
+            Stringify(sb, f, replacer, indent);
             return new JSString(sb.ToString());
         }
 
         public static string Stringify(JSValue value)
         {
             var sb = new StringBuilder();
-            Stringify(sb, value, JSUndefined.Value, JSUndefined.Value);
+            Stringify(sb, value, null, "");
             return sb.ToString();
         }
 
-        private static void Stringify(StringBuilder sb, JSValue target, JSValue replacer, JSValue indent)
+        private static void Stringify(
+            StringBuilder sb, 
+            JSValue target, 
+            Func<(JSValue, JSValue, JSValue), JSValue> replacer, 
+            string indent)
         {
             switch(target) {
                 case null:
@@ -45,7 +85,7 @@ namespace WebAtoms.CoreJS.Core
                     sb.Append("null");
                     return;
                 case JSUndefined _:
-                    sb.Append("\"undefined\"");
+                    sb.Append("null");
                     return;
                 case JSBoolean b:
                     sb.Append(b._value ? "true" : "false");
@@ -58,6 +98,7 @@ namespace WebAtoms.CoreJS.Core
                     return;
                 case JSFunction _:
                     // do nothing if value is function...
+                    sb.Append("null");
                     return;
                 case JSArray a:
                     sb.Append('[');
@@ -69,7 +110,7 @@ namespace WebAtoms.CoreJS.Core
                             sb.Append(',');
                         }
                         f = false;
-                        Stringify(sb, item, replacer, indent);
+                        Stringify(sb, ToJson(item), replacer, indent);
                     }
                     sb.Append(']');
                     return;
@@ -81,15 +122,9 @@ namespace WebAtoms.CoreJS.Core
             var obj = target as JSObject;
             foreach(var p in obj.ownProperties.AllValues())
             {
-                if (!first)
-                {
-                    sb.Append(',');
-                }
-                first = false;
-
                 var key = p.Key;
                 var value = p.Value;
-                if (value.IsEmpty || !value.IsEnumerable)
+                if (value.key.IsSymbol || value.IsEmpty || !value.IsEnumerable)
                     continue;
                 JSValue jsValue;
                 if (!value.IsValue)
@@ -102,17 +137,46 @@ namespace WebAtoms.CoreJS.Core
                     jsValue = value.value;
                 }
 
-                if (jsValue is JSUndefined)
+                if (jsValue is JSUndefined || jsValue is JSFunction)
                     continue;
 
+                jsValue = ToJson(jsValue);
+
+                // check replacer...
+                if (replacer != null)
+                {
+                    jsValue = replacer(
+                        (target,
+                        value.key.ToJSValue(), jsValue));
+                    if (jsValue is JSUndefined)
+                        continue;
+                }
+
                 // write indention here...
-                QuoteString(p.Value.key.ToString(), sb);
+                if (!first)
+                {
+                    sb.Append(',');
+                }
+                first = false;
+
+                QuoteString(value.key.ToString(), sb);
                 sb.Append(':');
                 Stringify(sb, jsValue, replacer, indent);
 
             }
 
             sb.Append('}');
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static JSValue ToJson(JSValue value)
+        {
+            if (!(value is JSObject jobj))
+                return value;
+            var p = jobj.GetInternalProperty(JSObject.KeyToJSON);
+            if (p.IsEmpty)
+                return value;
+            return (jobj.GetValue(p) as JSFunction).f(value, JSArguments.Empty);
         }
 
 

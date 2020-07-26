@@ -6,7 +6,7 @@ namespace WebAtoms.CoreJS.Core
 {
     public class JSObject : JSValue
     {
-
+        public static readonly KeyString KeyToJSON = "toJSON";
         public JSObject(): base(JSContext.Current?.ObjectPrototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();

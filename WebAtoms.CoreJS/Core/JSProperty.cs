@@ -34,11 +34,11 @@ namespace WebAtoms.CoreJS.Core
         public JSPropertyAttributes Attributes;
 
         public JSName key;
-        public JSValue get;
+        public JSFunction get;
 
-        public JSValue set { 
+        public JSFunction set { 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value;
+            get => (JSFunction)value;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => this.value = value; 
         }
@@ -163,5 +163,6 @@ namespace WebAtoms.CoreJS.Core
                 Attributes = attributes
             };
         }
+
     }
 }
