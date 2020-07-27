@@ -30,8 +30,8 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
             Assert.AreEqual(2, Assign(2, JSUndefined.Value).IntValue);
 
             var source = new JSObject(
-                JSProperty.Property("b", new JSNumber(4)),
-                JSProperty.Property("c", new JSNumber(5))
+                JSProperty.Property("c", new JSNumber(4)),
+                JSProperty.Property("d", new JSNumber(5))
             );
 
             Assert.AreEqual(2, Assign(2, source).IntValue);
@@ -43,7 +43,8 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
 
             var r = Assign(target, source);
 
-            // Assert.AreEqual("", r.ToDetailString());
+            Assert.AreEqual(target["c"], source["c"]);
+            Assert.AreEqual(target["d"], source["d"]);
 
 
         }
