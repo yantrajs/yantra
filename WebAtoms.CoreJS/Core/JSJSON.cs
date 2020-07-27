@@ -1,6 +1,8 @@
 ﻿using Esprima.Ast;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -16,8 +18,18 @@ namespace WebAtoms.CoreJS.Core
         internal static JSFunction Create()
         {
             var r = new JSFunction(JSFunction.empty, "JSON");
-            r.DefineProperty("stringify", JSProperty.Function(_Stringify));
+            r.DefineProperties(
+                JSProperty.Function("stringify", _Stringify),
+                JSProperty.Function("parse", _Parse));
             return r;
+        }
+
+        public static JSValue _Parse(JSValue t, JSArray a)
+        {
+            var first = a[0].ToString();
+
+            throw new NotSupportedException();
+
         }
 
 
@@ -28,13 +40,25 @@ namespace WebAtoms.CoreJS.Core
             var f = a[0];
             if (f is JSUndefined)
                 return f;
-            var sb = new StringBuilder();
+            TextWriter sb = new StringWriter();
             Func<(JSValue target, JSValue key, JSValue value),JSValue> replacer = null;
-            string indent = "";
+            string indent = null;
 
             // build replacer...
             if (a._length > 1)
             {
+                if (a._length > 2)
+                {
+                    var pi = a[2];
+                    if (pi is JSNumber jn)
+                    {
+                        indent = new string(' ', pi.IntValue);
+                    } else if (pi is JSString js)
+                    {
+                        indent = js.value;
+                    }
+                }
+
                 var r = a[1];
                 if (r is JSFunction rf)
                 {
@@ -61,62 +85,86 @@ namespace WebAtoms.CoreJS.Core
                     };
                 }
             }
-
-            Stringify(sb, f, replacer, indent);
+            if (indent != null)
+            {
+                var writer = new IndentedTextWriter(sb, indent);
+                Stringify(writer, f, replacer, writer);
+            } else
+            {
+                Stringify(sb, f, replacer, null);
+            }
+            
             return new JSString(sb.ToString());
         }
 
         public static string Stringify(JSValue value)
         {
-            var sb = new StringBuilder();
-            Stringify(sb, value, null, "");
+            var sb = new StringWriter();
+            Stringify(sb, value, null, null);
             return sb.ToString();
         }
 
         private static void Stringify(
-            StringBuilder sb, 
+            TextWriter sb, 
             JSValue target, 
-            Func<(JSValue, JSValue, JSValue), JSValue> replacer, 
-            string indent)
+            Func<(JSValue, JSValue, JSValue), JSValue> replacer,
+            IndentedTextWriter indent)
         {
             switch(target) {
                 case null:
                 case JSNull _:
-                    sb.Append("null");
+                    sb.Write("null");
                     return;
                 case JSUndefined _:
-                    sb.Append("null");
+                    sb.Write("null");
                     return;
                 case JSBoolean b:
-                    sb.Append(b._value ? "true" : "false");
+                    sb.Write(b._value ? "true" : "false");
                     return;
                 case JSNumber n:
-                    sb.Append(n.value.ToString());
+                    sb.Write(n.value.ToString());
                     return;
                 case JSString str:
                     QuoteString(str.value, sb);
                     return;
                 case JSFunction _:
                     // do nothing if value is function...
-                    sb.Append("null");
+                    sb.Write("null");
                     return;
                 case JSArray a:
-                    sb.Append('[');
+                    sb.Write('[');
+                    if (indent != null)
+                    {
+                        indent.Indent++;
+                    }
                     bool f = true;
                     foreach(var item in a.All)
                     {
                         if (!f)
                         {
-                            sb.Append(',');
+                            sb.Write(',');
                         }
                         f = false;
+                        if (indent != null)
+                        {
+                            sb.WriteLine();
+                        }
                         Stringify(sb, ToJson(item), replacer, indent);
                     }
-                    sb.Append(']');
+                    if (indent != null)
+                    {
+                        sb.WriteLine();
+                        indent.Indent--;
+                    }
+                    sb.Write(']');
                     return;
             }
 
-            sb.Append('{');
+            sb.Write('{');
+            if (indent != null)
+            {
+                indent.Indent++;
+            }
             bool first = true;
             // the only left type is JSObject...
             var obj = target as JSObject;
@@ -155,17 +203,30 @@ namespace WebAtoms.CoreJS.Core
                 // write indention here...
                 if (!first)
                 {
-                    sb.Append(',');
+                    sb.Write(',');
                 }
                 first = false;
+                if (indent != null)
+                {
+                    sb.WriteLine();
+                }
 
                 QuoteString(value.key.ToString(), sb);
-                sb.Append(':');
+                sb.Write(':');
+                if (indent != null)
+                {
+                    sb.Write(' ');
+                }
                 Stringify(sb, jsValue, replacer, indent);
 
             }
+            if (indent != null)
+            {
+                sb.WriteLine();
+                indent.Indent--;
+            }
 
-            sb.Append('}');
+            sb.Write('}');
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -186,9 +247,9 @@ namespace WebAtoms.CoreJS.Core
         /// </summary>
         /// <param name="input"> The string to quote. </param>
         /// <param name="result"> The StringBuilder to write the quoted string to. </param>
-        private static void QuoteString(string input, System.Text.StringBuilder result)
+        private static void QuoteString(string input, TextWriter result)
         {
-            result.Append('\"');
+            result.Write('\"');
 
             // Check if there are characters that need to be escaped.
             // These characters include '"', '\' and any character with an ASCII value less than 32.
@@ -206,7 +267,7 @@ namespace WebAtoms.CoreJS.Core
             if (containsUnsafeCharacters == false)
             {
                 // The string does not contain escape characters.
-                result.Append(input);
+                result.Write(input);
             }
             else
             {
@@ -217,38 +278,38 @@ namespace WebAtoms.CoreJS.Core
                     {
                         case '\"':
                         case '\\':
-                            result.Append('\\');
-                            result.Append(c);
+                            result.Write('\\');
+                            result.Write(c);
                             break;
                         case '\b':
-                            result.Append("\\b");
+                            result.Write("\\b");
                             break;
                         case '\f':
-                            result.Append("\\f");
+                            result.Write("\\f");
                             break;
                         case '\n':
-                            result.Append("\\n");
+                            result.Write("\\n");
                             break;
                         case '\r':
-                            result.Append("\\r");
+                            result.Write("\\r");
                             break;
                         case '\t':
-                            result.Append("\\t");
+                            result.Write("\\t");
                             break;
                         default:
                             if (c < 0x20)
                             {
-                                result.Append('\\');
-                                result.Append('u');
-                                result.Append(((int)c).ToString("x4"));
+                                result.Write('\\');
+                                result.Write('u');
+                                result.Write(((int)c).ToString("x4"));
                             }
                             else
-                                result.Append(c);
+                                result.Write(c);
                             break;
                     }
                 }
             }
-            result.Append('\"');
+            result.Write('\"');
         }
     }
 }

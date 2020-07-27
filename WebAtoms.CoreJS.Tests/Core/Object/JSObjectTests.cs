@@ -29,7 +29,21 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
             Assert.AreEqual(2, Assign(2, JSNull.Value).IntValue);
             Assert.AreEqual(2, Assign(2, JSUndefined.Value).IntValue);
 
-            // Assert.AreEqual(2, Assign(2, JSUndefined.Value).IntValue);
+            var source = new JSObject(
+                JSProperty.Property("b", new JSNumber(4)),
+                JSProperty.Property("c", new JSNumber(5))
+            );
+
+            Assert.AreEqual(2, Assign(2, source).IntValue);
+
+            var target = new JSObject(
+                JSProperty.Property("a", new JSNumber(1)),
+                JSProperty.Property("b", new JSNumber(2))
+            );
+
+            var r = Assign(target, source);
+
+            // Assert.AreEqual("", r.ToDetailString());
 
 
         }

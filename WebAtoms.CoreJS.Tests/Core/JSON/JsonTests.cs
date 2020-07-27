@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -98,6 +99,68 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             Assert.AreEqual("{\"a\":\"a\"}", stringify(a, fx));
 
             Assert.AreEqual("{\"b\":1}", stringify(a, JSArguments.From("b")));
+        }
+
+        [TestMethod]
+        public void Indent()
+        {
+
+            var JSON = DynamicContext.JSON;
+            string stringify(object a, object indent)
+            {
+                JSValue r = JSON.stringify(a, JSUndefined.Value, indent);
+                return r is JSUndefined ? null : r.ToString();
+            }
+
+
+            var a = new JSObject();
+            dynamic da = a;
+            da["a"] = "a";
+            // da["b"] = 1;
+
+            var expected = JsonConvert.SerializeObject(new {
+                a = "a"
+            }, Formatting.Indented);
+
+            Assert.AreEqual(expected, stringify(a, "  "));
+
+            a["b"] = new JSObject();
+
+            da.b.a = "b";
+
+            expected = JsonConvert.SerializeObject(new {
+                a = "a",
+                b = new { 
+                   a = "b"  
+                }
+            }, Formatting.Indented);
+
+            Assert.AreEqual(expected, stringify(a, "  "));
+
+            expected = JsonConvert.SerializeObject(new
+            {
+                a = "a",
+                b = new
+                {
+                    a = "b"
+                },
+                c = new object[] { 1, 2, new {
+                    c = "c"
+                } }
+            }, Formatting.Indented);
+
+            da.c = new JSArray();
+
+            da.c[0] = 1;
+
+            da.c[1] = 2;
+
+            da.c[2] = new JSObject();
+
+            da.c[2].c = "c";
+
+            Assert.AreEqual(expected, stringify(a, "  "));
+
         }
 
     }

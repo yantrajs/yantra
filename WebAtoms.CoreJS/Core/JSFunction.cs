@@ -41,6 +41,11 @@ namespace WebAtoms.CoreJS.Core
             return name;
         }
 
+        public override string ToDetailString()
+        {
+            return this.source;
+        }
+
         public override JSValue CreateInstance(JSArray args)
         {
             var cx = JSContext.Current;

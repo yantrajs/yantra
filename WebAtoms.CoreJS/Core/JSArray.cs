@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
@@ -21,6 +22,12 @@ namespace WebAtoms.CoreJS.Core
         public override string ToString()
         {
             return $"[{string.Join(",", All)}]";
+        }
+
+        public override string ToDetailString()
+        {
+            var all = All.Select(a => a.ToDetailString());
+            return $"[{string.Join(", ", all)}]";
         }
 
         public IEnumerable<JSValue> All

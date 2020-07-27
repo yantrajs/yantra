@@ -175,6 +175,11 @@ namespace WebAtoms.CoreJS.Core {
             return (InvokeMethod(KeyStrings.toString, JSArguments.Empty) as JSString)?.value;
         }
 
+        public virtual string ToDetailString()
+        {
+            return (InvokeMethod(KeyStrings.toString, JSArguments.Empty) as JSString)?.value;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual JSValue InvokeMethod(JSName name, JSArray args)
         {

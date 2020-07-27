@@ -36,6 +36,11 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
+        public override string ToDetailString()
+        {
+            return value.ToString();
+        }
+
         public static JSValue IsFinite(JSValue t, JSArray a)
         {
             if (a._length > 0 && a[0] is JSNumber n) {

@@ -33,6 +33,11 @@ namespace WebAtoms.CoreJS.Core
             return value;
         }
 
+        public override string ToDetailString()
+        {
+            return value;
+        }
+
         public override int Length => value.Length;
 
         public static JSValue Substring(JSValue t, JSArray a) 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
@@ -10,6 +11,15 @@ namespace WebAtoms.CoreJS.Core
         public JSObject(): base(JSContext.Current?.ObjectPrototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
+        }
+
+        public JSObject(params JSProperty[] entries) : base(JSContext.Current?.ObjectPrototype)
+        {
+            ownProperties = new BinaryUInt32Map<JSProperty>();
+            foreach(var p  in entries)
+            {
+                ownProperties[p.key.Key.Key] = p;
+            }
         }
 
         protected JSObject(JSValue prototype): base(prototype)
@@ -81,6 +91,12 @@ namespace WebAtoms.CoreJS.Core
             return "[object object]";
         }
 
+        public override string ToDetailString()
+        {
+            var all = Entries.Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
+            return $"{{ {string.Join(", ",all)} }}";
+        }
+
         public static JSValue ToString(JSValue t, JSArray a) => new JSString(t.ToString());
 
         internal static JSValue StaticCreate(JSValue t, JSArray a)
@@ -102,9 +118,9 @@ namespace WebAtoms.CoreJS.Core
                 return first;
             foreach(var item in second.ownProperties.AllValues())
             {
-                a.ownProperties[item.Key] = item.Value;
+                first.ownProperties[item.Key] = item.Value;
             }
-            return t;
+            return first;
         }
 
         internal static JSValue _Entries(JSValue t, JSArray a)
