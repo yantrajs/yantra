@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -17,6 +18,15 @@ namespace WebAtoms.CoreJS.Core
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
             foreach(var p  in entries)
+            {
+                ownProperties[p.key.Key.Key] = p;
+            }
+        }
+
+        public JSObject(IEnumerable<JSProperty> entries) : base(JSContext.Current?.ObjectPrototype)
+        {
+            ownProperties = new BinaryUInt32Map<JSProperty>();
+            foreach (var p in entries)
             {
                 ownProperties[p.key.Key.Key] = p;
             }
@@ -246,7 +256,15 @@ namespace WebAtoms.CoreJS.Core
         }
         internal static JSValue _Keys(JSValue t, JSArray a)
         {
-            return t;
+            var first = a[0];
+            if (first is JSUndefined)
+                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(first is JSObject jobj))
+                return new JSArray();
+            return new JSArray(jobj.ownProperties
+                .AllValues()
+                .Where(x => x.Value.IsEnumerable)
+                .Select(x => new JSString(x.Value.ToString())));
         }
         internal static JSValue _PreventExtensions(JSValue t, JSArray a)
         {
@@ -264,7 +282,12 @@ namespace WebAtoms.CoreJS.Core
         }
         internal static JSValue _Values(JSValue t, JSArray a)
         {
-            return t;
+            var first = a[0];
+            if (first is JSUndefined)
+                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(first is JSObject jobj))
+                return new JSArray();
+            return new JSArray(jobj.Entries.Select(x => x.Value));
         }
 
         internal static JSValue _GetOwnPropertyDescriptor(JSValue t, JSArray a)
@@ -273,7 +296,14 @@ namespace WebAtoms.CoreJS.Core
         }
         internal static JSValue _GetOwnPropertyDescriptors(JSValue t, JSArray a)
         {
-            return t;
+            var first = a[0];
+            if (first is JSUndefined)
+                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(first is JSObject jobj))
+                return new JSArray();
+            return new JSObject(jobj.ownProperties.AllValues().Select(x => 
+                JSProperty.Property(x.Value.key.Key, x.Value.ToJSValue())
+            ));
         }
         internal static JSValue _GetOwnPropertyNames(JSValue t, JSArray a)
         {

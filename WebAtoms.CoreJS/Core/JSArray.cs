@@ -19,6 +19,12 @@ namespace WebAtoms.CoreJS.Core
             
         }
 
+        public JSArray(IEnumerable<JSValue> items)
+        {
+            foreach (var item in items)
+                elements[_length++] = item;
+        }
+
         public override string ToString()
         {
             return $"[{string.Join(",", All)}]";
@@ -66,7 +72,7 @@ namespace WebAtoms.CoreJS.Core
         JSValue IList<JSValue>.this[int index] { get => this[(uint)index]; set => this[(uint)index] = value; }
 
         public override JSValue this[uint key] {
-            get => elements[key] ?? JSUndefined.Value;
+            get => key >= _length ? JSUndefined.Value : (elements[key] ?? JSUndefined.Value);
             set
             {
                 if (key >= _length)
