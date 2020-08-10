@@ -9,6 +9,7 @@
   
   <ItemGroup>
     <PackageReference Include="esprima" Version="1.0.1270" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
   </ItemGroup>
 
 </Project>
