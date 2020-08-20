@@ -1,4 +1,5 @@
 ﻿using Esprima.Ast;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -410,7 +411,7 @@ namespace WebAtoms.CoreJS.Utils
         protected abstract T VisitLogicalExpression(BinaryExpression binaryExpression);
 
         protected abstract T VisitLiteral(Literal literal);
-        protected abstract T VisitIdentifier(Identifier identifier);
+        protected abstract SyntaxToken VisitIdentifier(Identifier identifier);
 
         protected abstract T VisitFunctionExpression(IFunction function);
 

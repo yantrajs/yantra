@@ -1,4 +1,5 @@
-﻿using Esprima.Utils;
+﻿using Esprima.Ast;
+using Esprima.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,10 +21,52 @@ namespace WebAtoms.CoreJS
 
     public static class JSSyntaxHelper
     {
-        public static NamespaceDeclarationSyntax JSGlobal =
-            NamespaceDeclaration(IdentifierName("JSGlobal"));
 
-        public static FieldDeclarationSyntax Field(VariableDeclarationSyntax d, bool isPublic = true, bool isStatic = false, bool isReadOnly = false)
+        public static (NamespaceDeclarationSyntax jsNS, 
+            ClassDeclarationSyntax jsClass) 
+            JSGlobal(BlockSyntax body, string code) {
+            var ns = NamespaceDeclaration(IdentifierName("JSGlobal"));
+
+            ns = ns.AddUsings(
+                UsingDirective(IdentifierName("System")),
+                UsingDirective(IdentifierName("System.Linq")),
+                UsingDirective(IdentifierName("System.Collections.Generic")),
+                UsingDirective(IdentifierName("WebAtoms.CoreJS.Core"))
+                );
+            
+            var jsc = ClassDeclaration("JSCode");
+            jsc = jsc.AddModifiers(
+                Token(SyntaxKind.PublicKeyword),
+                Token(SyntaxKind.StaticKeyword));
+
+            jsc = jsc.AddMembers(Field(StringVariable("Code", code), true, true, true));
+
+
+            ns = ns.AddMembers(jsc);
+
+            // Generate delegate...
+
+            var lambda = ParenthesizedLambdaExpression(ParameterList(),body);
+            var t = Parameter(Identifier("t"));
+            var a = Parameter(Identifier("a"));
+            lambda = lambda.AddParameterListParameters(t, a);
+
+            var fx = VariableDeclaration(IdentifierName("JSFunctionDelegate"));
+
+            fx = fx.AddVariables(VariableDeclarator("Body").WithInitializer(EqualsValueClause(lambda)));
+
+            jsc = jsc.AddMembers(Field(fx).AddModifiers(
+                Token(SyntaxKind.PublicKeyword),
+                Token(SyntaxKind.StaticKeyword)));
+
+            return (ns, jsc);
+        }
+
+        public static FieldDeclarationSyntax Field(
+            VariableDeclarationSyntax d, 
+            bool isPublic = true, 
+            bool isStatic = false, 
+            bool isReadOnly = false)
         {
             var fd = FieldDeclaration(d);
             if (isPublic)
@@ -35,6 +78,7 @@ namespace WebAtoms.CoreJS
             return fd;
         }
 
+
         public static VariableDeclarationSyntax StringVariable(string name, string value = null) {
             var vd = VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword)));
             if (value == null)
@@ -44,12 +88,6 @@ namespace WebAtoms.CoreJS
             return vd;
         }
 
-        public static ClassDeclarationSyntax JSClass(string code)
-        {
-            var cd = ClassDeclaration("JSCode");
-            cd.Members.Add(Field(StringVariable("code", code), true, true, true));
-            return cd;
-        }
     }
 
     public struct ScriptLocation
@@ -97,35 +135,17 @@ namespace WebAtoms.CoreJS
 
             var script = parser.ParseScript();
 
-            var node = VisitProgram(script);
+            var node = VisitProgram(script) as BlockSyntax;
 
-            var unit = SyntaxFactory.CompilationUnit()
-                .WithMembers(
-                SingletonList<MemberDeclarationSyntax>(
-                    NamespaceDeclaration(IdentifierName("JSGlobal"))
-                    .WithMembers(SingletonList<MemberDeclarationSyntax>(
-                        ClassDeclaration("JSCode")
-                            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                            .WithMembers(
-                            )
-                        ))
-                    )
-                );
+            var jsNS = JSSyntaxHelper.JSGlobal(node, code);
 
-            var jsNS = NamespaceDeclaration(
-                IdentifierName("JSGlobal"));
+            var unit = SyntaxFactory.CompilationUnit();
 
-            var jsClass = ClassDeclaration("JSCode");
-            VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword))
-            SyntaxFactory.FieldDeclaration(code);
-
-            jsNS.AddMembers(jsClass);
-
-            unit = unit.AddMembers(jsNS);
-
+            unit = unit.AddMembers(jsNS.jsNS);
+            
             var tree = unit.SyntaxTree;
 
-
+            // lets first generate the code...
 
             CSharpCompilation compilation = CSharpCompilation.Create("JSCode", 
                 new SyntaxTree[] { tree },
@@ -144,21 +164,41 @@ namespace WebAtoms.CoreJS
             }
 
             var type = asm.GetType("JSGlobal.JSCode");
-            Method = (JSFunctionDelegate) type.GetField("globalMethod").GetValue(null);
+            Method = (JSFunctionDelegate) type.GetField("Body").GetValue(null);
         }
 
         protected override SyntaxNode VisitProgram(Esprima.Ast.Program program)
         {
-            throw new NotImplementedException();
+            var list = program.Body.Select((x) => (StatementSyntax)VisitStatement((Esprima.Ast.Statement)x)).ToArray();
+            return Block(list);
         }
 
         protected override SyntaxNode VisitCatchClause(Esprima.Ast.CatchClause catchClause)
         {
-            throw new NotImplementedException();
+            
+            var identifier = VisitIdentifier(catchClause.Param.As<Esprima.Ast.Identifier>());
+            var block = (BlockSyntax)VisitBlockStatement(catchClause.Body);
+            var c = CatchClause(CatchDeclaration(ParseTypeName("JSException"), identifier), null, block);
+            return c;
         }
 
         protected override SyntaxNode VisitFunctionDeclaration(Esprima.Ast.FunctionDeclaration functionDeclaration)
         {
+            /**
+             * var @namedFunction = new JSFunction((t, a) =&gt; {
+             *    var a1 = a[0];
+             *    var a2 = a[1]; 
+             *    
+             *    // enter stack...
+             *    
+             *    // init default...
+             *    
+             *    // write body ...
+             *    
+             *    // exit stack...
+             *    
+             * }, "@namedFunction", "Source code");
+             */
             throw new NotImplementedException();
         }
 
@@ -292,9 +332,9 @@ namespace WebAtoms.CoreJS
             throw new NotImplementedException();
         }
 
-        protected override SyntaxNode VisitIdentifier(Esprima.Ast.Identifier identifier)
+        protected override SyntaxToken VisitIdentifier(Esprima.Ast.Identifier identifier)
         {
-            throw new NotImplementedException();
+            return Identifier(identifier.Name);
         }
 
         protected override SyntaxNode VisitFunctionExpression(Esprima.Ast.IFunction function)
