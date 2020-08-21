@@ -1,5 +1,4 @@
 ﻿using Esprima.Ast;
-using Esprima.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,6 +14,8 @@ using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+
+using Exp = System.Linq.Expressions.Expression;
 
 namespace WebAtoms.CoreJS
 {
@@ -100,7 +101,48 @@ namespace WebAtoms.CoreJS
 
     }
 
-    public class CoreScript: JSAstVisitor<string>
+    /// <summary>
+    /// Convert variable to named to variable reference when a variable or
+    /// parameter is captured.
+    /// 
+    /// 1. First store everything as ParameterExpression
+    /// 2. On capture, convert ParameterExpression to FieldExpression of ParameterExpression
+    /// 3. Change all references.. (complicated)
+    /// 
+    /// Is it possible to create a event listener to add change of variable...?
+    /// </summary>
+    public class LexicalScope
+    {
+        private BinaryUInt32Map<ParameterExpression> map = new BinaryUInt32Map<ParameterExpression>();
+        readonly LexicalScope parent;
+
+        public LexicalScope(LexicalScope parent)
+        {
+            this.parent = parent;
+        }
+        public void Push(Type type, string name)
+        {
+            KeyString k = name;
+            map[k.Key] = Exp.Parameter(type, name);
+        }
+
+        public Exp Search(string name)
+        {
+            KeyString k = name;
+            if (map.TryGetValue(k.Key, out var pe))
+                return pe;
+            if(parent != null)
+            {
+                return parent.Search(name);
+            }
+            // need to call JSContext.Current[name];
+            return Exp.Call();
+        }
+
+
+    }
+
+    public class CoreScript: JSAstVisitor<Exp>
     {
         public JSFunctionDelegate Method { get; }
 
@@ -124,8 +166,11 @@ namespace WebAtoms.CoreJS
             }
         }
 
+        private LinkedStack<LexicalScope> lexicalScope;
+
         public CoreScript(string code, string location = null)
         {
+            lexicalScope = new LinkedStack<LexicalScope>(() => new LexicalScope(this.lexicalScope.Top?.Value));
 
             Esprima.JavaScriptParser parser =
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
@@ -194,25 +239,22 @@ namespace JSGlobal {{
             Method = (JSFunctionDelegate) type.GetField("Body").GetValue(null);
         }
 
-        protected override string VisitProgram(Esprima.Ast.Program program)
+        protected override Exp VisitProgram(Esprima.Ast.Program program)
         {
-            return $@"{{ {
-                string.Join(";\r\n",  
-                    program.Body.Select((x) => VisitStatement((Esprima.Ast.Statement)x))) } }}";
+            return Exp.Block(program.Body.Select((x) => VisitStatement((Statement)x)));
         }
 
-        protected override string VisitCatchClause(Esprima.Ast.CatchClause catchClause)
+        protected override Exp VisitCatchClause(Esprima.Ast.CatchClause catchClause)
         {
-            var id = catchClause.Param.As<Esprima.Ast.Identifier>().Name;
-            id = Identifier(id).ToFullString();
-            //var identifier = Identifier(id.Name);
-            //var block = (BlockSyntax)VisitBlockStatement(catchClause.Body);
-            //var c = CatchClause(CatchDeclaration(ParseTypeName("JSException"), identifier), null, block);
-            //return c;
-            return $"catch (JSException {id}){{ {VisitBlockStatement(catchClause.Body)} }}";
+            //var id = catchClause.Param.As<Esprima.Ast.Identifier>().Name;
+            //id = Identifier(id).ToFullString();
+            //var pe = Exp.Parameter(typeof(JSException));
+            //var body = this.VisitBlockStatement(catchClause.Body);
+            //return Exp.Catch(pe, body);
+            throw new NotImplementedException();
         }
 
-        protected override string VisitFunctionDeclaration(Esprima.Ast.FunctionDeclaration functionDeclaration)
+        protected override Exp VisitFunctionDeclaration(Esprima.Ast.FunctionDeclaration functionDeclaration)
         {
             /**
              * var @namedFunction = new JSFunction((t, a) =&gt; {
@@ -232,327 +274,336 @@ namespace JSGlobal {{
             throw new NotImplementedException();
         }
 
-        protected override string VisitWithStatement(Esprima.Ast.WithStatement withStatement)
+        protected override Exp VisitWithStatement(Esprima.Ast.WithStatement withStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitWhileStatement(Esprima.Ast.WhileStatement whileStatement)
+        protected override Exp VisitWhileStatement(Esprima.Ast.WhileStatement whileStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
+        protected override Exp VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitTryStatement(Esprima.Ast.TryStatement tryStatement)
+        protected override Exp VisitTryStatement(Esprima.Ast.TryStatement tryStatement)
         {
-            throw new NotImplementedException();
+            var block = VisitStatement(tryStatement.Block);
+            var cb = tryStatement.Handler;
+            if (cb != null)
+            {
+                using (var scope = lexicalScope.PushNew()) {
+                    scope.Value.Push(typeof(JSException), cb.Param.As<Identifier>().Name);
+                    var cbExp = Exp.Catch(cep, VisitStatement(cb));
+                    return Exp.TryCatch(block, cbExp);
+                }
+            }
         }
 
-        protected override string VisitThrowStatement(Esprima.Ast.ThrowStatement throwStatement)
+        protected override Exp VisitThrowStatement(Esprima.Ast.ThrowStatement throwStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
+        protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitSwitchCase(Esprima.Ast.SwitchCase switchCase)
+        protected override Exp VisitSwitchCase(Esprima.Ast.SwitchCase switchCase)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitReturnStatement(Esprima.Ast.ReturnStatement returnStatement)
+        protected override Exp VisitReturnStatement(Esprima.Ast.ReturnStatement returnStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitLabeledStatement(Esprima.Ast.LabeledStatement labeledStatement)
+        protected override Exp VisitLabeledStatement(Esprima.Ast.LabeledStatement labeledStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitIfStatement(Esprima.Ast.IfStatement ifStatement)
+        protected override Exp VisitIfStatement(Esprima.Ast.IfStatement ifStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitEmptyStatement(Esprima.Ast.EmptyStatement emptyStatement)
+        protected override Exp VisitEmptyStatement(Esprima.Ast.EmptyStatement emptyStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitDebuggerStatement(Esprima.Ast.DebuggerStatement debuggerStatement)
+        protected override Exp VisitDebuggerStatement(Esprima.Ast.DebuggerStatement debuggerStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitExpressionStatement(Esprima.Ast.ExpressionStatement expressionStatement)
+        protected override Exp VisitExpressionStatement(Esprima.Ast.ExpressionStatement expressionStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitForStatement(Esprima.Ast.ForStatement forStatement)
+        protected override Exp VisitForStatement(Esprima.Ast.ForStatement forStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitForInStatement(Esprima.Ast.ForInStatement forInStatement)
+        protected override Exp VisitForInStatement(Esprima.Ast.ForInStatement forInStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitDoWhileStatement(Esprima.Ast.DoWhileStatement doWhileStatement)
+        protected override Exp VisitDoWhileStatement(Esprima.Ast.DoWhileStatement doWhileStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitArrowFunctionExpression(Esprima.Ast.ArrowFunctionExpression arrowFunctionExpression)
+        protected override Exp VisitArrowFunctionExpression(Esprima.Ast.ArrowFunctionExpression arrowFunctionExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitUnaryExpression(Esprima.Ast.UnaryExpression unaryExpression)
+        protected override Exp VisitUnaryExpression(Esprima.Ast.UnaryExpression unaryExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitUpdateExpression(Esprima.Ast.UpdateExpression updateExpression)
+        protected override Exp VisitUpdateExpression(Esprima.Ast.UpdateExpression updateExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitThisExpression(Esprima.Ast.ThisExpression thisExpression)
+        protected override Exp VisitThisExpression(Esprima.Ast.ThisExpression thisExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitSequenceExpression(Esprima.Ast.SequenceExpression sequenceExpression)
+        protected override Exp VisitSequenceExpression(Esprima.Ast.SequenceExpression sequenceExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitObjectExpression(Esprima.Ast.ObjectExpression objectExpression)
+        protected override Exp VisitObjectExpression(Esprima.Ast.ObjectExpression objectExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitNewExpression(Esprima.Ast.NewExpression newExpression)
+        protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
+        protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitLogicalExpression(Esprima.Ast.BinaryExpression binaryExpression)
+        protected override Exp VisitLogicalExpression(Esprima.Ast.BinaryExpression binaryExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitLiteral(Esprima.Ast.Literal literal)
+        protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitIdentifier(Esprima.Ast.Identifier identifier)
+        protected override Exp VisitIdentifier(Esprima.Ast.Identifier identifier)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitFunctionExpression(Esprima.Ast.IFunction function)
+        protected override Exp VisitFunctionExpression(Esprima.Ast.IFunction function)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitClassExpression(Esprima.Ast.ClassExpression classExpression)
+        protected override Exp VisitClassExpression(Esprima.Ast.ClassExpression classExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitExportDefaultDeclaration(Esprima.Ast.ExportDefaultDeclaration exportDefaultDeclaration)
+        protected override Exp VisitExportDefaultDeclaration(Esprima.Ast.ExportDefaultDeclaration exportDefaultDeclaration)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitExportAllDeclaration(Esprima.Ast.ExportAllDeclaration exportAllDeclaration)
+        protected override Exp VisitExportAllDeclaration(Esprima.Ast.ExportAllDeclaration exportAllDeclaration)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitExportNamedDeclaration(Esprima.Ast.ExportNamedDeclaration exportNamedDeclaration)
+        protected override Exp VisitExportNamedDeclaration(Esprima.Ast.ExportNamedDeclaration exportNamedDeclaration)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitExportSpecifier(Esprima.Ast.ExportSpecifier exportSpecifier)
+        protected override Exp VisitExportSpecifier(Esprima.Ast.ExportSpecifier exportSpecifier)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitImport(Esprima.Ast.Import import)
+        protected override Exp VisitImport(Esprima.Ast.Import import)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitImportDeclaration(Esprima.Ast.ImportDeclaration importDeclaration)
+        protected override Exp VisitImportDeclaration(Esprima.Ast.ImportDeclaration importDeclaration)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitImportNamespaceSpecifier(Esprima.Ast.ImportNamespaceSpecifier importNamespaceSpecifier)
+        protected override Exp VisitImportNamespaceSpecifier(Esprima.Ast.ImportNamespaceSpecifier importNamespaceSpecifier)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitImportDefaultSpecifier(Esprima.Ast.ImportDefaultSpecifier importDefaultSpecifier)
+        protected override Exp VisitImportDefaultSpecifier(Esprima.Ast.ImportDefaultSpecifier importDefaultSpecifier)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitImportSpecifier(Esprima.Ast.ImportSpecifier importSpecifier)
+        protected override Exp VisitImportSpecifier(Esprima.Ast.ImportSpecifier importSpecifier)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitMethodDefinition(Esprima.Ast.MethodDefinition methodDefinitions)
+        protected override Exp VisitMethodDefinition(Esprima.Ast.MethodDefinition methodDefinitions)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitForOfStatement(Esprima.Ast.ForOfStatement forOfStatement)
+        protected override Exp VisitForOfStatement(Esprima.Ast.ForOfStatement forOfStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitClassDeclaration(Esprima.Ast.ClassDeclaration classDeclaration)
+        protected override Exp VisitClassDeclaration(Esprima.Ast.ClassDeclaration classDeclaration)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitClassBody(Esprima.Ast.ClassBody classBody)
+        protected override Exp VisitClassBody(Esprima.Ast.ClassBody classBody)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitYieldExpression(Esprima.Ast.YieldExpression yieldExpression)
+        protected override Exp VisitYieldExpression(Esprima.Ast.YieldExpression yieldExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)
+        protected override Exp VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitSuper(Esprima.Ast.Super super)
+        protected override Exp VisitSuper(Esprima.Ast.Super super)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitMetaProperty(Esprima.Ast.MetaProperty metaProperty)
+        protected override Exp VisitMetaProperty(Esprima.Ast.MetaProperty metaProperty)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitArrowParameterPlaceHolder(Esprima.Ast.ArrowParameterPlaceHolder arrowParameterPlaceHolder)
+        protected override Exp VisitArrowParameterPlaceHolder(Esprima.Ast.ArrowParameterPlaceHolder arrowParameterPlaceHolder)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitObjectPattern(Esprima.Ast.ObjectPattern objectPattern)
+        protected override Exp VisitObjectPattern(Esprima.Ast.ObjectPattern objectPattern)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitSpreadElement(Esprima.Ast.SpreadElement spreadElement)
+        protected override Exp VisitSpreadElement(Esprima.Ast.SpreadElement spreadElement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitAssignmentPattern(Esprima.Ast.AssignmentPattern assignmentPattern)
+        protected override Exp VisitAssignmentPattern(Esprima.Ast.AssignmentPattern assignmentPattern)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitArrayPattern(Esprima.Ast.ArrayPattern arrayPattern)
+        protected override Exp VisitArrayPattern(Esprima.Ast.ArrayPattern arrayPattern)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitVariableDeclarator(Esprima.Ast.VariableDeclarator variableDeclarator)
+        protected override Exp VisitVariableDeclarator(Esprima.Ast.VariableDeclarator variableDeclarator)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitTemplateLiteral(Esprima.Ast.TemplateLiteral templateLiteral)
+        protected override Exp VisitTemplateLiteral(Esprima.Ast.TemplateLiteral templateLiteral)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitTemplateElement(Esprima.Ast.TemplateElement templateElement)
+        protected override Exp VisitTemplateElement(Esprima.Ast.TemplateElement templateElement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitRestElement(Esprima.Ast.RestElement restElement)
+        protected override Exp VisitRestElement(Esprima.Ast.RestElement restElement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitProperty(Esprima.Ast.Property property)
+        protected override Exp VisitProperty(Esprima.Ast.Property property)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitAwaitExpression(Esprima.Ast.AwaitExpression awaitExpression)
+        protected override Exp VisitAwaitExpression(Esprima.Ast.AwaitExpression awaitExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitConditionalExpression(Esprima.Ast.ConditionalExpression conditionalExpression)
+        protected override Exp VisitConditionalExpression(Esprima.Ast.ConditionalExpression conditionalExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitCallExpression(Esprima.Ast.CallExpression callExpression)
+        protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitBinaryExpression(Esprima.Ast.BinaryExpression binaryExpression)
+        protected override Exp VisitBinaryExpression(Esprima.Ast.BinaryExpression binaryExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)
+        protected override Exp VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitAssignmentExpression(Esprima.Ast.AssignmentExpression assignmentExpression)
+        protected override Exp VisitAssignmentExpression(Esprima.Ast.AssignmentExpression assignmentExpression)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitContinueStatement(Esprima.Ast.ContinueStatement continueStatement)
+        protected override Exp VisitContinueStatement(Esprima.Ast.ContinueStatement continueStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitBreakStatement(Esprima.Ast.BreakStatement breakStatement)
+        protected override Exp VisitBreakStatement(Esprima.Ast.BreakStatement breakStatement)
         {
             throw new NotImplementedException();
         }
 
-        protected override string VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
+        protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
         {
             throw new NotImplementedException();
         }

@@ -18,6 +18,10 @@ JavaScript Engine for .NET Standard
 2. Closures are little problem - Access closure as a field of current executing function
 3. Support on Android and on iOS due to interpretation?
 4. Debugging support can be added with Agile Object's Readable Expressions
+5. Adding debugging support is easy compared to C# code generator as managing symbols require same efforts.
+ ### Complexity
+ 1. Loop optimization
+ 2. Tail Call Optimization
 
 https://github.com/agileobjects/ReadableExpressions
 
