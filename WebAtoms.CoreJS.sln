@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.CoreJS", "WebAtoms.CoreJS\WebAtoms.CoreJS.csproj", "{A93F876C-A93A-4B4C-9838-455D448F9811}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAtoms.CoreJS.Tests", "WebAtoms.CoreJS.Tests\WebAtoms.CoreJS.Tests.csproj", "{EFC9DD03-4636-471F-8EE7-2D393898361F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.CoreJS.Tests", "WebAtoms.CoreJS.Tests\WebAtoms.CoreJS.Tests.csproj", "{EFC9DD03-4636-471F-8EE7-2D393898361F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8D5F60A8-566A-4068-8B83-1BA48F66E60B}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

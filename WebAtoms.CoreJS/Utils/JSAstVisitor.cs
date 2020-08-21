@@ -411,7 +411,7 @@ namespace WebAtoms.CoreJS.Utils
         protected abstract T VisitLogicalExpression(BinaryExpression binaryExpression);
 
         protected abstract T VisitLiteral(Literal literal);
-        protected abstract SyntaxToken VisitIdentifier(Identifier identifier);
+        protected abstract T VisitIdentifier(Identifier identifier);
 
         protected abstract T VisitFunctionExpression(IFunction function);
 
