@@ -19,6 +19,7 @@ JavaScript Engine for .NET Standard
 3. Support on Android and on iOS due to interpretation?
 4. Debugging support can be added with Agile Object's Readable Expressions
 5. Adding debugging support is easy compared to C# code generator as managing symbols require same efforts.
+6. Make two pass to create closure list before generating code
  ### Complexity
  1. Loop optimization
  2. Tail Call Optimization
