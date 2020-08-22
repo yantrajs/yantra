@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Transactions;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -36,6 +37,11 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
+        public override JSValue ToJSString()
+        {
+            return new JSString(value.ToString());
+        }
+
         public override string ToDetailString()
         {
             return value.ToString();
@@ -43,7 +49,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue IsFinite(JSValue t, JSArray a)
         {
-            if (a._length > 0 && a[0] is JSNumber n) {
+            if (a[0] is JSNumber n) {
                 if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
                     return JSContext.Current.True;
             }
@@ -52,7 +58,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue IsInteger(JSValue t, JSArray a)
         {
-            if (a._length > 0 && a[0] is JSNumber n) { 
+            if (a[0] is JSNumber n) { 
                 var v = n.value;
                 if(((int)v) == v) 
                     return JSContext.Current.True;
@@ -60,9 +66,14 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
+        public static bool IsNaN(JSValue n)
+        {
+            return double.IsNaN(n.DoubleValue);
+        }
+
         public static JSValue IsNaN(JSValue t, JSArray a)
         {
-            if (a._length > 0 && a[0] is JSNumber n)
+            if (a[0] is JSNumber n)
             {
                 if (double.IsNaN(n.value))
                     return JSContext.Current.True;
@@ -72,7 +83,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue IsSafeInteger(JSValue t, JSArray a)
         {
-            if (a._length > 0 && a[0] is JSNumber n)
+            if (a[0] is JSNumber n)
             {
                 var v = n.value;
                 if (v >= MinSafeInteger && v <= MaxSafeInteger)
@@ -218,7 +229,7 @@ namespace WebAtoms.CoreJS.Core
             var p = t;
             if (!(p is JSNumber n))
                 throw JSContext.Current.TypeError($"Number.prototype.toExponential requires that 'this' be a Number");
-            if (a._length > 0 && a[0] is JSNumber n1)
+            if (a[0] is JSNumber n1)
             {
                 var v = n1.value;
                 if (double.IsNaN(v) || v > 100 || v < 1)
@@ -234,7 +245,7 @@ namespace WebAtoms.CoreJS.Core
             var p = t;
             if (!(p is JSNumber n))
                 throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
-            if (a._length > 0 && a[0] is JSNumber n1)
+            if (a[0] is JSNumber n1)
             {
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
                     throw JSContext.Current.RangeError("toFixed() digitis argument must be between 0 and 100");
@@ -249,7 +260,7 @@ namespace WebAtoms.CoreJS.Core
             var p = t;
             if (!(p is JSNumber n))
                 throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
-            if (a._length > 0 && a[0] is JSNumber n1)
+            if (a[0] is JSNumber n1)
             {
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
                     throw JSContext.Current.RangeError("toPrecision() digitis argument must be between 0 and 100");
@@ -354,17 +365,49 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue Add(JSValue value)
         {
-            throw new NotImplementedException();
+            switch(value)
+            {
+                case JSUndefined u:
+                    return JSContext.Current.NaN;
+                case JSNull n:
+                    return this;
+                case JSNumber n1:
+                    var v = n1.value;
+                    if (double.IsNaN(v)
+                        || double.IsPositiveInfinity(v)
+                        || double.IsNegativeInfinity(v))
+                    {
+                        return n1;
+                    }
+                    return this.Add(v);
+            }
+            return new JSString(this.value.ToString() + value.ToString());
         }
 
         public override JSValue Add(double value)
         {
-            throw new NotImplementedException();
+            var v = this.value;
+            if (double.IsNaN(v)
+                || double.IsPositiveInfinity(v)
+                || double.IsNegativeInfinity(v))
+                return this;
+            return new JSNumber(v + value);
         }
 
         public override JSValue Add(string value)
         {
-            throw new NotImplementedException();
+            return new JSString(this.value.ToString() + value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is JSNumber n)
+            {
+                if (double.IsNaN(value) || double.IsNaN(n.value))
+                    return false;
+                return value == n.value;
+            }
+            return base.Equals(obj);
         }
     }
 }

@@ -50,6 +50,11 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
+        public override JSValue ToJSString()
+        {
+            return this;
+        }
+
         internal static JSFunction Create()
         {
             var r = new JSFunction(JSFunction.empty);
@@ -64,8 +69,31 @@ namespace WebAtoms.CoreJS.Core
             var substr = JSProperty.Function(Substring);
             p.DefineProperty(KeyStrings.GetOrCreate("substr"), substr);
             p.DefineProperty(KeyStrings.GetOrCreate("substring"), substr);
+
+            p.DefineProperties(JSProperty.Function(KeyStrings.toString, (t, a) => t));
             return r;
         }
 
+        public override JSValue Add(JSValue value)
+        {
+            return new JSString(this.value + value.ToString());
+        }
+
+        public override JSValue Add(double value)
+        {
+            return new JSString(this.value + value.ToString());
+        }
+
+        public override JSValue Add(string value)
+        {
+            return new JSString(this.value + value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is JSString v)
+                return this.value == v.value;
+            return base.Equals(obj);
+        }
     }
 }

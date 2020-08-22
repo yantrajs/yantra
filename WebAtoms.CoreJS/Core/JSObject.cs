@@ -96,18 +96,13 @@ namespace WebAtoms.CoreJS.Core
             return new JSObject(p);
         }
 
-        public override string ToString()
-        {
-            return "[object object]";
-        }
-
         public override string ToDetailString()
         {
             var all = Entries.Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
             return $"{{ {string.Join(", ",all)} }}";
         }
 
-        public static JSValue ToString(JSValue t, JSArray a) => new JSString(t.ToString());
+        public static JSValue ToString(JSValue t, JSArray a) => new JSString("[object Object]");
 
         internal static JSValue StaticCreate(JSValue t, JSArray a)
         {
@@ -212,10 +207,6 @@ namespace WebAtoms.CoreJS.Core
         }
         internal static JSValue _FromEntries(JSValue t, JSArray a)
         {
-            if (a._length == 0)
-            {
-                throw JSContext.Current.TypeError(JSTypeError.NotIterable("undefined"));
-            }
             var v = a[0];
             if (v is JSUndefined || v is JSNull)
             {
@@ -318,5 +309,19 @@ namespace WebAtoms.CoreJS.Core
             return t;
         }
 
+        public override JSValue Add(JSValue value)
+        {
+            return new JSString(this.ToString() + value.ToString());
+        }
+
+        public override JSValue Add(double value)
+        {
+            return new JSString(this.ToString() + value.ToString());
+        }
+
+        public override JSValue Add(string value)
+        {
+            return new JSString(this.ToString() + value);
+        }
     }
 }

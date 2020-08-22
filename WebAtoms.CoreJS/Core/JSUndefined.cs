@@ -23,5 +23,25 @@ namespace WebAtoms.CoreJS.Core
             return "undefined";
         }
 
+        public override JSValue Add(JSValue value)
+        {
+            switch(value)
+            {
+                case JSUndefined un:
+                case JSNumber n:
+                    return JSContext.Current.NaN;
+            }
+            return new JSString("undefined" + value.ToString());
+        }
+
+        public override JSValue Add(double value)
+        {
+            return JSContext.Current.NaN;
+        }
+
+        public override JSValue Add(string value)
+        {
+            return new JSString("undefined" + value);
+        }
     }
 }

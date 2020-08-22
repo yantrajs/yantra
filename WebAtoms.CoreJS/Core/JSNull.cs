@@ -21,5 +21,34 @@ namespace WebAtoms.CoreJS.Core
         {
             return "null";
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is JSNull;
+        }
+
+        public override JSValue Add(JSValue value)
+        {
+            switch(value)
+            {
+                case JSUndefined un:
+                    return JSContext.Current.NaN;
+                case JSNull @null:
+                    return JSContext.Current.Zero;
+                case JSNumber n:
+                    return n;
+            }
+            return new JSString("null" + value.ToString());
+        }
+
+        public override JSValue Add(double value)
+        {
+            return new JSNumber(value);
+        }
+
+        public override JSValue Add(string value)
+        {
+            return new JSString("null" + value);
+        }
     }
 }

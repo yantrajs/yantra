@@ -20,6 +20,20 @@ namespace WebAtoms.CoreJS.Core
             Key = k;
         }
 
+        public override JSValue Add(JSValue value)
+        {
+            return new JSString(Key.Value + value.ToString());
+        }
+
+        public override JSValue Add(double value)
+        {
+            return new JSString(Key.Value + value.ToString());
+        }
+
+        public override JSValue Add(string value)
+        {
+            return new JSString(Key.Value + value);
+        }
 
         public override bool Equals(object obj)
         {

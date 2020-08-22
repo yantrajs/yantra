@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSBoolean False { get; }
 
-        public JSNumber NaN { get; }
+        public JSNumber NaN => new JSNumber(double.NaN);
 
         public JSNumber One { get; }
 
@@ -103,7 +103,7 @@ namespace WebAtoms.CoreJS.Core
 
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
-            NaN = new JSNumber(double.NaN, NumberPrototype);
+            // NaN = new JSNumber(double.NaN, NumberPrototype);
             One = new JSNumber(1, NumberPrototype);
             Zero = new JSNumber(0, NumberPrototype);
             Two = new JSNumber(2, NumberPrototype);

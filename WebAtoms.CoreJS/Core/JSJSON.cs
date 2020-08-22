@@ -35,8 +35,6 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue _Stringify(JSValue t, JSArray a)
         {
-            if (a._length == 0)
-                return JSUndefined.Value;
             var f = a[0];
             if (f is JSUndefined)
                 return f;

@@ -41,5 +41,43 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is JSBoolean b)
+                return this._value == b._value;
+            return base.Equals(obj);
+        }
+
+        public override JSValue Add(JSValue value)
+        {
+            switch (value)
+            {
+                case JSUndefined u:
+                    return JSContext.Current.NaN;
+                case JSNull n:
+                    return this._value ? JSContext.Current.One : JSContext.Current.Zero;
+                case JSNumber n1:
+                    var v = n1.value;
+                    if (double.IsNaN(v)
+                        || double.IsPositiveInfinity(v)
+                        || double.IsNegativeInfinity(v))
+                    {
+                        return n1;
+                    }
+                    return this.Add(v);
+            }
+            return new JSString(this._value.ToString() + value.ToString());
+        }
+
+        public override JSValue Add(double value)
+        {
+            var v = this._value ? 1 : 0;
+            return new JSNumber(v + value);
+        }
+
+        public override JSValue Add(string value)
+        {
+            return new JSString((this._value ? "true" : "false") + value);
+        }
     }
 }
