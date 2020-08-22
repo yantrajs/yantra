@@ -111,12 +111,12 @@ namespace WebAtoms.CoreJS
     /// 
     /// Is it possible to create a event listener to add change of variable...?
     /// </summary>
-    public class LexicalScope
+    public class CodeLexicalScope
     {
         private BinaryUInt32Map<ParameterExpression> map = new BinaryUInt32Map<ParameterExpression>();
-        readonly LexicalScope parent;
+        readonly CodeLexicalScope parent;
 
-        public LexicalScope(LexicalScope parent)
+        public CodeLexicalScope(CodeLexicalScope parent)
         {
             this.parent = parent;
         }
@@ -168,11 +168,11 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        private LinkedStack<LexicalScope> lexicalScope;
+        private LinkedStack<CodeLexicalScope> lexicalScope;
 
         public CoreScript(string code, string location = null)
         {
-            lexicalScope = new LinkedStack<LexicalScope>(() => new LexicalScope(this.lexicalScope.Top?.Value));
+            lexicalScope = new LinkedStack<CodeLexicalScope>(() => new CodeLexicalScope(this.lexicalScope.Top?.Value));
 
             Esprima.JavaScriptParser parser =
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
