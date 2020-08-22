@@ -351,5 +351,20 @@ namespace WebAtoms.CoreJS.Core
 
             return r;
         }
+
+        public override JSValue Add(JSValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override JSValue Add(double value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override JSValue Add(string value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
@@ -15,7 +16,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static bool IsTrue(JSValue value)
         {
-            switch(value)
+            switch (value)
             {
                 case JSString str:
                     return str.Length > 0;
@@ -27,6 +28,8 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        public override double DoubleValue => this._value ? 1 : 0;
+
         public override string ToString()
         {
             return _value ? "true" : "false";
@@ -37,7 +40,6 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSFunction((t, a) => IsTrue(a[0]) ? JSContext.Current.True : JSContext.Current.False);
             return r;
         }
-
 
     }
 }

@@ -45,6 +45,12 @@ namespace WebAtoms.CoreJS.Core
 
         public JSNumber NaN { get; }
 
+        public JSNumber One { get; }
+
+        public JSNumber Two { get; }
+
+        public JSNumber Zero { get; }
+
         public JSObject JSON { get; }
 
         public static JSContext Current
@@ -98,6 +104,9 @@ namespace WebAtoms.CoreJS.Core
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
             NaN = new JSNumber(double.NaN, NumberPrototype);
+            One = new JSNumber(1, NumberPrototype);
+            Zero = new JSNumber(0, NumberPrototype);
+            Two = new JSNumber(2, NumberPrototype);
             CreatePrototype(JSJSON.JSON, JSJSON.Create);
             JSON = this[JSJSON.JSON] as JSObject;
         }

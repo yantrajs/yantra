@@ -120,10 +120,12 @@ namespace WebAtoms.CoreJS
         {
             this.parent = parent;
         }
-        public void Push(Type type, string name)
+        public ParameterExpression Push(Type type, string name)
         {
+            var pe = Exp.Parameter(type, name);
             KeyString k = name;
-            map[k.Key] = Exp.Parameter(type, name);
+            map[k.Key] = pe;
+            return pe;
         }
 
         public Exp Search(string name)
@@ -136,7 +138,7 @@ namespace WebAtoms.CoreJS
                 return parent.Search(name);
             }
             // need to call JSContext.Current[name];
-            return Exp.Call();
+            return null;
         }
 
 
@@ -296,11 +298,13 @@ namespace JSGlobal {{
             if (cb != null)
             {
                 using (var scope = lexicalScope.PushNew()) {
-                    scope.Value.Push(typeof(JSException), cb.Param.As<Identifier>().Name);
-                    var cbExp = Exp.Catch(cep, VisitStatement(cb));
+                    var pe = scope.Value.Push(typeof(JSException), cb.Param.As<Identifier>().Name);
+                    var cbExp = Exp.Catch(pe, VisitStatement(cb));
                     return Exp.TryCatch(block, cbExp);
                 }
             }
+
+            return Exp.Constant(null);
         }
 
         protected override Exp VisitThrowStatement(Esprima.Ast.ThrowStatement throwStatement)

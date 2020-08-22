@@ -42,6 +42,27 @@ namespace WebAtoms.CoreJS.Core {
 
         internal JSValue prototypeChain;
 
+        /// <summary>
+        /// Speed improvements for string contact operations
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public abstract JSValue Add(JSValue value);
+        /// <summary>
+        /// Speed improvements for string contact operations
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public abstract JSValue Add(double value);
+        /// <summary>
+        /// Speed improvements for string contact operations
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public abstract JSValue Add(string value);
+
+        
+
         protected JSValue(JSValue prototype)
         {
             this.prototypeChain = prototype;
