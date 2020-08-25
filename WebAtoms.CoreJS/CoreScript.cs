@@ -1,16 +1,15 @@
 ﻿using Esprima.Ast;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.LinqExpressions;
 using WebAtoms.CoreJS.Utils;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -19,161 +18,47 @@ using Exp = System.Linq.Expressions.Expression;
 
 namespace WebAtoms.CoreJS
 {
-
-    public static class JSSyntaxHelper
-    {
-
-        public static (NamespaceDeclarationSyntax jsNS, 
-            ClassDeclarationSyntax jsClass) 
-            JSGlobal(BlockSyntax body, string code) {
-            var ns = NamespaceDeclaration(IdentifierName("JSGlobal"));
-
-            ns = ns.AddUsings(
-                UsingDirective(IdentifierName("System")),
-                UsingDirective(IdentifierName("System.Linq")),
-                UsingDirective(IdentifierName("System.Collections.Generic")),
-                UsingDirective(IdentifierName("WebAtoms.CoreJS.Core"))
-                );
-            
-            var jsc = ClassDeclaration("JSCode");
-            jsc = jsc.AddModifiers(
-                Token(SyntaxKind.PublicKeyword),
-                Token(SyntaxKind.StaticKeyword));
-
-            jsc = jsc.AddMembers(Field(StringVariable("Code", code), true, true, true));
-
-
-            ns = ns.AddMembers(jsc);
-
-            // Generate delegate...
-
-            var lambda = ParenthesizedLambdaExpression(ParameterList(),body);
-            var t = Parameter(Identifier("t"));
-            var a = Parameter(Identifier("a"));
-            lambda = lambda.AddParameterListParameters(t, a);
-
-            var fx = VariableDeclaration(IdentifierName("JSFunctionDelegate"));
-
-            fx = fx.AddVariables(VariableDeclarator("Body").WithInitializer(EqualsValueClause(lambda)));
-
-            jsc = jsc.AddMembers(Field(fx).AddModifiers(
-                Token(SyntaxKind.PublicKeyword),
-                Token(SyntaxKind.StaticKeyword)));
-
-            return (ns, jsc);
-        }
-
-        public static FieldDeclarationSyntax Field(
-            VariableDeclarationSyntax d, 
-            bool isPublic = true, 
-            bool isStatic = false, 
-            bool isReadOnly = false)
-        {
-            var fd = FieldDeclaration(d);
-            if (isPublic)
-                fd.AddModifiers(Token(SyntaxKind.PublicKeyword));
-            if (isStatic)
-                fd.AddModifiers(Token(SyntaxKind.StaticKeyword));
-            if (isReadOnly)
-                fd.AddModifiers(Token(SyntaxKind.ReadOnlyKeyword));
-            return fd;
-        }
-
-
-        public static VariableDeclarationSyntax StringVariable(string name, string value = null) {
-            var vd = VariableDeclaration(PredefinedType(Token(SyntaxKind.StringKeyword)));
-            if (value == null)
-                vd.AddVariables(VariableDeclarator(name));
-            else
-                vd.AddVariables(VariableDeclarator(name).WithInitializer(EqualsValueClause(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(value)))));
-            return vd;
-        }
-
-    }
-
-    public struct ScriptLocation
-    {
-        public string Location { get; set; }
-
-        public int LineNumber { get; set; }
-
-        public int ColumnNumber { get; set; }
-
-    }
-
-    /// <summary>
-    /// Convert variable to named to variable reference when a variable or
-    /// parameter is captured.
-    /// 
-    /// 1. First store everything as ParameterExpression
-    /// 2. On capture, convert ParameterExpression to FieldExpression of ParameterExpression
-    /// 3. Change all references.. (complicated)
-    /// 
-    /// Is it possible to create a event listener to add change of variable...?
-    /// </summary>
-    public class CodeLexicalScope
-    {
-        private BinaryUInt32Map<ParameterExpression> map = new BinaryUInt32Map<ParameterExpression>();
-        readonly CodeLexicalScope parent;
-
-        public CodeLexicalScope(CodeLexicalScope parent)
-        {
-            this.parent = parent;
-        }
-        public ParameterExpression Push(Type type, string name)
-        {
-            var pe = Exp.Parameter(type, name);
-            KeyString k = name;
-            map[k.Key] = pe;
-            return pe;
-        }
-
-        public Exp Search(string name)
-        {
-            KeyString k = name;
-            if (map.TryGetValue(k.Key, out var pe))
-                return pe;
-            if(parent != null)
-            {
-                return parent.Search(name);
-            }
-            // need to call JSContext.Current[name];
-            return null;
-        }
-
-
-    }
-
     public class CoreScript: JSAstVisitor<Exp>
     {
         public JSFunctionDelegate Method { get; }
 
-        public static class TrustedPlatformAssembly
-        {
-            private static List<MetadataReference> dlls = null;
+        private LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
 
-            public static IEnumerable<MetadataReference> Dlls
-            {
-                get
-                {
-                    if (dlls == null)
-                    {
-                        var list = AppDomain.CurrentDomain.GetAssemblies()
-                            .Where(x => !x.IsDynamic)
-                            .Select(x => MetadataReference.CreateFromFile(x.Location))
-                            .ToList();
-                    }
-                    return dlls;
-                }
-            }
+        //public static class TrustedPlatformAssembly
+        //{
+        //    private static List<MetadataReference> dlls = null;
+
+        //    public static IEnumerable<MetadataReference> Dlls
+        //    {
+        //        get
+        //        {
+        //            if (dlls == null)
+        //            {
+        //                var list = AppDomain.CurrentDomain.GetAssemblies()
+        //                    .Where(x => !x.IsDynamic)
+        //                    .Select(x => MetadataReference.CreateFromFile(x.Location))
+        //                    .ToList();
+        //            }
+        //            return dlls;
+        //        }
+        //    }
+        //}
+
+        public Exp KeyOfName(string name)
+        {
+            // do optimization later on..
+            return ExpHelper.KeyOf(name);
         }
 
-        private LinkedStack<CodeLexicalScope> lexicalScope;
+        //public Exp KeyOfName(Exp name)
+        //{
+        //    // do optimization later on..
+        //    return ExpHelper.KeyOf(name);
+        //}
+
 
         public CoreScript(string code, string location = null)
         {
-            lexicalScope = new LinkedStack<CodeLexicalScope>(() => new CodeLexicalScope(this.lexicalScope.Top?.Value));
-
             Esprima.JavaScriptParser parser =
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
                 Loc = true,
@@ -192,53 +77,53 @@ namespace WebAtoms.CoreJS
 
             // var tree = unit.SyntaxTree;
 
-            var codeLiteral = Literal(code).ToFullString();
+//            var codeLiteral = Literal(code).ToFullString();
 
-            var csCode = $@"using System;
-using System.Collections.Generic;
-using System.Linq;
-using WebAtoms.CoreJS.Core;
+//            var csCode = $@"using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using WebAtoms.CoreJS.Core;
 
-namespace JSGlobal {{
+//namespace JSGlobal {{
 
-    public static class JSCode {{
+//    public static class JSCode {{
         
-        public readonly static string Code = {codeLiteral};
+//        public readonly static string Code = {codeLiteral};
 
-        public static JSFunctionDelegate Body = (_this,_) => {{
+//        public static JSFunctionDelegate Body = (_this,_) => {{
 
-#pragma warning disable CS0162 
-            return JSUndefined.Value;
-#pragma warning restore CS0162 
-        }};
+//#pragma warning disable CS0162 
+//            return JSUndefined.Value;
+//#pragma warning restore CS0162 
+//        }};
 
-    }}
+//    }}
 
-}}
-";
+//}}
+//";
 
-            var tree = ParseSyntaxTree(csCode);
+//            var tree = ParseSyntaxTree(csCode);
 
             // lets first generate the code...
 
-            CSharpCompilation compilation = CSharpCompilation.Create("JSCode", 
-                new SyntaxTree[] { tree },
-                TrustedPlatformAssembly.Dlls,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            //CSharpCompilation compilation = CSharpCompilation.Create("JSCode", 
+            //    new SyntaxTree[] { tree },
+            //    TrustedPlatformAssembly.Dlls,
+            //    new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            var ms = new MemoryStream();
+            //var ms = new MemoryStream();
 
-            var result = compilation.Emit(ms);
+            //var result = compilation.Emit(ms);
 
-            var asm = Assembly.Load(ms.ToArray());
+            //var asm = Assembly.Load(ms.ToArray());
 
-            if(!result.Success)
-            {
-                throw new InvalidOperationException($"Compilation fixed ... ");
-            }
+            //if(!result.Success)
+            //{
+            //    throw new InvalidOperationException($"Compilation fixed ... ");
+            //}
 
-            var type = asm.GetType("JSGlobal.JSCode");
-            Method = (JSFunctionDelegate) type.GetField("Body").GetValue(null);
+            //var type = asm.GetType("JSGlobal.JSCode");
+            //Method = (JSFunctionDelegate) type.GetField("Body").GetValue(null);
         }
 
         protected override Exp VisitProgram(Esprima.Ast.Program program)
@@ -273,6 +158,10 @@ namespace JSGlobal {{
              *    
              * }, "@namedFunction", "Source code");
              */
+            using(var cs = scope.Push(functionDeclaration))
+            {
+                // use this to create variables...
+            }
             throw new NotImplementedException();
         }
 
@@ -288,7 +177,41 @@ namespace JSGlobal {{
 
         protected override Exp VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
         {
-            throw new NotImplementedException();
+            // lets add variable...
+            // forget about const... compiler like typescript should take care of it...
+            // let will be implemented in future...
+            var inits = new List<Exp>();
+            var variables = new List<ParameterExpression>();
+            foreach(var declarator in variableDeclaration.Declarations)
+            {
+                switch(declarator.Id)
+                {
+                    case Esprima.Ast.Identifier id:
+                        var ve = Exp.Variable(typeof(JSVariable));
+                        variables.Add(ve);
+                        var vf = JSVariable.ValueExpression(ve);
+                        this.scope.Top.AddVariable(id.Name, vf);
+
+                        if (declarator.Init != null)
+                        {
+                            inits.Add(Exp.Assign(vf, VisitExpression(declarator.Init)));
+                        } else
+                        {
+                            inits.Add(Exp.Assign(vf, ExpHelper.Undefined));
+                        }
+                        // add to scope...
+                        var keyName = KeyOfName(id.Name);
+                        inits.Add(ExpHelper.AddToScope(keyName, ve));
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+            if (inits.Any())
+            {
+                return Exp.Block(variables, inits);
+            }
+            return Exp.Block();
         }
 
         protected override Exp VisitTryStatement(Esprima.Ast.TryStatement tryStatement)
@@ -297,11 +220,33 @@ namespace JSGlobal {{
             var cb = tryStatement.Handler;
             if (cb != null)
             {
-                using (var scope = lexicalScope.PushNew()) {
-                    var pe = scope.Value.Push(typeof(JSException), cb.Param.As<Identifier>().Name);
-                    var cbExp = Exp.Catch(pe, VisitStatement(cb));
-                    return Exp.TryCatch(block, cbExp);
+                var id = cb.Param.As<Identifier>();
+                var pe = Exp.Parameter(typeof(JSException));
+                var ve = Exp.Variable(typeof(JSVariable));
+                var vf = JSVariable.ValueExpression(ve);
+                var keyName = KeyOfName(id.Name);
+                var catchBlock = new List<Exp>();
+
+                scope.Top.AddVariable(id.Name, vf);
+
+                catchBlock.Add(Exp.Assign(vf, ExpHelper.GetError(pe)));
+                catchBlock.Add(ExpHelper.AddToScope(keyName, ve));
+                catchBlock.Add(VisitStatement(cb));
+
+                var cbExp = Exp.Catch(pe, Exp.Block(new ParameterExpression[] { ve }, catchBlock ));
+
+                if (tryStatement.Finalizer != null)
+                {
+                    return Exp.TryCatchFinally(block, VisitStatement(tryStatement.Finalizer), cbExp);
                 }
+
+                return Exp.TryCatch(block, cbExp);
+            }
+
+            var @finally = tryStatement.Finalizer;
+            if (@finally != null)
+            {
+                return Exp.TryFinally(block, VisitStatement(@finally));
             }
 
             return Exp.Constant(null);
@@ -309,12 +254,55 @@ namespace JSGlobal {{
 
         protected override Exp VisitThrowStatement(Esprima.Ast.ThrowStatement throwStatement)
         {
-            throw new NotImplementedException();
+            return ExpHelper.Throw(VisitExpression(throwStatement.Argument));
         }
 
         protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
         {
-            throw new NotImplementedException();
+            Exp d = null;
+            List<System.Linq.Expressions.SwitchCase> cases = new List<System.Linq.Expressions.SwitchCase>();
+            foreach(var c in switchStatement.Cases)
+            {
+                var statements = new List<Exp>();
+                // this is probably default...
+                foreach(var es in c.Consequent)
+                {
+                    switch(es)
+                    {
+                        case Esprima.Ast.Statement stmt:
+                            statements.Add(VisitStatement(stmt));
+                            break;
+                        case Esprima.Ast.Expression exp:
+                            statements.Add(VisitExpression(exp));
+                            break;
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }
+
+                Exp block = null;
+
+                if (statements.Any())
+                {
+                    if (statements.Count == 1)
+                    {
+                        block = Exp.Block(statements);
+                    }
+                    else
+                    {
+                        block = statements[0];
+                    }
+                }
+
+                if (c.Test == null)
+                {
+                    d = block;
+                } else
+                {
+                    cases.Add(Exp.SwitchCase(block, VisitExpression(c.Test)));
+                }
+            }
+            return Exp.Switch(VisitExpression(switchStatement.Discriminant), d, null, cases);
         }
 
         protected override Exp VisitSwitchCase(Esprima.Ast.SwitchCase switchCase)
@@ -324,7 +312,7 @@ namespace JSGlobal {{
 
         protected override Exp VisitReturnStatement(Esprima.Ast.ReturnStatement returnStatement)
         {
-            throw new NotImplementedException();
+            return VisitExpression(returnStatement.Argument);
         }
 
         protected override Exp VisitLabeledStatement(Esprima.Ast.LabeledStatement labeledStatement)
@@ -334,12 +322,19 @@ namespace JSGlobal {{
 
         protected override Exp VisitIfStatement(Esprima.Ast.IfStatement ifStatement)
         {
-            throw new NotImplementedException();
+            var test = VisitExpression(ifStatement.Test);
+            var trueCase = VisitStatement(ifStatement.Consequent);
+            // process else...
+            if (ifStatement.Alternate != null)
+            {
+                return Exp.Condition(test, trueCase, VisitStatement(ifStatement.Alternate));
+            }
+            return Exp.Condition(test, trueCase, ExpHelper.Undefined );
         }
 
         protected override Exp VisitEmptyStatement(Esprima.Ast.EmptyStatement emptyStatement)
         {
-            throw new NotImplementedException();
+            return ExpHelper.Undefined;
         }
 
         protected override Exp VisitDebuggerStatement(Esprima.Ast.DebuggerStatement debuggerStatement)
@@ -349,7 +344,7 @@ namespace JSGlobal {{
 
         protected override Exp VisitExpressionStatement(Esprima.Ast.ExpressionStatement expressionStatement)
         {
-            throw new NotImplementedException();
+            return VisitExpression(expressionStatement.Expression);
         }
 
         protected override Exp VisitForStatement(Esprima.Ast.ForStatement forStatement)
@@ -372,9 +367,53 @@ namespace JSGlobal {{
             throw new NotImplementedException();
         }
 
+        private Exp DoubleValue(Esprima.Ast.Expression exp)
+        {
+            return ExpHelper.DoubleValue(VisitExpression(exp));
+        }
+
+        private Exp BooleanValue(Esprima.Ast.Expression exp)
+        {
+            return ExpHelper.BooleanValue(VisitExpression(exp));
+        }
+
+
         protected override Exp VisitUnaryExpression(Esprima.Ast.UnaryExpression unaryExpression)
         {
-            throw new NotImplementedException();
+            var target = unaryExpression.Argument;
+
+            switch (unaryExpression.Operator)
+            {
+                case UnaryOperator.Plus:
+                    return ExpHelper.JSValueFromDouble(Exp.UnaryPlus(DoubleValue(target)));
+                case UnaryOperator.Minus:
+                    return ExpHelper.JSValueFromDouble(Exp.Negate(DoubleValue(target)));
+                case UnaryOperator.BitwiseNot:
+                    return ExpHelper.JSValueFromDouble(Exp.Not( Exp.Convert(DoubleValue(target),typeof(int))));
+                case UnaryOperator.LogicalNot:
+                    return ExpHelper.JSValueFromDouble(Exp.Negate(BooleanValue(target)));
+                case UnaryOperator.Delete:
+                    // delete expression...
+                    var me = target as Esprima.Ast.MemberExpression;
+                    Exp pe = null;
+                    if (me.Computed)
+                    {
+                        pe = VisitExpression(me.Property);
+                    } else
+                    {
+                        pe = KeyOfName((me.Property as Esprima.Ast.Identifier).Name);
+                    }
+                    return ExpHelper.Undefined;
+                case UnaryOperator.Void:
+                    return ExpHelper.Undefined;
+                case UnaryOperator.TypeOf:
+                    return ExpHelper.TypeOf(VisitExpression(target));
+                case UnaryOperator.Increment:
+                    return ExpHelper.JSValueFromDouble(Exp.Add(DoubleValue(target), Exp.Constant(1)));
+                case UnaryOperator.Decrement:
+                    return ExpHelper.JSValueFromDouble(Exp.Subtract(DoubleValue(target), Exp.Constant(1)));
+            }
+            throw new InvalidOperationException();
         }
 
         protected override Exp VisitUpdateExpression(Esprima.Ast.UpdateExpression updateExpression)

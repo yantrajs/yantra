@@ -36,6 +36,27 @@ namespace WebAtoms.CoreJS.Core {
 
         public bool BooleanValue => JSBoolean.IsTrue(this);
 
+        public JSValue TypeOf
+        {
+            get
+            {
+                switch(this)
+                {
+                    case JSUndefined u:
+                        return JSConstants.Undefined;
+                    case JSNumber a:
+                        return JSConstants.Number;
+                    case JSFunction f:
+                        return JSConstants.Function;
+                    case JSBoolean b:
+                        return JSConstants.Boolean;
+                    case JSString s:
+                        return JSConstants.String;
+                }
+                return JSConstants.Object;
+            }
+        }
+
         public virtual int IntValue { get => throw new NotImplementedException(); }
 
         internal BinaryUInt32Map<JSProperty> ownProperties;
@@ -98,12 +119,27 @@ namespace WebAtoms.CoreJS.Core {
         {
             get
             {
+                if (this is JSUndefined) {
+                    throw JSContext.Current.TypeError($"Unable to get {name} of undefined");
+                }
+                if (this is JSNull)
+                {
+                    throw JSContext.Current.TypeError($"Unable to get {name} of null");
+                }
                 var p = GetInternalProperty(name.Key);
                 if (p.IsEmpty) return JSUndefined.Value;
                 return p.IsValue ? p.value : p.get.InvokeFunction(this, JSArguments.Empty);
             }
             set
             {
+                if (this is JSUndefined)
+                {
+                    throw JSContext.Current.TypeError($"Unable to set {name} of undefined");
+                }
+                if (this is JSNull)
+                {
+                    throw JSContext.Current.TypeError($"Unable to set {name} of null");
+                }
                 var p = GetInternalProperty(name.Key);
                 if (p.IsEmpty)
                 {
@@ -127,6 +163,15 @@ namespace WebAtoms.CoreJS.Core {
         {
             get
             {
+                if (this is JSUndefined)
+                {
+                    throw JSContext.Current.TypeError($"Unable to get {key} of undefined");
+                }
+                if (this is JSNull)
+                {
+                    throw JSContext.Current.TypeError($"Unable to get {key} of null");
+                }
+
                 JSProperty p = new JSProperty();
                 if (key is JSString j)
                     p = GetInternalProperty(j, true);
@@ -140,6 +185,15 @@ namespace WebAtoms.CoreJS.Core {
             }
             set
             {
+                if (this is JSUndefined)
+                {
+                    throw JSContext.Current.TypeError($"Unable to set {key} of undefined");
+                }
+                if (this is JSNull)
+                {
+                    throw JSContext.Current.TypeError($"Unable to set {key} of null");
+                }
+
                 JSProperty p = new JSProperty();
                 if (key is JSString j)
                     p = GetInternalProperty(j, true);
@@ -167,6 +221,24 @@ namespace WebAtoms.CoreJS.Core {
                     ownProperties[p.key.Key.Key] = p;
                 }
             }
+        }
+
+        public JSValue Delete(JSValue key)
+        {
+            if (this is JSUndefined)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {key} of undefined");
+            }
+            if (this is JSNull)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {key} of null");
+            }
+
+            // return true if property was deleted successfully... 
+
+            // or false..
+
+            return JSContext.Current.False;
         }
 
         public virtual JSValue this[uint key]

@@ -17,6 +17,8 @@ namespace WebAtoms.CoreJS.Core
 
         static AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
 
+        internal LexicalScope Scope = new LexicalScope();
+
         public void Dispose()
         {
             _current.Value = null;

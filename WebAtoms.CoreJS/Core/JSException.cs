@@ -25,5 +25,12 @@ namespace WebAtoms.CoreJS.Core
             Error = new JSError(message, JSUndefined.Value);
         }
 
+        internal static void Throw(JSValue value)
+        {
+            throw new JSException(value);
+        }
+
+
+
     }
 }

@@ -4,6 +4,24 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
+
+    public struct DisposableAction: IDisposable
+    {
+        readonly Action action;
+        public DisposableAction(Action action)
+        {
+            this.action = action;
+        }
+
+        public void Dispose()
+        {
+            action();
+        }
+    }
+
+    /// <summary>
+    /// Only create new scope if there is an internal function definition
+    /// </summary>
     public class LexicalScope
     {
 
