@@ -22,14 +22,12 @@ namespace WebAtoms.CoreJS
 
         public FunctionDeclaration Function { get; }
 
-        public FunctionScope(Esprima.Ast.FunctionDeclaration fx)
+        public ParameterExpression ThisExpression { get; }
+
+        public FunctionScope(Esprima.Ast.FunctionDeclaration fx, ParameterExpression te)
         {
             this.Function = fx;
-        }
-
-        public static implicit operator FunctionScope(Esprima.Ast.FunctionDeclaration d)
-        {
-            return new FunctionScope(d);
+            this.ThisExpression = te;
         }
 
         public Exp this[string name]

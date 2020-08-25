@@ -158,7 +158,10 @@ namespace WebAtoms.CoreJS
              *    
              * }, "@namedFunction", "Source code");
              */
-            using(var cs = scope.Push(functionDeclaration))
+
+            var thisParameter = Exp.Parameter(typeof(JSValue));
+
+            using(var cs = scope.Push(new FunctionScope(functionDeclaration, thisParameter)))
             {
                 // use this to create variables...
             }
@@ -401,29 +404,55 @@ namespace WebAtoms.CoreJS
                         pe = VisitExpression(me.Property);
                     } else
                     {
-                        pe = KeyOfName((me.Property as Esprima.Ast.Identifier).Name);
+                        pe = Exp.Constant(me.Property.As<Identifier>().Name);
                     }
-                    return ExpHelper.Undefined;
+                    return ExpHelper.Delete(VisitExpression(me.Object), pe);
                 case UnaryOperator.Void:
                     return ExpHelper.Undefined;
                 case UnaryOperator.TypeOf:
                     return ExpHelper.TypeOf(VisitExpression(target));
                 case UnaryOperator.Increment:
-                    return ExpHelper.JSValueFromDouble(Exp.Add(DoubleValue(target), Exp.Constant(1)));
+                    return this.InternalVisitUpdateExpression(unaryExpression);
                 case UnaryOperator.Decrement:
-                    return ExpHelper.JSValueFromDouble(Exp.Subtract(DoubleValue(target), Exp.Constant(1)));
+                    return this.InternalVisitUpdateExpression(unaryExpression);
             }
             throw new InvalidOperationException();
         }
-
-        protected override Exp VisitUpdateExpression(Esprima.Ast.UpdateExpression updateExpression)
+        protected override Exp VisitUpdateExpression(UpdateExpression updateExpression)
         {
-            throw new NotImplementedException();
+            return InternalVisitUpdateExpression(updateExpression);
+        }
+
+        private Exp InternalVisitUpdateExpression(Esprima.Ast.UnaryExpression updateExpression)
+        {
+            // added support for a++, a--
+            if (updateExpression.Prefix) { 
+                if (updateExpression.Operator == UnaryOperator.Increment)
+                {
+                    return ExpHelper.JSValueFromDouble(Exp.AddAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
+                }
+                return ExpHelper.JSValueFromDouble(Exp.SubtractAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
+            }
+            var right = VisitExpression(updateExpression.Argument);
+            var ve = Exp.Variable(typeof(JSValue));
+            if (updateExpression.Operator == UnaryOperator.Increment)
+            {
+                return Exp.Block(new ParameterExpression[] { ve }, 
+                    Exp.Assign(ve,right),
+                    Exp.Assign(right, ExpHelper.JSValueFromDouble(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant(1)))),
+                    ve);
+            }
+            return Exp.Block(new ParameterExpression[] { ve },
+                Exp.Assign(ve, right),
+                Exp.Assign(right, ExpHelper.JSValueFromDouble(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant(1)))),
+                ve);
         }
 
         protected override Exp VisitThisExpression(Esprima.Ast.ThisExpression thisExpression)
         {
-            throw new NotImplementedException();
+            // this can never be null
+            // check if the global function thisExpression has been setup or not...
+            return this.scope.Top.ThisExpression;
         }
 
         protected override Exp VisitSequenceExpression(Esprima.Ast.SequenceExpression sequenceExpression)
@@ -438,7 +467,10 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)
         {
-            throw new NotImplementedException();
+            var constructor = VisitExpression(newExpression.Callee);
+            var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e));
+            var pe = ExpHelper.NewArguments(args);
+            return TypeHelper<JSValue>.Call<JSArray>(constructor, "CreateInstance",pe);
         }
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
@@ -453,12 +485,30 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
         {
+            switch (literal.TokenType)
+            {
+                case Esprima.TokenType.BooleanLiteral:
+                    return literal.BooleanValue 
+                        ? ExpHelper.True
+                        : ExpHelper.False;
+                case Esprima.TokenType.StringLiteral:
+                    return TypeHelper<JSString>.New(literal.StringValue);
+                case Esprima.TokenType.RegularExpression:
+                    return TypeHelper<JSRegExp>.New(literal.Regex.Pattern, literal.Regex.Flags);
+                case Esprima.TokenType.Template:
+                    break;
+                case Esprima.TokenType.NullLiteral:
+                    return TypeHelper<JSNull>.StaticProperty("Value");
+                case Esprima.TokenType.NumericLiteral:
+                    return TypeHelper<JSNumber>.New(literal.NumericValue);
+            }
             throw new NotImplementedException();
         }
 
         protected override Exp VisitIdentifier(Esprima.Ast.Identifier identifier)
         {
-            throw new NotImplementedException();
+            // if this is null, fetch from global...
+            return this.scope.Top[identifier.Name];
         }
 
         protected override Exp VisitFunctionExpression(Esprima.Ast.IFunction function)
@@ -618,7 +668,24 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)
         {
-            throw new NotImplementedException();
+            var calle = callExpression.Callee;
+            var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e));
+            if (calle is Esprima.Ast.MemberExpression me)
+            {
+                // invoke method...
+
+                // get object...
+                var obj = VisitExpression(me.Object);
+
+                var id = me.Property.As<Esprima.Ast.Identifier>();
+
+                var paramArray = ExpHelper.NewArguments(args);
+
+                return TypeHelper<JSValue>.Call<object, JSArray>(obj, "InternalInvoke", Exp.Constant(id.Name), paramArray);
+
+            } else {
+                return TypeHelper<JSValue>.Call(VisitExpression(callExpression.Callee), "InvokeFunction", args);
+            }
         }
 
         protected override Exp VisitBinaryExpression(Esprima.Ast.BinaryExpression binaryExpression)
@@ -638,6 +705,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitContinueStatement(Esprima.Ast.ContinueStatement continueStatement)
         {
+            // return Exp.Continue()
             throw new NotImplementedException();
         }
 

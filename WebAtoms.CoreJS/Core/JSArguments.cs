@@ -11,6 +11,12 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSArguments Empty = new JSArguments();
 
+        internal static JSArguments FromParameters(params JSValue[] args)
+        {
+            return new JSArguments(args);
+        }
+
+
         public static JSArguments From(params JSValue[] args)
         {
             return new JSArguments(args);

@@ -241,6 +241,38 @@ namespace WebAtoms.CoreJS.Core {
             return JSContext.Current.False;
         }
 
+        internal JSValue InternalDelete(object keyExp)
+        {
+            if (this is JSUndefined)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {keyExp} of undefined");
+            }
+            if (this is JSNull)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {keyExp} of null");
+            }
+            uint key = 0;
+            switch(keyExp)
+            {
+                case KeyString ks:
+                    key = ks.Key;
+                    break;
+                case JSString jsString:
+                    key = KeyStrings.GetOrCreate(jsString.value).Key;
+                    break;
+                case string s:
+                    key = KeyStrings.GetOrCreate(s).Key;
+                    break;
+                case JSValue v:
+                    key = KeyStrings.GetOrCreate(v.ToString()).Key;
+                    break;
+            }
+            if (ownProperties.RemoveAt(key))
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
+
         public virtual JSValue this[uint key]
         {
             get
@@ -302,6 +334,26 @@ namespace WebAtoms.CoreJS.Core {
             var fx = this[name];
             if (fx.IsUndefined)
                 throw new InvalidOperationException();
+            return fx.InvokeFunction(this, args);
+        }
+
+        internal JSValue InternalInvoke(object name, JSArray args)
+        {
+            JSValue fx = null;
+            switch(name)
+            {
+                case JSValue v:
+                    fx = this[v];
+                    break;
+                case KeyString ks:
+                    fx = this[ks];
+                    break;
+                case string str:
+                    fx = this[str];
+                    break;
+            }
+            if (fx.IsUndefined)
+                throw JSContext.Current.TypeError($"Cannot invoke {name} of object as it is undefined");
             return fx.InvokeFunction(this, args);
         }
 

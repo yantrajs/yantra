@@ -8,6 +8,94 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.LinqExpressions
 {
+    public static class TypeHelper<T>
+    {
+
+        public static Expression StaticProperty(string name)
+        {
+            return Expression.Property(Expression.Constant(null), typeof(T).GetProperty(name));
+        }
+
+        public static Expression New<T1>(Expression p1)
+        {
+            return Expression.New(Constructor<T1>(), p1);
+        }
+
+        public static Expression New<T1>(T1 p1)
+            => New<T>(Expression.Constant(p1));
+
+        public static Expression New<T1,T2>(Expression p1, Expression p2)
+        {
+            return Expression.New(Constructor<T1, T2>(), p1, p2);
+        }
+
+        public static Expression New<T1, T2>(T1 p1, T2 p2)
+            => New<T1, T2>(Expression.Constant(p1), Expression.Constant(p2));
+
+        public static ConstructorInfo Constructor<T1>()
+        {
+            return typeof(T).GetConstructor(new Type[] { typeof(T1) });
+        }
+
+        public static ConstructorInfo Constructor<T1, T2>()
+        {
+            return typeof(T).GetConstructor(new Type[] { typeof(T1), typeof(T2) });
+        }
+
+        public static Expression CallStatic<T1>( string name, Expression p1)
+        {
+            return Expression.Call(Method<T1>(name), p1);
+        }
+        public static Expression CallStatic<T1, T2>(string name, Expression p1, Expression p2)
+        {
+            return Expression.Call(Method<T1, T2>(name), p1, p2);
+        }
+
+        public static Expression Call<T1>(Expression t, string name, Expression p1)
+        {
+            return Expression.Call(t, Method<T1>(name), p1);
+        }
+
+        public static Expression Call(Expression t, string name, IEnumerable<Expression> p1)
+        {
+            return Expression.Call(t, Method(name), p1);
+        }
+
+        public static Expression CallStatic(string name, IEnumerable<Expression> p1)
+        {
+            return Expression.Call(Method(name), p1);
+        }
+
+
+
+        public static Expression Call<T1>(Expression t, string name, T1 p1)
+            => Call<T1>(t, name, Expression.Constant(p1));
+
+        public static Expression Call<T1, T2>(Expression t, string name, Expression p1, Expression p2)
+        {
+            return Expression.Call(t, Method<T1, T2>(name), p1, p2);
+        }
+
+        public static Expression Call<T1, T2>(Expression t, string name, T p1, T p2)
+            => Call<T1, T2>(t, name, Expression.Constant(p1), Expression.Constant(p2));
+
+
+        public static MethodInfo Method(string name)
+        {
+            return typeof(T).GetMethod(name, BindingFlags.Public | BindingFlags.NonPublic);
+        }
+
+        public static MethodInfo Method<T1>(string name)
+        {
+            return typeof(T).GetMethod(name, new Type[] { typeof(T1) });
+        }
+        public static MethodInfo Method<T1, T2>(string name)
+        {
+            return typeof(T).GetMethod(name, new Type[] { typeof(T1), typeof(T2) });
+        }
+
+    }
+
     public static class ExpHelper
     {
 
@@ -35,12 +123,44 @@ namespace WebAtoms.CoreJS.LinqExpressions
             typeof(JSException).GetProperty("Error");
 
         private static ConstructorInfo NewJSNumber =
-            typeof(JSNumber).GetConstructor(new Type[] { typeof(double) });
+            TypeHelper<JSNumber>.Constructor<double>();
+
+        private static MethodInfo JSValueInternalDelete =
+            TypeHelper<JSValue>.Method("InternalDelete");
+
+        private static MethodInfo JSValueCreateInstance =
+            TypeHelper<JSValue>.Method<JSArray>("CreateInstance");
+            
+        private static MethodInfo NewJSArray =
+            typeof(JSArguments).GetMethod("FromParameters", BindingFlags.NonPublic);
+
+        private static ConstructorInfo NewJSString =
+            TypeHelper<JSString>.Constructor<string>();
 
         public static Expression Undefined =
             Expression.Field(Expression.Constant(null), typeof(JSUndefined).GetField("Value"));
 
-        
+        public static Expression True =
+            Expression.Property(JSContextCurrent, "True");
+
+        public static Expression False =
+            Expression.Property(JSContextCurrent, "False");
+
+
+        public static Expression New(Expression callee, IEnumerable<Expression> paramList)
+        {
+            return Expression.Call(callee, JSValueCreateInstance, Expression.Call(NewJSArray, paramList));
+        }
+
+        public static Expression NewArguments(IEnumerable<Expression> args)
+        {
+            return TypeHelper<JSArguments>.CallStatic("FromParameters", args);
+        }
+
+        public static Expression Delete(Expression value, Expression property)
+        {
+            return Expression.Call(value, JSValueInternalDelete, property);
+        }
 
         public static Expression Throw(Expression value)
         {
