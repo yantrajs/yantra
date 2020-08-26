@@ -55,7 +55,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         protected static MethodInfo Method(string name)
         {
-            return typeof(T).GetMethod(name, BindingFlags.Public | BindingFlags.NonPublic);
+            return typeof(T).GetMethod(name);
         }
 
         protected static MethodInfo Method<T1>(string name)
@@ -82,6 +82,17 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
     public static class ExpHelper
     {
+
+        public class IDisposable : TypeHelper<System.IDisposable>
+        {
+            private static MethodInfo _Dispose
+                = Method("Dispose");
+
+            public static Expression Dispose(Expression exp)
+            {
+                return Expression.Call(exp, _Dispose);
+            }
+        }
 
         public class Exception: TypeHelper<Exception>
         {
@@ -131,12 +142,17 @@ namespace WebAtoms.CoreJS.LinqExpressions
             private static PropertyInfo _Index =
                 IndexProperty<Core.KeyString>();
 
-            private static FieldInfo _Value =
-                typeof(Core.JSVariable).GetField("Value");
-
             public static Expression Index(Expression exp)
             {
                 return Expression.MakeIndex(JSContext.CurrentScope, _Index , new Expression[] { exp });
+            }
+
+            private static MethodInfo _NewScope
+                = Method("NewScope");
+
+            public static Expression NewScope()
+            {
+                return Expression.Call(JSContext.CurrentScope, _NewScope);
             }
         }
 

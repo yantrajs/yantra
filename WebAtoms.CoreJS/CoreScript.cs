@@ -178,14 +178,17 @@ namespace WebAtoms.CoreJS
 
                 // adding lexical scope pending...
 
-                //var lexicalScopeVar = Exp.Variable(typeof(IDisposable));
+                var lexicalScopeVar = Exp.Variable(typeof(IDisposable));
 
 
-                //var lexicalScope = 
-                //    Exp.Block(new ParameterExpression[] { lexicalScopeVar },
-                //    Exp.TryFinally(block));
+                var lexicalScope = 
+                    Exp.Block(new ParameterExpression[] { lexicalScopeVar },
+                    Exp.Assign(lexicalScopeVar, ExpHelper.LexicalScope.NewScope()),
+                    Exp.TryFinally(
+                        block, 
+                        ExpHelper.IDisposable.Dispose(lexicalScopeVar)));
 
-                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), block, t, args);
+                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
 
                 var fxName = functionDeclaration.Id.Name;
 
