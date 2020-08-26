@@ -60,13 +60,19 @@ namespace WebAtoms.CoreJS
 
         private static ConcurrentDictionary<string, JSFunctionDelegate> scripts = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        public static JSFunctionDelegate Compile(string code, string location = null)
+        private static JSFunctionDelegate Compile(string code, string location = null)
         {
             return scripts.GetOrAdd(code, (k) =>
             {
                 var c = new CoreScript(code, location);
                 return c.Method;
             });
+        }
+
+        public static JSValue Evaluate(string code, string location = null)
+        {
+            var fx = Compile(code, location);
+            return fx(JSContext.Current, JSArguments.Empty);
         }
 
 

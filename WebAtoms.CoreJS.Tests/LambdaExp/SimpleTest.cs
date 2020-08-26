@@ -15,14 +15,12 @@ namespace WebAtoms.CoreJS.Tests.LambdaExp
         [TestMethod]
         public void Literal()
         {
-            var fx = CoreScript.Compile("4");
+            var r = CoreScript.Evaluate("4");
 
-            var r = fx(null, JSArguments.Empty);
             Assert.AreEqual(4, r.IntValue);
 
-            fx = CoreScript.Compile("'4'");
+            r = CoreScript.Evaluate("'4'");
 
-            r = fx(null, JSArguments.Empty);
             Assert.AreEqual("4", r.ToString());
 
         }
@@ -31,9 +29,7 @@ namespace WebAtoms.CoreJS.Tests.LambdaExp
         public void GlobalVariable()
         {
             context["a"] = new JSNumber(3);
-            var fx = CoreScript.Compile("a++");
-
-            var r = fx(null, JSArguments.Empty);
+            var r = CoreScript.Evaluate("a++");
             Assert.AreEqual(3, r.IntValue);
             var a = context["a"];
             Assert.AreEqual(4, a.IntValue);
@@ -43,8 +39,7 @@ namespace WebAtoms.CoreJS.Tests.LambdaExp
         public void Function()
         {
             Assert.IsNotNull(context.Scope);
-            var s = CoreScript.Compile("function a(a, b) { return a+b; }");
-            var f = s(null, JSArguments.Empty);
+            var f = CoreScript.Evaluate("function a(a, b) { return a+b; }");
 
             Assert.IsTrue(f.IsFunction);
 
@@ -58,10 +53,9 @@ namespace WebAtoms.CoreJS.Tests.LambdaExp
         public void FunctionWithVars()
         {
             Assert.IsNotNull(context.Scope);
-            var s = CoreScript.Compile(@"function a(a) { 
+            var f = CoreScript.Evaluate(@"function a(a) { 
                 var b = 4;
                 return a+b; }");
-            var f = s(null, JSArguments.Empty);
 
             Assert.IsTrue(f.IsFunction);
 
