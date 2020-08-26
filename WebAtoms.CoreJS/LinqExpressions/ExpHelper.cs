@@ -115,6 +115,17 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
         }
 
+        public class JSDebugger: TypeHelper<Debugger.JSDebugger>
+        {
+            private static MethodInfo _RaiseBreak
+                = Method("RaiseBreak");
+
+            public static Expression RaiseBreak()
+            {
+                return Expression.Call(null, _RaiseBreak);
+            }
+        }
+
         public class JSContext: TypeHelper<Core.JSContext> {
             public static Expression Current =>
                 Expression.Property(null, Property("Current"));
@@ -304,6 +315,32 @@ namespace WebAtoms.CoreJS.LinqExpressions
             public static Expression TypeOf(Expression target)
             {
                 return Expression.Property(target, _TypeOf);
+            }
+
+            private static PropertyInfo _KeyStringIndex =
+                IndexProperty<Core.KeyString>();
+
+            public static Expression KeyStringIndex(Expression target, Expression property)
+            {
+                return Expression.MakeIndex(target, _KeyStringIndex, new Expression[] { property });
+            }
+
+            private static PropertyInfo _Index =
+                IndexProperty<Core.JSValue>();
+
+            public static Expression Index(Expression target, Expression property)
+            {
+                return Expression.MakeIndex(target, _Index, new Expression[] { property });
+            }
+        }
+
+        public class JSArray: TypeHelper<Core.JSArray>
+        {
+            private static ConstructorInfo _New =
+                Constructor<Core.JSValue[]>();
+            public static Expression New(IEnumerable<Expression> list)
+            {
+                return Expression.New(_New, list);
             }
 
         }

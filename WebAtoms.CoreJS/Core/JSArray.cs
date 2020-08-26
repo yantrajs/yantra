@@ -19,6 +19,11 @@ namespace WebAtoms.CoreJS.Core
             
         }
 
+        public JSArray(params JSValue[] items): this((IEnumerable<JSArray>)items)
+        {
+
+        }
+
         public JSArray(IEnumerable<JSValue> items)
         {
             foreach (var item in items)

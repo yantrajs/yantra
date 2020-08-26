@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,8 +10,21 @@ using Exp = System.Linq.Expressions.Expression;
 
 namespace WebAtoms.CoreJS
 {
+    public class LoopScope
+    {
+        public readonly LabelTarget Break;
+        public readonly LabelTarget Continue;
+
+        public LoopScope(LabelTarget breakTarget, LabelTarget continueTarget)
+        {
+            this.Break = breakTarget;
+            this.Continue = continueTarget;
+        }
+    }
+
     public class FunctionScope
     {
+
 
         public class VariableScope
         {
@@ -21,13 +35,16 @@ namespace WebAtoms.CoreJS
 
         private List<VariableScope> variableScopeList = new List<VariableScope>();
 
-        public Esprima.Ast.FunctionDeclaration Function { get; }
+        public Esprima.Ast.IFunction Function { get; }
 
         public ParameterExpression ThisExpression { get; }
 
         public ParameterExpression ArgumentsExpression { get; }
 
         public bool IsRoot => Function == null;
+
+        public LinkedStack<LoopScope> Loop
+            = new LinkedStack<LoopScope>();
 
         public IEnumerable<VariableScope> Variables
         {
@@ -46,7 +63,7 @@ namespace WebAtoms.CoreJS
         public LabelTarget ReturnLabel { get; }
 
         public FunctionScope(
-            Esprima.Ast.FunctionDeclaration fx)
+            Esprima.Ast.IFunction fx)
         {
             this.Function = fx;
             this.ThisExpression = Expression.Parameter(typeof(JSValue));

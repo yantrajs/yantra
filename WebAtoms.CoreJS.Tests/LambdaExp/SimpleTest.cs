@@ -52,7 +52,6 @@ namespace WebAtoms.CoreJS.Tests.LambdaExp
         [TestMethod]
         public void FunctionWithVars()
         {
-            Assert.IsNotNull(context.Scope);
             var f = CoreScript.Evaluate(@"function a(a) { 
                 var b = 4;
                 return a+b; }");
@@ -62,6 +61,21 @@ namespace WebAtoms.CoreJS.Tests.LambdaExp
             var r = f.InvokeFunction(context, JSArguments.From(1));
 
             Assert.AreEqual(5, r.IntValue);
+        }
+
+        [TestMethod]
+        public void FunctionExpression()
+        {
+            var f = CoreScript.Evaluate(@"(function (a) { 
+                var b = 4;
+                return a+b; })");
+
+            Assert.IsTrue(f.IsFunction);
+
+            var r = f.InvokeFunction(context, JSArguments.From(1));
+
+            Assert.AreEqual(5, r.IntValue);
+
         }
 
     }

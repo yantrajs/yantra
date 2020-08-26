@@ -26,37 +26,11 @@ namespace WebAtoms.CoreJS
 
         private LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
 
-        //public static class TrustedPlatformAssembly
-        //{
-        //    private static List<MetadataReference> dlls = null;
-
-        //    public static IEnumerable<MetadataReference> Dlls
-        //    {
-        //        get
-        //        {
-        //            if (dlls == null)
-        //            {
-        //                var list = AppDomain.CurrentDomain.GetAssemblies()
-        //                    .Where(x => !x.IsDynamic)
-        //                    .Select(x => MetadataReference.CreateFromFile(x.Location))
-        //                    .ToList();
-        //            }
-        //            return dlls;
-        //        }
-        //    }
-        //}
-
         public Exp KeyOfName(string name)
         {
             // do optimization later on..
             return ExpHelper.KeyStrings.GetOrCreate( Exp.Constant( name));
         }
-
-        //public Exp KeyOfName(Exp name)
-        //{
-        //    // do optimization later on..
-        //    return ExpHelper.KeyOf(name);
-        //}
 
         private static ConcurrentDictionary<string, JSFunctionDelegate> scripts = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
@@ -80,8 +54,8 @@ namespace WebAtoms.CoreJS
         {
             Esprima.JavaScriptParser parser =
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
-                Loc = true,
-                SourceType = SourceType.Script
+                    Loc = true,
+                    SourceType = SourceType.Script
                 });
 
             // add top level...
@@ -108,36 +82,19 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitCatchClause(Esprima.Ast.CatchClause catchClause)
         {
-            //var id = catchClause.Param.As<Esprima.Ast.Identifier>().Name;
-            //id = Identifier(id).ToFullString();
-            //var pe = Exp.Parameter(typeof(JSException));
-            //var body = this.VisitBlockStatement(catchClause.Body);
-            //return Exp.Catch(pe, body);
             throw new NotImplementedException();
         }
 
         protected override Exp VisitFunctionDeclaration(Esprima.Ast.FunctionDeclaration functionDeclaration)
         {
-            /**
-             * var @namedFunction = new JSFunction((t, a) =&gt; {
-             *    var a1 = a[0];
-             *    var a2 = a[1]; 
-             *    
-             *    // enter stack...
-             *    
-             *    // init default...
-             *    
-             *    // write body ...
-             *    
-             *    // exit stack...
-             *    
-             * }, "@namedFunction", "Source code");
-             */
-            // hoisting is pending ...
+            return CreateFunction(functionDeclaration);
+        }
 
+        private Exp CreateFunction(Esprima.Ast.IFunction functionDeclaration)
+        {
             var isRoot = this.scope.Top.IsRoot;
 
-            using(var cs = scope.Push(new FunctionScope(functionDeclaration)))
+            using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
             {
                 var s = cs.Value;
                 // use this to create variables...
@@ -146,19 +103,19 @@ namespace WebAtoms.CoreJS
 
                 var r = s.ReturnLabel;
 
-                var sList = new List<Exp> ();
+                var sList = new List<Exp>();
 
                 var vList = new List<ParameterExpression>();
 
                 var pList = functionDeclaration.Params.OfType<Identifier>();
                 uint i = 0;
-                foreach(var v in pList)
+                foreach (var v in pList)
                 {
                     var var1 = Exp.Variable(typeof(JSVariable));
                     var vf = JSVariable.ValueExpression(var1);
 
                     vList.Add(var1);
-                    sList.Add(Exp.Assign(var1, ExpHelper.JSVariable.FromArgument(args,i, v.Name)));
+                    sList.Add(Exp.Assign(var1, ExpHelper.JSVariable.FromArgument(args, i, v.Name)));
 
                     s.AddVariable(v.Name, vf);
 
@@ -171,7 +128,7 @@ namespace WebAtoms.CoreJS
 
                 sList.Add(lambdaBody);
 
-                sList.Add(Exp.Label(s.ReturnLabel, ExpHelper.JSUndefined.Value ));
+                sList.Add(Exp.Label(s.ReturnLabel, ExpHelper.JSUndefined.Value));
 
                 var block = Exp.Block(vList, sList);
 
@@ -181,28 +138,33 @@ namespace WebAtoms.CoreJS
                 var lexicalScopeVar = Exp.Variable(typeof(IDisposable));
 
 
-                var lexicalScope = 
+                var lexicalScope =
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar },
                     Exp.Assign(lexicalScopeVar, ExpHelper.LexicalScope.NewScope()),
                     Exp.TryFinally(
-                        block, 
+                        block,
                         ExpHelper.IDisposable.Dispose(lexicalScopeVar)));
 
                 var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
 
-                var fxName = functionDeclaration.Id.Name;
+                var fxName = functionDeclaration.Id?.Name ?? "inline";
 
                 var code = functionDeclaration.ToString();
-               
+
                 // create new JSFunction instance...
-                var jfs = ExpHelper.JSFunction.New(lambda, fxName , code);
+                var jfs = ExpHelper.JSFunction.New(lambda, fxName, code);
+
+                if (!(functionDeclaration is Esprima.Ast.FunctionDeclaration))
+                {
+                    return jfs;
+                }
 
                 var jsFVar = Exp.Variable(typeof(JSVariable));
                 var jsF = JSVariable.ValueExpression(jsFVar);
 
                 var body = new List<Exp>();
 
-                body.Add(Exp.Assign(jsFVar, ExpHelper.JSVariable.New(jfs, fxName )));
+                body.Add(Exp.Assign(jsFVar, ExpHelper.JSVariable.New(jfs, fxName)));
 
                 var fxNameKey = KeyOfName(fxName);
 
@@ -214,19 +176,37 @@ namespace WebAtoms.CoreJS
 
                 body.Add(jsF);
 
-                return Exp.Block(new ParameterExpression[] { jsFVar },body);
+                return Exp.Block(new ParameterExpression[] { jsFVar }, body);
             }
-            // throw new NotImplementedException();
         }
 
         protected override Exp VisitWithStatement(Esprima.Ast.WithStatement withStatement)
         {
-            throw new NotImplementedException();
+            // we will not support with
+            throw new NotSupportedException("With statement is not supported");
         }
 
         protected override Exp VisitWhileStatement(Esprima.Ast.WhileStatement whileStatement)
         {
-            throw new NotImplementedException();
+            var breakTarget = Exp.Label();
+            var continueTarget = Exp.Label();
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            {
+
+                var body = VisitStatement(whileStatement.Body);
+
+                var list = new List<Exp>();
+
+                var test = Exp.Not(VisitExpression(whileStatement.Test));
+
+                list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
+                list.Add(body);
+
+                return Exp.Loop(
+                    Exp.Block(list), 
+                    breakTarget, 
+                    continueTarget);
+            }
         }
 
         protected override Exp VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
@@ -389,12 +369,12 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitEmptyStatement(Esprima.Ast.EmptyStatement emptyStatement)
         {
-            return ExpHelper.JSUndefined.Value;
+            return Exp.Empty();
         }
 
         protected override Exp VisitDebuggerStatement(Esprima.Ast.DebuggerStatement debuggerStatement)
         {
-            throw new NotImplementedException();
+            return ExpHelper.JSDebugger.RaiseBreak();
         }
 
         protected override Exp VisitExpressionStatement(Esprima.Ast.ExpressionStatement expressionStatement)
@@ -414,7 +394,25 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitDoWhileStatement(Esprima.Ast.DoWhileStatement doWhileStatement)
         {
-            throw new NotImplementedException();
+            var breakTarget = Exp.Label();
+            var continueTarget = Exp.Label();
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            {
+
+                var body = VisitStatement(doWhileStatement.Body);
+
+                var list = new List<Exp>();
+
+                var test = Exp.Not(VisitExpression(doWhileStatement.Test));
+
+                list.Add(body);
+                list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
+
+                return Exp.Loop(
+                    Exp.Block(list),
+                    breakTarget,
+                    continueTarget);
+            }
         }
 
         protected override Exp VisitArrowFunctionExpression(Esprima.Ast.ArrowFunctionExpression arrowFunctionExpression)
@@ -527,7 +525,16 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
-            throw new NotImplementedException();
+            if (!memberExpression.Computed)
+            {
+                return ExpHelper.JSValue.KeyStringIndex(
+                    VisitExpression(memberExpression.Object),
+                    KeyOfName(memberExpression.Property.As<Identifier>().Name));
+            }
+            return ExpHelper.JSValue.Index(
+                VisitExpression(memberExpression.Object),
+                KeyOfName(memberExpression.Property.As<Identifier>().Name));
+
         }
 
         protected override Exp VisitLogicalExpression(Esprima.Ast.BinaryExpression binaryExpression)
@@ -570,7 +577,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitFunctionExpression(Esprima.Ast.IFunction function)
         {
-            throw new NotImplementedException();
+            return CreateFunction(function);
         }
 
         protected override Exp VisitClassExpression(Esprima.Ast.ClassExpression classExpression)
@@ -763,23 +770,27 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)
         {
-            throw new NotImplementedException();
+            return ExpHelper.JSArray.New(arrayExpression.Elements.Select(x => VisitExpression((Esprima.Ast.Expression)x)));
         }
 
         protected override Exp VisitAssignmentExpression(Esprima.Ast.AssignmentExpression assignmentExpression)
         {
-            throw new NotImplementedException();
+            // simple identifier based assignments or 
+            // array index based assignments...
+            return Exp.Assign(VisitExpression(
+                (Esprima.Ast.Expression)assignmentExpression.Left), 
+                VisitExpression(assignmentExpression.Right));
         }
 
         protected override Exp VisitContinueStatement(Esprima.Ast.ContinueStatement continueStatement)
         {
             // return Exp.Continue()
-            throw new NotImplementedException();
+            return Exp.Continue(this.scope.Top.Loop.Top.Continue);
         }
 
         protected override Exp VisitBreakStatement(Esprima.Ast.BreakStatement breakStatement)
         {
-            throw new NotImplementedException();
+            return Exp.Continue(this.scope.Top.Loop.Top.Break);
         }
 
         protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
