@@ -135,6 +135,8 @@ namespace WebAtoms.CoreJS
              */
             // hoisting is pending ...
 
+            var isRoot = this.scope.Top.IsRoot;
+
             using(var cs = scope.Push(new FunctionScope(functionDeclaration)))
             {
                 var s = cs.Value;
@@ -156,11 +158,7 @@ namespace WebAtoms.CoreJS
                     var vf = JSVariable.ValueExpression(var1);
 
                     vList.Add(var1);
-                    sList.Add(Exp.Assign(var1, Exp.New(typeof(JSVariable))));
-                    sList.Add(Exp.Assign(vf, ExpHelper.JSArguments.Index(args, i)));
-                    var vk = KeyOfName(v.Name);
-                    // add in scope...
-                    sList.Add(Exp.Assign( ExpHelper.LexicalScope.Index(vk), var1));
+                    sList.Add(Exp.Assign(var1, ExpHelper.JSVariable.FromArgument(args,i, v.Name)));
 
                     s.AddVariable(v.Name, vf);
 
@@ -177,6 +175,16 @@ namespace WebAtoms.CoreJS
 
                 var block = Exp.Block(vList, sList);
 
+
+                // adding lexical scope pending...
+
+                //var lexicalScopeVar = Exp.Variable(typeof(IDisposable));
+
+
+                //var lexicalScope = 
+                //    Exp.Block(new ParameterExpression[] { lexicalScopeVar },
+                //    Exp.TryFinally(block));
+
                 var lambda = Exp.Lambda(typeof(JSFunctionDelegate), block, t, args);
 
                 var fxName = functionDeclaration.Id.Name;
@@ -185,7 +193,25 @@ namespace WebAtoms.CoreJS
                
                 // create new JSFunction instance...
                 var jfs = ExpHelper.JSFunction.New(lambda, fxName , code);
-                return jfs;
+
+                var jsFVar = Exp.Variable(typeof(JSVariable));
+                var jsF = JSVariable.ValueExpression(jsFVar);
+
+                var body = new List<Exp>();
+
+                body.Add(Exp.Assign(jsFVar, ExpHelper.JSVariable.New(jfs, fxName )));
+
+                var fxNameKey = KeyOfName(fxName);
+
+                // add to root...
+                if (isRoot)
+                {
+                    body.Add(Exp.Assign(ExpHelper.JSContext.Index(fxNameKey), jsF));
+                }
+
+                body.Add(jsF);
+
+                return Exp.Block(new ParameterExpression[] { jsFVar },body);
             }
             // throw new NotImplementedException();
         }
@@ -214,17 +240,15 @@ namespace WebAtoms.CoreJS
                         var ve = Exp.Variable(typeof(JSVariable));
                         var vf = JSVariable.ValueExpression(ve);
                         this.scope.Top.AddVariable(id.Name, vf, ve);
-                        inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
+                        // inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
                         if (declarator.Init != null)
                         {
-                            inits.Add(Exp.Assign(vf, VisitExpression(declarator.Init)));
+                            var init = VisitExpression(declarator.Init);
+                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariable.New(init, id.Name) ));
                         } else
                         {
-                            inits.Add(Exp.Assign(vf, ExpHelper.JSUndefined.Value));
+                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariable.New(id.Name)));
                         }
-                        // add to scope...
-                        var keyName = KeyOfName(id.Name);
-                        inits.Add(Exp.Assign(ExpHelper.LexicalScope.Index(keyName), ve));
                         break;
                     default:
                         throw new NotSupportedException();
@@ -252,12 +276,12 @@ namespace WebAtoms.CoreJS
 
                 scope.Top.AddVariable(id.Name, vf);
 
-                catchBlock.Add(Exp.Assign(vf, 
-                    Exp.Condition( 
+                var initVar = Exp.Condition(
                         Exp.TypeIs(pe, typeof(JSException)),
-                        ExpHelper.JSException.Error(Exp.Convert(pe,typeof(JSException))),
-                        ExpHelper.JSString.New( ExpHelper.Exception.ToString(pe) ))
-                ));
+                        ExpHelper.JSException.Error(Exp.Convert(pe, typeof(JSException))),
+                        ExpHelper.JSString.New(ExpHelper.Exception.ToString(pe)));
+
+                catchBlock.Add(Exp.Assign(ve, ExpHelper.JSVariable.New(initVar, id.Name)));
                 catchBlock.Add(Exp.Assign(ExpHelper.LexicalScope.Index(keyName), ve));
                 catchBlock.Add(VisitStatement(cb));
 

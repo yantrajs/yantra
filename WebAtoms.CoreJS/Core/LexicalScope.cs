@@ -64,7 +64,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var old = scope[name.Key];
             previous.Add((name.Key, old));
-            var v1 = new JSVariable { Value = v };
+            var v1 = new JSVariable(v, name.ToString());
             scope[name.Key] = v1;
             return v1;
         }

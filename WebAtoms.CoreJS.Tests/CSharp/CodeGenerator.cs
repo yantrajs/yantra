@@ -28,7 +28,7 @@ namespace WebAtoms.CoreJS.Tests.CSharp
             var f1 = new JSFunctionImpl((__t, __a, c) =>
             {
                 var a = __a[0];
-                var ac = new JSVariable { Value = a };
+                var ac = new JSVariable(a,"a");
 
                 var f2 = new JSFunctionImpl((__t, __a, c) =>
                 {
@@ -49,7 +49,7 @@ namespace WebAtoms.CoreJS.Tests.CSharp
 
                 // first intialize incoming parameters
                 var a = __a[0];
-                var ac = new JSVariable { Value = a };
+                var ac = new JSVariable(a,"a");
 
                 // hoist function before using specific name of function...
                 // but do not put it on the top
@@ -62,7 +62,7 @@ namespace WebAtoms.CoreJS.Tests.CSharp
                     return JSUndefined.Value;
                 }, "", "", new JSVariable[] { ac });
 
-                var f2c = new JSVariable { Value = f2 };
+                var f2c = new JSVariable(f2,"f2");
 
                 return f2;
             }, "", "", null);

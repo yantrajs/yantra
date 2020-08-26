@@ -27,6 +27,8 @@ namespace WebAtoms.CoreJS
 
         public ParameterExpression ArgumentsExpression { get; }
 
+        public bool IsRoot => Function == null;
+
         public IEnumerable<VariableScope> Variables
         {
             get

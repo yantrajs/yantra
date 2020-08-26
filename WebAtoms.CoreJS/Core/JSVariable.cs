@@ -12,6 +12,12 @@ namespace WebAtoms.CoreJS.Core
         private static FieldInfo _ValueField =
             typeof(JSVariable).GetField("Value");
 
+        public JSVariable(JSValue v, string name)
+        {
+            this.Value = v;
+            JSContext.Current.Scope[name] = this;
+        }
+
         internal static Expression ValueExpression(Expression exp)
         {
             return Expression.Field(exp, _ValueField);

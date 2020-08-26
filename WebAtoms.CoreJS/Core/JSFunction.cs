@@ -22,6 +22,12 @@ namespace WebAtoms.CoreJS.Core
             string name = null,
             string source = null): base(JSContext.Current?.FunctionPrototype)
         {
+            //this.f = (t,a) => {
+            //    using (JSContext.Current.Scope.NewScope())
+            //    {
+            //        return f(t, a);
+            //    }
+            //};
             this.f = f;
             this.name = name ?? "native";
             this.source = source 

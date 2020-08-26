@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -199,6 +200,29 @@ namespace WebAtoms.CoreJS.LinqExpressions
             {
                 return Expression.Property(target, _Error);
             }
+        }
+
+        public class JSVariable: TypeHelper<Core.JSVariable>
+        {
+            private static ConstructorInfo _New
+                = Constructor<Core.JSValue, string>();
+
+            public static Expression New(Expression value, string name)
+            {
+                return Expression.New(_New, value, Expression.Constant(name));
+            }
+
+            public static Expression FromArgument(Expression args, uint i, string name)
+            {
+                return Expression.New(_New, ExpHelper.JSArguments.Index(args,i), Expression.Constant(name));
+            }
+
+
+            public static Expression New(string name)
+            {
+                return Expression.New(_New, ExpHelper.JSUndefined.Value, Expression.Constant(name));
+            }
+
         }
 
         public class JSValue: TypeHelper<Core.JSValue>
