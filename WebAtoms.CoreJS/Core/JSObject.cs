@@ -20,7 +20,7 @@ namespace WebAtoms.CoreJS.Core
             ownProperties = new BinaryUInt32Map<JSProperty>();
             foreach(var p  in entries)
             {
-                ownProperties[p.key.Key.Key] = p;
+                ownProperties[p.key.Key] = p;
             }
         }
 
@@ -29,7 +29,7 @@ namespace WebAtoms.CoreJS.Core
             ownProperties = new BinaryUInt32Map<JSProperty>();
             foreach (var p in entries)
             {
-                ownProperties[p.key.Key.Key] = p;
+                ownProperties[p.key.Key] = p;
             }
         }
 
@@ -58,7 +58,7 @@ namespace WebAtoms.CoreJS.Core
         {
             foreach (var p in list)
             {
-                var key = p.key.Key.Key;
+                var key = p.key.Key;
                 var old = this.ownProperties[key];
                 if (!old.IsEmpty)
                 {
@@ -294,7 +294,7 @@ namespace WebAtoms.CoreJS.Core
             if (!(first is JSObject jobj))
                 return new JSArray();
             return new JSObject(jobj.ownProperties.AllValues().Select(x => 
-                JSProperty.Property(x.Value.key.Key, x.Value.ToJSValue())
+                JSProperty.Property(x.Value.key, x.Value.ToJSValue())
             ));
         }
         internal static JSValue _GetOwnPropertyNames(JSValue t, JSArray a)

@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSPropertyAttributes Attributes;
 
-        public JSName key;
+        public KeyString key;
         public JSFunction get;
 
         public JSFunction set { 

@@ -27,6 +27,8 @@ namespace WebAtoms.CoreJS.Core {
 
         public bool IsBoolean => this is JSBoolean;
 
+        public bool IsFunction => this is JSFunction;
+
         public virtual int Length {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
@@ -115,7 +117,7 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public JSValue this[JSName name]
+        public JSValue this[KeyString name]
         {
             get
             {
@@ -126,7 +128,7 @@ namespace WebAtoms.CoreJS.Core {
                 {
                     throw JSContext.Current.TypeError($"Unable to get {name} of null");
                 }
-                var p = GetInternalProperty(name.Key);
+                var p = GetInternalProperty(name);
                 if (p.IsEmpty) return JSUndefined.Value;
                 return p.IsValue ? p.value : p.get.InvokeFunction(this, JSArguments.Empty);
             }
@@ -140,12 +142,12 @@ namespace WebAtoms.CoreJS.Core {
                 {
                     throw JSContext.Current.TypeError($"Unable to set {name} of null");
                 }
-                var p = GetInternalProperty(name.Key);
+                var p = GetInternalProperty(name);
                 if (p.IsEmpty)
                 {
                     p = JSProperty.Property(value, JSPropertyAttributes.Value | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
                     p.key = name;
-                    ownProperties[name.Key.Key] = p;
+                    ownProperties[name.Key] = p;
                     return;
                 }
                 if (!p.IsValue && p.set != null)
@@ -154,7 +156,7 @@ namespace WebAtoms.CoreJS.Core {
                 }else
                 {
                     p.value = value;
-                    ownProperties[name.Key.Key] = p;
+                    ownProperties[name.Key] = p;
                 }
             }
         }
@@ -218,7 +220,7 @@ namespace WebAtoms.CoreJS.Core {
                 }else
                 {
                     p.value = value;
-                    ownProperties[p.key.Key.Key] = p;
+                    ownProperties[p.key.Key] = p;
                 }
             }
         }
@@ -322,7 +324,7 @@ namespace WebAtoms.CoreJS.Core {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(JSName name, JSArray args)
+        public virtual JSValue InvokeMethod(KeyString name, JSArray args)
         {
             var fx = this[name];
             if (fx.IsUndefined)
@@ -331,7 +333,7 @@ namespace WebAtoms.CoreJS.Core {
         }
         public virtual JSValue InvokeMethod(JSString name, JSArray args)
         {
-            var fx = this[name];
+            var fx = this[name.KeyString];
             if (fx.IsUndefined)
                 throw new InvalidOperationException();
             return fx.InvokeFunction(this, args);
@@ -426,7 +428,7 @@ namespace WebAtoms.CoreJS.Core {
                 case decimal d1: return value[(uint)d1];
                 case float f1: return value[(uint)f1];
                 case JSNumber jn: return value[(uint)jn.value];
-                case JSString js: return value[js];
+                case JSString js: return value[js.KeyString];
             }
             return value[name.ToString()];
         }
@@ -445,7 +447,7 @@ namespace WebAtoms.CoreJS.Core {
                 case decimal d1: return target[(uint)d1] = value;
                 case float f1: return target[(uint)f1] = value;
                 case JSNumber jn: return target[(uint)jn.value] = value;
-                case JSString js: return target[js] = value;
+                case JSString js: return target[js.KeyString] = value;
             }
             return target[name.ToString()] = value;
         }

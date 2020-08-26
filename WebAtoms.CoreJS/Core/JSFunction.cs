@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Core
         private string name;
 
         internal JSFunctionDelegate f;
-        internal JSFunction(
+        public JSFunction(
             JSFunctionDelegate f,
             string name = null,
             string source = null): base(JSContext.Current?.FunctionPrototype)

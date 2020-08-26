@@ -73,12 +73,12 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            JSValue CreatePrototype(JSName name, Func<JSFunction> factory, JSValue prototypeChain = null)
+            JSValue CreatePrototype(KeyString name, Func<JSFunction> factory, JSValue prototypeChain = null)
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
                 this[name] = r;
                 r.prototypeChain = prototypeChain ?? obj;
-                var cached = cache.GetOrCreate(name.Key.Key, factory);
+                var cached = cache.GetOrCreate(name.Key, factory);
                 var target = r.prototype.ownProperties;
                 foreach(var p in cached.prototype.ownProperties.AllValues())
                 {

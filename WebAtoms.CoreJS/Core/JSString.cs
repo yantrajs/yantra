@@ -9,16 +9,15 @@ namespace WebAtoms.CoreJS.Core
     public class JSString : JSValue
     {
         internal readonly string value;
+        KeyString _keyString = new KeyString(null,0);
 
-        public JSString(string value): this(value, 0)
-        {
-            prototypeChain = JSContext.Current.StringPrototype;
-        }
-        internal JSString(string value, uint key = 0): base(JSContext.Current.StringPrototype)
+        internal KeyString KeyString => _keyString.Value != null
+            ? _keyString
+            : (_keyString = KeyStrings.GetOrCreate(this.value));
+
+        public JSString(string value): base(JSContext.Current.StringPrototype)
         {
             this.value = value;
-            this.Key = key;
-
         }
 
         public static implicit operator KeyString(JSString value)
@@ -26,7 +25,7 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
-        public uint Key { get; private set; }
+        
 
         public override string ToString()
         {

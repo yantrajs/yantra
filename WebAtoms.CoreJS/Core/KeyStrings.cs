@@ -45,10 +45,15 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly string Value;
         public readonly uint Key;
-        internal KeyString(string value, uint key)
+        public readonly JSSymbol Symbol;
+
+        public bool IsSymbol => Symbol != null;
+
+        internal KeyString(string value, uint key, JSSymbol symbol = null)
         {
             this.Value = value;
             this.Key = key;
+            this.Symbol = symbol;
         }
 
         public override bool Equals(object obj)
@@ -68,6 +73,15 @@ namespace WebAtoms.CoreJS.Core
         public override string ToString()
         {
             return Value;
+        }
+
+        public JSValue ToJSValue()
+        {
+            if (IsSymbol)
+            {
+                return Symbol;
+            }
+            return new JSString(Value);
         }
     }
 

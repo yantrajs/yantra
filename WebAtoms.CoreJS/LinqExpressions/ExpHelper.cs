@@ -2,107 +2,79 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.LinqExpressions
 {
-    public static class TypeHelper<T>
+    public class TypeHelper<T>
     {
 
-        public static Expression StaticProperty(string name)
+        protected static PropertyInfo IndexProperty<T1>()
         {
-            return Expression.Property(Expression.Constant(null), typeof(T).GetProperty(name));
+            return typeof(T)
+                .GetProperties()
+                .FirstOrDefault(x => x.GetIndexParameters().Length > 0 &&
+                x.GetIndexParameters()[0].ParameterType == typeof(T1));
         }
 
-        public static Expression New<T1>(Expression p1)
+        protected static PropertyInfo Property(string name)
         {
-            return Expression.New(Constructor<T1>(), p1);
+            var a = typeof(T).GetProperty(name);
+            if (a == null)
+                throw new NullReferenceException($"Property {name} not found on {typeof(T).FullName}");
+            return a;
         }
 
-        public static Expression New<T1>(T1 p1)
-            => New<T>(Expression.Constant(p1));
-
-        public static Expression New<T1,T2>(Expression p1, Expression p2)
+        protected static ConstructorInfo Constructor<T1>()
         {
-            return Expression.New(Constructor<T1, T2>(), p1, p2);
-        }
-        public static Expression New<T1, T2, T3>(Expression p1, Expression p2, Expression p3)
-        {
-            return Expression.New(Constructor<T1, T2, T3>(), p1, p2, p3);
+            var a = typeof(T).GetConstructor(new Type[] { typeof(T1) });
+            return a;
         }
 
-        public static Expression New<T1, T2>(T1 p1, T2 p2)
-            => New<T1, T2>(Expression.Constant(p1), Expression.Constant(p2));
-        public static Expression New<T1, T2, T3>(T1 p1, T2 p2, T3 p3)
-            => New<T1, T2, T3>(Expression.Constant(p1), Expression.Constant(p2), Expression.Constant(p3));
-
-
-        public static ConstructorInfo Constructor<T1>()
-        {
-            return typeof(T).GetConstructor(new Type[] { typeof(T1) });
-        }
-
-        public static ConstructorInfo Constructor<T1, T2>()
+        protected static ConstructorInfo Constructor<T1, T2>()
         {
             return typeof(T).GetConstructor(new Type[] { typeof(T1), typeof(T2) });
         }
-        public static ConstructorInfo Constructor<T1, T2, T3>()
+        protected static ConstructorInfo Constructor<T1, T2, T3>()
         {
-            return typeof(T).GetConstructor(new Type[] { typeof(T1), typeof(T2), typeof(T3) });
+            var c = typeof(T).GetConstructor(new Type[] { typeof(T1), typeof(T2), typeof(T3) });
+            if (c != null)
+                return c;
+            var list = typeof(T).GetConstructors(BindingFlags.Public | BindingFlags.NonPublic);
+            return list.FirstOrDefault(x => 
+                        x.GetParameters().Length == 3
+                        && x.GetParameters()[0].ParameterType == typeof(T1)
+                        && x.GetParameters()[1].ParameterType == typeof(T2)
+                        && x.GetParameters()[2].ParameterType == typeof(T3));
         }
 
-        public static Expression CallStatic<T1>( string name, Expression p1)
-        {
-            return Expression.Call(Method<T1>(name), p1);
-        }
-        public static Expression CallStatic<T1, T2>(string name, Expression p1, Expression p2)
-        {
-            return Expression.Call(Method<T1, T2>(name), p1, p2);
-        }
-
-        public static Expression Call<T1>(Expression t, string name, Expression p1)
-        {
-            return Expression.Call(t, Method<T1>(name), p1);
-        }
-
-        public static Expression Call(Expression t, string name, IEnumerable<Expression> p1)
-        {
-            return Expression.Call(t, Method(name), p1);
-        }
-
-        public static Expression CallStatic(string name, IEnumerable<Expression> p1)
-        {
-            return Expression.Call(Method(name), p1);
-        }
-
-
-
-        public static Expression Call<T1>(Expression t, string name, T1 p1)
-            => Call<T1>(t, name, Expression.Constant(p1));
-
-        public static Expression Call<T1, T2>(Expression t, string name, Expression p1, Expression p2)
-        {
-            return Expression.Call(t, Method<T1, T2>(name), p1, p2);
-        }
-
-        public static Expression Call<T1, T2>(Expression t, string name, T p1, T p2)
-            => Call<T1, T2>(t, name, Expression.Constant(p1), Expression.Constant(p2));
-
-
-        public static MethodInfo Method(string name)
+        protected static MethodInfo Method(string name)
         {
             return typeof(T).GetMethod(name, BindingFlags.Public | BindingFlags.NonPublic);
         }
 
-        public static MethodInfo Method<T1>(string name)
+        protected static MethodInfo Method<T1>(string name)
         {
-            return typeof(T).GetMethod(name, new Type[] { typeof(T1) });
+            var a = typeof(T).GetMethod(name, new Type[] { typeof(T1) });
+            return a;
         }
-        public static MethodInfo Method<T1, T2>(string name)
+        protected static MethodInfo Method<T1, T2>(string name)
         {
             return typeof(T).GetMethod(name, new Type[] { typeof(T1), typeof(T2) });
+        }
+
+        protected static FieldInfo InternalField(string name)
+        {
+            return typeof(T).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+
+        protected static FieldInfo Field(string name)
+        {
+            return typeof(T).GetField(name);
         }
 
     }
@@ -110,129 +82,225 @@ namespace WebAtoms.CoreJS.LinqExpressions
     public static class ExpHelper
     {
 
-        public static Expression JSContextCurrent = Expression.Property( Expression.Constant(null), typeof(JSContext).GetProperty("Current"));
-
-        public static Expression JSContextCurrentScope = Expression.Field(JSContextCurrent, 
-            typeof(JSContext).GetField("Scope", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
-
-        private static PropertyInfo JSContextCurrentScopeIndex =
-            typeof(LexicalScope).GetProperties().FirstOrDefault(x => x.GetIndexParameters().Length > 0);
-
-        private static PropertyInfo JSValueDoubleValue =
-            typeof(JSValue).GetProperty("DoubleValue");
-
-        private static PropertyInfo JSValueBooleanValue =
-            typeof(JSValue).GetProperty("BooleanValue");
-
-        private static PropertyInfo JSValueTypeOf =
-            typeof(JSValue).GetProperty("TypeOf");
-
-        private static MethodInfo KeyStringsGetOrCreate =
-            typeof(KeyStrings).GetMethod("GetOrCreate");
-
-        private static PropertyInfo JSExceptionError =
-            typeof(JSException).GetProperty("Error");
-
-        private static ConstructorInfo NewJSNumber =
-            TypeHelper<JSNumber>.Constructor<double>();
-
-        private static MethodInfo JSValueInternalDelete =
-            TypeHelper<JSValue>.Method("InternalDelete");
-
-        private static MethodInfo JSValueCreateInstance =
-            TypeHelper<JSValue>.Method<JSArray>("CreateInstance");
-            
-        private static MethodInfo NewJSArray =
-            typeof(JSArguments).GetMethod("FromParameters", BindingFlags.NonPublic);
-
-        private static ConstructorInfo NewJSString =
-            TypeHelper<JSString>.Constructor<string>();
-
-        public static Expression Undefined =
-            Expression.Field(Expression.Constant(null), typeof(JSUndefined).GetField("Value"));
-
-        public static Expression True =
-            Expression.Property(JSContextCurrent, "True");
-
-        public static Expression False =
-            Expression.Property(JSContextCurrent, "False");
-
-
-        public static Expression New(Expression callee, IEnumerable<Expression> paramList)
+        public class Exception: TypeHelper<Exception>
         {
-            return Expression.Call(callee, JSValueCreateInstance, Expression.Call(NewJSArray, paramList));
+            private static MethodInfo _ToString =
+                Method("ToString");
+            public static Expression ToString(Expression target)
+            {
+                return Expression.Call(target, _ToString);
+            }
         }
 
-        public static Expression NewArguments(IEnumerable<Expression> args)
+        internal class KeyStrings
         {
-            return TypeHelper<JSArguments>.CallStatic("FromParameters", args);
+            private static MethodInfo _GetOrAdd =
+                typeof(Core.KeyStrings).GetMethod("GetOrCreate");
+
+            public static Expression GetOrCreate(Expression text)
+            {
+                return Expression.Call(null, _GetOrAdd, text);
+            }
         }
 
-        public static Expression Delete(Expression value, Expression property)
-        {
-            return Expression.Call(value, JSValueInternalDelete, property);
+        public class JSContext: TypeHelper<Core.JSContext> {
+            public static Expression Current =>
+                Expression.Property(null, Property("Current"));
+
+            public static Expression CurrentScope =>
+                Expression.Field(Current, InternalField("Scope"));
+
+            public static Expression True =
+                Expression.Property(Current, Property("True"));
+
+            public static Expression False =
+                Expression.Property(Current, Property("False"));
+
+
+            private static PropertyInfo _Index =
+                IndexProperty<Core.KeyString>();
+            public static Expression Index(Expression key)
+            {
+                return Expression.MakeIndex(Current, _Index, new Expression[] { key });
+            }
         }
 
-        public static Expression Throw(Expression value)
+        public class LexicalScope: TypeHelper<Core.LexicalScope>
         {
-            return Expression.Call(Expression.Constant(null),
-                typeof(JSException).GetMethod("Throw"),value);
+            private static PropertyInfo _Index =
+                IndexProperty<Core.KeyString>();
+
+            private static FieldInfo _Value =
+                typeof(Core.JSVariable).GetField("Value");
+
+            public static Expression Index(Expression exp)
+            {
+                return Expression.MakeIndex(JSContext.CurrentScope, _Index , new Expression[] { exp });
+            }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="keyExp"></param>
-        /// <param name="exp"></param>
-        /// <returns></returns>
-        public static Expression AddToScope(Expression keyExp, Expression exp)
+        public class JSNull: TypeHelper<Core.JSNull>
         {
-            var expParams = new Expression[] { keyExp };
-            return Expression.Assign(
-                Expression.MakeIndex(JSContextCurrentScope,
-                JSContextCurrentScopeIndex,expParams)
-                , exp);
+            public static Expression Value = Expression.Field(null, Field("Value"));
         }
 
-        public static Expression KeyOf(string name)
+        public class JSUndefined : TypeHelper<Core.JSUndefined>
         {
-            // KeyStrings.GetOrCreate(name);
-            return Expression.Call(Expression.Constant(null), KeyStringsGetOrCreate, Expression.Constant(name));
-
-        }
-
-        //public static Expression KeyOf(Expression name)
-        //{
-        //    // KeyStrings.GetOrCreate(name);
-        //    return Expression.Call(Expression.Constant(null), KeyStringsGetOrCreate, name);
-
-        //}
-
-
-        public static Expression GetError(ParameterExpression pe)
-        {
-            return Expression.Property(pe, JSExceptionError);
-        }
-
-        public static Expression DoubleValue(Expression exp)
-        {
-            return Expression.Property(exp, JSValueDoubleValue);
-        }
-
-        public static Expression BooleanValue(Expression exp)
-        {
-            return Expression.Property(exp, JSValueBooleanValue);
+            public static Expression Value = Expression.Field(null, Field("Value"));
         }
 
 
-        public static Expression JSValueFromDouble(Expression value)
+        public class JSNumber: TypeHelper<Core.JSNumber>
         {
-            return Expression.New(NewJSNumber, value);
+            private static ConstructorInfo _NewDouble = Constructor<double>();
+
+            public static Expression New(Expression exp)
+            {
+                return Expression.New(_NewDouble, exp);
+            }
+
         }
 
-        public static Expression TypeOf(Expression value)
+        public class JSString : TypeHelper<Core.JSString>
         {
-            return Expression.Property(value, JSValueTypeOf);
+            private static ConstructorInfo _New = Constructor<string>();
+
+            public static Expression New(Expression exp)
+            {
+                return Expression.New(_New, exp);
+            }
+
         }
+        public class JSRegExp : TypeHelper<Core.JSRegExp>
+        {
+            private static ConstructorInfo _New = Constructor<string, string>();
+
+            public static Expression New(Expression exp, Expression exp2)
+            {
+                return Expression.New(_New, exp, exp2);
+            }
+
+        }
+
+        public class JSException: TypeHelper<Core.JSException>
+        {
+            private static MethodInfo _Throw = 
+                typeof(Core.JSException).GetMethod("Throw", BindingFlags.NonPublic);
+
+            public static Expression Throw(Expression value)
+            {
+                return Expression.Call(null, _Throw, value);
+            }
+
+            private static PropertyInfo _Error =
+                Property("Error");
+
+            public static Expression Error(Expression target)
+            {
+                return Expression.Property(target, _Error);
+            }
+        }
+
+        public class JSValue: TypeHelper<Core.JSValue>
+        {
+            private static PropertyInfo _DoubleValue =
+                Property("DoubleValue");
+            public static Expression DoubleValue(Expression exp)
+            {
+                return Expression.Property(exp, _DoubleValue);
+            }
+
+            private static PropertyInfo _BooleanValue =
+                Property("BooleanValue");
+            public static Expression BooleanValue(Expression exp)
+            {
+                return Expression.Property(exp, _BooleanValue);
+            }
+
+
+            private static MethodInfo _CreateInstance =
+                Method<Core.JSArray>("CreateInstance");
+
+            public static Expression CreateInstance(Expression target, Expression paramList)
+            {
+                return Expression.Call(target, _CreateInstance, paramList);
+            }
+
+            private static MethodInfo _InvokeMethod =
+                Method<Core.KeyString, Core.JSArray>("InvokeMethod");
+
+            public static Expression InvokeMethod(Expression target, Expression keyString, Expression args)
+            {
+                return Expression.Call(target, _InvokeMethod, keyString, args);
+            }
+
+            private static MethodInfo _InvokeFunction =
+                Method<Core.KeyString, Core.JSArray>("InvokeFunction");
+
+            public static Expression InvokeFunction(Expression target, Expression t, Expression args)
+            {
+                return Expression.Call(target, _InvokeFunction, t, args);
+            }
+
+            private static MethodInfo _Add =
+                Method<Core.JSValue>("Add");
+
+            public static Expression Add(Expression target, Expression value)
+            {
+                return Expression.Call(target, _Add, value);
+            }
+
+            private static MethodInfo _Delete =
+                Method<Core.JSValue>("Delete");
+
+            public static Expression Delete(Expression target, Expression value)
+            {
+                return Expression.Call(target, _Delete, value);
+            }
+
+            private static PropertyInfo _TypeOf =
+                Property("TypeOf");
+
+            public static Expression TypeOf(Expression target)
+            {
+                return Expression.Property(target, _TypeOf);
+            }
+
+        }
+
+        public class JSArguments: TypeHelper<Core.JSArguments>
+        {
+            private static ConstructorInfo _New =
+                Constructor<Core.JSValue[]>();
+
+            public static Expression New(IEnumerable<Expression> list)
+            {
+                return Expression.New(_New, list);
+            }
+
+            private static PropertyInfo _Index
+                = IndexProperty<uint>();
+
+            public static Expression Index(Expression target, uint value)
+            {
+                return Expression.MakeIndex(target, _Index, new Expression[] {
+                    Expression.Constant(value)
+                });
+            }
+        }
+
+        public class JSFunction: TypeHelper<Core.JSFunction>
+        {
+            private static ConstructorInfo _New =
+                Constructor<JSFunctionDelegate, string, string>();
+
+            public static Expression New(Expression del, string name, string code)
+            {
+                return Expression.New(_New , del, 
+                    Expression.Constant(name), 
+                    Expression.Constant(code));
+            }
+        }
+
     }
 }

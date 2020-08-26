@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
 
         public const double MinSafeInteger = -9007199254740991d;
 
-        internal JSNumber(double value): base(JSContext.Current.NumberPrototype)
+        public JSNumber(double value): base(JSContext.Current.NumberPrototype)
         {
             this.value = value;
         }
