@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Security;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
@@ -158,14 +159,59 @@ namespace WebAtoms.CoreJS
              *    
              * }, "@namedFunction", "Source code");
              */
+            // hoisting is pending ...
 
-            var thisParameter = Exp.Parameter(typeof(JSValue));
-
-            using(var cs = scope.Push(new FunctionScope(functionDeclaration, thisParameter)))
+            using(var cs = scope.Push(new FunctionScope(functionDeclaration)))
             {
+                var s = cs.Value;
                 // use this to create variables...
+                var t = s.ThisExpression;
+                var args = s.ArgumentsExpression;
+
+                var r = s.ReturnLabel;
+
+                var lambdaBody = VisitStatement(functionDeclaration.Body.As<Statement>());
+
+                var sList = new List<Exp> ();
+
+                var vList = new List<ParameterExpression>();
+
+                var pList = functionDeclaration.Params.OfType<Identifier>();
+                uint i = 0;
+                foreach(var v in pList)
+                {
+                    var var1 = Exp.Variable(typeof(JSVariable));
+                    var vf = JSVariable.ValueExpression(var1);
+
+                    vList.Add(var1);
+
+                    sList.Add(Exp.Assign(vf, TypeHelper<JSArray>.Call<uint>( args, "GetAt", Exp.Constant(i))));
+                    var vk = KeyOfName(v.Name);
+                    // add in scope...
+                    sList.Add(ExpHelper.AddToScope(vk, var1));
+
+                    i++;
+                }
+
+                vList.AddRange(s.Variables.Select(x => x.Variable));
+
+                sList.Add(lambdaBody);
+
+                sList.Add(Exp.Label(s.ReturnLabel));
+
+                var block = Exp.Block(vList, sList);
+
+                var lambda = Exp.Lambda(block, t, args);
+
+                var fxName = Exp.Constant(functionDeclaration.Id.Name);
+
+                var code = Exp.Constant(functionDeclaration.ToString());
+               
+                // create new JSFunction instance...
+                var jfs = TypeHelper<JSFunction>.New<JSFunctionDelegate, string, string>(lambda, fxName , code);
+                return jfs;
             }
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         protected override Exp VisitWithStatement(Esprima.Ast.WithStatement withStatement)
@@ -184,16 +230,14 @@ namespace WebAtoms.CoreJS
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
             var inits = new List<Exp>();
-            var variables = new List<ParameterExpression>();
             foreach(var declarator in variableDeclaration.Declarations)
             {
                 switch(declarator.Id)
                 {
                     case Esprima.Ast.Identifier id:
                         var ve = Exp.Variable(typeof(JSVariable));
-                        variables.Add(ve);
                         var vf = JSVariable.ValueExpression(ve);
-                        this.scope.Top.AddVariable(id.Name, vf);
+                        this.scope.Top.AddVariable(id.Name, vf, ve);
 
                         if (declarator.Init != null)
                         {
@@ -212,7 +256,7 @@ namespace WebAtoms.CoreJS
             }
             if (inits.Any())
             {
-                return Exp.Block(variables, inits);
+                return Exp.Block(inits);
             }
             return Exp.Block();
         }
@@ -315,7 +359,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitReturnStatement(Esprima.Ast.ReturnStatement returnStatement)
         {
-            return VisitExpression(returnStatement.Argument);
+            return Exp.Return( this.scope.Top.ReturnLabel, VisitExpression(returnStatement.Argument));
         }
 
         protected override Exp VisitLabeledStatement(Esprima.Ast.LabeledStatement labeledStatement)

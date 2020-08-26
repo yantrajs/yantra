@@ -71,6 +71,14 @@ namespace WebAtoms.CoreJS.Core
 
         JSValue IList<JSValue>.this[int index] { get => this[(uint)index]; set => this[(uint)index] = value; }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSValue GetAt(uint index)
+        {
+            if (index < 0 || index >= _length)
+                return JSUndefined.Value;
+            return elements[(uint)index];
+        }
+
         public override JSValue this[uint key] {
             get => key >= _length ? JSUndefined.Value : (elements[key] ?? JSUndefined.Value);
             set

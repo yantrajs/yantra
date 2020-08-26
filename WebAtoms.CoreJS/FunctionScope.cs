@@ -1,8 +1,8 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.PortableExecutable;
 using WebAtoms.CoreJS.Core;
 
 using Exp = System.Linq.Expressions.Expression;
@@ -14,20 +14,42 @@ namespace WebAtoms.CoreJS
 
         public class VariableScope
         {
+            public ParameterExpression Variable { get; internal set; }
             public Exp Expression { get; internal set; }
             public string Name { get; internal set; }
         }
 
         private List<VariableScope> variableScopeList = new List<VariableScope>();
 
-        public FunctionDeclaration Function { get; }
+        public Esprima.Ast.FunctionDeclaration Function { get; }
 
         public ParameterExpression ThisExpression { get; }
 
-        public FunctionScope(Esprima.Ast.FunctionDeclaration fx, ParameterExpression te)
+        public ParameterExpression ArgumentsExpression { get; }
+
+        public IEnumerable<VariableScope> Variables
+        {
+            get
+            {
+                foreach(var s in variableScopeList)
+                {
+                    if (s.Variable != null)
+                    {
+                        yield return s;
+                    }
+                }
+            }
+        }
+
+        public LabelTarget ReturnLabel { get; }
+
+        public FunctionScope(
+            Esprima.Ast.FunctionDeclaration fx)
         {
             this.Function = fx;
-            this.ThisExpression = te;
+            this.ThisExpression = Expression.Parameter(typeof(JSValue));
+            this.ArgumentsExpression = Expression.Parameter(typeof(JSArray));
+            ReturnLabel = Expression.Label(typeof(JSValue));
         }
 
         public Exp this[string name]
@@ -38,12 +60,13 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        public IDisposable AddVariable(string name, Exp exp)
+        public IDisposable AddVariable(string name, Exp exp, ParameterExpression pe = null)
         {
             var v = new VariableScope
             {
                 Name = name,
-                Expression = exp
+                Expression = exp,
+                Variable = pe
             };
             this.variableScopeList.Add(v);
             return new DisposableAction(() =>

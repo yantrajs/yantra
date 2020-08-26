@@ -28,9 +28,16 @@ namespace WebAtoms.CoreJS.LinqExpressions
         {
             return Expression.New(Constructor<T1, T2>(), p1, p2);
         }
+        public static Expression New<T1, T2, T3>(Expression p1, Expression p2, Expression p3)
+        {
+            return Expression.New(Constructor<T1, T2, T3>(), p1, p2, p3);
+        }
 
         public static Expression New<T1, T2>(T1 p1, T2 p2)
             => New<T1, T2>(Expression.Constant(p1), Expression.Constant(p2));
+        public static Expression New<T1, T2, T3>(T1 p1, T2 p2, T3 p3)
+            => New<T1, T2, T3>(Expression.Constant(p1), Expression.Constant(p2), Expression.Constant(p3));
+
 
         public static ConstructorInfo Constructor<T1>()
         {
@@ -40,6 +47,10 @@ namespace WebAtoms.CoreJS.LinqExpressions
         public static ConstructorInfo Constructor<T1, T2>()
         {
             return typeof(T).GetConstructor(new Type[] { typeof(T1), typeof(T2) });
+        }
+        public static ConstructorInfo Constructor<T1, T2, T3>()
+        {
+            return typeof(T).GetConstructor(new Type[] { typeof(T1), typeof(T2), typeof(T3) });
         }
 
         public static Expression CallStatic<T1>( string name, Expression p1)
