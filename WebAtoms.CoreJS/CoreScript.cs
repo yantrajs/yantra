@@ -393,7 +393,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitIfStatement(Esprima.Ast.IfStatement ifStatement)
         {
-            var test = VisitExpression(ifStatement.Test);
+            var test =  ExpHelper.JSValue.BooleanValue(VisitExpression(ifStatement.Test));
             var trueCase = VisitStatement(ifStatement.Consequent);
             // process else...
             if (ifStatement.Alternate != null)
@@ -480,7 +480,7 @@ namespace WebAtoms.CoreJS
                 case UnaryOperator.BitwiseNot:
                     return ExpHelper.JSNumber.New(Exp.Not( Exp.Convert(DoubleValue(target),typeof(int))));
                 case UnaryOperator.LogicalNot:
-                    return ExpHelper.JSNumber.New(Exp.Negate(BooleanValue(target)));
+                    return Exp.Condition(BooleanValue(target), ExpHelper.JSContext.False, ExpHelper.JSContext.True );
                 case UnaryOperator.Delete:
                     // delete expression...
                     var me = target as Esprima.Ast.MemberExpression;
@@ -575,6 +575,19 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitLogicalExpression(Esprima.Ast.BinaryExpression binaryExpression)
         {
+            var left = VisitExpression(binaryExpression.Left);
+            var right = VisitExpression(binaryExpression.Right);
+            switch (binaryExpression.Operator)
+            {
+                case BinaryOperator.Equal:
+                    return ExpHelper.JSValue.Equals(left, right);
+                case BinaryOperator.NotEqual:
+                    return ExpHelper.JSBoolean.Not(ExpHelper.JSValue.Equals(left, right));
+                case BinaryOperator.StrictlyEqual:
+                    return ExpHelper.JSValue.StrictEquals(left, right);
+                case BinaryOperator.StricltyNotEqual:
+                    return ExpHelper.JSBoolean.Not(ExpHelper.JSValue.StrictEquals(left, right));
+            }
             throw new NotImplementedException();
         }
 

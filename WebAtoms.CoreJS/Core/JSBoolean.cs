@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Xml.Schema;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -78,6 +79,28 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue Add(string value)
         {
             return new JSString((this._value ? "true" : "false") + value);
+        }
+
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (value is JSBoolean b && b._value == _value)
+                return JSContext.Current.True;
+            var v = value.DoubleValue;
+            if (
+                this._value && v == 1
+                ||
+                !this._value && v == 0)
+            {
+                return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            if (value is JSBoolean b && b._value == _value)
+                return JSContext.Current.True;
+            return JSContext.Current.False; 
         }
     }
 }

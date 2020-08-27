@@ -42,9 +42,23 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (value == this)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
         public override int GetHashCode()
         {
             return (int)Key.Key;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            if (value == this)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
         }
 
         public override string ToString()

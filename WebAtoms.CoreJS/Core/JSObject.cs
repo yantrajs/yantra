@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
+using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -10,7 +11,7 @@ namespace WebAtoms.CoreJS.Core
     {
         public static readonly KeyString KeyToJSON = "toJSON";
 
-        public JSObject(): base(JSContext.Current?.ObjectPrototype)
+        public JSObject() : base(JSContext.Current?.ObjectPrototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
         }
@@ -18,7 +19,7 @@ namespace WebAtoms.CoreJS.Core
         public JSObject(params JSProperty[] entries) : base(JSContext.Current?.ObjectPrototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
-            foreach(var p  in entries)
+            foreach (var p in entries)
             {
                 ownProperties[p.key.Key] = p;
             }
@@ -33,7 +34,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        protected JSObject(JSValue prototype): base(prototype)
+        protected JSObject(JSValue prototype) : base(prototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
         }
@@ -73,7 +74,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue PropertyIsEnumerable(JSValue t, JSArray a)
         {
-            switch(t)
+            switch (t)
             {
                 case JSUndefined _:
                 case JSNull _:
@@ -100,7 +101,17 @@ namespace WebAtoms.CoreJS.Core
         public override string ToDetailString()
         {
             var all = Entries.Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
-            return $"{{ {string.Join(", ",all)} }}";
+            return $"{{ {string.Join(", ", all)} }}";
+        }
+
+        public override double DoubleValue{
+            get {
+                var fx = this[KeyStrings.valueOf];
+                if (fx is JSUndefined)
+                    return NumberParser.CoerceToNumber(this.ToString());
+                var v = fx.InvokeFunction(this, JSArguments.Empty);
+                return v.DoubleValue;
+            }
         }
 
         public static JSValue ToString(JSValue t, JSArray a) => new JSString("[object Object]");
@@ -323,6 +334,21 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue Add(string value)
         {
             return new JSString(this.ToString() + value);
+        }
+
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (value is JSString str)
+                if (this.ToString() == str.value)
+                    return JSContext.Current.True;
+            if (DoubleValue == value.DoubleValue)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            return JSContext.Current.False;
         }
     }
 }

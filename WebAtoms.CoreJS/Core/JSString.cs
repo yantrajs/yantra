@@ -94,5 +94,23 @@ namespace WebAtoms.CoreJS.Core
                 return this.value == v.value;
             return base.Equals(obj);
         }
+
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (value is JSString str)
+                if (this.value == str.value)
+                    return JSContext.Current.True;
+            if (this.value == value.ToString())
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            if (value is JSString s)
+                if (s.value == this.value)
+                    return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
     }
 }

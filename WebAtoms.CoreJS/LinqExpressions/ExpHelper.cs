@@ -332,6 +332,23 @@ namespace WebAtoms.CoreJS.LinqExpressions
             {
                 return Expression.MakeIndex(target, _Index, new Expression[] { property });
             }
+
+            private static MethodInfo _Equals
+                = Method<JSValue>("Equals");
+
+            public static Expression Equals(Expression target, Expression value)
+            {
+                return Expression.Call(target, _Equals, value);
+            }
+
+            private static MethodInfo _StrictEquals
+                = Method<JSValue>("StrictEquals");
+
+            public static Expression StrictEquals(Expression target, Expression value)
+            {
+                return Expression.Call(target, _StrictEquals, value);
+            }
+
         }
 
         public class JSArray: TypeHelper<Core.JSArray>
@@ -366,6 +383,17 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
         }
 
+        public class JSBoolean: TypeHelper<Core.JSBoolean>
+        {
+            public static Expression Not(Expression value)
+            {
+                return Expression.Condition(
+                    JSValue.BooleanValue(value),
+                    JSContext.False,
+                    JSContext.True
+                    );
+            }
+        }
         public class JSFunction: TypeHelper<Core.JSFunction>
         {
             private static ConstructorInfo _New =

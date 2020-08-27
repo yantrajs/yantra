@@ -243,6 +243,10 @@ namespace WebAtoms.CoreJS.Core {
             return JSContext.Current.False;
         }
 
+        public abstract JSBoolean Equals(JSValue value);
+
+        public abstract JSBoolean StrictEquals(JSValue value);
+
         internal JSValue InternalDelete(object keyExp)
         {
             if (this is JSUndefined)

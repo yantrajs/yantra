@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Transactions;
+using System.Xml.Schema;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -408,6 +409,28 @@ namespace WebAtoms.CoreJS.Core
                 return value == n.value;
             }
             return base.Equals(obj);
+        }
+
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (value is JSNumber n)
+            {
+                if (this.value == n.value)
+                    return JSContext.Current.True;
+            }
+            if (this.value == value.DoubleValue)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            if (value is JSNumber n)
+            {
+                if (this.value == n.value)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
         }
     }
 }

@@ -9,6 +9,340 @@ namespace WebAtoms.CoreJS.Utils
 {
     class NumberParser
     {
+        private static readonly int[] integerPowersOfTen = new int[] {
+            1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
+        };
+
+
+        internal enum ParseCoreStatus
+        {
+            Success,
+            NoDigits,   // Number consists of a period without any digits.
+            NoFraction, // Number has a period, but no digits after it.
+            NoExponent, // Number has 'e' but no number after it.
+            ExponentHasLeadingZero,
+            HexLiteral,
+            ES3OctalLiteral,
+            ES6OctalLiteral,
+            BinaryLiteral,
+            InvalidHexLiteral,
+            InvalidOctalLiteral,
+            InvalidBinaryLiteral,
+        }
+
+        /// <summary>
+        /// Parses a number and returns the corresponding double-precision value.
+        /// </summary>
+        /// <param name="reader"> The reader to read characters from. </param>
+        /// <param name="firstChar"> The first character of the number.  Must be 0-9 or a period. </param>
+        /// <param name="status"> Upon returning, contains the type of error if one occurred. </param>
+        /// <param name="decimalOnly"> </param>
+        /// <param name="allowES3Octal"> </param>
+        /// <returns> The numeric value, or <c>NaN</c> if the number is invalid. </returns>
+        internal static double ParseCore(TextReader reader, char firstChar, out ParseCoreStatus status, bool decimalOnly = false, bool allowES3Octal = true)
+        {
+            double result;
+
+            // A count of the number of integral and fractional digits of the input number.
+            int totalDigits = 0;
+
+            // Assume success.
+            status = ParseCoreStatus.Success;
+
+            // If the number starts with '0' then the number is a hex literal, octal literal or binary literal.
+            if (firstChar == '0' && decimalOnly == false)
+            {
+                // Read the next char - should be 'x' or 'X' if this is a hex number (could be just '0').
+                int c = reader.Peek();
+                if (c == 'x' || c == 'X')
+                {
+                    // Hex number.
+                    reader.Read();
+
+                    result = ParseHex(reader);
+                    if (double.IsNaN(result) == true)
+                    {
+                        status = ParseCoreStatus.InvalidHexLiteral;
+                        return double.NaN;
+                    }
+                    status = ParseCoreStatus.HexLiteral;
+                    return result;
+                }
+                else if (c == 'o' || c == 'O')
+                {
+                    // ES6 octal number.
+                    reader.Read();
+
+                    result = ParseOctal(reader);
+                    if (double.IsNaN(result) == true)
+                    {
+                        status = ParseCoreStatus.InvalidOctalLiteral;
+                        return double.NaN;
+                    }
+                    status = ParseCoreStatus.ES6OctalLiteral;
+                    return result;
+                }
+                else if (c == 'b' || c == 'B')
+                {
+                    // ES6 binary number.
+                    reader.Read();
+
+                    result = ParseBinary(reader);
+                    if (double.IsNaN(result) == true)
+                    {
+                        status = ParseCoreStatus.InvalidBinaryLiteral;
+                        return double.NaN;
+                    }
+                    status = ParseCoreStatus.BinaryLiteral;
+                    return result;
+                }
+                else if (c >= '0' && c <= '9' && allowES3Octal == true)
+                {
+                    // ES3 Octal number.
+                    result = ParseOctal(reader);
+                    if (double.IsNaN(result) == true)
+                    {
+                        status = ParseCoreStatus.InvalidOctalLiteral;
+                        return double.NaN;
+                    }
+                    status = ParseCoreStatus.ES3OctalLiteral;
+                    return result;
+                }
+            }
+
+            // desired1-3 hold the integral and fractional digits of the input number.
+            // desired1 holds the first set of nine digits, desired2 holds the second set of nine
+            // digits, desired3 holds the rest.
+            int desired1 = 0;
+            int desired2 = 0;
+            var desired3 = BigInteger.Zero;
+
+            // Indicates the base-10 scale factor of the output e.g. the result is
+            // desired x 10^exponentBase10.
+            int exponentBase10 = 0;
+
+            // Read the integer component.
+            if (firstChar >= '0' && firstChar <= '9')
+            {
+                desired1 = firstChar - '0';
+                totalDigits = 1;
+                while (true)
+                {
+                    int c = reader.Peek();
+                    if (c < '0' || c > '9')
+                        break;
+                    reader.Read();
+
+                    if (totalDigits < 9)
+                        desired1 = desired1 * 10 + (c - '0');
+                    else if (totalDigits < 18)
+                        desired2 = desired2 * 10 + (c - '0');
+                    else
+                        desired3 = BigInteger.Add(BigInteger.Multiply(desired3, 10), c - '0');
+                    totalDigits++;
+                }
+            }
+
+            if (firstChar == '.' || reader.Peek() == '.')
+            {
+                // Skip past the period.
+                if (firstChar != '.')
+                    reader.Read();
+
+                // Read the fractional component.
+                int fractionalDigits = 0;
+                while (true)
+                {
+                    int c = reader.Peek();
+                    if (c < '0' || c > '9')
+                        break;
+                    reader.Read();
+
+                    if (totalDigits < 9)
+                        desired1 = desired1 * 10 + (c - '0');
+                    else if (totalDigits < 18)
+                        desired2 = desired2 * 10 + (c - '0');
+                    else
+                        desired3 = BigInteger.Add(BigInteger.Multiply(desired3, 10), c - '0');
+                    totalDigits++;
+                    fractionalDigits++;
+                    exponentBase10--;
+                }
+
+                // Check if the number consists solely of a period.
+                if (totalDigits == 0)
+                {
+                    status = ParseCoreStatus.NoDigits;
+                    return double.NaN;
+                }
+
+                // Check if the number has a period but no digits afterwards.
+                if (fractionalDigits == 0)
+                    status = ParseCoreStatus.NoFraction;
+            }
+
+            if (reader.Peek() == 'e' || reader.Peek() == 'E')
+            {
+                // Skip past the 'e'.
+                reader.Read();
+
+                // Read the sign of the exponent.
+                bool exponentNegative = false;
+                int c = reader.Peek();
+                if (c == '+')
+                    reader.Read();
+                else if (c == '-')
+                {
+                    reader.Read();
+                    exponentNegative = true;
+                }
+
+                // Read the first character of the exponent.
+                int firstExponentChar = reader.Read();
+
+                // Check there is a number after the 'e'.
+                int exponent = 0;
+                if (firstExponentChar < '0' || firstExponentChar > '9')
+                {
+                    status = ParseCoreStatus.NoExponent;
+                }
+                else
+                {
+                    // Read the rest of the exponent.
+                    exponent = firstExponentChar - '0';
+                    int exponentDigits = 1;
+                    while (true)
+                    {
+                        c = reader.Peek();
+                        if (c < '0' || c > '9')
+                            break;
+                        reader.Read();
+                        exponent = Math.Min(exponent * 10 + (c - '0'), 9999);
+                        exponentDigits++;
+                    }
+
+                    // JSON does not allow a leading zero in front of the exponent.
+                    if (firstExponentChar == '0' && exponentDigits > 1 && status == ParseCoreStatus.Success)
+                        status = ParseCoreStatus.ExponentHasLeadingZero;
+                }
+
+                // Keep track of the overall base-10 exponent.
+                exponentBase10 += exponentNegative ? -exponent : exponent;
+            }
+
+            // Calculate the integral and fractional portion of the number, scaled to an integer.
+            if (totalDigits < 16)
+            {
+                // Combine desired1 and desired2 to produce an integer representing the final
+                // result.
+                result = (double)((long)desired1 * integerPowersOfTen[Math.Max(totalDigits - 9, 0)] + desired2);
+            }
+            else
+            {
+                // Combine desired1, desired2 and desired3 to produce an integer representing the
+                // final result.
+                var temp = desired3;
+                desired3 = new BigInteger((long)desired1 * integerPowersOfTen[Math.Min(totalDigits - 9, 9)] + desired2);
+                if (totalDigits > 18)
+                {
+                    desired3 = BigInteger.Multiply(desired3, BigInteger.Pow(10, totalDigits - 18));
+                    desired3 = BigInteger.Add(desired3, temp);
+                }
+                result = (double)desired3;
+            }
+
+            // Apply the base-10 exponent.
+            if (exponentBase10 > 0)
+                result *= Math.Pow(10, exponentBase10);
+            else if (exponentBase10 < 0 && exponentBase10 >= -308)
+                result /= Math.Pow(10, -exponentBase10);
+            else if (exponentBase10 < -308)
+            {
+                // Note: 10^308 is the largest representable power of ten.
+                result /= Math.Pow(10, 308);
+                result /= Math.Pow(10, -exponentBase10 - 308);
+            }
+
+            // Numbers with 16 or more digits require the use of arbitrary precision arithmetic to
+            // determine the correct answer.
+            if (totalDigits >= 16)
+                return RefineEstimate(result, exponentBase10, desired3);
+
+            return result;
+        }
+
+
+
+        /// <summary>
+        /// Converts a string to a number (used in type coercion).
+        /// </summary>
+        /// <returns> The result of parsing the string as a number. </returns>
+        internal static double CoerceToNumber(string input)
+        {
+            var reader = new System.IO.StringReader(input);
+
+            // Skip whitespace and line terminators.
+            while (IsWhiteSpaceOrLineTerminator(reader.Peek()))
+                reader.Read();
+
+            // Empty strings return 0.
+            int firstChar = reader.Read();
+            if (firstChar == -1)
+                return 0.0;
+
+            // The number can start with a plus or minus sign.
+            bool negative = false;
+            switch (firstChar)
+            {
+                case '-':
+                    negative = true;
+                    firstChar = reader.Read();
+                    break;
+                case '+':
+                    firstChar = reader.Read();
+                    break;
+            }
+
+            // Infinity or -Infinity are also valid.
+            if (firstChar == 'I')
+            {
+                string restOfString1 = reader.ReadToEnd();
+                if (restOfString1.StartsWith("nfinity", StringComparison.Ordinal) == true)
+                {
+                    // Check the end of the string for junk.
+                    for (int i = 7; i < restOfString1.Length; i++)
+                        if (IsWhiteSpaceOrLineTerminator(restOfString1[i]) == false)
+                            return double.NaN;
+                    return negative ? double.NegativeInfinity : double.PositiveInfinity;
+                }
+            }
+
+            // Return NaN if the first digit is not a number or a period.
+            if ((firstChar < '0' || firstChar > '9') && firstChar != '.')
+                return double.NaN;
+
+            // Parse the number.
+            NumberParser.ParseCoreStatus status;
+            double result = NumberParser.ParseCore(reader, (char)firstChar, out status, allowES3Octal: false);
+
+            // Handle various error cases.
+            switch (status)
+            {
+                case ParseCoreStatus.NoDigits:
+                case ParseCoreStatus.NoExponent:
+                    return double.NaN;
+            }
+
+            // Check the end of the string for junk.
+            string restOfString2 = reader.ReadToEnd();
+            for (int i = 0; i < restOfString2.Length; i++)
+                if (IsWhiteSpaceOrLineTerminator(restOfString2[i]) == false)
+                    return double.NaN;
+
+            return negative ? -result : result;
+        }
+
+
         /// <summary>
         /// Converts a string to an integer (used by parseInt).
         /// </summary>

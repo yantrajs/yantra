@@ -43,5 +43,21 @@ namespace WebAtoms.CoreJS.Core
         {
             return new JSString("undefined" + value);
         }
+
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (value is JSNull)
+                return JSContext.Current.True;
+            if (value is JSUndefined)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            if (value is JSUndefined)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
     }
 }

@@ -94,6 +94,7 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString Function;
         public readonly static KeyString Boolean;
         public readonly static KeyString toString;
+        public readonly static KeyString valueOf;
         public readonly static KeyString name;
         public readonly static KeyString length;
         public readonly static KeyString prototype;
@@ -131,6 +132,7 @@ namespace WebAtoms.CoreJS.Core
             bind = Create("bind");
             native = Create("native");
             Boolean = Create("Boolean");
+            valueOf = Create("valueOf");
         }
 
         private static BinaryCharMap<KeyString> map = new BinaryCharMap<KeyString>();
