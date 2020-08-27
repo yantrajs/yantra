@@ -30,24 +30,21 @@ namespace WebAtoms.CoreJS.Tests.Generator
         }
         async Task TestFile(FileInfo x)
         {
+            var content = await File.ReadAllTextAsync(x.FullName);
             var jc = new JSContext();
             jc["assert"] = new JSFunction((t, a) => {
                 var test = a[0];
                 var message = a[1];
                 message = message is JSUndefined ? new JSString("Assert failed, no message") : message;
-                if (JSBoolean.IsTrue(test))
-                    throw new JSException(message);
+                if (!JSBoolean.IsTrue(test))
+                {
+                    var s = new JSString($"Test {x.FullName} failed, {message.ToString()}");
+                    throw new JSException(s);
+                }
                 return JSUndefined.Value;
             });
-            var content = await File.ReadAllTextAsync(x.FullName);
-            try
-            {
-                var value = CoreScript.Evaluate(content);
-                Assert.IsTrue(value.BooleanValue);
-            }catch (Exception ex)
-            {
-                throw new TestPlatformException($"Failed: {x.FullName}\r\n{ex}", ex);
-            }
+            CoreScript.Evaluate(content);
+            
         }
 
     }

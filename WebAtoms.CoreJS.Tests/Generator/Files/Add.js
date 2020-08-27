@@ -1,1 +1,1 @@
-﻿(function () { return 3 + 4; })()
+﻿assert((function () { return 3 + 4; })() === 7, "3+4 is not 7")

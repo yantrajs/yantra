@@ -102,6 +102,17 @@ namespace WebAtoms.CoreJS
 
                 var args = fx.ArgumentsExpression;
 
+
+                var vList = new List<ParameterExpression>();
+
+
+                foreach(var v in fx.Variables)
+                {
+                    vList.Add(v.Variable);
+                }
+
+                script = Exp.Block(vList, script);
+
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
 
                 this.Method = lambda.Compile();
