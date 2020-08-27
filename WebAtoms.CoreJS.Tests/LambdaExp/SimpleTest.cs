@@ -78,5 +78,23 @@ namespace WebAtoms.CoreJS.Tests.LambdaExp
 
         }
 
+        [TestMethod]
+        public void FunctionExpressionClosure()
+        {
+            var f = CoreScript.Evaluate(@"(function (a) { 
+                return function(b) {
+                return a+b; } })");
+
+            Assert.IsTrue(f.IsFunction);
+
+            var r = f.InvokeFunction(context, JSArguments.From(1));
+
+            r = r.InvokeFunction(context, JSArguments.From(2));
+
+            Assert.AreEqual(3, r.IntValue);
+
+        }
+
+
     }
 }

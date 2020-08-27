@@ -10,7 +10,7 @@ using Exp = System.Linq.Expressions.Expression;
 
 namespace WebAtoms.CoreJS
 {
-    public class LoopScope
+    public class LoopScope: LinkedStackItem<LoopScope>
     {
         public readonly LabelTarget Break;
         public readonly LabelTarget Continue;
@@ -22,9 +22,8 @@ namespace WebAtoms.CoreJS
         }
     }
 
-    public class FunctionScope
-    {
-
+    public class FunctionScope: LinkedStackItem<FunctionScope>
+    {        
 
         public class VariableScope
         {
@@ -75,7 +74,11 @@ namespace WebAtoms.CoreJS
         {
             get
             {
-                return variableScopeList.FirstOrDefault(x => x.Name == name)?.Expression;
+                // go up..
+
+                return 
+                    variableScopeList.FirstOrDefault(x => x.Name == name)?.Expression
+                    ?? (this.Parent?[name]);
             }
         }
 

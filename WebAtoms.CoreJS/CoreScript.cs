@@ -20,11 +20,39 @@ using Exp = System.Linq.Expressions.Expression;
 
 namespace WebAtoms.CoreJS
 {
+    public class ParsedScript
+    {
+        readonly List<Esprima.Ast.Range> lines;
+        readonly string code;
+        public ParsedScript(string code)
+        {
+            this.code = code;
+            lines = new List<Esprima.Ast.Range>();
+            // split in line numbers...
+            int start = 0;
+            foreach(var line in code.Split('\n'))
+            {
+                lines.Add(new Range(start, start + line.Length));
+                start += line.Length + 1;
+            }
+        }
+
+        public string Text(Range r)
+        {
+            int start = r.Start;
+            int end = r.End;
+            return this.code.Substring(start, end - start);
+        }
+
+    }
+
     public class CoreScript: JSAstVisitor<Exp>
     {
         public JSFunctionDelegate Method { get; }
 
         private LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
+
+        private ParsedScript Code;
 
         public Exp KeyOfName(string name)
         {
@@ -52,9 +80,10 @@ namespace WebAtoms.CoreJS
 
         public CoreScript(string code, string location = null)
         {
+            this.Code = new ParsedScript(code);
             Esprima.JavaScriptParser parser =
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
-                    Loc = true,
+                    Range = true,
                     SourceType = SourceType.Script
                 });
 
@@ -62,12 +91,16 @@ namespace WebAtoms.CoreJS
 
             using (var fx = this.scope.Push(new FunctionScope(null)))
             {
+                var jScript = parser.ParseScript();
+                var script = Visit(jScript);
 
-                var script = Visit(parser.ParseScript());
+                
 
-                var te = fx.Value.ThisExpression;
+                
 
-                var args = fx.Value.ArgumentsExpression;
+                var te = fx.ThisExpression;
+
+                var args = fx.ArgumentsExpression;
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
 
@@ -94,9 +127,14 @@ namespace WebAtoms.CoreJS
         {
             var isRoot = this.scope.Top.IsRoot;
 
+            var code = Code.Text(functionDeclaration.Range);
+
+            // get text...
+            
+
             using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
             {
-                var s = cs.Value;
+                var s = cs;
                 // use this to create variables...
                 var t = s.ThisExpression;
                 var args = s.ArgumentsExpression;
@@ -148,8 +186,6 @@ namespace WebAtoms.CoreJS
                 var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
 
                 var fxName = functionDeclaration.Id?.Name ?? "inline";
-
-                var code = functionDeclaration.ToString();
 
                 // create new JSFunction instance...
                 var jfs = ExpHelper.JSFunction.New(lambda, fxName, code);

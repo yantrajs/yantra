@@ -5,51 +5,34 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
+    public abstract class LinkedStackItem<T>: IDisposable
+        where T: LinkedStackItem<T>
+    {
+        public T Parent { get; internal set; }
+
+        internal LinkedStack<T> stack;
+
+        public void Dispose()
+        {
+            stack._Top = Parent;
+        }
+    }
 
     public class LinkedStack<T>
-        where T:class
+        where T: LinkedStackItem<T>
     {
 
-        readonly Func<T> factory;
-        public LinkedStack()
+        internal T _Top { get; set; } = null;
+
+        public T Push(T item)
         {
-            factory = null;
+            item.Parent = this._Top;
+            this._Top = item;
+            item.stack = this;
+            return item;
         }
 
-        public LinkedStack(Func<T> factory)
-        {
-            this.factory = factory;
-        }
-
-        private StackNode _Top { get; set; } = null;
-
-        public StackNode Push(T item)
-        {
-            return new StackNode(this, item);
-        }
-
-        public T Top => _Top?.Value;
-
-        public class StackNode : IDisposable
-        {
-            private readonly LinkedStack<T> owner;
-            private StackNode last;
-
-            public T Value { get; }
-
-            public StackNode(LinkedStack<T> owner, T value)
-            {
-                this.owner = owner;
-                this.last = owner._Top;
-                owner._Top = this;
-                this.Value = value;
-            }
-
-            public void Dispose()
-            {
-                owner._Top = last;
-            }
-        }
+        public T Top => _Top;
 
     }
 }
