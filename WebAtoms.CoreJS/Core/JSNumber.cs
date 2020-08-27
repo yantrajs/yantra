@@ -359,7 +359,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        public override JSValue Add(JSValue value)
+        public override JSValue AddValue(JSValue value)
         {
             switch(value)
             {
@@ -375,12 +375,12 @@ namespace WebAtoms.CoreJS.Core
                     {
                         return n1;
                     }
-                    return this.Add(v);
+                    return this.AddValue(v);
             }
             return new JSString(this.value.ToString() + value.ToString());
         }
 
-        public override JSValue Add(double value)
+        public override JSValue AddValue(double value)
         {
             var v = this.value;
             if (double.IsNaN(v)
@@ -390,7 +390,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSNumber(v + value);
         }
 
-        public override JSValue Add(string value)
+        public override JSValue AddValue(string value)
         {
             return new JSString(this.value.ToString() + value);
         }
@@ -427,5 +427,11 @@ namespace WebAtoms.CoreJS.Core
             }
             return JSContext.Current.False;
         }
+
+        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        {
+            throw new NotImplementedException("number is not a function");
+        }
+
     }
 }

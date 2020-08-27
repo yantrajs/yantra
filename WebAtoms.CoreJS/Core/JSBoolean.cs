@@ -49,7 +49,7 @@ namespace WebAtoms.CoreJS.Core
             return base.Equals(obj);
         }
 
-        public override JSValue Add(JSValue value)
+        public override JSValue AddValue(JSValue value)
         {
             switch (value)
             {
@@ -65,18 +65,18 @@ namespace WebAtoms.CoreJS.Core
                     {
                         return n1;
                     }
-                    return this.Add(v);
+                    return this.AddValue(v);
             }
             return new JSString(this._value.ToString() + value.ToString());
         }
 
-        public override JSValue Add(double value)
+        public override JSValue AddValue(double value)
         {
             var v = this._value ? 1 : 0;
             return new JSNumber(v + value);
         }
 
-        public override JSValue Add(string value)
+        public override JSValue AddValue(string value)
         {
             return new JSString((this._value ? "true" : "false") + value);
         }
@@ -101,6 +101,11 @@ namespace WebAtoms.CoreJS.Core
             if (value is JSBoolean b && b._value == _value)
                 return JSContext.Current.True;
             return JSContext.Current.False; 
+        }
+
+        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        {
+            throw new NotImplementedException("boolean is not a function");
         }
     }
 }

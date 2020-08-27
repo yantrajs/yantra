@@ -346,7 +346,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
 
             private static MethodInfo _Add =
-                Method<Core.JSValue>("Add");
+                Method<Core.JSValue>(nameof(Core.JSValue.AddValue));
 
             public static Expression Add(Expression target, Expression value)
             {
@@ -421,7 +421,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
             public static Expression New(IEnumerable<Expression> list)
             {
-                return Expression.New(_New, list);
+                return Expression.New(_New, Expression.NewArrayInit(typeof(Core.JSValue),list));
             }
 
             private static FieldInfo _Empty =

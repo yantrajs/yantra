@@ -321,17 +321,17 @@ namespace WebAtoms.CoreJS.Core
             return t;
         }
 
-        public override JSValue Add(JSValue value)
+        public override JSValue AddValue(JSValue value)
         {
             return new JSString(this.ToString() + value.ToString());
         }
 
-        public override JSValue Add(double value)
+        public override JSValue AddValue(double value)
         {
             return new JSString(this.ToString() + value.ToString());
         }
 
-        public override JSValue Add(string value)
+        public override JSValue AddValue(string value)
         {
             return new JSString(this.ToString() + value);
         }
@@ -349,6 +349,11 @@ namespace WebAtoms.CoreJS.Core
         public override JSBoolean StrictEquals(JSValue value)
         {
             return JSContext.Current.False;
+        }
+
+        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        {
+            throw new NotImplementedException("object is not a function");
         }
     }
 }

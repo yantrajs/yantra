@@ -20,17 +20,17 @@ namespace WebAtoms.CoreJS.Core
             Key = k;
         }
 
-        public override JSValue Add(JSValue value)
+        public override JSValue AddValue(JSValue value)
         {
             return new JSString(Key.Value + value.ToString());
         }
 
-        public override JSValue Add(double value)
+        public override JSValue AddValue(double value)
         {
             return new JSString(Key.Value + value.ToString());
         }
 
-        public override JSValue Add(string value)
+        public override JSValue AddValue(string value)
         {
             return new JSString(Key.Value + value);
         }
@@ -52,6 +52,11 @@ namespace WebAtoms.CoreJS.Core
         public override int GetHashCode()
         {
             return (int)Key.Key;
+        }
+
+        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        {
+            throw new NotImplementedException("symbol is not a function");
         }
 
         public override JSBoolean StrictEquals(JSValue value)

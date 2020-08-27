@@ -68,17 +68,17 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        public override JSValue Add(JSValue value)
+        public override JSValue AddValue(JSValue value)
         {
             return new JSString(this.value + value.ToString());
         }
 
-        public override JSValue Add(double value)
+        public override JSValue AddValue(double value)
         {
             return new JSString(this.value + value.ToString());
         }
 
-        public override JSValue Add(string value)
+        public override JSValue AddValue(string value)
         {
             return new JSString(this.value + value);
         }
@@ -106,6 +106,11 @@ namespace WebAtoms.CoreJS.Core
                 if (s.value == this.value)
                     return JSContext.Current.True;
             return JSContext.Current.False;
+        }
+
+        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        {
+            throw new NotImplementedException("string is not a function");
         }
     }
 }

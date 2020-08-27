@@ -23,7 +23,7 @@ namespace WebAtoms.CoreJS.Core
             return "undefined";
         }
 
-        public override JSValue Add(JSValue value)
+        public override JSValue AddValue(JSValue value)
         {
             switch(value)
             {
@@ -34,12 +34,12 @@ namespace WebAtoms.CoreJS.Core
             return new JSString("undefined" + value.ToString());
         }
 
-        public override JSValue Add(double value)
+        public override JSValue AddValue(double value)
         {
             return JSContext.Current.NaN;
         }
 
-        public override JSValue Add(string value)
+        public override JSValue AddValue(string value)
         {
             return new JSString("undefined" + value);
         }
@@ -58,6 +58,11 @@ namespace WebAtoms.CoreJS.Core
             if (value is JSUndefined)
                 return JSContext.Current.True;
             return JSContext.Current.False;
+        }
+
+        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        {
+            throw new NotImplementedException("undefined is not a function");
         }
     }
 }

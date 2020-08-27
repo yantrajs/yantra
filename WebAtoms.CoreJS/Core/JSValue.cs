@@ -70,19 +70,19 @@ namespace WebAtoms.CoreJS.Core {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public abstract JSValue Add(JSValue value);
+        public abstract JSValue AddValue(JSValue value);
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public abstract JSValue Add(double value);
+        public abstract JSValue AddValue(double value);
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public abstract JSValue Add(string value);
+        public abstract JSValue AddValue(string value);
 
         
 
@@ -296,10 +296,7 @@ namespace WebAtoms.CoreJS.Core {
             throw new NotImplementedException();
         }
 
-        public virtual JSValue InvokeFunction(JSValue thisValue, JSArray args)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract JSValue InvokeFunction(JSValue thisValue, JSArray args);
 
         /// <summary>
         /// Warning do not use in concatenation
