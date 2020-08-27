@@ -1,0 +1,1 @@
+﻿(function () { return 3 + 4; })()

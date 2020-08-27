@@ -162,7 +162,15 @@ namespace WebAtoms.CoreJS
 
                 var lambdaBody = VisitStatement(functionDeclaration.Body.As<Statement>());
 
-                vList.AddRange(s.Variables.Select(x => x.Variable));
+                // vList.AddRange(s.Variables.Select(x => x.Variable));
+                foreach(var v in s.Variables)
+                {
+                    vList.Add(v.Variable);
+                    if (v.Name == null && v.Init != null)
+                    {
+                        sList.Add(Exp.Assign(v.Variable, v.Init));
+                    }
+                }
 
                 sList.Add(lambdaBody);
 
@@ -593,26 +601,33 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
         {
-            switch (literal.TokenType)
+            Exp GetLiteral()
             {
-                case Esprima.TokenType.BooleanLiteral:
-                    return literal.BooleanValue 
-                        ? ExpHelper.JSContext.True
-                        : ExpHelper.JSContext.False;
-                case Esprima.TokenType.StringLiteral:
-                    return ExpHelper.JSString.New(Exp.Constant(literal.StringValue));
-                case Esprima.TokenType.RegularExpression:
-                    return ExpHelper.JSRegExp.New(
-                        Exp.Constant(literal.Regex.Pattern), 
-                        Exp.Constant(literal.Regex.Flags));
-                case Esprima.TokenType.Template:
-                    break;
-                case Esprima.TokenType.NullLiteral:
-                    return ExpHelper.JSNull.Value;
-                case Esprima.TokenType.NumericLiteral:
-                    return ExpHelper.JSNumber.New(Exp.Constant(literal.NumericValue));
+                switch (literal.TokenType)
+                {
+                    case Esprima.TokenType.BooleanLiteral:
+                        return literal.BooleanValue
+                            ? ExpHelper.JSContext.True
+                            : ExpHelper.JSContext.False;
+                    case Esprima.TokenType.StringLiteral:
+                        return ExpHelper.JSString.New(Exp.Constant(literal.StringValue));
+                    case Esprima.TokenType.RegularExpression:
+                        return ExpHelper.JSRegExp.New(
+                            Exp.Constant(literal.Regex.Pattern),
+                            Exp.Constant(literal.Regex.Flags));
+                    case Esprima.TokenType.Template:
+                        break;
+                    case Esprima.TokenType.NullLiteral:
+                        return ExpHelper.JSNull.Value;
+                    case Esprima.TokenType.NumericLiteral:
+                        return ExpHelper.JSNumber.New(Exp.Constant(literal.NumericValue));
+                }
+                throw new NotImplementedException();
             }
-            throw new NotImplementedException();
+            var pe = Exp.Variable(typeof(JSValue));
+            this.scope.Top.AddVariable(null, pe, pe, GetLiteral());
+            return pe;
+            
         }
 
         protected override Exp VisitIdentifier(Esprima.Ast.Identifier identifier)
@@ -782,8 +797,11 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)
         {
             var calle = callExpression.Callee;
-            var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e));
-            var paramArray = ExpHelper.JSArguments.New(args);
+            var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e)).ToList();
+            
+            var paramArray = args.Any()
+                ? ExpHelper.JSArguments.New(args)
+                : ExpHelper.JSArguments.Empty();
             if (calle is Esprima.Ast.MemberExpression me)
             {
                 // invoke method...
@@ -814,7 +832,8 @@ namespace WebAtoms.CoreJS
                 case BinaryOperator.Plus:
                     return ExpHelper.JSValue.Add(left, right);
             }
-            throw new NotImplementedException();
+            var a = LogicalCompare.Compare(left, right, binaryExpression.Operator);
+            return a;
         }
 
         protected override Exp VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)

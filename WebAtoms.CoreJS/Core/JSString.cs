@@ -49,11 +49,6 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
-        public override JSValue ToJSString()
-        {
-            return this;
-        }
-
         internal static JSFunction Create()
         {
             var r = new JSFunction(JSFunction.empty);

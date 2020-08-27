@@ -307,24 +307,15 @@ namespace WebAtoms.CoreJS.Core {
         /// <returns></returns>
         public override string ToString()
         {
-            return this.ToJSString().ToString();
+            var fx = this[KeyStrings.toString];
+            if (fx.IsUndefined)
+                return "undefined";
+            return fx.InvokeFunction(this, JSArguments.Empty).ToString();
         }
 
         public virtual string ToDetailString()
         {
             return (InvokeMethod(KeyStrings.toString, JSArguments.Empty) as JSString)?.value;
-        }
-
-        /// <summary>
-        /// This method is to avoid boxing of JSString to string and back to JSString
-        /// </summary>
-        /// <returns></returns>
-        public virtual JSValue ToJSString()
-        {
-            var fx = this[KeyStrings.toString];
-            if (fx.IsUndefined)
-                return new JSString(this.ToString());
-            return fx.InvokeFunction(this, JSArguments.Empty);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

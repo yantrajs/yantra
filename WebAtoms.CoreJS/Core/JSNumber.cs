@@ -38,11 +38,6 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
-        public override JSValue ToJSString()
-        {
-            return new JSString(value.ToString());
-        }
-
         public override string ToDetailString()
         {
             return value.ToString();

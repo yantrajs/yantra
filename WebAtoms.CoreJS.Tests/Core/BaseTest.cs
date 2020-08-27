@@ -13,6 +13,15 @@ namespace WebAtoms.CoreJS.Tests.Core
         public BaseTest()
         {
             context = new JSContext();
+
+            context["assert"] = new JSFunction((t, a) => {
+                var test = a[0];
+                var message = a[1];
+                message = message is JSUndefined ? new JSString("Assert failed, no message") : message;
+                if (JSBoolean.IsTrue(test))
+                    throw new JSException(message);
+                return JSUndefined.Value;
+            });
         }
 
         public void Dispose()

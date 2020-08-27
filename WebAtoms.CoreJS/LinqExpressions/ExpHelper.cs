@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
@@ -68,6 +69,11 @@ namespace WebAtoms.CoreJS.LinqExpressions
             return typeof(T).GetMethod(name, new Type[] { typeof(T1), typeof(T2) });
         }
 
+        protected static MethodInfo StaticMethod<T1, T2>(string name)
+        {
+            return typeof(T).GetMethod(name, new Type[] { typeof(T1), typeof(T2) });
+        }
+
         protected static FieldInfo InternalField(string name)
         {
             return typeof(T).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
@@ -82,6 +88,35 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
     public static class ExpHelper
     {
+        public class Object: TypeHelper<System.Object>
+        {
+            private static MethodInfo _ToString
+                = typeof(System.Object).GetMethod("ToString", new Type[] { });
+
+            public static Expression ToString(Expression value)
+            {
+                return Expression.Call(value, _ToString);
+            }
+        }
+
+        public class String: TypeHelper<System.String>
+        {
+            private static MethodInfo _Compare =
+                StaticMethod<string,string>("Compare");
+
+            public static Expression Compare(Expression left, Expression right)
+            {
+                return Expression.Call(null, _Compare, left, right);
+            }
+
+            private static MethodInfo _Equals =
+                StaticMethod<string, string>("Equals");
+
+            public static Expression Equals(Expression left, Expression right)
+            {
+                return Expression.Call(null, _Equals, left, right);
+            }
+        }
 
         public class IDisposable : TypeHelper<System.IDisposable>
         {
@@ -180,6 +215,15 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         public class JSNumber: TypeHelper<Core.JSNumber>
         {
+
+            private static FieldInfo _Value =
+                InternalField(nameof(Core.JSNumber.value));
+
+            public static Expression Value(Expression ex)
+            {
+                return Expression.Field(ex, _Value);
+            }
+
             private static ConstructorInfo _NewDouble = Constructor<double>();
 
             public static Expression New(Expression exp)
@@ -191,6 +235,14 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         public class JSString : TypeHelper<Core.JSString>
         {
+            private static FieldInfo _Value =
+                InternalField(nameof(Core.JSString.value));
+
+            public static Expression Value(Expression ex)
+            {
+                return Expression.Field(ex, _Value);
+            }
+
             private static ConstructorInfo _New = Constructor<string>();
 
             public static Expression New(Expression exp)
@@ -286,7 +338,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
 
             private static MethodInfo _InvokeFunction =
-                Method<Core.KeyString, Core.JSArray>("InvokeFunction");
+                Method<Core.JSValue, Core.JSArray>("InvokeFunction");
 
             public static Expression InvokeFunction(Expression target, Expression t, Expression args)
             {
@@ -372,6 +424,15 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.New(_New, list);
             }
 
+            private static FieldInfo _Empty =
+                Field("Empty");
+
+            public static Expression Empty()
+            {
+                return Expression.Field(null, _Empty);
+            }
+
+
             private static PropertyInfo _Index
                 = IndexProperty<uint>();
 
@@ -385,6 +446,15 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         public class JSBoolean: TypeHelper<Core.JSBoolean>
         {
+
+            private static FieldInfo _Value =
+                InternalField(nameof(Core.JSBoolean._value));
+
+            public static Expression Value(Expression target)
+            {
+                return Expression.Field(target, _Value);
+            }
+
             public static Expression Not(Expression value)
             {
                 return Expression.Condition(

@@ -30,6 +30,8 @@ namespace WebAtoms.CoreJS
             public ParameterExpression Variable { get; internal set; }
             public Exp Expression { get; internal set; }
             public string Name { get; internal set; }
+
+            public Exp Init { get; internal set; }
         }
 
         private List<VariableScope> variableScopeList = new List<VariableScope>();
@@ -82,13 +84,18 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        public IDisposable AddVariable(string name, Exp exp, ParameterExpression pe = null)
+        public IDisposable AddVariable(
+            string name, 
+            Exp exp, 
+            ParameterExpression pe = null,
+            Exp init = null)
         {
             var v = new VariableScope
             {
                 Name = name,
                 Expression = exp,
-                Variable = pe
+                Variable = pe,
+                Init = init
             };
             this.variableScopeList.Add(v);
             return new DisposableAction(() =>
