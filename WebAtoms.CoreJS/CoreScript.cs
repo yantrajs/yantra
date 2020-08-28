@@ -261,7 +261,7 @@ namespace WebAtoms.CoreJS
 
                 var list = new List<Exp>();
 
-                var test = Exp.Not(VisitExpression(whileStatement.Test));
+                var test = Exp.Not( ExpHelper.JSValue.BooleanValue(VisitExpression(whileStatement.Test)));
 
                 list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
                 list.Add(body);
@@ -661,7 +661,10 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitFunctionExpression(Esprima.Ast.IFunction function)
         {
-            return CreateFunction(function);
+            var a = CreateFunction(function);
+            var pe = Exp.Parameter(typeof(JSValue));
+            this.scope.Top.AddVariable(null, pe, pe, a);
+            return pe;
         }
 
         protected override Exp VisitClassExpression(Esprima.Ast.ClassExpression classExpression)

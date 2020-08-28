@@ -97,6 +97,14 @@ namespace WebAtoms.CoreJS.LinqExpressions
             {
                 return Expression.Call(value, _ToString);
             }
+
+            private static MethodInfo _ReferenceEquals
+                = Method<object, object>("ReferenceEquals");
+
+            public static Expression RefEquals(Expression left, Expression right)
+            {
+                return Expression.Call(null, _ReferenceEquals, left, right);
+            }
         }
 
         public class String: TypeHelper<System.String>
@@ -238,7 +246,8 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.Field(ex, _Value);
             }
 
-            private static ConstructorInfo _NewDouble = Constructor<double>();
+            private static ConstructorInfo _NewDouble 
+                = Constructor<double>();
 
             public static Expression New(Expression exp)
             {
@@ -381,6 +390,22 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.Call(target, _Add, value);
             }
 
+            private static MethodInfo _InstanceOf =
+                Method<Core.JSValue>(nameof(Core.JSValue.InstanceOf));
+
+            public static Expression InstanceOf(Expression target, Expression value)
+            {
+                return Expression.Call(target, _InstanceOf, value);
+            }
+
+            private static MethodInfo _IsIn =
+                Method<Core.JSValue>(nameof(Core.JSValue.IsIn));
+
+            public static Expression IsIn(Expression target, Expression value)
+            {
+                return Expression.Call(target, _IsIn, value);
+            }
+
             private static MethodInfo _Delete =
                 Method<Core.JSValue>("Delete");
 
@@ -482,6 +507,12 @@ namespace WebAtoms.CoreJS.LinqExpressions
             {
                 return Expression.Field(target, _Value);
             }
+
+            public static Expression NewFromCLRBoolean(Expression target)
+            {
+                return Expression.Condition(target, JSContext.True, JSContext.False);
+            }
+
 
             public static Expression Not(Expression value)
             {

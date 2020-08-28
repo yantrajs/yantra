@@ -247,6 +247,27 @@ namespace WebAtoms.CoreJS.Core {
 
         public abstract JSBoolean StrictEquals(JSValue value);
 
+        public JSBoolean InstanceOf(JSValue value)
+        {
+            //var target = this;
+            //while(target != null)
+            //{
+            //    target.prototypeChain 
+            //}
+            throw new NotImplementedException();
+        }
+
+        public JSBoolean IsIn(JSValue value)
+        {
+            //var target = this;
+            //while(target != null)
+            //{
+            //    target.prototypeChain 
+            //}
+            throw new NotImplementedException();
+        }
+
+
         internal JSValue InternalDelete(object keyExp)
         {
             if (this is JSUndefined)

@@ -120,5 +120,18 @@ namespace WebAtoms.CoreJS.Tests.Generator
             Assert.IsTrue(f1.BooleanValue);
 
         }
+
+        [TestMethod]
+        public void StringEquals()
+        {
+            var f = CoreScript.Evaluate(@"(function () {
+return assert(""2"" + ""2"" === ""22"", ""failed .."");
+})()");
+
+            // f = CoreScript.Evaluate(@"""2"" === ""2""");
+            var f1 = CoreScript.Evaluate(@"(function() { return ""2"" === ""2"";})()");
+            Assert.IsTrue(f1.BooleanValue);
+
+        }
     }
 }
