@@ -325,7 +325,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
             public static Expression New(Expression value, string name)
             {
-                return Expression.New(_New, value, Expression.Constant(name));
+                return Expression.New(_New, value, Expression.Constant(name, typeof(string)));
             }
 
             public static Expression FromArgument(Expression args, uint i, string name)

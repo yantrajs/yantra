@@ -196,9 +196,16 @@ namespace WebAtoms.CoreJS
                 foreach(var v in s.Variables)
                 {
                     vList.Add(v.Variable);
-                    if (v.Name == null && v.Init != null)
+                    if (v.Init != null)
                     {
-                        sList.Add(Exp.Assign(v.Variable, v.Init));
+                        if (v.Name == null)
+                        {
+                            sList.Add(Exp.Assign(v.Variable, v.Init));
+                        } else
+                        {
+                            // create..
+                            sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariable.New(v.Init, v.Name)));
+                        }
                     }
                 }
 
