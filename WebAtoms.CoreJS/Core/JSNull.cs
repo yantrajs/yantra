@@ -71,5 +71,37 @@ namespace WebAtoms.CoreJS.Core
         {
             throw new NotImplementedException("null is not a function");
         }
+
+        internal override JSBoolean Less(JSValue value)
+        {
+            switch(value)
+            {
+                case JSString str:
+                    if (str.DoubleValue > 0)
+                        return JSContext.Current.True;
+                    break;
+                case JSNumber n:
+                    if (n.value > 0)
+                        return JSContext.Current.True;
+                    break;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean LessOrEqual(JSValue value)
+        {
+            switch (value)
+            {
+                case JSString str:
+                    if (str.DoubleValue >= 0)
+                        return JSContext.Current.True;
+                    break;
+                case JSNumber n:
+                    if (n.value >= 0)
+                        return JSContext.Current.True;
+                    break;
+            }
+            return JSContext.Current.False;
+        }
     }
 }

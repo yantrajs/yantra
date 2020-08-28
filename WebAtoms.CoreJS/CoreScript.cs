@@ -153,8 +153,6 @@ namespace WebAtoms.CoreJS
 
         private Exp CreateFunction(Esprima.Ast.IFunction functionDeclaration)
         {
-            var isRoot = this.scope.Top.IsRoot;
-
             var code = Code.Text(functionDeclaration.Range);
 
             // get text...
@@ -626,18 +624,7 @@ namespace WebAtoms.CoreJS
         {
             var left = VisitExpression(binaryExpression.Left);
             var right = VisitExpression(binaryExpression.Right);
-            switch (binaryExpression.Operator)
-            {
-                case BinaryOperator.Equal:
-                    return ExpHelper.JSValue.Equals(left, right);
-                case BinaryOperator.NotEqual:
-                    return ExpHelper.JSBoolean.Not(ExpHelper.JSValue.Equals(left, right));
-                case BinaryOperator.StrictlyEqual:
-                    return ExpHelper.JSValue.StrictEquals(left, right);
-                case BinaryOperator.StricltyNotEqual:
-                    return ExpHelper.JSBoolean.Not(ExpHelper.JSValue.StrictEquals(left, right));
-            }
-            throw new NotImplementedException();
+            return BinaryOperation.Operation(left, right, binaryExpression.Operator);
         }
 
         protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
@@ -892,6 +879,7 @@ namespace WebAtoms.CoreJS
 
             var left = VisitExpression((Esprima.Ast.Expression)assignmentExpression.Left);
             var right = VisitExpression((Esprima.Ast.Expression)assignmentExpression.Right);
+
 
             var a = BinaryOperation.Assign(left, right, assignmentExpression.Operator);
             return a;

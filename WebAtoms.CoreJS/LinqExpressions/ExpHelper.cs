@@ -64,6 +64,13 @@ namespace WebAtoms.CoreJS.LinqExpressions
             var a = typeof(T).GetMethod(name, new Type[] { typeof(T1) });
             return a;
         }
+
+        protected static MethodInfo InternalMethod<T1>(string name)
+        {
+            var a = typeof(T).GetMethod(name, new Type[] { typeof(T1) });
+            return a;
+        }
+
         protected static MethodInfo Method<T1, T2>(string name)
         {
             return typeof(T).GetMethod(name, new Type[] { typeof(T1), typeof(T2) });
@@ -439,21 +446,71 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
 
             private static MethodInfo _Equals
-                = Method<JSValue>("Equals");
+                = Method<Core.JSValue>("Equals");
 
             public static Expression Equals(Expression target, Expression value)
             {
                 return Expression.Call(target, _Equals, value);
             }
 
+            public static Expression NotEquals(Expression target, Expression value)
+            {
+                return Expression.Not(Expression.Call(target, _Equals, value));
+            }
+
+
             private static MethodInfo _StrictEquals
-                = Method<JSValue>("StrictEquals");
+                = Method<Core.JSValue>("StrictEquals");
 
             public static Expression StrictEquals(Expression target, Expression value)
             {
                 return Expression.Call(target, _StrictEquals, value);
             }
 
+            public static Expression NotStrictEquals(Expression target, Expression value)
+            {
+                return Expression.Not( Expression.Call(target, _StrictEquals, value));
+            }
+
+            private static MethodInfo _Less
+                = InternalMethod<Core.JSValue>(nameof(Core.JSValue.Less));
+
+            public static Expression Less(Expression target, Expression value)
+            {
+                return Expression.Call(target, _Less, value);
+            }
+
+            private static MethodInfo _LessOrEqual
+                = InternalMethod<Core.JSValue>(nameof(Core.JSValue.LessOrEqual));
+
+            public static Expression LessOrEqual(Expression target, Expression value)
+            {
+                return Expression.Call(target, _LessOrEqual, value);
+            }
+
+            public static Expression Greater(Expression target, Expression value)
+            {
+                return Expression.Not(Expression.Call(target, _LessOrEqual, value));
+            }
+
+            public static Expression GreaterOrEqual(Expression target, Expression value)
+            {
+                return Expression.Not(Expression.Call(target, _Less, value));
+            }
+
+
+            public static Expression LogicalAnd(Expression target, Expression value)
+            {
+                return Expression.Condition(JSValue.BooleanValue(target), value, target);
+            }
+
+            public static Expression LogicalOr(Expression target, Expression value)
+            {
+                return Expression.Condition(
+                    JSValue.BooleanValue(target),
+                    target,
+                    value);
+            }
         }
 
         public class JSArray: TypeHelper<Core.JSArray>

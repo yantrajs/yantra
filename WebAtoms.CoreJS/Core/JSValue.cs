@@ -247,6 +247,9 @@ namespace WebAtoms.CoreJS.Core {
 
         public abstract JSBoolean StrictEquals(JSValue value);
 
+        internal abstract JSBoolean Less(JSValue value);
+        internal abstract JSBoolean LessOrEqual(JSValue value);
+
         public JSBoolean InstanceOf(JSValue value)
         {
             //var target = this;

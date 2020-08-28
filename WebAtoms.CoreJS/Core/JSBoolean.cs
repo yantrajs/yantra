@@ -107,5 +107,31 @@ namespace WebAtoms.CoreJS.Core
         {
             throw new NotImplementedException("boolean is not a function");
         }
+
+        internal override JSBoolean Less(JSValue value)
+        {
+            if (value is JSNumber v && v.value > 1)
+                return JSContext.Current.True;
+            if (value is JSString s)
+            {
+                var d = s.DoubleValue;
+                if (d > 1)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean LessOrEqual(JSValue value)
+        {
+            if (value is JSNumber v && v.value >= 1)
+                return JSContext.Current.True;
+            if (value is JSString s)
+            {
+                var d = s.DoubleValue;
+                if (d >= 1)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
     }
 }
