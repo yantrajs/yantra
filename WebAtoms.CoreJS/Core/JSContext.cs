@@ -70,6 +70,7 @@ namespace WebAtoms.CoreJS.Core
         public JSContext()
         {
             JSObject obj = null;
+            
 
             _current.Value = this;
 

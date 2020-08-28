@@ -15,7 +15,12 @@ namespace WebAtoms.CoreJS.Core
         public JSVariable(JSValue v, string name)
         {
             this.Value = v;
-            JSContext.Current.Scope[name] = this;
+            var c = JSContext.Current.Scope;
+            c[name] = this;
+            if (c.IsRoot)
+            {
+                JSContext.Current[name] = v;
+            }
         }
 
         internal static Expression ValueExpression(Expression exp)

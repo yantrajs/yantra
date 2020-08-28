@@ -114,7 +114,15 @@ namespace WebAtoms.CoreJS
                     vList.Add(v.Variable);
                     if (v.Init != null)
                     {
-                        sList.Add(Exp.Assign(v.Variable, v.Init));
+                        if (v.Name != null)
+                        {
+                            sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariable.New(v.Name)));
+                            sList.Add(Exp.Assign(v.Expression, v.Init));
+                            // sList.Add(Exp.Assign(ExpHelper.JSContext.Index(KeyOfName(v.Name)),v.Variable));
+                        } else
+                        {
+                            sList.Add(Exp.Assign(v.Variable, v.Init));
+                        }
                     }
                 }
                 sList.Add(Exp.Return(l, script));
@@ -150,6 +158,8 @@ namespace WebAtoms.CoreJS
             var code = Code.Text(functionDeclaration.Range);
 
             // get text...
+
+            var previousScope = this.scope.Top;
             
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
@@ -226,21 +236,25 @@ namespace WebAtoms.CoreJS
                 var jsFVar = Exp.Variable(typeof(JSVariable));
                 var jsF = JSVariable.ValueExpression(jsFVar);
 
-                var body = new List<Exp>();
+                previousScope.AddVariable(fxName, jsF, jsFVar, jfs);
 
-                body.Add(Exp.Assign(jsFVar, ExpHelper.JSVariable.New(jfs, fxName)));
+                return jsF;
 
-                var fxNameKey = KeyOfName(fxName);
+                //var body = new List<Exp>();
 
-                // add to root...
-                if (isRoot)
-                {
-                    body.Add(Exp.Assign(ExpHelper.JSContext.Index(fxNameKey), jsF));
-                }
+                //body.Add(Exp.Assign(jsFVar, ExpHelper.JSVariable.New(jfs, fxName)));
 
-                body.Add(jsF);
+                //var fxNameKey = KeyOfName(fxName);
 
-                return Exp.Block(new ParameterExpression[] { jsFVar }, body);
+                //// add to root...
+                //if (isRoot)
+                //{
+                //    body.Add(Exp.Assign(ExpHelper.JSContext.Index(fxNameKey), jsF));
+                //}
+
+                //body.Add(jsF);
+
+                //return Exp.Block(new ParameterExpression[] { jsFVar }, body);
             }
         }
 

@@ -26,11 +26,14 @@ namespace WebAtoms.CoreJS.Core
     {
 
         private BinaryUInt32Map<JSVariable> scope = new BinaryUInt32Map<JSVariable>();
+        private BinaryUInt32Map<JSVariable> root;
 
         public LexicalScope()
         {
-
+            root = scope;
         }
+
+        public bool IsRoot => scope == root;
 
         public ScopeItem NewScope()
         {
