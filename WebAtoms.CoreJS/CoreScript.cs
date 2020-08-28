@@ -105,13 +105,22 @@ namespace WebAtoms.CoreJS
 
                 var vList = new List<ParameterExpression>();
 
+                var sList = new List<Exp>();
+
+                var l = Exp.Label(typeof(JSValue));
 
                 foreach(var v in fx.Variables)
                 {
                     vList.Add(v.Variable);
+                    if (v.Init != null)
+                    {
+                        sList.Add(Exp.Assign(v.Variable, v.Init));
+                    }
                 }
+                sList.Add(Exp.Return(l, script));
+                sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
 
-                script = Exp.Block(vList, script);
+                script = Exp.Block(vList, sList);
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
 
@@ -856,9 +865,12 @@ namespace WebAtoms.CoreJS
         {
             // simple identifier based assignments or 
             // array index based assignments...
-            return Exp.Assign(VisitExpression(
-                (Esprima.Ast.Expression)assignmentExpression.Left), 
-                VisitExpression(assignmentExpression.Right));
+
+            var left = VisitExpression((Esprima.Ast.Expression)assignmentExpression.Left);
+            var right = VisitExpression((Esprima.Ast.Expression)assignmentExpression.Right);
+
+            var a = BinaryOperation.Assign(left, right, assignmentExpression.Operator);
+            return a;
         }
 
         protected override Exp VisitContinueStatement(Esprima.Ast.ContinueStatement continueStatement)

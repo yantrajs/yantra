@@ -116,6 +116,15 @@ namespace WebAtoms.CoreJS.LinqExpressions
             {
                 return Expression.Call(null, _Equals, left, right);
             }
+
+            private static MethodInfo _Concat =
+                StaticMethod<string, string>("Concat");
+
+            public static Expression Concat(Expression left, Expression right)
+            {
+                return Expression.Call(null, _Concat, left, right);
+            }
+
         }
 
         public class IDisposable : TypeHelper<System.IDisposable>
@@ -174,6 +183,11 @@ namespace WebAtoms.CoreJS.LinqExpressions
             public static Expression False =
                 Expression.Property(Current, Property("False"));
 
+            public static Expression NaN =
+                Expression.Property(Current, Property("NaN"));
+
+            public static Expression Zero =
+                Expression.Property(Current, Property("Zero"));
 
             private static PropertyInfo _Index =
                 IndexProperty<Core.KeyString>();
@@ -231,6 +245,15 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.New(_NewDouble, exp);
             }
 
+            private static MethodInfo _AddValue =
+                            Method<Core.JSValue>(nameof(Core.JSValue.AddValue));
+
+            public static Expression AddValue(Expression target, Expression value)
+            {
+                return Expression.Call(target, _AddValue, value);
+            }
+
+
         }
 
         public class JSString : TypeHelper<Core.JSString>
@@ -248,6 +271,11 @@ namespace WebAtoms.CoreJS.LinqExpressions
             public static Expression New(Expression exp)
             {
                 return Expression.New(_New, exp);
+            }
+
+            public static Expression ConcatBasicStrings(Expression left, Expression right)
+            {
+                return Expression.New(_New, String.Concat(left, right));
             }
 
         }

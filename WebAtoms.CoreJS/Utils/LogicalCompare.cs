@@ -9,7 +9,6 @@ namespace WebAtoms.CoreJS.Utils
 {
     public static class LogicalCompare
     {
-
         public static Expression Compare(Expression left, Expression right, Esprima.Ast.BinaryOperator op)
         {
             if (op == Esprima.Ast.BinaryOperator.StrictlyEqual)

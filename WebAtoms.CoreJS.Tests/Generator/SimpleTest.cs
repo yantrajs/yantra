@@ -86,7 +86,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
     return 2 === 3;
 })()");
 
-            Assert.IsTrue(f.BooleanValue);
+            Assert.IsFalse(f.BooleanValue);
 
         }
 
@@ -108,15 +108,16 @@ namespace WebAtoms.CoreJS.Tests.Generator
         [TestMethod]
         public void AssertString()
         {
-            var f = CoreScript.Evaluate(@"(function () {
+            Assert.ThrowsException<JSException>(() =>
+            {
+                var f = CoreScript.Evaluate(@"(function () {
     return assert(2 === ""2"", ""failed .."");
 })()");
-
-            Assert.IsFalse(f.BooleanValue);
+            });
 
             // f = CoreScript.Evaluate(@"""2"" === ""2""");
-            f = CoreScript.Evaluate(@"(function() { return ""2"" === ""2"";})()");
-            Assert.IsTrue(f.BooleanValue);
+            var f1 = CoreScript.Evaluate(@"(function() { return ""2"" === ""2"";})()");
+            Assert.IsTrue(f1.BooleanValue);
 
         }
     }
