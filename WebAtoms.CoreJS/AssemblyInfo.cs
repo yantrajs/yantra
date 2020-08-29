@@ -3,4 +3,4 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-[assembly: InternalsVisibleTo("WebAtoms.CoreJS.Tests", AllInternalsVisible = true)];
+[assembly: InternalsVisibleTo("WebAtoms.CoreJS.Tests")]
