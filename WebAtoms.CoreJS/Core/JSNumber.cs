@@ -433,5 +433,58 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("number is not a function");
         }
 
+        internal override JSBoolean Less(JSValue value)
+        {
+            switch (value)
+            {
+                case JSNumber number:
+                    if (this.value < number.value)
+                    {
+                        return JSContext.Current.True;
+                    }
+                    break;
+                case JSString @string:
+                    if (this.value < @string.DoubleValue)
+                    {
+                        return JSContext.Current.True;
+                    }
+                    break;
+                case JSNull @null:
+                    if (this.value < 0)
+                    {
+                        return JSContext.Current.True;
+                    }
+                    break;
+                
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean LessOrEqual(JSValue value)
+        {
+            switch (value)
+            {
+                case JSNumber number:
+                    if (this.value <= number.value)
+                    {
+                        return JSContext.Current.True;
+                    }
+                    break;
+                case JSString @string:
+                    if (this.value <= @string.DoubleValue)
+                    {
+                        return JSContext.Current.True;
+                    }
+                    break;
+                case JSNull @null:
+                    if (this.value <= 0)
+                    {
+                        return JSContext.Current.True;
+                    }
+                    break;
+
+            }
+            return JSContext.Current.False;
+        }
     }
 }
