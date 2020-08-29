@@ -29,10 +29,16 @@ namespace WebAtoms.CoreJS
 
         private ParsedScript Code;
 
+        private Dictionary<string, ParameterExpression> keyStrings = new Dictionary<string, ParameterExpression>();
+
         public Exp KeyOfName(string name)
         {
-            // do optimization later on..
-            return ExpHelper.KeyStrings.GetOrCreate( Exp.Constant( name));
+            ParameterExpression pe;
+            if (keyStrings.TryGetValue(name, out pe))
+                return pe;
+            pe = Exp.Variable(typeof(KeyString));
+            keyStrings.Add(name, pe);
+            return pe;
         }
 
         private static ConcurrentDictionary<string, JSFunctionDelegate> scripts = new ConcurrentDictionary<string, JSFunctionDelegate>();
@@ -84,6 +90,13 @@ namespace WebAtoms.CoreJS
 
                 var l = Exp.Label(typeof(JSValue));
 
+                foreach(var ks in keyStrings)
+                {
+                    var v = ks.Value;
+                    vList.Add(v);
+                    sList.Add(Exp.Assign(v, ExpHelper.KeyStrings.GetOrCreate(Exp.Constant(ks.Key))));
+                }
+
                 foreach(var v in fx.Variables)
                 {
                     vList.Add(v.Variable);
@@ -93,7 +106,6 @@ namespace WebAtoms.CoreJS
                         {
                             sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariable.New(v.Name)));
                             sList.Add(Exp.Assign(v.Expression, v.Init));
-                            // sList.Add(Exp.Assign(ExpHelper.JSContext.Index(KeyOfName(v.Name)),v.Variable));
                         } else
                         {
                             sList.Add(Exp.Assign(v.Variable, v.Init));
