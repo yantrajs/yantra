@@ -23,6 +23,11 @@ namespace WebAtoms.CoreJS.Core
             this.value = value;
         }
 
+        internal JSString(string value, JSValue p) : base(p)
+        {
+            this.value = value;
+        }
+
         public static implicit operator KeyString(JSString value)
         {
             return value.ToString();

@@ -41,6 +41,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSValue RangeErrorPrototype;
 
+        public readonly JSValue DatePrototype;
+
         public readonly JSBoolean True;
 
         public readonly JSBoolean False;
@@ -74,6 +76,12 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
+            JSValue CreateFrom(KeyString name, Type type)
+            {
+                return CreatePrototype(name, () => Bootstrap.Create(name, type));
+            }
+
+
             JSValue CreatePrototype(KeyString name, Func<JSFunction> factory, JSValue prototypeChain = null)
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
@@ -103,7 +111,7 @@ namespace WebAtoms.CoreJS.Core
             ErrorPrototype = CreatePrototype(JSError.KeyError, JSError.Create);
             TypeErrorPrototype = CreatePrototype(JSTypeError.KeyTypeError, JSTypeError.Create, ErrorPrototype);
             RangeErrorPrototype = CreatePrototype(JSTypeError.KeyRangeError, JSTypeError.Create, ErrorPrototype);
-
+            DatePrototype = CreateFrom(KeyStrings.Date, typeof(JSDate));
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
             NaN = new JSNumber(double.NaN, NumberPrototype);

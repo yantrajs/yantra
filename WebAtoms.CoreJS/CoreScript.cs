@@ -14,8 +14,6 @@ using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.LinqExpressions;
 using WebAtoms.CoreJS.Utils;
 
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-
 using Exp = System.Linq.Expressions.Expression;
 
 namespace WebAtoms.CoreJS
