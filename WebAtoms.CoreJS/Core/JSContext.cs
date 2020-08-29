@@ -24,36 +24,36 @@ namespace WebAtoms.CoreJS.Core
             _current.Value = null;
         }
 
-        public JSValue StringPrototype { get; }
-        public JSValue FunctionPrototype { get; }
-        
-        public JSValue NumberPrototype { get; }
+        public readonly JSValue StringPrototype;
+        public readonly JSValue FunctionPrototype;
 
-        public JSValue ObjectPrototype { get; }
-        
-        public JSValue ArrayPrototype { get; }
+        public readonly JSValue NumberPrototype;
 
-        public JSValue BooleanPrototype { get; }
+        public readonly JSValue ObjectPrototype;
 
-        public JSValue TypeErrorPrototype { get; }
+        public readonly JSValue ArrayPrototype;
 
-        public JSValue ErrorPrototype { get; }
+        public readonly JSValue BooleanPrototype;
 
-        public JSValue RangeErrorPrototype { get; }
+        public readonly JSValue TypeErrorPrototype;
 
-        public JSBoolean True { get; }
+        public readonly JSValue ErrorPrototype;
 
-        public JSBoolean False { get; }
+        public readonly JSValue RangeErrorPrototype;
 
-        public JSNumber NaN => new JSNumber(double.NaN);
+        public readonly JSBoolean True;
 
-        public JSNumber One { get; }
+        public readonly JSBoolean False;
 
-        public JSNumber Two { get; }
+        public readonly JSNumber NaN;
 
-        public JSNumber Zero { get; }
+        public readonly JSNumber One;
 
-        public JSObject JSON { get; }
+        public readonly JSNumber Two;
+
+        public readonly JSNumber Zero;
+
+        public readonly JSObject JSON;
 
         public static JSContext Current
         {
@@ -106,7 +106,7 @@ namespace WebAtoms.CoreJS.Core
 
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
-            // NaN = new JSNumber(double.NaN, NumberPrototype);
+            NaN = new JSNumber(double.NaN, NumberPrototype);
             One = new JSNumber(1, NumberPrototype);
             Zero = new JSNumber(0, NumberPrototype);
             Two = new JSNumber(2, NumberPrototype);

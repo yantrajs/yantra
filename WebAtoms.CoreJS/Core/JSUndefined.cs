@@ -64,5 +64,25 @@ namespace WebAtoms.CoreJS.Core
         {
             throw new NotImplementedException("undefined is not a function");
         }
+
+        internal override JSBoolean Less(JSValue value)
+        {
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean LessOrEqual(JSValue value)
+        {
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean Greater(JSValue value)
+        {
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean GreaterOrEqual(JSValue value)
+        {
+            return JSContext.Current.False;
+        }
     }
 }

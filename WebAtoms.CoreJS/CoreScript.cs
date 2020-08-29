@@ -838,7 +838,7 @@ namespace WebAtoms.CoreJS
                 case BinaryOperator.Plus:
                     return ExpHelper.JSValue.Add(left, right);
             }
-            var a = LogicalCompare.Compare(left, right, binaryExpression.Operator);
+            var a = BinaryOperation.Operation(left, right, binaryExpression.Operator);
             return a;
         }
 

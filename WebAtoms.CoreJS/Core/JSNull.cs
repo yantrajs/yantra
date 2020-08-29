@@ -76,12 +76,12 @@ namespace WebAtoms.CoreJS.Core
         {
             switch(value)
             {
-                case JSString str:
-                    if (str.DoubleValue > 0)
+                case JSNumber n:
+                    if (0D < n.value)
                         return JSContext.Current.True;
                     break;
-                case JSNumber n:
-                    if (n.value > 0)
+                case JSString str:
+                    if (0D < str.DoubleValue)
                         return JSContext.Current.True;
                     break;
             }
@@ -92,12 +92,48 @@ namespace WebAtoms.CoreJS.Core
         {
             switch (value)
             {
+                case JSNull @null:
+                    return JSContext.Current.True;
                 case JSString str:
-                    if (str.DoubleValue >= 0)
+                    if (0 <= str.DoubleValue)
                         return JSContext.Current.True;
                     break;
                 case JSNumber n:
-                    if (n.value >= 0)
+                    if (0 <= n.value)
+                        return JSContext.Current.True;
+                    break;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean Greater(JSValue value)
+        {
+            switch (value)
+            {
+                case JSString str:
+                    if (0D > str.DoubleValue)
+                        return JSContext.Current.True;
+                    break;
+                case JSNumber n:
+                    if (0D > n.value)
+                        return JSContext.Current.True;
+                    break;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean GreaterOrEqual(JSValue value)
+        {
+            switch (value)
+            {
+                case JSNull @null:
+                    return JSContext.Current.True;
+                case JSString str:
+                    if (0D >= str.DoubleValue)
+                        return JSContext.Current.True;
+                    break;
+                case JSNumber n:
+                    if (0D >= n.value)
                         return JSContext.Current.True;
                     break;
             }

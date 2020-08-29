@@ -30,11 +30,11 @@ namespace WebAtoms.CoreJS.Core {
         public bool IsFunction => this is JSFunction;
 
         public virtual int Length {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => 0;
+            set { }
         }
 
-        public virtual double DoubleValue { get => throw new NotImplementedException(); }
+        public virtual double DoubleValue => Double.NaN;
 
         public bool BooleanValue => JSBoolean.IsTrue(this);
 
@@ -249,6 +249,9 @@ namespace WebAtoms.CoreJS.Core {
 
         internal abstract JSBoolean Less(JSValue value);
         internal abstract JSBoolean LessOrEqual(JSValue value);
+
+        internal abstract JSBoolean Greater(JSValue value);
+        internal abstract JSBoolean GreaterOrEqual(JSValue value);
 
         public JSBoolean InstanceOf(JSValue value)
         {

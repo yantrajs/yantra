@@ -70,5 +70,29 @@ namespace WebAtoms.CoreJS.Core
         {
             return Key.Value;
         }
+
+        internal override JSBoolean Greater(JSValue value)
+        {
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean GreaterOrEqual(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean Less(JSValue value)
+        {
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean LessOrEqual(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
     }
 }

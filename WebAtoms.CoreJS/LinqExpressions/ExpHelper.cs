@@ -67,7 +67,10 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         protected static MethodInfo InternalMethod<T1>(string name)
         {
-            var a = typeof(T).GetMethod(name, new Type[] { typeof(T1) });
+            var a = typeof(T)
+                .GetMethod(name, 
+                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Instance
+                    , null, new Type[] { typeof(T1) }, null);
             return a;
         }
 
@@ -193,16 +196,13 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 Expression.Field(Current, InternalField("Scope"));
 
             public static Expression True =
-                Expression.Property(Current, Property("True"));
+                Expression.Field(Current, Field("True"));
 
             public static Expression False =
-                Expression.Property(Current, Property("False"));
+                Expression.Field(Current, Field("False"));
 
             public static Expression NaN =
-                Expression.Property(Current, Property("NaN"));
-
-            public static Expression Zero =
-                Expression.Property(Current, Property("Zero"));
+                Expression.Field(Current, Field("NaN"));
 
             private static PropertyInfo _Index =
                 IndexProperty<Core.KeyString>();

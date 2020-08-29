@@ -408,18 +408,30 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSBoolean Equals(JSValue value)
         {
-            if (value is JSNumber n)
+            if (object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
+            switch (value)
             {
-                if (this.value == n.value)
+                case JSNumber number
+                    when (this.value == number.value):
+                    return JSContext.Current.True;
+                case JSString @string
+                    when (this.value == @string.DoubleValue):
+                    return JSContext.Current.True;
+                case JSNull @null
+                    when (this.value == 0D):
+                    return JSContext.Current.True;
+                case JSBoolean boolean
+                    when (this.value == (boolean._value ? 1D : 0D)):
                     return JSContext.Current.True;
             }
-            if (this.value == value.DoubleValue)
-                return JSContext.Current.True;
             return JSContext.Current.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
+            if (object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
             if (value is JSNumber n)
             {
                 if (this.value == n.value)
@@ -430,59 +442,89 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
         {
-            throw new NotImplementedException("number is not a function");
+            throw JSContext.Current.TypeError($"{this.value} is not a function");
         }
 
         internal override JSBoolean Less(JSValue value)
         {
             switch (value)
             {
-                case JSNumber number:
-                    if (this.value < number.value)
-                    {
+                case JSNumber number
+                    when (this.value < number.value):
                         return JSContext.Current.True;
-                    }
-                    break;
-                case JSString @string:
-                    if (this.value < @string.DoubleValue)
-                    {
+                case JSString @string
+                    when (this.value < @string.DoubleValue):
                         return JSContext.Current.True;
-                    }
-                    break;
-                case JSNull @null:
-                    if (this.value < 0)
-                    {
+                case JSNull @null
+                    when (this.value < 0D):
                         return JSContext.Current.True;
-                    }
-                    break;
-                
+                case JSBoolean boolean
+                    when (this.value < (boolean._value ? 1D : 0D)):
+                        return JSContext.Current.True;
             }
             return JSContext.Current.False;
         }
 
         internal override JSBoolean LessOrEqual(JSValue value)
         {
+            if (object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
             switch (value)
             {
-                case JSNumber number:
-                    if (this.value <= number.value)
-                    {
-                        return JSContext.Current.True;
-                    }
-                    break;
-                case JSString @string:
-                    if (this.value <= @string.DoubleValue)
-                    {
-                        return JSContext.Current.True;
-                    }
-                    break;
-                case JSNull @null:
-                    if (this.value <= 0)
-                    {
-                        return JSContext.Current.True;
-                    }
-                    break;
+                case JSNumber number
+                    when (this.value <= number.value):
+                    return JSContext.Current.True;
+                case JSString @string
+                    when (this.value <= @string.DoubleValue):
+                    return JSContext.Current.True;
+                case JSNull @null
+                    when (this.value <= 0D):
+                    return JSContext.Current.True;
+                case JSBoolean boolean
+                    when (this.value <= (boolean._value ? 1D : 0D)):
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
 
+        internal override JSBoolean Greater(JSValue value)
+        {
+            switch (value)
+            {
+                case JSNumber number
+                    when (this.value > number.value):
+                    return JSContext.Current.True;
+                case JSString @string
+                    when (this.value > @string.DoubleValue):
+                    return JSContext.Current.True;
+                case JSNull @null
+                    when (this.value > 0D):
+                    return JSContext.Current.True;
+                case JSBoolean boolean
+                    when(this.value > (boolean._value ? 1D : 0D)):
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean GreaterOrEqual(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
+            switch (value)
+            {
+                case JSNumber number
+                    when (this.value >= number.value):
+                    return JSContext.Current.True;
+                case JSString @string
+                    when (this.value >= @string.DoubleValue):
+                    return JSContext.Current.True;
+                case JSNull @null
+                    when (this.value >= 0D):
+                    return JSContext.Current.True;
+                case JSBoolean boolean
+                    when (this.value >= (boolean._value ? 1D : 0D)):
+                    return JSContext.Current.True;
             }
             return JSContext.Current.False;
         }

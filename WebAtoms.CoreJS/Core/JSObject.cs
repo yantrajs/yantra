@@ -355,5 +355,54 @@ namespace WebAtoms.CoreJS.Core
         {
             throw new NotImplementedException("object is not a function");
         }
+
+        internal override JSBoolean Less(JSValue value)
+        {
+            switch(value)
+            {
+                case JSString strValue:
+                    if (this.ToString().CompareTo(strValue.value) < 0)
+                        return JSContext.Current.True;
+                    break;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean LessOrEqual(JSValue value)
+        {
+            if (Object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
+            switch (value)
+            {
+                case JSString strValue
+                    when (this.ToString().CompareTo(strValue.value) <= 0):
+                        return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean Greater(JSValue value)
+        {
+            switch (value)
+            {
+                case JSString strValue
+                    when (this.ToString().CompareTo(strValue.value) > 0):
+                        return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
+
+        internal override JSBoolean GreaterOrEqual(JSValue value)
+        {
+            if (Object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
+            switch (value)
+            {
+                case JSString strValue
+                    when (this.ToString().CompareTo(strValue.value) >= 0):
+                        return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
     }
 }
