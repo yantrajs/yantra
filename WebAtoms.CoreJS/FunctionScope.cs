@@ -13,10 +13,16 @@ namespace WebAtoms.CoreJS
         public readonly LabelTarget Break;
         public readonly LabelTarget Continue;
 
-        public LoopScope(LabelTarget breakTarget, LabelTarget continueTarget)
+        public readonly bool IsSwitch;
+
+        public LoopScope(
+            LabelTarget breakTarget, 
+            LabelTarget continueTarget,
+            bool isSwitch = false)
         {
             this.Break = breakTarget;
             this.Continue = continueTarget;
+            this.IsSwitch = isSwitch;
         }
     }
 

@@ -245,6 +245,11 @@ namespace WebAtoms.CoreJS.Core {
 
         public abstract JSBoolean Equals(JSValue value);
 
+        internal static bool StaticEquals(JSValue left, JSValue right)
+        {
+            return left.Equals(right).BooleanValue;
+        }
+
         public abstract JSBoolean StrictEquals(JSValue value);
 
         internal abstract JSBoolean Less(JSValue value);

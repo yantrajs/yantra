@@ -10,6 +10,7 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.Tests.Generator
 {
+
     [TestClass]
     public class FilesTest
     {

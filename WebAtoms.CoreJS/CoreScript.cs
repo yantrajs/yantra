@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,6 +25,8 @@ namespace WebAtoms.CoreJS
         public JSFunctionDelegate Method { get; }
 
         private LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
+
+        public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
         private ParsedScript Code;
 
@@ -364,48 +367,58 @@ namespace WebAtoms.CoreJS
         {
             Exp d = null;
             List<System.Linq.Expressions.SwitchCase> cases = new List<System.Linq.Expressions.SwitchCase>();
-            foreach(var c in switchStatement.Cases)
+            var @continue = this.scope.Top.Loop?.Top?.Continue;
+            var @break = Exp.Label();
+            var ls = new LoopScope(@break ,@continue, true);
+            using (var bt = this.scope.Top.Loop.Push(ls))
             {
-                var statements = new List<Exp>();
-                // this is probably default...
-                foreach(var es in c.Consequent)
+                foreach (var c in switchStatement.Cases)
                 {
-                    switch(es)
+                    var statements = new List<Exp>();
+                    // this is probably default...
+                    foreach (var es in c.Consequent)
                     {
-                        case Esprima.Ast.Statement stmt:
-                            statements.Add(VisitStatement(stmt));
-                            break;
-                        case Esprima.Ast.Expression exp:
-                            statements.Add(VisitExpression(exp));
-                            break;
-                        default:
-                            throw new InvalidOperationException();
+                        switch (es)
+                        {
+                            case Esprima.Ast.Statement stmt:
+                                statements.Add(VisitStatement(stmt));
+                                break;
+                            case Esprima.Ast.Expression exp:
+                                statements.Add(VisitExpression(exp));
+                                break;
+                            default:
+                                throw new InvalidOperationException();
+                        }
                     }
-                }
 
-                Exp block = null;
+                    Exp block = null;
 
-                if (statements.Any())
-                {
-                    if (statements.Count == 1)
+                    if (statements.Any())
                     {
-                        block = Exp.Block(statements);
+                        if (statements.Count == 1)
+                        {
+                            block = statements[0];
+                        }
+                        else
+                        {
+                            block = Exp.Block(statements);
+                        }
+                    }
+
+                    if (c.Test == null)
+                    {
+                        d = block;
                     }
                     else
                     {
-                        block = statements[0];
+                        cases.Add(Exp.SwitchCase(block, VisitExpression(c.Test)));
                     }
                 }
-
-                if (c.Test == null)
-                {
-                    d = block;
-                } else
-                {
-                    cases.Add(Exp.SwitchCase(block, VisitExpression(c.Test)));
-                }
             }
-            return Exp.Switch(VisitExpression(switchStatement.Discriminant), d, null, cases);
+            var r = Exp.Block(
+                Exp.Switch(VisitExpression(switchStatement.Discriminant), d , ExpHelper.JSValue.StaticEquals, cases),
+                Exp.Label(@break));
+            return r;
         }
 
         protected override Exp VisitSwitchCase(Esprima.Ast.SwitchCase switchCase)
@@ -878,7 +891,10 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitBreakStatement(Esprima.Ast.BreakStatement breakStatement)
         {
-            return Exp.Continue(this.scope.Top.Loop.Top.Break);
+            var ls = this.LoopScope;
+            if (ls.IsSwitch)
+                return Exp.Goto(ls.Break);
+            return Exp.Break(ls.Break);
         }
 
         protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)

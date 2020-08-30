@@ -73,6 +73,15 @@ namespace WebAtoms.CoreJS.LinqExpressions
             return a;
         }
 
+        protected static MethodInfo InternalMethod<T1,T2>(string name)
+        {
+            var a = typeof(T)
+                .GetMethod(name,
+                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Instance
+                    , null, new Type[] { typeof(T1), typeof(T2) }, null);
+            return a;
+        }
+
         protected static MethodInfo Method<T1, T2>(string name)
         {
             return typeof(T).GetMethod(name, new Type[] { typeof(T1), typeof(T2) });
@@ -80,7 +89,18 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         protected static MethodInfo StaticMethod<T1, T2>(string name)
         {
-            return typeof(T).GetMethod(name, new Type[] { typeof(T1), typeof(T2) });
+            return typeof(T)
+                .GetMethod(name, 
+                new Type[] { typeof(T1), typeof(T2) });
+        }
+
+        protected static MethodInfo InternalStaticMethod<T1, T2>(string name)
+        {
+            var a = typeof(T)
+                .GetMethod(name,
+                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Static
+                    , null, new Type[] { typeof(T1), typeof(T2) }, null);
+            return a;
         }
 
         protected static FieldInfo InternalField(string name)
@@ -444,8 +464,12 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.MakeIndex(target, _Index, new Expression[] { property });
             }
 
+            internal static MethodInfo StaticEquals
+                = InternalStaticMethod<Core.JSValue,Core.JSValue>(nameof(Core.JSValue.StaticEquals));
+
+
             private static MethodInfo _Equals
-                = Method<Core.JSValue>("Equals");
+                = Method<Core.JSValue>(nameof(Core.JSValue.Equals));
 
             public static Expression Equals(Expression target, Expression value)
             {
