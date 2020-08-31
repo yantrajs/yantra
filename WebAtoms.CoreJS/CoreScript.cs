@@ -5,17 +5,18 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Security;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Xml.Schema;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.LinqExpressions;
 using WebAtoms.CoreJS.Utils;
 
 using Exp = System.Linq.Expressions.Expression;
+using ParameterExpression = System.Linq.Expressions.ParameterExpression;
 
 namespace WebAtoms.CoreJS
 {
@@ -591,9 +592,62 @@ namespace WebAtoms.CoreJS
             throw new NotImplementedException();
         }
 
+        class ExpressionHolder
+        {
+            public Exp Value;
+            public Exp Getter;
+            public Exp Setter;
+        }
+
         protected override Exp VisitObjectExpression(Esprima.Ast.ObjectExpression objectExpression)
         {
-            throw new NotImplementedException();
+            var keys = new List<(Exp, ExpressionHolder)>();
+            var properties = new Dictionary<string, ExpressionHolder>();
+            foreach(Property p in objectExpression.Properties)
+            {
+                Exp key = null;
+                Exp value = null;
+                switch (p.Key)
+                {
+                    case Identifier id
+                        when !p.Computed:
+                        key = KeyOfName(id.Name);
+                        if (p.Shorthand)
+                        {
+                            value = this.scope.Top[id.Name];
+                        } else
+                        {
+                            value = VisitExpression((Expression)p.Value);
+                        }
+                        if (p.Kind == PropertyKind.Get || p.Kind == PropertyKind.Set)
+                        {
+                            ExpressionHolder m = null;
+                            if(!properties.TryGetValue(id.Name, out m))
+                            {
+                                m = new ExpressionHolder { };
+                                properties[id.Name] = m;
+                                keys.Add((key, m));
+                            }
+                            if (p.Kind == PropertyKind.Get)
+                            {
+                                m.Getter = value;
+                            } else
+                            {
+                                m.Setter = value; 
+                            }
+                            m.Value = ExpHelper.JSProperty.Property(key, m.Getter,m.Setter);
+                            continue;
+                        }
+                        else
+                        {
+                            value = ExpHelper.JSProperty.Value(key, value);
+                        }
+                        break;
+                }
+                keys.Add((key, new ExpressionHolder { Value = value }));
+            }
+
+            return ExpHelper.JSObject.New(keys.Select((x) => (x.Item1, x.Item2.Value)));
         }
 
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)

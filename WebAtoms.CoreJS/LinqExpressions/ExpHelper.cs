@@ -536,6 +536,79 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
         }
 
+        public class JSObject: TypeHelper<Core.JSValue>
+        {
+            private static FieldInfo _ownProperties =
+                InternalField(nameof(Core.JSValue.ownProperties));
+
+            private static PropertyInfo _Index =
+                typeof(BaseMap<uint,Core.JSProperty>)
+                    .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
+                    .FirstOrDefault(x => x.GetIndexParameters().Length > 0);
+
+            private static FieldInfo _Key =
+                TypeHelper<KeyString>.Field(nameof(Core.KeyString.Key));
+
+            public static Expression New(IEnumerable<(Expression key, Expression value)> keyValues)
+            {
+                var pe = Expression.Parameter(typeof(Core.JSValue));
+                var fe = Expression.Parameter(typeof(BinaryUInt32Map<Core.JSProperty>));
+                var list = new List<Expression>() {
+                    Expression.Assign(pe, Expression.New(typeof(Core.JSObject))),
+                    Expression.Assign(fe, Expression.Field(pe, _ownProperties))
+                };
+
+                foreach(var (k,v) in keyValues)
+                {
+                    list.Add(Expression.Assign( 
+                        Expression.Property(fe, _Index, Expression.Field(k, _Key)  ), v ));
+                }
+                list.Add(pe);
+                return Expression.Block(new ParameterExpression[] { pe, fe }, list );
+            }
+
+        }
+
+        public class JSProperty: TypeHelper<Core.JSProperty>
+        {
+            private static ConstructorInfo _New =
+                typeof(Core.JSProperty).GetConstructors().FirstOrDefault();
+
+            private static FieldInfo _Attributes =
+                Field(nameof(Core.JSProperty.Attributes));
+
+            private static FieldInfo _Key =
+                Field(nameof(Core.JSProperty.key));
+
+            private static FieldInfo _Get =
+                Field(nameof(Core.JSProperty.get));
+
+            private static FieldInfo _Value =
+                Field(nameof(Core.JSProperty.value));
+
+            public static Expression Value(Expression key, Expression value)
+            {
+                return Expression.MemberInit(Expression.New(typeof(Core.JSProperty)),
+                    Expression.Bind(_Key, key),
+                    Expression.Bind(_Value, value),
+                    Expression.Bind(_Attributes, Expression.Constant(JSPropertyAttributes.EnumerableConfigurableValue))
+                    );
+            }
+
+            public static Expression Property(Expression key, Expression getter, Expression setter)
+            {
+                getter = getter == null ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) : Expression.Convert(getter, typeof(Core.JSFunction));
+                setter = setter == null ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) : Expression.Convert(setter, typeof(Core.JSFunction));
+                return Expression.MemberInit(Expression.New(typeof(Core.JSProperty)),
+                    Expression.Bind(_Key, key),
+                    Expression.Bind(_Get, getter),
+                    Expression.Bind(_Value, setter),
+                    Expression.Bind(_Attributes, Expression.Constant(JSPropertyAttributes.EnumerableConfigurableReadonlyProperty))
+                    );
+            }
+
+        }
+
         public class JSArray: TypeHelper<Core.JSArray>
         {
             private static ConstructorInfo _New =

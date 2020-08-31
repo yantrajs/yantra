@@ -21,7 +21,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
         [TestMethod]
         public void Try() {
 
-            RunTest("Statements\\Switch.js");
+            RunTest("Syntax\\ObjectLiteral.js");
 
         }
 
