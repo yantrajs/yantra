@@ -70,9 +70,9 @@ namespace WebAtoms.CoreJS
         public FunctionScope(Esprima.Ast.IFunction fx)
         {
             this.Function = fx;
-            this.ThisExpression = Expression.Parameter(typeof(JSValue));
-            this.ArgumentsExpression = Expression.Parameter(typeof(JSArray));
-            ReturnLabel = Expression.Label(typeof(JSValue));
+            this.ThisExpression = Expression.Parameter(typeof(Core.JSValue));
+            this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSArguments));
+            ReturnLabel = Expression.Label(typeof(Core.JSValue));
         }
 
         public Exp this[string name]

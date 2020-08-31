@@ -66,17 +66,18 @@ namespace WebAtoms.CoreJS.Core
             return f(thisValue, args);
         }
 
-        public static JSValue Call(JSValue receiver, JSArray p)
+        public static JSValue Call(JSValue receiver, JSArguments p)
         {
-            return receiver.InvokeFunction(p[0], p.SliceToArguments(1));
+            var (first, args) = p.Slice();
+            return receiver.InvokeFunction(first, args);
         }
 
-        public static JSValue Apply(JSValue t, JSArray a){
-            JSArray ar = a;
+        public static JSValue Apply(JSValue t, JSArguments a){
+            var ar = a;
             return t.InvokeFunction(ar[0], new JSArguments(ar[1] as JSArray));
         }
 
-        public static JSValue Bind(JSValue t, JSArray a) {
+        public static JSValue Bind(JSValue t, JSArguments a) {
             var fOriginal = (JSFunction)t;
             var tx = a[0];
             var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));

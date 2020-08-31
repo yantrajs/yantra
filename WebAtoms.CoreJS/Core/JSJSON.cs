@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        public static JSValue _Parse(JSValue t, JSArray a)
+        public static JSValue _Parse(JSValue t, JSArguments a)
         {
             var first = a[0].ToString();
 
@@ -33,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        public static JSValue _Stringify(JSValue t, JSArray a)
+        public static JSValue _Stringify(JSValue t, JSArguments a)
         {
             var f = a[0];
             if (f is JSUndefined)

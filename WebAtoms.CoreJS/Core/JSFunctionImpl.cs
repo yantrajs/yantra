@@ -6,7 +6,7 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public delegate JSValue JSFunctionImplDelegate(JSValue _this, JSArray args, JSVariable[] closures);
+    public delegate JSValue JSFunctionImplDelegate(JSValue _this, JSArguments args, JSVariable[] closures);
 
     public class JSFunctionImpl: JSFunction
     {

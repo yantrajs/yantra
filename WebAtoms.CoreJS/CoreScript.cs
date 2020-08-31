@@ -174,14 +174,30 @@ namespace WebAtoms.CoreJS
                 var vList = new List<ParameterExpression>();
 
                 var pList = functionDeclaration.Params.OfType<Identifier>();
-                uint i = 0;
+                int i = 0;
+
+                
+
+                var argumentElements = Exp.Variable(typeof(Core.JSValue[]));
+                var argumentElementsLength = Exp.Variable(typeof(int));
+                vList.Add(argumentElements);
+                vList.Add(argumentElementsLength);
+
+                sList.Add(Exp.Assign(argumentElements, ExpHelper.JSArguments.Elements(args)));
+                sList.Add(Exp.Assign(argumentElementsLength, 
+                    Exp.Condition(
+                        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
+                            Exp.ArrayLength(argumentElements),
+                            Exp.Constant(0, typeof(int)))));
+
                 foreach (var v in pList)
                 {
-                    var var1 = Exp.Variable(typeof(JSVariable));
+                    var var1 = Exp.Variable(typeof(Core.JSVariable));
                     var vf = JSVariable.ValueExpression(var1);
 
                     vList.Add(var1);
-                    sList.Add(Exp.Assign(var1, ExpHelper.JSVariable.FromArgument(args, i, v.Name)));
+                    sList.Add(Exp.Assign(var1, 
+                        ExpHelper.JSVariable.FromArgument(argumentElements, argumentElementsLength, i, v.Name)));
 
                     s.AddVariable(v.Name, vf);
 
@@ -209,7 +225,7 @@ namespace WebAtoms.CoreJS
 
                 sList.Add(lambdaBody);
 
-                sList.Add(Exp.Label(s.ReturnLabel, ExpHelper.JSUndefined.Value));
+                sList.Add(Exp.Label(r, ExpHelper.JSUndefined.Value));
 
                 var block = Exp.Block(vList, sList);
 

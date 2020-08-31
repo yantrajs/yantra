@@ -252,12 +252,16 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         public class JSNull: TypeHelper<Core.JSNull>
         {
-            public static Expression Value = Expression.Field(null, Field("Value"));
+            public static Expression Value = 
+                Expression.Field(null, 
+                    Field(nameof(JSNull.Value)));
         }
 
         public class JSUndefined : TypeHelper<Core.JSUndefined>
         {
-            public static Expression Value = Expression.Field(null, Field("Value"));
+            public static Expression Value = 
+                Expression.Field(null, 
+                    Field(nameof(Core.JSUndefined.Value)));
         }
 
 
@@ -328,7 +332,8 @@ namespace WebAtoms.CoreJS.LinqExpressions
         public class JSException: TypeHelper<Core.JSException>
         {
             private static MethodInfo _Throw = 
-                typeof(Core.JSException).GetMethod("Throw", BindingFlags.NonPublic);
+                typeof(Core.JSException)
+                    .GetMethod(nameof(Core.JSException.Throw), BindingFlags.NonPublic);
 
             public static Expression Throw(Expression value)
             {
@@ -354,9 +359,19 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.New(_New, value, Expression.Constant(name, typeof(string)));
             }
 
-            public static Expression FromArgument(Expression args, uint i, string name)
+            public static Expression FromArgument(Expression args, Expression length, int i, string name)
             {
-                return Expression.New(_New, ExpHelper.JSArguments.Index(args,i), Expression.Constant(name));
+                var ie = Expression.Constant(i);
+                var lessThan = Expression.LessThan(ie, length);
+                var ai = Expression.ArrayAccess(args, ie);
+                var undefined = JSUndefined.Value;
+                var c = Expression.Condition(
+                        lessThan,
+                        ai,
+                        undefined);
+                return Expression.New(_New, 
+                     c,
+                    Expression.Constant(name));
             }
 
 
@@ -370,7 +385,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
         public class JSValue: TypeHelper<Core.JSValue>
         {
             private static PropertyInfo _DoubleValue =
-                Property("DoubleValue");
+                Property(nameof(Core.JSValue.DoubleValue));
             public static Expression DoubleValue(Expression exp)
             {
                 return Expression.Property(exp, _DoubleValue);
@@ -393,7 +408,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
 
             private static MethodInfo _InvokeMethod =
-                Method<Core.KeyString, Core.JSArray>("InvokeMethod");
+                Method<Core.KeyString, Core.JSArguments>(nameof(Core.JSValue.InvokeMethod));
 
             public static Expression InvokeMethod(Expression target, Expression keyString, Expression args)
             {
@@ -401,7 +416,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
 
             private static MethodInfo _InvokeFunction =
-                Method<Core.JSValue, Core.JSArray>("InvokeFunction");
+                Method<Core.JSValue, Core.JSArguments>(nameof(Core.JSValue.InvokeFunction));
 
             public static Expression InvokeFunction(Expression target, Expression t, Expression args)
             {
@@ -622,6 +637,15 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         public class JSArguments: TypeHelper<Core.JSArguments>
         {
+
+            private static FieldInfo _Elements =
+                InternalField(nameof(Core.JSArguments.elements));
+
+            public static Expression Elements(Expression target)
+            {
+                return Expression.Field(target, _Elements);
+            }
+
             private static ConstructorInfo _New =
                 Constructor<Core.JSValue[]>();
 

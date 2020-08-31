@@ -47,14 +47,18 @@ namespace WebAtoms.CoreJS.Core
 
         public override int Length => value.Length;
 
-        public static JSValue Substring(JSValue t, JSArray a) 
+        public static JSValue Substring(JSValue t, JSArguments a) 
         {
             var j = t as JSString;
-            if (a.Length == 1)
-                return new JSString(j.value.Substring(a[0].IntValue));
-            if (a.Length == 2)
-                return new JSString(j.value.Substring(a[0].IntValue, a[1].IntValue));
-            return JSUndefined.Value;
+            if (j == null)
+                return JSUndefined.Value;
+            var start = a[0];
+            if (start is JSUndefined)
+                return t;
+            var length = a[1];
+            if (length is JSUndefined)
+                return new JSString(j.value.Substring(start.IntValue));
+            return new JSString(j.value.Substring(start.IntValue, length.IntValue));
         }
 
         internal static JSFunction Create()
@@ -129,7 +133,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
         {
             throw new NotImplementedException("string is not a function");
         }

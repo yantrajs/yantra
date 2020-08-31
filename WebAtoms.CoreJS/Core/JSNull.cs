@@ -10,7 +10,7 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        public static JSNull Value = new JSNull();
+        public static JSValue Value = new JSNull();
 
         public override JSValue this[JSValue key] {
             get => throw new InvalidOperationException($"Cannot get {key} of null");
@@ -67,7 +67,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
         {
             throw new NotImplementedException("null is not a function");
         }

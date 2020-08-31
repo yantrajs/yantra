@@ -10,7 +10,7 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        public static JSUndefined Value = new JSUndefined();
+        public static JSValue Value = new JSUndefined();
 
         public override JSValue this[JSValue key]
         {
@@ -60,7 +60,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
         {
             throw new NotImplementedException("undefined is not a function");
         }

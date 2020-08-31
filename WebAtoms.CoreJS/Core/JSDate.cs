@@ -21,25 +21,25 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("UTC")]
-        internal static JSValue UTC(JSValue t, JSArray a)
+        internal static JSValue UTC(JSValue t, JSArguments a)
         {
             return new JSDate(DateTime.UtcNow);
         }
 
         [Static("now")]
-        internal static JSValue Now(JSValue t, JSArray a)
+        internal static JSValue Now(JSValue t, JSArguments a)
         {
             return new JSDate(DateTime.UtcNow);
         }
 
         [Static("parse")]
-        internal static JSValue Parse(JSValue t, JSArray a)
+        internal static JSValue Parse(JSValue t, JSArguments a)
         {
             return new JSDate(DateTime.Parse(a[0].ToString()));
         }
 
         [Prototype("getYear")]
-        internal static JSValue GetYear(JSValue t, JSArray a)
+        internal static JSValue GetYear(JSValue t, JSArguments a)
         {
             if (!(t is JSDate d))
                 throw JSContext.Current.TypeError("Method Date.prototype.getYear called on incompatible receiver");

@@ -72,7 +72,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public static JSValue PropertyIsEnumerable(JSValue t, JSArray a)
+        public static JSValue PropertyIsEnumerable(JSValue t, JSArguments a)
         {
             switch (t)
             {
@@ -114,14 +114,14 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public static JSValue ToString(JSValue t, JSArray a) => new JSString("[object Object]");
+        public static JSValue ToString(JSValue t, JSArguments a) => new JSString("[object Object]");
 
-        internal static JSValue StaticCreate(JSValue t, JSArray a)
+        internal static JSValue StaticCreate(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSValue _Assign(JSValue t, JSArray a)
+        internal static JSValue _Assign(JSValue t, JSArguments a)
         {
             if (a._length == 0)
                 throw JSContext.Current.Error(JSError.Cannot_convert_undefined_or_null_to_object);
@@ -140,32 +140,32 @@ namespace WebAtoms.CoreJS.Core
             return first;
         }
 
-        internal static JSValue _Entries(JSValue t, JSArray a)
+        internal static JSValue _Entries(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSValue Freeze(JSValue t, JSArray a)
+        internal static JSValue Freeze(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSValue HasOwnProperty(JSValue t, JSArray a)
+        internal static JSValue HasOwnProperty(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSValue IsPrototypeOf(JSValue t, JSArray a)
+        internal static JSValue IsPrototypeOf(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSValue _DefineProperties(JSValue t, JSArray a)
+        internal static JSValue _DefineProperties(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSValue _DefineProperty(JSValue t, JSArray a)
+        internal static JSValue _DefineProperty(JSValue t, JSArguments a)
         {
             return t;
         }
@@ -217,7 +217,7 @@ namespace WebAtoms.CoreJS.Core
 
             return r;
         }
-        internal static JSValue _FromEntries(JSValue t, JSArray a)
+        internal static JSValue _FromEntries(JSValue t, JSArguments a)
         {
             var v = a[0];
             if (v is JSUndefined || v is JSNull)
@@ -241,23 +241,23 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        internal static JSValue _Is(JSValue t, JSArray a)
+        internal static JSValue _Is(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _IsExtensible(JSValue t, JSArray a)
+        internal static JSValue _IsExtensible(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _IsFrozen(JSValue t, JSArray a)
+        internal static JSValue _IsFrozen(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _IsSealed(JSValue t, JSArray a)
+        internal static JSValue _IsSealed(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _Keys(JSValue t, JSArray a)
+        internal static JSValue _Keys(JSValue t, JSArguments a)
         {
             var first = a[0];
             if (first is JSUndefined)
@@ -269,21 +269,21 @@ namespace WebAtoms.CoreJS.Core
                 .Where(x => x.Value.IsEnumerable)
                 .Select(x => new JSString(x.Value.ToString())));
         }
-        internal static JSValue _PreventExtensions(JSValue t, JSArray a)
+        internal static JSValue _PreventExtensions(JSValue t, JSArguments a)
         {
             return t;
         }
 
 
-        internal static JSValue _Seal(JSValue t, JSArray a)
+        internal static JSValue _Seal(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _SetPrototypeOf(JSValue t, JSArray a)
+        internal static JSValue _SetPrototypeOf(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _Values(JSValue t, JSArray a)
+        internal static JSValue _Values(JSValue t, JSArguments a)
         {
             var first = a[0];
             if (first is JSUndefined)
@@ -293,11 +293,11 @@ namespace WebAtoms.CoreJS.Core
             return new JSArray(jobj.Entries.Select(x => x.Value));
         }
 
-        internal static JSValue _GetOwnPropertyDescriptor(JSValue t, JSArray a)
+        internal static JSValue _GetOwnPropertyDescriptor(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _GetOwnPropertyDescriptors(JSValue t, JSArray a)
+        internal static JSValue _GetOwnPropertyDescriptors(JSValue t, JSArguments a)
         {
             var first = a[0];
             if (first is JSUndefined)
@@ -308,15 +308,15 @@ namespace WebAtoms.CoreJS.Core
                 JSProperty.Property(x.Value.key, x.Value.ToJSValue())
             ));
         }
-        internal static JSValue _GetOwnPropertyNames(JSValue t, JSArray a)
+        internal static JSValue _GetOwnPropertyNames(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _GetOwnPropertySymbols(JSValue t, JSArray a)
+        internal static JSValue _GetOwnPropertySymbols(JSValue t, JSArguments a)
         {
             return t;
         }
-        internal static JSValue _GetPrototypeOf(JSValue t, JSArray a)
+        internal static JSValue _GetPrototypeOf(JSValue t, JSArguments a)
         {
             return t;
         }
@@ -351,7 +351,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
         {
             throw new NotImplementedException("object is not a function");
         }

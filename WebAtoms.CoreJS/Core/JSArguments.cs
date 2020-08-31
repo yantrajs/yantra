@@ -11,6 +11,9 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSArguments Empty = new JSArguments();
 
+        public override int Length { 
+            get => (int)this._length;
+            set { } }
 
         internal static JSArguments FromParameters(params JSValue[] args)
         {
@@ -78,12 +81,25 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException();
         }
 
+        internal (JSValue, JSArguments) Slice()
+        {
+            if (this._length == 0)
+                return (JSUndefined.Value, new JSArguments());
+            if (this._length == 1)
+                return (elements[0], new JSArguments());
+            var a = new JSArguments();
+            var n = this._length - 1;
+            a.elements = new JSArray[n];
+            Array.Copy(elements, 1, a.elements, 0, n);
+            return (elements[0], a);
+        }
+
         public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
         {
             throw new NotImplementedException();
         }
 
-        private uint _length;
+        internal readonly uint _length;
         internal JSValue[] elements = null;
 
         public JSArguments(JSArray a): base(JSContext.Current.ObjectPrototype)
@@ -97,7 +113,12 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public JSArguments(params JSValue[] args) : base(JSContext.Current.ObjectPrototype)
+        private JSArguments(): base(JSContext.Current.ObjectPrototype)
+        {
+
+        }
+
+        public JSArguments(JSValue[] args) : base(JSContext.Current.ObjectPrototype)
         {
             _length = (uint)args.Count();
             uint i = 0;

@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
-        public static JSValue IsFinite(JSValue t, JSArray a)
+        public static JSValue IsFinite(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n) {
                 if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
@@ -52,7 +52,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public static JSValue IsInteger(JSValue t, JSArray a)
+        public static JSValue IsInteger(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n) { 
                 var v = n.value;
@@ -67,7 +67,7 @@ namespace WebAtoms.CoreJS.Core
             return double.IsNaN(n.DoubleValue);
         }
 
-        public static JSValue IsNaN(JSValue t, JSArray a)
+        public static JSValue IsNaN(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n)
             {
@@ -77,7 +77,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public static JSValue IsSafeInteger(JSValue t, JSArray a)
+        public static JSValue IsSafeInteger(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n)
             {
@@ -88,7 +88,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public static JSNumber ParseFloat(JSValue t, JSArray a)
+        public static JSNumber ParseFloat(JSValue t, JSArguments a)
         {
             var nan = JSContext.Current.NaN;
             if (a._length > 0)
@@ -164,7 +164,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        public static JSNumber ParseInt(JSValue t, JSArray a)
+        public static JSNumber ParseInt(JSValue t, JSArguments a)
         {
             var nan = JSContext.Current.NaN;
             if (a._length > 0)
@@ -212,7 +212,7 @@ namespace WebAtoms.CoreJS.Core
             return nan;
         }
 
-        public static JSString ToString(JSValue t, JSArray a)
+        public static JSString ToString(JSValue t, JSArguments a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -220,7 +220,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString());
         }
 
-        public static JSString ToExponential(JSValue t, JSArray a)
+        public static JSString ToExponential(JSValue t, JSArguments a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -236,7 +236,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("#.#################e+0"));
         }
 
-        public static JSString ToFixed(JSValue t, JSArray a)
+        public static JSString ToFixed(JSValue t, JSArguments a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -251,7 +251,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("F0"));
         }
 
-        public static JSString ToPrecision(JSValue t, JSArray a)
+        public static JSString ToPrecision(JSValue t, JSArguments a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -282,7 +282,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("G2"));
         }
 
-        public static JSString ToLocaleString(JSValue t, JSArray a)
+        public static JSString ToLocaleString(JSValue t, JSArguments a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -440,7 +440,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
         {
             throw JSContext.Current.TypeError($"{this.value} is not a function");
         }

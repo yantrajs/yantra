@@ -5,7 +5,7 @@
 assert(a.b === 3);
 
 var c = {
-    get c() {
+    get c(n) {
         return "c";
     }
 };

@@ -19,7 +19,7 @@ namespace WebAtoms.CoreJS.Core
             
         }
 
-        public JSArray(params JSValue[] items): this((IEnumerable<JSArray>)items)
+        public JSArray(params JSValue[] items): this((IEnumerable<JSValue>)items)
         {
 
         }
@@ -86,9 +86,9 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public static JSValue Push (JSValue t, JSArray a){
+        public static JSValue Push (JSValue t, JSArguments a){
             var ta = (JSArray)t;
-            foreach(var item in a.All)
+            foreach(var item in a.elements)
             {
                 ta.elements[ta._length] = item;
                 ta._length++;
@@ -96,7 +96,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSNumber(ta._length);
         }
 
-        public static JSValue Pop(JSValue t, JSArray a)
+        public static JSValue Pop(JSValue t, JSArguments a)
         {
             var ta = (JSArray)t;
             if (ta._length == 0)
@@ -107,7 +107,7 @@ namespace WebAtoms.CoreJS.Core
             return r ?? JSUndefined.Value;
         }
 
-        public static JSArray Slice(JSValue t, JSArray a){
+        public static JSArray Slice(JSValue t, JSArguments a){
             var ta = (JSArray)t;
             var a0 = a.elements[0]?.IntValue ?? 0;
             var a1 = a.elements[1]?.IntValue ?? -1;
@@ -131,7 +131,7 @@ namespace WebAtoms.CoreJS.Core
             return a;
         }
 
-        public static JSArray From(JSValue t, JSArray a)
+        public static JSArguments From(JSValue t, JSArguments a)
         {
             return a;
         }

@@ -97,8 +97,9 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             });
 
             Assert.AreEqual("{\"a\":\"a\"}", stringify(a, fx));
+            var ba = new JSArray(new JSString("b"));
 
-            Assert.AreEqual("{\"b\":1}", stringify(a, JSArguments.From("b")));
+            Assert.AreEqual("{\"b\":1}", stringify(a, ba));
         }
 
         [TestMethod]
