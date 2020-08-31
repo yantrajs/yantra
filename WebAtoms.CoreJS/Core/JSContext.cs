@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Core
 
         static AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
 
-        internal LexicalScope Scope = new LexicalScope();
+        internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
 
         public void Dispose()
         {
@@ -72,7 +72,10 @@ namespace WebAtoms.CoreJS.Core
         public JSContext()
         {
             JSObject obj = null;
+
             
+            Scope.Push(new LexicalScope("", "", 1, 1));
+            Scope.Top.IsRoot = true;
 
             _current.Value = this;
 

@@ -15,7 +15,7 @@ namespace WebAtoms.CoreJS.Core
         public JSVariable(JSValue v, string name)
         {
             this.Value = v;
-            var c = JSContext.Current.Scope;
+            var c = JSContext.Current.Scope.Top;
             c[name] = this;
             if (c.IsRoot)
             {

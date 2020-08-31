@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Esprima;
+using Esprima.Ast;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,70 +21,36 @@ namespace WebAtoms.CoreJS.Core
         }
     }
 
-    /// <summary>
-    /// Only create new scope if there is an internal function definition
-    /// </summary>
-    public class LexicalScope
+    public class LexicalScope : LinkedStackItem<LexicalScope>
     {
+        private readonly BinaryUInt32Map<JSVariable> scope;
 
-        private BinaryUInt32Map<JSVariable> scope = new BinaryUInt32Map<JSVariable>();
-        private BinaryUInt32Map<JSVariable> root;
+        internal bool IsRoot = false;
 
-        public LexicalScope()
+        internal LexicalScope(string fileName, string function, int line, int column)
         {
-            root = scope;
+            this.scope = new BinaryUInt32Map<JSVariable>();
+            FileName = fileName;
+            Function = function;
+            Position = new Position(line, column);
         }
 
-        public bool IsRoot => scope == root;
-
-        public ScopeItem NewScope()
-        {
-            return new ScopeItem(this.scope);
-        }
-
-        public JSVariable this[KeyString key]
-        {
-            get
-            {
-                return scope[key.Key];
-            }
-            set
-            {
-                scope[key.Key] = value;
-            }
-        }
-
-    }
-
-    public class ScopeItem : IDisposable
-    {
-        readonly List<(UInt32, JSVariable)> previous = new List<(uint, JSVariable)>();
-        readonly BinaryUInt32Map<JSVariable> scope;
-        internal ScopeItem(BinaryUInt32Map<JSVariable> scope)
-        {
-            this.scope = scope;
-        }
+        public string FileName;
+        public string Function;
+        public Position Position;
 
         public JSVariable Create(KeyString name, JSValue v)
         {
-            var old = scope[name.Key];
-            previous.Add((name.Key, old));
             var v1 = new JSVariable(v, name.ToString());
             scope[name.Key] = v1;
             return v1;
         }
 
-        public void Dispose()
+        public JSVariable this[KeyString name]
         {
-            foreach(var (key, value) in previous)
-            {
-                if (value == null)
-                {
-                    scope.RemoveAt(key);
-                } else {
-                    scope[key] = value;
-                }
-            }
+            get => scope[name.Key];
+            set => scope[name.Key] = value;
         }
+
     }
 }

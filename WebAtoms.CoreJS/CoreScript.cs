@@ -31,6 +31,8 @@ namespace WebAtoms.CoreJS
 
         private ParsedScript Code;
 
+        private ParameterExpression FileNameExpression;
+
         private Dictionary<string, ParameterExpression> keyStrings = new Dictionary<string, ParameterExpression>();
 
         public Exp KeyOfName(string name)
@@ -63,6 +65,11 @@ namespace WebAtoms.CoreJS
 
         public CoreScript(string code, string location = null)
         {
+
+            location = location ?? "vm";
+
+            FileNameExpression = Exp.Variable(typeof(string));
+
             this.Code = new ParsedScript(code);
             Esprima.JavaScriptParser parser =
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
@@ -77,8 +84,8 @@ namespace WebAtoms.CoreJS
                 var jScript = parser.ParseScript();
                 var script = Visit(jScript);
 
-                
 
+                var lScope = fx.Scope;
                 
 
                 var te = fx.ThisExpression;
@@ -86,9 +93,15 @@ namespace WebAtoms.CoreJS
                 var args = fx.ArgumentsExpression;
 
 
-                var vList = new List<ParameterExpression>();
+                var vList = new List<ParameterExpression>() { 
+                    FileNameExpression,
+                    lScope
+                };
 
-                var sList = new List<Exp>();
+                var sList = new List<Exp>() { 
+                    Exp.Assign(FileNameExpression, Exp.Constant(location)),
+                    Exp.Assign(lScope, ExpHelper.LexicalScope.NewScope(FileNameExpression,"",1,1))
+                };
 
                 var l = Exp.Label(typeof(JSValue));
 
@@ -117,7 +130,11 @@ namespace WebAtoms.CoreJS
                 sList.Add(Exp.Return(l, script));
                 sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
 
-                script = Exp.Block(vList, sList);
+                script = Exp.Block(vList,
+                    Exp.TryFinally(
+                        Exp.Block(sList),
+                        ExpHelper.IDisposable.Dispose(lScope))
+                );
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
 
@@ -158,6 +175,8 @@ namespace WebAtoms.CoreJS
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
             {
+                var lexicalScopeVar = cs.Scope;
+
                 var s = cs;
                 // use this to create variables...
                 var t = s.ThisExpression;
@@ -211,7 +230,7 @@ namespace WebAtoms.CoreJS
                         lambdaBody = VisitStatement(stmt);
                         break;
                     case Expression exp:
-                        lambdaBody = VisitExpression(exp);
+                        lambdaBody = Exp.Return(s.ReturnLabel, VisitExpression(exp));
                         break;
                     default:
                         throw new NotImplementedException();
@@ -243,19 +262,26 @@ namespace WebAtoms.CoreJS
 
                 // adding lexical scope pending...
 
-                var lexicalScopeVar = Exp.Variable(typeof(IDisposable));
 
+                var fxName = functionDeclaration.Id?.Name ?? "inline";
+
+                var point = this.Code.Position(functionDeclaration.Range);
 
                 var lexicalScope =
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar },
-                    Exp.Assign(lexicalScopeVar, ExpHelper.LexicalScope.NewScope()),
+                    Exp.Assign(lexicalScopeVar, 
+                        ExpHelper.LexicalScope.NewScope(
+                            FileNameExpression,
+                            fxName,
+                            point.Line,
+                            point.Column
+                            )),
                     Exp.TryFinally(
                         block,
                         ExpHelper.IDisposable.Dispose(lexicalScopeVar)));
 
                 var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
 
-                var fxName = functionDeclaration.Id?.Name ?? "inline";
 
                 // create new JSFunction instance...
                 var jfs = ExpHelper.JSFunction.New(lambda, fxName, code);
@@ -272,6 +298,15 @@ namespace WebAtoms.CoreJS
 
                 return jsF;
             }
+        }
+        protected override Exp VisitStatement(Statement statement)
+        {
+            var s = this.scope.Top.Scope;
+            var r = statement.Range;
+            var p = this.Code.Position(r);
+            return Exp.Block( 
+                ExpHelper.LexicalScope.SetPosition(s, p.Line, p.Column)
+                , base.VisitStatement(statement));
         }
 
         protected override Exp VisitWithStatement(Esprima.Ast.WithStatement withStatement)

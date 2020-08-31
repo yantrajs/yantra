@@ -11,9 +11,13 @@ namespace WebAtoms.CoreJS.Core
 
         internal LinkedStack<T> stack;
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             stack._Top = Parent;
+        }
+
+        internal virtual void Init()
+        {
         }
     }
 
@@ -28,6 +32,7 @@ namespace WebAtoms.CoreJS.Core
             item.Parent = this._Top;
             this._Top = item;
             item.stack = this;
+            item.Init();
             return item;
         }
 

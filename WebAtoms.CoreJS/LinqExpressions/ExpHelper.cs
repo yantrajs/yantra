@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Esprima;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
@@ -241,13 +243,51 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.MakeIndex(JSContext.CurrentScope, _Index , new Expression[] { exp });
             }
 
-            private static MethodInfo _NewScope
-                = Method("NewScope");
+            private static MethodInfo _Push
+                = typeof(LinkedStack<Core.LexicalScope>)
+                .GetMethod(nameof(Core.LinkedStack<Core.LexicalScope>.Push));
 
-            public static Expression NewScope()
+            private static ConstructorInfo _New
+                = typeof(Core.LexicalScope)
+                .GetConstructor(BindingFlags.CreateInstance | BindingFlags.NonPublic | BindingFlags.Instance, 
+                    null, 
+                    new Type[] { 
+                        typeof(string),
+                        typeof(string),
+                        typeof(int),
+                        typeof(int)
+                    }, null);
+
+            public static Expression NewScope(
+                Expression fileName, 
+                string function, 
+                int line, 
+                int column)
             {
-                return Expression.Call(JSContext.CurrentScope, _NewScope);
+                return Expression.Call(
+                    JSContext.CurrentScope, 
+                    _Push,
+                    Expression.New(_New,
+                    fileName,
+                    Expression.Constant(function),
+                    Expression.Constant(line),
+                    Expression.Constant(column)));
             }
+
+            private static FieldInfo _Position =
+                Field(nameof(Core.LexicalScope.Position));
+
+            private static ConstructorInfo _NewPosition =
+                TypeHelper<Position>.Constructor<int, int>();
+
+            public static Expression SetPosition(Expression exp, int line, int column)
+            {
+                return Expression.Assign(
+                    Expression.Field(exp, _Position),
+                    Expression.New(_NewPosition, Expression.Constant(line), Expression.Constant(column)
+                    ));
+            }
+
         }
 
         public class JSNull: TypeHelper<Core.JSNull>

@@ -46,6 +46,8 @@ namespace WebAtoms.CoreJS
 
         public ParameterExpression ArgumentsExpression { get; }
 
+        public ParameterExpression Scope { get; }
+
         public bool IsRoot => Function == null;
 
         public LinkedStack<LoopScope> Loop
@@ -72,6 +74,7 @@ namespace WebAtoms.CoreJS
             this.Function = fx;
             this.ThisExpression = Expression.Parameter(typeof(Core.JSValue));
             this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSArguments));
+            this.Scope = Expression.Parameter(typeof(Core.LexicalScope));
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
         }
 
