@@ -147,13 +147,24 @@ namespace WebAtoms.CoreJS
             // get text...
 
             var previousScope = this.scope.Top;
-            
+
+            // if this is an arrowFunction then override previous thisExperssion
+            var previousThis = this.scope.Top.ThisExpression;
+            if (!(functionDeclaration is ArrowFunctionExpression))
+            {
+                previousThis = null;
+            }
+
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
             {
                 var s = cs;
                 // use this to create variables...
                 var t = s.ThisExpression;
+                if (previousThis!=null)
+                {
+                    s.ThisExpression = previousThis;
+                }
                 var args = s.ArgumentsExpression;
 
                 var r = s.ReturnLabel;
@@ -233,22 +244,6 @@ namespace WebAtoms.CoreJS
                 previousScope.AddVariable(fxName, jsF, jsFVar, jfs);
 
                 return jsF;
-
-                //var body = new List<Exp>();
-
-                //body.Add(Exp.Assign(jsFVar, ExpHelper.JSVariable.New(jfs, fxName)));
-
-                //var fxNameKey = KeyOfName(fxName);
-
-                //// add to root...
-                //if (isRoot)
-                //{
-                //    body.Add(Exp.Assign(ExpHelper.JSContext.Index(fxNameKey), jsF));
-                //}
-
-                //body.Add(jsF);
-
-                //return Exp.Block(new ParameterExpression[] { jsFVar }, body);
             }
         }
 
@@ -499,7 +494,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitArrowFunctionExpression(Esprima.Ast.ArrowFunctionExpression arrowFunctionExpression)
         {
-            throw new NotImplementedException();
+            return CreateFunction(arrowFunctionExpression);
         }
 
         private Exp DoubleValue(Esprima.Ast.Expression exp)

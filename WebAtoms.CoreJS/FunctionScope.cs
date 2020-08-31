@@ -42,7 +42,7 @@ namespace WebAtoms.CoreJS
 
         public Esprima.Ast.IFunction Function { get; }
 
-        public ParameterExpression ThisExpression { get; }
+        public ParameterExpression ThisExpression { get; internal set; }
 
         public ParameterExpression ArgumentsExpression { get; }
 
@@ -67,8 +67,7 @@ namespace WebAtoms.CoreJS
 
         public LabelTarget ReturnLabel { get; }
 
-        public FunctionScope(
-            Esprima.Ast.IFunction fx)
+        public FunctionScope(Esprima.Ast.IFunction fx)
         {
             this.Function = fx;
             this.ThisExpression = Expression.Parameter(typeof(JSValue));
