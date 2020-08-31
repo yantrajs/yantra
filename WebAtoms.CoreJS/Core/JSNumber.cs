@@ -15,9 +15,31 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly double value;
 
-        public const double MaxSafeInteger = 9007199254740991d;
 
-        public const double MinSafeInteger = -9007199254740991d;
+        
+        [Static("EPSILON")]
+        public static readonly double Epsilon = double.Epsilon;
+
+        [Static("NAN")]
+        public static readonly double NaN = double.NaN;
+
+        [Static("MAX_SAFE_INTEGER")]
+        public static readonly double MaxSafeInteger = 9007199254740991d;
+
+        [Static("MAX_VALUE")]
+        public static readonly double MaxValue = double.MaxValue;
+
+        [Static("MIN_SAFE_INTEGER")]
+        public static readonly double MinSafeInteger = -9007199254740991d;
+
+        [Static("MIN_VALUE")]
+        public static readonly double MinValue = double.MinValue;
+
+        [Static("POSITIVE_INFINITY")]
+        public static readonly double PositiveInfinity = double.PositiveInfinity;
+
+        [Static("NEGATIVE_INFINITY")]
+        public static readonly double NegativeInfinity = double.NegativeInfinity;
 
         public JSNumber(double value): base(JSContext.Current.NumberPrototype)
         {
@@ -43,6 +65,7 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
+        [Static("isFinite")]
         public static JSValue IsFinite(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n) {
@@ -52,6 +75,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
+        [Static("isInteger")]
         public static JSValue IsInteger(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n) { 
@@ -67,6 +91,7 @@ namespace WebAtoms.CoreJS.Core
             return double.IsNaN(n.DoubleValue);
         }
 
+        [Static("isNaN")]
         public static JSValue IsNaN(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n)
@@ -77,6 +102,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
+        [Static("isSafeInteger")]
         public static JSValue IsSafeInteger(JSValue t, JSArguments a)
         {
             if (a[0] is JSNumber n)
@@ -87,6 +113,8 @@ namespace WebAtoms.CoreJS.Core
             }
             return JSContext.Current.False;
         }
+
+        [Static("parseFloat")]
 
         public static JSNumber ParseFloat(JSValue t, JSArguments a)
         {
@@ -164,6 +192,8 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
+        [Static("parseInt")]
+
         public static JSNumber ParseInt(JSValue t, JSArguments a)
         {
             var nan = JSContext.Current.NaN;
@@ -212,6 +242,8 @@ namespace WebAtoms.CoreJS.Core
             return nan;
         }
 
+        [Prototype("toString")]
+
         public static JSString ToString(JSValue t, JSArguments a)
         {
             var p = t;
@@ -219,6 +251,8 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.TypeError($"Number.prototype.toExponential requires that 'this' be a Number");
             return new JSString(n.value.ToString());
         }
+
+        [Prototype("toExponential")]
 
         public static JSString ToExponential(JSValue t, JSArguments a)
         {
@@ -236,6 +270,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("#.#################e+0"));
         }
 
+        [Prototype("toFixed")]
         public static JSString ToFixed(JSValue t, JSArguments a)
         {
             var p = t;
@@ -251,6 +286,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("F0"));
         }
 
+        [Prototype("toPrecision")]
         public static JSString ToPrecision(JSValue t, JSArguments a)
         {
             var p = t;
@@ -282,6 +318,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("G2"));
         }
 
+        [Prototype("toLocaleString")]
         public static JSString ToLocaleString(JSValue t, JSArguments a)
         {
             var p = t;
@@ -303,60 +340,6 @@ namespace WebAtoms.CoreJS.Core
                 return new JSString( n.value.ToString(ci.NumberFormat));
             }
             return new JSString(n.value.ToString("N2"));
-        }
-
-        internal static JSFunction Create()
-        {
-            var r = new JSFunction(JSFunction.empty, "Number");
-            var prototype = r.prototype;
-            r.DefineProperty("EPSILON", JSProperty.Property(
-                new JSNumber(double.Epsilon, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            r.DefineProperty("NAN", JSProperty.Property(
-                new JSNumber(double.NaN, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            r.DefineProperty("MAX_SAFE_INTEGER", JSProperty.Property(
-                new JSNumber(MaxSafeInteger, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            r.DefineProperty("MAX_VALUE", JSProperty.Property(
-                new JSNumber(double.MaxValue, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            r.DefineProperty("MIN_SAFE_INTEGER", JSProperty.Property(
-                new JSNumber(MinSafeInteger, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            r.DefineProperty("MIN_VALUE", JSProperty.Property(
-                new JSNumber(double.MinValue, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            r.DefineProperty("NEGATIVE_INFINITY", JSProperty.Property(
-                new JSNumber(double.NegativeInfinity, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            r.DefineProperty("POSITIVE_INFINITY", JSProperty.Property(
-                new JSNumber(double.PositiveInfinity, prototype),
-                JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-
-            r.DefineProperty("isFinite", JSProperty.Function(IsFinite));
-
-            r.DefineProperty("isInteger", JSProperty.Function(IsInteger));
-
-            r.DefineProperty("isNaN", JSProperty.Function(IsNaN));
-
-            r.DefineProperty("isSafeInteger", JSProperty.Function(IsSafeInteger));
-
-            r.DefineProperty("parseFloat", JSProperty.Function(ParseFloat));
-
-            r.DefineProperty("parseInt", JSProperty.Function(ParseInt));
-
-            prototype.DefineProperty("toExponential", JSProperty.Function(ToExponential));
-
-            prototype.DefineProperty("toFixed", JSProperty.Function(ToFixed));
-
-            prototype.DefineProperty("toPrecision", JSProperty.Function(ToPrecision));
-
-            prototype.DefineProperty("toLocaleString", JSProperty.Function(ToLocaleString));
-
-            prototype.DefineProperty("toString", JSProperty.Function(ToString));
-
-            return r;
         }
 
         public override JSValue AddValue(JSValue value)

@@ -66,31 +66,24 @@ namespace WebAtoms.CoreJS.Core
             return f(thisValue, args);
         }
 
+        [Prototype("call")]
         public static JSValue Call(JSValue receiver, JSArguments p)
         {
             var (first, args) = p.Slice();
             return receiver.InvokeFunction(first, args);
         }
 
+        [Prototype("apply")]
         public static JSValue Apply(JSValue t, JSArguments a){
             var ar = a;
             return t.InvokeFunction(ar[0], new JSArguments(ar[1] as JSArray));
         }
 
+        [Prototype("bind")]
         public static JSValue Bind(JSValue t, JSArguments a) {
             var fOriginal = (JSFunction)t;
             var tx = a[0];
             var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));
-            return fx;
-        }
-
-        public new static JSFunction Create()
-        {
-            var fx = new JSFunction(JSFunction.empty, "Function");
-            var p = fx.prototype;
-            p.DefineProperty(KeyStrings.call, JSProperty.Function(Call));
-            p.DefineProperty(KeyStrings.apply, JSProperty.Function(Apply));
-            p.DefineProperty(KeyStrings.bind, JSProperty.Function(Bind));
             return fx;
         }
     }

@@ -352,7 +352,7 @@ namespace WebAtoms.CoreJS.Core {
         {
             var fx = this[name];
             if (fx.IsUndefined)
-                throw new MethodAccessException();
+                throw new MethodAccessException($"Method {name} not found on {this}");
             return fx.InvokeFunction(this, args);
         }
         public virtual JSValue InvokeMethod(JSString name, JSArguments args)

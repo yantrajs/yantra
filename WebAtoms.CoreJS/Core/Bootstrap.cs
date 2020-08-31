@@ -16,7 +16,7 @@ namespace WebAtoms.CoreJS.Core
 
             var p = r.prototype;
             var all = type
-                .GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                .GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Public)
                 .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
                 .Where(x => x.attribute != null)
                 .GroupBy(x => x.attribute.Name).ToList();

@@ -76,9 +76,9 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            JSValue CreateFrom(KeyString name, Type type)
+            JSValue CreateFrom(KeyString name, Type type, JSValue baseType = null)
             {
-                return CreatePrototype(name, () => Bootstrap.Create(name, type));
+                return CreatePrototype(name, () => Bootstrap.Create(name, type), baseType);
             }
 
 
@@ -102,15 +102,15 @@ namespace WebAtoms.CoreJS.Core
             }
 
             // create object prototype...
-            ObjectPrototype =  CreatePrototype(KeyStrings.Object, JSObject.Create);
-            StringPrototype = CreatePrototype(KeyStrings.String, JSString.Create);
-            NumberPrototype = CreatePrototype(KeyStrings.Number, JSNumber.Create);
-            ArrayPrototype = CreatePrototype(KeyStrings.Array, JSArray.Create);
-            FunctionPrototype = CreatePrototype(KeyStrings.Function, JSFunction.Create);
+            ObjectPrototype =  CreateFrom(KeyStrings.Object, typeof(JSObject));
+            StringPrototype = CreateFrom(KeyStrings.String, typeof(JSString));
+            NumberPrototype = CreateFrom(KeyStrings.Number, typeof(JSNumber));
+            ArrayPrototype = CreateFrom(KeyStrings.Array, typeof(JSArray));
+            FunctionPrototype = CreateFrom(KeyStrings.Function, typeof(JSFunction));
             BooleanPrototype = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
-            ErrorPrototype = CreatePrototype(JSError.KeyError, JSError.Create);
-            TypeErrorPrototype = CreatePrototype(JSTypeError.KeyTypeError, JSTypeError.Create, ErrorPrototype);
-            RangeErrorPrototype = CreatePrototype(JSTypeError.KeyRangeError, JSTypeError.Create, ErrorPrototype);
+            ErrorPrototype = CreateFrom(JSError.KeyError, typeof(JSError));
+            TypeErrorPrototype = CreateFrom(JSTypeError.KeyTypeError, typeof(JSError), ErrorPrototype);
+            RangeErrorPrototype = CreateFrom(JSTypeError.KeyRangeError, typeof(JSError), ErrorPrototype);
             DatePrototype = CreateFrom(KeyStrings.Date, typeof(JSDate));
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esprima.Ast;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,6 +87,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        [Prototype("push")]
         public static JSValue Push (JSValue t, JSArguments a){
             var ta = (JSArray)t;
             foreach(var item in a.elements)
@@ -96,6 +98,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSNumber(ta._length);
         }
 
+        [Prototype("pop")]
         public static JSValue Pop(JSValue t, JSArguments a)
         {
             var ta = (JSArray)t;
@@ -107,6 +110,7 @@ namespace WebAtoms.CoreJS.Core
             return r ?? JSUndefined.Value;
         }
 
+        [Prototype("slice")]
         public static JSArray Slice(JSValue t, JSArguments a){
             var ta = (JSArray)t;
             var a0 = a.elements[0]?.IntValue ?? 0;
@@ -131,43 +135,74 @@ namespace WebAtoms.CoreJS.Core
             return a;
         }
 
-        public static JSArguments From(JSValue t, JSArguments a)
+        [Static("from")]
+        public static JSValue From(JSValue t, JSArguments a)
         {
-            return a;
-        }
-
-        internal new static JSFunction Create()
-        {
-            var r = new JSFunction(JSFunction.empty, "Array");
-            var p = r.prototype;
-
-            p.DefineProperty(KeyStrings.length, JSProperty.Property(
-                get: (t, a) => new JSNumber(((JSArray)t)._length),
-                set: (t, a) => new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue)
-            ));
-
-            p.DefineProperty("slice", JSProperty.Function(Slice));
-            p.DefineProperty("push", JSProperty.Function(Push));
-            p.DefineProperty("pop", JSProperty.Function(Pop));
-
-            r.DefineProperty("from", JSProperty.Function(From));
-
-
+            var r = new JSArray();
+            var f = a[0];
+            var map = a[1];
+            switch (f) {
+                case JSUndefined u:
+                    throw JSContext.Current.Error("undefined is not iterable");
+                case JSNull n:
+                    throw JSContext.Current.Error("null is not iterable");
+                case JSString str:
+                    foreach(var ch in str.value)
+                    {
+                        JSValue item = new JSString(new string(ch, 1));
+                        if (map is JSFunction fn)
+                        {
+                            item = fn.InvokeFunction(t, JSArguments.From(item));
+                        }
+                        r.elements[r._length++] = item;
+                    }
+                    return r;
+                case JSArray array:
+                    foreach (var ch in array.elements.AllValues())
+                    {
+                        JSValue item = ch.Value;
+                        if (map is JSFunction fn)
+                        {
+                            item = fn.InvokeFunction(t, JSArguments.From(item));
+                        }
+                        r.elements[r._length++] = item;
+                    }
+                    return r;
+            }
             return r;
         }
 
-        internal static JSArray NewInstance(params JSValue[] list)
+        [Static("isArray")]
+        public static JSValue StaticIsArray(JSValue t, JSArguments a)
         {
-            var a = new JSArray();
-            uint i = 0;
-            foreach(var item in list)
-            {
-                a[i++] = item;
-            }
-            return a;
+            return t is JSArray ? JSContext.Current.True : JSContext.Current.False;
         }
 
-        
+        [Static("of")]
+        public static JSValue Of(JSValue t, JSArguments a)
+        {
+            var r = new JSArray();
+            if (a.elements != null)
+            {
+                foreach (var e in a.elements)
+                {
+                    r.elements[r._length++] = e;
+                }
+            }
+            return r;
+        }
+
+        [Prototype("length", MemberType.Get)]
+        internal static JSValue GetLength(JSValue t, JSArguments a)
+        {
+            return new JSNumber(((JSArray)t)._length);
+        }
+
+        [Prototype("length", MemberType.Set)]
+        internal static JSValue SetLength(JSValue t, JSArguments a)
+        {
+            return new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue);
+        }
 
         int IList<JSValue>.IndexOf(JSValue item)
         {

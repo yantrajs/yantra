@@ -114,14 +114,32 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+
+        [Prototype("toString")]
         public static JSValue ToString(JSValue t, JSArguments a) => new JSString("[object Object]");
 
+
+        [Prototype("__proto__", MemberType.Get)]
+        internal static JSValue PrototypeGet(JSValue t, JSArguments a)
+        {
+            return t.prototypeChain;
+        }
+
+        [Prototype("__proto__", MemberType.Set)]
+        internal static JSValue PrototypeSet(JSValue t, JSArguments a)
+        {
+            return t.prototypeChain;
+        }
+
+
+        [Static("create")]
         internal static JSValue StaticCreate(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSValue _Assign(JSValue t, JSArguments a)
+        [Static("assign")]
+        internal static JSValue Assign(JSValue t, JSArguments a)
         {
             if (a._length == 0)
                 throw JSContext.Current.Error(JSError.Cannot_convert_undefined_or_null_to_object);
@@ -140,11 +158,13 @@ namespace WebAtoms.CoreJS.Core
             return first;
         }
 
-        internal static JSValue _Entries(JSValue t, JSArguments a)
+        [Static("entries")]
+        internal static JSValue StaticEntries(JSValue t, JSArguments a)
         {
             return t;
         }
 
+        [Static("freeze")]
         internal static JSValue Freeze(JSValue t, JSArguments a)
         {
             return t;
@@ -160,63 +180,20 @@ namespace WebAtoms.CoreJS.Core
             return t;
         }
 
+        [Static("defineProperties")]
         internal static JSValue _DefineProperties(JSValue t, JSArguments a)
         {
             return t;
         }
 
+        [Static("defineProperty")]
         internal static JSValue _DefineProperty(JSValue t, JSArguments a)
         {
             return t;
         }
 
-        internal static JSFunction Create()
-        {
-            var r = new JSFunction(JSFunction.empty, "Object");
-            var p = r.prototype;
-            
-            p.DefineProperties(
-               
-                JSProperty.Property(KeyStrings.__proto__,
-                    get: (t, a) => t.prototypeChain,
-                    set: (t, a) => t.prototypeChain = a[0], JSPropertyAttributes.Property
-                ),
+        [Static("fromEntries")]
 
-
-                JSProperty.Function("hasOwnProperty", HasOwnProperty),
-                JSProperty.Function("isPrototypeOf", IsPrototypeOf),
-                JSProperty.Function("propertyIsEnumerable", PropertyIsEnumerable),
-
-                JSProperty.Function(KeyStrings.toString, ToString)
-            );
-
-            r.DefineProperties(
-                JSProperty.Function("assign", _Assign),
-                JSProperty.Function("create", StaticCreate),
-                JSProperty.Function("defineProperties", _DefineProperties),
-                JSProperty.Function("defineProperty", _DefineProperty),
-                JSProperty.Function("entries", _Entries),
-                JSProperty.Function("freeze", Freeze),
-                JSProperty.Function("fromEntries", _FromEntries),
-                JSProperty.Function("getOwnPropertyDescriptor", _GetOwnPropertyDescriptor),
-                JSProperty.Function("getOwnPropertyDescriptors", _GetOwnPropertyDescriptors),
-                JSProperty.Function("getOwnPropertyNames", _GetOwnPropertyNames),
-                JSProperty.Function("getOwnPropertySymbols", _GetOwnPropertySymbols),
-                JSProperty.Function("getPrototypeOf", _GetPrototypeOf),
-                JSProperty.Function("is", _Is),
-                JSProperty.Function("isExtensible", _IsExtensible),
-                JSProperty.Function("isFrozen", _IsFrozen),
-                JSProperty.Function("isSealed", _IsSealed),
-                JSProperty.Function("keys", _Keys),
-                JSProperty.Function("preventExtensions", _PreventExtensions),
-                JSProperty.Function("seal", _Seal),
-                JSProperty.Function("setPrototypeOf", _SetPrototypeOf),
-                JSProperty.Function("values", _Values)
-            );
-
-
-            return r;
-        }
         internal static JSValue _FromEntries(JSValue t, JSArguments a)
         {
             var v = a[0];
@@ -241,22 +218,32 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
+        [Static("is")]
+
         internal static JSValue _Is(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("isExtensible")]
         internal static JSValue _IsExtensible(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("isFrozen")]
         internal static JSValue _IsFrozen(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("isSealed")]
         internal static JSValue _IsSealed(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("keys")]
         internal static JSValue _Keys(JSValue t, JSArguments a)
         {
             var first = a[0];
@@ -269,20 +256,27 @@ namespace WebAtoms.CoreJS.Core
                 .Where(x => x.Value.IsEnumerable)
                 .Select(x => new JSString(x.Value.ToString())));
         }
+
+        [Static("preventExtensions")]
         internal static JSValue _PreventExtensions(JSValue t, JSArguments a)
         {
             return t;
         }
 
+        [Static("seal")]
 
         internal static JSValue _Seal(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("setPrototypeOf")]
         internal static JSValue _SetPrototypeOf(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("values")]
         internal static JSValue _Values(JSValue t, JSArguments a)
         {
             var first = a[0];
@@ -293,10 +287,13 @@ namespace WebAtoms.CoreJS.Core
             return new JSArray(jobj.Entries.Select(x => x.Value));
         }
 
+        [Static("getOwnPropertyDescriptor")]
         internal static JSValue _GetOwnPropertyDescriptor(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("getOwnPropertyDescriptors")]
         internal static JSValue _GetOwnPropertyDescriptors(JSValue t, JSArguments a)
         {
             var first = a[0];
@@ -308,14 +305,20 @@ namespace WebAtoms.CoreJS.Core
                 JSProperty.Property(x.Value.key, x.Value.ToJSValue())
             ));
         }
+
+        [Static("getOwnPropertyNames")]
         internal static JSValue _GetOwnPropertyNames(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("getOwnPropertySymbols")]
         internal static JSValue _GetOwnPropertySymbols(JSValue t, JSArguments a)
         {
             return t;
         }
+
+        [Static("getPrototypeOf")]
         internal static JSValue _GetPrototypeOf(JSValue t, JSArguments a)
         {
             return t;

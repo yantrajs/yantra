@@ -47,6 +47,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override int Length => value.Length;
 
+        [Prototype("substring")]
         public static JSValue Substring(JSValue t, JSArguments a) 
         {
             var j = t as JSString;
@@ -61,23 +62,16 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(j.value.Substring(start.IntValue, length.IntValue));
         }
 
-        internal static JSFunction Create()
+        [Prototype("substr")]
+        public static JSValue Substr(JSValue t, JSArguments a)
         {
-            var r = new JSFunction(JSFunction.empty);
-            var p = r.prototype;
+            return Substring(t, a);
+        }
 
-            p.DefineProperty(KeyStrings.length, JSProperty.Property(
-                (t, a) => new JSNumber(t.Length),
-                (t, a) => a[0]));
-            
-            p.DefineProperty(KeyStrings.toString, JSProperty.Function((t, a) => t));
-
-            var substr = JSProperty.Function(Substring);
-            p.DefineProperty(KeyStrings.GetOrCreate("substr"), substr);
-            p.DefineProperty(KeyStrings.GetOrCreate("substring"), substr);
-
-            p.DefineProperties(JSProperty.Function(KeyStrings.toString, (t, a) => t));
-            return r;
+        [Prototype("toString")]
+        public static JSValue ToString(JSValue t, JSArguments a)
+        {
+            return t;
         }
 
         public override JSValue AddValue(JSValue value)
@@ -217,5 +211,18 @@ namespace WebAtoms.CoreJS.Core
             }
             return JSContext.Current.False;
         }
+
+        [Prototype("length", MemberType.Get)]
+        internal static JSValue GetLength(JSValue t, JSArguments a)
+        {
+            return new JSNumber(((JSString)t).value.Length);
+        }
+
+        [Prototype("length", MemberType.Set)]
+        internal static JSValue SetLength(JSValue t, JSArguments a)
+        {
+            return a[0];
+        }
+
     }
 }
