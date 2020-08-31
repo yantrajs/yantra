@@ -466,6 +466,10 @@ namespace WebAtoms.CoreJS.LinqExpressions
             private static PropertyInfo _KeyStringIndex =
                 IndexProperty<Core.KeyString>();
 
+            private static PropertyInfo _UIntIndex =
+                IndexProperty<uint>();
+
+
             public static Expression KeyStringIndex(Expression target, Expression property)
             {
                 return Expression.MakeIndex(target, _KeyStringIndex, new Expression[] { property });
@@ -479,6 +483,10 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.MakeIndex(target, _Index, new Expression[] { property });
             }
 
+            public static Expression Index(Expression target, uint i)
+            {
+                return Expression.MakeIndex(target, _UIntIndex, new Expression[] { Expression.Constant(i) });
+            }
             internal static MethodInfo StaticEquals
                 = InternalStaticMethod<Core.JSValue,Core.JSValue>(nameof(Core.JSValue.StaticEquals));
 

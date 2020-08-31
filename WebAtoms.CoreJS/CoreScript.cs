@@ -204,7 +204,18 @@ namespace WebAtoms.CoreJS
                     i++;
                 }
 
-                var lambdaBody = VisitStatement(functionDeclaration.Body.As<Statement>());
+                Exp lambdaBody = null;
+                switch (functionDeclaration.Body)
+                {
+                    case Statement stmt:
+                        lambdaBody = VisitStatement(stmt);
+                        break;
+                    case Expression exp:
+                        lambdaBody = VisitExpression(exp);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
 
                 // vList.AddRange(s.Variables.Select(x => x.Variable));
                 foreach(var v in s.Variables)
@@ -671,16 +682,36 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
-            if (!memberExpression.Computed)
+            switch (memberExpression.Property)
             {
-                return ExpHelper.JSValue.KeyStringIndex(
-                    VisitExpression(memberExpression.Object),
-                    KeyOfName(memberExpression.Property.As<Identifier>().Name));
-            }
-            return ExpHelper.JSValue.Index(
-                VisitExpression(memberExpression.Object),
-                KeyOfName(memberExpression.Property.As<Identifier>().Name));
+                case Identifier id:
+                    if (!memberExpression.Computed)
+                    {
+                        return ExpHelper.JSValue.KeyStringIndex(
+                            VisitExpression(memberExpression.Object),
+                            KeyOfName(id.Name));
+                    }
+                    return ExpHelper.JSValue.Index(
+                        VisitExpression(memberExpression.Object),
+                        KeyOfName(id.Name));
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.BooleanLiteral:
+                    return ExpHelper.JSValue.Index(
+                        VisitExpression(memberExpression.Object),
+                        l.BooleanValue ? (uint)0 : (uint)1);
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.StringLiteral:
+                    return ExpHelper.JSValue.KeyStringIndex(
+                        VisitExpression(memberExpression.Object),
+                        KeyOfName(l.StringValue));
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.NumericLiteral:
+                    return ExpHelper.JSValue.Index(
+                        VisitExpression(memberExpression.Object),
+                        (uint)l.NumericValue);
 
+            }
+            throw new NotImplementedException();
         }
 
         protected override Exp VisitLogicalExpression(Esprima.Ast.BinaryExpression binaryExpression)
