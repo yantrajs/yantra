@@ -40,7 +40,7 @@ namespace WebAtoms.CoreJS
             ParameterExpression pe;
             if (keyStrings.TryGetValue(name, out pe))
                 return pe;
-            pe = Exp.Variable(typeof(KeyString));
+            pe = Exp.Variable(typeof(KeyString), name);
             keyStrings.Add(name, pe);
             return pe;
         }
@@ -68,7 +68,7 @@ namespace WebAtoms.CoreJS
 
             location = location ?? "vm";
 
-            FileNameExpression = Exp.Variable(typeof(string));
+            FileNameExpression = Exp.Variable(typeof(string), "_fileName");
 
             this.Code = new ParsedScript(code);
             Esprima.JavaScriptParser parser =
@@ -197,8 +197,8 @@ namespace WebAtoms.CoreJS
 
                 
 
-                var argumentElements = Exp.Variable(typeof(Core.JSValue[]));
-                var argumentElementsLength = Exp.Variable(typeof(int));
+                var argumentElements = Exp.Variable(typeof(Core.JSValue[]),"args");
+                var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
                 vList.Add(argumentElements);
                 vList.Add(argumentElementsLength);
 
@@ -211,7 +211,7 @@ namespace WebAtoms.CoreJS
 
                 foreach (var v in pList)
                 {
-                    var var1 = Exp.Variable(typeof(Core.JSVariable));
+                    var var1 = Exp.Variable(typeof(Core.JSVariable), v.Name);
                     var vf = JSVariable.ValueExpression(var1);
 
                     vList.Add(var1);
