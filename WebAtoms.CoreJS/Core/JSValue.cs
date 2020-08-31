@@ -323,12 +323,12 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public virtual JSValue CreateInstance(JSArray args)
+        public virtual JSValue CreateInstance(JSArguments args)
         {
             throw new NotImplementedException();
         }
 
-        public abstract JSValue InvokeFunction(JSValue thisValue, JSArray args);
+        public abstract JSValue InvokeFunction(JSValue thisValue, JSArguments args);
 
         /// <summary>
         /// Warning do not use in concatenation
@@ -348,14 +348,14 @@ namespace WebAtoms.CoreJS.Core {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(KeyString name, JSArray args)
+        public virtual JSValue InvokeMethod(KeyString name, JSArguments args)
         {
             var fx = this[name];
             if (fx.IsUndefined)
                 throw new MethodAccessException();
             return fx.InvokeFunction(this, args);
         }
-        public virtual JSValue InvokeMethod(JSString name, JSArray args)
+        public virtual JSValue InvokeMethod(JSString name, JSArguments args)
         {
             var fx = this[name.KeyString];
             if (fx.IsUndefined)
@@ -363,7 +363,7 @@ namespace WebAtoms.CoreJS.Core {
             return fx.InvokeFunction(this, args);
         }
 
-        internal JSValue InternalInvoke(object name, JSArray args)
+        internal JSValue InternalInvoke(object name, JSArguments args)
         {
             JSValue fx = null;
             switch(name)
@@ -404,7 +404,7 @@ namespace WebAtoms.CoreJS.Core {
         internal static MethodInfo _getMethod =
             typeof(JSDynamicMetaData).GetMethod("__GetMethod");
 
-        public static object __InvokeMember(JSValue target, string name, JSArray a)
+        public static object __InvokeMember(JSValue target, string name, JSArguments a)
         {
             if (name == "ToString")
                 return target.ToString();

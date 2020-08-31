@@ -52,7 +52,7 @@ namespace WebAtoms.CoreJS.Core
             return this.source;
         }
 
-        public override JSValue CreateInstance(JSArray args)
+        public override JSValue CreateInstance(JSArguments args)
         {
             var cx = JSContext.Current;
             JSValue obj = cx.CreateObject();
@@ -61,19 +61,19 @@ namespace WebAtoms.CoreJS.Core
             return obj;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArray args)
+        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
         {
             return f(thisValue, args);
         }
 
         public static JSValue Call(JSValue receiver, JSArray p)
         {
-            return receiver.InvokeFunction(p[0], p.Slice(1));
+            return receiver.InvokeFunction(p[0], p.SliceToArguments(1));
         }
 
         public static JSValue Apply(JSValue t, JSArray a){
             JSArray ar = a;
-            return t.InvokeFunction(ar[0], ar[1] as JSArray);
+            return t.InvokeFunction(ar[0], new JSArguments(ar[1] as JSArray));
         }
 
         public static JSValue Bind(JSValue t, JSArray a) {

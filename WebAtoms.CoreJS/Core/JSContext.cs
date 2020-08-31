@@ -10,7 +10,7 @@ using System.Threading;
 namespace WebAtoms.CoreJS.Core
 {
 
-    public delegate JSValue JSFunctionDelegate(JSValue thisValue, JSArray arguments);
+    public delegate JSValue JSFunctionDelegate(JSValue thisValue, JSArguments arguments);
 
     public class JSContext: JSObject, IDisposable
     {
