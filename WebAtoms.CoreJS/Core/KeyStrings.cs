@@ -100,10 +100,16 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString length;
         public readonly static KeyString prototype;
         public readonly static KeyString constructor;
+        public readonly static KeyString configurable;
+        public readonly static KeyString enumerable;
+        public readonly static KeyString @readonly;
         public readonly static KeyString apply;
         public readonly static KeyString call;
         public readonly static KeyString bind;
         public readonly static KeyString native;
+        public readonly static KeyString value;
+        public readonly static KeyString get;
+        public readonly static KeyString set;
         public readonly static KeyString __proto__;
 
         static KeyStrings()
@@ -133,8 +139,14 @@ namespace WebAtoms.CoreJS.Core
             bind = Create("bind");
             native = Create("native");
             Boolean = Create("Boolean");
+            value = Create("value");
             valueOf = Create("valueOf");
+            get = Create("get");
+            set = Create("set");
             Date = Create("Date");
+            configurable = Create("configurable");
+            enumerable = Create("enumerable");
+            @readonly = Create("readonly");
         }
 
         private static BinaryCharMap<KeyString> map = new BinaryCharMap<KeyString>();

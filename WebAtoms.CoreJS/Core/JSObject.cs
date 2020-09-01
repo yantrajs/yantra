@@ -185,7 +185,42 @@ namespace WebAtoms.CoreJS.Core
         [Static("defineProperty")]
         internal static JSValue _DefineProperty(JSValue t, JSArguments a)
         {
-            return t;
+            if (!(a[0] is JSObject target))
+                throw new JSException("Object.defineProperty called on non-object");
+            var key = a[1].ToString();
+            if(!(a[2] is JSObject pd))
+                throw new JSException("Property Description must be an object");
+            var p = new JSProperty { 
+                key = key
+            };
+            var value = pd[KeyStrings.value];
+            var get = pd[KeyStrings.get] as JSFunction;
+            var set = pd[KeyStrings.set] as JSFunction;
+            var pt = JSPropertyAttributes.Empty;
+            if (pd[KeyStrings.configurable].BooleanValue)
+                pt |= JSPropertyAttributes.Configurable;
+            if (pd[KeyStrings.enumerable].BooleanValue)
+                pt |= JSPropertyAttributes.Enumerable;
+            if (pd[KeyStrings.@readonly].BooleanValue)
+                pt |= JSPropertyAttributes.Readonly;
+            if (get != null)
+            {
+                pt |= JSPropertyAttributes.Property;
+                p.get = get;
+            }
+            if (set != null)
+            {
+                pt |= JSPropertyAttributes.Property;
+                p.set = set;
+            }
+            if (get == null && set == null)
+            {
+                pt |= JSPropertyAttributes.Value;
+                p.value = value;
+            }
+            p.Attributes = pt;
+            target.ownProperties[p.key.Key] = p;
+            return target;
         }
 
         [Static("fromEntries")]
