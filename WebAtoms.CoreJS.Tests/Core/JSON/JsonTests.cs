@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.Tests.Core.JSON
@@ -15,9 +15,9 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
         public void StringifyTest()
         {
             var JSON = DynamicContext.JSON;
-            string stringify(object a)
+            string stringify(object a1)
             {
-                JSValue r = JSON.stringify(a);
+                JSValue r = JSON.stringify(a1);
                 return r is JSUndefined ? null : r.ToString();
             }
 
@@ -49,13 +49,13 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
         [TestMethod]
         public void ToJSONTest()
         {
-            string stringify(JSValue a)
+            string stringify(JSValue a1)
             {
-                return JSJSON.Stringify(a);
+                return JSJSON.Stringify(a1);
             }
 
             var a = new JSObject();
-            var f = new JSFunction((t, a) => new JSString("test"), "toJSON");
+            var f = new JSFunction((t, a1) => new JSString("test"), "toJSON");
             dynamic da = a;
             da["data"] = "data";
             da["toJSON"] = f;
@@ -78,9 +78,9 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
         {
 
             var JSON = DynamicContext.JSON;
-            string stringify(object a, object replacer)
+            string stringify(object a1, object replacer)
             {
-                JSValue r = JSON.stringify(a, replacer);
+                JSValue r = JSON.stringify(a1, replacer);
                 return r is JSUndefined ? null : r.ToString();
             }
 
@@ -90,8 +90,8 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             da["a"] = "a";
             da["b"] = 1;
 
-            var fx = new JSFunction((t, a) => {
-                if (a[1] is JSString js)
+            var fx = new JSFunction((t, a1) => {
+                if (a1[1] is JSString js)
                     return js;
                 return JSUndefined.Value;
             });
@@ -107,9 +107,9 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
         {
 
             var JSON = DynamicContext.JSON;
-            string stringify(object a, object indent)
+            string stringify(object a1, object indent)
             {
-                JSValue r = JSON.stringify(a, JSUndefined.Value, indent);
+                JSValue r = JSON.stringify(a1, JSUndefined.Value, indent);
                 return r is JSUndefined ? null : r.ToString();
             }
 
@@ -119,7 +119,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             da["a"] = "a";
             // da["b"] = 1;
 
-            var expected = JsonConvert.SerializeObject(new {
+            var expected = JsonSerializer.Serialize(new {
                 a = "a"
             }, Formatting.Indented);
 

@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +30,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
         {
             foreach(var file in files.EnumerateFiles())
             {
-                yield return (file, Path.GetRelativePath(root.FullName, file.FullName));
+                yield return (file, file.FullName.Substring(file.FullName.IndexOf(root.FullName)));
             }
             foreach(var dir in files.EnumerateDirectories())
             {
@@ -53,7 +52,11 @@ namespace WebAtoms.CoreJS.Tests.Generator
         public async Task TestFile((FileInfo,string) test)
         {
             var (x, name) = test;
-            var content = await File.ReadAllTextAsync(x.FullName);
+            string content;
+            using (var fs = x.OpenText())
+            {
+                content = await fs.ReadToEndAsync();
+            }
             var jc = new JSTestContext();
             CoreScript.Evaluate(content);
             
