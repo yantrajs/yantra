@@ -387,7 +387,7 @@ namespace WebAtoms.CoreJS.Utils
                     
                 default:
                     // return VisitUnknownNode(expression);
-                    throw new NotImplementedException();
+                    throw new NotImplementedException($"{expression.GetType().FullName}");
                     
             }
         }

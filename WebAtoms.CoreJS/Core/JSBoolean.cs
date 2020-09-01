@@ -25,6 +25,8 @@ namespace WebAtoms.CoreJS.Core
                     return bv._value;
                 case JSNumber n:
                     return n.value != 0 && n.value != double.NaN;
+                case JSObject obj:
+                    return true;
             }
             return false;
         }

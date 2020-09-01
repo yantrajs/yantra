@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         private void RunTest(string file)
         {
-            var text = System.IO.File.ReadAllText("../../../Generator/Files/" + file);
+            var text = System.IO.File.ReadAllText("../../../Generator/Files/es5/" + file);
             CoreScript.Evaluate(text);
         }
 

@@ -90,13 +90,6 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public static JSValue Create(JSValue t, JSArray a)
-        {
-            var p = a[0];
-            if (p.IsUndefined)
-                p = JSContext.Current.ObjectPrototype;
-            return new JSObject(p);
-        }
 
         public override string ToDetailString()
         {
@@ -135,7 +128,10 @@ namespace WebAtoms.CoreJS.Core
         [Static("create")]
         internal static JSValue StaticCreate(JSValue t, JSArguments a)
         {
-            return t;
+            var p = a[0];
+            if (p.IsUndefined)
+                p = JSContext.Current.ObjectPrototype;
+            return new JSObject(p);
         }
 
         [Static("assign")]

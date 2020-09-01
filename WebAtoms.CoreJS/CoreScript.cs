@@ -955,7 +955,13 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitConditionalExpression(Esprima.Ast.ConditionalExpression conditionalExpression)
         {
-            throw new NotImplementedException();
+            var test = VisitExpression(conditionalExpression.Test);
+            var @true = VisitExpression(conditionalExpression.Consequent);
+            var @false = VisitExpression(conditionalExpression.Alternate);
+            return Exp.Condition(
+                ExpHelper.JSValue.BooleanValue(test),
+                @true,
+                @false);
         }
 
         protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)

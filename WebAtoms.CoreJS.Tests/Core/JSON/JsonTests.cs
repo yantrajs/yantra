@@ -107,12 +107,13 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
         {
 
             var JSON = DynamicContext.JSON;
-            string stringify(object a1, object indent)
+            string stringify(object a1, object i)
             {
-                JSValue r = JSON.stringify(a1, JSUndefined.Value, indent);
+                JSValue r = JSON.stringify(a1, JSUndefined.Value, i);
                 return r is JSUndefined ? null : r.ToString();
             }
 
+            var indent = new JsonSerializerOptions { WriteIndented = true };
 
             var a = new JSObject();
             dynamic da = a;
@@ -121,7 +122,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
 
             var expected = JsonSerializer.Serialize(new {
                 a = "a"
-            }, Formatting.Indented);
+            }, indent);
 
             Assert.AreEqual(expected, stringify(a, "  "));
 
@@ -129,16 +130,16 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
 
             da.b.a = "b";
 
-            expected = JsonConvert.SerializeObject(new {
+            expected = JsonSerializer.Serialize(new {
                 a = "a",
                 b = new { 
                    a = "b"  
                 }
-            }, Formatting.Indented);
+            }, indent);
 
             Assert.AreEqual(expected, stringify(a, "  "));
 
-            expected = JsonConvert.SerializeObject(new
+            expected = JsonSerializer.Serialize(new
             {
                 a = "a",
                 b = new
@@ -148,7 +149,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
                 c = new object[] { 1, 2, new {
                     c = "c"
                 } }
-            }, Formatting.Indented);
+            }, indent);
 
             da.c = new JSArray();
 

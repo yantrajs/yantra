@@ -339,7 +339,12 @@ namespace WebAtoms.CoreJS.Core {
             var fx = this[KeyStrings.toString];
             if (fx.IsUndefined)
                 return "undefined";
-            return fx.InvokeFunction(this, JSArguments.Empty).ToString();
+            var obj = fx.InvokeFunction(this, JSArguments.Empty);
+            if (obj == this)
+            {
+                throw new StackOverflowException();
+            }
+            return obj.ToString();
         }
 
         public virtual string ToDetailString()
