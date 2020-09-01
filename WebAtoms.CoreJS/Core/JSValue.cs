@@ -117,6 +117,22 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
+        internal IEnumerable<JSProperty> InternalEntries
+        {
+            get
+            {
+                if (ownProperties == null)
+                    yield break;
+                foreach (var p in this.ownProperties.AllValues())
+                {
+                    if (!p.Value.IsEnumerable)
+                        continue;
+                    yield return p.Value;
+                }
+            }
+        }
+
+
         public JSValue this[KeyString name]
         {
             get

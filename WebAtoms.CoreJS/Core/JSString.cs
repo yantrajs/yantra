@@ -28,6 +28,11 @@ namespace WebAtoms.CoreJS.Core
             this.value = value;
         }
 
+        public JSString(string value, KeyString keyString) : this(value)
+        {
+            this._keyString = keyString;
+        }
+
         public static implicit operator KeyString(JSString value)
         {
             return value.ToString();

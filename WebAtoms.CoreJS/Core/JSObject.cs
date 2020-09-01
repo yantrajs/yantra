@@ -138,10 +138,10 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue Assign(JSValue t, JSArguments a)
         {
             if (a._length == 0)
-                throw JSContext.Current.Error(JSError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.TypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             var first = a[0];
             if (first is JSNull || first is JSUndefined)
-                throw JSContext.Current.Error(JSError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.TypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             if (a._length == 1 || !(first is JSObject))
                 return first;
             var second = a[1];
@@ -157,7 +157,23 @@ namespace WebAtoms.CoreJS.Core
         [Static("entries")]
         internal static JSValue StaticEntries(JSValue t, JSArguments a)
         {
-            return t;
+            var target = a[0];
+            switch(target)
+            {
+                case JSNull @null:
+                case JSUndefined undefined:
+                    throw JSContext.Current.TypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+                case JSObject _:
+                    break;
+                default:
+                    return new JSArray();
+            }
+            var r = new JSArray();
+            foreach(var entry in target.InternalEntries)
+            {
+                r.elements[r._length++] = new JSArray(entry.key.ToJSValue(), entry.value);
+            }
+            return r;
         }
 
         [Static("freeze")]
@@ -179,7 +195,23 @@ namespace WebAtoms.CoreJS.Core
         [Static("defineProperties")]
         internal static JSValue _DefineProperties(JSValue t, JSArguments a)
         {
-            return t;
+            if (!(a[0] is JSObject target))
+                throw JSContext.Current.TypeError("Object.defineProperty called on non-object");
+            var pds = a[1];
+            if (pds is JSUndefined || pds is JSNull)
+                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(pds is JSObject pdObject))
+                return target;
+
+            foreach(var pd in pdObject.Entries)
+            {
+                if (pd.Value is JSObject property)
+                {
+                    InternalAddProperty(target, pd.Key, property);
+                }
+            }
+
+            return target;
         }
 
         [Static("defineProperty")]
@@ -188,9 +220,16 @@ namespace WebAtoms.CoreJS.Core
             if (!(a[0] is JSObject target))
                 throw new JSException("Object.defineProperty called on non-object");
             var key = a[1].ToString();
-            if(!(a[2] is JSObject pd))
+            if (!(a[2] is JSObject pd))
                 throw new JSException("Property Description must be an object");
-            var p = new JSProperty { 
+            InternalAddProperty(target, key, pd);
+            return target;
+        }
+
+        private static void InternalAddProperty(JSObject target, string key, JSObject pd)
+        {
+            var p = new JSProperty
+            {
                 key = key
             };
             var value = pd[KeyStrings.value];
@@ -220,7 +259,6 @@ namespace WebAtoms.CoreJS.Core
             }
             p.Attributes = pt;
             target.ownProperties[p.key.Key] = p;
-            return target;
         }
 
         [Static("fromEntries")]
@@ -352,7 +390,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("getPrototypeOf")]
         internal static JSValue _GetPrototypeOf(JSValue t, JSArguments a)
         {
-            return t;
+            return a[0].prototypeChain;
         }
 
         public override JSValue AddValue(JSValue value)
@@ -372,6 +410,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSBoolean Equals(JSValue value)
         {
+            if (Object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
             if (value is JSString str)
                 if (this.ToString() == str.value)
                     return JSContext.Current.True;
@@ -382,6 +422,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSBoolean StrictEquals(JSValue value)
         {
+            if (Object.ReferenceEquals(this, value))
+                return JSContext.Current.True;
             return JSContext.Current.False;
         }
 

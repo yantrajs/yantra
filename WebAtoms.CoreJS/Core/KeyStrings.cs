@@ -81,7 +81,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 return Symbol;
             }
-            return new JSString(Value);
+            return new JSString(Value, this);
         }
     }
 
