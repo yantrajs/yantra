@@ -70,7 +70,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
         {
             var a = typeof(T)
                 .GetMethod(name, 
-                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Instance
+                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Instance | BindingFlags.Static
                     , null, new Type[] { typeof(T1) }, null);
             return a;
         }
@@ -372,8 +372,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
         public class JSException: TypeHelper<Core.JSException>
         {
             private static MethodInfo _Throw = 
-                typeof(Core.JSException)
-                    .GetMethod(nameof(Core.JSException.Throw), BindingFlags.NonPublic);
+                InternalMethod<Core.JSValue>(nameof(Core.JSException.Throw));
 
             public static Expression Throw(Expression value)
             {
@@ -440,7 +439,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
 
             private static MethodInfo _CreateInstance =
-                Method<Core.JSArray>("CreateInstance");
+                Method<Core.JSArguments>(nameof(Core.JSValue.CreateInstance));
 
             public static Expression CreateInstance(Expression target, Expression paramList)
             {
@@ -541,12 +540,16 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
             public static Expression NotEquals(Expression target, Expression value)
             {
-                return Expression.Not(Expression.Call(target, _Equals, value));
+                return 
+                    ExpHelper.JSBoolean.NewFromCLRBoolean(
+                        Expression.Not(
+                        ExpHelper.JSValue.BooleanValue(Expression.Call(target, _Equals, value))
+                    ));
             }
 
 
             private static MethodInfo _StrictEquals
-                = Method<Core.JSValue>("StrictEquals");
+                = Method<Core.JSValue>(nameof(Core.JSValue.StrictEquals));
 
             public static Expression StrictEquals(Expression target, Expression value)
             {
@@ -555,7 +558,10 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
             public static Expression NotStrictEquals(Expression target, Expression value)
             {
-                return Expression.Not( Expression.Call(target, _StrictEquals, value));
+                return 
+                    ExpHelper.JSBoolean.NewFromCLRBoolean(
+                    Expression.Not( 
+                    ExpHelper.JSValue.BooleanValue(Expression.Call(target, _StrictEquals, value))));
             }
 
             private static MethodInfo _Less
@@ -675,10 +681,12 @@ namespace WebAtoms.CoreJS.LinqExpressions
         public class JSArray: TypeHelper<Core.JSArray>
         {
             private static ConstructorInfo _New =
-                Constructor<Core.JSValue[]>();
+                typeof(Core.JSArray).GetConstructor(new Type[] { });
             public static Expression New(IEnumerable<Expression> list)
             {
-                return Expression.New(_New, list);
+                return Expression.ListInit(
+                    Expression.New(_New),
+                    list);
             }
 
         }
@@ -699,6 +707,10 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
             public static Expression New(IEnumerable<Expression> list)
             {
+                if (!list.Any())
+                {
+                    return JSArguments.Empty();
+                }
                 return Expression.New(_New, Expression.NewArrayInit(typeof(Core.JSValue),list));
             }
 

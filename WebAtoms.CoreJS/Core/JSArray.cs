@@ -237,7 +237,7 @@ namespace WebAtoms.CoreJS.Core
             this.elements.RemoveAt((uint)index);
         }
 
-        void ICollection<JSValue>.Add(JSValue item)
+        public void Add(JSValue item)
         {
             this.elements[this._length++] = item;
         }

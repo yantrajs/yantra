@@ -127,6 +127,8 @@ namespace WebAtoms.CoreJS
                         }
                     }
                 }
+                if (script.Type == typeof(JSVariable))
+                    script = JSVariable.ValueExpression(script);
                 sList.Add(Exp.Return(l, script));
                 sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
 
@@ -508,7 +510,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitEmptyStatement(Esprima.Ast.EmptyStatement emptyStatement)
         {
-            return Exp.Empty();
+            return ExpHelper.JSUndefined.Value;
         }
 
         protected override Exp VisitDebuggerStatement(Esprima.Ast.DebuggerStatement debuggerStatement)
@@ -700,6 +702,8 @@ namespace WebAtoms.CoreJS
                             value = ExpHelper.JSProperty.Value(key, value);
                         }
                         break;
+                    default:
+                        throw new NotSupportedException();
                 }
                 keys.Add((key, new ExpressionHolder { Value = value }));
             }

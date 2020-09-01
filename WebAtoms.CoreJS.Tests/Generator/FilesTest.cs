@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
@@ -15,35 +17,44 @@ namespace WebAtoms.CoreJS.Tests.Generator
     public class FilesTest
     {
 
-        [TestMethod]
-        public Task TestsAsync()
+        public static IEnumerable<object[]> AllTests
         {
-            DirectoryInfo files = new DirectoryInfo("../../../Generator/Files");
+            get
+            {
+                DirectoryInfo files = new DirectoryInfo("../../../Generator/Files");
+                return GetFiles(files, files)
+                    .Select(x => new object[] { x }).ToArray();
+            }
+        }
 
-            return ExecuteDirectoryAsync(files);
-        }
-        async Task ExecuteDirectoryAsync(DirectoryInfo files)
+        static IEnumerable<(FileInfo,string)> GetFiles(DirectoryInfo files, DirectoryInfo root)
         {
-            var tasks = files.EnumerateFiles().Select(x => TestFile(x)).ToArray();
-            var dirs = files.EnumerateDirectories().Select(x => ExecuteDirectoryAsync(x)).ToArray();
-            await Task.WhenAll(tasks);
-            await Task.WhenAll(dirs);
-        }
-        async Task TestFile(FileInfo x)
-        {
-            var content = await File.ReadAllTextAsync(x.FullName);
-            var jc = new JSContext();
-            jc["assert"] = new JSFunction((t, a) => {
-                var test = a[0];
-                var message = a[1];
-                message = message is JSUndefined ? new JSString("Assert failed, no message") : message;
-                if (!JSBoolean.IsTrue(test))
+            foreach(var file in files.EnumerateFiles())
+            {
+                yield return (file, Path.GetRelativePath(root.FullName, file.FullName));
+            }
+            foreach(var dir in files.EnumerateDirectories())
+            {
+                foreach(var file in GetFiles(dir, root))
                 {
-                    var s = new JSString($"Test {x.FullName} failed, {message.ToString()}");
-                    throw new JSException(s);
+                    yield return file;
                 }
-                return JSUndefined.Value;
-            });
+            }
+        }
+
+        public static string GetDisplayName(MethodInfo methodInfo, object[] data)
+        {
+            var p = ((FileInfo, string))data[0];
+            return p.Item2;
+        }
+
+        [TestMethod]
+        [DynamicData("AllTests", DynamicDataDisplayName = "GetDisplayName")]
+        public async Task TestFile((FileInfo,string) test)
+        {
+            var (x, name) = test;
+            var content = await File.ReadAllTextAsync(x.FullName);
+            var jc = new JSTestContext();
             CoreScript.Evaluate(content);
             
         }
