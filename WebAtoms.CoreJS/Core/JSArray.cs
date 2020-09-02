@@ -25,7 +25,7 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        public JSArray(IEnumerable<JSValue> items)
+        public JSArray(IEnumerable<JSValue> items): base(JSContext.Current.ArrayPrototype)
         {
             foreach (var item in items)
                 elements[_length++] = item;

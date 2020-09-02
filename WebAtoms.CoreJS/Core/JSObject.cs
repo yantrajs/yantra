@@ -390,7 +390,9 @@ namespace WebAtoms.CoreJS.Core
         [Static("getPrototypeOf")]
         internal static JSValue _GetPrototypeOf(JSValue t, JSArguments a)
         {
-            return a[0].prototypeChain;
+            var target = a[0];
+            var p = target.prototypeChain;
+            return p;
         }
 
         public override JSValue AddValue(JSValue value)

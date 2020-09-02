@@ -106,9 +106,9 @@ namespace WebAtoms.CoreJS.Core
 
             // create object prototype...
             ObjectPrototype =  CreateFrom(KeyStrings.Object, typeof(JSObject));
+            ArrayPrototype = CreateFrom(KeyStrings.Array, typeof(JSArray));
             StringPrototype = CreateFrom(KeyStrings.String, typeof(JSString));
             NumberPrototype = CreateFrom(KeyStrings.Number, typeof(JSNumber));
-            ArrayPrototype = CreateFrom(KeyStrings.Array, typeof(JSArray));
             FunctionPrototype = CreateFrom(KeyStrings.Function, typeof(JSFunction));
             BooleanPrototype = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
             ErrorPrototype = CreateFrom(JSError.KeyError, typeof(JSError));

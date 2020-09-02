@@ -50,16 +50,13 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
         }
 
         [TestMethod]
-        public void CreateTest()
+        public void EqualsTest()
         {
+            var a = new JSArray();
 
+            Assert.IsTrue(a.prototypeChain.StrictEquals(context.ArrayPrototype).BooleanValue);
         }
 
-        [TestMethod]
-        public void FromEntriesTest()
-        {
-
-        }
 
     }
 }
