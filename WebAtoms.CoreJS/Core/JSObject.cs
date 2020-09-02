@@ -34,13 +34,13 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal BinaryUInt32Map<JSValue> elements = new BinaryUInt32Map<JSValue>();
+        internal BinaryUInt32Map<JSProperty> elements = new BinaryUInt32Map<JSProperty>();
         internal BinaryUInt32Map<JSProperty> ownProperties;
 
         protected JSObject(JSValue prototype) : base(prototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
-            elements = new BinaryUInt32Map<JSValue>();
+            elements = new BinaryUInt32Map<JSProperty>();
         }
 
         public JSValue DefineProperty(KeyString name, JSProperty p)
@@ -97,7 +97,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override string ToDetailString()
         {
-            var all = Entries.Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
+            var all = this.GetEntries().Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
             return $"{{ {string.Join(", ", all)} }}";
         }
 
@@ -146,14 +146,15 @@ namespace WebAtoms.CoreJS.Core
             var first = a[0];
             if (first is JSNull || first is JSUndefined)
                 throw JSContext.Current.TypeError(JSError.Cannot_convert_undefined_or_null_to_object);
-            if (a._length == 1 || !(first is JSObject))
+            if (a._length == 1 || !(first is JSObject @firstObject))
                 return first;
             var second = a[1];
-            if (!(second is JSObject))
+            if (!(second is JSObject @object))
                 return first;
-            foreach(var item in second.ownProperties.AllValues())
+            
+            foreach(var item in @object.ownProperties.AllValues())
             {
-                first.ownProperties[item.Key] = item.Value;
+                firstObject.ownProperties[item.Key] = item.Value;
             }
             return first;
         }
@@ -173,9 +174,9 @@ namespace WebAtoms.CoreJS.Core
                     return new JSArray();
             }
             var r = new JSArray();
-            foreach(var entry in target.InternalEntries)
+            foreach(var entry in target.GetInternalEntries())
             {
-                r.elements[r._length++] = new JSArray(entry.key.ToJSValue(), entry.value);
+                r.elements[r._length++] = JSProperty.Property(new JSArray(entry.key.ToJSValue(), entry.value));
             }
             return r;
         }
@@ -207,7 +208,7 @@ namespace WebAtoms.CoreJS.Core
             if (!(pds is JSObject pdObject))
                 return target;
 
-            foreach(var pd in pdObject.Entries)
+            foreach(var pd in pdObject.GetEntries())
             {
                 if (pd.Value is JSObject property)
                 {
@@ -280,7 +281,7 @@ namespace WebAtoms.CoreJS.Core
                 foreach(var item in va.elements.AllValues())
                 {
                     var vi = item.Value;
-                    if (!(vi is JSArray ia))
+                    if (!(vi.value is JSArray ia))
                         throw JSContext.Current.TypeError(JSTypeError.NotEntry(vi));
                     var first = ia[0].ToString();
                     var second = ia[1];
@@ -343,7 +344,7 @@ namespace WebAtoms.CoreJS.Core
             var first = a[0];
             if (!(first is JSObject @object))
                 return first;
-            first.ownProperties.Update((x, v) =>
+            @object.ownProperties.Update((x, v) =>
             {
                 v.Attributes &= ~(JSPropertyAttributes.Configurable);
                 return (true, v);
@@ -369,7 +370,7 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            return new JSArray(jobj.Entries.Select(x => x.Value));
+            return new JSArray(jobj.GetEntries().Select(x => x.Value));
         }
 
         [Static("getOwnPropertyDescriptor")]

@@ -89,190 +89,29 @@ namespace WebAtoms.CoreJS.Core {
             this.prototypeChain = prototype;
         }
 
-        internal virtual JSProperty GetInternalProperty(KeyString key, bool inherited = true)
-        {
-            if(ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
-            {
-                return r;
-            }
-            if(inherited && prototypeChain != null)
-                return prototypeChain.GetInternalProperty(key, inherited);
-            return new JSProperty();
-        }
-
-        public IEnumerable<KeyValuePair<string,JSValue>> Entries
-        {
-            get
-            {
-                if (ownProperties == null)
-                    yield break;
-                foreach(var p in this.ownProperties.AllValues())
-                {
-                    if (!p.Value.IsEnumerable)
-                        continue;
-                    yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), this.GetValue(p.Value));
-                }
-            }
-        }
-
-        internal IEnumerable<JSProperty> InternalEntries
-        {
-            get
-            {
-                if (ownProperties == null)
-                    yield break;
-                foreach (var p in this.ownProperties.AllValues())
-                {
-                    if (!p.Value.IsEnumerable)
-                        continue;
-                    yield return p.Value;
-                }
-            }
-        }
-
 
         public JSValue this[KeyString name]
         {
             get
             {
-                if (this is JSUndefined) {
-                    throw JSContext.Current.TypeError($"Unable to get {name} of undefined");
-                }
-                if (this is JSNull)
-                {
-                    throw JSContext.Current.TypeError($"Unable to get {name} of null");
-                }
-                var p = GetInternalProperty(name);
-                if (p.IsEmpty) return JSUndefined.Value;
-                return p.IsValue ? p.value : p.get.InvokeFunction(this, JSArguments.Empty);
+                return this.GetProperty(name);
             }
             set
             {
-                if (this is JSUndefined)
-                {
-                    throw JSContext.Current.TypeError($"Unable to set {name} of undefined");
-                }
-                if (this is JSNull)
-                {
-                    throw JSContext.Current.TypeError($"Unable to set {name} of null");
-                }
-                var p = GetInternalProperty(name);
-                if (p.IsEmpty)
-                {
-                    p = JSProperty.Property(value, JSPropertyAttributes.Value | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
-                    p.key = name;
-                    ownProperties[name.Key] = p;
-                    return;
-                }
-                if (!p.IsValue && p.set != null)
-                {
-                    p.set.InvokeFunction(this, JSArguments.From(value));
-                }else
-                {
-                    p.value = value;
-                    ownProperties[name.Key] = p;
-                }
+                this.SetProperty(name, value);
             }
         }
 
-        public virtual JSValue this[JSValue key]
+        public JSValue this[JSValue key]
         {
             get
             {
-                if (this is JSUndefined)
-                {
-                    throw JSContext.Current.TypeError($"Unable to get {key} of undefined");
-                }
-                if (this is JSNull)
-                {
-                    throw JSContext.Current.TypeError($"Unable to get {key} of null");
-                }
-
-                JSProperty p = new JSProperty();
-                if (key is JSString j)
-                    p = GetInternalProperty(j, true);
-                else if (key is JSNumber)
-                    return this[(uint)key.IntValue];
-                if (p.IsEmpty)
-                    return JSUndefined.Value;
-                if (p.IsValue)
-                    return p.value;
-                return p.get.InvokeFunction(this, JSArguments.Empty);
+                return this.GetProperty(key);
             }
             set
             {
-                if (this is JSUndefined)
-                {
-                    throw JSContext.Current.TypeError($"Unable to set {key} of undefined");
-                }
-                if (this is JSNull)
-                {
-                    throw JSContext.Current.TypeError($"Unable to set {key} of null");
-                }
-
-                JSProperty p = new JSProperty();
-                if (key is JSString j)
-                    p = GetInternalProperty(j, true);
-                else if (key is JSNumber)
-                {
-                    this[(uint)key.IntValue] = value;
-                    return;
-                }
-                if (p.IsEmpty) {
-                    // create one..
-                    var kjs = KeyStrings.GetOrCreate(key.ToString());
-                    var px = JSProperty.Property(
-                        value,
-                        JSPropertyAttributes.Value | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
-                    px.key = kjs;
-                    ownProperties[kjs.Key] = px;
-                    return;
-                }
-                if (!p.IsValue && p.set != null)
-                {
-                    p.set.InvokeFunction(this, JSArguments.From(value));
-                }else
-                {
-                    p.value = value;
-                    ownProperties[p.key.Key] = p;
-                }
+                this.SetProperty(this, key);
             }
-        }
-
-        public JSValue Delete(JSValue key)
-        {
-            if (this is JSUndefined)
-            {
-                throw JSContext.Current.TypeError($"Unable to set {key} of undefined");
-            }
-            if (this is JSNull)
-            {
-                throw JSContext.Current.TypeError($"Unable to set {key} of null");
-            }
-
-            // return true if property was deleted successfully... 
-            KeyString ks;
-            switch(key)
-            {
-                case JSString @string:
-                    ks = KeyStrings.GetOrCreate(@string.value);
-                    break;
-                case JSNumber number:
-                    ks = KeyStrings.GetOrCreate(number.value.ToString());
-                    break;
-                case JSSymbol symbol:
-                    ks = symbol.Key;
-                    break;
-                default:
-                    throw JSContext.Current.TypeError("not supported");
-            }
-            var px = GetInternalProperty(ks, false);
-            if (px.IsEmpty)
-                return JSContext.Current.False;
-            if (!px.IsConfigurable)
-                throw JSContext.Current.TypeError("Cannot delete property of sealed object");
-            ownProperties.RemoveAt(ks.Key);
-            return JSContext.Current.True;
         }
 
         public abstract JSBoolean Equals(JSValue value);
@@ -311,48 +150,10 @@ namespace WebAtoms.CoreJS.Core {
         }
 
 
-        internal JSValue InternalDelete(object keyExp)
+        public JSValue this[uint key]
         {
-            if (this is JSUndefined)
-            {
-                throw JSContext.Current.TypeError($"Unable to set {keyExp} of undefined");
-            }
-            if (this is JSNull)
-            {
-                throw JSContext.Current.TypeError($"Unable to set {keyExp} of null");
-            }
-            uint key = 0;
-            switch(keyExp)
-            {
-                case KeyString ks:
-                    key = ks.Key;
-                    break;
-                case JSString jsString:
-                    key = KeyStrings.GetOrCreate(jsString.value).Key;
-                    break;
-                case string s:
-                    key = KeyStrings.GetOrCreate(s).Key;
-                    break;
-                case JSValue v:
-                    key = KeyStrings.GetOrCreate(v.ToString()).Key;
-                    break;
-            }
-            if (ownProperties.RemoveAt(key))
-                return JSContext.Current.True;
-            return JSContext.Current.False;
-        }
-
-
-        public virtual JSValue this[uint key]
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get => this.GetProperty(key);
+            set => this.SetProperty(key, value);
         }
 
         public virtual JSValue CreateInstance(JSArguments args)
