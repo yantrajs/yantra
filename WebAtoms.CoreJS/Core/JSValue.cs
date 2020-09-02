@@ -129,27 +129,6 @@ namespace WebAtoms.CoreJS.Core {
         internal abstract JSBoolean Greater(JSValue value);
         internal abstract JSBoolean GreaterOrEqual(JSValue value);
 
-        public JSBoolean InstanceOf(JSValue value)
-        {
-            //var target = this;
-            //while(target != null)
-            //{
-            //    target.prototypeChain 
-            //}
-            throw new NotImplementedException();
-        }
-
-        public JSBoolean IsIn(JSValue value)
-        {
-            //var target = this;
-            //while(target != null)
-            //{
-            //    target.prototypeChain 
-            //}
-            throw new NotImplementedException();
-        }
-
-
         public JSValue this[uint key]
         {
             get => this.GetProperty(key);

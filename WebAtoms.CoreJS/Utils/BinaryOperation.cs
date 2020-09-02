@@ -101,9 +101,9 @@ namespace WebAtoms.CoreJS.Utils
             switch(assignmentOperator)
             {
                 case AssignmentOperator.Assign:
-                    return Expression.Assign(left, right);
+                    return Assign(left, right);
                 case AssignmentOperator.PlusAssign:
-                    return Expression.Assign(left, ExpHelper.JSValue.Add(left,right));
+                    return Assign(left, ExpHelper.JSValue.Add(left,right));
             }
 
             var leftDouble = ExpHelper.JSValue.DoubleValue(left);
@@ -118,30 +118,39 @@ namespace WebAtoms.CoreJS.Utils
             switch (assignmentOperator)
             {
                 case AssignmentOperator.MinusAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.Add(leftDouble, rightDouble)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.Add(leftDouble, rightDouble)));
                 case AssignmentOperator.TimesAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.Multiply(leftDouble, rightDouble)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.Multiply(leftDouble, rightDouble)));
                 case AssignmentOperator.DivideAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.Divide(leftDouble, rightDouble)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.Divide(leftDouble, rightDouble)));
                 case AssignmentOperator.ModuloAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.Modulo(leftDouble, rightDouble)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.Modulo(leftDouble, rightDouble)));
                 case AssignmentOperator.BitwiseAndAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.And(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.And(leftInt, rightInt)));
                 case AssignmentOperator.BitwiseOrAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.Or(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.Or(leftInt, rightInt)));
                 case AssignmentOperator.BitwiseXOrAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.ExclusiveOr(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.ExclusiveOr(leftInt, rightInt)));
                 case AssignmentOperator.LeftShiftAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.LeftShift(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.LeftShift(leftInt, rightInt)));
                 case AssignmentOperator.RightShiftAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.RightShift(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.RightShift(leftInt, rightInt)));
                 case AssignmentOperator.UnsignedRightShiftAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.RightShift(leftInt, rightUInt)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.RightShift(leftInt, rightUInt)));
                 case AssignmentOperator.ExponentiationAssign:
-                    return Expression.Assign(left, ExpHelper.JSNumber.New(Expression.Power(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumber.New(Expression.Power(leftInt, rightInt)));
             }
 
             throw new NotSupportedException();
+        }
+
+        private static Expression Assign(Expression left, Expression right)
+        {
+            if (left is MethodCallExpression mce)
+            {
+                return ExpHelper.JSValueExtensions.Assign(mce, right);
+            }
+            return Expression.Assign(left, right);
         }
 
         #region Add
@@ -228,9 +237,9 @@ namespace WebAtoms.CoreJS.Utils
                 case Esprima.Ast.BinaryOperator.StricltyNotEqual:
                     return ExpHelper.JSValue.NotStrictEquals(left, right);
                 case Esprima.Ast.BinaryOperator.InstanceOf:
-                    return ExpHelper.JSValue.InstanceOf(left, right);
+                    return ExpHelper.JSValueExtensions.InstanceOf(left, right);
                 case Esprima.Ast.BinaryOperator.In:
-                    return ExpHelper.JSValue.IsIn(left, right);
+                    return ExpHelper.JSValueExtensions.IsIn(left, right);
                 case Esprima.Ast.BinaryOperator.Plus:
                     return ExpHelper.JSValue.Add(left, right);
                 case Esprima.Ast.BinaryOperator.Minus:

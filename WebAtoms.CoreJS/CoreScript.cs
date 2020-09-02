@@ -727,7 +727,7 @@ namespace WebAtoms.CoreJS
                 case Identifier id:
                     if (!memberExpression.Computed)
                     {
-                        return ExpHelper.JSValue.KeyStringIndex(
+                        return ExpHelper.JSValueExtensions.GetPropertyKeyString(
                             VisitExpression(memberExpression.Object),
                             KeyOfName(id.Name));
                     }
@@ -736,17 +736,17 @@ namespace WebAtoms.CoreJS
                         KeyOfName(id.Name));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.BooleanLiteral:
-                    return ExpHelper.JSValue.Index(
+                    return ExpHelper.JSValueExtensions.GetPropertyUInt32(
                         VisitExpression(memberExpression.Object),
                         l.BooleanValue ? (uint)0 : (uint)1);
                 case Literal l
                     when l.TokenType == Esprima.TokenType.StringLiteral:
-                    return ExpHelper.JSValue.KeyStringIndex(
+                    return ExpHelper.JSValueExtensions.GetPropertyKeyString(
                         VisitExpression(memberExpression.Object),
                         KeyOfName(l.StringValue));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.NumericLiteral:
-                    return ExpHelper.JSValue.Index(
+                    return ExpHelper.JSValueExtensions.GetPropertyUInt32(
                         VisitExpression(memberExpression.Object),
                         (uint)l.NumericValue);
 

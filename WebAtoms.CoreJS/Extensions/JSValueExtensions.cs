@@ -15,7 +15,7 @@ namespace WebAtoms.CoreJS.Extensions
             if (!(value is JSObject @object))
                 yield break;
             var elements = @object.elements;
-            foreach(var p in elements.AllValues())
+            foreach (var p in elements.AllValues())
             {
                 if (!p.Value.IsEnumerable)
                     continue;
@@ -68,15 +68,13 @@ namespace WebAtoms.CoreJS.Extensions
                     throw JSContext.Current.TypeError($"Unable to get {name} of undefined");
                 case JSNull __:
                     throw JSContext.Current.TypeError($"Unable to get {name} of null");
-
-                case JSObject @object:
-                    var p = @object.GetInternalProperty(name);
-                    if (p.IsEmpty) return JSUndefined.Value;
-                    return p.IsValue ? p.value : p.get.InvokeFunction(value, JSArguments.Empty);
-
-                default:
-                    return JSUndefined.Value;
             }
+            var p = value.GetInternalProperty(name);
+            if (p.IsEmpty)
+            {
+                return JSUndefined.Value;
+            }
+            return p.IsValue ? p.value : p.get.InvokeFunction(value, JSArguments.Empty);
         }
 
         public static JSValue SetProperty(this JSValue target, KeyString name, JSValue value)
@@ -223,6 +221,11 @@ namespace WebAtoms.CoreJS.Extensions
                 return JSUndefined.Value;
             var elements = @object.elements;
             elements[key] = JSProperty.Property(value);
+            if (target is JSArray array)
+            {
+                if (array._length <= key)
+                    array._length = key + 1;
+            }
             return JSUndefined.Value;
         }
 
@@ -266,5 +269,26 @@ namespace WebAtoms.CoreJS.Extensions
             return JSContext.Current.True;
         }
 
+
+
+        public static JSBoolean InstanceOf(this JSValue target, JSValue value)
+        {
+            //var target = this;
+            //while(target != null)
+            //{
+            //    target.prototypeChain 
+            //}
+            throw new NotImplementedException();
+        }
+
+        public static JSBoolean IsIn(this JSValue target, JSValue value)
+        {
+            //var target = this;
+            //while(target != null)
+            //{
+            //    target.prototypeChain 
+            //}
+            throw new NotImplementedException();
+        }
     }
 }

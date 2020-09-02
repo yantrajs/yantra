@@ -421,6 +421,85 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
         }
 
+        public class JSValueExtensions
+        {
+            private readonly static Type type = typeof(Extensions.JSValueExtensions);
+
+            private static MethodInfo _InstanceOf =
+                type.GetMethod(nameof(Extensions.JSValueExtensions.InstanceOf));
+            public static Expression InstanceOf(Expression target, Expression value)
+            {
+                return Expression.Call(null, _InstanceOf, target, value);
+            }
+
+            private static MethodInfo _IsIn =
+                type.GetMethod(nameof(Extensions.JSValueExtensions.IsIn));
+            public static Expression IsIn(Expression target, Expression value)
+            {
+                return Expression.Call(null, _IsIn, target, value);
+            }
+
+            private static MethodInfo _KeyStringIndex =
+                type.GetMethod(nameof(Extensions.JSValueExtensions.GetProperty), 
+                    new Type[] { typeof(Core.JSValue), typeof(KeyString) });
+
+            public static Expression GetPropertyKeyString(Expression target, Expression key)
+            {
+                return Expression.Call(null, _KeyStringIndex, target, key);
+            }
+
+            private static MethodInfo _Index =
+                type.StaticMethod(nameof(Extensions.JSValueExtensions.GetProperty), 
+                    typeof(Core.JSValue), typeof(uint));
+
+            public static Expression GetPropertyUInt32(Expression target, Expression key)
+            {
+                return Expression.Call(null, _Index, target, key);
+            }
+
+            public static Expression GetPropertyUInt32(Expression target, uint i)
+            {
+                return Expression.Call(null, _Index, target, Expression.Constant(i));
+            }
+
+            private static MethodInfo _SetKeyStringIndex =
+                type.GetMethod(nameof(Extensions.JSValueExtensions.SetProperty), 
+                    new Type[] { typeof(Core.JSValue), typeof(KeyString), typeof(Core.JSValue) });
+
+            public static Expression SetPropertyKeyString(Expression target, Expression key, Expression value)
+            {
+                return Expression.Call(null, _KeyStringIndex, target, key, value);
+            }
+
+            private static MethodInfo _SetIndex =
+                type.GetMethod(nameof(Extensions.JSValueExtensions.GetProperty), 
+                    new Type[] { typeof(Core.JSValue), typeof(uint), typeof(Core.JSValue) });
+
+            public static Expression SetPropertyUInt32(Expression target, Expression key, Expression value)
+            {
+                return Expression.Call(null, _Index, target, key, value);
+            }
+
+            public static Expression SetPropertyUInt32(Expression target, uint i, Expression value)
+            {
+                return Expression.Call(null, _Index, target, Expression.Constant(i), value);
+            }
+
+            public static Expression Assign(MethodCallExpression mce, Expression value)
+            {
+                if (mce.Method == _Index)
+                {
+                    return Expression.Call(null, _SetIndex, mce.Arguments[0], mce.Arguments[1], value);
+                }
+                if (mce.Method == _KeyStringIndex)
+                {
+                    return Expression.Call(null, _SetKeyStringIndex, mce.Arguments[0], mce.Arguments[1], value);
+                }
+                return mce;
+            }
+
+        }
+
         public class JSValue: TypeHelper<Core.JSValue>
         {
             private static PropertyInfo _DoubleValue =
@@ -470,22 +549,6 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.Call(target, _Add, value);
             }
 
-            private static MethodInfo _InstanceOf =
-                Method<Core.JSValue>(nameof(Core.JSValue.InstanceOf));
-
-            public static Expression InstanceOf(Expression target, Expression value)
-            {
-                return Expression.Call(target, _InstanceOf, value);
-            }
-
-            private static MethodInfo _IsIn =
-                Method<Core.JSValue>(nameof(Core.JSValue.IsIn));
-
-            public static Expression IsIn(Expression target, Expression value)
-            {
-                return Expression.Call(target, _IsIn, value);
-            }
-
             private static MethodInfo _Delete =
                 Method<Core.JSValue>("Delete");
 
@@ -502,18 +565,6 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.Property(target, _TypeOf);
             }
 
-            private static PropertyInfo _KeyStringIndex =
-                IndexProperty<Core.KeyString>();
-
-            private static PropertyInfo _UIntIndex =
-                IndexProperty<uint>();
-
-
-            public static Expression KeyStringIndex(Expression target, Expression property)
-            {
-                return Expression.MakeIndex(target, _KeyStringIndex, new Expression[] { property });
-            }
-
             private static PropertyInfo _Index =
                 IndexProperty<Core.JSValue>();
 
@@ -522,10 +573,6 @@ namespace WebAtoms.CoreJS.LinqExpressions
                 return Expression.MakeIndex(target, _Index, new Expression[] { property });
             }
 
-            public static Expression Index(Expression target, uint i)
-            {
-                return Expression.MakeIndex(target, _UIntIndex, new Expression[] { Expression.Constant(i) });
-            }
             internal static MethodInfo StaticEquals
                 = InternalStaticMethod<Core.JSValue,Core.JSValue>(nameof(Core.JSValue.StaticEquals));
 
@@ -620,7 +667,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
 
             public static Expression New(IEnumerable<(Expression key, Expression value)> keyValues)
             {
-                var pe = Expression.Parameter(typeof(Core.JSValue));
+                var pe = Expression.Parameter(typeof(Core.JSObject));
                 var fe = Expression.Parameter(typeof(BinaryUInt32Map<Core.JSProperty>));
                 var list = new List<Expression>() {
                     Expression.Assign(pe, Expression.New(typeof(Core.JSObject))),
