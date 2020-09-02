@@ -12,12 +12,6 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue Value = new JSUndefined();
 
-        public override JSValue this[JSValue key]
-        {
-            get => throw new InvalidOperationException($"Cannot get {key} of undefined");
-            set => throw new InvalidOperationException($"Cannot set {key} of undefined");
-        }
-
         public override string ToString()
         {
             return "undefined";

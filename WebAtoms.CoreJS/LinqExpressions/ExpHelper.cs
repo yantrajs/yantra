@@ -605,10 +605,10 @@ namespace WebAtoms.CoreJS.LinqExpressions
             }
         }
 
-        public class JSObject: TypeHelper<Core.JSValue>
+        public class JSObject: TypeHelper<Core.JSObject>
         {
             private static FieldInfo _ownProperties =
-                InternalField(nameof(Core.JSValue.ownProperties));
+                InternalField(nameof(Core.JSObject.ownProperties));
 
             private static PropertyInfo _Index =
                 typeof(BaseMap<uint,Core.JSProperty>)

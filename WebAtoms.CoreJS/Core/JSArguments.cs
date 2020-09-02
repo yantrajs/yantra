@@ -129,7 +129,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public override JSValue this[uint key] { 
+        public new JSValue this[uint key] { 
             get => key>= _length ? JSUndefined.Value : elements[key];
             set { } 
         }

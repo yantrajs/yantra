@@ -9,7 +9,7 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSArray: JSObject, IList<JSValue>
+    public class JSArray: JSObject
     {
         internal uint _length;
 
@@ -26,7 +26,7 @@ namespace WebAtoms.CoreJS.Core
         public JSArray(IEnumerable<JSValue> items): base(JSContext.Current.ArrayPrototype)
         {
             foreach (var item in items)
-                elements[_length++] = item;
+                elements[_length++] = JSProperty.Property(item);
         }
 
         public override string ToString()
@@ -53,7 +53,7 @@ namespace WebAtoms.CoreJS.Core
                         yield return JSUndefined.Value;
                         i++;
                     }
-                    yield return a.Value;
+                    yield return a.Value.value;
                     i++;
                 }
                 while (i < _length)
@@ -69,28 +69,13 @@ namespace WebAtoms.CoreJS.Core
             set => _length = (uint)value; 
         }
 
-        int ICollection<JSValue>.Count => (int)this._length;
-
-        bool ICollection<JSValue>.IsReadOnly => false;
-
-        JSValue IList<JSValue>.this[int index] { get => this[(uint)index]; set => this[(uint)index] = value; }
-
-        public override JSValue this[uint key] {
-            get => key >= _length ? JSUndefined.Value : (elements[key] ?? JSUndefined.Value);
-            set
-            {
-                if (key >= _length)
-                    _length = key + 1;
-                elements[key] = value;
-            }
-        }
 
         [Prototype("push")]
         public static JSValue Push (JSValue t, JSArguments a){
             var ta = (JSArray)t;
             foreach(var item in a.elements)
             {
-                ta.elements[ta._length] = item;
+                ta.elements[ta._length] = JSProperty.Property(item);
                 ta._length++;
             }
             return new JSNumber(ta._length);
@@ -102,10 +87,13 @@ namespace WebAtoms.CoreJS.Core
             var ta = (JSArray)t;
             if (ta._length == 0)
                 return JSUndefined.Value;
-            JSValue r;
-            ta.elements.TryRemove(ta._length - 1, out r);
-            ta._length--;
-            return r ?? JSUndefined.Value;
+            JSProperty r;
+            if (ta.elements.TryRemove(ta._length - 1, out r))
+            {
+                ta._length--;
+                return r.value;
+            }
+            return JSUndefined.Value;
         }
 
         [Prototype("slice")]
@@ -127,7 +115,7 @@ namespace WebAtoms.CoreJS.Core
             for (uint i = (uint)value; i < l; i++)
             {
                 var item = elements[i];
-                if (item == null) continue;
+                if (item.IsEmpty) continue;
                 a.elements[i] = item;
             }
             return a;
@@ -152,18 +140,18 @@ namespace WebAtoms.CoreJS.Core
                         {
                             item = fn.InvokeFunction(t, JSArguments.From(item));
                         }
-                        r.elements[r._length++] = item;
+                        r.elements[r._length++] = JSProperty.Property(item);
                     }
                     return r;
                 case JSArray array:
                     foreach (var ch in array.elements.AllValues())
                     {
-                        JSValue item = ch.Value;
+                        JSValue item = ch.Value.value;
                         if (map is JSFunction fn)
                         {
                             item = fn.InvokeFunction(t, JSArguments.From(item));
                         }
-                        r.elements[r._length++] = item;
+                        r.elements[r._length++] = JSProperty.Property(item);
                     }
                     return r;
             }
@@ -184,7 +172,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 foreach (var e in a.elements)
                 {
-                    r.elements[r._length++] = e;
+                    r.elements[r._length++] = JSProperty.Property(e);
                 }
             }
             return r;
@@ -202,81 +190,11 @@ namespace WebAtoms.CoreJS.Core
             return new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue);
         }
 
-        int IList<JSValue>.IndexOf(JSValue item)
-        {
-            if (this.elements.TryGetKeyOf(item, out var index))
-                return (int)index;
-            return -1;
-        }
-
-        void IList<JSValue>.Insert(int index, JSValue item)
-        {
-            var ui = (uint)index;
-            var length = this._length;
-            if (length >= ui)
-            {
-                this._length = ui + 1;
-                this.elements[ui] = item;
-                return;
-            }
-
-            var toInsert = item;
-
-            while (ui > length - 1)
-            {
-                var nextIndex = ui + 1;
-                this.elements[ui] = toInsert;
-                toInsert = this.elements[nextIndex];
-            }
-        }
-
-        void IList<JSValue>.RemoveAt(int index)
-        {
-            this.elements.RemoveAt((uint)index);
-        }
 
         public void Add(JSValue item)
         {
-            this.elements[this._length++] = item;
+            this.elements[this._length++] = JSProperty.Property(item);
         }
 
-        void ICollection<JSValue>.Clear()
-        {
-            this.elements = new BinaryUInt32Map<JSValue>();
-            this._length = 0;
-        }
-
-        bool ICollection<JSValue>.Contains(JSValue item)
-        {
-            return this.elements.TryGetKeyOf(item, out var _);
-        }
-
-        void ICollection<JSValue>.CopyTo(JSValue[] array, int arrayIndex)
-        {
-            var en = this.All.GetEnumerator();
-            while (arrayIndex-- > 0 && en.MoveNext()) ;
-            while (en.MoveNext())
-            {
-                array[arrayIndex++] = en.Current;
-            }
-        }
-
-        bool ICollection<JSValue>.Remove(JSValue item)
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator<JSValue> IEnumerable<JSValue>.GetEnumerator()
-        {
-            foreach(var item in this.All)
-            {
-                yield return item;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<JSValue>)this).GetEnumerator();
-        }
     }
 }
