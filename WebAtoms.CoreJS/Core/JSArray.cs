@@ -191,9 +191,10 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        public void Add(JSValue item)
+        public JSArray Add(JSValue item)
         {
             this.elements[this._length++] = JSProperty.Property(item);
+            return this;
         }
 
     }

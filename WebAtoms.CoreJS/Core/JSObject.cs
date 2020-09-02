@@ -34,6 +34,17 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        public IEnumerable<(string key, JSValue value)> Entries
+        {
+            get
+            {
+                foreach(var item in this.GetInternalEntries())
+                {
+                    yield return (item.key.ToString(), item.value);
+                }
+            }
+        }
+
         internal BinaryUInt32Map<JSProperty> elements = new BinaryUInt32Map<JSProperty>();
         internal BinaryUInt32Map<JSProperty> ownProperties;
 

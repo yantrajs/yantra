@@ -17,16 +17,12 @@ namespace WebAtoms.CoreJS.Extensions
             var elements = @object.elements;
             foreach (var p in elements.AllValues())
             {
-                if (!p.Value.IsEnumerable)
-                    continue;
                 yield return p.Value;
             }
 
             var ownProperties = @object.ownProperties;
             foreach (var p in ownProperties.AllValues())
             {
-                if (!p.Value.IsEnumerable)
-                    continue;
                 yield return p.Value;
             }
         }
@@ -34,7 +30,11 @@ namespace WebAtoms.CoreJS.Extensions
         internal static JSProperty GetInternalProperty(this JSValue value, KeyString key, bool inherited = true)
         {
             if (!(value is JSObject @object))
-                return new JSProperty();
+            {
+                if (!inherited || value.prototypeChain == null)
+                    return new JSProperty();
+                return value.prototypeChain.GetInternalProperty(key, inherited);
+            }
             var ownProperties = @object.ownProperties;
             if (ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
             {

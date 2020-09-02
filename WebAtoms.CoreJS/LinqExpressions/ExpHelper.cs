@@ -729,11 +729,17 @@ namespace WebAtoms.CoreJS.LinqExpressions
         {
             private static ConstructorInfo _New =
                 typeof(Core.JSArray).GetConstructor(new Type[] { });
+
+            private static MethodInfo _Add =
+                Method<Core.JSValue>(nameof(Core.JSArray.Add));
             public static Expression New(IEnumerable<Expression> list)
             {
-                return Expression.ListInit(
-                    Expression.New(_New),
-                    list);
+                Expression start = Expression.New(_New);
+                foreach(var p in list)
+                {
+                    start = Expression.Call(start, _Add, p);
+                }
+                return start;
             }
 
         }
