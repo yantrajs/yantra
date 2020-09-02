@@ -34,9 +34,13 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        internal BinaryUInt32Map<JSValue> elements = new BinaryUInt32Map<JSValue>();
+        internal BinaryUInt32Map<JSProperty> ownProperties;
+
         protected JSObject(JSValue prototype) : base(prototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
+            elements = new BinaryUInt32Map<JSValue>();
         }
 
         public JSValue DefineProperty(KeyString name, JSProperty p)
@@ -121,7 +125,7 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("__proto__", MemberType.Set)]
         internal static JSValue PrototypeSet(JSValue t, JSArguments a)
         {
-            return t.prototypeChain;
+            return t.prototypeChain = a[0];
         }
 
 
@@ -336,13 +340,25 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSValue _Seal(JSValue t, JSArguments a)
         {
-            return t;
+            var first = a[0];
+            if (!(first is JSObject @object))
+                return first;
+            first.ownProperties.Update((x, v) =>
+            {
+                v.Attributes &= ~(JSPropertyAttributes.Configurable);
+                return (true, v);
+            });
+            return first;
         }
 
         [Static("setPrototypeOf")]
         internal static JSValue _SetPrototypeOf(JSValue t, JSArguments a)
         {
-            return t;
+            var first = a[0];
+            if (!(first is JSObject @object))
+                return first;
+            first.prototypeChain = a[1] as JSObject;
+            return first;
         }
 
         [Static("values")]
@@ -359,6 +375,9 @@ namespace WebAtoms.CoreJS.Core
         [Static("getOwnPropertyDescriptor")]
         internal static JSValue _GetOwnPropertyDescriptor(JSValue t, JSArguments a)
         {
+            var first = a[0];
+            if (first is JSUndefined)
+                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             return t;
         }
 

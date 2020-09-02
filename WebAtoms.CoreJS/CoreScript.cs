@@ -12,6 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.LinqExpressions;
 using WebAtoms.CoreJS.Utils;
 
@@ -351,7 +352,7 @@ namespace WebAtoms.CoreJS
                 switch(declarator.Id)
                 {
                     case Esprima.Ast.Identifier id:
-                        var ve = Exp.Variable(typeof(JSVariable));
+                        var ve = Exp.Variable(typeof(JSVariable), id.Name);
                         var vf = JSVariable.ValueExpression(ve);
                         this.scope.Top.AddVariable(id.Name, vf, ve);
                         // inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
@@ -762,31 +763,32 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
         {
-            Exp GetLiteral()
+            (Exp exp,string name) GetLiteral()
             {
                 switch (literal.TokenType)
                 {
                     case Esprima.TokenType.BooleanLiteral:
                         return literal.BooleanValue
-                            ? ExpHelper.JSContext.True
-                            : ExpHelper.JSContext.False;
+                            ? (ExpHelper.JSContext.True, "true")
+                            : (ExpHelper.JSContext.False, "false");
                     case Esprima.TokenType.StringLiteral:
-                        return ExpHelper.JSString.New(Exp.Constant(literal.StringValue));
+                        return (ExpHelper.JSString.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
                     case Esprima.TokenType.RegularExpression:
-                        return ExpHelper.JSRegExp.New(
+                        return (ExpHelper.JSRegExp.New(
                             Exp.Constant(literal.Regex.Pattern),
-                            Exp.Constant(literal.Regex.Flags));
+                            Exp.Constant(literal.Regex.Flags)), (literal.Regex.Pattern + literal.Regex.Flags).Left(10));
                     case Esprima.TokenType.Template:
                         break;
                     case Esprima.TokenType.NullLiteral:
-                        return ExpHelper.JSNull.Value;
+                        return (ExpHelper.JSNull.Value, "null");
                     case Esprima.TokenType.NumericLiteral:
-                        return ExpHelper.JSNumber.New(Exp.Constant(literal.NumericValue));
+                        return (ExpHelper.JSNumber.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
                 }
                 throw new NotImplementedException();
             }
-            var pe = Exp.Variable(typeof(JSValue));
-            this.scope.Top.AddVariable(null, pe, pe, GetLiteral());
+            var (exp, name) = GetLiteral();
+            var pe = Exp.Variable(typeof(JSValue), name);
+            this.scope.Top.AddVariable(null, pe, pe, exp);
             return pe;
             
         }

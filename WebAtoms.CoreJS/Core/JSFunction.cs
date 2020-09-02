@@ -86,5 +86,25 @@ namespace WebAtoms.CoreJS.Core
             var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));
             return fx;
         }
+
+        //[Prototype("prototype", MemberType.Get)]
+        //internal static JSValue GetPrototype(JSValue t, JSArguments a)
+        //{
+        //    if (t is JSFunction fx)
+        //        return fx.prototype;
+        //    return JSUndefined.Value;
+        //}
+
+        //[Prototype("prototype", MemberType.Set)]
+        //internal static JSValue SetPrototype(JSValue t, JSArguments a)
+        //{
+        //    if (t is JSFunction fx)
+        //    {
+        //        var px = a[0];
+        //        fx.prototype = px as JSObject;
+        //        return px;
+        //    }
+        //    return JSUndefined.Value;
+        //}
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esprima.Ast;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
@@ -34,6 +35,8 @@ namespace WebAtoms.CoreJS.Core
         }
 
         protected abstract IEnumerable<(TKey key, TValue value, uint index)> Enumerate(uint index);
+
+        public abstract int Update(Func<TKey, TValue, (bool replace, TValue value)> update, uint start = 0);
 
         public bool TryGetKeyOf(TValue value, out TKey key)
         {
@@ -186,6 +189,35 @@ namespace WebAtoms.CoreJS.Core
         protected BinaryByteMap()
         {
             Buffer = new TrieNode[grow];
+        }
+
+        public override int Update(Func<uint, T, (bool replace,T value)> update, uint index = 0)
+        {
+            int count = 0;
+            var last = index + 4;
+            for (uint i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                var fi = node.FirstChildIndex;
+                var v = node.Value;
+                if (v != null)
+                {
+                    var uv = update(v.Key, v.Value);
+                    if (uv.replace)
+                    {
+                        node.Value.Value = uv.value;
+                        count++;
+                        continue;
+                    }
+                    continue;
+                }
+                if (fi == 0)
+                {
+                    continue;
+                }
+                count += Update(update, fi);
+            }
+            return count;
         }
 
         protected override IEnumerable<(uint key, T value, uint index)> Enumerate(uint index)

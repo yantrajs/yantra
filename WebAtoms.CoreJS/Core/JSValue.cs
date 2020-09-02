@@ -59,9 +59,7 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public virtual int IntValue { get => throw new NotImplementedException(); }
-
-        internal BinaryUInt32Map<JSProperty> ownProperties;
+        public virtual int IntValue => 0;
 
         internal JSValue prototypeChain;
 
@@ -253,10 +251,28 @@ namespace WebAtoms.CoreJS.Core {
             }
 
             // return true if property was deleted successfully... 
-
-            // or false..
-
-            return JSContext.Current.False;
+            KeyString ks;
+            switch(key)
+            {
+                case JSString @string:
+                    ks = KeyStrings.GetOrCreate(@string.value);
+                    break;
+                case JSNumber number:
+                    ks = KeyStrings.GetOrCreate(number.value.ToString());
+                    break;
+                case JSSymbol symbol:
+                    ks = symbol.Key;
+                    break;
+                default:
+                    throw JSContext.Current.TypeError("not supported");
+            }
+            var px = GetInternalProperty(ks, false);
+            if (px.IsEmpty)
+                return JSContext.Current.False;
+            if (!px.IsConfigurable)
+                throw JSContext.Current.TypeError("Cannot delete property of sealed object");
+            ownProperties.RemoveAt(ks.Key);
+            return JSContext.Current.True;
         }
 
         public abstract JSBoolean Equals(JSValue value);

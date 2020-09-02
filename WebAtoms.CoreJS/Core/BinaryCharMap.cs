@@ -29,6 +29,34 @@ namespace WebAtoms.CoreJS.Core {
             Buffer = new TrieNode[grow];
         }
 
+        public override int Update(Func<string, T, (bool replace, T value)> update, uint index = 0)
+        {
+            int count = 0;
+            var last = index + 16;
+            for (uint i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                var fi = node.FirstChildIndex;
+                var v = node.Value;
+                if (v != null)
+                {
+                    var uv = update(v.Key, v.Value);
+                    if (uv.replace)
+                    {
+                        node.Value.Value = uv.value;
+                        count++;
+                    }
+                    continue;
+                }
+                if (fi == 0)
+                {
+                    continue;
+                }
+                count += Update(update, fi);
+            }
+            return count;
+        }
+
         protected override IEnumerable<(string key, T value, uint index)> Enumerate(uint index)
         {
             var last = index + 16;

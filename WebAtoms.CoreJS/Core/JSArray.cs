@@ -11,8 +11,6 @@ namespace WebAtoms.CoreJS.Core
 {
     public class JSArray: JSObject, IList<JSValue>
     {
-        internal BinaryUInt32Map<JSValue> elements = new BinaryUInt32Map<JSValue>();
-
         internal uint _length;
 
         public JSArray(): base(JSContext.Current.ArrayPrototype)

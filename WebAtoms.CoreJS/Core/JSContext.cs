@@ -99,7 +99,12 @@ namespace WebAtoms.CoreJS.Core
                 var ro = r.ownProperties;
                 foreach(var p in cached.ownProperties.AllValues())
                 {
-                    ro[p.Key] = p.Value;
+                    /// this is the case when we do not
+                    /// want to overwrite Function.prototype
+                    if (p.Key != KeyStrings.prototype.Key)
+                    {
+                        ro[p.Key] = p.Value;
+                    }
                 }
                 return r.prototype;
             }
