@@ -199,6 +199,15 @@ namespace WebAtoms.CoreJS.Extensions
             {
                 throw JSContext.Current.TypeError($"Unable to set {key} of null");
             }
+            if (target is JSString @string)
+            {
+                var sv = @string.value;
+                if (sv.Length > key)
+                {
+                    return new JSString(new String(sv[(int)key],1));
+                }
+                return JSUndefined.Value;
+            }
             if (!(target is JSObject @object))
                 return JSUndefined.Value;
             var elements = @object.elements;
