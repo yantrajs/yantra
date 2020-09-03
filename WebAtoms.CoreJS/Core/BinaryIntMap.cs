@@ -282,18 +282,31 @@ namespace WebAtoms.CoreJS.Core
         {
             ref var node = ref TrieNode.Empty;
             uint start = (uint)((uint)0x3 << (int)30);
-            uint index = 0;
-            // incremenet of two bits...
-            for (int i = 30; i >= 0; i-=2)
+            int i;
+            for (i = 30; i >= 0; i -= 2)
             {
                 byte bk = (byte)((key & start) >> i);
+                if (bk == 0)
+                {
+                    start = start >> 2;
+                    continue;
+                }
+                break;
+            }
+            var last = i + 2;
+            uint index = 0;
+            start = 0x3;
+            // incremenet of two bits...
+            for (i = 0; i < last; i+=2)
+            {
+                byte bk = (byte)((key & start));
                 index += bk;
                 index = GetNode(index, create);
                 if (index == uint.MaxValue)
                 {
                     return ref node;
                 }
-                start = start >> 2;
+                start = start << 2;
             }
 
             return ref Buffer[index];
