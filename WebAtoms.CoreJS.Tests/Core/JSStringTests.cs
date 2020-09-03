@@ -23,7 +23,7 @@ namespace WebAtoms.CoreJS.Tests.Core
 
             var zero = new JSNumber(0);
             var length = new JSNumber(2);
-            var prefix = js.InvokeMethod("substr", JSArguments.From(zero, length));
+            var prefix = js.InvokeMethod("substr", zero, length);
 
             Assert.AreEqual(2, prefix.Length);
 

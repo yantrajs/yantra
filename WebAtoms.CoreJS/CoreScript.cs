@@ -13,7 +13,6 @@ using System.Text;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Extensions;
-using WebAtoms.CoreJS.LinqExpressions;
 using WebAtoms.CoreJS.Utils;
 
 using Exp = System.Linq.Expressions.Expression;
@@ -101,7 +100,7 @@ namespace WebAtoms.CoreJS
 
                 var sList = new List<Exp>() { 
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
-                    Exp.Assign(lScope, ExpHelper.LexicalScope.NewScope(FileNameExpression,"",1,1))
+                    Exp.Assign(lScope, ExpHelper.LexicalScopeBuilder.NewScope(FileNameExpression,"",1,1))
                 };
 
                 var l = Exp.Label(typeof(JSValue));
@@ -110,7 +109,7 @@ namespace WebAtoms.CoreJS
                 {
                     var v = ks.Value;
                     vList.Add(v);
-                    sList.Add(Exp.Assign(v, ExpHelper.KeyStrings.GetOrCreate(Exp.Constant(ks.Key))));
+                    sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
                 }
 
                 foreach(var v in fx.Variables)
@@ -120,7 +119,7 @@ namespace WebAtoms.CoreJS
                     {
                         if (v.Name != null)
                         {
-                            sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariable.New(v.Name)));
+                            sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Name)));
                             sList.Add(Exp.Assign(v.Expression, v.Init));
                         } else
                         {
@@ -136,7 +135,7 @@ namespace WebAtoms.CoreJS
                 script = Exp.Block(vList,
                     Exp.TryFinally(
                         Exp.Block(sList),
-                        ExpHelper.IDisposable.Dispose(lScope))
+                        ExpHelper.IDisposableBuilder.Dispose(lScope))
                 );
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
@@ -200,12 +199,10 @@ namespace WebAtoms.CoreJS
 
                 
 
-                var argumentElements = Exp.Variable(typeof(Core.JSValue[]),"args");
+                var argumentElements = args;
                 var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
-                vList.Add(argumentElements);
                 vList.Add(argumentElementsLength);
 
-                sList.Add(Exp.Assign(argumentElements, ExpHelper.JSArguments.Elements(args)));
                 sList.Add(Exp.Assign(argumentElementsLength, 
                     Exp.Condition(
                         Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
@@ -219,7 +216,7 @@ namespace WebAtoms.CoreJS
 
                     vList.Add(var1);
                     sList.Add(Exp.Assign(var1, 
-                        ExpHelper.JSVariable.FromArgument(argumentElements, argumentElementsLength, i, v.Name)));
+                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, argumentElementsLength, i, v.Name)));
 
                     s.AddVariable(v.Name, vf);
 
@@ -251,14 +248,14 @@ namespace WebAtoms.CoreJS
                         } else
                         {
                             // create..
-                            sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariable.New(v.Init, v.Name)));
+                            sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Init, v.Name)));
                         }
                     }
                 }
 
                 sList.Add(lambdaBody);
 
-                sList.Add(Exp.Label(r, ExpHelper.JSUndefined.Value));
+                sList.Add(Exp.Label(r, ExpHelper.JSUndefinedBuilder.Value));
 
                 var block = Exp.Block(vList, sList);
 
@@ -273,7 +270,7 @@ namespace WebAtoms.CoreJS
                 var lexicalScope =
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar },
                     Exp.Assign(lexicalScopeVar, 
-                        ExpHelper.LexicalScope.NewScope(
+                        ExpHelper.LexicalScopeBuilder.NewScope(
                             FileNameExpression,
                             fxName,
                             point.Line,
@@ -281,13 +278,13 @@ namespace WebAtoms.CoreJS
                             )),
                     Exp.TryFinally(
                         block,
-                        ExpHelper.IDisposable.Dispose(lexicalScopeVar)));
+                        ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
 
                 var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
 
 
                 // create new JSFunction instance...
-                var jfs = ExpHelper.JSFunction.New(lambda, fxName, code);
+                var jfs = ExpHelper.JSFunctionBuilder.New(lambda, fxName, code);
 
                 if (!(functionDeclaration is Esprima.Ast.FunctionDeclaration))
                 {
@@ -308,7 +305,7 @@ namespace WebAtoms.CoreJS
             var r = statement.Range;
             var p = this.Code.Position(r);
             return Exp.Block( 
-                ExpHelper.LexicalScope.SetPosition(s, p.Line, p.Column)
+                ExpHelper.LexicalScopeBuilder.SetPosition(s, p.Line, p.Column)
                 , base.VisitStatement(statement));
         }
 
@@ -329,7 +326,7 @@ namespace WebAtoms.CoreJS
 
                 var list = new List<Exp>();
 
-                var test = Exp.Not( ExpHelper.JSValue.BooleanValue(VisitExpression(whileStatement.Test)));
+                var test = Exp.Not( ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(whileStatement.Test)));
 
                 list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
                 list.Add(body);
@@ -359,10 +356,10 @@ namespace WebAtoms.CoreJS
                         if (declarator.Init != null)
                         {
                             var init = VisitExpression(declarator.Init);
-                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariable.New(init, id.Name) ));
+                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(init, id.Name) ));
                         } else
                         {
-                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariable.New(id.Name)));
+                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(id.Name)));
                         }
                         break;
                     default:
@@ -393,11 +390,11 @@ namespace WebAtoms.CoreJS
 
                 var initVar = Exp.Condition(
                         Exp.TypeIs(pe, typeof(JSException)),
-                        ExpHelper.JSException.Error(Exp.Convert(pe, typeof(JSException))),
-                        ExpHelper.JSString.New(ExpHelper.Exception.ToString(pe)));
+                        ExpHelper.JSExceptionBuilder.Error(Exp.Convert(pe, typeof(JSException))),
+                        ExpHelper.JSStringBuilder.New(ExpHelper.ObjectBuilder.ToString(pe)));
 
-                catchBlock.Add(Exp.Assign(ve, ExpHelper.JSVariable.New(initVar, id.Name)));
-                catchBlock.Add(Exp.Assign(ExpHelper.LexicalScope.Index(keyName), ve));
+                catchBlock.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(initVar, id.Name)));
+                catchBlock.Add(Exp.Assign(ExpHelper.LexicalScopeBuilder.Index(keyName), ve));
                 catchBlock.Add(VisitStatement(cb));
 
                 var cbExp = Exp.Catch(pe, Exp.Block(new ParameterExpression[] { ve }, catchBlock ));
@@ -421,7 +418,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitThrowStatement(Esprima.Ast.ThrowStatement throwStatement)
         {
-            return ExpHelper.JSException.Throw(VisitExpression(throwStatement.Argument));
+            return ExpHelper.JSExceptionBuilder.Throw(VisitExpression(throwStatement.Argument));
         }
 
         protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
@@ -477,7 +474,7 @@ namespace WebAtoms.CoreJS
                 }
             }
             var r = Exp.Block(
-                Exp.Switch(VisitExpression(switchStatement.Discriminant), d , ExpHelper.JSValue.StaticEquals, cases),
+                Exp.Switch(VisitExpression(switchStatement.Discriminant), d , ExpHelper.JSValueBuilder.StaticEquals, cases),
                 Exp.Label(@break));
             return r;
         }
@@ -499,24 +496,24 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitIfStatement(Esprima.Ast.IfStatement ifStatement)
         {
-            var test =  ExpHelper.JSValue.BooleanValue(VisitExpression(ifStatement.Test));
+            var test =  ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(ifStatement.Test));
             var trueCase = VisitStatement(ifStatement.Consequent);
             // process else...
             if (ifStatement.Alternate != null)
             {
                 return Exp.Condition(test, trueCase, VisitStatement(ifStatement.Alternate));
             }
-            return Exp.Condition(test, trueCase, ExpHelper.JSUndefined.Value );
+            return Exp.Condition(test, trueCase, ExpHelper.JSUndefinedBuilder.Value );
         }
 
         protected override Exp VisitEmptyStatement(Esprima.Ast.EmptyStatement emptyStatement)
         {
-            return ExpHelper.JSUndefined.Value;
+            return ExpHelper.JSUndefinedBuilder.Value;
         }
 
         protected override Exp VisitDebuggerStatement(Esprima.Ast.DebuggerStatement debuggerStatement)
         {
-            return ExpHelper.JSDebugger.RaiseBreak();
+            return ExpHelper.JSDebuggerBuilder.RaiseBreak();
         }
 
         protected override Exp VisitExpressionStatement(Esprima.Ast.ExpressionStatement expressionStatement)
@@ -564,12 +561,12 @@ namespace WebAtoms.CoreJS
 
         private Exp DoubleValue(Esprima.Ast.Expression exp)
         {
-            return ExpHelper.JSValue.DoubleValue(VisitExpression(exp));
+            return ExpHelper.JSValueBuilder.DoubleValue(VisitExpression(exp));
         }
 
         private Exp BooleanValue(Esprima.Ast.Expression exp)
         {
-            return ExpHelper.JSValue.BooleanValue(VisitExpression(exp));
+            return ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(exp));
         }
 
 
@@ -580,13 +577,13 @@ namespace WebAtoms.CoreJS
             switch (unaryExpression.Operator)
             {
                 case UnaryOperator.Plus:
-                    return ExpHelper.JSNumber.New(Exp.UnaryPlus(DoubleValue(target)));
+                    return ExpHelper.JSNumberBuilder.New(Exp.UnaryPlus(DoubleValue(target)));
                 case UnaryOperator.Minus:
-                    return ExpHelper.JSNumber.New(Exp.Negate(DoubleValue(target)));
+                    return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
                 case UnaryOperator.BitwiseNot:
-                    return ExpHelper.JSNumber.New(Exp.Not( Exp.Convert(DoubleValue(target),typeof(int))));
+                    return ExpHelper.JSNumberBuilder.New(Exp.Not( Exp.Convert(DoubleValue(target),typeof(int))));
                 case UnaryOperator.LogicalNot:
-                    return Exp.Condition(BooleanValue(target), ExpHelper.JSContext.False, ExpHelper.JSContext.True );
+                    return Exp.Condition(BooleanValue(target), ExpHelper.JSContextBuilder.False, ExpHelper.JSContextBuilder.True );
                 case UnaryOperator.Delete:
                     // delete expression...
                     var me = target as Esprima.Ast.MemberExpression;
@@ -598,11 +595,11 @@ namespace WebAtoms.CoreJS
                     {
                         pe = Exp.Constant(me.Property.As<Identifier>().Name);
                     }
-                    return ExpHelper.JSValue.Delete(VisitExpression(me.Object), pe);
+                    return ExpHelper.JSValueBuilder.Delete(VisitExpression(me.Object), pe);
                 case UnaryOperator.Void:
-                    return ExpHelper.JSUndefined.Value;
+                    return ExpHelper.JSUndefinedBuilder.Value;
                 case UnaryOperator.TypeOf:
-                    return ExpHelper.JSValue.TypeOf(VisitExpression(target));
+                    return ExpHelper.JSValueBuilder.TypeOf(VisitExpression(target));
                 case UnaryOperator.Increment:
                     return this.InternalVisitUpdateExpression(unaryExpression);
                 case UnaryOperator.Decrement:
@@ -621,9 +618,9 @@ namespace WebAtoms.CoreJS
             if (updateExpression.Prefix) { 
                 if (updateExpression.Operator == UnaryOperator.Increment)
                 {
-                    return ExpHelper.JSNumber.New(Exp.AddAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
+                    return ExpHelper.JSNumberBuilder.New(Exp.AddAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
                 }
-                return ExpHelper.JSNumber.New(Exp.SubtractAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
+                return ExpHelper.JSNumberBuilder.New(Exp.SubtractAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
             }
             var right = VisitExpression(updateExpression.Argument);
             var ve = Exp.Variable(typeof(JSValue));
@@ -631,12 +628,12 @@ namespace WebAtoms.CoreJS
             {
                 return Exp.Block(new ParameterExpression[] { ve }, 
                     Exp.Assign(ve,right),
-                    Exp.Assign(right, ExpHelper.JSNumber.New(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
+                    Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
                     ve);
             }
             return Exp.Block(new ParameterExpression[] { ve },
                 Exp.Assign(ve, right),
-                Exp.Assign(right, ExpHelper.JSNumber.New(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
+                Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
                 ve);
         }
 
@@ -695,12 +692,12 @@ namespace WebAtoms.CoreJS
                             {
                                 m.Setter = value; 
                             }
-                            m.Value = ExpHelper.JSProperty.Property(key, m.Getter,m.Setter);
+                            m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter,m.Setter);
                             continue;
                         }
                         else
                         {
-                            value = ExpHelper.JSProperty.Value(key, value);
+                            value = ExpHelper.JSPropertyBuilder.Value(key, value);
                         }
                         break;
                     default:
@@ -709,15 +706,15 @@ namespace WebAtoms.CoreJS
                 keys.Add((key, new ExpressionHolder { Value = value }));
             }
 
-            return ExpHelper.JSObject.New(keys.Select((x) => (x.Item1, x.Item2.Value)));
+            return ExpHelper.JSObjectBuilder.New(keys.Select((x) => (x.Item1, x.Item2.Value)));
         }
 
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)
         {
             var constructor = VisitExpression(newExpression.Callee);
             var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e));
-            var pe = ExpHelper.JSArguments.New(args);
-            return ExpHelper.JSValue.CreateInstance(constructor, pe);
+            var pe = ExpHelper.JSArgumentsBuilder.New(args);
+            return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
@@ -727,26 +724,26 @@ namespace WebAtoms.CoreJS
                 case Identifier id:
                     if (!memberExpression.Computed)
                     {
-                        return ExpHelper.JSValueExtensions.GetPropertyKeyString(
+                        return ExpHelper.JSValueExtensionsBuilder.GetPropertyKeyString(
                             VisitExpression(memberExpression.Object),
                             KeyOfName(id.Name));
                     }
-                    return ExpHelper.JSValue.Index(
+                    return ExpHelper.JSValueBuilder.Index(
                         VisitExpression(memberExpression.Object),
                         KeyOfName(id.Name));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.BooleanLiteral:
-                    return ExpHelper.JSValueExtensions.GetPropertyUInt32(
+                    return ExpHelper.JSValueExtensionsBuilder.GetPropertyUInt32(
                         VisitExpression(memberExpression.Object),
                         l.BooleanValue ? (uint)0 : (uint)1);
                 case Literal l
                     when l.TokenType == Esprima.TokenType.StringLiteral:
-                    return ExpHelper.JSValueExtensions.GetPropertyKeyString(
+                    return ExpHelper.JSValueExtensionsBuilder.GetPropertyKeyString(
                         VisitExpression(memberExpression.Object),
                         KeyOfName(l.StringValue));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.NumericLiteral:
-                    return ExpHelper.JSValueExtensions.GetPropertyUInt32(
+                    return ExpHelper.JSValueExtensionsBuilder.GetPropertyUInt32(
                         VisitExpression(memberExpression.Object),
                         (uint)l.NumericValue);
 
@@ -769,20 +766,20 @@ namespace WebAtoms.CoreJS
                 {
                     case Esprima.TokenType.BooleanLiteral:
                         return literal.BooleanValue
-                            ? (ExpHelper.JSContext.True, "true")
-                            : (ExpHelper.JSContext.False, "false");
+                            ? (ExpHelper.JSContextBuilder.True, "true")
+                            : (ExpHelper.JSContextBuilder.False, "false");
                     case Esprima.TokenType.StringLiteral:
-                        return (ExpHelper.JSString.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
+                        return (ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
                     case Esprima.TokenType.RegularExpression:
-                        return (ExpHelper.JSRegExp.New(
+                        return (ExpHelper.JSRegExpBuilder.New(
                             Exp.Constant(literal.Regex.Pattern),
                             Exp.Constant(literal.Regex.Flags)), (literal.Regex.Pattern + literal.Regex.Flags).Left(10));
                     case Esprima.TokenType.Template:
                         break;
                     case Esprima.TokenType.NullLiteral:
-                        return (ExpHelper.JSNull.Value, "null");
+                        return (ExpHelper.JSNullBuilder.Value, "null");
                     case Esprima.TokenType.NumericLiteral:
-                        return (ExpHelper.JSNumber.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
+                        return (ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
                 }
                 throw new NotImplementedException();
             }
@@ -799,7 +796,7 @@ namespace WebAtoms.CoreJS
             var local = this.scope.Top[identifier.Name];
             if (local != null)
                 return local;
-            return ExpHelper.JSContext.Index(KeyOfName(identifier.Name));
+            return ExpHelper.JSContextBuilder.Index(KeyOfName(identifier.Name));
         }
 
         protected override Exp VisitFunctionExpression(Esprima.Ast.IFunction function)
@@ -961,7 +958,7 @@ namespace WebAtoms.CoreJS
             var @true = VisitExpression(conditionalExpression.Consequent);
             var @false = VisitExpression(conditionalExpression.Alternate);
             return Exp.Condition(
-                ExpHelper.JSValue.BooleanValue(test),
+                ExpHelper.JSValueBuilder.BooleanValue(test),
                 @true,
                 @false);
         }
@@ -972,8 +969,8 @@ namespace WebAtoms.CoreJS
             var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e)).ToList();
             
             var paramArray = args.Any()
-                ? ExpHelper.JSArguments.New(args)
-                : ExpHelper.JSArguments.Empty();
+                ? ExpHelper.JSArgumentsBuilder.New(args)
+                : ExpHelper.JSArgumentsBuilder.Empty();
             if (calle is Esprima.Ast.MemberExpression me)
             {
                 // invoke method...
@@ -986,11 +983,11 @@ namespace WebAtoms.CoreJS
 
                 var name = KeyOfName(id.Name);
 
-                return ExpHelper.JSValue.InvokeMethod(obj, name, paramArray);
+                return ExpHelper.JSValueBuilder.InvokeMethod(obj, name, paramArray);
 
             } else {
-                var a = ExpHelper.JSNull.Value;
-                return ExpHelper.JSValue.InvokeFunction(
+                var a = ExpHelper.JSNullBuilder.Value;
+                return ExpHelper.JSValueBuilder.InvokeFunction(
                     VisitExpression(callExpression.Callee), a, paramArray);
             }
         }
@@ -1002,7 +999,7 @@ namespace WebAtoms.CoreJS
             switch(binaryExpression.Operator)
             {
                 case BinaryOperator.Plus:
-                    return ExpHelper.JSValue.Add(left, right);
+                    return ExpHelper.JSValueBuilder.Add(left, right);
             }
             var a = BinaryOperation.Operation(left, right, binaryExpression.Operator);
             return a;
@@ -1010,7 +1007,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)
         {
-            return ExpHelper.JSArray.New(arrayExpression.Elements.Select(x => VisitExpression((Esprima.Ast.Expression)x)));
+            return ExpHelper.JSArrayBuilder.New(arrayExpression.Elements.Select(x => VisitExpression((Esprima.Ast.Expression)x)));
         }
 
         protected override Exp VisitAssignmentExpression(Esprima.Ast.AssignmentExpression assignmentExpression)

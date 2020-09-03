@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        public static JSValue _Parse(JSValue t, JSArguments a)
+        public static JSValue _Parse(JSValue t,params JSValue[] a)
         {
             var first = a[0].ToString();
 
@@ -33,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        public static JSValue _Stringify(JSValue t, JSArguments a)
+        public static JSValue _Stringify(JSValue t,params JSValue[] a)
         {
             var f = a[0];
             if (f is JSUndefined)
@@ -43,9 +43,9 @@ namespace WebAtoms.CoreJS.Core
             string indent = null;
 
             // build replacer...
-            if (a._length > 1)
+            if (a.Length > 1)
             {
-                if (a._length > 2)
+                if (a.Length > 2)
                 {
                     var pi = a[2];
                     if (pi is JSNumber jn)
@@ -61,7 +61,7 @@ namespace WebAtoms.CoreJS.Core
                 if (r is JSFunction rf)
                 {
                     replacer = (item) =>
-                     rf.f(item.target, JSArguments.From(item.key, item.value));
+                     rf.f(item.target, item.key, item.value);
                 } else if (r is JSArray ra)
                 {
 

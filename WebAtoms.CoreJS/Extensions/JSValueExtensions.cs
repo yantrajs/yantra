@@ -100,7 +100,7 @@ namespace WebAtoms.CoreJS.Extensions
             }
             if (!p.IsValue && p.set != null)
             {
-                p.set.InvokeFunction(target, JSArguments.From(value));
+                p.set.InvokeFunction(target, value);
             }
             else
             {

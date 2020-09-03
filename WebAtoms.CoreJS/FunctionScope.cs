@@ -73,7 +73,7 @@ namespace WebAtoms.CoreJS
         {
             this.Function = fx;
             this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
-            this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSArguments),"_arguments");
+            this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
         }

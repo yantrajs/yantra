@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -61,26 +62,26 @@ namespace WebAtoms.CoreJS.Core
             return obj;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
+        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             return f(thisValue, args);
         }
 
         [Prototype("call")]
-        public static JSValue Call(JSValue receiver, JSArguments p)
+        public static JSValue Call(JSValue receiver, params JSValue[] p)
         {
             var (first, args) = p.Slice();
             return receiver.InvokeFunction(first, args);
         }
 
         [Prototype("apply")]
-        public static JSValue Apply(JSValue t, JSArguments a){
+        public static JSValue Apply(JSValue t,params JSValue[] a){
             var ar = a;
             return t.InvokeFunction(ar[0], new JSArguments(ar[1] as JSArray));
         }
 
         [Prototype("bind")]
-        public static JSValue Bind(JSValue t, JSArguments a) {
+        public static JSValue Bind(JSValue t,params JSValue[] a) {
             var fOriginal = (JSFunction)t;
             var tx = a[0];
             var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));
@@ -88,7 +89,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         //[Prototype("prototype", MemberType.Get)]
-        //internal static JSValue GetPrototype(JSValue t, JSArguments a)
+        //internal static JSValue GetPrototype(JSValue t,params JSValue[] a)
         //{
         //    if (t is JSFunction fx)
         //        return fx.prototype;
@@ -96,7 +97,7 @@ namespace WebAtoms.CoreJS.Core
         //}
 
         //[Prototype("prototype", MemberType.Set)]
-        //internal static JSValue SetPrototype(JSValue t, JSArguments a)
+        //internal static JSValue SetPrototype(JSValue t,params JSValue[] a)
         //{
         //    if (t is JSFunction fx)
         //    {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Utils
 {
@@ -15,8 +16,8 @@ namespace WebAtoms.CoreJS.Utils
         public JSTestContext()
         {
             var a = new JSFunction((t, a1) => {
-                var test = a1[0];
-                var message = a1[1];
+                var test = a1.GetAt(0);
+                var message = a1.GetAt(1);
                 message = message is JSUndefined ? new JSString("Assert failed, no message") : message;
                 if (!JSBoolean.IsTrue(test))
                     throw new JSException(message);

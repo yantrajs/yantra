@@ -109,7 +109,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False; 
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
+        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             throw new NotImplementedException("boolean is not a function");
         }

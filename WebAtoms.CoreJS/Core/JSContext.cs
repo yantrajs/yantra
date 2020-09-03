@@ -10,7 +10,7 @@ using System.Threading;
 namespace WebAtoms.CoreJS.Core
 {
 
-    public delegate JSValue JSFunctionDelegate(JSValue thisValue, JSArguments arguments);
+    public delegate JSValue JSFunctionDelegate(JSValue thisValue, params JSValue[] arguments);
 
     public class JSContext: JSObject, IDisposable
     {
@@ -90,7 +90,10 @@ namespace WebAtoms.CoreJS.Core
                 var r = new JSFunction(JSFunction.empty, name.ToString());
                 this[name] = r;
                 r.prototypeChain = prototypeChain ?? obj;
-                var cached = cache.GetOrCreate(name.Key, factory);
+                var cached = cache.GetOrCreate(name.Key, () =>
+                {
+                    lock (cache) { return factory(); }
+                });
                 var target = r.prototype.ownProperties;
                 foreach(var p in cached.prototype.ownProperties.AllValues())
                 {

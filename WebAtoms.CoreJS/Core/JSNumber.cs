@@ -66,7 +66,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("isFinite")]
-        public static JSValue IsFinite(JSValue t, JSArguments a)
+        public static JSValue IsFinite(JSValue t,params JSValue[] a)
         {
             if (a[0] is JSNumber n) {
                 if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
@@ -76,7 +76,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("isInteger")]
-        public static JSValue IsInteger(JSValue t, JSArguments a)
+        public static JSValue IsInteger(JSValue t,params JSValue[] a)
         {
             if (a[0] is JSNumber n) { 
                 var v = n.value;
@@ -92,7 +92,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("isNaN")]
-        public static JSValue IsNaN(JSValue t, JSArguments a)
+        public static JSValue IsNaN(JSValue t,params JSValue[] a)
         {
             if (a[0] is JSNumber n)
             {
@@ -103,7 +103,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("isSafeInteger")]
-        public static JSValue IsSafeInteger(JSValue t, JSArguments a)
+        public static JSValue IsSafeInteger(JSValue t,params JSValue[] a)
         {
             if (a[0] is JSNumber n)
             {
@@ -116,10 +116,10 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("parseFloat")]
 
-        public static JSNumber ParseFloat(JSValue t, JSArguments a)
+        public static JSNumber ParseFloat(JSValue t,params JSValue[] a)
         {
             var nan = JSContext.Current.NaN;
-            if (a._length > 0)
+            if (a.Length > 0)
             {
                 var p = a[0];
                 switch(p)
@@ -194,10 +194,10 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("parseInt")]
 
-        public static JSNumber ParseInt(JSValue t, JSArguments a)
+        public static JSNumber ParseInt(JSValue t,params JSValue[] a)
         {
             var nan = JSContext.Current.NaN;
-            if (a._length > 0)
+            if (a.Length > 0)
             {
                 var p = a[0];
                 switch (p)
@@ -212,7 +212,7 @@ namespace WebAtoms.CoreJS.Core
                 if (text.Length > 0)
                 {
                     var radix = 10;
-                    if (a._length > 2)
+                    if (a.Length > 2)
                     {
                         var a1 = a[1];
                         switch(a1)
@@ -244,7 +244,7 @@ namespace WebAtoms.CoreJS.Core
 
         [Prototype("toString")]
 
-        public static JSString ToString(JSValue t, JSArguments a)
+        public static JSString ToString(JSValue t,params JSValue[] a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -254,7 +254,7 @@ namespace WebAtoms.CoreJS.Core
 
         [Prototype("toExponential")]
 
-        public static JSString ToExponential(JSValue t, JSArguments a)
+        public static JSString ToExponential(JSValue t,params JSValue[] a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -271,7 +271,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("toFixed")]
-        public static JSString ToFixed(JSValue t, JSArguments a)
+        public static JSString ToFixed(JSValue t,params JSValue[] a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -287,7 +287,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("toPrecision")]
-        public static JSString ToPrecision(JSValue t, JSArguments a)
+        public static JSString ToPrecision(JSValue t,params JSValue[] a)
         {
             var p = t;
             if (!(p is JSNumber n))
@@ -319,12 +319,12 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("toLocaleString")]
-        public static JSString ToLocaleString(JSValue t, JSArguments a)
+        public static JSString ToLocaleString(JSValue t,params JSValue[] a)
         {
             var p = t;
             if (!(p is JSNumber n))
                 throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
-            if(a._length > 0)
+            if(a.Length > 0)
             {
                 var p1 = a[0];
                 switch (p1)
@@ -423,7 +423,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
+        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             throw JSContext.Current.TypeError($"{this.value} is not a function");
         }

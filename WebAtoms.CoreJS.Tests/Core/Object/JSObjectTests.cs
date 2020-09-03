@@ -54,7 +54,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
         {
             var a = CoreScript.Evaluate("[2]");
 
-            var p = context["Object"].InvokeMethod("getPrototypeOf", JSArguments.From(a));
+            var p = context["Object"].InvokeMethod("getPrototypeOf", a);
 
             var ap = context["Array"]["prototype"];
 

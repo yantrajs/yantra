@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Utils
     {
 
         [Prototype("sameValue")]
-        public static JSValue SameValue(JSValue t, JSArguments a)
+        public static JSValue SameValue(JSValue t,params JSValue[] a)
         {
             var left = a[0];
             var right = a[1];
@@ -23,7 +23,7 @@ namespace WebAtoms.CoreJS.Utils
         }
 
         [Prototype("notSameValue")]
-        public static JSValue NotSameValue(JSValue t, JSArguments a)
+        public static JSValue NotSameValue(JSValue t,params JSValue[] a)
         {
             var left = a[0];
             var right = a[1];

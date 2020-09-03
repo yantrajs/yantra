@@ -9,31 +9,21 @@ namespace WebAtoms.CoreJS.Core
     public class JSArguments: JSValue
     {
 
-        public static JSArguments Empty = new JSArguments();
+        public static JSValue[] Empty = new JSValue[] { };
 
         public override int Length { 
             get => (int)this._length;
             set { } }
 
-        internal static JSArguments FromParameters(params JSValue[] args)
+
+        public static JSValue[] From(params double[] args)
         {
-            return new JSArguments(args);
+            return args.Select((n) => new JSNumber(n)).ToArray();
         }
 
-
-        public static JSArguments From(params JSValue[] args)
+        public static JSValue[] From(params string[] args)
         {
-            return new JSArguments(args);
-        }
-
-        public static JSArguments From(params double[] args)
-        {
-            return new JSArguments(args.Select((n) => new JSNumber(n)).ToArray());
-        }
-
-        public static JSArguments From(params string[] args)
-        {
-            return new JSArguments(args.Select((n) => new JSString(n)).ToArray());
+            return args.Select((n) => new JSString(n)).ToArray();
         }
 
         public override JSValue AddValue(JSValue value)
@@ -81,20 +71,7 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException();
         }
 
-        internal (JSValue, JSArguments) Slice()
-        {
-            if (this._length == 0)
-                return (JSUndefined.Value, new JSArguments());
-            if (this._length == 1)
-                return (elements[0], new JSArguments());
-            var a = new JSArguments();
-            var n = this._length - 1;
-            a.elements = new JSArray[n];
-            Array.Copy(elements, 1, a.elements, 0, n);
-            return (elements[0], a);
-        }
-
-        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
+        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             throw new NotImplementedException();
         }

@@ -140,7 +140,7 @@ namespace WebAtoms.CoreJS.Core {
             throw new NotImplementedException();
         }
 
-        public abstract JSValue InvokeFunction(JSValue thisValue, JSArguments args);
+        public abstract JSValue InvokeFunction(JSValue thisValue,params JSValue[] args);
 
         /// <summary>
         /// Warning do not use in concatenation
@@ -165,14 +165,14 @@ namespace WebAtoms.CoreJS.Core {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(KeyString name, JSArguments args)
+        public virtual JSValue InvokeMethod(KeyString name,params JSValue[] args)
         {
             var fx = this[name];
             if (fx.IsUndefined)
                 throw new MethodAccessException($"Method {name} not found on {this}");
             return fx.InvokeFunction(this, args);
         }
-        public virtual JSValue InvokeMethod(JSString name, JSArguments args)
+        public virtual JSValue InvokeMethod(JSString name,params JSValue[] args)
         {
             var fx = this[name.KeyString];
             if (fx.IsUndefined)
@@ -180,7 +180,7 @@ namespace WebAtoms.CoreJS.Core {
             return fx.InvokeFunction(this, args);
         }
 
-        internal JSValue InternalInvoke(object name, JSArguments args)
+        internal JSValue InternalInvoke(object name,params JSValue[] args)
         {
             JSValue fx = null;
             switch(name)
@@ -221,14 +221,14 @@ namespace WebAtoms.CoreJS.Core {
         internal static MethodInfo _getMethod =
             typeof(JSDynamicMetaData).GetMethod("__GetMethod");
 
-        public static object __InvokeMember(JSValue target, string name, JSArguments a)
+        public static object __InvokeMember(JSValue target, string name,params JSValue[] a)
         {
             if (name == "ToString")
                 return target.ToString();
             return target.InvokeMethod(name, a);
         }
 
-        public static JSArguments __CreateArguments(object[] args)
+        public static JSValue[] __CreateArguments(object[] args)
         {
             var alist = args.Select((p) => {
                 if (p == null)
@@ -253,7 +253,7 @@ namespace WebAtoms.CoreJS.Core {
                         throw new NotSupportedException($"Cannot convert type {p.GetType()} to JSValue");
                 }
             }).ToList();
-            return new JSArguments(alist.ToArray());
+            return alist.ToArray();
         }
 
         public static object __GetMethod(JSValue value, object name)

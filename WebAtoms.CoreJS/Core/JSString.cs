@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
+using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
@@ -53,28 +54,26 @@ namespace WebAtoms.CoreJS.Core
         public override int Length => value.Length;
 
         [Prototype("substring")]
-        public static JSValue Substring(JSValue t, JSArguments a) 
+        public static JSValue Substring(JSValue t,params JSValue[] a) 
         {
             var j = t as JSString;
             if (j == null)
                 return JSUndefined.Value;
-            var start = a[0];
-            if (start is JSUndefined)
-                return t;
-            var length = a[1];
-            if (length is JSUndefined)
+            if (!a.TryGetAt(0, out var start))
+                return start;
+            if (!a.TryGetAt(1, out var length))
                 return new JSString(j.value.Substring(start.IntValue));
             return new JSString(j.value.Substring(start.IntValue, length.IntValue));
         }
 
         [Prototype("substr")]
-        public static JSValue Substr(JSValue t, JSArguments a)
+        public static JSValue Substr(JSValue t,params JSValue[] a)
         {
             return Substring(t, a);
         }
 
         [Prototype("toString")]
-        public static JSValue ToString(JSValue t, JSArguments a)
+        public static JSValue ToString(JSValue t,params JSValue[] a)
         {
             return t;
         }
@@ -132,7 +131,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
+        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             throw new NotImplementedException("string is not a function");
         }
@@ -218,13 +217,13 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("length", MemberType.Get)]
-        internal static JSValue GetLength(JSValue t, JSArguments a)
+        internal static JSValue GetLength(JSValue t,params JSValue[] a)
         {
             return new JSNumber(((JSString)t).value.Length);
         }
 
         [Prototype("length", MemberType.Set)]
-        internal static JSValue SetLength(JSValue t, JSArguments a)
+        internal static JSValue SetLength(JSValue t,params JSValue[] a)
         {
             return a[0];
         }

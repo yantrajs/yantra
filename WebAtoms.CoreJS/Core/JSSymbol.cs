@@ -54,7 +54,7 @@ namespace WebAtoms.CoreJS.Core
             return (int)Key.Key;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, JSArguments args)
+        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             throw new NotImplementedException("symbol is not a function");
         }
