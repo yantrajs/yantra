@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal BinaryUInt32Map<JSProperty> elements = new BinaryUInt32Map<JSProperty>();
+        internal BinaryUInt32Map<JSProperty> elements;
         internal BinaryUInt32Map<JSProperty> ownProperties;
 
         protected JSObject(JSValue prototype) : base(prototype)

@@ -58,7 +58,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (v.Equals(value))
                 {
-                    Buffer[i].Value = null;
+                    Buffer[i].ClearValue();
                     return true;
                 }
             }
@@ -68,12 +68,12 @@ namespace WebAtoms.CoreJS.Core
         public TValue GetOrCreate(TKey key, Func<TValue> factory)
         {
             ref var node = ref GetTrieNode(key, true);
-            if (node.Value != null)
+            if (node.HasValue)
             {
-                return node.Value.Value;
+                return node.Value;
             }
             var v = factory();
-            node.Value = new NodeValue { Key = key, Value = v };
+            node.Update(key, v);
             return v;
         }
 
@@ -82,9 +82,9 @@ namespace WebAtoms.CoreJS.Core
         public bool TryGetValue(TKey key, out TValue value)
         {
             ref var node = ref GetTrieNode(key);
-            if (node.Value != null)
+            if (node.HasValue)
             {
-                value = node.Value.Value;
+                value = node.Value;
                 return true;
             }
             value = default;
@@ -94,9 +94,9 @@ namespace WebAtoms.CoreJS.Core
         public bool RemoveAt(TKey key)
         {
             ref var node = ref GetTrieNode(key, false);
-            if (node.Value != null)
+            if (node.HasValue)
             {
-                node.Value = null;
+                node.ClearValue();
                 return true;
             }
             return false;
@@ -105,10 +105,10 @@ namespace WebAtoms.CoreJS.Core
         public bool TryRemove(TKey key, out TValue value)
         {
             ref var node = ref GetTrieNode(key, false);
-            if (node.Value != null)
+            if (node.HasValue)
             {
-                value = node.Value.Value;
-                node.Value = null;
+                value = node.Value;
+                node.ClearValue();
                 return true;
             }
             value = default;
@@ -118,35 +118,60 @@ namespace WebAtoms.CoreJS.Core
         public void Save(TKey key, TValue value)
         {
             ref var node = ref GetTrieNode(key, true);
-            node.Value = new NodeValue { Key = key, Value = value };
+            node.Update(key, value);
         }
 
-
-        internal class NodeValue
-        {
-            public TKey Key;
-            public TValue Value;
-        }
 
         internal struct TrieNode
         {
+            const uint HasValueFlag = 0x80000000;
+            const uint HasValueFlagInverse = 0x7FFFFFFF;
 
             internal static TrieNode Empty = new TrieNode
             {
-                FirstChildIndex = uint.MaxValue
+                FirstIndex = HasValueFlagInverse
             };
-
-            internal bool IsEmpty => FirstChildIndex == 0;
 
             /// <summary>
             /// Index to next node set...
             /// </summary>
-            internal UInt32 FirstChildIndex;
+            private uint FirstIndex;
 
-            /// <summary>
-            /// Value of the current node
-            /// </summary>
-            internal NodeValue Value;
+            private TValue _Value;
+
+            public void Update(TKey key, TValue value)
+            {
+                this.Key = key;
+                this.FirstIndex = HasValueFlag & this.FirstIndex;
+                this._Value = value;
+            }
+
+            public TKey Key;
+
+            public TValue Value
+            {
+                get => this._Value;
+            }
+
+            public uint FirstChildIndex
+            {
+                get
+                {
+                    return HasValueFlagInverse & FirstIndex;
+                }
+                set
+                {
+                    FirstIndex |= HasValueFlagInverse & value;
+                }
+            }
+
+            public bool HasValue => (HasValueFlag & FirstIndex) > 0;
+
+            public void ClearValue()
+            {
+                this.FirstIndex = HasValueFlagInverse & this.FirstIndex;
+            }
+
         }
     }
 
@@ -199,13 +224,12 @@ namespace WebAtoms.CoreJS.Core
             {
                 var node = Buffer[i];
                 var fi = node.FirstChildIndex;
-                var v = node.Value;
-                if (v != null)
+                if (node.HasValue)
                 {
-                    var uv = update(v.Key, v.Value);
+                    var uv = update(node.Key, node.Value);
                     if (uv.replace)
                     {
-                        node.Value.Value = uv.value;
+                        node.Update(node.Key, uv.value);
                         count++;
                         continue;
                     }
@@ -227,10 +251,9 @@ namespace WebAtoms.CoreJS.Core
             {
                 var node = Buffer[i];
                 var fi = node.FirstChildIndex;
-                var v = node.Value;
-                if (v != null)
+                if (node.HasValue)
                 {
-                    yield return (v.Key, v.Value, i);
+                    yield return (node.Key, node.Value, i);
                 }
                 if (fi == 0)
                 {

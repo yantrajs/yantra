@@ -37,13 +37,12 @@ namespace WebAtoms.CoreJS.Core {
             {
                 var node = Buffer[i];
                 var fi = node.FirstChildIndex;
-                var v = node.Value;
-                if (v != null)
+                if (node.HasValue)
                 {
-                    var uv = update(v.Key, v.Value);
+                    var uv = update(node.Key, node.Value);
                     if (uv.replace)
                     {
-                        node.Value.Value = uv.value;
+                        node.Update(node.Key, uv.value);
                         count++;
                     }
                     continue;
@@ -65,9 +64,9 @@ namespace WebAtoms.CoreJS.Core {
                 var node = Buffer[i];
                 var fi = node.FirstChildIndex;
                 var v = node.Value;
-                if (v != null)
+                if (node.HasValue)
                 {
-                    yield return (v.Key, v.Value, i);
+                    yield return (node.Key, node.Value, i);
                 }
                 if (fi == 0)
                 {
