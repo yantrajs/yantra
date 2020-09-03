@@ -15,15 +15,21 @@ namespace WebAtoms.CoreJS.Extensions
             if (!(value is JSObject @object))
                 yield break;
             var elements = @object.elements;
-            foreach (var p in elements.AllValues())
+            if (elements != null)
             {
-                yield return p.Value;
+                foreach (var p in elements.AllValues())
+                {
+                    yield return p.Value;
+                }
             }
 
             var ownProperties = @object.ownProperties;
-            foreach (var p in ownProperties.AllValues())
+            if (ownProperties != null)
             {
-                yield return p.Value;
+                foreach (var p in ownProperties.AllValues())
+                {
+                    yield return p.Value;
+                }
             }
         }
 
@@ -71,6 +77,11 @@ namespace WebAtoms.CoreJS.Extensions
                     throw JSContext.Current.TypeError($"Unable to get {name} of undefined");
                 case JSNull __:
                     throw JSContext.Current.TypeError($"Unable to get {name} of null");
+                
+                    // speed improvement for Array.length
+                case JSArray a
+                    when name.Key == KeyStrings.length.Key:
+                    return new JSNumber(a._length);
             }
             var p = value.GetInternalProperty(name);
             if (p.IsEmpty)
@@ -92,7 +103,7 @@ namespace WebAtoms.CoreJS.Extensions
             }
             if (!(target is JSObject @object))
                 return value;
-            var ownProperties = @object.ownProperties;
+            var ownProperties = @object.ownProperties ?? (@object.ownProperties = new BinaryUInt32Map<JSProperty>());
             var p = target.GetInternalProperty(name);
             if (p.IsEmpty)
             {
@@ -214,6 +225,8 @@ namespace WebAtoms.CoreJS.Extensions
             if (!(target is JSObject @object))
                 return JSUndefined.Value;
             var elements = @object.elements;
+            if (elements == null)
+                return JSUndefined.Value;
             if (elements.TryGetValue(key, out var p))
                 return p.value;
             return JSUndefined.Value;
@@ -231,7 +244,7 @@ namespace WebAtoms.CoreJS.Extensions
             }
             if (!(target is JSObject @object))
                 return JSUndefined.Value;
-            var elements = @object.elements;
+            var elements = @object.elements ?? (@object.elements = new BinaryUInt32Map<JSProperty>());
             elements[key] = JSProperty.Property(value);
             if (target is JSArray array)
             {

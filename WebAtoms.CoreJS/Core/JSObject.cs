@@ -13,8 +13,6 @@ namespace WebAtoms.CoreJS.Core
 
         protected JSObject(JSValue prototype) : base(prototype)
         {
-            ownProperties = new BinaryUInt32Map<JSProperty>();
-            elements = new BinaryUInt32Map<JSProperty>();
         }
 
         public JSObject() : this(JSContext.Current?.ObjectPrototype)
@@ -24,6 +22,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
         {
+            ownProperties = new BinaryUInt32Map<JSProperty>();
             foreach (var p in entries)
             {
                 ownProperties[p.key.Key] = p;
@@ -57,7 +56,8 @@ namespace WebAtoms.CoreJS.Core
         public JSValue DefineProperty(KeyString name, JSProperty p)
         {
             var key = name.Key;
-            var old = this.ownProperties[key];
+            var ownProperties = this.ownProperties ?? (this.ownProperties = new BinaryUInt32Map<JSProperty>());
+            var old = ownProperties[key];
             if (!old.IsEmpty)
             {
                 if (!old.IsConfigurable)
@@ -66,16 +66,17 @@ namespace WebAtoms.CoreJS.Core
                 }
             }
             p.key = name;
-            this.ownProperties[key] = p;
+            ownProperties[key] = p;
             return JSUndefined.Value;
         }
 
         public void DefineProperties(params JSProperty[] list)
         {
+            var ownProperties = this.ownProperties ?? (this.ownProperties = new BinaryUInt32Map<JSProperty>());
             foreach (var p in list)
             {
                 var key = p.key.Key;
-                var old = this.ownProperties[key];
+                var old = ownProperties[key];
                 if (!old.IsEmpty)
                 {
                     if (!old.IsConfigurable)
@@ -83,7 +84,7 @@ namespace WebAtoms.CoreJS.Core
                         throw new UnauthorizedAccessException();
                     }
                 }
-                this.ownProperties[key] = p;
+                ownProperties[key] = p;
             }
         }
 
@@ -162,10 +163,12 @@ namespace WebAtoms.CoreJS.Core
             var second = a[1];
             if (!(second is JSObject @object))
                 return first;
-            
-            foreach(var item in @object.ownProperties.AllValues())
+            if (@object.ownProperties != null)
             {
-                firstObject.ownProperties[item.Key] = item.Value;
+                foreach (var item in @object.ownProperties.AllValues())
+                {
+                    firstObject.ownProperties[item.Key] = item.Value;
+                }
             }
             return first;
         }

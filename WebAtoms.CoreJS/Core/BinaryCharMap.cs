@@ -29,7 +29,7 @@ namespace WebAtoms.CoreJS.Core {
             Buffer = new TrieNode[grow];
         }
 
-        public override int Update(Func<string, T, (bool replace, T value)> update, uint index = 0)
+        public override int Update(Func<string, T, (bool replace, T value)> update, UInt32 index = 0)
         {
             int count = 0;
             var last = index + 16;
@@ -56,14 +56,13 @@ namespace WebAtoms.CoreJS.Core {
             return count;
         }
 
-        protected override IEnumerable<(string key, T value, uint index)> Enumerate(uint index)
+        protected override IEnumerable<(string key, T value, UInt32 index)> Enumerate(UInt32 index)
         {
             var last = index + 16;
-            for (uint i = index; i < last; i++)
+            for (UInt32 i = index; i < last; i++)
             {
                 var node = Buffer[i];
                 var fi = node.FirstChildIndex;
-                var v = node.Value;
                 if (node.HasValue)
                 {
                     yield return (node.Key, node.Value, i);
@@ -101,7 +100,7 @@ namespace WebAtoms.CoreJS.Core {
 
         }
 
-        private uint GetNode(uint position, bool create = false)
+        private UInt32 GetNode(UInt32 position, bool create = false)
         {
             if (position >= Buffer.Length)
             {
@@ -125,7 +124,7 @@ namespace WebAtoms.CoreJS.Core {
             return v.FirstChildIndex;
         }
 
-        void EnsureCapacity(uint i1)
+        void EnsureCapacity(UInt32 i1)
         {
             if (this.Buffer.Length <= i1)
             {

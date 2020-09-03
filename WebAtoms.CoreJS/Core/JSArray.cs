@@ -16,7 +16,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSArray(): base(JSContext.Current.ArrayPrototype)
         {
-            
+            elements = new BinaryUInt32Map<JSProperty>();
         }
 
         public JSArray(params JSValue[] items): this((IEnumerable<JSValue>)items)
@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        public JSArray(IEnumerable<JSValue> items): base(JSContext.Current.ArrayPrototype)
+        public JSArray(IEnumerable<JSValue> items): this()
         {
             foreach (var item in items)
                 elements[_length++] = JSProperty.Property(item);

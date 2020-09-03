@@ -34,9 +34,9 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        protected abstract IEnumerable<(TKey key, TValue value, uint index)> Enumerate(uint index);
+        protected abstract IEnumerable<(TKey key, TValue value, UInt32 index)> Enumerate(UInt32 index);
 
-        public abstract int Update(Func<TKey, TValue, (bool replace, TValue value)> update, uint start = 0);
+        public abstract int Update(Func<TKey, TValue, (bool replace, TValue value)> update, UInt32 start = 0);
 
         public bool TryGetKeyOf(TValue value, out TKey key)
         {
@@ -118,21 +118,28 @@ namespace WebAtoms.CoreJS.Core
         public void Save(TKey key, TValue value)
         {
             ref var node = ref GetTrieNode(key, true);
+            if (node.IsNull)
+            {
+                throw new KeyNotFoundException($"{key} not found..");
+            }
             node.Update(key, value);
         }
 
 
         internal struct TrieNode
         {
-            const UInt32 HasValueFlag = 0x1;
-            const UInt32 HasIndexFlag = 0x10;
+            private const UInt32 HasValueFlag = 0x1;
+            private const UInt32 HasIndexFlag = 0x10;
 
+            private const UInt32 EmptyFlag = 0xFFFFFFFF;
 
 
             internal static TrieNode Empty = new TrieNode
             {
-                
+                State = 0xFFFFFFFF
             };
+
+            public bool IsNull => this.State == EmptyFlag;
 
             private UInt32 State;
 
@@ -145,12 +152,16 @@ namespace WebAtoms.CoreJS.Core
 
             public void UpdateIndex(UInt32 index)
             {
+                if (State == EmptyFlag)
+                    throw new InvalidOperationException();
                 this.FirstChildIndex = index;
                 this.State |= HasIndexFlag;
             }
 
             public void Update(TKey key, TValue value)
             {
+                if (State == EmptyFlag)
+                    throw new InvalidOperationException();
                 this.Key = key;
                 this.State |= HasValueFlag;
                 this._Value = value;
@@ -178,7 +189,7 @@ namespace WebAtoms.CoreJS.Core
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return (State & HasValueFlag) > 0;
+                    return State !=  EmptyFlag && (State & HasValueFlag) > 0;
                 }
             }
 
@@ -219,19 +230,19 @@ namespace WebAtoms.CoreJS.Core
         //}
     }
 
-    internal class BinaryByteMap<T>: BaseMap<uint, T>
+    internal class BinaryByteMap<T>: BaseMap<UInt32, T>
     {
 
-        private uint next = 4;
+        private UInt32 next = 4;
 
-        private uint grow = 32;
+        private UInt32 grow = 8;
 
         protected BinaryByteMap()
         {
             Buffer = new TrieNode[grow];
         }
 
-        public override int Update(Func<uint, T, (bool replace,T value)> update, uint index = 0)
+        public override int Update(Func<UInt32, T, (bool replace,T value)> update, UInt32 index = 0)
         {
             int count = 0;
             var last = index + 4;
@@ -244,7 +255,7 @@ namespace WebAtoms.CoreJS.Core
                     var uv = update(node.Key, node.Value);
                     if (uv.replace)
                     {
-                        node.Update(node.Key, uv.value);
+                        Buffer[i].Update(node.Key, uv.value);
                         count++;
                         continue;
                     }
@@ -259,30 +270,41 @@ namespace WebAtoms.CoreJS.Core
             return count;
         }
 
-        protected override IEnumerable<(uint key, T value, uint index)> Enumerate(uint index)
+        protected override IEnumerable<(uint key, T value, UInt32 index)> Enumerate(UInt32 index)
         {
             var last = index + 4;
-            for (uint i = index; i < last; i++)
+            for (UInt32 i = index; i < last; i++)
             {
                 var node = Buffer[i];
-                var fi = node.FirstChildIndex;
                 if (node.HasValue)
                 {
                     yield return (node.Key, node.Value, i);
                 }
+            }
+            for (UInt32 i = index; i < last; i++)
+            {
+                var node = Buffer[i];
                 if (!node.HasIndex)
                 {
                     continue;
                 }
+                var fi = node.FirstChildIndex;
                 foreach (var a in Enumerate(fi)) yield return a;
             }
         }
 
-        protected override ref TrieNode GetTrieNode(uint key, bool create = false)
+        protected override ref TrieNode GetTrieNode(UInt32 key, bool create = false)
         {
             ref var node = ref TrieNode.Empty;
-            uint start = (uint)((uint)0x3 << (int)30);
-            int i;
+
+            // only case for zero...
+            if(key == 0)
+            {
+                return ref Buffer[0];
+            }
+
+            UInt32 start = 0xc0000000;
+            Int32 i;
             for (i = 30; i >= 0; i -= 2)
             {
                 byte bk = (byte)((key & start) >> i);
@@ -293,52 +315,46 @@ namespace WebAtoms.CoreJS.Core
                 }
                 break;
             }
-            var last = i + 2;
-            uint index = 0;
+            var last = i;
             start = 0x3;
+            uint index = uint.MaxValue;
             // incremenet of two bits...
-            for (i = 0; i < last; i+=2)
+            for (i = 0; i <= last; i+=2)
             {
-                byte bk = (byte)((key & start));
-                index += bk;
-                index = GetNode(index, create);
+                byte bk = (byte)((key & start) >> i);
                 if (index == uint.MaxValue)
                 {
-                    return ref node;
+                    node = ref Buffer[bk];
+                    index = bk;
+                } else
+                {
+                    if (!node.HasIndex)
+                    {
+                        if (!create)
+                        {
+                            return ref TrieNode.Empty;
+                        }
+
+                        var position = next;
+                        next += 4;
+                        this.EnsureCapacity(next);
+                        Buffer[index].UpdateIndex(position);
+                        index = position + bk;
+                        node = ref Buffer[index];
+                    }
+                    else
+                    {
+                        index = node.FirstChildIndex + bk;
+                        node = ref Buffer[index];
+                    }
                 }
                 start = start << 2;
             }
 
-            return ref Buffer[index];
+            return ref node;
         }
 
-        private uint GetNode(uint position, bool create = false)
-        {
-            if (position >= Buffer.Length)
-            {
-                if (!create)
-                {
-                    return uint.MaxValue;
-                }
-                this.EnsureCapacity(position);
-            }
-            ref var v = ref Buffer[position];
-            if (!v.HasIndex)
-            {
-                if (!create)
-                {
-                    return uint.MaxValue;
-                }
-                v.UpdateIndex(next);
-                next += 4;
-                this.EnsureCapacity(v.FirstChildIndex);
-            }
-            return v.FirstChildIndex;
-            // return ref Buffer[v.FirstChildIndex];
-            // return v.FirstChildIndex;
-        }
-
-        void EnsureCapacity(uint i1)
+        void EnsureCapacity(UInt32 i1)
         {
             if (this.Buffer.Length <= i1)
             {

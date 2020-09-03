@@ -21,6 +21,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
         [TestMethod]
         public void Try() {
 
+            // pending new object initialization
+
             RunTest("Syntax\\ObjectLiteral.js");
 
         }
