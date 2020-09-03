@@ -47,7 +47,7 @@ namespace WebAtoms.CoreJS.Core {
                     }
                     continue;
                 }
-                if (fi == 0)
+                if (!node.HasIndex)
                 {
                     continue;
                 }
@@ -68,7 +68,7 @@ namespace WebAtoms.CoreJS.Core {
                 {
                     yield return (node.Key, node.Value, i);
                 }
-                if (fi == 0)
+                if (!node.HasIndex)
                 {
                     continue;
                 }
@@ -112,19 +112,17 @@ namespace WebAtoms.CoreJS.Core {
                 this.EnsureCapacity(position);
             }
             ref var v = ref Buffer[position];
-            if (v.FirstChildIndex == 0)
+            if (!v.HasIndex)
             {
                 if (!create)
                 {
                     return uint.MaxValue;
                 }
-                v.FirstChildIndex = next;
+                v.UpdateIndex(next);
                 next += 16;
                 this.EnsureCapacity(v.FirstChildIndex);
             }
             return v.FirstChildIndex;
-            // return ref Buffer[v.FirstChildIndex];
-            // return v.FirstChildIndex;
         }
 
         void EnsureCapacity(uint i1)

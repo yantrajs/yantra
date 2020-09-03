@@ -49,6 +49,9 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (!(value is JSObject @object))
                 yield break;
+
+            // first enumerate numeric values..
+
             var ownProperties = @object.ownProperties;
             if (ownProperties == null)
                 yield break;

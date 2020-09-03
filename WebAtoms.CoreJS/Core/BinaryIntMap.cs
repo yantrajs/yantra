@@ -124,25 +124,35 @@ namespace WebAtoms.CoreJS.Core
 
         internal struct TrieNode
         {
-            const uint HasValueFlag = 0x80000000;
-            const uint HasValueFlagInverse = 0x7FFFFFFF;
+            const UInt32 HasValueFlag = 0x1;
+            const UInt32 HasIndexFlag = 0x10;
+
+
 
             internal static TrieNode Empty = new TrieNode
             {
-                FirstIndex = HasValueFlagInverse
+                
             };
+
+            private UInt32 State;
 
             /// <summary>
             /// Index to next node set...
             /// </summary>
-            private uint FirstIndex;
+            public UInt32 FirstChildIndex;
 
             private TValue _Value;
+
+            public void UpdateIndex(UInt32 index)
+            {
+                this.FirstChildIndex = index;
+                this.State |= HasIndexFlag;
+            }
 
             public void Update(TKey key, TValue value)
             {
                 this.Key = key;
-                this.FirstIndex = HasValueFlag & this.FirstIndex;
+                this.State |= HasValueFlag;
                 this._Value = value;
             }
 
@@ -153,23 +163,28 @@ namespace WebAtoms.CoreJS.Core
                 get => this._Value;
             }
 
-            public uint FirstChildIndex
+            
+            public bool HasIndex
             {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return HasValueFlagInverse & FirstIndex;
-                }
-                set
-                {
-                    FirstIndex |= HasValueFlagInverse & value;
+                    return (State & HasIndexFlag) > 0;
                 }
             }
 
-            public bool HasValue => (HasValueFlag & FirstIndex) > 0;
+            public bool HasValue
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get
+                {
+                    return (State & HasValueFlag) > 0;
+                }
+            }
 
             public void ClearValue()
             {
-                this.FirstIndex = HasValueFlagInverse & this.FirstIndex;
+                this.State &= 0x10;
             }
 
         }
@@ -235,7 +250,7 @@ namespace WebAtoms.CoreJS.Core
                     }
                     continue;
                 }
-                if (fi == 0)
+                if (!node.HasIndex)
                 {
                     continue;
                 }
@@ -255,7 +270,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     yield return (node.Key, node.Value, i);
                 }
-                if (fi == 0)
+                if (!node.HasIndex)
                 {
                     continue;
                 }
@@ -295,13 +310,13 @@ namespace WebAtoms.CoreJS.Core
                 this.EnsureCapacity(position);
             }
             ref var v = ref Buffer[position];
-            if (v.FirstChildIndex == 0)
+            if (!v.HasIndex)
             {
                 if (!create)
                 {
                     return uint.MaxValue;
                 }
-                v.FirstChildIndex = next;
+                v.UpdateIndex(next);
                 next += 4;
                 this.EnsureCapacity(v.FirstChildIndex);
             }

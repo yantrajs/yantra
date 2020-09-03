@@ -11,21 +11,26 @@ namespace WebAtoms.CoreJS.Core
     {
         public static readonly KeyString KeyToJSON = "toJSON";
 
-        public JSObject() : base(JSContext.Current?.ObjectPrototype)
+        protected JSObject(JSValue prototype) : base(prototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
+            elements = new BinaryUInt32Map<JSProperty>();
         }
 
-        public JSObject(params JSProperty[] entries) : base(JSContext.Current?.ObjectPrototype)
+        public JSObject() : this(JSContext.Current?.ObjectPrototype)
         {
-            ownProperties = new BinaryUInt32Map<JSProperty>();
+            
+        }
+
+        public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
+        {
             foreach (var p in entries)
             {
                 ownProperties[p.key.Key] = p;
             }
         }
 
-        public JSObject(IEnumerable<JSProperty> entries) : base(JSContext.Current?.ObjectPrototype)
+        public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.Current?.ObjectPrototype)
         {
             ownProperties = new BinaryUInt32Map<JSProperty>();
             foreach (var p in entries)
@@ -48,11 +53,6 @@ namespace WebAtoms.CoreJS.Core
         internal BinaryUInt32Map<JSProperty> elements;
         internal BinaryUInt32Map<JSProperty> ownProperties;
 
-        protected JSObject(JSValue prototype) : base(prototype)
-        {
-            ownProperties = new BinaryUInt32Map<JSProperty>();
-            elements = new BinaryUInt32Map<JSProperty>();
-        }
 
         public JSValue DefineProperty(KeyString name, JSProperty p)
         {
