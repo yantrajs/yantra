@@ -116,7 +116,8 @@ namespace WebAtoms.CoreJS.Core
     {
 
         public StaticAttribute(string name, 
-            JSPropertyAttributes attributes = JSPropertyAttributes.Empty) :base(name, attributes, MemberType.StaticMethod)
+            JSPropertyAttributes attributes = JSPropertyAttributes.Empty) :
+            base(name, attributes, MemberType.StaticMethod)
         {
         }
     }

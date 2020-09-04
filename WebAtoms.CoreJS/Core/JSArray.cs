@@ -10,7 +10,7 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSArray: JSObject
+    public partial class JSArray: JSObject
     {
         internal uint _length;
 
@@ -71,40 +71,6 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        [Prototype("push")]
-        public static JSValue Push (JSValue t,params JSValue[] a){
-            var ta = (JSArray)t;
-            foreach(var item in a)
-            {
-                ta.elements[ta._length] = JSProperty.Property(item);
-                ta._length++;
-            }
-            return new JSNumber(ta._length);
-        }
-
-        [Prototype("pop")]
-        public static JSValue Pop(JSValue t,params JSValue[] a)
-        {
-            var ta = (JSArray)t;
-            if (ta._length == 0)
-                return JSUndefined.Value;
-            JSProperty r;
-            if (ta.elements.TryRemove(ta._length - 1, out r))
-            {
-                ta._length--;
-                return r.value;
-            }
-            return JSUndefined.Value;
-        }
-
-        [Prototype("slice")]
-        public static JSArray Slice(JSValue t,params JSValue[] a){
-            var ta = (JSArray)t;
-            var start = a.TryGetAt(0, out var a0) ? a0.IntValue : 0;
-            var end = a.TryGetAt(1, out var a1) ? a1.IntValue : -1;
-            return ta.Slice(start, end);
-        }
-
         public JSArray Slice(int value, int length = -1)
         {
             JSArray a = new JSArray();
@@ -121,76 +87,6 @@ namespace WebAtoms.CoreJS.Core
             }
             return a;
         }
-
-        [Static("from")]
-        public static JSValue From(JSValue t,params JSValue[] a)
-        {
-            var r = new JSArray();
-            var f = a.GetAt(0);
-            var map = a.GetAt(1);
-            switch (f) {
-                case JSUndefined u:
-                    throw JSContext.Current.Error("undefined is not iterable");
-                case JSNull n:
-                    throw JSContext.Current.Error("null is not iterable");
-                case JSString str:
-                    foreach(var ch in str.value)
-                    {
-                        JSValue item = new JSString(new string(ch, 1));
-                        if (map is JSFunction fn)
-                        {
-                            item = fn.InvokeFunction(t, item);
-                        }
-                        r.elements[r._length++] = JSProperty.Property(item);
-                    }
-                    return r;
-                case JSArray array:
-                    foreach (var ch in array.elements.AllValues())
-                    {
-                        JSValue item = ch.Value.value;
-                        if (map is JSFunction fn)
-                        {
-                            item = fn.InvokeFunction(t, item);
-                        }
-                        r.elements[r._length++] = JSProperty.Property(item);
-                    }
-                    return r;
-            }
-            return r;
-        }
-
-        [Static("isArray")]
-        public static JSValue StaticIsArray(JSValue t,params JSValue[] a)
-        {
-            return a[0] is JSArray ? JSContext.Current.True : JSContext.Current.False;
-        }
-
-        [Static("of")]
-        public static JSValue Of(JSValue t,params JSValue[] a)
-        {
-            var r = new JSArray();
-            if (a != null)
-            {
-                foreach (var e in a)
-                {
-                    r.elements[r._length++] = JSProperty.Property(e);
-                }
-            }
-            return r;
-        }
-
-        [GetProperty("length")]
-        internal static JSValue GetLength(JSValue t,params JSValue[] a)
-        {
-            return new JSNumber(((JSArray)t)._length);
-        }
-
-        [SetProperty("length")]
-        internal static JSValue SetLength(JSValue t,params JSValue[] a)
-        {
-            return new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue);
-        }
-
 
         public JSArray Add(JSValue item)
         {

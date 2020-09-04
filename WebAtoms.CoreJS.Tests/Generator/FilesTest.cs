@@ -81,18 +81,9 @@ namespace WebAtoms.CoreJS.Tests.Generator
     }
 
     [TestClass]
-    public class String : FileCollection<Syntax>
+    public class String : FileCollection<String>
     {
     }
 
 
-    [TestClass]
-    public class Date : FileCollection<Syntax>
-    {
-    }
-
-    [TestClass]
-    public class Function : FileCollection<Syntax>
-    {
-    }
 }

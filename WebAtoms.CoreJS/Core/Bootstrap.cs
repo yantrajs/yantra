@@ -16,7 +16,7 @@ namespace WebAtoms.CoreJS.Core
 
             var p = r.prototype;
             var all = type
-                .GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Public)
                 .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
                 .Where(x => x.attribute != null)
                 .GroupBy(x => x.attribute.Name).ToList();
@@ -24,6 +24,10 @@ namespace WebAtoms.CoreJS.Core
             {
                 
                 var f = mg.First();
+
+                if (mg.Any((x => !x.method.IsStatic)))
+                    throw new NotSupportedException($"{f.method.Name} should be static method");
+
                 var (m, pr) = f;
                 var target = pr.IsStatic ? r : p;
                 if (pr.IsMethod)

@@ -8,7 +8,7 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSString : JSValue
+    public partial class JSString : JSValue
     {
         internal readonly string value;
         KeyString _keyString = new KeyString(null,0);
@@ -52,31 +52,6 @@ namespace WebAtoms.CoreJS.Core
         }
 
         public override int Length => value.Length;
-
-        [Prototype("substring")]
-        public static JSValue Substring(JSValue t,params JSValue[] a) 
-        {
-            var j = t as JSString;
-            if (j == null)
-                return JSUndefined.Value;
-            if (!a.TryGetAt(0, out var start))
-                return start;
-            if (!a.TryGetAt(1, out var length))
-                return new JSString(j.value.Substring(start.IntValue));
-            return new JSString(j.value.Substring(start.IntValue, length.IntValue));
-        }
-
-        [Prototype("substr")]
-        public static JSValue Substr(JSValue t,params JSValue[] a)
-        {
-            return Substring(t, a);
-        }
-
-        [Prototype("toString")]
-        public static JSValue ToString(JSValue t,params JSValue[] a)
-        {
-            return t;
-        }
 
         public override JSValue AddValue(JSValue value)
         {
@@ -216,17 +191,6 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        [GetProperty("length")]
-        internal static JSValue GetLength(JSValue t,params JSValue[] a)
-        {
-            return new JSNumber(((JSString)t).value.Length);
-        }
-
-        [SetProperty("length")]
-        internal static JSValue SetLength(JSValue t,params JSValue[] a)
-        {
-            return a[0];
-        }
 
     }
 }
