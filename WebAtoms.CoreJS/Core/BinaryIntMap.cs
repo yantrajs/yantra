@@ -234,7 +234,7 @@ namespace WebAtoms.CoreJS.Core
     {
 
         private UInt32 next = 4;
-
+        private UInt32 size = 4;
         private UInt32 grow = 8;
 
         protected BinaryByteMap()
@@ -245,7 +245,7 @@ namespace WebAtoms.CoreJS.Core
         public override int Update(Func<UInt32, T, (bool replace,T value)> update, UInt32 index = 0)
         {
             int count = 0;
-            var last = index + 4;
+            var last = index + this.size;
             for (uint i = index; i < last; i++)
             {
                 var node = Buffer[i];
@@ -272,7 +272,7 @@ namespace WebAtoms.CoreJS.Core
 
         protected override IEnumerable<(uint key, T value, UInt32 index)> Enumerate(UInt32 index)
         {
-            var last = index + 4;
+            var last = index + this.size;
             for (UInt32 i = index; i < last; i++)
             {
                 var node = Buffer[i];
@@ -336,7 +336,7 @@ namespace WebAtoms.CoreJS.Core
                         }
 
                         var position = next;
-                        next += 4;
+                        next += this.size;
                         this.EnsureCapacity(next);
                         Buffer[index].UpdateIndex(position);
                         index = position + bk;

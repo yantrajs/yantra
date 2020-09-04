@@ -658,7 +658,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitObjectExpression(Esprima.Ast.ObjectExpression objectExpression)
         {
-            var keys = new List<(Exp, ExpressionHolder)>();
+            var keys = new List<ExpressionHolder>();
             var properties = new Dictionary<string, ExpressionHolder>();
             foreach(Property p in objectExpression.Properties)
             {
@@ -683,7 +683,7 @@ namespace WebAtoms.CoreJS
                             {
                                 m = new ExpressionHolder { };
                                 properties[id.Name] = m;
-                                keys.Add((key, m));
+                                keys.Add(m);
                             }
                             if (p.Kind == PropertyKind.Get)
                             {
@@ -703,10 +703,10 @@ namespace WebAtoms.CoreJS
                     default:
                         throw new NotSupportedException();
                 }
-                keys.Add((key, new ExpressionHolder { Value = value }));
+                keys.Add(new ExpressionHolder { Value = value });
             }
 
-            return ExpHelper.JSObjectBuilder.New(keys.Select((x) => (x.Item1, x.Item2.Value)));
+            return ExpHelper.JSObjectBuilder.New(keys.Select((x) => (x.Value)));
         }
 
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)

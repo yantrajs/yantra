@@ -650,25 +650,13 @@ namespace WebAtoms.CoreJS.ExpHelper
                 .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
                 .FirstOrDefault(x => x.GetIndexParameters().Length > 0);
 
-        private static FieldInfo _Key =
-            TypeHelper<KeyString>.Field(nameof(Core.KeyString.Key));
+        private static ConstructorInfo _New =
+            Constructor<IEnumerable<JSProperty>>();
 
-        public static Expression New(IEnumerable<(Expression key, Expression value)> keyValues)
+        public static Expression New(IEnumerable<Expression> keyValues)
         {
-            var pe = Expression.Parameter(typeof(Core.JSObject));
-            var fe = Expression.Parameter(typeof(BinaryUInt32Map<Core.JSProperty>));
-            var list = new List<Expression>() {
-                Expression.Assign(pe, Expression.New(typeof(Core.JSObject))),
-                Expression.Assign(fe, Expression.Field(pe, _ownProperties))
-            };
-
-            foreach(var (k,v) in keyValues)
-            {
-                list.Add(Expression.Assign( 
-                    Expression.Property(fe, _Index, Expression.Field(k, _Key)  ), v ));
-            }
-            list.Add(pe);
-            return Expression.Block(new ParameterExpression[] { pe, fe }, list );
+            var list = Expression.NewArrayInit(typeof(JSProperty), keyValues);
+            return Expression.New(_New, list);
         }
 
     }
@@ -701,8 +689,12 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         public static Expression Property(Expression key, Expression getter, Expression setter)
         {
-            getter = getter == null ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) : Expression.Convert(getter, typeof(Core.JSFunction));
-            setter = setter == null ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) : Expression.Convert(setter, typeof(Core.JSFunction));
+            getter = getter == null 
+                ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) 
+                : Expression.Convert(getter, typeof(Core.JSFunction));
+            setter = setter == null 
+                ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) 
+                : Expression.Convert(setter, typeof(Core.JSFunction));
             return Expression.MemberInit(Expression.New(typeof(Core.JSProperty)),
                 Expression.Bind(_Key, key),
                 Expression.Bind(_Get, getter),

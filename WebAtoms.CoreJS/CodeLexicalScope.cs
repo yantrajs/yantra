@@ -30,7 +30,7 @@ namespace WebAtoms.CoreJS
         {
             var pe = Exp.Parameter(type, name);
             KeyString k = name;
-            map[k.Key] = pe;
+            map.Save(k.Key, pe);
             return pe;
         }
 

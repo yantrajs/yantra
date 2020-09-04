@@ -49,6 +49,8 @@ namespace WebAtoms.CoreJS.Core
 
         public bool IsSymbol => Symbol != null;
 
+        public bool IsUInt => Value == null;
+
         internal KeyString(string value, uint key, JSSymbol symbol = null)
         {
             this.Value = value;
@@ -119,7 +121,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 var i = NextID++;
                 var js = new KeyString(key, (uint)i);
-                map[key] = js;
+                map.Save(key, js);
                 return js;
             }
 

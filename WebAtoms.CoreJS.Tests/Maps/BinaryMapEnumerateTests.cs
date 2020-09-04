@@ -35,6 +35,16 @@ namespace WebAtoms.CoreJS.Tests.Maps
         }
 
         [TestMethod]
+        public void BigMap()
+        {
+            var a = new BinaryCharMap<int>();
+            a["toString"] = 1;
+            a["constructor"] = 2;
+            a["push"] = 3;
+            Assert.AreEqual(2, a["constructor"]);
+        }
+
+        [TestMethod]
         public void IntMap()
         {
             var a = new BinaryUInt32Map<int>();

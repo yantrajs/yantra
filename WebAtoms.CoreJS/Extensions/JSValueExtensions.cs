@@ -109,7 +109,7 @@ namespace WebAtoms.CoreJS.Extensions
             {
                 p = JSProperty.Property(value, JSPropertyAttributes.Value | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
                 p.key = name;
-                ownProperties[name.Key] = p;
+                ownProperties.Save(name.Key,p);
                 return value;
             }
             if (!p.IsValue && p.set != null)
@@ -119,7 +119,7 @@ namespace WebAtoms.CoreJS.Extensions
             else
             {
                 p.value = value;
-                ownProperties[name.Key] = p;
+                ownProperties.Save(name.Key, p);
             }
             return value;
         }
@@ -245,7 +245,7 @@ namespace WebAtoms.CoreJS.Extensions
             if (!(target is JSObject @object))
                 return JSUndefined.Value;
             var elements = @object.elements ?? (@object.elements = new BinaryUInt32Map<JSProperty>());
-            elements[key] = JSProperty.Property(value);
+            elements.Save(key, JSProperty.Property(value));
             if (target is JSArray array)
             {
                 if (array._length <= key)
