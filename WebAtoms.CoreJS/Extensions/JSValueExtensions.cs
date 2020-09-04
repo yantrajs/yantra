@@ -103,13 +103,13 @@ namespace WebAtoms.CoreJS.Extensions
             }
             if (!(target is JSObject @object))
                 return value;
-            var ownProperties = @object.ownProperties ?? (@object.ownProperties = new BinaryUInt32Map<JSProperty>());
+            var ownProperties = @object.ownProperties ?? (@object.ownProperties = new PropertySequence());
             var p = target.GetInternalProperty(name);
             if (p.IsEmpty)
             {
                 p = JSProperty.Property(value, JSPropertyAttributes.Value | JSPropertyAttributes.Enumerable | JSPropertyAttributes.Configurable);
                 p.key = name;
-                ownProperties.Save(name.Key,p);
+                ownProperties[name.Key] = p;
                 return value;
             }
             if (!p.IsValue && p.set != null)
@@ -119,7 +119,7 @@ namespace WebAtoms.CoreJS.Extensions
             else
             {
                 p.value = value;
-                ownProperties.Save(name.Key, p);
+                ownProperties[name.Key] = p;
             }
             return value;
         }

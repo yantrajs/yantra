@@ -14,6 +14,7 @@ namespace WebAtoms.CoreJS.Core
         Configurable = 8,
         Enumerable = 16,
         Readonly = 32,
+        Deleted = 64,
 
         // shortcuts..
         EnumerableConfigurableValue = Value | Enumerable | Configurable,
