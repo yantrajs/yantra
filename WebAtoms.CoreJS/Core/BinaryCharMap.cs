@@ -19,11 +19,6 @@ namespace WebAtoms.CoreJS.Core {
         private uint size = 16;
         private uint grow = 64;
 
-        private static UInt16 first = (UInt16)0xF000;
-        private static UInt16 second = (UInt16)0xF00;
-        private static UInt16 third = (UInt16)0xF0;
-        private static UInt16 fourth = (UInt16)0xF;
-
         public BinaryCharMap()
         {
             Buffer = new TrieNode[grow];
