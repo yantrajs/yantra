@@ -200,13 +200,13 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue ToString(JSValue t,params JSValue[] a) => new JSString("[object Object]");
 
 
-        [Prototype("__proto__", MemberType.Get)]
+        [GetProperty("__proto__")]
         internal static JSValue PrototypeGet(JSValue t,params JSValue[] a)
         {
             return t.prototypeChain;
         }
 
-        [Prototype("__proto__", MemberType.Set)]
+        [SetProperty("__proto__")]
         internal static JSValue PrototypeSet(JSValue t,params JSValue[] a)
         {
             return t.prototypeChain = a[0];

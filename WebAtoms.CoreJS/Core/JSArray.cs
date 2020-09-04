@@ -179,13 +179,13 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        [Prototype("length", MemberType.Get)]
+        [GetProperty("length")]
         internal static JSValue GetLength(JSValue t,params JSValue[] a)
         {
             return new JSNumber(((JSArray)t)._length);
         }
 
-        [Prototype("length", MemberType.Set)]
+        [SetProperty("length")]
         internal static JSValue SetLength(JSValue t,params JSValue[] a)
         {
             return new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue);

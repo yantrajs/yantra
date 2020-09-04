@@ -4,11 +4,14 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public enum MemberType
+    public enum MemberType: int
     {
-        Method = 0,
-        Get,
-        Set
+        Method = 1,
+        Get = 2,
+        Set = 4,
+        StaticMethod = 0xF1,
+        StaticGet = 0xF2,
+        StaticSet = 0xF4
     }
 
     /// <summary>
@@ -26,10 +29,77 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly MemberType MemberType;
 
-        public PrototypeAttribute(string name, MemberType memberType = MemberType.Method)
+        public readonly JSPropertyAttributes Attributes;
+
+        public bool IsStatic => ((int)this.MemberType & 0xF0) > 0;
+
+        public bool IsMethod => ((int)this.MemberType & 0x1) > 0;
+
+        public bool IsGetProperty => ((int)this.MemberType & 0x2) > 0;
+        public bool IsSetProperty => ((int)this.MemberType & 0x4) > 0;
+
+        public JSPropertyAttributes ConfigurableValue =>
+            this.Attributes == JSPropertyAttributes.Empty
+            ? JSPropertyAttributes.ConfigurableValue
+            : this.Attributes;
+
+        public JSPropertyAttributes ConfigurableProperty =>
+            this.Attributes == JSPropertyAttributes.Empty
+            ? JSPropertyAttributes.ConfigurableProperty
+            : this.Attributes;
+
+        public JSPropertyAttributes ConfigurableReadonlyValue =>
+            this.Attributes == JSPropertyAttributes.Empty
+            ? JSPropertyAttributes.ConfigurableReadonlyValue
+            : this.Attributes;
+        public PrototypeAttribute(string name, 
+            JSPropertyAttributes attributes = JSPropertyAttributes.Empty, 
+            MemberType memberType = MemberType.Method)
         {
+            this.Attributes = attributes;
             this.Name = name;
             this.MemberType = memberType;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    public class GetProperty: PrototypeAttribute
+    {
+        public GetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty) 
+            :base(name, attributes, MemberType.Get)
+        {
+
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    public class SetProperty : PrototypeAttribute
+    {
+        public SetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+            : base(name, attributes, MemberType.Set)
+        {
+
+        }
+    }
+
+
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    public class StaticGetProperty : PrototypeAttribute
+    {
+        public StaticGetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+            : base(name, attributes, MemberType.StaticGet)
+        {
+
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    public class StaticSetProperty : PrototypeAttribute
+    {
+        public StaticSetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+            : base(name, attributes, MemberType.StaticSet)
+        {
+
         }
     }
 
@@ -45,7 +115,8 @@ namespace WebAtoms.CoreJS.Core
     public class StaticAttribute : PrototypeAttribute
     {
 
-        public StaticAttribute(string name, MemberType memberType = MemberType.Method) :base(name, memberType)
+        public StaticAttribute(string name, 
+            JSPropertyAttributes attributes = JSPropertyAttributes.Empty) :base(name, attributes, MemberType.StaticMethod)
         {
         }
     }

@@ -216,13 +216,13 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.False;
         }
 
-        [Prototype("length", MemberType.Get)]
+        [GetProperty("length")]
         internal static JSValue GetLength(JSValue t,params JSValue[] a)
         {
             return new JSNumber(((JSString)t).value.Length);
         }
 
-        [Prototype("length", MemberType.Set)]
+        [SetProperty("length")]
         internal static JSValue SetLength(JSValue t,params JSValue[] a)
         {
             return a[0];

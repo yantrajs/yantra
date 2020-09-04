@@ -25,17 +25,12 @@ namespace WebAtoms.CoreJS.Core
                 
                 var f = mg.First();
                 var (m, pr) = f;
-                if (pr.MemberType == MemberType.Method)
+                var target = pr.IsStatic ? r : p;
+                if (pr.IsMethod)
                 {
 
-                    if (pr is StaticAttribute s)
-                    {
-                        r.DefineProperty(s.Name, JSProperty.Function(pr.Name,
-                            (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate))));
-                        continue;
-                    }
-                    p.DefineProperty(pr.Name, JSProperty.Function(pr.Name,
-                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate))));
+                    target.DefineProperty(pr.Name, JSProperty.Function(pr.Name,
+                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue));
                     continue;
                 }
                 
@@ -44,15 +39,25 @@ namespace WebAtoms.CoreJS.Core
                     var l = mg.Last();
                     var fdel = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
                     var ldel = (JSFunctionDelegate)l.method.CreateDelegate(typeof(JSFunctionDelegate));
-                    var target = (pr is StaticAttribute) ? r : p;
+                    target = pr.IsStatic ? r : p;
                     target.DefineProperty(mg.Key, JSProperty.Property(
                         mg.Key,
-                        f.attribute.MemberType == MemberType.Get ? fdel : ldel,
-                        f.attribute.MemberType != MemberType.Get ? fdel : ldel,
-                        JSPropertyAttributes.ConfigurableProperty
+                        f.attribute.IsGetProperty ? fdel : ldel,
+                        !f.attribute.IsGetProperty ? fdel : ldel,
+                        f.attribute.ConfigurableProperty
                         ));
                     continue;
                 }
+
+                var fx = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                target = pr.IsStatic ? r : p;
+                target.DefineProperty(mg.Key, JSProperty.Property(
+                    mg.Key,
+                    f.attribute.IsGetProperty ? fx : null,
+                    !f.attribute.IsGetProperty ? fx : null,
+                    f.attribute.ConfigurableProperty
+                    ));
+
 
             }
 
@@ -62,7 +67,7 @@ namespace WebAtoms.CoreJS.Core
                 .Where(x => x.attribute != null);
             foreach(var (f,pr) in fields)
             {
-                var target = (pr is StaticAttribute) ? r : p;
+                var target = pr.IsStatic ? r : p;
                 var v = f.GetValue(null);
                 JSValue jv;
                 if (f.FieldType == typeof(double))
@@ -73,7 +78,7 @@ namespace WebAtoms.CoreJS.Core
                     jv = new JSString(v.ToString(), type == typeof(JSString) ? p : JSContext.Current.StringPrototype);
                 }
 
-                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv));
+                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableProperty));
             }
 
             return r;
