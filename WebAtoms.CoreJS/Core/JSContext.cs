@@ -71,8 +71,6 @@ namespace WebAtoms.CoreJS.Core
 
         public JSContext()
         {
-            JSObject obj = null;
-
             
             Scope.Push(new LexicalScope("", "", 1, 1));
             Scope.Top.IsRoot = true;
@@ -89,7 +87,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
                 this[name] = r;
-                r.prototypeChain = prototypeChain ?? obj;
+                r.prototypeChain = prototypeChain ?? ObjectPrototype;
                 var cached = cache.GetOrCreate(name.Key, () =>
                 {
                     lock (cache) { return factory(); }
