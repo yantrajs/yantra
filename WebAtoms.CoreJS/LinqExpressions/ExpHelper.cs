@@ -494,21 +494,24 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static MethodInfo _SetIndexValue =
                     type.GetMethod(nameof(Extensions.JSValueExtensions.SetProperty),
                         new Type[] { typeof(Core.JSValue), typeof(JSValue), typeof(Core.JSValue) });
-        public static Expression Assign(MethodCallExpression mce, Expression value)
+        public static Expression Assign(Expression e, Expression value)
         {
-            if (mce.Method == _Index)
+            if (e is MethodCallExpression mce)
             {
-                return Expression.Call(null, _SetIndex, mce.Arguments[0], mce.Arguments[1], value);
+                if (mce.Method == _Index)
+                {
+                    return Expression.Call(null, _SetIndex, mce.Arguments[0], mce.Arguments[1], value);
+                }
+                if (mce.Method == _KeyStringIndex)
+                {
+                    return Expression.Call(null, _SetKeyStringIndex, mce.Arguments[0], mce.Arguments[1], value);
+                }
+                if (mce.Method == _IndexValue)
+                {
+                    return Expression.Call(null, _SetIndexValue, mce.Arguments[0], mce.Arguments[1], value);
+                }
             }
-            if (mce.Method == _KeyStringIndex)
-            {
-                return Expression.Call(null, _SetKeyStringIndex, mce.Arguments[0], mce.Arguments[1], value);
-            }
-            if (mce.Method == _IndexValue)
-            {
-                return Expression.Call(null, _SetIndexValue, mce.Arguments[0], mce.Arguments[1], value);
-            }
-            return mce;
+            return e;
         }
 
         private static MethodInfo _GetAllKeys =
@@ -664,14 +667,18 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Call(target, _LessOrEqual, value);
         }
 
+        private static MethodInfo _Greater
+            = InternalMethod<Core.JSValue>(nameof(Core.JSValue.Greater));
         public static Expression Greater(Expression target, Expression value)
         {
-            return Expression.Not(Expression.Call(target, _LessOrEqual, value));
+            return Expression.Call(target, _Greater, value);
         }
 
+        private static MethodInfo _GreaterOrEqual
+            = InternalMethod<Core.JSValue>(nameof(Core.JSValue.GreaterOrEqual));
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
-            return Expression.Not(Expression.Call(target, _Less, value));
+            return Expression.Call(target, _GreaterOrEqual, value);
         }
 
 

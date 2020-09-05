@@ -145,11 +145,7 @@ namespace WebAtoms.CoreJS.Utils
 
         private static Expression Assign(Expression left, Expression right)
         {
-            if (left is MethodCallExpression mce)
-            {
-                return ExpHelper.JSValueExtensionsBuilder.Assign(mce, right);
-            }
-            return Expression.Assign(left, right);
+            return ExpHelper.JSValueExtensionsBuilder.Assign(left, right);
         }
 
         #region Add

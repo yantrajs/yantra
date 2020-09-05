@@ -124,10 +124,10 @@ namespace WebAtoms.CoreJS
                         if (v.Name != null)
                         {
                             sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Name)));
-                            sList.Add(Exp.Assign(v.Expression, v.Init));
+                            sList.Add(JSValueExtensionsBuilder.Assign(v.Expression, v.Init));
                         } else
                         {
-                            sList.Add(Exp.Assign(v.Variable, v.Init));
+                            sList.Add(JSValueExtensionsBuilder.Assign(v.Variable, v.Init));
                         }
                     }
                 }
@@ -248,11 +248,11 @@ namespace WebAtoms.CoreJS
                     {
                         if (v.Name == null)
                         {
-                            sList.Add(Exp.Assign(v.Variable, v.Init));
+                            sList.Add(JSValueExtensionsBuilder.Assign(v.Variable, v.Init));
                         } else
                         {
                             // create..
-                            sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Init, v.Name)));
+                            sList.Add(JSValueExtensionsBuilder.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Init, v.Name)));
                         }
                     }
                 }
@@ -462,60 +462,63 @@ namespace WebAtoms.CoreJS
             return ExpHelper.JSExceptionBuilder.Throw(VisitExpression(throwStatement.Argument));
         }
 
+        class SwitchInfo
+        {
+            public List<Exp> Tests = new List<Exp>();
+            public Exp Body;
+        }
+
         protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
         {
             Exp d = null;
-            List<System.Linq.Expressions.SwitchCase> cases = new List<System.Linq.Expressions.SwitchCase>();
             var @continue = this.scope.Top.Loop?.Top?.Continue;
             var @break = Exp.Label();
             var ls = new LoopScope(@break ,@continue, true);
+            List<SwitchInfo> cases = new List<SwitchInfo>();
             using (var bt = this.scope.Top.Loop.Push(ls))
             {
+                SwitchInfo lastCase = new SwitchInfo();
                 foreach (var c in switchStatement.Cases)
                 {
-                    var statements = new List<Exp>();
-                    // this is probably default...
+                    List<Exp> body = new List<Exp>();
                     foreach (var es in c.Consequent)
                     {
                         switch (es)
                         {
                             case Esprima.Ast.Statement stmt:
-                                statements.Add(VisitStatement(stmt));
+                                body.Add(VisitStatement(stmt));
                                 break;
                             case Esprima.Ast.Expression exp:
-                                statements.Add(VisitExpression(exp));
+                                body.Add(VisitExpression(exp));
                                 break;
                             default:
                                 throw new InvalidOperationException();
                         }
                     }
 
-                    Exp block = null;
-
-                    if (statements.Any())
-                    {
-                        if (statements.Count == 1)
-                        {
-                            block = statements[0];
-                        }
-                        else
-                        {
-                            block = Exp.Block(statements);
-                        }
-                    }
-
                     if (c.Test == null)
                     {
-                        d = block;
+                        d = Exp.Block(body);
+                        lastCase = new SwitchInfo();
+                        continue;
                     }
-                    else
+
+                    var test = VisitExpression(c.Test);
+                    lastCase.Tests.Add(test);
+
+                    if (body.Count > 0)
                     {
-                        cases.Add(Exp.SwitchCase(block, VisitExpression(c.Test)));
+                        cases.Add(lastCase);
+                        lastCase = new SwitchInfo();
                     }
                 }
             }
             var r = Exp.Block(
-                Exp.Switch(VisitExpression(switchStatement.Discriminant), d , ExpHelper.JSValueBuilder.StaticEquals, cases),
+                Exp.Switch(
+                    VisitExpression(switchStatement.Discriminant), 
+                    d , 
+                    ExpHelper.JSValueBuilder.StaticEquals, 
+                    cases.Select(x => Exp.SwitchCase(x.Body, x.Tests) ).ToList()),
                 Exp.Label(@break));
             return r;
         }
@@ -770,14 +773,14 @@ namespace WebAtoms.CoreJS
             var ve = Exp.Variable(typeof(JSValue));
             if (updateExpression.Operator == UnaryOperator.Increment)
             {
-                return Exp.Block(new ParameterExpression[] { ve }, 
-                    Exp.Assign(ve,right),
-                    Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
+                return Exp.Block(new ParameterExpression[] { ve },
+                    JSValueExtensionsBuilder.Assign(ve,right),
+                    JSValueExtensionsBuilder.Assign(right , ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
                     ve);
             }
             return Exp.Block(new ParameterExpression[] { ve },
-                Exp.Assign(ve, right),
-                Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
+                JSValueExtensionsBuilder.Assign(ve, right),
+                JSValueExtensionsBuilder.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
                 ve);
         }
 
@@ -872,6 +875,10 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
+            if (memberExpression.Computed)
+            {
+                return JSValueExtensionsBuilder.GetPropertyJSValue(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
+            }
             switch (memberExpression.Property)
             {
                 case Identifier id:
@@ -1138,7 +1145,7 @@ namespace WebAtoms.CoreJS
                 switch(me.Property)
                 {
                     case Identifier id:
-                        name = VisitIdentifier(id);
+                        name = KeyOfName(id.Name);
                         break;
                     case Literal l:
                         name = KeyOfName(l.StringValue);
