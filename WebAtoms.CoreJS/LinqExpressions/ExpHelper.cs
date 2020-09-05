@@ -556,8 +556,14 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static PropertyInfo _Index =
             IndexProperty<Core.JSValue>();
 
+        
+
         public static Expression Index(Expression target, Expression property)
         {
+            if (property.Type == typeof(KeyString))
+            {
+                return JSValueExtensionsBuilder.GetPropertyKeyString(target, property);
+            }
             return Expression.MakeIndex(target, _Index, new Expression[] { property });
         }
 

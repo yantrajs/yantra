@@ -12,6 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -523,7 +524,29 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitForStatement(Esprima.Ast.ForStatement forStatement)
         {
-            throw new NotImplementedException();
+            var breakTarget = Exp.Label();
+            var continueTarget = Exp.Label();
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            {
+
+                var body = VisitStatement(forStatement.Body);
+                var update = VisitExpression(forStatement.Update);
+
+                var list = new List<Exp>();
+                var init = forStatement.Init != null 
+                    ? VisitExpression((Expression)forStatement.Init) 
+                    : JSUndefinedBuilder.Value;
+                var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
+
+                list.Add(init);
+                list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
+                list.Add(body);
+                list.Add(update);
+                return Exp.Loop(
+                    Exp.Block(list),
+                    breakTarget,
+                    continueTarget);
+            }
         }
 
         protected override Exp VisitForInStatement(Esprima.Ast.ForInStatement forInStatement)
