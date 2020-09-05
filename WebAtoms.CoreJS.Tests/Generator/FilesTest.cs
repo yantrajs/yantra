@@ -26,6 +26,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 foreach (var file in files.EnumerateFiles())
                 {
                     var name = file.FullName;
+                    if (!name.EndsWith(".js"))
+                        continue;
                     name = name.Substring(root.FullName.Length + 1);
                     yield return (file, name);
                 }

@@ -53,7 +53,7 @@ namespace WebAtoms.CoreJS.Core
             return this.source;
         }
 
-        public override JSValue CreateInstance(JSArguments args)
+        public override JSValue CreateInstance(JSValue[] args)
         {
             var cx = JSContext.Current;
             JSValue obj = cx.CreateObject();

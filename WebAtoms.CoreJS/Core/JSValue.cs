@@ -135,7 +135,7 @@ namespace WebAtoms.CoreJS.Core {
             set => this.SetProperty(key, value);
         }
 
-        public virtual JSValue CreateInstance(JSArguments args)
+        public virtual JSValue CreateInstance(JSValue[] args)
         {
             throw new NotImplementedException();
         }

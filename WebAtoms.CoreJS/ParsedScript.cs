@@ -38,7 +38,7 @@ namespace WebAtoms.CoreJS
             foreach(var line in this.lines)
             {
                 ln++;
-                if (line.Start <= start && line.End >= end)
+                if (line.Start <= start && line.End >= start)
                 {
                     return new Position(ln, start - line.Start + 1);
                 }

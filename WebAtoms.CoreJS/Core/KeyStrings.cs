@@ -14,6 +14,9 @@ namespace WebAtoms.CoreJS.Core
     }
     public struct KeyString
     {
+
+        public readonly static KeyString Empty = new KeyString();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator KeyString(string value)
         {
@@ -45,13 +48,13 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly string Value;
         public readonly uint Key;
-        public readonly JSSymbol Symbol;
+        public readonly JSValue Symbol;
 
-        public bool IsSymbol => Symbol != null;
+        public bool IsSymbol => Symbol is JSSymbol;
 
         public bool IsUInt => Value == null;
 
-        internal KeyString(string value, uint key, JSSymbol symbol = null)
+        internal KeyString(string value, uint key, JSValue symbol = null)
         {
             this.Value = value;
             this.Key = key;
@@ -79,10 +82,8 @@ namespace WebAtoms.CoreJS.Core
 
         public JSValue ToJSValue()
         {
-            if (IsSymbol)
-            {
+            if (Symbol != null)
                 return Symbol;
-            }
             return new JSString(Value, this);
         }
     }

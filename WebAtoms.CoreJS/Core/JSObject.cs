@@ -110,17 +110,6 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public IEnumerable<(string key, JSValue value)> Entries
-        {
-            get
-            {
-                foreach(var item in this.GetInternalEntries())
-                {
-                    yield return (item.key.ToString(), item.value);
-                }
-            }
-        }
-
         internal BinaryUInt32Map<JSProperty> elements;
         internal PropertySequence ownProperties;
 
@@ -163,7 +152,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override string ToDetailString()
         {
-            var all = this.GetEntries().Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
+            var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
             return $"{{ {string.Join(", ", all)} }}";
         }
 
@@ -177,7 +166,45 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        private static void InternalAddProperty(JSObject target, string key, JSObject pd)
+        private static void InternalAddProperty(JSObject target, uint key, JSValue pd)
+        {
+            var p = new JSProperty();
+            var value = pd[KeyStrings.value];
+            var get = pd[KeyStrings.get] as JSFunction;
+            var set = pd[KeyStrings.set] as JSFunction;
+            var pt = JSPropertyAttributes.Empty;
+            if (pd[KeyStrings.configurable].BooleanValue)
+                pt |= JSPropertyAttributes.Configurable;
+            if (pd[KeyStrings.enumerable].BooleanValue)
+                pt |= JSPropertyAttributes.Enumerable;
+            if (pd[KeyStrings.@readonly].BooleanValue)
+                pt |= JSPropertyAttributes.Readonly;
+            if (get != null)
+            {
+                pt |= JSPropertyAttributes.Property;
+                p.get = get;
+            }
+            if (set != null)
+            {
+                pt |= JSPropertyAttributes.Property;
+                p.set = set;
+            }
+            if (get == null && set == null)
+            {
+                pt |= JSPropertyAttributes.Value;
+                p.value = value;
+            }
+            p.Attributes = pt;
+            var elements = target.elements ?? (target.elements = new BinaryUInt32Map<JSProperty>());
+            elements[key] = p;
+            if (target is JSArray array)
+            {
+                if (array._length <= key)
+                    array._length = key + 1;
+            }
+        }
+
+        private static void InternalAddProperty(JSObject target, KeyString key, JSValue pd)
         {
             var p = new JSProperty
             {
@@ -209,7 +236,8 @@ namespace WebAtoms.CoreJS.Core
                 p.value = value;
             }
             p.Attributes = pt;
-            target.ownProperties[p.key.Key] = p;
+            var ownProperties = target.ownProperties ?? (target.ownProperties = new PropertySequence());
+            ownProperties[p.key.Key] = p;
         }
 
 

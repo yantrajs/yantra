@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
@@ -223,12 +224,19 @@ namespace WebAtoms.CoreJS.ExpHelper
 
     public class LexicalScopeBuilder: TypeHelper<Core.LexicalScope>
     {
+
         private static PropertyInfo _Index =
             IndexProperty<Core.KeyString>();
 
+        private static PropertyInfo _Top
+            = typeof(LinkedStack<LexicalScope>).GetProperty(nameof(LinkedStack<LexicalScope>.Top));
+
         public static Expression Index(Expression exp)
         {
-            return Expression.MakeIndex(JSContextBuilder.CurrentScope, _Index , new Expression[] { exp });
+            var top = Expression.Property(JSContextBuilder.CurrentScope, _Top);
+            return Expression.MakeIndex(top, 
+                _Index , 
+                new Expression[] { exp });
         }
 
         private static MethodInfo _Push
@@ -309,6 +317,10 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         public static Expression New(Expression exp)
         {
+            if (exp.Type != typeof(double))
+            {
+                exp = Expression.Convert(exp, typeof(double));
+            }
             return Expression.New(_NewDouble, exp);
         }
 
@@ -386,6 +398,13 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.New(_New, value, Expression.Constant(name, typeof(string)));
         }
 
+        private static ConstructorInfo _NewFromException
+            = Constructor<Exception, string>();
+
+        public static Expression NewFromException(Expression value, string name)
+        {
+            return Expression.New(_NewFromException, value, Expression.Constant(name, typeof(string)));
+        }
         public static Expression FromArgument(Expression args, Expression length, int i, string name)
         {
             var ie = Expression.Constant(i);
@@ -440,6 +459,11 @@ namespace WebAtoms.CoreJS.ExpHelper
             type.StaticMethod(nameof(Extensions.JSValueExtensions.GetProperty), 
                 typeof(Core.JSValue), typeof(uint));
 
+        private static MethodInfo _IndexValue =
+            type.StaticMethod(nameof(Extensions.JSValueExtensions.GetProperty),
+                typeof(Core.JSValue), typeof(JSValue));
+
+
         public static Expression GetPropertyUInt32(Expression target, Expression key)
         {
             return Expression.Call(null, _Index, target, key);
@@ -448,6 +472,10 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression GetPropertyUInt32(Expression target, uint i)
         {
             return Expression.Call(null, _Index, target, Expression.Constant(i));
+        }
+        public static Expression GetPropertyJSValue(Expression target, Expression key)
+        {
+            return Expression.Call(null, _IndexValue, target, key);
         }
 
         private static MethodInfo _SetKeyStringIndex =
@@ -460,19 +488,12 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _SetIndex =
-            type.GetMethod(nameof(Extensions.JSValueExtensions.GetProperty), 
+            type.GetMethod(nameof(Extensions.JSValueExtensions.SetProperty), 
                 new Type[] { typeof(Core.JSValue), typeof(uint), typeof(Core.JSValue) });
 
-        public static Expression SetPropertyUInt32(Expression target, Expression key, Expression value)
-        {
-            return Expression.Call(null, _Index, target, key, value);
-        }
-
-        public static Expression SetPropertyUInt32(Expression target, uint i, Expression value)
-        {
-            return Expression.Call(null, _Index, target, Expression.Constant(i), value);
-        }
-
+        private static MethodInfo _SetIndexValue =
+                    type.GetMethod(nameof(Extensions.JSValueExtensions.SetProperty),
+                        new Type[] { typeof(Core.JSValue), typeof(JSValue), typeof(Core.JSValue) });
         public static Expression Assign(MethodCallExpression mce, Expression value)
         {
             if (mce.Method == _Index)
@@ -483,9 +504,39 @@ namespace WebAtoms.CoreJS.ExpHelper
             {
                 return Expression.Call(null, _SetKeyStringIndex, mce.Arguments[0], mce.Arguments[1], value);
             }
+            if (mce.Method == _IndexValue)
+            {
+                return Expression.Call(null, _SetIndexValue, mce.Arguments[0], mce.Arguments[1], value);
+            }
             return mce;
         }
 
+        private static MethodInfo _GetAllKeys =
+            type.StaticMethod<JSValue,bool>(nameof(JSValueExtensions.GetAllKeys));
+
+        private static MethodInfo _GetEnumerator =
+            typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));
+
+        public static Expression GetAllKeys(Expression target)
+        {
+            return 
+                Expression.Call(
+                    Expression.Call(null, _GetAllKeys, target, Expression.Constant(false)),
+                    _GetEnumerator);
+        }
+
+        private static MethodInfo _InvokeMethodKeyString
+            = type.StaticMethod<JSValue, KeyString, JSValue[]>(nameof(JSValueExtensions.InvokeMethod));
+
+        private static MethodInfo _InvokeMethodJSValue
+            = type.StaticMethod<JSValue, JSValue, JSValue[]>(nameof(JSValueExtensions.InvokeMethod));
+
+        public static Expression InvokeMethod(Expression target, Expression key, Expression args)
+        {
+            if (key.Type == typeof(KeyString))
+                return Expression.Call(null, _InvokeMethodKeyString, target, key, args);
+            return Expression.Call(null, _InvokeMethodJSValue, target, key, args);
+        }
     }
 
     public class JSValueBuilder: TypeHelper<Core.JSValue>
@@ -506,19 +557,11 @@ namespace WebAtoms.CoreJS.ExpHelper
 
 
         private static MethodInfo _CreateInstance =
-            Method<Core.JSArguments>(nameof(Core.JSValue.CreateInstance));
+            Method<Core.JSValue[]>(nameof(Core.JSValue.CreateInstance));
 
         public static Expression CreateInstance(Expression target, Expression paramList)
         {
             return Expression.Call(target, _CreateInstance, paramList);
-        }
-
-        private static MethodInfo _InvokeMethod =
-            Method<Core.KeyString, Core.JSValue[]>(nameof(Core.JSValue.InvokeMethod));
-
-        public static Expression InvokeMethod(Expression target, Expression keyString, Expression args)
-        {
-            return Expression.Call(target, _InvokeMethod, keyString, args);
         }
 
         private static MethodInfo _InvokeFunction =
@@ -634,7 +677,7 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         public static Expression LogicalAnd(Expression target, Expression value)
         {
-            return Expression.Condition(JSValueBuilder.BooleanValue(target), value, target);
+            return Expression.Condition(JSValueBuilder.BooleanValue(target), value, target, typeof(JSValue));
         }
 
         public static Expression LogicalOr(Expression target, Expression value)
@@ -642,7 +685,7 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Condition(
                 JSValueBuilder.BooleanValue(target),
                 target,
-                value);
+                value, typeof(JSValue));
         }
     }
 

@@ -58,9 +58,17 @@ namespace WebAtoms.CoreJS.Core
                     return new JSArray();
             }
             var r = new JSArray();
-            foreach(var entry in target.GetInternalEntries())
+            foreach(var (index, key, property) in target.GetOwnEntries())
             {
-                r.elements[r._length++] = JSProperty.Property(new JSArray(entry.key.ToJSValue(), entry.value));
+                if (index != -1)
+                {
+                    r.elements[r._length++] = JSProperty.Property(
+                        new JSArray(new JSNumber(index), property));
+                } else
+                {
+                    r.elements[r._length++] = JSProperty.Property(
+                        new JSArray(key.ToJSValue(), property));
+                }
             }
             return r;
         }
@@ -82,11 +90,15 @@ namespace WebAtoms.CoreJS.Core
             if (!(pds is JSObject pdObject))
                 return target;
 
-            foreach(var pd in pdObject.GetEntries())
+            foreach(var (index, key, property) in pdObject.GetOwnEntries())
             {
-                if (pd.Value is JSObject property)
+                if (index != -1)
                 {
-                    InternalAddProperty(target, pd.Key, property);
+                    InternalAddProperty(target, (uint)index, property);
+                }
+                else
+                {
+                    InternalAddProperty(target, key, property);
                 }
             }
 
@@ -98,10 +110,21 @@ namespace WebAtoms.CoreJS.Core
         {
             if (!(a[0] is JSObject target))
                 throw new JSException("Object.defineProperty called on non-object");
-            var key = a[1].ToString();
             if (!(a[2] is JSObject pd))
                 throw new JSException("Property Description must be an object");
-            InternalAddProperty(target, key, pd);
+            var a1 = a[1];
+            switch(a1)
+            {
+                case JSNumber number:
+                    InternalAddProperty(target, (uint)number.IntValue, pd);
+                    break;
+                case JSString @string:
+                    InternalAddProperty(target, @string.value, pd);
+                    break;
+                default:
+                    InternalAddProperty(target, a1.ToString(), pd);
+                    break;
+            }
             return target;
         }
 
@@ -210,7 +233,7 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            return new JSArray(jobj.GetEntries().Select(x => x.Value));
+            return new JSArray(jobj.GetOwnEntries().Select(x => x.value));
         }
 
         [Static("getOwnPropertyDescriptor")]

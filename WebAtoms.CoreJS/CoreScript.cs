@@ -1,4 +1,5 @@
-﻿using Esprima.Ast;
+﻿using Esprima;
+using Esprima.Ast;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ using System.Xml.Schema;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
+using WebAtoms.CoreJS.LinqExpressions;
+using WebAtoms.CoreJS.Parser;
 using WebAtoms.CoreJS.Utils;
 
 using Exp = System.Linq.Expressions.Expression;
@@ -147,7 +150,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitProgram(Esprima.Ast.Program program)
         {
-            return Exp.Block(program.Body.Select((x) => VisitStatement((Statement)x)));
+            return Exp.Block(program.Body.Select((x) => VisitStatement((Statement)x)).ToList());
         }
 
         protected override Exp VisitCatchClause(Esprima.Ast.CatchClause catchClause)
@@ -305,9 +308,17 @@ namespace WebAtoms.CoreJS
             var s = this.scope.Top.Scope;
             var r = statement.Range;
             var p = this.Code.Position(r);
-            return Exp.Block( 
-                ExpHelper.LexicalScopeBuilder.SetPosition(s, p.Line, p.Column)
-                , base.VisitStatement(statement));
+            try
+            {
+                return Exp.Block(
+                    ExpHelper.LexicalScopeBuilder.SetPosition(s, p.Line, p.Column)
+                    , base.VisitStatement(statement));
+            }
+            catch (Exception ex) when (!(ex is CompilerException))
+            {
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+            }
+
         }
 
         protected override Exp VisitWithStatement(Esprima.Ast.WithStatement withStatement)
@@ -337,6 +348,40 @@ namespace WebAtoms.CoreJS
                     breakTarget, 
                     continueTarget);
             }
+        }
+
+        private List<(Exp variable, bool let, Exp init)> CreateVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
+        {
+            // lets add variable...
+            // forget about const... compiler like typescript should take care of it...
+            // let will be implemented in future...
+            var inits = new List<(Exp,bool, Exp)>();
+            bool let = variableDeclaration.Kind == VariableDeclarationKind.Let;
+            foreach (var declarator in variableDeclaration.Declarations)
+            {
+                
+                switch (declarator.Id)
+                {
+                    case Esprima.Ast.Identifier id:
+                        var ve = Exp.Variable(typeof(JSVariable), id.Name);
+                        var vf = JSVariable.ValueExpression(ve);
+                        this.scope.Top.AddVariable(id.Name, vf, ve);
+                        // inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
+                        if (declarator.Init != null)
+                        {
+                            var init = VisitExpression(declarator.Init);
+                            inits.Add((vf, let, Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(init, id.Name))));
+                        }
+                        else
+                        {
+                            inits.Add((vf, let, Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(id.Name))));
+                        }
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+            return inits;
         }
 
         protected override Exp VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
@@ -388,15 +433,10 @@ namespace WebAtoms.CoreJS
                 var catchBlock = new List<Exp>();
 
                 scope.Top.AddVariable(id.Name, vf);
-
-                var initVar = Exp.Condition(
-                        Exp.TypeIs(pe, typeof(JSException)),
-                        ExpHelper.JSExceptionBuilder.Error(Exp.Convert(pe, typeof(JSException))),
-                        ExpHelper.JSStringBuilder.New(ExpHelper.ObjectBuilder.ToString(pe)));
-
-                catchBlock.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(initVar, id.Name)));
+                
+                catchBlock.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name)));
                 catchBlock.Add(Exp.Assign(ExpHelper.LexicalScopeBuilder.Index(keyName), ve));
-                catchBlock.Add(VisitStatement(cb));
+                catchBlock.Add(VisitStatement(cb.Body));
 
                 var cbExp = Exp.Catch(pe, Exp.Block(new ParameterExpression[] { ve }, catchBlock ));
 
@@ -504,7 +544,10 @@ namespace WebAtoms.CoreJS
             {
                 return Exp.Condition(test, trueCase, VisitStatement(ifStatement.Alternate));
             }
-            return Exp.Condition(test, trueCase, ExpHelper.JSUndefinedBuilder.Value );
+            if (!typeof(JSValue).IsAssignableFrom(trueCase.Type)) {
+                trueCase = Exp.Block(trueCase, JSUndefinedBuilder.Value);
+            }
+            return Exp.Condition(test, trueCase, ExpHelper.JSUndefinedBuilder.Value);
         }
 
         protected override Exp VisitEmptyStatement(Esprima.Ast.EmptyStatement emptyStatement)
@@ -522,6 +565,19 @@ namespace WebAtoms.CoreJS
             return VisitExpression(expressionStatement.Expression);
         }
 
+        protected override Exp VisitExpression(Expression expression)
+        {
+            var r = expression.Range;
+            var p = this.Code.Position(r);
+            try
+            {
+                return base.VisitExpression(expression);
+            }catch (Exception ex) when (!(ex is CompilerException))
+            {
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+            }
+        }
+
         protected override Exp VisitForStatement(Esprima.Ast.ForStatement forStatement)
         {
             var breakTarget = Exp.Label();
@@ -533,24 +589,89 @@ namespace WebAtoms.CoreJS
                 var update = VisitExpression(forStatement.Update);
 
                 var list = new List<Exp>();
-                var init = forStatement.Init != null 
-                    ? VisitExpression((Expression)forStatement.Init) 
-                    : JSUndefinedBuilder.Value;
+                Exp init;
+                switch(forStatement.Init)
+                {
+                    case VariableDeclaration vd:
+                        var vlist = CreateVariableDeclaration(vd);
+                        var vfirst = vlist.First();
+                        init = vfirst.init;
+                        break;
+                    case Identifier id:
+                        init = VisitIdentifier(id);
+                        break;
+                    case Expression exp:
+                        init = VisitExpression(exp);
+                        break;
+                    case Statement stmt:
+                        init = VisitStatement(stmt);
+                        break;
+                    default:
+                        init = JSUndefinedBuilder.Value;
+                        break;
+                }
                 var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
 
-                list.Add(init);
                 list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
                 list.Add(body);
                 list.Add(update);
-                return Exp.Loop(
+                return Exp.Block(init, Exp.Loop(
                     Exp.Block(list),
                     breakTarget,
-                    continueTarget);
+                    continueTarget));
             }
         }
 
         protected override Exp VisitForInStatement(Esprima.Ast.ForInStatement forInStatement)
         {
+            var breakTarget = Exp.Label();
+            var continueTarget = Exp.Label();
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            {
+
+                var en = Exp.Variable(typeof(IEnumerator<JSValue>));
+
+
+                var pList = new List<ParameterExpression>() { 
+                    en
+                };
+
+                var body = VisitStatement(forInStatement.Body);
+
+                Exp identifier = null;
+
+                var list = new List<Exp>();
+                switch (forInStatement.Left)
+                {
+                    case Identifier i:
+                        identifier = VisitIdentifier(i);
+                        break;
+                    case VariableDeclaration vd:
+                        var vdList = CreateVariableDeclaration(vd);
+                        identifier = vdList.First().variable;
+                        break;
+                }
+
+                //IEnumerable<JSValue> v = null;
+                //var en = v.GetEnumerator();
+                //en.MoveNext()
+
+                var sList = new List<Exp>();
+
+                sList.Add(Exp.IfThen( Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)));
+                sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
+                // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
+                sList.Add(body);
+
+                var bodyList = Exp.Block(sList);
+
+                var right = VisitExpression(forInStatement.Right);
+                return Exp.Block(
+                    pList,
+                    Exp.Assign(en, JSValueExtensionsBuilder.GetAllKeys(right)),
+                    Exp.Loop(bodyList, s.Break, s.Continue)
+                    );
+            }
             throw new NotImplementedException();
         }
 
@@ -669,7 +790,8 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitSequenceExpression(Esprima.Ast.SequenceExpression sequenceExpression)
         {
-            throw new NotImplementedException();
+            var list = sequenceExpression.Expressions.Select(x => VisitExpression(x)).ToList();
+            return Exp.Block(list);
         }
 
         class ExpressionHolder
@@ -687,44 +809,52 @@ namespace WebAtoms.CoreJS
             {
                 Exp key = null;
                 Exp value = null;
+                string name = null;
                 switch (p.Key)
                 {
                     case Identifier id
                         when !p.Computed:
                         key = KeyOfName(id.Name);
-                        if (p.Shorthand)
-                        {
-                            value = this.scope.Top[id.Name];
-                        } else
-                        {
-                            value = VisitExpression((Expression)p.Value);
-                        }
-                        if (p.Kind == PropertyKind.Get || p.Kind == PropertyKind.Set)
-                        {
-                            ExpressionHolder m = null;
-                            if(!properties.TryGetValue(id.Name, out m))
-                            {
-                                m = new ExpressionHolder { };
-                                properties[id.Name] = m;
-                                keys.Add(m);
-                            }
-                            if (p.Kind == PropertyKind.Get)
-                            {
-                                m.Getter = value;
-                            } else
-                            {
-                                m.Setter = value; 
-                            }
-                            m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter,m.Setter);
-                            continue;
-                        }
-                        else
-                        {
-                            value = ExpHelper.JSPropertyBuilder.Value(key, value);
-                        }
+                        name = id.Name;
+                        break;
+                    case Literal l:
+                        key = KeyOfName(l.StringValue);
+                        name = l.StringValue;
                         break;
                     default:
                         throw new NotSupportedException();
+                }
+                if (p.Shorthand)
+                {
+                    value = this.scope.Top[name];
+                }
+                else
+                {
+                    value = VisitExpression((Expression)p.Value);
+                }
+                if (p.Kind == PropertyKind.Get || p.Kind == PropertyKind.Set)
+                {
+                    ExpressionHolder m = null;
+                    if (!properties.TryGetValue(name, out m))
+                    {
+                        m = new ExpressionHolder { };
+                        properties[name] = m;
+                        keys.Add(m);
+                    }
+                    if (p.Kind == PropertyKind.Get)
+                    {
+                        m.Getter = value;
+                    }
+                    else
+                    {
+                        m.Setter = value;
+                    }
+                    m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter, m.Setter);
+                    continue;
+                }
+                else
+                {
+                    value = ExpHelper.JSPropertyBuilder.Value(key, value);
                 }
                 keys.Add(new ExpressionHolder { Value = value });
             }
@@ -735,7 +865,7 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)
         {
             var constructor = VisitExpression(newExpression.Callee);
-            var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e));
+            var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e)).ToList();
             var pe = ExpHelper.JSArgumentsBuilder.New(args);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
@@ -769,6 +899,8 @@ namespace WebAtoms.CoreJS
                     return ExpHelper.JSValueExtensionsBuilder.GetPropertyUInt32(
                         VisitExpression(memberExpression.Object),
                         (uint)l.NumericValue);
+                case StaticMemberExpression se:
+                    return JSValueExtensionsBuilder.GetPropertyJSValue( VisitExpression(memberExpression.Object),VisitExpression(se.Property));
 
             }
             throw new NotImplementedException();
@@ -1001,12 +1133,26 @@ namespace WebAtoms.CoreJS
                 // get object...
                 var obj = VisitExpression(me.Object);
 
-                var id = me.Property.As<Esprima.Ast.Identifier>();
+                Exp name;
+
+                switch(me.Property)
+                {
+                    case Identifier id:
+                        name = VisitIdentifier(id);
+                        break;
+                    case Literal l:
+                        name = KeyOfName(l.StringValue);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+
+                // var id = me.Property.As<Esprima.Ast.Identifier>();
 
 
-                var name = KeyOfName(id.Name);
+                // var name = KeyOfName(id.Name);
 
-                return ExpHelper.JSValueBuilder.InvokeMethod(obj, name, paramArray);
+                return JSValueExtensionsBuilder.InvokeMethod(obj, name, paramArray);
 
             } else {
                 var a = ExpHelper.JSNullBuilder.Value;
@@ -1030,7 +1176,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)
         {
-            return ExpHelper.JSArrayBuilder.New(arrayExpression.Elements.Select(x => VisitExpression((Esprima.Ast.Expression)x)));
+            return ExpHelper.JSArrayBuilder.New(arrayExpression.Elements.Select(x => VisitExpression((Esprima.Ast.Expression)x)).ToList());
         }
 
         protected override Exp VisitAssignmentExpression(Esprima.Ast.AssignmentExpression assignmentExpression)
@@ -1062,7 +1208,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
         {
-            return Exp.Block(blockStatement.Body.Select(a => VisitStatement((Esprima.Ast.Statement)a)));
+            return Exp.Block(blockStatement.Body.Select(a => VisitStatement((Esprima.Ast.Statement)a)).ToList());
         }
     }
 }

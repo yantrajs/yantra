@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Core
 
         static AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
 
-        internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
+        internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();        
 
         public void Dispose()
         {

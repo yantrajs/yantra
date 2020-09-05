@@ -22,5 +22,46 @@ namespace WebAtoms.CoreJS
             return m;
         }
 
+        public static MethodInfo StaticMethod<T1>(this Type type, string name)
+        {
+            var types = new Type[] { typeof(T1) };
+            var m = type.GetMethod(name,
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public,
+                null, types, null);
+            if (m == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Method {name}({tl}) not found on {type.FullName}");
+            }
+            return m;
+        }
+
+        public static MethodInfo StaticMethod<T1,T2>(this Type type, string name)
+        {
+            var types = new Type[] { typeof(T1), typeof(T2) };
+            var m = type.GetMethod(name,
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public,
+                null, types, null);
+            if (m == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Method {name}({tl}) not found on {type.FullName}");
+            }
+            return m;
+        }
+
+        public static MethodInfo StaticMethod<T1, T2, T3>(this Type type, string name)
+        {
+            var types = new Type[] { typeof(T1), typeof(T2), typeof(T3) };
+            var m = type.GetMethod(name,
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public,
+                null, types, null);
+            if (m == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Method {name}({tl}) not found on {type.FullName}");
+            }
+            return m;
+        }
     }
 }

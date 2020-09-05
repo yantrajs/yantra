@@ -22,6 +22,14 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        public JSVariable(Exception e, string name)
+            : this(e is JSException je 
+                  ? je.Error
+                  : new JSString(e.ToString()) , name)
+        {
+
+        }
+
         internal static Expression ValueExpression(Expression exp)
         {
             return Expression.Field(exp, _ValueField);

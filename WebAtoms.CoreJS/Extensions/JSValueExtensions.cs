@@ -10,7 +10,25 @@ namespace WebAtoms.CoreJS.Extensions
     public static class JSValueExtensions
     {
 
-        internal static IEnumerable<JSProperty> GetInternalEntries(this JSValue value)
+        //internal static IEnumerable<KeyValuePair<string, JSValue>> GetEntries(this JSValue value)
+        //{
+        //    if (!(value is JSObject @object))
+        //        yield break;
+
+        //    // first enumerate numeric values..
+
+        //    var ownProperties = @object.ownProperties;
+        //    if (ownProperties == null)
+        //        yield break;
+        //    foreach (var p in ownProperties.AllValues())
+        //    {
+        //        if (!p.Value.IsEnumerable)
+        //            continue;
+        //        yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), value.GetValue(p.Value));
+        //    }
+        //}
+
+        internal static IEnumerable<JSValue> GetAllKeys(this JSValue value, bool showEnumerableOnly = true)
         {
             if (!(value is JSObject @object))
                 yield break;
@@ -19,7 +37,12 @@ namespace WebAtoms.CoreJS.Extensions
             {
                 foreach (var p in elements.AllValues())
                 {
-                    yield return p.Value;
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.Value.IsEnumerable)
+                            continue;
+                    }
+                    yield return new JSNumber(p.Key);
                 }
             }
 
@@ -28,7 +51,84 @@ namespace WebAtoms.CoreJS.Extensions
             {
                 foreach (var p in ownProperties.AllValues())
                 {
-                    yield return p.Value;
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.Value.IsEnumerable)
+                            continue;
+                    }
+                    yield return p.Value.ToJSValue();
+                }
+            }
+
+            var @base = value.prototypeChain;
+            if (@base != value && @base != null)
+            {
+                foreach (var i in @base.GetAllKeys(showEnumerableOnly))
+                    yield return i;
+            }
+        }
+
+        internal static IEnumerable<(JSValue Key, JSValue Value)> 
+            GetAllEntries(this JSValue value, bool showEnumerableOnly = true)
+        {
+            if (!(value is JSObject @object))
+                yield break;
+            var elements = @object.elements;
+            if (elements != null)
+            {
+                foreach (var p in elements.AllValues())
+                {
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.Value.IsEnumerable)
+                            continue;
+                    }
+                    yield return ( new JSNumber(p.Key), value.GetValue(p.Value));
+                }
+            }
+
+            var ownProperties = @object.ownProperties;
+            if (ownProperties != null)
+            {
+                foreach (var p in ownProperties.AllValues())
+                {
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.Value.IsEnumerable)
+                            continue;
+                    }
+                    yield return (p.Value.ToJSValue(), value.GetValue(p.Value));
+                }
+            }
+
+            var @base = value.prototypeChain;
+            if (@base != value && @base != null) {
+                foreach(var bp in @base.GetAllEntries(showEnumerableOnly))
+                {
+                    yield return bp;
+                }
+            }
+        }
+
+        internal static IEnumerable<(int index, KeyString key, JSValue value)> GetOwnEntries(this JSValue value)
+        {
+            if (!(value is JSObject @object))
+                yield break;
+            var elements = @object.elements;
+            if (elements != null)
+            {
+                foreach (var p in elements.AllValues())
+                {
+                    yield return ((int)p.Key, KeyString.Empty, value.GetValue(p.Value));
+                }
+            }
+
+            var ownProperties = @object.ownProperties;
+            if (ownProperties != null)
+            {
+                foreach (var p in ownProperties.AllValues())
+                {
+                    yield return (-1, p.Value.key, value.GetValue(p.Value));
                 }
             }
         }
@@ -51,23 +151,7 @@ namespace WebAtoms.CoreJS.Extensions
             return new JSProperty();
         }
 
-        internal static IEnumerable<KeyValuePair<string, JSValue>> GetEntries(this JSValue value)
-        {
-            if (!(value is JSObject @object))
-                yield break;
 
-            // first enumerate numeric values..
-
-            var ownProperties = @object.ownProperties;
-            if (ownProperties == null)
-                yield break;
-            foreach (var p in ownProperties.AllValues())
-            {
-                if (!p.Value.IsEnumerable)
-                    continue;
-                yield return new KeyValuePair<string, JSValue>(p.Value.key.ToString(), value.GetValue(p.Value));
-            }
-        }
 
         public static JSValue GetProperty(this JSValue value, KeyString name)
         {
@@ -315,5 +399,26 @@ namespace WebAtoms.CoreJS.Extensions
             //}
             throw new NotImplementedException();
         }
+
+        public static JSValue InvokeMethod(this JSValue target, KeyString key, JSValue[] args)
+        {
+            var property = target.GetProperty(key);
+            if (property is JSUndefined)
+                throw new NotImplementedException($"Cannot invoke {key}, it is undefined");
+            if (!(property is JSFunction function))
+                throw new NotImplementedException($"Cannot invoke {key}, {property} is not a function");
+            return function.f(target, args);
+        }
+
+        public static JSValue InvokeMethod(this JSValue target, JSValue key, JSValue[] args)
+        {
+            var property = target.GetProperty(key);
+            if (property is JSUndefined)
+                throw new NotImplementedException($"Cannot invoke {key}, it is undefined");
+            if (!(property is JSFunction function))
+                throw new NotImplementedException($"Cannot invoke {key}, {property} is not a function");
+            return function.f(target, args);
+        }
+
     }
 }
