@@ -87,7 +87,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
     {
     }
 
-    [TestClass]
+    // [TestClass]
     public class Index : FileCollection<Index>
     {
     }

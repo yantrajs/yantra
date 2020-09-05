@@ -236,7 +236,7 @@ namespace WebAtoms.CoreJS.Extensions
                     break;
             }
             int n = -1;
-            if (!double.IsNaN(d) && d > 0 && (d % 1) == 0)
+            if (!double.IsNaN(d) && d >= 0 && (d % 1) == 0)
             {
                 n = (int)d;
             }
@@ -410,6 +410,16 @@ namespace WebAtoms.CoreJS.Extensions
             return function.f(target, args);
         }
 
+        public static JSValue InvokeMethod(this JSValue target, uint key, JSValue[] args)
+        {
+            var property = target.GetProperty(key);
+            if (property is JSUndefined)
+                throw new NotImplementedException($"Cannot invoke {key}, it is undefined");
+            if (!(property is JSFunction function))
+                throw new NotImplementedException($"Cannot invoke {key}, {property} is not a function");
+            return function.f(target, args);
+        }
+
         public static JSValue InvokeMethod(this JSValue target, JSValue key, JSValue[] args)
         {
             var property = target.GetProperty(key);
@@ -420,5 +430,54 @@ namespace WebAtoms.CoreJS.Extensions
             return function.f(target, args);
         }
 
+        internal static JSValue Delete(this JSValue target, KeyString ks)
+        {
+            if (target is JSUndefined)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {ks} of undefined");
+            }
+            if (target is JSNull)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {ks} of null");
+            }
+            if (!(target is JSObject @object))
+                return JSContext.Current.False;
+            var ownProperties = @object.ownProperties;
+            if (ownProperties == null)
+                return JSContext.Current.False;
+            var px = ownProperties[ks.Key];
+            if (px.IsEmpty)
+                return JSContext.Current.False;
+            // only in strict mode...
+            if (!px.IsConfigurable)
+                throw JSContext.Current.TypeError("Cannot delete property of sealed object");
+            ownProperties.RemoveAt(ks.Key);
+            return JSContext.Current.True;
+        }
+
+        internal static JSValue Delete(this JSValue target, uint ks)
+        {
+            if (target is JSUndefined)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {ks} of undefined");
+            }
+            if (target is JSNull)
+            {
+                throw JSContext.Current.TypeError($"Unable to set {ks} of null");
+            }
+            if (!(target is JSObject @object))
+                return JSContext.Current.False;
+            var ownProperties = @object.elements;
+            if (ownProperties == null)
+                return JSContext.Current.False;
+            var px = ownProperties[ks];
+            if (px.IsEmpty)
+                return JSContext.Current.False;
+            // only in strict mode...
+            if (!px.IsConfigurable)
+                throw JSContext.Current.TypeError("Cannot delete property of sealed object");
+            ownProperties.RemoveAt(ks);
+            return JSContext.Current.True;
+        }
     }
 }

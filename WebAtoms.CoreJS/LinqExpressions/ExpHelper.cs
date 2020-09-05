@@ -511,7 +511,7 @@ namespace WebAtoms.CoreJS.ExpHelper
                     return Expression.Call(null, _SetIndexValue, mce.Arguments[0], mce.Arguments[1], value);
                 }
             }
-            return e;
+            return Expression.Assign(e, value);
         }
 
         private static MethodInfo _GetAllKeys =
@@ -534,11 +534,37 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static MethodInfo _InvokeMethodJSValue
             = type.StaticMethod<JSValue, JSValue, JSValue[]>(nameof(JSValueExtensions.InvokeMethod));
 
+        private static MethodInfo _InvokeMethodUint
+            = type.StaticMethod<JSValue, uint, JSValue[]>(nameof(JSValueExtensions.InvokeMethod));
+
         public static Expression InvokeMethod(Expression target, Expression key, Expression args)
         {
             if (key.Type == typeof(KeyString))
                 return Expression.Call(null, _InvokeMethodKeyString, target, key, args);
+            if (key.Type == typeof(uint))
+                return Expression.Call(null, _InvokeMethodUint, target, key, args);
             return Expression.Call(null, _InvokeMethodJSValue, target, key, args);
+        }
+
+        private static MethodInfo _DeleteKeyString
+            = type.StaticMethod<JSValue, KeyString>(nameof(JSValueExtensions.Delete));
+        private static MethodInfo _DeleteInt
+            = type.StaticMethod<JSValue, uint>(nameof(JSValueExtensions.Delete));
+        private static MethodInfo _DeleteJSValue
+            = type.StaticMethod<JSValue, JSValue>(nameof(JSValueExtensions.Delete));
+
+        public static Expression DeleteKeyString(Expression target, Expression key)
+        {
+            return Expression.Call(null, _DeleteKeyString, target, key);
+        }
+
+        public static Expression DeleteUint32(Expression target, Expression key)
+        {
+            return Expression.Call(null, _DeleteInt, target, key);
+        }
+        public static Expression DeleteJSValue(Expression target, Expression key)
+        {
+            return Expression.Call(null, _DeleteJSValue, target, key);
         }
     }
 
@@ -581,14 +607,6 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression Add(Expression target, Expression value)
         {
             return Expression.Call(target, _Add, value);
-        }
-
-        private static MethodInfo _Delete =
-            Method<Core.JSValue>("Delete");
-
-        public static Expression Delete(Expression target, Expression value)
-        {
-            return Expression.Call(target, _Delete, value);
         }
 
         private static PropertyInfo _TypeOf =

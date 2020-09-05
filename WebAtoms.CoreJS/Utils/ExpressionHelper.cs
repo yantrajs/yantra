@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Text;
+using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.ExpHelper;
+
+namespace WebAtoms.CoreJS
+{
+    internal static class ExpressionHelper
+    {
+
+        public static Expression ToJSValue(this Expression exp)
+        {
+            if (exp == null)
+                return exp;
+            if (!typeof(JSValue).IsAssignableFrom(exp.Type))
+                return Expression.Block(exp, JSUndefinedBuilder.Value);
+            return exp;
+        }
+
+    }
+}

@@ -430,31 +430,35 @@ namespace WebAtoms.CoreJS
                 var ve = Exp.Variable(typeof(JSVariable));
                 var vf = JSVariable.ValueExpression(ve);
                 var keyName = KeyOfName(id.Name);
-                var catchBlock = new List<Exp>();
+                var catchStatements = new List<Exp>();
 
                 scope.Top.AddVariable(id.Name, vf);
                 
-                catchBlock.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name)));
-                catchBlock.Add(Exp.Assign(ExpHelper.LexicalScopeBuilder.Index(keyName), ve));
-                catchBlock.Add(VisitStatement(cb.Body));
+                catchStatements.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name)));
+                catchStatements.Add(Exp.Assign(ExpHelper.LexicalScopeBuilder.Index(keyName), ve));
+                catchStatements.Add(VisitStatement(cb.Body));
 
-                var cbExp = Exp.Catch(pe, Exp.Block(new ParameterExpression[] { ve }, catchBlock ));
+                var catchBlock = Exp.Block(new ParameterExpression[] { ve }, catchStatements);
+
+                var cbExp = Exp.Catch(pe, catchBlock.ToJSValue());
+
+
 
                 if (tryStatement.Finalizer != null)
                 {
-                    return Exp.TryCatchFinally(block, VisitStatement(tryStatement.Finalizer), cbExp);
+                    return Exp.TryCatchFinally(block.ToJSValue(), VisitStatement(tryStatement.Finalizer).ToJSValue(), cbExp);
                 }
 
-                return Exp.TryCatch(block, cbExp);
+                return Exp.TryCatch(block.ToJSValue(), cbExp);
             }
 
             var @finally = tryStatement.Finalizer;
             if (@finally != null)
             {
-                return Exp.TryFinally(block, VisitStatement(@finally));
+                return Exp.TryFinally(block.ToJSValue(), VisitStatement(@finally).ToJSValue());
             }
 
-            return Exp.Constant(null);
+            return JSUndefinedBuilder.Value;
         }
 
         protected override Exp VisitThrowStatement(Esprima.Ast.ThrowStatement throwStatement)
@@ -509,6 +513,7 @@ namespace WebAtoms.CoreJS
                     if (body.Count > 0)
                     {
                         cases.Add(lastCase);
+                        lastCase.Body = Exp.Block(body);
                         lastCase = new SwitchInfo();
                     }
                 }
@@ -516,9 +521,9 @@ namespace WebAtoms.CoreJS
             var r = Exp.Block(
                 Exp.Switch(
                     VisitExpression(switchStatement.Discriminant), 
-                    d , 
+                    d.ToJSValue() ?? JSUndefinedBuilder.Value , 
                     ExpHelper.JSValueBuilder.StaticEquals, 
-                    cases.Select(x => Exp.SwitchCase(x.Body, x.Tests) ).ToList()),
+                    cases.Select(x => Exp.SwitchCase(x.Body.ToJSValue(), x.Tests) ).ToList()),
                 Exp.Label(@break));
             return r;
         }
@@ -530,7 +535,10 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitReturnStatement(Esprima.Ast.ReturnStatement returnStatement)
         {
-            return Exp.Return( this.scope.Top.ReturnLabel, VisitExpression(returnStatement.Argument));
+            return Exp.Return( this.scope.Top.ReturnLabel, 
+                returnStatement.Argument != null 
+                ? VisitExpression(returnStatement.Argument)
+                : JSUndefinedBuilder.Value);
         }
 
         protected override Exp VisitLabeledStatement(Esprima.Ast.LabeledStatement labeledStatement)
@@ -543,12 +551,18 @@ namespace WebAtoms.CoreJS
             var test =  ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(ifStatement.Test));
             var trueCase = VisitStatement(ifStatement.Consequent);
             // process else...
+            if (!typeof(JSValue).IsAssignableFrom(trueCase.Type))
+            {
+                trueCase = Exp.Block(trueCase, JSUndefinedBuilder.Value);
+            }
             if (ifStatement.Alternate != null)
             {
-                return Exp.Condition(test, trueCase, VisitStatement(ifStatement.Alternate));
-            }
-            if (!typeof(JSValue).IsAssignableFrom(trueCase.Type)) {
-                trueCase = Exp.Block(trueCase, JSUndefinedBuilder.Value);
+                var elseCase = VisitStatement(ifStatement.Alternate);
+                if (!typeof(JSValue).IsAssignableFrom(elseCase.Type))
+                {
+                    elseCase = Exp.Block(elseCase, JSUndefinedBuilder.Value);
+                }
+                return Exp.Condition(test, trueCase, elseCase);
             }
             return Exp.Condition(test, trueCase, ExpHelper.JSUndefinedBuilder.Value);
         }
@@ -589,7 +603,7 @@ namespace WebAtoms.CoreJS
             {
 
                 var body = VisitStatement(forStatement.Body);
-                var update = VisitExpression(forStatement.Update);
+                var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
 
                 var list = new List<Exp>();
                 Exp init;
@@ -613,11 +627,17 @@ namespace WebAtoms.CoreJS
                         init = JSUndefinedBuilder.Value;
                         break;
                 }
-                var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
+                if (forStatement.Test != null)
+                {
+                    var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
 
-                list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
+                    list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
+                }
                 list.Add(body);
-                list.Add(update);
+                if (update != null)
+                {
+                    list.Add(update);
+                }
                 return Exp.Block(init, Exp.Loop(
                     Exp.Block(list),
                     breakTarget,
@@ -689,7 +709,7 @@ namespace WebAtoms.CoreJS
 
                 var list = new List<Exp>();
 
-                var test = Exp.Not(VisitExpression(doWhileStatement.Test));
+                var test = Exp.Not( JSValueBuilder.BooleanValue( VisitExpression(doWhileStatement.Test)));
 
                 list.Add(body);
                 list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
@@ -735,14 +755,24 @@ namespace WebAtoms.CoreJS
                     // delete expression...
                     var me = target as Esprima.Ast.MemberExpression;
                     Exp pe = null;
+                    var targetObj = VisitExpression(me.Object);
                     if (me.Computed)
                     {
                         pe = VisitExpression(me.Property);
+                        return JSValueExtensionsBuilder.DeleteJSValue(targetObj, pe);
                     } else
                     {
-                        pe = Exp.Constant(me.Property.As<Identifier>().Name);
+                        switch (me.Property)
+                        {
+                            case Literal l when l.TokenType == TokenType.NumericLiteral:
+                                return JSValueExtensionsBuilder.DeleteUint32(targetObj, Exp.Constant((uint)l.NumericValue));
+                            case Literal l1 when l1.TokenType == TokenType.StringLiteral:
+                                return JSValueExtensionsBuilder.DeleteUint32(targetObj, KeyOfName(l1.StringValue));
+                            case Identifier id:
+                                return JSValueExtensionsBuilder.DeleteJSValue(targetObj, VisitIdentifier(id));
+                        }
                     }
-                    return ExpHelper.JSValueBuilder.Delete(VisitExpression(me.Object), pe);
+                    break;
                 case UnaryOperator.Void:
                     return ExpHelper.JSUndefinedBuilder.Value;
                 case UnaryOperator.TypeOf:
@@ -762,15 +792,19 @@ namespace WebAtoms.CoreJS
         private Exp InternalVisitUpdateExpression(Esprima.Ast.UnaryExpression updateExpression)
         {
             // added support for a++, a--
+            var right = VisitExpression(updateExpression.Argument);
+            var ve = Exp.Variable(typeof(JSValue));
             if (updateExpression.Prefix) { 
                 if (updateExpression.Operator == UnaryOperator.Increment)
                 {
-                    return ExpHelper.JSNumberBuilder.New(Exp.AddAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
+                    return Exp.Block(new ParameterExpression[] { ve },
+                        JSValueExtensionsBuilder.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
+                        JSValueExtensionsBuilder.Assign(ve, right));
                 }
-                return ExpHelper.JSNumberBuilder.New(Exp.SubtractAssign(DoubleValue(updateExpression.Argument), Exp.Constant(1)));
+                return Exp.Block(new ParameterExpression[] { ve },
+                    JSValueExtensionsBuilder.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
+                    JSValueExtensionsBuilder.Assign(ve, right));
             }
-            var right = VisitExpression(updateExpression.Argument);
-            var ve = Exp.Variable(typeof(JSValue));
             if (updateExpression.Operator == UnaryOperator.Increment)
             {
                 return Exp.Block(new ParameterExpression[] { ve },
@@ -1122,7 +1156,7 @@ namespace WebAtoms.CoreJS
             return Exp.Condition(
                 ExpHelper.JSValueBuilder.BooleanValue(test),
                 @true,
-                @false);
+                @false, typeof(JSValue));
         }
 
         protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)
@@ -1147,8 +1181,11 @@ namespace WebAtoms.CoreJS
                     case Identifier id:
                         name = KeyOfName(id.Name);
                         break;
-                    case Literal l:
+                    case Literal l when l.TokenType == TokenType.StringLiteral:
                         name = KeyOfName(l.StringValue);
+                        break;
+                    case Literal l1 when l1.TokenType == TokenType.NumericLiteral:
+                        name = Exp.Constant((uint)l1.NumericValue);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -1183,7 +1220,22 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)
         {
-            return ExpHelper.JSArrayBuilder.New(arrayExpression.Elements.Select(x => VisitExpression((Esprima.Ast.Expression)x)).ToList());
+            List<Exp> list = new List<Exp>();
+            foreach(var e in arrayExpression.Elements)
+            {
+                switch(e)
+                {
+                    case Expression exp:
+                        list.Add(VisitExpression(exp));
+                        break;
+                    case null:
+                        list.Add(JSUndefinedBuilder.Value);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+            return ExpHelper.JSArrayBuilder.New(list);
         }
 
         protected override Exp VisitAssignmentExpression(Esprima.Ast.AssignmentExpression assignmentExpression)
