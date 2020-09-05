@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Utils;
@@ -12,7 +13,17 @@ namespace ScriptRunner
             var script = await System.IO.File.ReadAllTextAsync(args[0]);
             using (var jc = new JSTestContext())
             {
-                CoreScript.Evaluate(script, args[1]);
+                var a = new Stopwatch();
+                try
+                {
+                    a.Start();
+                    CoreScript.Evaluate(script, args[1]);
+                } catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                a.Stop();
+                Console.WriteLine($"Total time: {a.Elapsed}");
             }
         }
     }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ScriptRunner": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\WebAtoms.CoreJS.Tests\\Generator\\Files\\es5\\Index\\Index.pack.js Index.pack.js"
+    }
+  }
+}

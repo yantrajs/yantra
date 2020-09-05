@@ -15,9 +15,9 @@ namespace WebAtoms.CoreJS.Core {
     internal class BinaryCharMap<T>: BaseMap<string, T>
     {
 
-        private uint next = 16;
-        private uint size = 16;
-        private uint grow = 64;
+        private uint next = 4;
+        private uint size = 4;
+        private uint grow = 2024;
 
         public BinaryCharMap()
         {
@@ -78,22 +78,22 @@ namespace WebAtoms.CoreJS.Core {
             foreach (var ch in keyString)
             {
                 UInt16 key = ch;
-                uint start = 0xF000;
+                uint start = 0xc000;
                 Int32 i;
-                for (i = 12; i >= 0; i -= 4)
+                for (i = 14; i >= 0; i -= 2)
                 {
                     byte bk = (byte)((key & start) >> i);
                     if (bk == 0)
                     {
-                        start = start >> 4;
+                        start = start >> 2;
                         continue;
                     }
                     break;
                 }
                 var last = i;
-                start = 0xF;
+                start = 0xc;
                 // incremenet of two bits...
-                for (i = 0; i <= last; i += 4)
+                for (i = 0; i <= last; i += 2)
                 {
                     byte bk = (byte)((key & start) >> i);
                     if (index == uint.MaxValue)
@@ -123,7 +123,7 @@ namespace WebAtoms.CoreJS.Core {
                             node = ref Buffer[index];
                         }
                     }
-                    start = start << 4;
+                    start = start << 2;
                 }
             }
 
@@ -137,6 +137,7 @@ namespace WebAtoms.CoreJS.Core {
                 // add 16  more...
                 var b = new TrieNode[i1 + grow];
                 Array.Copy(this.Buffer, b, this.Buffer.Length);
+                Console.WriteLine($"Allocated {b.Length}");
                 this.Buffer = b;
             }
         }

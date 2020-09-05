@@ -235,7 +235,7 @@ namespace WebAtoms.CoreJS.Core
 
         private UInt32 next = 4;
         private UInt32 size = 4;
-        private UInt32 grow = 8;
+        private UInt32 grow = 16;
 
         protected BinaryByteMap()
         {
