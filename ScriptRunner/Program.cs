@@ -26,7 +26,7 @@ namespace ScriptRunner
                 a.Stop();
                 Console.WriteLine($"Total time: {a.Elapsed}");
                 var t = KeyString.Total;
-                Console.WriteLine($"Total: {t.total} Size: {t.size}");
+                Console.WriteLine($"Total: {t.total} Size: {t.size} Last Index: {t.next}");
             }
         }
     }

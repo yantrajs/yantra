@@ -94,7 +94,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(Value, this);
         }
 
-        public static (int size, int total) Total =>
+        public static (int size, int total, int next) Total =>
             KeyStrings.Total;
 
     }
@@ -167,7 +167,7 @@ namespace WebAtoms.CoreJS.Core
 
         private static int NextID = 1;
 
-        public static (int size, int total) Total => (map.Size, map.Total);
+        public static (int size, int total, int next) Total => (map.Size, map.Total, NextID);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

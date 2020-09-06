@@ -18,6 +18,27 @@ namespace WebAtoms.CoreJS.Core {
         private uint next = 4;
         private uint size = 4;
         private uint grow = 1024;
+        int bitSize = 2;
+        uint bitBig = 0xC000;
+        uint bitLast = 0x3;
+        int bitLength = 14;
+
+        //private uint next = 2;
+        //private uint size = 2;
+        //private uint grow = 1024;
+        //int bitSize = 1;
+        //uint bitBig = 0x8000;
+        //uint bitLast = 0x1;
+        //int bitLength = 15;
+
+        //private uint next = 16;
+        //private uint size = 16;
+        //private uint grow = 1024;
+        //int bitSize = 4;
+        //uint bitBig = 0xF000;
+        //uint bitLast = 0xF;
+        //int bitLength = 12;
+
 
         public int Total = 0;
 
@@ -80,26 +101,28 @@ namespace WebAtoms.CoreJS.Core {
 
             bool created = false;
 
+
+
             uint index = uint.MaxValue;
             foreach (var ch in keyString)
             {
                 UInt16 key = ch;
-                uint start = 0xc000;
+                uint start = bitBig;
                 Int32 i;
-                for (i = 14; i >= 0; i -= 2)
+                for (i = bitLength; i >= 0; i -= bitSize)
                 {
                     byte bk = (byte)((key & start) >> i);
                     if (bk == 0)
                     {
-                        start = start >> 2;
+                        start = start >> bitSize;
                         continue;
                     }
                     break;
                 }
                 var last = i;
-                start = 0x3;
+                start = bitLast;
                 // incremenet of two bits...
-                for (i = 0; i <= last; i += 2)
+                for (i = 0; i <= last; i += bitSize)
                 {
                     byte bk = (byte)((key & start) >> i);
                     if (index == uint.MaxValue)
@@ -119,10 +142,7 @@ namespace WebAtoms.CoreJS.Core {
                             var position = next;
                             next += this.size;
                             this.EnsureCapacity(next);
-                            for (uint ii = 0; ii < this.size; ii++)
-                            {
-                                Buffer[index + ii].UpdateIndex(position + ii);
-                            }
+                            Buffer[index].UpdateIndex(position);
                             index = position + bk;
                             node = ref Buffer[index];
                         }
@@ -132,12 +152,12 @@ namespace WebAtoms.CoreJS.Core {
                             node = ref Buffer[index];
                         }
                     }
-                    start = start << 2;
+                    start = start << bitSize;
                 }
             }
             if (created)
             {
-                Total++;
+                Total += keyString.Length;
             }
             return ref node;
         }

@@ -131,15 +131,15 @@ namespace WebAtoms.CoreJS.Core
 
         internal struct TrieNode
         {
-            private const UInt32 HasValueFlag = 0x1;
-            private const UInt32 HasIndexFlag = 0x10;
+            private static byte HasValueFlag = 0x1;
+            private static byte HasIndexFlag = 0x10;
 
-            private const UInt32 EmptyFlag = 0xFFFFFFFF;
+            private static byte EmptyFlag = 0xFF;
 
 
             internal static TrieNode Empty = new TrieNode
             {
-                State = 0xFFFFFFFF
+                State = 0xFF
             };
 
             public bool IsNull
@@ -151,7 +151,7 @@ namespace WebAtoms.CoreJS.Core
                 }
             }
 
-            private UInt32 State;
+            private byte State;
 
             /// <summary>
             /// Index to next node set...
