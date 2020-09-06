@@ -1,6 +1,7 @@
 ﻿using Esprima.Ast;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
@@ -28,6 +29,7 @@ namespace WebAtoms.CoreJS.Extensions
         //    }
         //}
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IEnumerable<JSValue> GetAllKeys(this JSValue value, bool showEnumerableOnly = true)
         {
             if (!(value is JSObject @object))
@@ -68,6 +70,7 @@ namespace WebAtoms.CoreJS.Extensions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IEnumerable<(JSValue Key, JSValue Value)> 
             GetAllEntries(this JSValue value, bool showEnumerableOnly = true)
         {
@@ -110,6 +113,7 @@ namespace WebAtoms.CoreJS.Extensions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IEnumerable<(int index, KeyString key, JSValue value)> GetOwnEntries(this JSValue value)
         {
             if (!(value is JSObject @object))
@@ -133,6 +137,7 @@ namespace WebAtoms.CoreJS.Extensions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty GetInternalProperty(this JSValue value, KeyString key, bool inherited = true)
         {
             if (!(value is JSObject @object))
@@ -153,6 +158,7 @@ namespace WebAtoms.CoreJS.Extensions
 
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue GetProperty(this JSValue value, KeyString name)
         {
             switch (value)
@@ -175,6 +181,7 @@ namespace WebAtoms.CoreJS.Extensions
             return p.IsValue ? p.value : p.get.InvokeFunction(value, JSArguments.Empty);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue SetProperty(this JSValue target, KeyString name, JSValue value)
         {
             if (target is JSUndefined)
@@ -208,6 +215,7 @@ namespace WebAtoms.CoreJS.Extensions
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue GetProperty(this JSValue target, JSValue key)
         {
             string keyText = null;
@@ -247,6 +255,7 @@ namespace WebAtoms.CoreJS.Extensions
             return GetProperty(target, keyText);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue SetProperty(this JSValue target, JSValue key, JSValue value)
         {
             string keyText = null;
@@ -287,6 +296,7 @@ namespace WebAtoms.CoreJS.Extensions
 
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue GetProperty(this JSValue target, uint key)
         {
             if (target is JSUndefined)
@@ -316,6 +326,7 @@ namespace WebAtoms.CoreJS.Extensions
             return JSUndefined.Value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue SetProperty(this JSValue target, uint key, JSValue value)
         {
             if (target is JSUndefined)

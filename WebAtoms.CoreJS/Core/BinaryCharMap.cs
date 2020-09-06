@@ -17,7 +17,11 @@ namespace WebAtoms.CoreJS.Core {
 
         private uint next = 4;
         private uint size = 4;
-        private uint grow = 2024;
+        private uint grow = 1024;
+
+        public int Total = 0;
+
+        public int Size => Buffer.Length;
 
         public BinaryCharMap()
         {
@@ -74,6 +78,8 @@ namespace WebAtoms.CoreJS.Core {
         {
             ref var node = ref TrieNode.Empty;
 
+            bool created = false;
+
             uint index = uint.MaxValue;
             foreach (var ch in keyString)
             {
@@ -91,7 +97,7 @@ namespace WebAtoms.CoreJS.Core {
                     break;
                 }
                 var last = i;
-                start = 0xc;
+                start = 0x3;
                 // incremenet of two bits...
                 for (i = 0; i <= last; i += 2)
                 {
@@ -109,11 +115,14 @@ namespace WebAtoms.CoreJS.Core {
                             {
                                 return ref TrieNode.Empty;
                             }
-
+                            created = true;
                             var position = next;
                             next += this.size;
                             this.EnsureCapacity(next);
-                            Buffer[index].UpdateIndex(position);
+                            for (uint ii = 0; ii < this.size; ii++)
+                            {
+                                Buffer[index + ii].UpdateIndex(position + ii);
+                            }
                             index = position + bk;
                             node = ref Buffer[index];
                         }
@@ -126,7 +135,10 @@ namespace WebAtoms.CoreJS.Core {
                     start = start << 2;
                 }
             }
-
+            if (created)
+            {
+                Total++;
+            }
             return ref node;
         }
 

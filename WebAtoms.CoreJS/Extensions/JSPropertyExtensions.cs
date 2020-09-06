@@ -15,6 +15,7 @@ namespace WebAtoms.CoreJS.Extensions
             return p.IsValue ? p.value : p.get.f(target, JSArguments.Empty);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSValue ToJSValue(this JSProperty px)
         {
             var ctx = JSContext.Current;

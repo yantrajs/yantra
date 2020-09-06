@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS;
+using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
 
 namespace ScriptRunner
@@ -24,6 +25,8 @@ namespace ScriptRunner
                 }
                 a.Stop();
                 Console.WriteLine($"Total time: {a.Elapsed}");
+                var t = KeyString.Total;
+                Console.WriteLine($"Total: {t.total} Size: {t.size}");
             }
         }
     }

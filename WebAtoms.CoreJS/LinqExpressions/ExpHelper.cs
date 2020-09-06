@@ -379,6 +379,13 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Call(null, _Throw, value);
         }
 
+        private static MethodInfo _ThrowNotFunction =
+            InternalMethod<Core.JSValue>(nameof(Core.JSException.ThrowNotFunction));
+
+        public static Expression ThrowNotFunction(Expression value)
+        {
+            return Expression.Call(null, _ThrowNotFunction, value);
+        }
         private static PropertyInfo _Error =
             Property("Error");
 
@@ -591,14 +598,6 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression CreateInstance(Expression target, Expression paramList)
         {
             return Expression.Call(target, _CreateInstance, paramList);
-        }
-
-        private static MethodInfo _InvokeFunction =
-            Method<Core.JSValue, Core.JSValue[]>(nameof(Core.JSValue.InvokeFunction));
-
-        public static Expression InvokeFunction(Expression target, Expression t, Expression args)
-        {
-            return Expression.Call(target, _InvokeFunction, t, args);
         }
 
         private static MethodInfo _Add =
@@ -871,6 +870,17 @@ namespace WebAtoms.CoreJS.ExpHelper
     {
         private static ConstructorInfo _New =
             Constructor<JSFunctionDelegate, string, string>();
+
+        private static FieldInfo _f =
+            InternalField(nameof(JSFunction.f));
+
+        public static Expression InvokeFunction(Expression target, Expression t, Expression args)
+        {
+            var asFunction = Expression.Coalesce(Expression.TypeAs(target, typeof(JSFunction)),
+                JSExceptionBuilder.ThrowNotFunction(target));
+            var field = Expression.Field(asFunction, _f);
+            return Expression.Invoke(field, t, args);
+        }
 
         public static Expression New(Expression del, string name, string code)
         {

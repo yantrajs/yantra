@@ -65,6 +65,7 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TValue GetOrCreate(TKey key, Func<TValue> factory)
         {
             ref var node = ref GetTrieNode(key, true);
@@ -79,6 +80,7 @@ namespace WebAtoms.CoreJS.Core
 
         protected abstract ref TrieNode GetTrieNode(TKey key, bool create = false);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(TKey key, out TValue value)
         {
             ref var node = ref GetTrieNode(key);
@@ -115,6 +117,7 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Save(TKey key, TValue value)
         {
             ref var node = ref GetTrieNode(key, true);
@@ -139,7 +142,14 @@ namespace WebAtoms.CoreJS.Core
                 State = 0xFFFFFFFF
             };
 
-            public bool IsNull => this.State == EmptyFlag;
+            public bool IsNull
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get
+                {
+                    return this.State == EmptyFlag;
+                }
+            }
 
             private UInt32 State;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -43,11 +44,17 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(sb.ToString());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Throw(JSValue value)
         {
             throw new JSException(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSFunction ThrowNotFunction(JSValue value)
+        {
+            throw new JSException($"{value} is not a function");
+        }
         public override string Message => 
             this.Stack != null 
             ? $"{Stack}{base.Message}"

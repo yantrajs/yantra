@@ -15,6 +15,7 @@ namespace WebAtoms.CoreJS.Extensions
             return target.Length > index ? target[index] : (def ?? JSUndefined.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetAt(this JSValue[] target, int index, out JSValue value)
         {
             if (target.Length > index)
@@ -26,6 +27,7 @@ namespace WebAtoms.CoreJS.Extensions
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (JSValue, JSValue[]) Slice(this JSValue[] target)
         {
             switch(target.Length)

@@ -33,7 +33,9 @@ namespace WebAtoms.CoreJS
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
-        private ParsedScript Code;
+        // private ParsedScript Code;
+
+        private string Code;
 
         private ParameterExpression FileNameExpression;
 
@@ -69,15 +71,16 @@ namespace WebAtoms.CoreJS
 
         public CoreScript(string code, string location = null)
         {
-
+            this.Code = code;
             location = location ?? "vm";
 
             FileNameExpression = Exp.Variable(typeof(string), "_fileName");
 
-            this.Code = new ParsedScript(code);
+            // this.Code = new ParsedScript(code);
             Esprima.JavaScriptParser parser =
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
                     Range = true,
+                    Loc = true,
                     SourceType = SourceType.Script
                 });
 
@@ -165,7 +168,7 @@ namespace WebAtoms.CoreJS
 
         private Exp CreateFunction(Esprima.Ast.IFunction functionDeclaration)
         {
-            var code = Code.Text(functionDeclaration.Range);
+            var code = Code.Substring(functionDeclaration.Range.Start, functionDeclaration.Range.End - functionDeclaration.Range.Start);
 
             // get text...
 
@@ -269,7 +272,7 @@ namespace WebAtoms.CoreJS
 
                 var fxName = functionDeclaration.Id?.Name ?? "inline";
 
-                var point = this.Code.Position(functionDeclaration.Range);
+                var point = functionDeclaration.Location.Start; // this.Code.Position(functionDeclaration.Range);
 
                 var lexicalScope =
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar },
@@ -306,8 +309,8 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitStatement(Statement statement)
         {
             var s = this.scope.Top.Scope;
-            var r = statement.Range;
-            var p = this.Code.Position(r);
+            // var r = statement.Range;
+            var p = statement.Location.Start; // this.Code.Position(r);
             try
             {
                 return Exp.Block(
@@ -585,7 +588,7 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitExpression(Expression expression)
         {
             var r = expression.Range;
-            var p = this.Code.Position(r);
+            var p = expression.Location.Start ;//  this.Code.Position(r);
             try
             {
                 return base.VisitExpression(expression);
@@ -1200,8 +1203,7 @@ namespace WebAtoms.CoreJS
 
             } else {
                 var a = ExpHelper.JSNullBuilder.Value;
-                return ExpHelper.JSValueBuilder.InvokeFunction(
-                    VisitExpression(callExpression.Callee), a, paramArray);
+                return JSFunctionBuilder.InvokeFunction(VisitExpression(callExpression.Callee), a, paramArray);
             }
         }
 

@@ -50,7 +50,14 @@ namespace WebAtoms.CoreJS.Core
         public readonly uint Key;
         public readonly JSValue Symbol;
 
-        public bool IsSymbol => Symbol is JSSymbol;
+        public bool IsSymbol
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return Symbol is JSSymbol;
+            }
+        }
 
         public bool IsUInt => Value == null;
 
@@ -86,6 +93,10 @@ namespace WebAtoms.CoreJS.Core
                 return Symbol;
             return new JSString(Value, this);
         }
+
+        public static (int size, int total) Total =>
+            KeyStrings.Total;
+
     }
 
     internal static class KeyStrings
@@ -156,6 +167,8 @@ namespace WebAtoms.CoreJS.Core
 
         private static int NextID = 1;
 
+        public static (int size, int total) Total => (map.Size, map.Total);
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static KeyString GetOrCreate(string key)
@@ -167,6 +180,7 @@ namespace WebAtoms.CoreJS.Core
             });
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static KeyString NewSymbol(string name)
         {
             return new KeyString($"Symbol({name})", (uint)Interlocked.Increment(ref NextID));
