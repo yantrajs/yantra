@@ -87,7 +87,13 @@ namespace WebAtoms.CoreJS.Tests.Generator
     {
     }
 
+
     [TestClass]
+    public class Function : FileCollection<Function>
+    {
+    }
+
+    // [TestClass]
     public class Index : FileCollection<Index>
     {
     }

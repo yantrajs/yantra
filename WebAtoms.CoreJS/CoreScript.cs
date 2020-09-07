@@ -53,11 +53,11 @@ namespace WebAtoms.CoreJS
 
         private static ConcurrentDictionary<string, JSFunctionDelegate> scripts = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        private static JSFunctionDelegate Compile(string code, string location = null)
+        internal static JSFunctionDelegate Compile(string code, string location = null, string[] args = null)
         {
             return scripts.GetOrAdd(code, (k) =>
             {
-                var c = new CoreScript(code, location);
+                var c = new CoreScript(code, location, args);
                 return c.Method;
             });
         }
@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS
         }
 
 
-        public CoreScript(string code, string location = null)
+        public CoreScript(string code, string location = null, string[] argsList = null)
         {
             this.Code = code;
             location = location ?? "vm";
@@ -89,28 +89,51 @@ namespace WebAtoms.CoreJS
             using (var fx = this.scope.Push(new FunctionScope(null)))
             {
                 var jScript = parser.ParseScript();
-                var script = Visit(jScript);
-
 
                 var lScope = fx.Scope;
-                
+
 
                 var te = fx.ThisExpression;
 
                 var args = fx.ArgumentsExpression;
 
+                var argLength = Exp.Parameter(typeof(int));
 
-                var vList = new List<ParameterExpression>() { 
+
+
+                var vList = new List<ParameterExpression>() {
                     FileNameExpression,
-                    lScope
+                    lScope,
+                    argLength
                 };
 
-                var sList = new List<Exp>() { 
+
+
+
+                var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
-                    Exp.Assign(lScope, ExpHelper.LexicalScopeBuilder.NewScope(FileNameExpression,"",1,1))
+                    Exp.Assign(lScope, ExpHelper.LexicalScopeBuilder.NewScope(FileNameExpression,"",1,1)),
+                    Exp.Assign(argLength, Exp.ArrayLength(fx.ArgumentsExpression))
                 };
 
-                var l = Exp.Label(typeof(JSValue));
+                if (argsList != null) {
+                    int i = 0;
+                    foreach (var arg in argsList) {
+                        var px = Exp.Parameter(typeof(JSVariable));
+                        var ve = JSVariable.ValueExpression(px);
+                        fx.AddVariable(arg, ve, px);
+                        sList.Add(Exp.Assign(px, 
+                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, argLength, i++, arg)));
+                    }
+                }
+
+                var l = fx.ReturnLabel;
+                
+                var script = Visit(jScript);
+
+
+
+
 
                 foreach(var ks in keyStrings)
                 {
@@ -136,6 +159,8 @@ namespace WebAtoms.CoreJS
                 }
                 if (script.Type == typeof(JSVariable))
                     script = JSVariable.ValueExpression(script);
+                if (script.Type == typeof(void))
+                    script = Exp.Block(script, JSUndefinedBuilder.Value);
                 sList.Add(Exp.Return(l, script));
                 sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
 
@@ -306,6 +331,20 @@ namespace WebAtoms.CoreJS
                 return jsF;
             }
         }
+
+        private Exp VisitWithLocation(Expression ast, Func<Exp> exp)
+        {
+            var s = this.scope.Top.Scope;
+            var p = ast.Location.Start;
+            try
+            {
+                return Exp.Block(LexicalScopeBuilder.SetPosition(s, p.Line, p.Column), exp());
+            }catch (Exception ex) when (!(ex is CompilerException))
+            {
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+            }
+        }
+
         protected override Exp VisitStatement(Statement statement)
         {
             var s = this.scope.Top.Scope;
@@ -907,7 +946,7 @@ namespace WebAtoms.CoreJS
             var constructor = VisitExpression(newExpression.Callee);
             var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e)).ToList();
             var pe = ExpHelper.JSArgumentsBuilder.New(args);
-            return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
+            return ExpHelper.JSValueExtensionsBuilder.CreateInstance(constructor, pe);
         }
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
@@ -982,10 +1021,11 @@ namespace WebAtoms.CoreJS
                 }
                 throw new NotImplementedException();
             }
-            var (exp, name) = GetLiteral();
-            var pe = Exp.Variable(typeof(JSValue), name);
-            this.scope.Top.AddVariable(null, pe, pe, exp);
-            return pe;
+            // var (exp, name) = GetLiteral();
+            // var pe = Exp.Variable(typeof(JSValue), name);
+            // this.scope.Top.AddVariable(null, pe, pe, exp);
+            // return pe;
+            return GetLiteral().exp;
             
         }
 
@@ -1203,7 +1243,7 @@ namespace WebAtoms.CoreJS
 
             } else {
                 var a = ExpHelper.JSNullBuilder.Value;
-                return JSFunctionBuilder.InvokeFunction(VisitExpression(callExpression.Callee), a, paramArray);
+                return VisitWithLocation( callExpression, () => JSFunctionBuilder.InvokeFunction(VisitExpression(callExpression.Callee), a, paramArray));
             }
         }
 

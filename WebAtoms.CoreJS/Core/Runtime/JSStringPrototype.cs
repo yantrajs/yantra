@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 case JSNull _:
                 case JSUndefined __:
-                    throw JSContext.Current.TypeError($"String.prototype.{helper} called on null or undefined");
+                    throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
                 case JSString @string:
                     return @string;
             }
@@ -32,7 +32,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 case JSNull _:
                 case JSUndefined __:
-                    throw JSContext.Current.TypeError($"String.prototype.{helper} called on null or undefined");
+                    throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
                 case JSString @string:
                     return @string.value;
             }

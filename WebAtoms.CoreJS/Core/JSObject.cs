@@ -83,7 +83,7 @@ namespace WebAtoms.CoreJS.Core
     {
         public static readonly KeyString KeyToJSON = "toJSON";
 
-        protected JSObject(JSValue prototype) : base(prototype)
+        internal JSObject(JSValue prototype) : base(prototype)
         {
         }
 

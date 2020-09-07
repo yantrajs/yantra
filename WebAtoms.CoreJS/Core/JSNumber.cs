@@ -248,7 +248,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var p = t;
             if (!(p is JSNumber n))
-                throw JSContext.Current.TypeError($"Number.prototype.toExponential requires that 'this' be a Number");
+                throw JSContext.Current.NewTypeError($"Number.prototype.toExponential requires that 'this' be a Number");
             return new JSString(n.value.ToString());
         }
 
@@ -258,12 +258,12 @@ namespace WebAtoms.CoreJS.Core
         {
             var p = t;
             if (!(p is JSNumber n))
-                throw JSContext.Current.TypeError($"Number.prototype.toExponential requires that 'this' be a Number");
+                throw JSContext.Current.NewTypeError($"Number.prototype.toExponential requires that 'this' be a Number");
             if (a[0] is JSNumber n1)
             {
                 var v = n1.value;
                 if (double.IsNaN(v) || v > 100 || v < 1)
-                    throw JSContext.Current.RangeError("toExponential() digitis argument must be between 0 and 100");
+                    throw JSContext.Current.NewRangeError("toExponential() digitis argument must be between 0 and 100");
                 var fx = $"#.{new string('#',(int)v)}e+0";
                 return new JSString(n.value.ToString(fx));
             }
@@ -275,11 +275,11 @@ namespace WebAtoms.CoreJS.Core
         {
             var p = t;
             if (!(p is JSNumber n))
-                throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
+                throw JSContext.Current.NewTypeError($"Number.prototype.toFixed requires that 'this' be a Number");
             if (a[0] is JSNumber n1)
             {
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
-                    throw JSContext.Current.RangeError("toFixed() digitis argument must be between 0 and 100");
+                    throw JSContext.Current.NewRangeError("toFixed() digitis argument must be between 0 and 100");
                 var i = (int)n1.value;
                 return new JSString(n.value.ToString($"F{i}"));
             }
@@ -291,11 +291,11 @@ namespace WebAtoms.CoreJS.Core
         {
             var p = t;
             if (!(p is JSNumber n))
-                throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
+                throw JSContext.Current.NewTypeError($"Number.prototype.toFixed requires that 'this' be a Number");
             if (a[0] is JSNumber n1)
             {
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
-                    throw JSContext.Current.RangeError("toPrecision() digitis argument must be between 0 and 100");
+                    throw JSContext.Current.NewRangeError("toPrecision() digitis argument must be between 0 and 100");
                 var i = (int)n1.value;
                 var d = n.value;
                 var prefix = 'G';
@@ -323,7 +323,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var p = t;
             if (!(p is JSNumber n))
-                throw JSContext.Current.TypeError($"Number.prototype.toFixed requires that 'this' be a Number");
+                throw JSContext.Current.NewTypeError($"Number.prototype.toFixed requires that 'this' be a Number");
             if(a.Length > 0)
             {
                 var p1 = a[0];
@@ -331,12 +331,12 @@ namespace WebAtoms.CoreJS.Core
                 {
                     case JSNull _:
                     case JSUndefined _:
-                        throw JSContext.Current.TypeError($"Cannot convert undefined or null to object");
+                        throw JSContext.Current.NewTypeError($"Cannot convert undefined or null to object");
                 }
                 var text = p1.ToString();
                 var ci = CultureInfo.GetCultureInfo(text);
                 if (ci == null)
-                    throw JSContext.Current.RangeError("Incorrect locale information provided");
+                    throw JSContext.Current.NewRangeError("Incorrect locale information provided");
                 return new JSString( n.value.ToString(ci.NumberFormat));
             }
             return new JSString(n.value.ToString("N2"));
@@ -425,7 +425,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
-            throw JSContext.Current.TypeError($"{this.value} is not a function");
+            throw JSContext.Current.NewTypeError($"{this.value} is not a function");
         }
 
         internal override JSBoolean Less(JSValue value)

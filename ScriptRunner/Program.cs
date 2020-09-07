@@ -14,6 +14,7 @@ namespace ScriptRunner
             var script = await System.IO.File.ReadAllTextAsync(args[0]);
             using (var jc = new JSTestContext())
             {
+                jc["global"] = jc;
                 var a = new Stopwatch();
                 try
                 {

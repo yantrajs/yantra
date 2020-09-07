@@ -573,6 +573,15 @@ namespace WebAtoms.CoreJS.ExpHelper
         {
             return Expression.Call(null, _DeleteJSValue, target, key);
         }
+
+        private static MethodInfo _CreateInstance =
+            type.StaticMethod<JSValue, Core.JSValue[]>(nameof(Core.JSValue.CreateInstance));
+
+        public static Expression CreateInstance(Expression target, Expression paramList)
+        {
+            return Expression.Call(null, _CreateInstance, target, paramList);
+        }
+
     }
 
     public class JSValueBuilder: TypeHelper<Core.JSValue>
@@ -591,14 +600,6 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Property(exp, _BooleanValue);
         }
 
-
-        private static MethodInfo _CreateInstance =
-            Method<Core.JSValue[]>(nameof(Core.JSValue.CreateInstance));
-
-        public static Expression CreateInstance(Expression target, Expression paramList)
-        {
-            return Expression.Call(target, _CreateInstance, paramList);
-        }
 
         private static MethodInfo _Add =
             Method<Core.JSValue>(nameof(Core.JSValue.AddValue));

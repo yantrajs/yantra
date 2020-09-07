@@ -11,6 +11,15 @@ namespace WebAtoms.CoreJS.Extensions
     public static class JSValueExtensions
     {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue CreateInstance(this JSValue value, JSValue[] args)
+        {
+            if (!(value is JSFunction fx))
+                throw new JSException($"{value} is not a constructor function");
+            var no = new JSObject(fx.prototype);
+            return fx.f(no, args);
+        }
+
         //internal static IEnumerable<KeyValuePair<string, JSValue>> GetEntries(this JSValue value)
         //{
         //    if (!(value is JSObject @object))
@@ -164,9 +173,9 @@ namespace WebAtoms.CoreJS.Extensions
             switch (value)
             {
                 case JSUndefined _:
-                    throw JSContext.Current.TypeError($"Unable to get {name} of undefined");
+                    throw JSContext.Current.NewTypeError($"Unable to get {name} of undefined");
                 case JSNull __:
-                    throw JSContext.Current.TypeError($"Unable to get {name} of null");
+                    throw JSContext.Current.NewTypeError($"Unable to get {name} of null");
                 
                     // speed improvement for Array.length
                 case JSArray a
@@ -186,11 +195,11 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (target is JSUndefined)
             {
-                throw JSContext.Current.TypeError($"Unable to set {name} of undefined");
+                throw JSContext.Current.NewTypeError($"Unable to set {name} of undefined");
             }
             if (target is JSNull)
             {
-                throw JSContext.Current.TypeError($"Unable to set {name} of null");
+                throw JSContext.Current.NewTypeError($"Unable to set {name} of null");
             }
             if (!(target is JSObject @object))
                 return value;
@@ -301,11 +310,11 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (target is JSUndefined)
             {
-                throw JSContext.Current.TypeError($"Unable to set {key} of undefined");
+                throw JSContext.Current.NewTypeError($"Unable to set {key} of undefined");
             }
             if (target is JSNull)
             {
-                throw JSContext.Current.TypeError($"Unable to set {key} of null");
+                throw JSContext.Current.NewTypeError($"Unable to set {key} of null");
             }
             if (target is JSString @string)
             {
@@ -331,11 +340,11 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (target is JSUndefined)
             {
-                throw JSContext.Current.TypeError($"Unable to set {key} of undefined");
+                throw JSContext.Current.NewTypeError($"Unable to set {key} of undefined");
             }
             if (target is JSNull)
             {
-                throw JSContext.Current.TypeError($"Unable to set {key} of null");
+                throw JSContext.Current.NewTypeError($"Unable to set {key} of null");
             }
             if (!(target is JSObject @object))
                 return JSUndefined.Value;
@@ -353,11 +362,11 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (target is JSUndefined)
             {
-                throw JSContext.Current.TypeError($"Unable to set {key} of undefined");
+                throw JSContext.Current.NewTypeError($"Unable to set {key} of undefined");
             }
             if (target is JSNull)
             {
-                throw JSContext.Current.TypeError($"Unable to set {key} of null");
+                throw JSContext.Current.NewTypeError($"Unable to set {key} of null");
             }
             if (!(target is JSObject @object))
                 return JSContext.Current.False;
@@ -377,14 +386,14 @@ namespace WebAtoms.CoreJS.Extensions
                     ks = symbol.Key;
                     break;
                 default:
-                    throw JSContext.Current.TypeError("not supported");
+                    throw JSContext.Current.NewTypeError("not supported");
             }
             var px = target.GetInternalProperty(ks, false);
             if (px.IsEmpty)
                 return JSContext.Current.False;
             // only in strict mode...
             if (!px.IsConfigurable)
-                throw JSContext.Current.TypeError("Cannot delete property of sealed object");
+                throw JSContext.Current.NewTypeError("Cannot delete property of sealed object");
             ownProperties.RemoveAt(ks.Key);
             return JSContext.Current.True;
         }
@@ -408,7 +417,12 @@ namespace WebAtoms.CoreJS.Extensions
             //{
             //    target.prototypeChain 
             //}
-            throw new NotImplementedException();
+            foreach(var a in target.GetAllKeys())
+            {
+                if (a.Equals(value).BooleanValue)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
         }
 
         public static JSValue InvokeMethod(this JSValue target, KeyString key, JSValue[] args)
@@ -445,11 +459,11 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (target is JSUndefined)
             {
-                throw JSContext.Current.TypeError($"Unable to set {ks} of undefined");
+                throw JSContext.Current.NewTypeError($"Unable to set {ks} of undefined");
             }
             if (target is JSNull)
             {
-                throw JSContext.Current.TypeError($"Unable to set {ks} of null");
+                throw JSContext.Current.NewTypeError($"Unable to set {ks} of null");
             }
             if (!(target is JSObject @object))
                 return JSContext.Current.False;
@@ -461,7 +475,7 @@ namespace WebAtoms.CoreJS.Extensions
                 return JSContext.Current.False;
             // only in strict mode...
             if (!px.IsConfigurable)
-                throw JSContext.Current.TypeError("Cannot delete property of sealed object");
+                throw JSContext.Current.NewTypeError("Cannot delete property of sealed object");
             ownProperties.RemoveAt(ks.Key);
             return JSContext.Current.True;
         }
@@ -470,11 +484,11 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (target is JSUndefined)
             {
-                throw JSContext.Current.TypeError($"Unable to set {ks} of undefined");
+                throw JSContext.Current.NewTypeError($"Unable to set {ks} of undefined");
             }
             if (target is JSNull)
             {
-                throw JSContext.Current.TypeError($"Unable to set {ks} of null");
+                throw JSContext.Current.NewTypeError($"Unable to set {ks} of null");
             }
             if (!(target is JSObject @object))
                 return JSContext.Current.False;
@@ -486,7 +500,7 @@ namespace WebAtoms.CoreJS.Extensions
                 return JSContext.Current.False;
             // only in strict mode...
             if (!px.IsConfigurable)
-                throw JSContext.Current.TypeError("Cannot delete property of sealed object");
+                throw JSContext.Current.NewTypeError("Cannot delete property of sealed object");
             ownProperties.RemoveAt(ks);
             return JSContext.Current.True;
         }

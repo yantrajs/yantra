@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 case JSUndefined _:
                 case JSNull _:
-                    throw JSContext.Current.Error("Cannot convert undefined or null to object");
+                    throw JSContext.Current.NewError("Cannot convert undefined or null to object");
             }
             if (a.Length > 0)
             {

@@ -43,6 +43,25 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSValue DatePrototype;
 
+        public readonly JSFunction String;
+
+        public readonly JSFunction Function;
+
+        public readonly JSFunction Number;
+
+        public readonly JSFunction Object;
+
+        public readonly JSFunction Array;
+
+        public readonly JSFunction Boolean;
+
+        public readonly JSFunction Error;
+
+        public readonly JSFunction RangeError;
+
+        public readonly JSFunction Date;
+
+        public readonly JSFunction TypeError;
         public readonly JSBoolean True;
 
         public readonly JSBoolean False;
@@ -77,13 +96,13 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            JSValue CreateFrom(KeyString name, Type type, JSValue baseType = null)
+            (JSFunction function, JSValue prototype) CreateFrom(KeyString name, Type type, JSValue baseType = null)
             {
                 return CreatePrototype(name, () => Bootstrap.Create(name, type), baseType);
             }
 
 
-            JSValue CreatePrototype(KeyString name, Func<JSFunction> factory, JSValue prototypeChain = null)
+            (JSFunction function,JSValue prototype) CreatePrototype(KeyString name, Func<JSFunction> factory, JSValue prototypeChain = null)
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
                 this[name] = r;
@@ -92,6 +111,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     lock (cache) { return factory(); }
                 });
+                r.f = cached.f;
                 var target = r.prototype.ownProperties;
                 foreach(var p in cached.prototype.ownProperties.AllValues())
                 {
@@ -107,20 +127,20 @@ namespace WebAtoms.CoreJS.Core
                         ro[p.Key] = p.Value;
                     }
                 }
-                return r.prototype;
+                return (r,r.prototype);
             }
 
             // create object prototype...
-            ObjectPrototype =  CreateFrom(KeyStrings.Object, typeof(JSObject));
-            ArrayPrototype = CreateFrom(KeyStrings.Array, typeof(JSArray));
-            StringPrototype = CreateFrom(KeyStrings.String, typeof(JSString));
-            NumberPrototype = CreateFrom(KeyStrings.Number, typeof(JSNumber));
-            FunctionPrototype = CreateFrom(KeyStrings.Function, typeof(JSFunction));
-            BooleanPrototype = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
-            ErrorPrototype = CreateFrom(JSError.KeyError, typeof(JSError));
-            TypeErrorPrototype = CreateFrom(JSTypeError.KeyTypeError, typeof(JSError), ErrorPrototype);
-            RangeErrorPrototype = CreateFrom(JSTypeError.KeyRangeError, typeof(JSError), ErrorPrototype);
-            DatePrototype = CreateFrom(KeyStrings.Date, typeof(JSDate));
+            (Object, ObjectPrototype) =  CreateFrom(KeyStrings.Object, typeof(JSObject));
+            (Array, ArrayPrototype) = CreateFrom(KeyStrings.Array, typeof(JSArray));
+            (String, StringPrototype) = CreateFrom(KeyStrings.String, typeof(JSString));
+            (Number, NumberPrototype) = CreateFrom(KeyStrings.Number, typeof(JSNumber));
+            (Function, FunctionPrototype) = CreateFrom(KeyStrings.Function, typeof(JSFunction));
+            (Boolean, BooleanPrototype) = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
+            (Error, ErrorPrototype) = CreateFrom(JSError.KeyError, typeof(JSError));
+            (TypeError, TypeErrorPrototype) = CreateFrom(JSTypeError.KeyTypeError, typeof(JSError), ErrorPrototype);
+            (RangeError, RangeErrorPrototype) = CreateFrom(JSTypeError.KeyRangeError, typeof(JSError), ErrorPrototype);
+            (Date, DatePrototype) = CreateFrom(KeyStrings.Date, typeof(JSDate));
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
             NaN = new JSNumber(double.NaN, NumberPrototype);
@@ -164,25 +184,25 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException TypeError(string message)
+        internal JSException NewTypeError(string message)
         {
-            return Error(message, TypeErrorPrototype);
+            return NewError(message, TypeErrorPrototype);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException RangeError(string message)
+        internal JSException NewRangeError(string message)
         {
-            return Error(message, RangeErrorPrototype);
+            return NewError(message, RangeErrorPrototype);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException Error(string message)
+        internal JSException NewError(string message)
         {
-            return Error(message, ErrorPrototype);
+            return NewError(message, ErrorPrototype);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JSException Error(string message, JSValue prototype)
+        private JSException NewError(string message, JSValue prototype)
         {
             return new JSException(message, prototype);
         }

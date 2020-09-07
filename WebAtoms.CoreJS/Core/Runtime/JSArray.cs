@@ -20,9 +20,9 @@ namespace WebAtoms.CoreJS.Core
             var map = a.GetAt(1);
             switch (f) {
                 case JSUndefined u:
-                    throw JSContext.Current.Error("undefined is not iterable");
+                    throw JSContext.Current.NewError("undefined is not iterable");
                 case JSNull n:
-                    throw JSContext.Current.Error("null is not iterable");
+                    throw JSContext.Current.NewError("null is not iterable");
                 case JSString str:
                     foreach(var ch in str.value)
                     {

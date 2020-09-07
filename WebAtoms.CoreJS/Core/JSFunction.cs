@@ -6,10 +6,10 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSFunction : JSObject
+    public partial class JSFunction : JSObject
     {
 
-        internal static JSFunctionDelegate empty = (_, __) => JSUndefined.Value;
+        internal static JSFunctionDelegate empty = (_, __) => _;
 
         internal readonly JSObject prototype;
 

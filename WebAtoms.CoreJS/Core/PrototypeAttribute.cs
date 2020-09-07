@@ -9,9 +9,20 @@ namespace WebAtoms.CoreJS.Core
         Method = 1,
         Get = 2,
         Set = 4,
+        Constructor = 8,
         StaticMethod = 0xF1,
         StaticGet = 0xF2,
         StaticSet = 0xF4
+    }
+
+    [AttributeUsage(AttributeTargets.Method , AllowMultiple = false, Inherited = false)]
+
+    public class ConstructorAttribute: PrototypeAttribute
+    {
+        public ConstructorAttribute(): base(null, JSPropertyAttributes.Empty, MemberType.Constructor)
+        {
+
+        }
     }
 
     /// <summary>

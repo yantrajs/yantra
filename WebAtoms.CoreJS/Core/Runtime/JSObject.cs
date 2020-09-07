@@ -24,10 +24,10 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue Assign(JSValue t,params JSValue[] a)
         {
             if (a.Length == 0)
-                throw JSContext.Current.TypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             var first = a[0];
             if (first is JSNull || first is JSUndefined)
-                throw JSContext.Current.TypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             if (a.Length == 1 || !(first is JSObject @firstObject))
                 return first;
             var second = a[1];
@@ -51,7 +51,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 case JSNull @null:
                 case JSUndefined undefined:
-                    throw JSContext.Current.TypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+                    throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
                 case JSObject _:
                     break;
                 default:
@@ -83,10 +83,10 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue _DefineProperties(JSValue t,params JSValue[] a)
         {
             if (!(a[0] is JSObject target))
-                throw JSContext.Current.TypeError("Object.defineProperty called on non-object");
+                throw JSContext.Current.NewTypeError("Object.defineProperty called on non-object");
             var pds = a[1];
             if (pds is JSUndefined || pds is JSNull)
-                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(pds is JSObject pdObject))
                 return target;
 
@@ -136,7 +136,7 @@ namespace WebAtoms.CoreJS.Core
             var v = a[0];
             if (v is JSUndefined || v is JSNull)
             {
-                throw JSContext.Current.TypeError(JSTypeError.NotIterable("undefined"));
+                throw JSContext.Current.NewTypeError(JSTypeError.NotIterable("undefined"));
             }
             var r = new JSObject();
             if ((v is JSArray va))
@@ -145,7 +145,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     var vi = item.Value;
                     if (!(vi.value is JSArray ia))
-                        throw JSContext.Current.TypeError(JSTypeError.NotEntry(vi));
+                        throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
                     var first = ia[0].ToString();
                     var second = ia[1];
                     r.DefineProperty(first, JSProperty.Property(first, second,
@@ -185,7 +185,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var first = a[0];
             if (first is JSUndefined)
-                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
             return new JSArray(jobj.ownProperties
@@ -230,7 +230,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var first = a[0];
             if (first is JSUndefined)
-                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
             return new JSArray(jobj.GetOwnEntries().Select(x => x.value));
@@ -241,7 +241,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var first = a[0];
             if (first is JSUndefined)
-                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             return t;
         }
 
@@ -250,7 +250,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var first = a[0];
             if (first is JSUndefined)
-                throw JSContext.Current.TypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
             return new JSObject(jobj.ownProperties.AllValues().Select(x => 

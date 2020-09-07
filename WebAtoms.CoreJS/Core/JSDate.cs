@@ -42,7 +42,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue GetYear(JSValue t,params JSValue[] a)
         {
             if (!(t is JSDate d))
-                throw JSContext.Current.TypeError("Method Date.prototype.getYear called on incompatible receiver");
+                throw JSContext.Current.NewTypeError("Method Date.prototype.getYear called on incompatible receiver");
             return new JSNumber(d.value.Year - 2000);
         }
 

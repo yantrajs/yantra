@@ -196,7 +196,7 @@ namespace WebAtoms.CoreJS.Core {
                     break;
             }
             if (fx.IsUndefined)
-                throw JSContext.Current.TypeError($"Cannot invoke {name} of object as it is undefined");
+                throw JSContext.Current.NewTypeError($"Cannot invoke {name} of object as it is undefined");
             return fx.InvokeFunction(this, args);
         }
 

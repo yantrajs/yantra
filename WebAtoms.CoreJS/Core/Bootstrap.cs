@@ -33,6 +33,13 @@ namespace WebAtoms.CoreJS.Core
                     throw new NotSupportedException($"{f.method.Name} should be static method");
 
                 var (m, pr) = f;
+
+                if (pr is ConstructorAttribute)
+                {
+                    r.f = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                    continue;
+                }
+
                 var target = pr.IsStatic ? r : p;
                 if (pr.IsMethod)
                 {
