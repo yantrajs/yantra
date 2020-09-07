@@ -270,8 +270,8 @@ namespace WebAtoms.CoreJS.ExpHelper
                 Expression.Constant(column)));
         }
 
-        private static FieldInfo _Position =
-            Field(nameof(Core.LexicalScope.Position));
+        private static PropertyInfo _Position =
+            Property(nameof(Core.LexicalScope.Position));
 
         private static ConstructorInfo _NewPosition =
             TypeHelper<Position>.Constructor<int, int>();
@@ -279,7 +279,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression SetPosition(Expression exp, int line, int column)
         {
             return Expression.Assign(
-                Expression.Field(exp, _Position),
+                Expression.Property(exp, _Position),
                 Expression.New(_NewPosition, Expression.Constant(line), Expression.Constant(column)
                 ));
         }

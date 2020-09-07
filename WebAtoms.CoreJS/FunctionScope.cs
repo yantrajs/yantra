@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using WebAtoms.CoreJS.Core;
 
 using Exp = System.Linq.Expressions.Expression;
@@ -34,6 +35,8 @@ namespace WebAtoms.CoreJS
             public ParameterExpression Variable { get; internal set; }
             public Exp Expression { get; internal set; }
             public string Name { get; internal set; }
+
+            public bool Create { get; internal set; }
 
             public Exp Init { get; internal set; }
         }
@@ -90,7 +93,26 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        public IDisposable AddVariable(
+        public VariableScope CreateVariable(
+            string name,
+            Exp exp,
+            ParameterExpression pe = null,
+            Exp init = null)
+        {
+            var v = new VariableScope
+            {
+                Name = name,
+                Expression = exp,
+                Variable = pe,
+                Init = init,
+                Create = true
+            };
+            this.variableScopeList.Add(v);
+            return v;
+        }
+
+
+        public VariableScope AddVariable(
             string name, 
             Exp exp, 
             ParameterExpression pe = null,
@@ -104,10 +126,12 @@ namespace WebAtoms.CoreJS
                 Init = init
             };
             this.variableScopeList.Add(v);
-            return new DisposableAction(() =>
-            {
-                this.variableScopeList.Remove(v);
-            });
+            return v;
+        }
+        public VariableScope GetVariable(string name)
+        {
+            return this.variableScopeList.FirstOrDefault(x => x.Name == name)
+                 ??  this.Parent?.GetVariable(name);
         }
 
 

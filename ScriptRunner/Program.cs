@@ -9,9 +9,9 @@ namespace ScriptRunner
 {
     public class Program
     {
-        public async static Task Main(string[] args)
+        public static void Main(string[] args)
         {
-            var script = await System.IO.File.ReadAllTextAsync(args[0]);
+            var script = System.IO.File.ReadAllText(args[0]);
             using (var jc = new JSTestContext())
             {
                 jc["global"] = jc;
@@ -31,4 +31,26 @@ namespace ScriptRunner
             }
         }
     }
+
+    //public class Helper
+    //{
+    //    public static void Generate()
+    //    {
+    //        AssemblyName aName = new AssemblyName("DynamicAssemblyExample");
+    //        AssemblyBuilder ab =
+    //            AssemblyBuilder.DefineDynamicAssembly(
+    //                aName,
+    //                AssemblyBuilderAccess.RunAndCollect);
+
+    //        var md = ab.DefineDynamicModule(aName.Name);
+
+    //        var t = md.DefineType("JSCode", TypeAttributes.Public);
+
+    //        var m = t.DefineMethod(
+    //            "Run",
+    //            MethodAttributes.Static | MethodAttributes.Public,
+    //            typeof(JSValue),
+    //            new Type[] { typeof(JSValue), typeof(JSValue[]) });
+    //    }
+    //}
 }

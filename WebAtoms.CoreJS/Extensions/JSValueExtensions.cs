@@ -1,6 +1,7 @@
 ﻿using Esprima.Ast;
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Core;
@@ -386,7 +387,7 @@ namespace WebAtoms.CoreJS.Extensions
                     ks = symbol.Key;
                     break;
                 default:
-                    throw JSContext.Current.NewTypeError("not supported");
+                    throw JSContext.Current.NewTypeError($"deleting value {key} not supported");
             }
             var px = target.GetInternalProperty(ks, false);
             if (px.IsEmpty)
@@ -402,12 +403,26 @@ namespace WebAtoms.CoreJS.Extensions
 
         public static JSBoolean InstanceOf(this JSValue target, JSValue value)
         {
-            //var target = this;
-            //while(target != null)
-            //{
-            //    target.prototypeChain 
-            //}
-            throw new NotImplementedException();
+            switch (value)
+            {
+                case JSUndefined _:
+                    throw JSContext.Current.NewTypeError("Right side of instanceof is undefined");
+                case JSNull _:
+                    throw JSContext.Current.NewTypeError("Right side of instanceof is null");
+                case JSObject _:
+                    break;
+                default:
+                    throw JSContext.Current.NewTypeError("Right side of instanceof is not an object");
+            }
+            var p = target.prototypeChain;
+            if (p == null || p is JSUndefined || p is JSNull)
+                return JSContext.Current.False;
+            var c = p[KeyStrings.constructor];
+            if (c is JSUndefined)
+                return JSContext.Current.False;
+            if (c.StrictEquals(value).BooleanValue)
+                return JSContext.Current.True;
+            return c.InstanceOf(value);
         }
 
         public static JSBoolean IsIn(this JSValue target, JSValue value)

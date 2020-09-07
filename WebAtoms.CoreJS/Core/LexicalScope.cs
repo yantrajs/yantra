@@ -32,12 +32,22 @@ namespace WebAtoms.CoreJS.Core
             this.scope = new BinaryUInt32Map<JSVariable>();
             FileName = fileName;
             Function = function;
-            Position = new Position(line, column);
+            position = new Position(line, column);
+            Console.WriteLine($"{function}, {line}, {column}");
         }
 
         public string FileName;
         public string Function;
-        public Position Position;
+        private Position position;
+
+        public Position Position { 
+            get => position;
+            set
+            {
+                position = value;
+                Console.WriteLine($"{value.Line}, {value.Column}");
+            }
+        }
 
         public JSVariable Create(KeyString name, JSValue v)
         {
