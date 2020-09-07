@@ -665,8 +665,6 @@ namespace WebAtoms.CoreJS
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
 
-                var body = VisitStatement(forStatement.Body);
-                var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
 
                 var init = JSUndefinedBuilder.Value;
                 if (forStatement.Init != null)
@@ -686,6 +684,8 @@ namespace WebAtoms.CoreJS
                     }
                 }
                 var list = new List<Exp>();
+                var body = VisitStatement(forStatement.Body);
+                var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
                 if (forStatement.Test != null)
                 {
                     var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
