@@ -18,11 +18,11 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSArray();
             var f = a.GetAt(0);
             var map = a.GetAt(1);
+            if (f.IsUndefined)
+                throw JSContext.Current.NewError("undefined is not iterable");
+            if (f.IsNull)
+                throw JSContext.Current.NewError("null is not iterable");
             switch (f) {
-                case JSUndefined u:
-                    throw JSContext.Current.NewError("undefined is not iterable");
-                case JSNull n:
-                    throw JSContext.Current.NewError("null is not iterable");
                 case JSString str:
                     foreach(var ch in str.value)
                     {

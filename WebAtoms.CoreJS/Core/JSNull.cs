@@ -68,16 +68,16 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSBoolean Equals(JSValue value)
         {
-            if (value is JSNull)
+            if (value.IsNull)
                 return JSContext.Current.True;
-            if (value is JSUndefined)
+            if (value.IsUndefined)
                 return JSContext.Current.True;
             return JSContext.Current.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
-            if (value is JSNull)
+            if (value.IsNull)
                 return JSContext.Current.True;
             return JSContext.Current.False;
         }

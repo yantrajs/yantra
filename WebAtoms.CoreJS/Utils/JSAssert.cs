@@ -16,7 +16,7 @@ namespace WebAtoms.CoreJS.Utils
             var msgObj = a[2];
             if (!left.Equals(right).BooleanValue)
             {
-                var msg = !(msgObj is JSUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
+                var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
                 throw new JSException(msg);
             }
             return JSUndefined.Value;
@@ -30,7 +30,7 @@ namespace WebAtoms.CoreJS.Utils
             var msgObj = a[2];
             if (left.Equals(right).BooleanValue)
             {
-                var msg = !(msgObj is JSUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
+                var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
                 throw new JSException(msg);
             }
             return JSUndefined.Value;

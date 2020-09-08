@@ -91,7 +91,7 @@ namespace WebAtoms.CoreJS.Extensions
             if (p == null)
                 return JSContext.Current.False;
             var c = p[KeyStrings.constructor];
-            if (c is JSUndefined)
+            if (c.IsUndefined)
                 return JSContext.Current.False;
             if (c.StrictEquals(value).BooleanValue)
                 return JSContext.Current.True;
@@ -119,7 +119,7 @@ namespace WebAtoms.CoreJS.Extensions
         //public static JSValue InvokeMethod(this JSValue target, KeyString key, JSValue[] args)
         //{
         //    var property = target.GetProperty(key);
-        //    if (property is JSUndefined)
+        //    if (property.IsUndefined)
         //        throw new NotImplementedException($"Cannot invoke {key}, it is undefined");
         //    if (!(property is JSFunction function))
         //        throw new NotImplementedException($"Cannot invoke {key}, {property} is not a function");
@@ -129,7 +129,7 @@ namespace WebAtoms.CoreJS.Extensions
         //public static JSValue InvokeMethod(this JSValue target, uint key, JSValue[] args)
         //{
         //    var property = target.GetProperty(key);
-        //    if (property is JSUndefined)
+        //    if (property.IsUndefined)
         //        throw new NotImplementedException($"Cannot invoke {key}, it is undefined");
         //    if (!(property is JSFunction function))
         //        throw new NotImplementedException($"Cannot invoke {key}, {property} is not a function");
@@ -139,7 +139,7 @@ namespace WebAtoms.CoreJS.Extensions
         //public static JSValue InvokeMethod(this JSValue target, JSValue key, JSValue[] args)
         //{
         //    var property = target.GetProperty(key);
-        //    if (property is JSUndefined)
+        //    if (property.IsUndefined)
         //        throw new NotImplementedException($"Cannot invoke {key}, it is undefined");
         //    if (!(property is JSFunction function))
         //        throw new NotImplementedException($"Cannot invoke {key}, {property} is not a function");
@@ -148,11 +148,11 @@ namespace WebAtoms.CoreJS.Extensions
 
     //    internal static JSValue Delete(this JSValue target, KeyString ks)
     //    {
-    //        if (target is JSUndefined)
+    //        if (target.IsUndefined)
     //        {
     //            throw JSContext.Current.NewTypeError($"Unable to set {ks} of undefined");
     //        }
-    //        if (target is JSNull)
+    //        if (target.IsNull)
     //        {
     //            throw JSContext.Current.NewTypeError($"Unable to set {ks} of null");
     //        }
@@ -173,11 +173,11 @@ namespace WebAtoms.CoreJS.Extensions
 
     //    internal static JSValue Delete(this JSValue target, uint ks)
     //    {
-    //        if (target is JSUndefined)
+    //        if (target.IsUndefined)
     //        {
     //            throw JSContext.Current.NewTypeError($"Unable to set {ks} of undefined");
     //        }
-    //        if (target is JSNull)
+    //        if (target.IsNull)
     //        {
     //            throw JSContext.Current.NewTypeError($"Unable to set {ks} of null");
     //        }

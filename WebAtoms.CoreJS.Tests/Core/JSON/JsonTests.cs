@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             string stringify(object a1)
             {
                 JSValue r = JSON.stringify(a1);
-                return r is JSUndefined ? null : r.ToString();
+                return r.IsUndefined ? null : r.ToString();
             }
 
             Assert.IsNull(stringify(JSUndefined.Value));
@@ -81,7 +81,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             string stringify(object a1, object replacer)
             {
                 JSValue r = JSON.stringify(a1, replacer);
-                return r is JSUndefined ? null : r.ToString();
+                return r.IsUndefined ? null : r.ToString();
             }
 
 
@@ -110,7 +110,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             string stringify(object a1, object i)
             {
                 JSValue r = JSON.stringify(a1, JSUndefined.Value, i);
-                return r is JSUndefined ? null : r.ToString();
+                return r.IsUndefined ? null : r.ToString();
             }
 
             var indent = new JsonSerializerOptions { WriteIndented = true };

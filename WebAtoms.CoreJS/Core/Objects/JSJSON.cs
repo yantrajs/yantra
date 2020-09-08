@@ -28,7 +28,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Stringify(JSValue t,params JSValue[] a)
         {
             var f = a[0];
-            if (f is JSUndefined)
+            if (f.IsUndefined)
                 return f;
             TextWriter sb = new StringWriter();
             Func<(JSValue target, JSValue key, JSValue value),JSValue> replacer = null;
@@ -175,7 +175,7 @@ namespace WebAtoms.CoreJS.Core
                     jsValue = value.value;
                 }
 
-                if (jsValue is JSUndefined || jsValue is JSFunction)
+                if (jsValue.IsUndefined || jsValue is JSFunction)
                     continue;
 
                 jsValue = ToJson(jsValue);
@@ -186,7 +186,7 @@ namespace WebAtoms.CoreJS.Core
                     jsValue = replacer(
                         (target,
                         value.key.ToJSValue(), jsValue));
-                    if (jsValue is JSUndefined)
+                    if (jsValue.IsUndefined)
                         continue;
                 }
 

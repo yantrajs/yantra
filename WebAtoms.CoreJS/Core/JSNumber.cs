@@ -132,20 +132,16 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("parseFloat")]
 
-        public static JSNumber ParseFloat(JSValue t,params JSValue[] a)
+        public static JSValue ParseFloat(JSValue t,params JSValue[] a)
         {
             var nan = JSContext.Current.NaN;
             if (a.Length > 0)
             {
                 var p = a[0];
-                switch(p)
-                {
-                    case JSNumber n:
-                        return n;
-                    case JSNull _:
-                    case JSUndefined _:
-                        return nan;
-                }
+                if (p.IsNumber)
+                    return p;
+                if (p.IsNull || p.IsUndefined)
+                    return nan;
                 var text = p.JSTrim();
                 if (text.Length > 0)
                 {
@@ -210,20 +206,16 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("parseInt")]
 
-        public static JSNumber ParseInt(JSValue t,params JSValue[] a)
+        public static JSValue ParseInt(JSValue t, params JSValue[] a)
         {
             var nan = JSContext.Current.NaN;
             if (a.Length > 0)
             {
                 var p = a[0];
-                switch (p)
-                {
-                    case JSNumber n:
-                        return n;
-                    case JSNull _:
-                    case JSUndefined _:
-                        return nan;
-                }
+                if (p.IsNumber)
+                    return p;
+                if (p.IsNull || p.IsUndefined)
+                    return nan;
                 var text = p.JSTrim();
                 if (text.Length > 0)
                 {
@@ -231,24 +223,18 @@ namespace WebAtoms.CoreJS.Core
                     if (a.Length > 2)
                     {
                         var a1 = a[1];
-                        switch(a1)
+                        if (a1.IsNull || a1.IsUndefined)
                         {
-                            case JSUndefined _:
-                            case JSNull _:
-                                radix = 10;
-                                break;
-                            case JSNumber jn:
-                                radix = (int)jn.value;
-                                break;
-                            default:
-                                double ra1 = NumberParser.ParseInt(a1.ToString().Trim(), 10, false);
-                                if (!double.IsNaN(ra1))
-                                {
-                                    radix = (int)ra1;
-                                    if (radix < 0 || radix == 1 || radix > 36)
-                                        return nan;
-                                }
-                                break;
+                            radix = 10;
+                        } else
+                        {
+                            var n = a1.DoubleValue;
+                            if (!double.IsNaN(n))
+                            {
+                                radix = (int)n;
+                                if (radix < 0 || radix == 1 || radix > 36)
+                                    return nan;
+                            }
                         }
                     }
                     var d = NumberParser.ParseInt(text.Trim(), radix, false);

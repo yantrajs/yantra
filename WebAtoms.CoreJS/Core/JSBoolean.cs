@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Schema;
 
@@ -51,22 +52,12 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue AddValue(JSValue value)
         {
-            switch (value)
-            {
-                case JSUndefined u:
-                    return JSContext.Current.NaN;
-                case JSNull n:
-                    return this._value ? JSContext.Current.One : JSContext.Current.Zero;
-                case JSNumber n1:
-                    var v = n1.value;
-                    if (double.IsNaN(v)
-                        || double.IsPositiveInfinity(v)
-                        || double.IsNegativeInfinity(v))
-                    {
-                        return n1;
-                    }
-                    return this.AddValue(v);
-            }
+            if (value.IsUndefined)
+                return JSContext.Current.NaN;
+            if (value.IsNull)
+                return this._value ? JSContext.Current.One : JSContext.Current.Zero;
+            if (value.IsNumber)
+                return new JSNumber(value.DoubleValue + (this._value ? 1 : 0));
             return new JSString(this._value.ToString() + value.ToString());
         }
 

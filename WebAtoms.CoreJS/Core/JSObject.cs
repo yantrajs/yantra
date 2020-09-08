@@ -173,7 +173,7 @@ namespace WebAtoms.CoreJS.Core
         public override double DoubleValue{
             get {
                 var fx = this[KeyStrings.valueOf];
-                if (fx is JSUndefined)
+                if (fx.IsUndefined)
                     return NumberParser.CoerceToNumber(this.ToString());
                 var v = fx.InvokeFunction(this, JSArguments.Empty);
                 return v.DoubleValue;
