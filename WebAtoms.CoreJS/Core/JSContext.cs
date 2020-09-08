@@ -26,24 +26,24 @@ namespace WebAtoms.CoreJS.Core
             _current.Value = null;
         }
 
-        public readonly JSValue StringPrototype;
-        public readonly JSValue FunctionPrototype;
+        public readonly JSObject StringPrototype;
+        public readonly JSObject FunctionPrototype;
 
-        public readonly JSValue NumberPrototype;
+        public readonly JSObject NumberPrototype;
 
-        public readonly JSValue ObjectPrototype;
+        public readonly JSObject ObjectPrototype;
 
-        public readonly JSValue ArrayPrototype;
+        public readonly JSObject ArrayPrototype;
 
-        public readonly JSValue BooleanPrototype;
+        public readonly JSObject BooleanPrototype;
 
-        public readonly JSValue TypeErrorPrototype;
+        public readonly JSObject TypeErrorPrototype;
 
-        public readonly JSValue ErrorPrototype;
+        public readonly JSObject ErrorPrototype;
 
-        public readonly JSValue RangeErrorPrototype;
+        public readonly JSObject RangeErrorPrototype;
 
-        public readonly JSValue DatePrototype;
+        public readonly JSObject DatePrototype;
 
         public readonly JSFunction String;
 
@@ -124,7 +124,7 @@ namespace WebAtoms.CoreJS.Core
                 return r;
             }
 
-            (JSFunction function, JSValue prototype) CreateFrom(KeyString name, Type type, JSValue baseType = null)
+            (JSFunction function, JSObject prototype) CreateFrom(KeyString name, Type type, JSObject baseType = null)
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
                 ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
@@ -224,7 +224,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JSException NewError(string message, JSValue prototype)
+        private JSException NewError(string message, JSObject prototype)
         {
             return new JSException(message, prototype);
         }

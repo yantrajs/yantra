@@ -17,6 +17,15 @@ namespace WebAtoms.CoreJS.Core
             return "null";
         }
 
+        public override bool BooleanValue => false;
+
+        public override bool IsNull => true;
+
+        internal override KeyString ToKey()
+        {
+            return KeyStrings.@null;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is JSNull;

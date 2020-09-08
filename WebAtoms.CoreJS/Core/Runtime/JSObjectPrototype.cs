@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esprima.Ast;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -44,7 +45,11 @@ namespace WebAtoms.CoreJS.Core
         [SetProperty("__proto__")]
         internal static JSValue PrototypeSet(JSValue t,params JSValue[] a)
         {
-            return t.prototypeChain = a[0];
+            var a0 = a[0];
+            var o = a0 as JSObject;
+            if (o != null)
+                t.prototypeChain = o;
+            return a0;
         }
 
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
@@ -12,7 +13,11 @@ namespace WebAtoms.CoreJS.Core
     {
         public static readonly KeyString KeyToJSON = "toJSON";
 
-        internal JSObject(JSValue prototype) : base(prototype)
+        public override bool BooleanValue => true;
+
+        public override bool IsObject => true; 
+
+        internal JSObject(JSObject prototype) : base(prototype)
         {
         }
 
@@ -39,9 +44,75 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        internal override KeyString ToKey()
+        {
+            return KeyStrings.GetOrCreate(this.ToString());
+        }
+
         internal BinaryUInt32Map<JSProperty> elements;
         internal PropertySequence ownProperties;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSProperty GetInternalProperty(KeyString key, bool inherited = true)
+        {
+            if (ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
+            {
+                return r;
+            }
+            if (inherited && prototypeChain != null)
+                return prototypeChain.GetInternalProperty(key, inherited);
+            return new JSProperty();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSProperty GetInternalProperty(uint key, bool inherited = true)
+        {
+            if (elements != null && elements.TryGetValue(key, out var r))
+            {
+                return r;
+            }
+            if (inherited && prototypeChain != null)
+                return prototypeChain.GetInternalProperty(key, inherited);
+            return new JSProperty();
+        }
+
+        public override JSValue this[KeyString name] { 
+            get => this.GetValue(GetInternalProperty(name)); 
+            set {
+                var p = GetInternalProperty(name);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(this, value);
+                        return;
+                    }
+                    return;
+                }
+                ownProperties = ownProperties ?? (ownProperties = new PropertySequence());
+                ownProperties[name.Key] = JSProperty.Property(name, value);
+            }
+        }
+
+        public override JSValue this[uint name]
+        {
+            get => this.GetValue(GetInternalProperty(name));
+            set
+            {
+                var p = GetInternalProperty(name);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(this, value);
+                        return;
+                    }
+                    return;
+                }
+                elements = elements ?? (elements = new BinaryUInt32Map<JSProperty>());
+                elements[name] = JSProperty.Property(value);
+            }
+        }
 
         public JSValue DefineProperty(KeyString name, JSProperty p)
         {
@@ -78,6 +149,18 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        public override string ToString()
+        {
+            var px = GetInternalProperty(KeyStrings.toString);
+            if (!px.IsEmpty)
+            {
+                var v = this.GetValue(px);
+                if (v == this)
+                    throw new StackOverflowException();
+                return v.ToString();
+            }
+            return "[object Object]";
+        }
 
         public override string ToDetailString()
         {

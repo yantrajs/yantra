@@ -10,6 +10,13 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly KeyString Key;
 
+        public override bool BooleanValue => true;
+
+        internal override KeyString ToKey()
+        {
+            return Key;
+        }
+
         public JSSymbol(string name) : base(JSContext.Current.ObjectPrototype)
         {
             Key = KeyStrings.NewSymbol(name);
@@ -38,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
         public override bool Equals(object obj)
         {
             if (obj is JSSymbol s)
-                return s.Key == Key;
+                return s.Key.Key == Key.Key;
             return false;
         }
 

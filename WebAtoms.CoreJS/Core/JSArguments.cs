@@ -15,6 +15,13 @@ namespace WebAtoms.CoreJS.Core
             get => (int)this._length;
             set { } }
 
+        public override bool BooleanValue => true;
+
+        internal override KeyString ToKey()
+        {
+            throw new NotImplementedException();
+        }
+
 
         public static JSValue[] From(params double[] args)
         {

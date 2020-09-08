@@ -15,16 +15,22 @@ namespace WebAtoms.CoreJS.Core
 
         public override double DoubleValue => NumberParser.CoerceToNumber(value);
 
-        internal KeyString KeyString => _keyString.Value != null
-            ? _keyString
-            : (_keyString = KeyStrings.GetOrCreate(this.value));
+        public override bool BooleanValue => value.Length > 0;
+
+        internal override KeyString ToKey()
+        {
+            return _keyString.Value != null
+                ? _keyString
+                : (_keyString = KeyStrings.GetOrCreate(this.value));
+        }
+
 
         public JSString(string value): base(JSContext.Current.StringPrototype)
         {
             this.value = value;
         }
 
-        internal JSString(string value, JSValue p) : base(p)
+        internal JSString(string value, JSObject prototype) : base(prototype)
         {
             this.value = value;
         }

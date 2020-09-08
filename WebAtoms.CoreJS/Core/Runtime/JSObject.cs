@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Core
             var p = a[0];
             if (p.IsUndefined)
                 p = JSContext.Current.ObjectPrototype;
-            return new JSObject(p);
+            return new JSObject((JSObject)p);
         }
 
         [Static("assign")]

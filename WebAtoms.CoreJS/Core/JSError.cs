@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
         public const string Cannot_convert_undefined_or_null_to_object = "Cannot convert undefined or null to object";
 
 
-        protected JSError( JSValue message, JSValue stack,  JSValue prototype) : base(prototype)
+        protected JSError( JSValue message, JSValue stack,  JSObject prototype) : base(prototype)
         {
             this.DefineProperty(KeyMessage, JSProperty.Property(message, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
             this.DefineProperty(KeyStack, JSProperty.Property(stack, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));

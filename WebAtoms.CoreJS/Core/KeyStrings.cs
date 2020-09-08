@@ -8,10 +8,6 @@ using System.Threading;
 namespace WebAtoms.CoreJS.Core
 {
 
-    public interface IKeyString
-    {
-        uint Key { get; }
-    }
     public struct KeyString
     {
 
@@ -23,49 +19,61 @@ namespace WebAtoms.CoreJS.Core
             return KeyStrings.GetOrCreate(value);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator String(KeyString value)
-        {
-            return value.Value;
-        }
-
-        //public static bool operator == (KeyString a, KeyString b) {
-        //    return a.Key == b.Key;
-        //}
-        //public static bool operator != (KeyString a, KeyString b)
-        //{
-        //    return a.Key != b.Key;
-        //}
-
-        //public static bool operator ==(KeyString a, string b)
-        //{
-        //    return a.Value == b;
-        //}
-        //public static bool operator !=(KeyString a, string b)
-        //{
-        //    return a.Value != b;
-        //}
-
         public readonly string Value;
         public readonly uint Key;
-        public readonly JSValue Symbol;
+        public readonly JSSymbol Symbol;
+        public readonly JSString String;
 
         public bool IsSymbol
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return Symbol is JSSymbol;
+                return Symbol != null;
             }
         }
 
-        public bool IsUInt => Value == null;
+        public bool IsString
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return String != null;
+            }
+        }
 
-        internal KeyString(string value, uint key, JSValue symbol = null)
+        public bool IsUInt
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return Value == null;
+            }
+        }
+
+        internal KeyString(string value, uint key)
+        {
+            this.Value = value;
+            this.Key = key;
+            this.String = null;
+            this.Symbol = null;
+        }
+
+
+        internal KeyString(string value, uint key, JSString @string)
+        {
+            this.Value = value;
+            this.Key = key;
+            this.String = @string;
+            this.Symbol = null;
+        }
+
+        internal KeyString(string value, uint key, JSSymbol symbol)
         {
             this.Value = value;
             this.Key = key;
             this.Symbol = symbol;
+            this.String = null;
         }
 
         public override bool Equals(object obj)
@@ -91,6 +99,8 @@ namespace WebAtoms.CoreJS.Core
         {
             if (Symbol != null)
                 return Symbol;
+            if (String != null)
+                return String;
             return new JSString(Value, this);
         }
 
@@ -127,6 +137,9 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString get;
         public readonly static KeyString set;
         public readonly static KeyString __proto__;
+        public readonly static KeyString undefined;
+        public readonly static KeyString NaN;
+        public readonly static KeyString @null;
 
         static KeyStrings()
         {
@@ -163,6 +176,9 @@ namespace WebAtoms.CoreJS.Core
             configurable = Create("configurable");
             enumerable = Create("enumerable");
             @readonly = Create("readonly");
+            undefined = Create("undefined");
+            NaN = Create("NaN");
+            @null = Create("null");
             Math = Create("Math");
             JSON = Create("JSON");
         }

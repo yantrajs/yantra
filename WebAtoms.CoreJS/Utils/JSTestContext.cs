@@ -19,7 +19,7 @@ namespace WebAtoms.CoreJS.Utils
                 var test = a1.GetAt(0);
                 var message = a1.GetAt(1);
                 message = message is JSUndefined ? new JSString("Assert failed, no message") : message;
-                if (!JSBoolean.IsTrue(test))
+                if (!test.BooleanValue)
                     throw new JSException(message);
                 return JSUndefined.Value;
             });

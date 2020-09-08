@@ -78,8 +78,8 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
             var Number = DynamicContext.Number;
             bool Fits(double x, double y)
             {
-                var b = Number.isInteger(y / x);
-                return JSBoolean.IsTrue(b);
+                JSValue b = Number.isInteger(y / x);
+                return b.BooleanValue;
             }
 
             Assert.IsTrue(Fits(5, 10));
@@ -93,7 +93,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
             bool IsNaN(object x)
             {
                 JSBoolean b = Number.isNaN(x);
-                return JSBoolean.IsTrue(b);
+                return b._value;
             }
 
             Assert.IsTrue(IsNaN(double.NaN));
@@ -110,7 +110,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
             bool IsSafeInteger(object x)
             {
                 JSBoolean b = Number.isSafeInteger(x);
-                return JSBoolean.IsTrue(b);
+                return b._value;
             }
 
             var lossy = (double)Math.Pow((double)2, (double)53);

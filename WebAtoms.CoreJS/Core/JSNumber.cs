@@ -41,12 +41,26 @@ namespace WebAtoms.CoreJS.Core
         [Static("NEGATIVE_INFINITY")]
         public static readonly double NegativeInfinity = double.NegativeInfinity;
 
+        public override bool IsNumber => true; 
+
+        internal override KeyString ToKey()
+        {
+            var n = this.value;
+            if (double.IsNaN(n))
+                return KeyStrings.NaN;
+            if (n == 0)
+                return new KeyString(null, 0);
+            if (n > 0 && ((int)n) == n)
+                return new KeyString(null, (uint)n);
+            return KeyStrings.GetOrCreate(n.ToString());
+        }
+
         public JSNumber(double value): base(JSContext.Current.NumberPrototype)
         {
             this.value = value;
         }
 
-        internal JSNumber(double value, JSValue jsPrototype) : base(jsPrototype)
+        internal JSNumber(double value, JSObject jsPrototype) : base(jsPrototype)
         {
             this.value = value;
         }
@@ -54,6 +68,8 @@ namespace WebAtoms.CoreJS.Core
         public override int IntValue => (int)value;
 
         public override double DoubleValue => value;
+
+        public override bool BooleanValue => double.IsNaN(value)  ? false : value != 0;
 
         public override string ToString()
         {

@@ -41,6 +41,28 @@ namespace WebAtoms.CoreJS.Core
             return $"[{string.Join(", ", all)}]";
         }
 
+        public override JSValue this[uint name]
+        {
+            get => this.GetValue(GetInternalProperty(name));
+            set
+            {
+                var p = GetInternalProperty(name);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(this, value);
+                        return;
+                    }
+                    return;
+                }
+                if (this._length <= name)
+                    this._length = name + 1;
+                elements = elements ?? (elements = new BinaryUInt32Map<JSProperty>());
+                elements[name] = JSProperty.Property(value);
+            }
+        }
+
         public IEnumerable<JSValue> All
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -13,21 +13,21 @@ using WebAtoms.CoreJS.Utils;
 namespace WebAtoms.CoreJS.Core {
     public abstract class JSValue: IDynamicMetaObjectProvider {
 
-        public bool IsUndefined => this is JSUndefined;
+        public virtual bool IsUndefined => false;
 
-        public bool IsNull => this is JSNull;
+        public virtual bool IsNull => false;
 
-        public bool IsNumber => this is JSNumber;
+        public virtual bool IsNumber => false;
 
-        public bool IsObject => this is JSObject;
+        public virtual bool IsObject => false;
 
-        public bool IsArray => this is JSArray;
+        public virtual bool IsArray => false;
 
-        public bool IsString => this is JSString;
+        public virtual bool IsString => false;
 
-        public bool IsBoolean => this is JSBoolean;
+        public virtual bool IsBoolean => false;
 
-        public bool IsFunction => this is JSFunction;
+        public virtual bool IsFunction => false;
 
         public virtual int Length {
             get => 0;
@@ -36,7 +36,7 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual double DoubleValue => Double.NaN;
 
-        public bool BooleanValue => JSBoolean.IsTrue(this);
+        public abstract bool BooleanValue { get; }
 
         public JSValue TypeOf
         {
@@ -61,7 +61,7 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual int IntValue => 0;
 
-        internal JSValue prototypeChain;
+        internal JSObject prototypeChain;
 
         /// <summary>
         /// Speed improvements for string contact operations
@@ -84,17 +84,20 @@ namespace WebAtoms.CoreJS.Core {
 
         
 
-        protected JSValue(JSValue prototype)
+        protected JSValue(JSObject prototype)
         {
             this.prototypeChain = prototype;
         }
 
+        internal abstract KeyString ToKey();
 
-        public JSValue this[KeyString name]
+        public virtual JSValue this[KeyString name]
         {
             get
             {
-                return this.GetProperty(name);
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return this.GetValue(prototypeChain.GetInternalProperty(name));
             }
             set
             {
@@ -106,12 +109,33 @@ namespace WebAtoms.CoreJS.Core {
         {
             get
             {
-                return this.GetProperty(key);
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                var k = key.ToKey();
+                return k.IsUInt ? this[k.Key] : this[k];
             }
             set
             {
-                this.SetProperty(this, key);
+                var k = key.ToKey();
+                if (k.IsUInt)
+                {
+                    this[k.Key] = value;
+                }
+                else
+                {
+                    this[k] = value;
+                }
             }
+        }
+
+        public virtual JSValue this[uint key]
+        {
+            get {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return this.GetValue(prototypeChain.GetInternalProperty(key));
+            }
+            set => this.SetProperty(key, value);
         }
 
         public abstract JSBoolean Equals(JSValue value);
@@ -129,11 +153,7 @@ namespace WebAtoms.CoreJS.Core {
         internal abstract JSBoolean Greater(JSValue value);
         internal abstract JSBoolean GreaterOrEqual(JSValue value);
 
-        public JSValue this[uint key]
-        {
-            get => this.GetProperty(key);
-            set => this.SetProperty(key, value);
-        }
+
 
         public virtual JSValue CreateInstance(JSValue[] args)
         {
@@ -148,15 +168,17 @@ namespace WebAtoms.CoreJS.Core {
         /// <returns></returns>
         public override string ToString()
         {
-            var fx = this[KeyStrings.toString];
-            if (fx.IsUndefined)
-                return "undefined";
-            var obj = fx.InvokeFunction(this, JSArguments.Empty);
-            if (obj == this)
-            {
-                throw new StackOverflowException();
-            }
-            return obj.ToString();
+            // use inherited version..
+            throw new NotSupportedException($"Use inherited version ... ");
+            //var fx = this[KeyStrings.toString];
+            //if (fx.IsUndefined)
+            //    return "undefined";
+            //var obj = fx.InvokeFunction(this, JSArguments.Empty);
+            //if (obj == this)
+            //{
+            //    throw new StackOverflowException();
+            //}
+            //return obj.ToString();
         }
 
         public virtual string ToDetailString()
@@ -174,7 +196,7 @@ namespace WebAtoms.CoreJS.Core {
         }
         public virtual JSValue InvokeMethod(JSString name,params JSValue[] args)
         {
-            var fx = this[name.KeyString];
+            var fx = this[name.ToKey()];
             if (fx.IsUndefined)
                 throw new InvalidOperationException();
             return fx.InvokeFunction(this, args);
@@ -269,7 +291,7 @@ namespace WebAtoms.CoreJS.Core {
                 case decimal d1: return value[(uint)d1];
                 case float f1: return value[(uint)f1];
                 case JSNumber jn: return value[(uint)jn.value];
-                case JSString js: return value[js.KeyString];
+                case JSString js: return value[js.ToKey()];
             }
             return value[name.ToString()];
         }
@@ -288,7 +310,7 @@ namespace WebAtoms.CoreJS.Core {
                 case decimal d1: return target[(uint)d1] = value;
                 case float f1: return target[(uint)f1] = value;
                 case JSNumber jn: return target[(uint)jn.value] = value;
-                case JSString js: return target[js.KeyString] = value;
+                case JSString js: return target[js.ToKey()] = value;
             }
             return target[name.ToString()] = value;
         }

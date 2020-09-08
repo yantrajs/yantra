@@ -90,6 +90,11 @@ namespace WebAtoms.CoreJS.Core
             get => (Attributes & JSPropertyAttributes.Value) > 0;
         }
 
+        public bool IsProperty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => (Attributes & JSPropertyAttributes.Property) > 0;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Function(

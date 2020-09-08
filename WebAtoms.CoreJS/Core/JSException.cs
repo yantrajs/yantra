@@ -19,7 +19,7 @@ namespace WebAtoms.CoreJS.Core
             Stack = Capture();
         }
 
-        public JSException(string message, JSValue prototype) : base(message)
+        public JSException(string message, JSObject prototype) : base(message)
         {
             Error = new JSError(new JSString(message), JSUndefined.Value);
             Error.prototypeChain = prototype;

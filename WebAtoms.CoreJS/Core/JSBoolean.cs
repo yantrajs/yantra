@@ -10,28 +10,32 @@ namespace WebAtoms.CoreJS.Core
     {
         internal readonly bool _value;
 
-        internal JSBoolean(bool _value, JSValue prototype) : base(prototype)
+        internal JSBoolean(bool _value, JSObject prototype) : base(prototype)
         {
             this._value = _value;
         }
 
-        public static bool IsTrue(JSValue value)
-        {
-            switch (value)
-            {
-                case JSString str:
-                    return str.Length > 0;
-                case JSBoolean bv:
-                    return bv._value;
-                case JSNumber n:
-                    return n.value != 0 && n.value != double.NaN;
-                case JSObject obj:
-                    return true;
-            }
-            return false;
-        }
+        //public static bool IsTrue(JSValue value)
+        //{
+        //    switch (value)
+        //    {
+        //        case JSString str:
+        //            return str.Length > 0;
+        //        case JSBoolean bv:
+        //            return bv._value;
+        //        case JSNumber n:
+        //            return n.value != 0 && n.value != double.NaN;
+        //        case JSObject obj:
+        //            return true;
+        //    }
+        //    return false;
+        //}
 
         public override double DoubleValue => this._value ? 1 : 0;
+
+        public override bool BooleanValue => this._value;
+
+        public override bool IsBoolean => true; 
 
         public override string ToString()
         {
@@ -178,6 +182,14 @@ namespace WebAtoms.CoreJS.Core
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
+        }
+
+        private static KeyString @true = KeyStrings.GetOrCreate("true");
+        private static KeyString @false = KeyStrings.GetOrCreate("false");
+
+        internal override KeyString ToKey()
+        {
+            return this._value ? @true : @false;
         }
     }
 }
