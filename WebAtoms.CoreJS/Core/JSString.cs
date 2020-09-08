@@ -57,6 +57,16 @@ namespace WebAtoms.CoreJS.Core
             return value;
         }
 
+        public override JSValue this[uint key] { 
+            get
+            {
+                if (key >= this.value.Length)
+                    return JSUndefined.Value;
+                return new JSString(new string(this.value[(int)key],1));
+            } 
+            set => base[key] = value; 
+        }
+
         public override int Length => value.Length;
 
         public override JSValue AddValue(JSValue value)

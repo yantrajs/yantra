@@ -11,7 +11,7 @@ using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core {
-    public abstract class JSValue: IDynamicMetaObjectProvider {
+    public abstract class JSValue : IDynamicMetaObjectProvider {
 
         public virtual bool IsUndefined => false;
 
@@ -42,7 +42,7 @@ namespace WebAtoms.CoreJS.Core {
         {
             get
             {
-                switch(this)
+                switch (this)
                 {
                     case JSUndefined u:
                         return JSConstants.Undefined;
@@ -82,7 +82,7 @@ namespace WebAtoms.CoreJS.Core {
         /// <returns></returns>
         public abstract JSValue AddValue(string value);
 
-        
+
 
         protected JSValue(JSObject prototype)
         {
@@ -101,7 +101,7 @@ namespace WebAtoms.CoreJS.Core {
             }
             set
             {
-                this.SetProperty(name, value);
+                throw new NotSupportedException();
             }
         }
 
@@ -135,7 +135,7 @@ namespace WebAtoms.CoreJS.Core {
                     return JSUndefined.Value;
                 return this.GetValue(prototypeChain.GetInternalProperty(key));
             }
-            set => this.SetProperty(key, value);
+            set => throw new NotSupportedException();
         }
 
         public abstract JSBoolean Equals(JSValue value);
@@ -153,6 +153,10 @@ namespace WebAtoms.CoreJS.Core {
         internal abstract JSBoolean Greater(JSValue value);
         internal abstract JSBoolean GreaterOrEqual(JSValue value);
 
+        internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
+        {
+            yield break;
+        }
 
 
         public virtual JSValue CreateInstance(JSValue[] args)
@@ -194,13 +198,40 @@ namespace WebAtoms.CoreJS.Core {
                 throw new MethodAccessException($"Method {name} not found on {this}");
             return fx.InvokeFunction(this, args);
         }
-        public virtual JSValue InvokeMethod(JSString name,params JSValue[] args)
+
+        public JSValue InvokeMethod(uint name, params JSValue[] args)
         {
-            var fx = this[name.ToKey()];
+            var fx = this[name];
             if (fx.IsUndefined)
-                throw new InvalidOperationException();
+                throw new MethodAccessException($"Method {name} not found on {this}");
             return fx.InvokeFunction(this, args);
         }
+
+        public JSValue InvokeMethod(JSValue name,params JSValue[] args)
+        {
+            var key = name.ToKey();
+            if (key.IsUInt)
+                return InvokeMethod(key.Key, args);
+            return InvokeMethod(key, args);
+        }
+
+        public virtual JSValue Delete(KeyString key)
+        {
+            return JSContext.Current.False;
+        }
+        public virtual JSValue Delete(uint key)
+        {
+            return JSContext.Current.False;
+        }
+
+        public JSValue Delete(JSValue index)
+        {
+            var key = index.ToKey();
+            if (key.IsUInt)
+                return this.Delete(key.Key);
+            return Delete(key);
+        }
+
 
         internal JSValue InternalInvoke(object name,params JSValue[] args)
         {

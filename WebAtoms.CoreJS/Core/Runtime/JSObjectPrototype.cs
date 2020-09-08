@@ -15,16 +15,14 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("propertyIsEnumerable")]
         public static JSValue PropertyIsEnumerable(JSValue t, params JSValue[] a)
         {
-            switch (t)
+            if(t.IsUndefined || t.IsNull)
             {
-                case JSUndefined _:
-                case JSNull _:
-                    throw JSContext.Current.NewError("Cannot convert undefined or null to object");
+                throw JSContext.Current.NewError("Cannot convert undefined or null to object");
             }
             if (a.Length > 0)
             {
                 var text = a[0].ToString();
-                var px = t.GetInternalProperty(text, false);
+                var px = ((JSObject)t).GetInternalProperty(text, false);
                 if (!px.IsEmpty && px.IsEnumerable)
                     return JSContext.Current.True;
             }

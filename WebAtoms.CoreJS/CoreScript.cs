@@ -750,7 +750,7 @@ namespace WebAtoms.CoreJS
                 var right = VisitExpression(forInStatement.Right);
                 return Exp.Block(
                     pList,
-                    Exp.Assign(en, JSValueExtensionsBuilder.GetAllKeys(right)),
+                    Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
                     Exp.Loop(bodyList, s.Break, s.Continue)
                     );
             }
@@ -818,17 +818,17 @@ namespace WebAtoms.CoreJS
                     if (me.Computed)
                     {
                         pe = VisitExpression(me.Property);
-                        return JSValueExtensionsBuilder.DeleteJSValue(targetObj, pe);
+                        return JSValueBuilder.Delete(targetObj, pe);
                     } else
                     {
                         switch (me.Property)
                         {
                             case Literal l when l.TokenType == TokenType.NumericLiteral:
-                                return JSValueExtensionsBuilder.DeleteUint32(targetObj, Exp.Constant((uint)l.NumericValue));
+                                return JSValueBuilder.Delete(targetObj, Exp.Constant((uint)l.NumericValue));
                             case Literal l1 when l1.TokenType == TokenType.StringLiteral:
-                                return JSValueExtensionsBuilder.DeleteUint32(targetObj, KeyOfName(l1.StringValue));
+                                return JSValueBuilder.Delete(targetObj, KeyOfName(l1.StringValue));
                             case Identifier id:
-                                return JSValueExtensionsBuilder.DeleteKeyString(targetObj, KeyOfName(id.Name));
+                                return JSValueBuilder.Delete(targetObj, KeyOfName(id.Name));
                         }
                     }
                     break;
@@ -963,21 +963,21 @@ namespace WebAtoms.CoreJS
             var constructor = VisitExpression(newExpression.Callee);
             var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e)).ToList();
             var pe = ExpHelper.JSArgumentsBuilder.New(args);
-            return ExpHelper.JSValueExtensionsBuilder.CreateInstance(constructor, pe);
+            return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
             if (memberExpression.Computed)
             {
-                return JSValueExtensionsBuilder.GetPropertyJSValue(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
+                return JSValueBuilder.Index(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
             }
             switch (memberExpression.Property)
             {
                 case Identifier id:
                     if (!memberExpression.Computed)
                     {
-                        return ExpHelper.JSValueExtensionsBuilder.GetPropertyKeyString(
+                        return ExpHelper.JSValueBuilder.Index(
                             VisitExpression(memberExpression.Object),
                             KeyOfName(id.Name));
                     }
@@ -986,21 +986,21 @@ namespace WebAtoms.CoreJS
                         KeyOfName(id.Name));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.BooleanLiteral:
-                    return ExpHelper.JSValueExtensionsBuilder.GetPropertyUInt32(
+                    return ExpHelper.JSValueBuilder.Index(
                         VisitExpression(memberExpression.Object),
                         l.BooleanValue ? (uint)0 : (uint)1);
                 case Literal l
                     when l.TokenType == Esprima.TokenType.StringLiteral:
-                    return ExpHelper.JSValueExtensionsBuilder.GetPropertyKeyString(
+                    return ExpHelper.JSValueBuilder.Index(
                         VisitExpression(memberExpression.Object),
                         KeyOfName(l.StringValue));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.NumericLiteral:
-                    return ExpHelper.JSValueExtensionsBuilder.GetPropertyUInt32(
+                    return ExpHelper.JSValueBuilder.Index(
                         VisitExpression(memberExpression.Object),
                         (uint)l.NumericValue);
                 case StaticMemberExpression se:
-                    return JSValueExtensionsBuilder.GetPropertyJSValue( VisitExpression(memberExpression.Object),VisitExpression(se.Property));
+                    return JSValueBuilder.Index( VisitExpression(memberExpression.Object),VisitExpression(se.Property));
 
             }
             throw new NotImplementedException();
@@ -1256,7 +1256,7 @@ namespace WebAtoms.CoreJS
 
                 // var name = KeyOfName(id.Name);
 
-                return JSValueExtensionsBuilder.InvokeMethod(obj, name, paramArray);
+                return JSValueBuilder.InvokeMethod(obj, name, paramArray);
 
             } else {
                 var a = ExpHelper.JSNullBuilder.Value;

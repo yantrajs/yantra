@@ -31,6 +31,17 @@ namespace WebAtoms.CoreJS.Core
             return obj is JSNull;
         }
 
+        public override JSValue Delete(KeyString key)
+        {
+            throw JSContext.Current.NewTypeError($"Unable to delete {key} of null");
+        }
+
+        public override JSValue Delete(uint key)
+        {
+            throw JSContext.Current.NewTypeError($"Unable to delete {key} of null");
+        }
+
+
         public override JSValue AddValue(JSValue value)
         {
             switch(value)

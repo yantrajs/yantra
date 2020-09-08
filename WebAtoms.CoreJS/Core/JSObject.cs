@@ -155,6 +155,8 @@ namespace WebAtoms.CoreJS.Core
             if (!px.IsEmpty)
             {
                 var v = this.GetValue(px);
+                if (v.IsFunction)
+                    v = v.InvokeFunction(this);
                 if (v == this)
                     throw new StackOverflowException();
                 return v.ToString();
@@ -175,6 +177,44 @@ namespace WebAtoms.CoreJS.Core
                     return NumberParser.CoerceToNumber(this.ToString());
                 var v = fx.InvokeFunction(this, JSArguments.Empty);
                 return v.DoubleValue;
+            }
+        }
+
+        internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
+        {
+            var elements = this.elements;
+            if (elements != null)
+            {
+                foreach (var p in elements.AllValues())
+                {
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.Value.IsEnumerable)
+                            continue;
+                    }
+                    yield return new JSNumber(p.Key);
+                }
+            }
+
+            var ownProperties = this.ownProperties;
+            if (ownProperties != null)
+            {
+                foreach (var p in ownProperties.AllValues())
+                {
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.Value.IsEnumerable)
+                            continue;
+                    }
+                    yield return p.Value.ToJSValue();
+                }
+            }
+
+            var @base = this.prototypeChain;
+            if (@base != this && @base != null)
+            {
+                foreach (var i in @base.GetAllKeys(showEnumerableOnly))
+                    yield return i;
             }
         }
 
@@ -252,6 +292,19 @@ namespace WebAtoms.CoreJS.Core
             ownProperties[p.key.Key] = p;
         }
 
+        public override JSValue Delete(KeyString key)
+        {
+            if (ownProperties?.RemoveAt(key.Key) ?? false)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
+
+        public override JSValue Delete(uint key)
+        {
+            if (elements?.RemoveAt(key) ?? false)
+                return JSContext.Current.True;
+            return JSContext.Current.False;
+        }
 
         public override JSValue AddValue(JSValue value)
         {

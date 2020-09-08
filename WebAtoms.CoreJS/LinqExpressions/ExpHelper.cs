@@ -80,7 +80,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         {
             var a = typeof(T)
                 .GetMethod(name,
-                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Instance
+                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public
                     , null, new Type[] { typeof(T1), typeof(T2) }, null);
             return a;
         }
@@ -95,6 +95,15 @@ namespace WebAtoms.CoreJS.ExpHelper
             return typeof(T)
                 .GetMethod(name, 
                 new Type[] { typeof(T1), typeof(T2) });
+        }
+
+        protected static MethodInfo InternalStaticMethod<T1>(string name)
+        {
+            var a = typeof(T)
+                .GetMethod(name,
+                    BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Static
+                    , null, new Type[] { typeof(T1) }, null);
+            return a;
         }
 
         protected static MethodInfo InternalStaticMethod<T1, T2>(string name)
@@ -453,133 +462,9 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Call(null, _IsIn, target, value);
         }
 
-        private static MethodInfo _KeyStringIndex =
-            type.GetMethod(nameof(Extensions.JSValueExtensions.GetProperty), 
-                new Type[] { typeof(Core.JSValue), typeof(KeyString) });
-
-        public static Expression GetPropertyKeyString(Expression target, Expression key)
-        {
-            return Expression.Call(null, _KeyStringIndex, target, key);
-        }
-
-        private static MethodInfo _Index =
-            type.StaticMethod(nameof(Extensions.JSValueExtensions.GetProperty), 
-                typeof(Core.JSValue), typeof(uint));
-
-        private static MethodInfo _IndexValue =
-            type.StaticMethod(nameof(Extensions.JSValueExtensions.GetProperty),
-                typeof(Core.JSValue), typeof(JSValue));
-
-
-        public static Expression GetPropertyUInt32(Expression target, Expression key)
-        {
-            return Expression.Call(null, _Index, target, key);
-        }
-
-        public static Expression GetPropertyUInt32(Expression target, uint i)
-        {
-            return Expression.Call(null, _Index, target, Expression.Constant(i));
-        }
-        public static Expression GetPropertyJSValue(Expression target, Expression key)
-        {
-            return Expression.Call(null, _IndexValue, target, key);
-        }
-
-        private static MethodInfo _SetKeyStringIndex =
-            type.GetMethod(nameof(Extensions.JSValueExtensions.SetProperty), 
-                new Type[] { typeof(Core.JSValue), typeof(KeyString), typeof(Core.JSValue) });
-
-        public static Expression SetPropertyKeyString(Expression target, Expression key, Expression value)
-        {
-            return Expression.Call(null, _KeyStringIndex, target, key, value);
-        }
-
-        private static MethodInfo _SetIndex =
-            type.GetMethod(nameof(Extensions.JSValueExtensions.SetProperty), 
-                new Type[] { typeof(Core.JSValue), typeof(uint), typeof(Core.JSValue) });
-
-        private static MethodInfo _SetIndexValue =
-                    type.GetMethod(nameof(Extensions.JSValueExtensions.SetProperty),
-                        new Type[] { typeof(Core.JSValue), typeof(JSValue), typeof(Core.JSValue) });
         public static Expression Assign(Expression e, Expression value)
         {
-            if (e is MethodCallExpression mce)
-            {
-                if (mce.Method == _Index)
-                {
-                    return Expression.Call(null, _SetIndex, mce.Arguments[0], mce.Arguments[1], value);
-                }
-                if (mce.Method == _KeyStringIndex)
-                {
-                    return Expression.Call(null, _SetKeyStringIndex, mce.Arguments[0], mce.Arguments[1], value);
-                }
-                if (mce.Method == _IndexValue)
-                {
-                    return Expression.Call(null, _SetIndexValue, mce.Arguments[0], mce.Arguments[1], value);
-                }
-            }
             return Expression.Assign(e, value);
-        }
-
-        private static MethodInfo _GetAllKeys =
-            type.StaticMethod<JSValue,bool>(nameof(JSValueExtensions.GetAllKeys));
-
-        private static MethodInfo _GetEnumerator =
-            typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));
-
-        public static Expression GetAllKeys(Expression target)
-        {
-            return 
-                Expression.Call(
-                    Expression.Call(null, _GetAllKeys, target, Expression.Constant(false)),
-                    _GetEnumerator);
-        }
-
-        private static MethodInfo _InvokeMethodKeyString
-            = type.StaticMethod<JSValue, KeyString, JSValue[]>(nameof(JSValueExtensions.InvokeMethod));
-
-        private static MethodInfo _InvokeMethodJSValue
-            = type.StaticMethod<JSValue, JSValue, JSValue[]>(nameof(JSValueExtensions.InvokeMethod));
-
-        private static MethodInfo _InvokeMethodUint
-            = type.StaticMethod<JSValue, uint, JSValue[]>(nameof(JSValueExtensions.InvokeMethod));
-
-        public static Expression InvokeMethod(Expression target, Expression key, Expression args)
-        {
-            if (key.Type == typeof(KeyString))
-                return Expression.Call(null, _InvokeMethodKeyString, target, key, args);
-            if (key.Type == typeof(uint))
-                return Expression.Call(null, _InvokeMethodUint, target, key, args);
-            return Expression.Call(null, _InvokeMethodJSValue, target, key, args);
-        }
-
-        private static MethodInfo _DeleteKeyString
-            = type.StaticMethod<JSValue, KeyString>(nameof(JSValueExtensions.Delete));
-        private static MethodInfo _DeleteInt
-            = type.StaticMethod<JSValue, uint>(nameof(JSValueExtensions.Delete));
-        private static MethodInfo _DeleteJSValue
-            = type.StaticMethod<JSValue, JSValue>(nameof(JSValueExtensions.Delete));
-
-        public static Expression DeleteKeyString(Expression target, Expression key)
-        {
-            return Expression.Call(null, _DeleteKeyString, target, key);
-        }
-
-        public static Expression DeleteUint32(Expression target, Expression key)
-        {
-            return Expression.Call(null, _DeleteInt, target, key);
-        }
-        public static Expression DeleteJSValue(Expression target, Expression key)
-        {
-            return Expression.Call(null, _DeleteJSValue, target, key);
-        }
-
-        private static MethodInfo _CreateInstance =
-            type.StaticMethod<JSValue, Core.JSValue[]>(nameof(Core.JSValue.CreateInstance));
-
-        public static Expression CreateInstance(Expression target, Expression paramList)
-        {
-            return Expression.Call(null, _CreateInstance, target, paramList);
         }
 
     }
@@ -617,18 +502,80 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Property(target, _TypeOf);
         }
 
+        private static PropertyInfo _IndexKeyString =
+            IndexProperty<KeyString>();
+
+        private static PropertyInfo _IndexUInt =
+            IndexProperty<KeyString>();
+
         private static PropertyInfo _Index =
             IndexProperty<Core.JSValue>();
 
-        
+        public static Expression Index(Expression target, uint i)
+        {
+            return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Constant(i) });
+        }
+
+
 
         public static Expression Index(Expression target, Expression property)
         {
             if (property.Type == typeof(KeyString))
             {
-                return JSValueExtensionsBuilder.GetPropertyKeyString(target, property);
+                return Expression.MakeIndex(target, _IndexKeyString, new Expression[] { property });
+            }
+            if (property.Type == typeof(uint))
+            {
+                return Expression.MakeIndex(target, _IndexUInt, new Expression[] { property });
+            }
+            if (property.Type == typeof(int))
+            {
+                return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Convert(property,typeof(uint)) });
             }
             return Expression.MakeIndex(target, _Index, new Expression[] { property });
+        }
+
+        private static MethodInfo _InvokeMethodKeyString
+            = InternalMethod<KeyString, JSValue[]>(nameof(JSValue.InvokeMethod));
+        private static MethodInfo _InvokeMethodUInt
+            = InternalMethod<uint, JSValue[]>(nameof(JSValue.InvokeMethod));
+        private static MethodInfo _InvokeMethodJSValue
+            = InternalMethod<JSValue, JSValue[]>(nameof(JSValue.InvokeMethod));
+
+        public static Expression InvokeMethod(Expression target, Expression method, Expression args)
+        {
+            if (method.Type == typeof(KeyString))
+                return Expression.Call(target, _InvokeMethodKeyString, method, args);
+            if (method.Type == typeof(uint))
+                return Expression.Call(target, _InvokeMethodUInt, method, args);
+            if (method.Type == typeof(int))
+                return Expression.Call(target, _InvokeMethodUInt, Expression.Convert(method,typeof(uint)), args);
+            return Expression.Call(target, _InvokeMethodJSValue, method, args);
+        }
+
+        private static MethodInfo _DeleteKeyString
+            = InternalMethod<KeyString>(nameof(JSValue.Delete));
+        private static MethodInfo _DeleteUInt
+            = InternalMethod<KeyString>(nameof(JSValue.Delete));
+        private static MethodInfo _DeleteJSValue
+            = InternalMethod<KeyString>(nameof(JSValue.Delete));
+
+        public static Expression Delete(Expression target, Expression method)
+        {
+            if (method.Type == typeof(KeyString))
+                return Expression.Call(target, _DeleteKeyString, method);
+            if (method.Type == typeof(uint))
+                return Expression.Call(target, _DeleteUInt, method);
+            if (method.Type == typeof(int))
+                return Expression.Call(target, _DeleteUInt, Expression.Convert(method,typeof(uint)));
+            return Expression.Call(target, _DeleteJSValue, method);
+        }
+
+        internal static MethodInfo _CreateInstance
+            = Method<JSValue[]>(nameof(JSValue.CreateInstance));
+
+        public static Expression CreateInstance(Expression target, Expression args) {
+            return Expression.Call(target, _CreateInstance, args); 
         }
 
         internal static MethodInfo StaticEquals
@@ -712,6 +659,21 @@ namespace WebAtoms.CoreJS.ExpHelper
                 target,
                 value, typeof(JSValue));
         }
+
+        private static MethodInfo _GetAllKeys =
+            Method<JSValue, bool>(nameof(JSValue.GetAllKeys));
+
+        private static MethodInfo _GetEnumerator =
+            typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));
+
+        public static Expression GetAllKeys(Expression target)
+        {
+            return
+                Expression.Call(
+                    Expression.Call(null, _GetAllKeys, target, Expression.Constant(false)),
+                    _GetEnumerator);
+        }
+
     }
 
     public class JSObjectBuilder: TypeHelper<Core.JSObject>
