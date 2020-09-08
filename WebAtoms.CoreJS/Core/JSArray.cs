@@ -32,7 +32,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override string ToString()
         {
-            return $"[{string.Join(",", All)}]";
+            return string.Join(",", All);
         }
 
         public override string ToDetailString()

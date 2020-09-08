@@ -58,6 +58,12 @@ namespace WebAtoms.CoreJS.Core
             return new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue);
         }
 
+        [Prototype("toString")]
+        public new static JSValue ToString(JSValue t, params JSValue[] _) 
+            => new JSString( 
+                t is JSArray a 
+                    ?  string.Join(",", a.All) 
+                    : "[object Object]");
 
 
     }
