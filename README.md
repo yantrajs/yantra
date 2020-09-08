@@ -32,6 +32,15 @@ On platforms where Roslyn is available, you can easily generate code high perfor
  ### Complexity
  1. Tail Call Optimization
 
+ ## Performance Points
+
+ 1. Do not use Switch pattern matching for types, 
+ https://sharplab.io/#v2:EYLgtghgzgLgpgJwDQxNMSAmIDUAfAAQCYBGAWACgCBmAAmNoGFaBvS2j29zm+gFloBZABQBKWgF4AfEJLCAdgFcANstEBubhy306BAYLkAlAPYmYtCOLYVOd2lADuASxgBjABbCrrHfc5u0HC0AIK0APokIH7+9owm8lAmynAAdADqCK5wwpGpAGYaMbGcwAhwEADWmrYlAUG0AEIRRNG1dXEJSSkZWfC5RAVF7R2l5VU1JQC+xUxdyWmZ2d6pAGLDdjMjOrz6QkTCpuaWojYlAG4QCLTAkrTCIaIQk7HxiQu9y8BDLxxbdrsDNRDmYLFYzq95j0lv0IGsNpwtltKLwIMBYAgIG4LAwjhYbDs6GiMViLM55BZVqxaABzOAwdS0JGUFFEUIgWh43ztXjkiz5O4kGqE2gmc6ILKYYJ82hU6S0fI1ZFUNmNDlciG6WgygUSWhEX5cEa8MUS5xS7UU2WSGSKyhTIA==
+ Based on above example, it seems every `is` operator is expensive as it makes first call to check if it is assignable from the given type. 
+ It is not a simple call, it is series of calls to check if current type is same or current type is derived from assignable type.
+
+ 2. Virtual properies are useful. As casting also requires a `call` instruction.
+
 https://github.com/agileobjects/ReadableExpressions
 
 ## Comparison with JInt and Jurassic

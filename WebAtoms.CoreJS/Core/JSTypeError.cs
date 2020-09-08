@@ -17,10 +17,5 @@ namespace WebAtoms.CoreJS.Core
         {
         }
 
-        public new static JSFunction Create()
-        {
-            var r = new JSFunction((t, a) => new JSTypeError(a[0], JSUndefined.Value));
-            return r;
-        }
     }
 }
