@@ -1,5 +1,5 @@
 ﻿var a = Array.from("abc");
-assert(a[0] === "a");
+assert(a[0] === "a", a[0]);
 assert(a[1] === "b");
 assert(a[2] === "c");
 

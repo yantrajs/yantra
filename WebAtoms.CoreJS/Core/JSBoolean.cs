@@ -6,7 +6,7 @@ using System.Xml.Schema;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSBoolean : JSValue
+    public partial class JSBoolean : JSValue
     {
         internal readonly bool _value;
 
@@ -36,12 +36,6 @@ namespace WebAtoms.CoreJS.Core
         public override string ToString()
         {
             return _value ? "true" : "false";
-        }
-
-        internal static JSFunction Create()
-        {
-            var r = new JSFunction((t, a) => IsTrue(a[0]) ? JSContext.Current.True : JSContext.Current.False);
-            return r;
         }
 
         public override bool Equals(object obj)

@@ -294,7 +294,7 @@ namespace WebAtoms.CoreJS.Extensions
                     break;
             }
             int n = -1;
-            if (!double.IsNaN(d) && d > 0 && (d % 1) == 0)
+            if (!double.IsNaN(d) && d >= 0 && (d % 1) == 0)
             {
                 n = (int)d;
             }

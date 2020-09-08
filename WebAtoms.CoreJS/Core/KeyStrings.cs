@@ -107,6 +107,8 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString Array;
         public readonly static KeyString Function;
         public readonly static KeyString Boolean;
+        public readonly static KeyString Math;
+        public readonly static KeyString JSON;
         public readonly static KeyString Date;
         public readonly static KeyString toString;
         public readonly static KeyString valueOf;
@@ -161,6 +163,8 @@ namespace WebAtoms.CoreJS.Core
             configurable = Create("configurable");
             enumerable = Create("enumerable");
             @readonly = Create("readonly");
+            Math = Create("Math");
+            JSON = Create("JSON");
         }
 
         private static BinaryCharMap<KeyString> map = new BinaryCharMap<KeyString>();

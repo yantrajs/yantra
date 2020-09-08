@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using WebAtoms.CoreJS.Core.Objects;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -76,6 +78,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject JSON;
 
+        public readonly JSMath Math;
+
         public static JSContext Current
         {
             get
@@ -96,20 +100,38 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            (JSFunction function, JSValue prototype) CreateFrom(KeyString name, Type type, JSValue baseType = null)
+            ownProperties = new PropertySequence();
+
+            T CreateInternalObject<T>(KeyString name)
+                where T: JSObject
             {
-                return CreatePrototype(name, () => Bootstrap.Create(name, type), baseType);
+                var r = Activator.CreateInstance<T>();
+                r.ownProperties = new PropertySequence();
+                var cached = cache.GetOrCreate(name.Key, () => { 
+                    lock(cache)
+                    {
+                        return Bootstrap.Create(name, typeof(T));
+                    }
+                });
+
+                ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+
+                foreach(var p in cached.ownProperties.AllValues())
+                {
+                    r.ownProperties[p.Key] = p.Value;
+                }
+
+                return r;
             }
 
-
-            (JSFunction function,JSValue prototype) CreatePrototype(KeyString name, Func<JSFunction> factory, JSValue prototypeChain = null)
+            (JSFunction function, JSValue prototype) CreateFrom(KeyString name, Type type, JSValue baseType = null)
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
-                this[name] = r;
-                r.prototypeChain = prototypeChain ?? ObjectPrototype;
+                ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+                r.prototypeChain = baseType ?? ObjectPrototype;
                 var cached = cache.GetOrCreate(name.Key, () =>
                 {
-                    lock (cache) { return factory(); }
+                    lock (cache) { return Bootstrap.Create(name, type); }
                 });
                 r.f = cached.f;
                 var target = r.prototype.ownProperties;
@@ -136,7 +158,7 @@ namespace WebAtoms.CoreJS.Core
             (String, StringPrototype) = CreateFrom(KeyStrings.String, typeof(JSString));
             (Number, NumberPrototype) = CreateFrom(KeyStrings.Number, typeof(JSNumber));
             (Function, FunctionPrototype) = CreateFrom(KeyStrings.Function, typeof(JSFunction));
-            (Boolean, BooleanPrototype) = CreatePrototype(KeyStrings.Boolean, JSBoolean.Create);
+            (Boolean, BooleanPrototype) = CreateFrom(KeyStrings.Boolean, typeof(JSBoolean));
             (Error, ErrorPrototype) = CreateFrom(JSError.KeyError, typeof(JSError));
             (TypeError, TypeErrorPrototype) = CreateFrom(JSTypeError.KeyTypeError, typeof(JSError), ErrorPrototype);
             (RangeError, RangeErrorPrototype) = CreateFrom(JSTypeError.KeyRangeError, typeof(JSError), ErrorPrototype);
@@ -147,8 +169,8 @@ namespace WebAtoms.CoreJS.Core
             One = new JSNumber(1, NumberPrototype);
             Zero = new JSNumber(0, NumberPrototype);
             Two = new JSNumber(2, NumberPrototype);
-            CreatePrototype(JSJSON.JSON, JSJSON.Create);
-            JSON = this[JSJSON.JSON] as JSObject;
+            JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
+            Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
 

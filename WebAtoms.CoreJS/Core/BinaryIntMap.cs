@@ -9,6 +9,7 @@ using System.Text;
 namespace WebAtoms.CoreJS.Core
 {
     internal abstract class BaseMap<TKey, TValue>
+        where TKey: IComparable<TKey>
     {
         protected TrieNode[] Buffer;
 
@@ -128,18 +129,20 @@ namespace WebAtoms.CoreJS.Core
             node.Update(key, value);
         }
 
+        internal enum TrieNodeState: byte
+        {
+            HasValue = 1,
+            HasIndex = 2,
+            HasDefaultValue = 4,
+            Null = 0xff
+        }
 
         internal struct TrieNode
         {
-            private static byte HasValueFlag = 0x1;
-            private static byte HasIndexFlag = 0x10;
-
-            private static byte EmptyFlag = 0xFF;
-
 
             internal static TrieNode Empty = new TrieNode
             {
-                State = 0xFF
+                State = TrieNodeState.Null
             };
 
             public bool IsNull
@@ -147,11 +150,11 @@ namespace WebAtoms.CoreJS.Core
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return this.State == EmptyFlag;
+                    return this.State == TrieNodeState.Null;
                 }
             }
 
-            private byte State;
+            private TrieNodeState State;
 
             /// <summary>
             /// Index to next node set...
@@ -162,18 +165,27 @@ namespace WebAtoms.CoreJS.Core
 
             public void UpdateIndex(UInt32 index)
             {
-                if (State == EmptyFlag)
+                if (State == TrieNodeState.Null)
                     throw new InvalidOperationException();
                 this.FirstChildIndex = index;
-                this.State |= HasIndexFlag;
+                this.State |= TrieNodeState.HasIndex;
             }
 
             public void Update(TKey key, TValue value)
             {
-                if (State == EmptyFlag)
+                if (State == TrieNodeState.Null)
                     throw new InvalidOperationException();
                 this.Key = key;
-                this.State |= HasValueFlag;
+                this.State |= TrieNodeState.HasValue;
+                this._Value = value;
+            }
+
+            public void UpdateDefaultValue(TKey key, TValue value)
+            {
+                if (State == TrieNodeState.Null)
+                    throw new InvalidOperationException();
+                this.Key = key;
+                this.State = (this.State & TrieNodeState.HasIndex) | TrieNodeState.HasDefaultValue;
                 this._Value = value;
             }
 
@@ -190,7 +202,7 @@ namespace WebAtoms.CoreJS.Core
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return (State & HasIndexFlag) > 0;
+                    return (State &  TrieNodeState.HasIndex) > 0;
                 }
             }
 
@@ -199,13 +211,23 @@ namespace WebAtoms.CoreJS.Core
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return State !=  EmptyFlag && (State & HasValueFlag) > 0;
+                    return State !=  TrieNodeState.Null && (State & TrieNodeState.HasValue) > 0;
                 }
             }
 
+            public bool HasDefaultValue
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get
+                {
+                    return State != TrieNodeState.Null && (State & TrieNodeState.HasDefaultValue) > 0;
+                }
+            }
+
+
             public void ClearValue()
             {
-                this.State &= 0x10;
+                this.State &= TrieNodeState.HasIndex;
             }
 
         }

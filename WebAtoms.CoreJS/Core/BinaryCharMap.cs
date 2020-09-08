@@ -132,6 +132,27 @@ namespace WebAtoms.CoreJS.Core {
                     }
                     else
                     {
+                        if (node.HasValue && node.Key == keyString)
+                            return ref node;
+                        // if this branch has no value
+                        // store value here...
+                        if (create)
+                        {
+                            if (!(node.HasValue | node.HasDefaultValue))
+                            {
+                                return ref node;
+                            }
+                            if (node.Key.CompareTo(keyString) > 0)
+                            {
+                                var dirty = node.Value;
+                                var old = node.Key;
+                                node.UpdateDefaultValue(keyString, default);
+                                this.Save(old, dirty);
+                                return ref node;
+                            }
+                        }
+
+
                         if (!node.HasIndex)
                         {
                             if (!create)
@@ -145,6 +166,7 @@ namespace WebAtoms.CoreJS.Core {
                             Buffer[index].UpdateIndex(position);
                             index = position + bk;
                             node = ref Buffer[index];
+                            return ref node;
                         }
                         else
                         {
@@ -155,6 +177,7 @@ namespace WebAtoms.CoreJS.Core {
                     start = start << bitSize;
                 }
             }
+
             if (created)
             {
                 Total += keyString.Length;

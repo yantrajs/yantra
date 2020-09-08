@@ -11,20 +11,11 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public static class JSJSON
+    public class JSJSON: JSObject
     {
-        public static KeyString JSON = "JSON";
 
-        internal static JSFunction Create()
-        {
-            var r = new JSFunction(JSFunction.empty, "JSON");
-            r.DefineProperties(
-                JSProperty.Function("stringify", _Stringify),
-                JSProperty.Function("parse", _Parse));
-            return r;
-        }
-
-        public static JSValue _Parse(JSValue t,params JSValue[] a)
+        [Static("parse")]
+        public static JSValue Parse(JSValue t,params JSValue[] a)
         {
             var first = a[0].ToString();
 
@@ -33,7 +24,8 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        public static JSValue _Stringify(JSValue t,params JSValue[] a)
+        [Static("stringify")]
+        public static JSValue Stringify(JSValue t,params JSValue[] a)
         {
             var f = a[0];
             if (f is JSUndefined)
