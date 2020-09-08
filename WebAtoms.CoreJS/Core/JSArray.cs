@@ -43,6 +43,7 @@ namespace WebAtoms.CoreJS.Core
 
         public IEnumerable<JSValue> All
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 int i = 0;

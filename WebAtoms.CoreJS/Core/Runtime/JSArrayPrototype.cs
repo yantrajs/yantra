@@ -1,12 +1,4 @@
-﻿using Esprima.Ast;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using WebAtoms.CoreJS.Extensions;
+﻿using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -59,7 +51,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("toString")]
-        public new static JSValue ToString(JSValue t, params JSValue[] _) 
+        internal new static JSValue ToString(JSValue t, params JSValue[] _) 
             => new JSString( 
                 t is JSArray a 
                     ?  string.Join(",", a.All) 
