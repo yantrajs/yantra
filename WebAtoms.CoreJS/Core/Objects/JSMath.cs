@@ -37,12 +37,29 @@ namespace WebAtoms.CoreJS.Core.Objects
         {
             return new JSNumber(Math.Abs(t.DoubleValue));
         }
+             
 
         [Static("random")]
         public static JSValue Random(JSValue t, JSValue[] args)
         {
             var r = randomGenertor ?? (randomGenertor = new Random());
             return new JSNumber(r.NextDouble());
+        }
+
+        [Static("round")]
+        public static JSValue Round(JSValue t, JSValue[] args)
+        {
+            var number = args[0].DoubleValue;
+            if (number > 0.0)
+                return new JSNumber(Math.Floor(number + 0.5));
+            if (number >= -0.5)
+            {
+                // BitConverter is used to distinguish positive and negative zero.
+                if (BitConverter.DoubleToInt64Bits(number) == 0L)
+                    return JSContext.Current.Zero;
+                return new JSNumber(-0.0D);
+            }
+            return new JSNumber( Math.Floor(number + 0.5));
         }
 
     }
