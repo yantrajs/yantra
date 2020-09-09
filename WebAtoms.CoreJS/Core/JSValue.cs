@@ -160,12 +160,12 @@ namespace WebAtoms.CoreJS.Core {
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
-                if (this.IsString && value.IsString)
-                    if (this.ToString().CompareTo(value.ToString()) < 0)
+                if (this.CanBeNumber || value.CanBeNumber)
+                {
+                    if (this.DoubleValue < value.DoubleValue)
                         return JSContext.Current.True;
-                if (this.DoubleValue < value.DoubleValue)
-                    return JSContext.Current.True;
-                if (this.ToString().CompareTo(value.ToString()) < 0)
+                }
+                else if (this.ToString().CompareTo(value.ToString()) < 0)
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
@@ -175,12 +175,12 @@ namespace WebAtoms.CoreJS.Core {
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
-                if (this.IsString && value.IsString)
-                    if (this.ToString().CompareTo(value.ToString()) <= 0)
+                if (this.CanBeNumber || value.CanBeNumber)
+                {
+                    if (this.DoubleValue <= value.DoubleValue)
                         return JSContext.Current.True;
-                if (this.DoubleValue <= value.DoubleValue)
-                    return JSContext.Current.True;
-                if (this.ToString().CompareTo(value.ToString()) <= 0)
+                }
+                else if (this.ToString().CompareTo(value.ToString()) <= 0)
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
@@ -191,12 +191,12 @@ namespace WebAtoms.CoreJS.Core {
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
-                if (this.IsString && value.IsString)
-                    if (this.ToString().CompareTo(value.ToString()) > 0)
+                if (this.CanBeNumber || value.CanBeNumber)
+                {
+                    if (this.DoubleValue > value.DoubleValue)
                         return JSContext.Current.True;
-                if (this.DoubleValue > value.DoubleValue)
-                    return JSContext.Current.True;
-                if (this.ToString().CompareTo(value.ToString()) > 0)
+                }
+                else if (this.ToString().CompareTo(value.ToString()) > 0)
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
@@ -205,12 +205,12 @@ namespace WebAtoms.CoreJS.Core {
         internal virtual JSBoolean GreaterOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined)) {
-                if (this.IsString && value.IsString)
-                    if (this.ToString().CompareTo(value.ToString()) >= 0)
+                if (this.CanBeNumber || value.CanBeNumber)
+                {
+                    if (this.DoubleValue >= value.DoubleValue)
                         return JSContext.Current.True;
-                if (this.DoubleValue >= value.DoubleValue)
-                    return JSContext.Current.True;
-                if (this.ToString().CompareTo(value.ToString()) >= 0)
+                }
+                else if (this.ToString().CompareTo(value.ToString()) >= 0)
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
