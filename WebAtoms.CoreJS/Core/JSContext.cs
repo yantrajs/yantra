@@ -45,6 +45,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject DatePrototype;
 
+        public readonly JSObject MapPrototype;
+
         public readonly JSFunction String;
 
         public readonly JSFunction Function;
@@ -79,6 +81,8 @@ namespace WebAtoms.CoreJS.Core
         public readonly JSObject JSON;
 
         public readonly JSMath Math;
+
+        public readonly JSFunction Map;
 
         public static JSContext Current
         {
@@ -163,6 +167,7 @@ namespace WebAtoms.CoreJS.Core
             (TypeError, TypeErrorPrototype) = CreateFrom(JSTypeError.KeyTypeError, typeof(JSError), ErrorPrototype);
             (RangeError, RangeErrorPrototype) = CreateFrom(JSTypeError.KeyRangeError, typeof(JSError), ErrorPrototype);
             (Date, DatePrototype) = CreateFrom(KeyStrings.Date, typeof(JSDate));
+            (Map, MapPrototype) = CreateFrom(KeyStrings.Map, typeof(JSMap));
             True = new JSBoolean(true, BooleanPrototype);
             False = new JSBoolean(false, BooleanPrototype);
             NaN = new JSNumber(double.NaN, NumberPrototype);
