@@ -47,16 +47,10 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue StaticEntries(JSValue t,params JSValue[] a)
         {
             var target = a[0];
-            switch(target)
-            {
-                case JSNull @null:
-                case JSUndefined undefined:
-                    throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
-                case JSObject _:
-                    break;
-                default:
-                    return new JSArray();
-            }
+            if (target.IsNull || target.IsUndefined)
+                throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+            if (!target.IsObject)
+                return new JSArray();
             var r = new JSArray();
             foreach(var (index, key, property) in target.GetOwnEntries())
             {

@@ -69,21 +69,6 @@ namespace WebAtoms.CoreJS.Core
 
         public override int Length => value.Length;
 
-        public override JSValue AddValue(JSValue value)
-        {
-            return new JSString(this.value + value.ToString());
-        }
-
-        public override JSValue AddValue(double value)
-        {
-            return new JSString(this.value + value.ToString());
-        }
-
-        public override JSValue AddValue(string value)
-        {
-            return new JSString(this.value + value);
-        }
-
         public override bool Equals(object obj)
         {
             if (obj is JSString v)
@@ -125,86 +110,6 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             throw new NotImplementedException("string is not a function");
-        }
-
-        internal override JSBoolean Less(JSValue value)
-        {
-            switch (value)
-            {
-                case JSString strValue
-                    when ((this.value.CompareTo(strValue.value) < 0)
-                    || (this.DoubleValue < value.DoubleValue)):
-                    return JSContext.Current.True;
-                case JSNumber number
-                    when ((this.DoubleValue < number.value)
-                        || (this.value.CompareTo(number.value.ToString()) < 0)):
-                        return JSContext.Current.True;
-                case JSBoolean boolean
-                    when (this.DoubleValue < (boolean._value ? 1D : 0D)):
-                        return JSContext.Current.True;                     
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean LessOrEqual(JSValue value)
-        {
-            if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            switch (value)
-            {
-                case JSString strValue
-                    when ((this.value.CompareTo(strValue.value) <= 0)
-                    || (this.DoubleValue <= value.DoubleValue)):
-                    return JSContext.Current.True;
-                case JSNumber number
-                    when ((this.DoubleValue <= number.value)
-                        || (this.value.CompareTo(number.value.ToString()) <= 0)):
-                    return JSContext.Current.True;
-                case JSBoolean boolean
-                    when (this.DoubleValue <= (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean Greater(JSValue value)
-        {
-            switch (value)
-            {
-                case JSString strValue
-                    when ((this.value.CompareTo(strValue.value) > 0)
-                    || (this.DoubleValue > value.DoubleValue)):
-                    return JSContext.Current.True;
-                case JSNumber number
-                    when ((this.DoubleValue > number.value)
-                        || (this.value.CompareTo(number.value.ToString()) > 0)):
-                    return JSContext.Current.True;
-                case JSBoolean boolean
-                    when (this.DoubleValue > (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean GreaterOrEqual(JSValue value)
-        {
-            if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            switch (value)
-            {
-                case JSString strValue
-                    when ((this.value.CompareTo(strValue.value) >= 0)
-                    || (this.DoubleValue > value.DoubleValue)):
-                    return JSContext.Current.True;
-                case JSNumber number
-                    when ((this.DoubleValue > number.value)
-                        || (this.value.CompareTo(number.value.ToString()) >= 0)):
-                    return JSContext.Current.True;
-                case JSBoolean boolean
-                    when (this.DoubleValue >= (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
         }
 
 

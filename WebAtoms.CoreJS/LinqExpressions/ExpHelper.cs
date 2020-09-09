@@ -494,12 +494,12 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Call(target, _Add, value);
         }
 
-        private static PropertyInfo _TypeOf =
-            Property("TypeOf");
+        private static MethodInfo _TypeOf =
+            Method("TypeOf");
 
         public static Expression TypeOf(Expression target)
         {
-            return Expression.Property(target, _TypeOf);
+            return Expression.Call(target, _TypeOf);
         }
 
         private static PropertyInfo _IndexKeyString =

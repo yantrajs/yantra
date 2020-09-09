@@ -17,6 +17,11 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => true;
 
+        public override JSValue TypeOf()
+        {
+            return JSConstants.Object;
+        }
+
         internal override KeyString ToKey()
         {
             throw new NotImplementedException();
@@ -33,47 +38,12 @@ namespace WebAtoms.CoreJS.Core
             return args.Select((n) => new JSString(n)).ToArray();
         }
 
-        public override JSValue AddValue(JSValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override JSValue AddValue(double value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override JSValue AddValue(string value)
-        {
-            throw new NotImplementedException();
-        }
-
         public override JSBoolean Equals(JSValue value)
         {
             throw new NotImplementedException();
         }
 
         public override JSBoolean StrictEquals(JSValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override JSBoolean Less(JSValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override JSBoolean LessOrEqual(JSValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override JSBoolean Greater(JSValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override JSBoolean GreaterOrEqual(JSValue value)
         {
             throw new NotImplementedException();
         }

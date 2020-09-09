@@ -172,6 +172,7 @@ namespace WebAtoms.CoreJS.Core
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }
+
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
 
 

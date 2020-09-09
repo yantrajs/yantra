@@ -27,19 +27,9 @@ namespace WebAtoms.CoreJS.Core
             Key = k;
         }
 
-        public override JSValue AddValue(JSValue value)
+        public override JSValue TypeOf()
         {
-            return new JSString(Key.Value + value.ToString());
-        }
-
-        public override JSValue AddValue(double value)
-        {
-            return new JSString(Key.Value + value.ToString());
-        }
-
-        public override JSValue AddValue(string value)
-        {
-            return new JSString(Key.Value + value);
+            return JSConstants.Symbol;
         }
 
         public override bool Equals(object obj)
@@ -78,28 +68,5 @@ namespace WebAtoms.CoreJS.Core
             return Key.Value;
         }
 
-        internal override JSBoolean Greater(JSValue value)
-        {
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean GreaterOrEqual(JSValue value)
-        {
-            if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean Less(JSValue value)
-        {
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean LessOrEqual(JSValue value)
-        {
-            if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            return JSContext.Current.False;
-        }
     }
 }

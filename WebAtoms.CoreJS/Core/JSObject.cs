@@ -15,7 +15,12 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => true;
 
-        public override bool IsObject => true; 
+        public override bool IsObject => true;
+
+        public override JSValue TypeOf()
+        {
+            return JSConstants.Object;
+        }
 
         internal JSObject(JSObject prototype) : base(prototype)
         {
@@ -304,21 +309,6 @@ namespace WebAtoms.CoreJS.Core
             if (elements?.RemoveAt(key) ?? false)
                 return JSContext.Current.True;
             return JSContext.Current.False;
-        }
-
-        public override JSValue AddValue(JSValue value)
-        {
-            return new JSString(this.ToString() + value.ToString());
-        }
-
-        public override JSValue AddValue(double value)
-        {
-            return new JSString(this.ToString() + value.ToString());
-        }
-
-        public override JSValue AddValue(string value)
-        {
-            return new JSString(this.ToString() + value);
         }
 
         public override JSBoolean Equals(JSValue value)

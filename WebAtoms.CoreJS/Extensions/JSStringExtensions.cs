@@ -28,19 +28,7 @@ namespace WebAtoms.CoreJS.Extensions
 
         public static string JSTrim(this JSValue text)
         {
-            switch (text) {
-                case JSString jsString:
-                    return JSTrim(jsString.value);
-                case JSUndefined _:
-                    return "undefined";
-                case JSNull _:
-                    return "null";
-                case JSNumber n:
-                    return n.value.ToString();
-            }
-            var txt = text.InvokeMethod("toString", JSArguments.Empty);
-            return text.JSTrim();
-
+            return text.ToString().Trim();
         }
     }
 }

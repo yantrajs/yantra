@@ -36,7 +36,12 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => this._value;
 
-        public override bool IsBoolean => true; 
+        public override bool IsBoolean => true;
+
+        public override JSValue TypeOf()
+        {
+            return JSConstants.Boolean;
+        }
 
         public override string ToString()
         {
@@ -50,42 +55,16 @@ namespace WebAtoms.CoreJS.Core
             return base.Equals(obj);
         }
 
-        public override JSValue AddValue(JSValue value)
-        {
-            if (value.IsUndefined)
-                return JSContext.Current.NaN;
-            if (value.IsNull)
-                return this._value ? JSContext.Current.One : JSContext.Current.Zero;
-            if (value.IsNumber)
-                return new JSNumber(value.DoubleValue + (this._value ? 1 : 0));
-            return new JSString(this._value.ToString() + value.ToString());
-        }
-
-        public override JSValue AddValue(double value)
-        {
-            var v = this._value ? 1 : 0;
-            return new JSNumber(v + value);
-        }
-
-        public override JSValue AddValue(string value)
-        {
-            return new JSString((this._value ? "true" : "false") + value);
-        }
-
         public override JSBoolean Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
                 return JSContext.Current.True;
-            switch (value)
+            if (this._value) {
+                if (value.DoubleValue == 1)
+                    return JSContext.Current.True;
+            } else
             {
-                case JSBoolean boolean
-                    when this._value == boolean._value:
-                    return JSContext.Current.True;
-                case JSNumber number
-                    when (1D == number.value):
-                    return JSContext.Current.True;
-                case JSString @string
-                    when (1D == @string.DoubleValue):
+                if (value.DoubleValue == 0)
                     return JSContext.Current.True;
             }
             return JSContext.Current.False;
@@ -93,7 +72,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSBoolean StrictEquals(JSValue value)
         {
-            if (value is JSBoolean b && b._value == _value)
+            if (value.IsBoolean && value.BooleanValue == this._value)
                 return JSContext.Current.True;
             return JSContext.Current.False; 
         }
@@ -101,78 +80,6 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
             throw new NotImplementedException("boolean is not a function");
-        }
-
-        internal override JSBoolean Less(JSValue value)
-        {
-            switch(value)
-            {
-                case JSBoolean boolean 
-                    when (!this._value && boolean._value):
-                        return JSContext.Current.True;
-                case JSNumber number 
-                    when (1D < number.value):
-                        return JSContext.Current.True;
-                case JSString @string 
-                    when (1D < @string.DoubleValue):
-                        return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean LessOrEqual(JSValue value)
-        {
-            if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            switch (value)
-            {
-                case JSBoolean boolean 
-                    when ((!this._value && boolean._value) || this._value == boolean._value):
-                        return JSContext.Current.True;
-                case JSNumber number 
-                    when (1D <= number.value):
-                        return JSContext.Current.True;
-                case JSString @string 
-                    when (1D <= @string.DoubleValue):
-                        return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean Greater(JSValue value)
-        {
-            switch (value)
-            {
-                case JSBoolean boolean
-                    when (this._value && !boolean._value):
-                    return JSContext.Current.True;
-                case JSNumber number
-                    when (1D > number.value):
-                    return JSContext.Current.True;
-                case JSString @string
-                    when (1D > @string.DoubleValue):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean GreaterOrEqual(JSValue value)
-        {
-            if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            switch (value)
-            {
-                case JSBoolean boolean
-                    when ((this._value && !boolean._value) || (this._value == boolean._value)):
-                    return JSContext.Current.True;
-                case JSNumber number
-                    when (1D >= number.value):
-                    return JSContext.Current.True;
-                case JSString @string
-                    when (1D >= @string.DoubleValue):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
         }
 
         private static KeyString @true = KeyStrings.GetOrCreate("true");

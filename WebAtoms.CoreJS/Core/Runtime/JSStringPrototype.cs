@@ -11,31 +11,27 @@ namespace WebAtoms.CoreJS.Core
 {
     public partial class JSString
     {
+        public override JSValue TypeOf()
+        {
+            return JSConstants.Undefined;
+        }
+
         private static JSString AsJSString(JSValue v, 
             [CallerMemberName] string helper = null)
         {
-            switch(v)
-            {
-                case JSNull _:
-                case JSUndefined __:
-                    throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
-                case JSString @string:
-                    return @string;
-            }
+            if (v.IsUndefined || v.IsNull)
+                throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
+            if (v.IsString)
+                return (JSString)v;
             return new JSString(v.ToString());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static string AsString(JSValue v,
             [CallerMemberName] string helper = null)
         {
-            switch (v)
-            {
-                case JSNull _:
-                case JSUndefined __:
-                    throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
-                case JSString @string:
-                    return @string.value;
-            }
+            if (v.IsUndefined || v.IsNull)
+                throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
             return v.ToString();
         }
 

@@ -25,5 +25,7 @@ namespace WebAtoms.CoreJS.Core
         public static readonly JSString Function =
             new JSString("function");
 
+        public static readonly JSString Symbol =
+            new JSString("symbol");
     }
 }

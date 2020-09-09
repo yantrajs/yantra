@@ -29,6 +29,15 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual bool IsFunction => false;
 
+        public bool CanBeNumber
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return this.IsNumber || this.IsBoolean || this.IsNull;
+            }
+        } 
+
         public virtual int Length {
             get => 0;
             set { }
@@ -38,26 +47,7 @@ namespace WebAtoms.CoreJS.Core {
 
         public abstract bool BooleanValue { get; }
 
-        public JSValue TypeOf
-        {
-            get
-            {
-                switch (this)
-                {
-                    case JSUndefined u:
-                        return JSConstants.Undefined;
-                    case JSNumber a:
-                        return JSConstants.Number;
-                    case JSFunction f:
-                        return JSConstants.Function;
-                    case JSBoolean b:
-                        return JSConstants.Boolean;
-                    case JSString s:
-                        return JSConstants.String;
-                }
-                return JSConstants.Object;
-            }
-        }
+        public abstract JSValue TypeOf();
 
         public virtual int IntValue => 0;
 
@@ -68,19 +58,38 @@ namespace WebAtoms.CoreJS.Core {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public abstract JSValue AddValue(JSValue value);
+        public virtual JSValue AddValue(JSValue value)
+        {
+            if (this.CanBeNumber && value.CanBeNumber)
+            {
+                return new JSNumber(this.DoubleValue + value.DoubleValue);
+            }
+            if (value.ToString().Length == 0)
+                return this.IsString ? this : new JSString(this.ToString());
+            return new JSString(this.ToString() + value.ToString());
+        }
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public abstract JSValue AddValue(double value);
+        public JSValue AddValue(double value)
+        {
+            if (this.CanBeNumber)
+                return new JSNumber(this.DoubleValue + value);
+            return new JSString(this.ToString() + value.ToString());
+        }
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public abstract JSValue AddValue(string value);
+        public JSValue AddValue(string value)
+        {
+            if (value.Length == 0)
+                return this.IsString ? this : new JSString(this.ToString());
+            return new JSString(this.ToString() + value);
+        }
 
 
 
@@ -147,11 +156,65 @@ namespace WebAtoms.CoreJS.Core {
 
         public abstract JSBoolean StrictEquals(JSValue value);
 
-        internal abstract JSBoolean Less(JSValue value);
-        internal abstract JSBoolean LessOrEqual(JSValue value);
+        internal virtual JSBoolean Less(JSValue value)
+        {
+            if (!(this.IsUndefined || value.IsUndefined))
+            {
+                if (this.IsString && value.IsString)
+                    if (this.ToString().CompareTo(value.ToString()) < 0)
+                        return JSContext.Current.True;
+                if (this.DoubleValue < value.DoubleValue)
+                    return JSContext.Current.True;
+                if (this.ToString().CompareTo(value.ToString()) < 0)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
 
-        internal abstract JSBoolean Greater(JSValue value);
-        internal abstract JSBoolean GreaterOrEqual(JSValue value);
+        }
+        internal virtual JSBoolean LessOrEqual(JSValue value)
+        {
+            if (!(this.IsUndefined || value.IsUndefined))
+            {
+                if (this.IsString && value.IsString)
+                    if (this.ToString().CompareTo(value.ToString()) <= 0)
+                        return JSContext.Current.True;
+                if (this.DoubleValue <= value.DoubleValue)
+                    return JSContext.Current.True;
+                if (this.ToString().CompareTo(value.ToString()) <= 0)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+
+        }
+
+        internal virtual JSBoolean Greater(JSValue value)
+        {
+            if (!(this.IsUndefined || value.IsUndefined))
+            {
+                if (this.IsString && value.IsString)
+                    if (this.ToString().CompareTo(value.ToString()) > 0)
+                        return JSContext.Current.True;
+                if (this.DoubleValue > value.DoubleValue)
+                    return JSContext.Current.True;
+                if (this.ToString().CompareTo(value.ToString()) > 0)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+
+        }
+        internal virtual JSBoolean GreaterOrEqual(JSValue value)
+        {
+            if (!(this.IsUndefined || value.IsUndefined)) {
+                if (this.IsString && value.IsString)
+                    if (this.ToString().CompareTo(value.ToString()) >= 0)
+                        return JSContext.Current.True;
+                if (this.DoubleValue >= value.DoubleValue)
+                    return JSContext.Current.True;
+                if (this.ToString().CompareTo(value.ToString()) >= 0)
+                    return JSContext.Current.True;
+            }
+            return JSContext.Current.False;
+        }
 
         internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
         {

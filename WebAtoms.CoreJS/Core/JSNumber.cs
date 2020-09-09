@@ -41,7 +41,12 @@ namespace WebAtoms.CoreJS.Core
         [Static("NEGATIVE_INFINITY")]
         public static readonly double NegativeInfinity = double.NegativeInfinity;
 
-        public override bool IsNumber => true; 
+        public override bool IsNumber => true;
+
+        public override JSValue TypeOf()
+        {
+            return JSConstants.Number;
+        }
 
         internal override KeyString ToKey()
         {
@@ -344,41 +349,41 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(n.value.ToString("N2"));
         }
 
-        public override JSValue AddValue(JSValue value)
-        {
-            switch(value)
-            {
-                case JSUndefined u:
-                    return JSContext.Current.NaN;
-                case JSNull n:
-                    return this;
-                case JSNumber n1:
-                    var v = n1.value;
-                    if (double.IsNaN(v)
-                        || double.IsPositiveInfinity(v)
-                        || double.IsNegativeInfinity(v))
-                    {
-                        return n1;
-                    }
-                    return this.AddValue(v);
-            }
-            return new JSString(this.value.ToString() + value.ToString());
-        }
+        //public override JSValue AddValue(JSValue value)
+        //{
+        //    switch(value)
+        //    {
+        //        case JSUndefined u:
+        //            return JSContext.Current.NaN;
+        //        case JSNull n:
+        //            return this;
+        //        case JSNumber n1:
+        //            var v = n1.value;
+        //            if (double.IsNaN(v)
+        //                || double.IsPositiveInfinity(v)
+        //                || double.IsNegativeInfinity(v))
+        //            {
+        //                return n1;
+        //            }
+        //            return this.AddValue(v);
+        //    }
+        //    return new JSString(this.value.ToString() + value.ToString());
+        //}
 
-        public override JSValue AddValue(double value)
-        {
-            var v = this.value;
-            if (double.IsNaN(v)
-                || double.IsPositiveInfinity(v)
-                || double.IsNegativeInfinity(v))
-                return this;
-            return new JSNumber(v + value);
-        }
+        //public override JSValue AddValue(double value)
+        //{
+        //    var v = this.value;
+        //    if (double.IsNaN(v)
+        //        || double.IsPositiveInfinity(v)
+        //        || double.IsNegativeInfinity(v))
+        //        return this;
+        //    return new JSNumber(v + value);
+        //}
 
-        public override JSValue AddValue(string value)
-        {
-            return new JSString(this.value.ToString() + value);
-        }
+        //public override JSValue AddValue(string value)
+        //{
+        //    return new JSString(this.value.ToString() + value);
+        //}
 
         public override bool Equals(object obj)
         {
@@ -430,88 +435,5 @@ namespace WebAtoms.CoreJS.Core
             throw JSContext.Current.NewTypeError($"{this.value} is not a function");
         }
 
-        internal override JSBoolean Less(JSValue value)
-        {
-            switch (value)
-            {
-                case JSNumber number
-                    when (this.value < number.value):
-                        return JSContext.Current.True;
-                case JSString @string
-                    when (this.value < @string.DoubleValue):
-                        return JSContext.Current.True;
-                case JSNull @null
-                    when (this.value < 0D):
-                        return JSContext.Current.True;
-                case JSBoolean boolean
-                    when (this.value < (boolean._value ? 1D : 0D)):
-                        return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean LessOrEqual(JSValue value)
-        {
-            if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            switch (value)
-            {
-                case JSNumber number
-                    when (this.value <= number.value):
-                    return JSContext.Current.True;
-                case JSString @string
-                    when (this.value <= @string.DoubleValue):
-                    return JSContext.Current.True;
-                case JSNull @null
-                    when (this.value <= 0D):
-                    return JSContext.Current.True;
-                case JSBoolean boolean
-                    when (this.value <= (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean Greater(JSValue value)
-        {
-            switch (value)
-            {
-                case JSNumber number
-                    when (this.value > number.value):
-                    return JSContext.Current.True;
-                case JSString @string
-                    when (this.value > @string.DoubleValue):
-                    return JSContext.Current.True;
-                case JSNull @null
-                    when (this.value > 0D):
-                    return JSContext.Current.True;
-                case JSBoolean boolean
-                    when(this.value > (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean GreaterOrEqual(JSValue value)
-        {
-            if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            switch (value)
-            {
-                case JSNumber number
-                    when (this.value >= number.value):
-                    return JSContext.Current.True;
-                case JSString @string
-                    when (this.value >= @string.DoubleValue):
-                    return JSContext.Current.True;
-                case JSNull @null
-                    when (this.value >= 0D):
-                    return JSContext.Current.True;
-                case JSBoolean boolean
-                    when (this.value >= (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
-            }
-            return JSContext.Current.False;
-        }
     }
 }

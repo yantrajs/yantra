@@ -17,7 +17,14 @@ namespace WebAtoms.CoreJS.Core
             return KeyStrings.undefined;
         }
 
+        public override JSValue TypeOf()
+        {
+            return JSConstants.Undefined;
+        }
+
         public override bool BooleanValue => false;
+
+        public override double DoubleValue => double.NaN;
 
         public override bool IsUndefined => true;
 
@@ -34,27 +41,6 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue Delete(uint key)
         {
             throw JSContext.Current.NewTypeError($"Unable to delete {key} of undefined");
-        }
-
-        public override JSValue AddValue(JSValue value)
-        {
-            switch(value)
-            {
-                case JSUndefined un:
-                case JSNumber n:
-                    return JSContext.Current.NaN;
-            }
-            return new JSString("undefined" + value.ToString());
-        }
-
-        public override JSValue AddValue(double value)
-        {
-            return JSContext.Current.NaN;
-        }
-
-        public override JSValue AddValue(string value)
-        {
-            return new JSString("undefined" + value);
         }
 
         public override JSBoolean Equals(JSValue value)
@@ -78,24 +64,5 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("undefined is not a function");
         }
 
-        internal override JSBoolean Less(JSValue value)
-        {
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean LessOrEqual(JSValue value)
-        {
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean Greater(JSValue value)
-        {
-            return JSContext.Current.False;
-        }
-
-        internal override JSBoolean GreaterOrEqual(JSValue value)
-        {
-            return JSContext.Current.False;
-        }
     }
 }

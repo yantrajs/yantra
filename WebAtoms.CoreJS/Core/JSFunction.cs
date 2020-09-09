@@ -20,6 +20,11 @@ namespace WebAtoms.CoreJS.Core
         internal JSFunctionDelegate f;
 
         public override bool IsFunction => true;
+
+        public override JSValue TypeOf()
+        {
+            return JSConstants.Function;
+        }
         public JSFunction(
             JSFunctionDelegate f,
             string name = null,
