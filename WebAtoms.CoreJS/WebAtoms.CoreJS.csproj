@@ -10,7 +10,6 @@
   <ItemGroup>
     <PackageReference Include="esprima" Version="1.0.1270" />
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
-    <PackageReference Include="System.Memory" Version="4.7.2" />
   </ItemGroup>
   
   <ItemGroup>
