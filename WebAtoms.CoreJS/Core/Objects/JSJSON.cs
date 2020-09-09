@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Extensions;
 
@@ -13,6 +14,10 @@ namespace WebAtoms.CoreJS.Core
 {
     public class JSJSON: JSObject
     {
+
+        static JSJSON()
+        {
+        }
 
         [Static("parse")]
         public static JSValue Parse(JSValue t,params JSValue[] a)
@@ -22,6 +27,13 @@ namespace WebAtoms.CoreJS.Core
             throw new NotSupportedException();
 
         }
+
+        //private static JsonSerializerOptions options;
+
+        //private static JSValue Parse(string text)
+        //{
+        //    var e = text.
+        //}
 
 
         [Static("stringify")]
