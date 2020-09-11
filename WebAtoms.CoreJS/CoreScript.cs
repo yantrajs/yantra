@@ -145,13 +145,6 @@ namespace WebAtoms.CoreJS
                     if (v.Init != null)
                     {
                         sList.Add(Exp.Assign(v.Expression, v.Init));
-                        //if (v.Name != null)
-                        //{
-                        //    sList.Add(JSValueExtensionsBuilder.Assign(v.Expression, v.Init));
-                        //} else
-                        //{
-                        //    sList.Add(JSValueExtensionsBuilder.Assign(v.Variable, v.Init));
-                        //}
                     }
                 }
                 sList.Add(Exp.Return(l, script.ToJSValue()));
@@ -173,7 +166,6 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitProgram(Esprima.Ast.Program program)
         {
             return CreateBlock(program.Body);
-            // return Exp.Block(program.Body.Select((x) => VisitStatement((Statement)x)).ToList());
         }
 
         protected override Exp VisitCatchClause(Esprima.Ast.CatchClause catchClause)
@@ -303,14 +295,6 @@ namespace WebAtoms.CoreJS
                     if (v.Init != null)
                     {
                         sList.Add(Exp.Assign(v.Expression, v.Init));
-                        //if (v.Name == null)
-                        //{
-                        //    sList.Add(JSValueExtensionsBuilder.Assign(v.Variable, v.Init));
-                        //} else
-                        //{
-                        //    // create..
-                        //    sList.Add(JSValueExtensionsBuilder.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Init, v.Name)));
-                        //}
                     }
                 }
 
@@ -371,7 +355,6 @@ namespace WebAtoms.CoreJS
             {
                 return Exp.Block(
                     LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
-                    // Exp.DebugInfo(SymbolDocument, p.Line, p.Column + 1, p.Line, p.Column + 1),
                     exp());
             }catch (Exception ex) when (!(ex is CompilerException))
             {
@@ -1303,7 +1286,7 @@ namespace WebAtoms.CoreJS
             // array index based assignments...
 
             var left = VisitExpression((Esprima.Ast.Expression)assignmentExpression.Left);
-            var right = VisitExpression((Esprima.Ast.Expression)assignmentExpression.Right);
+            var right = VisitExpression(assignmentExpression.Right);
 
 
             var a = BinaryOperation.Assign(left, right, assignmentExpression.Operator);
@@ -1312,7 +1295,6 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitContinueStatement(Esprima.Ast.ContinueStatement continueStatement)
         {
-            // return Exp.Continue()
             return Exp.Continue(this.scope.Top.Loop.Top.Continue);
         }
 
