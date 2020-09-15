@@ -6,13 +6,27 @@ namespace WebAtoms.CoreJS.Core
     {
         [Prototype("push")]
         public static JSValue Push (JSValue t,params JSValue[] a){
-            var ta = (JSArray)t;
-            foreach(var item in a)
+
+            if (t.IsArray)
             {
-                ta.elements[ta._length] = JSProperty.Property(item);
-                ta._length++;
+
+                var ta = (JSArray)t;
+                foreach (var item in a)
+                {
+                    ta.elements[ta._length] = JSProperty.Property(item);
+                    ta._length++;
+                }
+                return new JSNumber(ta._length);
             }
-            return new JSNumber(ta._length);
+            var l = t[KeyStrings.length];
+            uint ln = (uint)(l.IsNumber ? l.IntValue : 0);
+            foreach (var item in a)
+            {
+                t[ln++] = item;
+            }
+            var n = new JSNumber(ln);
+            t[KeyStrings.length] = n;
+            return n;
         }
 
         [Prototype("pop")]

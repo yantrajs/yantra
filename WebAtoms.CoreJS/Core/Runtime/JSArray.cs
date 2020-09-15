@@ -52,7 +52,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("isArray")]
         public static JSValue StaticIsArray(JSValue t,params JSValue[] a)
         {
-            return a[0] is JSArray ? JSContext.Current.True : JSContext.Current.False;
+            return a.GetAt(0) is JSArray ? JSContext.Current.True : JSContext.Current.False;
         }
 
         [Static("of")]

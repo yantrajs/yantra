@@ -50,7 +50,7 @@ namespace WebAtoms.CoreJS.Core
             if (j == null)
                 return JSUndefined.Value;
             if (!a.TryGetAt(0, out var start))
-                return start;
+                return t;
             if (!a.TryGetAt(1, out var length))
                 return new JSString(j.value.Substring(start.IntValue));
             return new JSString(j.value.Substring(start.IntValue, length.IntValue));

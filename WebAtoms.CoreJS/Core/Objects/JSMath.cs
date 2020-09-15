@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core.Objects
 {
@@ -49,7 +50,12 @@ namespace WebAtoms.CoreJS.Core.Objects
         [Static("round")]
         public static JSValue Round(JSValue t, JSValue[] args)
         {
-            var number = args[0].DoubleValue;
+            var first = args.GetAt(0);
+            if (first.IsUndefined)
+                return JSContext.Current.NaN;
+            if (first.IsNull)
+                return JSContext.Current.Zero;
+            var number = first.DoubleValue;
             if (number > 0.0)
                 return new JSNumber(Math.Floor(number + 0.5));
             if (number >= -0.5)
