@@ -42,8 +42,8 @@ namespace WebAtoms.CoreJS.Core
         public override JSBoolean Equals(JSValue value)
         {
             if (value == this)
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override int GetHashCode()
@@ -59,8 +59,8 @@ namespace WebAtoms.CoreJS.Core
         public override JSBoolean StrictEquals(JSValue value)
         {
             if (value == this)
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override string ToString()

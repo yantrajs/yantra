@@ -79,32 +79,32 @@ namespace WebAtoms.CoreJS.Core
         public override JSBoolean Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSString strValue
                     when ((this.value == strValue.value)
                     || (this.DoubleValue == value.DoubleValue)):
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
                 case JSNumber number
                     when ((this.DoubleValue == number.value)
                         || (this.value.CompareTo(number.value.ToString()) == 0)):
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
                 case JSBoolean boolean
                     when (this.DoubleValue == (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             if (value is JSString s)
                 if (s.value == this.value)
-                    return JSContext.Current.True;
-            return JSContext.Current.False;
+                    return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

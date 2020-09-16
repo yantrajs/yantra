@@ -89,12 +89,12 @@ namespace WebAtoms.CoreJS.Extensions
                 throw JSContext.Current.NewTypeError("Right side of instanceof is not an object");
             var p = target.prototypeChain;
             if (p == null)
-                return JSContext.Current.False;
+                return JSBoolean.False;
             var c = p[KeyStrings.constructor];
             if (c.IsUndefined)
-                return JSContext.Current.False;
+                return JSBoolean.False;
             if (c.StrictEquals(value).BooleanValue)
-                return JSContext.Current.True;
+                return JSBoolean.True;
             return c.InstanceOf(value);
         }
 
@@ -107,13 +107,13 @@ namespace WebAtoms.CoreJS.Extensions
             //}
             var tx = value as JSObject;
             if (tx == null)
-                return JSContext.Current.False;
+                return JSBoolean.False;
             foreach(var a in tx.GetAllKeys())
             {
                 if (a.Equals(target).BooleanValue)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         //public static JSValue InvokeMethod(this JSValue target, KeyString key, JSValue[] args)
@@ -157,18 +157,18 @@ namespace WebAtoms.CoreJS.Extensions
     //            throw JSContext.Current.NewTypeError($"Unable to set {ks} of null");
     //        }
     //        if (!(target is JSObject @object))
-    //            return JSContext.Current.False;
+    //            return JSBoolean.False;
     //        var ownProperties = @object.ownProperties;
     //        if (ownProperties == null)
-    //            return JSContext.Current.False;
+    //            return JSBoolean.False;
     //        var px = ownProperties[ks.Key];
     //        if (px.IsEmpty)
-    //            return JSContext.Current.False;
+    //            return JSBoolean.False;
     //        // only in strict mode...
     //        if (!px.IsConfigurable)
     //            throw JSContext.Current.NewTypeError("Cannot delete property of sealed object");
     //        ownProperties.RemoveAt(ks.Key);
-    //        return JSContext.Current.True;
+    //        return JSBoolean.True;
     //    }
 
     //    internal static JSValue Delete(this JSValue target, uint ks)
@@ -182,18 +182,18 @@ namespace WebAtoms.CoreJS.Extensions
     //            throw JSContext.Current.NewTypeError($"Unable to set {ks} of null");
     //        }
     //        if (!(target is JSObject @object))
-    //            return JSContext.Current.False;
+    //            return JSBoolean.False;
     //        var ownProperties = @object.elements;
     //        if (ownProperties == null)
-    //            return JSContext.Current.False;
+    //            return JSBoolean.False;
     //        var px = ownProperties[ks];
     //        if (px.IsEmpty)
-    //            return JSContext.Current.False;
+    //            return JSBoolean.False;
     //        // only in strict mode...
     //        if (!px.IsConfigurable)
     //            throw JSContext.Current.NewTypeError("Cannot delete property of sealed object");
     //        ownProperties.RemoveAt(ks);
-    //        return JSContext.Current.True;
+    //        return JSBoolean.True;
     //    }
     }
 }

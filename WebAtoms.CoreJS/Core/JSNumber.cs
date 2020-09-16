@@ -10,18 +10,22 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public sealed class JSNumber : JSValue
+    public sealed class JSNumber : JSPrimitive
     {
 
         internal readonly double value;
 
+        public static JSNumber NaN = new JSNumber(double.NaN);
+        public static JSNumber Zero = new JSNumber(0d);
+        public static JSNumber One = new JSNumber(1d);
+        public static JSNumber Two = new JSNumber(2d);
 
-        
+
         [Static("EPSILON")]
         public static readonly double Epsilon = double.Epsilon;
 
         [Static("NAN")]
-        public static readonly double NaN = double.NaN;
+        public static readonly double JSNaN = double.NaN;
 
         [Static("MAX_SAFE_INTEGER")]
         public static readonly double MaxSafeInteger = 9007199254740991d;
@@ -48,6 +52,11 @@ namespace WebAtoms.CoreJS.Core
             return JSConstants.Number;
         }
 
+        protected override JSObject GetPrototype()
+        {
+            return JSContext.Current.NumberPrototype;
+        }
+
         internal override KeyString ToKey()
         {
             var n = this.value;
@@ -60,12 +69,7 @@ namespace WebAtoms.CoreJS.Core
             return KeyStrings.GetOrCreate(n.ToString());
         }
 
-        public JSNumber(double value): base(JSContext.Current.NumberPrototype)
-        {
-            this.value = value;
-        }
-
-        internal JSNumber(double value, JSObject jsPrototype) : base(jsPrototype)
+        public JSNumber(double value): base()
         {
             this.value = value;
         }
@@ -91,9 +95,9 @@ namespace WebAtoms.CoreJS.Core
         {
             if (a[0] is JSNumber n) {
                 if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         [Static("isInteger")]
@@ -102,9 +106,9 @@ namespace WebAtoms.CoreJS.Core
             if (a[0] is JSNumber n) { 
                 var v = n.value;
                 if(((int)v) == v) 
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         public static bool IsNaN(JSValue n)
@@ -118,9 +122,9 @@ namespace WebAtoms.CoreJS.Core
             if (a[0] is JSNumber n)
             {
                 if (double.IsNaN(n.value))
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         [Static("isSafeInteger")]
@@ -130,16 +134,16 @@ namespace WebAtoms.CoreJS.Core
             {
                 var v = n.value;
                 if (v >= MinSafeInteger && v <= MaxSafeInteger)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         [Static("parseFloat")]
 
         public static JSValue ParseFloat(JSValue t,params JSValue[] a)
         {
-            var nan = JSContext.Current.NaN;
+            var nan = JSNumber.NaN;
             if (a.Length > 0)
             {
                 var p = a[0];
@@ -213,7 +217,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue ParseInt(JSValue t, params JSValue[] a)
         {
-            var nan = JSContext.Current.NaN;
+            var nan = JSNumber.NaN;
             if (a.Length > 0)
             {
                 var p = a[0];
@@ -354,7 +358,7 @@ namespace WebAtoms.CoreJS.Core
         //    switch(value)
         //    {
         //        case JSUndefined u:
-        //            return JSContext.Current.NaN;
+        //            return JSNumber.NaN;
         //        case JSNull n:
         //            return this;
         //        case JSNumber n1:
@@ -399,35 +403,35 @@ namespace WebAtoms.CoreJS.Core
         public override JSBoolean Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSNumber number
                     when (this.value == number.value):
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
                 case JSString @string
                     when (this.value == @string.DoubleValue):
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
                 case JSNull @null
                     when (this.value == 0D):
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
                 case JSBoolean boolean
                     when (this.value == (boolean._value ? 1D : 0D)):
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             if (value is JSNumber n)
             {
                 if (this.value == n.value)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

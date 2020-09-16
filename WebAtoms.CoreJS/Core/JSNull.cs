@@ -54,9 +54,9 @@ namespace WebAtoms.CoreJS.Core
         //    switch(value)
         //    {
         //        case JSUndefined un:
-        //            return JSContext.Current.NaN;
+        //            return JSNumber.NaN;
         //        case JSNull @null:
-        //            return JSContext.Current.Zero;
+        //            return JSNumber.Zero;
         //        case JSNumber n:
         //            return n;
         //    }
@@ -76,17 +76,17 @@ namespace WebAtoms.CoreJS.Core
         public override JSBoolean Equals(JSValue value)
         {
             if (value.IsNull)
-                return JSContext.Current.True;
+                return JSBoolean.True;
             if (value.IsUndefined)
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
             if (value.IsNull)
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

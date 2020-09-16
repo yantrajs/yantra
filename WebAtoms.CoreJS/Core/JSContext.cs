@@ -66,17 +66,6 @@ namespace WebAtoms.CoreJS.Core
         public readonly JSFunction Date;
 
         public readonly JSFunction TypeError;
-        public readonly JSBoolean True;
-
-        public readonly JSBoolean False;
-
-        public readonly JSNumber NaN;
-
-        public readonly JSNumber One;
-
-        public readonly JSNumber Two;
-
-        public readonly JSNumber Zero;
 
         public readonly JSObject JSON;
 
@@ -131,26 +120,26 @@ namespace WebAtoms.CoreJS.Core
             (JSFunction function, JSObject prototype) CreateFrom(KeyString name, Type type, JSObject baseType = null)
             {
                 var r = new JSFunction(JSFunction.empty, name.ToString());
-                ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
-                r.prototypeChain = baseType ?? ObjectPrototype;
-                var cached = cache.GetOrCreate(name.Key, () =>
+                lock (cache)
                 {
-                    lock (cache) { return Bootstrap.Create(name, type); }
-                });
-                r.f = cached.f;
-                var target = r.prototype.ownProperties;
-                foreach(var p in cached.prototype.ownProperties.AllValues())
-                {
-                    target[p.Key] = p.Value;
-                }
-                var ro = r.ownProperties;
-                foreach(var p in cached.ownProperties.AllValues())
-                {
-                    /// this is the case when we do not
-                    /// want to overwrite Function.prototype
-                    if (p.Key != KeyStrings.prototype.Key)
+                    ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+                    r.prototypeChain = baseType ?? ObjectPrototype;
+                    var cached = cache.GetOrCreate(name.Key, () => Bootstrap.Create(name, type));
+                    r.f = cached.f;
+                    var target = r.prototype.ownProperties;
+                    foreach (var p in cached.prototype.ownProperties.AllValues())
                     {
-                        ro[p.Key] = p.Value;
+                        target[p.Key] = p.Value;
+                    }
+                    var ro = r.ownProperties;
+                    foreach (var p in cached.ownProperties.AllValues())
+                    {
+                        /// this is the case when we do not
+                        /// want to overwrite Function.prototype
+                        if (p.Key != KeyStrings.prototype.Key)
+                        {
+                            ro[p.Key] = p.Value;
+                        }
                     }
                 }
                 return (r,r.prototype);
@@ -168,12 +157,6 @@ namespace WebAtoms.CoreJS.Core
             (RangeError, RangeErrorPrototype) = CreateFrom(JSTypeError.KeyRangeError, typeof(JSError), ErrorPrototype);
             (Date, DatePrototype) = CreateFrom(KeyStrings.Date, typeof(JSDate));
             (Map, MapPrototype) = CreateFrom(KeyStrings.Map, typeof(JSMap));
-            True = new JSBoolean(true, BooleanPrototype);
-            False = new JSBoolean(false, BooleanPrototype);
-            NaN = new JSNumber(double.NaN, NumberPrototype);
-            One = new JSNumber(1, NumberPrototype);
-            Zero = new JSNumber(0, NumberPrototype);
-            Two = new JSNumber(2, NumberPrototype);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }

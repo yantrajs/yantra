@@ -12,7 +12,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Constructor(JSValue t, JSValue[] args)
         {
             var first = args.GetAt(0);
-            return first.BooleanValue ? JSContext.Current.True : JSContext.Current.False;
+            return first.BooleanValue ? JSBoolean.True : JSBoolean.False;
         }
 
     }

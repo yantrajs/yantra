@@ -113,9 +113,9 @@ namespace WebAtoms.CoreJS.Core
             foreach (var e in m.entries)
             {
                 if (e.key.Equals(first).BooleanValue)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         [Prototype("keys")]

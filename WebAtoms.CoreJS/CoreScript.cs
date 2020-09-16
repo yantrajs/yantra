@@ -792,7 +792,7 @@ namespace WebAtoms.CoreJS
                 case UnaryOperator.BitwiseNot:
                     return ExpHelper.JSNumberBuilder.New(Exp.Not( Exp.Convert(DoubleValue(target),typeof(int))));
                 case UnaryOperator.LogicalNot:
-                    return Exp.Condition(BooleanValue(target), ExpHelper.JSContextBuilder.False, ExpHelper.JSContextBuilder.True );
+                    return Exp.Condition(BooleanValue(target), JSBooleanBuilder.False, JSBooleanBuilder.True );
                 case UnaryOperator.Delete:
                     // delete expression...
                     var me = target as Esprima.Ast.MemberExpression;
@@ -1004,8 +1004,8 @@ namespace WebAtoms.CoreJS
                 {
                     case Esprima.TokenType.BooleanLiteral:
                         return literal.BooleanValue
-                            ? (ExpHelper.JSContextBuilder.True, "true")
-                            : (ExpHelper.JSContextBuilder.False, "false");
+                            ? (ExpHelper.JSBooleanBuilder.True, "true")
+                            : (ExpHelper.JSBooleanBuilder.False, "false");
                     case Esprima.TokenType.StringLiteral:
                         return (ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
                     case Esprima.TokenType.RegularExpression:

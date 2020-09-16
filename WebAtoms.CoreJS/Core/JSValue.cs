@@ -110,9 +110,21 @@ namespace WebAtoms.CoreJS.Core {
             }
             set
             {
-                throw new NotSupportedException();
+                // throw new NotSupportedException();
             }
         }
+
+        public virtual JSValue this[uint key]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return this.GetValue(prototypeChain.GetInternalProperty(key));
+            }
+            set { }
+        }
+
 
         public JSValue this[JSValue key]
         {
@@ -137,16 +149,6 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public virtual JSValue this[uint key]
-        {
-            get {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return this.GetValue(prototypeChain.GetInternalProperty(key));
-            }
-            set => throw new NotSupportedException();
-        }
-
         public abstract JSBoolean Equals(JSValue value);
 
         internal static bool StaticEquals(JSValue left, JSValue right)
@@ -163,12 +165,12 @@ namespace WebAtoms.CoreJS.Core {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue < value.DoubleValue)
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) < 0)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
 
         }
         internal virtual JSBoolean LessOrEqual(JSValue value)
@@ -178,12 +180,12 @@ namespace WebAtoms.CoreJS.Core {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue <= value.DoubleValue)
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) <= 0)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
 
         }
 
@@ -194,12 +196,12 @@ namespace WebAtoms.CoreJS.Core {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue > value.DoubleValue)
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) > 0)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
 
         }
         internal virtual JSBoolean GreaterOrEqual(JSValue value)
@@ -208,12 +210,12 @@ namespace WebAtoms.CoreJS.Core {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue >= value.DoubleValue)
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) >= 0)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
@@ -280,11 +282,11 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual JSValue Delete(KeyString key)
         {
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
         public virtual JSValue Delete(uint key)
         {
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         public JSValue Delete(JSValue index)
@@ -360,7 +362,7 @@ namespace WebAtoms.CoreJS.Core {
                     case decimal ds:
                         return new JSNumber((double)ds);
                     case bool b:
-                        return b ? JSContext.Current.True : JSContext.Current.False;
+                        return b ? JSBoolean.True : JSBoolean.False;
                     case string s:
                         return new JSString(s);
                     case JSValue v:

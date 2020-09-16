@@ -24,9 +24,9 @@ namespace WebAtoms.CoreJS.Core
                 var text = a[0].ToString();
                 var px = ((JSObject)t).GetInternalProperty(text, false);
                 if (!px.IsEmpty && px.IsEnumerable)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
 

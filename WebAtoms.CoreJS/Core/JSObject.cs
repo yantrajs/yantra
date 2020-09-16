@@ -300,34 +300,34 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue Delete(KeyString key)
         {
             if (ownProperties?.RemoveAt(key.Key) ?? false)
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue Delete(uint key)
         {
             if (elements?.RemoveAt(key) ?? false)
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSBoolean Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             if (value is JSString str)
                 if (this.ToString() == str.value)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             if (DoubleValue == value.DoubleValue)
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
-            return JSContext.Current.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
@@ -341,23 +341,23 @@ namespace WebAtoms.CoreJS.Core
             {
                 case JSString strValue:
                     if (this.ToString().CompareTo(strValue.value) < 0)
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
                     break;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         internal override JSBoolean LessOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) <= 0):
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         internal override JSBoolean Greater(JSValue value)
@@ -366,22 +366,22 @@ namespace WebAtoms.CoreJS.Core
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) > 0):
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         internal override JSBoolean GreaterOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) >= 0):
-                        return JSContext.Current.True;
+                        return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
     }
 }

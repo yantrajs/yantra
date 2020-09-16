@@ -87,7 +87,7 @@ namespace WebAtoms.CoreJS.Core
                 JSValue jv;
                 if (f.FieldType == typeof(double))
                 {
-                    jv = new JSNumber((double)v, type == typeof(JSNumber) ? p : JSContext.Current.NumberPrototype);
+                    jv = new JSNumber((double)v);
                 } else
                 {
                     jv = new JSString(v.ToString(), type == typeof(JSString) ? p : JSContext.Current.StringPrototype);

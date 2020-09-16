@@ -7,13 +7,23 @@ using System.Xml.Schema;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSBoolean : JSValue
+    public partial class JSBoolean : JSPrimitive
     {
+
+        public static JSBoolean True = new JSBoolean(true);
+
+        public static JSBoolean False = new JSBoolean(false);
+
         internal readonly bool _value;
 
-        internal JSBoolean(bool _value, JSObject prototype) : base(prototype)
+        private JSBoolean(bool _value) : base()
         {
             this._value = _value;
+        }
+
+        protected override JSObject GetPrototype()
+        {
+            return JSContext.Current.BooleanPrototype;
         }
 
         //public static bool IsTrue(JSValue value)
@@ -58,23 +68,23 @@ namespace WebAtoms.CoreJS.Core
         public override JSBoolean Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSContext.Current.True;
+                return JSBoolean.True;
             if (this._value) {
                 if (value.DoubleValue == 1)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             } else
             {
                 if (value.DoubleValue == 0)
-                    return JSContext.Current.True;
+                    return JSBoolean.True;
             }
-            return JSContext.Current.False;
+            return JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
             if (value.IsBoolean && value.BooleanValue == this._value)
-                return JSContext.Current.True;
-            return JSContext.Current.False; 
+                return JSBoolean.True;
+            return JSBoolean.False; 
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

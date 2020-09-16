@@ -21,8 +21,8 @@ namespace WebAtoms.CoreJS.Extensions
         internal static JSValue ToJSValue(this JSProperty px)
         {
             var ctx = JSContext.Current;
-            var t = ctx.True;
-            var f = ctx.False;
+            var t = JSBoolean.True;
+            var f = JSBoolean.False;
             JSObject obj;
             if (px.IsValue)
             {

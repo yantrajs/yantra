@@ -214,15 +214,6 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression CurrentScope =>
             Expression.Field(Current, InternalField("Scope"));
 
-        public static Expression True =
-            Expression.Field(Current, Field("True"));
-
-        public static Expression False =
-            Expression.Field(Current, Field("False"));
-
-        public static Expression NaN =
-            Expression.Field(Current, Field("NaN"));
-
         private static PropertyInfo _Index =
             IndexProperty<Core.KeyString>();
         public static Expression Index(Expression key)
@@ -312,6 +303,10 @@ namespace WebAtoms.CoreJS.ExpHelper
 
     public class JSNumberBuilder: TypeHelper<Core.JSNumber>
     {
+
+
+        public static Expression NaN =
+            Expression.Field(null, Field("NaN"));
 
         private static FieldInfo _Value =
             InternalField(nameof(Core.JSNumber.value));
@@ -806,6 +801,12 @@ namespace WebAtoms.CoreJS.ExpHelper
     public class JSBooleanBuilder: TypeHelper<Core.JSBoolean>
     {
 
+        public static Expression True =
+            Expression.Field(null, Field("True"));
+
+        public static Expression False =
+            Expression.Field(null, Field("False"));
+
         private static FieldInfo _Value =
             InternalField(nameof(Core.JSBoolean._value));
 
@@ -816,7 +817,7 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         public static Expression NewFromCLRBoolean(Expression target)
         {
-            return Expression.Condition(target, JSContextBuilder.True, JSContextBuilder.False);
+            return Expression.Condition(target, JSBooleanBuilder.True, JSBooleanBuilder.False);
         }
 
 
@@ -824,8 +825,8 @@ namespace WebAtoms.CoreJS.ExpHelper
         {
             return Expression.Condition(
                 JSValueBuilder.BooleanValue(value),
-                JSContextBuilder.False,
-                JSContextBuilder.True
+                JSBooleanBuilder.False,
+                JSBooleanBuilder.True
                 );
         }
     }

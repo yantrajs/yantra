@@ -58,21 +58,21 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
         [TestMethod]
         public void Number()
         {
-            var NaN = JSContext.Current.NaN;
+            var NaN = JSNumber.NaN;
 
             Assert.IsTrue(JSNumber.IsNaN(NaN.AddValue(NaN)));
 
             Assert.IsTrue(JSNumber.IsNaN(NaN.AddValue(JSNull.Value)));
             Assert.IsTrue(JSNumber.IsNaN(NaN.AddValue(JSUndefined.Value)));
-            Assert.IsTrue(JSNumber.IsNaN(NaN.AddValue(JSContext.Current.One)));
+            Assert.IsTrue(JSNumber.IsNaN(NaN.AddValue(JSNumber.One)));
 
-            var One = JSContext.Current.One;
+            var One = JSNumber.One;
 
             Assert.AreEqual(One, One.AddValue(0));
 
-            Assert.AreEqual(JSContext.Current.Two, One.AddValue(1));
+            Assert.AreEqual(JSNumber.Two, One.AddValue(1));
 
-            Assert.AreEqual(JSContext.Current.Two, One.AddValue(One));
+            Assert.AreEqual(JSNumber.Two, One.AddValue(One));
 
 
             Assert.IsTrue(double.IsNaN(One.AddValue(JSUndefined.Value).DoubleValue));
@@ -84,14 +84,14 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
         public void Boolean()
         {
             
-            var True = JSContext.Current.True;
-            var False = JSContext.Current.False;
-            Assert.IsTrue(JSNumber.IsNaN(True.AddValue(JSContext.Current.NaN)));
+            var True = JSBoolean.True;
+            var False = JSBoolean.False;
+            Assert.IsTrue(JSNumber.IsNaN(True.AddValue(JSNumber.NaN)));
 
             Assert.IsTrue(JSNumber.IsNaN(True.AddValue(JSUndefined.Value)));
-            Assert.AreEqual(JSContext.Current.One, True.AddValue(JSNull.Value));
-            Assert.AreEqual(JSContext.Current.Zero, False.AddValue(JSNull.Value));
-            Assert.AreEqual(JSContext.Current.Two, (True.AddValue(JSContext.Current.One)));
+            Assert.AreEqual(JSNumber.One, True.AddValue(JSNull.Value));
+            Assert.AreEqual(JSNumber.Zero, False.AddValue(JSNull.Value));
+            Assert.AreEqual(JSNumber.Two, (True.AddValue(JSNumber.One)));
 
 
         }

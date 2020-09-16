@@ -52,9 +52,9 @@ namespace WebAtoms.CoreJS.Core.Objects
         {
             var first = args.GetAt(0);
             if (first.IsUndefined)
-                return JSContext.Current.NaN;
+                return JSNumber.NaN;
             if (first.IsNull)
-                return JSContext.Current.Zero;
+                return JSNumber.Zero;
             var number = first.DoubleValue;
             if (number > 0.0)
                 return new JSNumber(Math.Floor(number + 0.5));
@@ -62,7 +62,7 @@ namespace WebAtoms.CoreJS.Core.Objects
             {
                 // BitConverter is used to distinguish positive and negative zero.
                 if (BitConverter.DoubleToInt64Bits(number) == 0L)
-                    return JSContext.Current.Zero;
+                    return JSNumber.Zero;
                 return new JSNumber(-0.0D);
             }
             return new JSNumber( Math.Floor(number + 0.5));
