@@ -113,7 +113,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
-            throw new NotImplementedException("string is not a function");
+            throw new NotImplementedException($"\"{value}\" is not a function");
         }
 
 
