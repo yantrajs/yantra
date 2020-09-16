@@ -41,10 +41,10 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
+        internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             ResolvePrototype();
-            return base.GetAllKeys(showEnumerableOnly);
+            return base.GetAllKeys(showEnumerableOnly, inherited);
         }
 
         internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();

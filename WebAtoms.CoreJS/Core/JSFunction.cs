@@ -30,12 +30,6 @@ namespace WebAtoms.CoreJS.Core
             string name = null,
             string source = null): base(JSContext.Current?.FunctionPrototype)
         {
-            //this.f = (t,a) => {
-            //    using (JSContext.Current.Scope.NewScope())
-            //    {
-            //        return f(t, a);
-            //    }
-            //};
             this.f = f;
             this.name = name ?? "native";
             this.source = source 
@@ -94,25 +88,5 @@ namespace WebAtoms.CoreJS.Core
             var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));
             return fx;
         }
-
-        //[Prototype("prototype", MemberType.Get)]
-        //internal static JSValue GetPrototype(JSValue t,params JSValue[] a)
-        //{
-        //    if (t is JSFunction fx)
-        //        return fx.prototype;
-        //    return JSUndefined.Value;
-        //}
-
-        //[Prototype("prototype", MemberType.Set)]
-        //internal static JSValue SetPrototype(JSValue t,params JSValue[] a)
-        //{
-        //    if (t is JSFunction fx)
-        //    {
-        //        var px = a[0];
-        //        fx.prototype = px as JSObject;
-        //        return px;
-        //    }
-        //    return JSUndefined.Value;
-        //}
     }
 }

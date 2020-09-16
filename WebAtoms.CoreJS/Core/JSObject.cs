@@ -204,7 +204,7 @@ namespace WebAtoms.CoreJS.Core
                 }
             }
         }
-        internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
+        internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             var elements = this.elements;
             if (elements != null)
@@ -234,11 +234,14 @@ namespace WebAtoms.CoreJS.Core
                 }
             }
 
-            var @base = this.prototypeChain;
-            if (@base != this && @base != null)
+            if (inherited)
             {
-                foreach (var i in @base.GetAllKeys(showEnumerableOnly))
-                    yield return i;
+                var @base = this.prototypeChain;
+                if (@base != this && @base != null)
+                {
+                    foreach (var i in @base.GetAllKeys(showEnumerableOnly))
+                        yield return i;
+                }
             }
         }
 

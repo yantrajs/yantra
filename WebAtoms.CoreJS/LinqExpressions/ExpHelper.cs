@@ -656,7 +656,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _GetAllKeys =
-            InternalMethod<bool>(nameof(JSValue.GetAllKeys));
+            InternalMethod<bool, bool>(nameof(JSValue.GetAllKeys));
 
         private static MethodInfo _GetEnumerator =
             typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));
@@ -665,7 +665,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         {
             return
                 Expression.Call(
-                    Expression.Call(target, _GetAllKeys, Expression.Constant(false)),
+                    Expression.Call(target, _GetAllKeys, Expression.Constant(false), Expression.Constant(true)),
                     _GetEnumerator);
         }
 

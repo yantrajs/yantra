@@ -182,10 +182,7 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            return new JSArray(jobj.ownProperties
-                .AllValues()
-                .Where(x => x.Value.IsEnumerable)
-                .Select(x => new JSString(x.Value.ToString())));
+            return new JSArray(jobj.GetAllKeys(true, false));
         }
 
         [Static("preventExtensions")]
