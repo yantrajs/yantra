@@ -11,8 +11,8 @@ assert(count === 7, count);
 
 assert(animals[5] === "cats");
 
-//var a = {};
+var a = {};
 
-//Array.prototype.push.call(a, 1);
+Array.prototype.push.call(a, 1);
 
-//assert(a.length === 1);
+assert(a.length === 1);

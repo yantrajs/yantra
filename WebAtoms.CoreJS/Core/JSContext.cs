@@ -145,12 +145,12 @@ namespace WebAtoms.CoreJS.Core
                 return (r,r.prototype);
             }
 
+            (Function, FunctionPrototype) = this.Create<JSFunction>(KeyStrings.Function);
             // create object prototype...
             (Object, ObjectPrototype) =  this.Create<JSObject>(KeyStrings.Object);
             (Array, ArrayPrototype) = this.Create<JSArray>(KeyStrings.Array);
             (String, StringPrototype) = this.Create<JSString>(KeyStrings.String);
             (Number, NumberPrototype) = this.Create<JSNumber>(KeyStrings.Number);
-            (Function, FunctionPrototype) = this.Create<JSFunction>(KeyStrings.Function);
             (Boolean, BooleanPrototype) = this.Create<JSBoolean>(KeyStrings.Boolean);
             (Error, ErrorPrototype) = this.Create<JSError>(JSError.KeyError);
             (TypeError, TypeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
