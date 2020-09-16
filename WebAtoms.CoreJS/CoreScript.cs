@@ -951,10 +951,10 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
-            if (memberExpression.Computed)
-            {
-                return JSValueBuilder.Index(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
-            }
+            //if (memberExpression.Computed)
+            //{
+            //    return JSValueBuilder.Index(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
+            //}
             switch (memberExpression.Property)
             {
                 case Identifier id:
@@ -978,7 +978,8 @@ namespace WebAtoms.CoreJS
                         VisitExpression(memberExpression.Object),
                         KeyOfName(l.StringValue));
                 case Literal l
-                    when l.TokenType == Esprima.TokenType.NumericLiteral:
+                    when l.TokenType == Esprima.TokenType.NumericLiteral 
+                        && l.NumericValue >= 0 && (l.NumericValue % 1 == 0):
                     return ExpHelper.JSValueBuilder.Index(
                         VisitExpression(memberExpression.Object),
                         (uint)l.NumericValue);

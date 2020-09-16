@@ -130,8 +130,6 @@ namespace WebAtoms.CoreJS.Core {
         {
             get
             {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
                 var k = key.ToKey();
                 return k.IsUInt ? this[k.Key] : this[k];
             }

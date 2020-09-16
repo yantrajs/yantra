@@ -9,6 +9,12 @@ namespace WebAtoms.CoreJS.Tests.Core
     [TestClass]
     public class JSStringTests: BaseTest
     {
+        [TestMethod]
+        public void Index()
+        {
+            CoreScript.Evaluate(@"var a = 'akash';
+assert(a[1] === 'k', a[1]); ");
+        }
 
         [TestMethod]
         public void Substring()

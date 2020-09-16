@@ -21,7 +21,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
             a["aa"] = 3;
             a["bb"] = 4;
 
-            var all = a.AllValues().ToList();
+            var all = a.AllValues.ToList();
             Assert.AreEqual(4, all.Count);
 
             Assert.AreEqual("a", all[0].Key);
@@ -54,7 +54,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
             a[2] = 3;
             a[4] = 4;
 
-            var all = a.AllValues().ToList();
+            var all = a.AllValues.ToList();
             Assert.AreEqual(4, all.Count);
 
             Assert.AreEqual((uint)1, all[0].Key);

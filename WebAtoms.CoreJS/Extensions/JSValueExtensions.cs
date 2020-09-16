@@ -21,7 +21,7 @@ namespace WebAtoms.CoreJS.Extensions
             var elements = @object.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues())
+                foreach (var p in elements.AllValues)
                 {
                     if (showEnumerableOnly)
                     {
@@ -63,7 +63,7 @@ namespace WebAtoms.CoreJS.Extensions
             var elements = @object.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues())
+                foreach (var p in elements.AllValues)
                 {
                     yield return ((int)p.Key, KeyString.Empty, value.GetValue(p.Value));
                 }

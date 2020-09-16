@@ -501,7 +501,7 @@ namespace WebAtoms.CoreJS.ExpHelper
             IndexProperty<KeyString>();
 
         private static PropertyInfo _IndexUInt =
-            IndexProperty<KeyString>();
+            IndexProperty<uint>();
 
         private static PropertyInfo _Index =
             IndexProperty<Core.JSValue>();
@@ -838,12 +838,16 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static FieldInfo _f =
             InternalField(nameof(JSFunction.f));
 
+        private static MethodInfo invokeFunction =
+            typeof(JSValue).GetMethod("InvokeFunction");
+
         public static Expression InvokeFunction(Expression target, Expression t, Expression args)
         {
-            var asFunction = Expression.Coalesce(Expression.TypeAs(target, typeof(JSFunction)),
-                JSExceptionBuilder.ThrowNotFunction(target));
-            var field = Expression.Field(asFunction, _f);
-            return Expression.Invoke(field, t, args);
+            // var asFunction = Expression.Coalesce(Expression.TypeAs(target, typeof(JSFunction)),
+            //    JSExceptionBuilder.ThrowNotFunction(target));
+            // var field = Expression.Field(asFunction, _f);
+            // return Expression.Invoke(field, t, args);
+            return Expression.Call(target, invokeFunction, t, args);
         }
 
         public static Expression New(Expression del, string name, string code)

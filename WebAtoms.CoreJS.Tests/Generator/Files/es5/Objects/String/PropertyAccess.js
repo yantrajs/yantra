@@ -1,2 +1,2 @@
 ﻿var a = "akash";
-assert(a[1] === "k");
+assert(a[1] === "k", a[1]);

@@ -135,7 +135,7 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSObject();
             if ((v is JSArray va))
             {
-                foreach(var item in va.elements.AllValues())
+                foreach(var item in va.elements.AllValues)
                 {
                     var vi = item.Value;
                     if (!(vi.value is JSArray ia))

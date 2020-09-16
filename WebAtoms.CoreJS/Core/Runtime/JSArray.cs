@@ -35,7 +35,7 @@ namespace WebAtoms.CoreJS.Core
                     }
                     return r;
                 case JSArray array:
-                    foreach (var ch in array.elements.AllValues())
+                    foreach (var ch in array.elements.AllValues)
                     {
                         JSValue item = ch.Value.value;
                         if (map is JSFunction fn)

@@ -8,7 +8,7 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSString : JSValue
+    public partial class JSString : JSPrimitive
     {
         internal readonly string value;
         KeyString _keyString = new KeyString(null,0);
@@ -24,13 +24,12 @@ namespace WebAtoms.CoreJS.Core
                 : (_keyString = KeyStrings.GetOrCreate(this.value));
         }
 
-
-        public JSString(string value): base(JSContext.Current.StringPrototype)
+        protected override JSObject GetPrototype()
         {
-            this.value = value;
+            return JSContext.Current.StringPrototype;
         }
 
-        internal JSString(string value, JSObject prototype) : base(prototype)
+        public JSString(string value): base()
         {
             this.value = value;
         }
@@ -63,8 +62,8 @@ namespace WebAtoms.CoreJS.Core
                 if (key >= this.value.Length)
                     return JSUndefined.Value;
                 return new JSString(new string(this.value[(int)key],1));
-            } 
-            set => base[key] = value; 
+            }
+            set { } 
         }
 
         public override int Length => value.Length;

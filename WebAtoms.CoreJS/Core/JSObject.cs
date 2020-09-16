@@ -190,7 +190,7 @@ namespace WebAtoms.CoreJS.Core
             var elements = this.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues())
+                foreach (var p in elements.AllValues)
                 {
                     if (showEnumerableOnly)
                     {

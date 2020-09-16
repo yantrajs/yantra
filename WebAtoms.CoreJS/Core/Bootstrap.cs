@@ -90,7 +90,7 @@ namespace WebAtoms.CoreJS.Core
                     jv = new JSNumber((double)v);
                 } else
                 {
-                    jv = new JSString(v.ToString(), type == typeof(JSString) ? p : JSContext.Current.StringPrototype);
+                    jv = new JSString(v.ToString());
                 }
 
                 target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableProperty));

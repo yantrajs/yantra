@@ -41,16 +41,6 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public override JSValue this[uint key]
-        {
-            get
-            {
-                ResolvePrototype();
-                return this.GetValue(prototypeChain.GetInternalProperty(key));
-            }
-            set { }
-        }
-
         internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
         {
             ResolvePrototype();

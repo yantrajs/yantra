@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS.Core
             get
             {
                 int i = 0;
-                foreach(var a in elements.AllValues())
+                foreach(var a in elements.AllValues)
                 {
                     var index = a.Key;
                     while (index > i)

@@ -27,11 +27,13 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public IEnumerable<(TKey Key, TValue Value)> AllValues()
+        public IEnumerable<(TKey Key, TValue Value)> AllValues
         {
-            foreach (var a in Enumerate(0))
-            {
-                yield return (a.key, a.value);
+            get {
+                foreach (var a in Enumerate(0))
+                {
+                    yield return (a.key, a.value);
+                }
             }
         }
 
