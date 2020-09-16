@@ -15,7 +15,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue StaticCreate(JSValue t,params JSValue[] a)
         {
             var p = a[0];
-            if (p.IsUndefined)
+            if (p.IsUndefined || p.IsNull)
                 p = JSContext.Current.ObjectPrototype;
             return new JSObject((JSObject)p);
         }

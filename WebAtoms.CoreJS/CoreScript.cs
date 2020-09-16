@@ -951,10 +951,6 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
-            //if (memberExpression.Computed)
-            //{
-            //    return JSValueBuilder.Index(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
-            //}
             switch (memberExpression.Property)
             {
                 case Identifier id:
@@ -986,6 +982,10 @@ namespace WebAtoms.CoreJS
                 case StaticMemberExpression se:
                     return JSValueBuilder.Index( VisitExpression(memberExpression.Object),VisitExpression(se.Property));
 
+            }
+            if (memberExpression.Computed)
+            {
+                return JSValueBuilder.Index(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
             }
             throw new NotImplementedException();
         }

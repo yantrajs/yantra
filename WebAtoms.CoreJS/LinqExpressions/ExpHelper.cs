@@ -549,11 +549,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _DeleteKeyString
-            = InternalMethod<KeyString>(nameof(JSValue.Delete));
+            = Method<KeyString>(nameof(JSValue.Delete));
         private static MethodInfo _DeleteUInt
-            = InternalMethod<KeyString>(nameof(JSValue.Delete));
+            = Method<uint>(nameof(JSValue.Delete));
         private static MethodInfo _DeleteJSValue
-            = InternalMethod<KeyString>(nameof(JSValue.Delete));
+            = Method<JSValue>(nameof(JSValue.Delete));
 
         public static Expression Delete(Expression target, Expression method)
         {
@@ -656,7 +656,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _GetAllKeys =
-            Method<JSValue, bool>(nameof(JSValue.GetAllKeys));
+            InternalMethod<bool>(nameof(JSValue.GetAllKeys));
 
         private static MethodInfo _GetEnumerator =
             typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));
@@ -665,7 +665,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         {
             return
                 Expression.Call(
-                    Expression.Call(null, _GetAllKeys, target, Expression.Constant(false)),
+                    Expression.Call(target, _GetAllKeys, Expression.Constant(false)),
                     _GetEnumerator);
         }
 
