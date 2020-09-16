@@ -9,12 +9,8 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSString
+    public class JSStringPrototype
     {
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Undefined;
-        }
 
         private static JSString AsJSString(JSValue v, 
             [CallerMemberName] string helper = null)

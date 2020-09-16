@@ -8,7 +8,7 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSString
+    public class JSStringStatic
     {
 
         [Static("fromCharCode")]

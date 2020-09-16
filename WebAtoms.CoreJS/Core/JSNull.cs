@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace WebAtoms.CoreJS.Core
@@ -94,5 +95,6 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("null is not a function");
         }
 
+        internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();
     }
 }

@@ -8,6 +8,7 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
+    [JSRuntime(typeof(JSStringStatic), typeof(JSStringPrototype))]
     public partial class JSString : JSPrimitive
     {
         internal readonly string value;
@@ -44,7 +45,11 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
-        
+        public override JSValue TypeOf()
+        {
+            return JSConstants.String;
+        }
+
 
         public override string ToString()
         {

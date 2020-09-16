@@ -9,7 +9,7 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSObject
+    public class JSObjectPrototype
     {
 
         [Prototype("propertyIsEnumerable")]

@@ -6,10 +6,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using WebAtoms.CoreJS.Core.Runtime;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
+    [JSRuntime(typeof(JSArrayStatic), typeof(JSArrayPrototype))]
     public partial class JSArray: JSObject
     {
         internal uint _length;
@@ -62,6 +64,8 @@ namespace WebAtoms.CoreJS.Core
                 elements[name] = JSProperty.Property(value);
             }
         }
+
+        public override bool IsArray => true;
 
         public IEnumerable<JSValue> All
         {
@@ -116,6 +120,8 @@ namespace WebAtoms.CoreJS.Core
             this.elements[this._length++] = JSProperty.Property(item);
             return this;
         }
+
+        internal override IEnumerable<JSValue> AllElements  => this.All;
 
     }
 }

@@ -8,7 +8,7 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSObject
+    public class JSObjectStatic
     {
 
         [Static("create")]
@@ -88,11 +88,11 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (index != -1)
                 {
-                    InternalAddProperty(target, (uint)index, property);
+                    JSObject.InternalAddProperty(target, (uint)index, property);
                 }
                 else
                 {
-                    InternalAddProperty(target, key, property);
+                    JSObject.InternalAddProperty(target, key, property);
                 }
             }
 
@@ -110,13 +110,13 @@ namespace WebAtoms.CoreJS.Core
             switch(a1)
             {
                 case JSNumber number:
-                    InternalAddProperty(target, (uint)number.IntValue, pd);
+                    JSObject.InternalAddProperty(target, (uint)number.IntValue, pd);
                     break;
                 case JSString @string:
-                    InternalAddProperty(target, @string.value, pd);
+                    JSObject.InternalAddProperty(target, @string.value, pd);
                     break;
                 default:
-                    InternalAddProperty(target, a1.ToString(), pd);
+                    JSObject.InternalAddProperty(target, a1.ToString(), pd);
                     break;
             }
             return target;

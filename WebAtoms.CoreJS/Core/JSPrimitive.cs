@@ -46,5 +46,7 @@ namespace WebAtoms.CoreJS.Core
             ResolvePrototype();
             return base.GetAllKeys(showEnumerableOnly);
         }
+
+        internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();
     }
 }

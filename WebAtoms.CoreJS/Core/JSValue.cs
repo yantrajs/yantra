@@ -295,6 +295,8 @@ namespace WebAtoms.CoreJS.Core {
             return Delete(key);
         }
 
+        internal abstract IEnumerable<JSValue> AllElements { get; }
+
 
         internal JSValue InternalInvoke(object name,params JSValue[] args)
         {

@@ -7,8 +7,158 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    internal class Bootstrap
+    internal static class Bootstrap
     {
+
+        private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
+
+
+        public static (JSFunction function, JSObject prototype) Create<T>(
+            this JSContext context, 
+            KeyString key, 
+            JSObject chain = null)
+        {
+            lock (cache)
+            {
+                var jsf = cache.GetOrCreate(key.Key, () =>
+                {
+                    var type = typeof(T);
+                    JSFunction r = Create(key, type);
+
+                    var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
+                    if (rt != null)
+                    {
+
+
+                        var cx = Fill(rt.StaticType, r);
+                        if (cx != null)
+                        {
+                            r.f = cx;
+                        }
+
+                        cx = Fill(rt.Prototype, r.prototype);
+                        if (cx != null)
+                        {
+                            r.f = cx;
+                        }
+                    }
+
+                    return r;
+                });
+
+                var copy = new JSFunction(jsf.f, key.ToString());
+                var target = copy.prototype.ownProperties;
+                foreach (var p in jsf.prototype.ownProperties.AllValues())
+                {
+                    target[p.Key] = p.Value;
+                }
+                var ro = copy.ownProperties;
+                foreach (var p in jsf.ownProperties.AllValues())
+                {
+                    /// this is the case when we do not
+                    /// want to overwrite Function.prototype
+                    if (p.Key != KeyStrings.prototype.Key)
+                    {
+                        ro[p.Key] = p.Value;
+                    }
+                }
+                context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
+                copy.prototypeChain = chain ?? context.ObjectPrototype;
+                return (copy, copy.prototype);
+            }
+        }
+
+        #region Fill
+
+        public static JSFunctionDelegate Fill(Type type, JSObject target)
+        {
+
+            JSFunctionDelegate r = null;
+
+            var p = target;
+            var all = type
+                .GetMethods(BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly
+                    | BindingFlags.Public
+                    | BindingFlags.Static
+                    | BindingFlags.Instance)
+                .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
+                .Where(x => x.attribute != null)
+                .GroupBy(x => x.attribute.Name).ToList();
+            foreach (var mg in all)
+            {
+
+                var f = mg.First();
+
+                if (mg.Any((x => !x.method.IsStatic)))
+                    throw new NotSupportedException($"{f.method.Name} should be static method");
+
+                var (m, pr) = f;
+
+                if (pr is ConstructorAttribute)
+                {
+                    r = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                    continue;
+                }
+
+                if (pr.IsMethod)
+                {
+
+                    target.DefineProperty(pr.Name, JSProperty.Function(pr.Name,
+                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue));
+                    continue;
+                }
+
+                if (mg.Count() == 2)
+                {
+                    var l = mg.Last();
+                    var fdel = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                    var ldel = (JSFunctionDelegate)l.method.CreateDelegate(typeof(JSFunctionDelegate));
+                    target.DefineProperty(mg.Key, JSProperty.Property(
+                        mg.Key,
+                        f.attribute.IsGetProperty ? fdel : ldel,
+                        !f.attribute.IsGetProperty ? fdel : ldel,
+                        f.attribute.ConfigurableProperty
+                        ));
+                    continue;
+                }
+
+                var fx = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                target.DefineProperty(mg.Key, JSProperty.Property(
+                    mg.Key,
+                    f.attribute.IsGetProperty ? fx : null,
+                    !f.attribute.IsGetProperty ? fx : null,
+                    f.attribute.ConfigurableProperty
+                    ));
+
+
+            }
+
+            var fields = type
+                .GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
+                .Where(x => x.attribute != null);
+            foreach (var (f, pr) in fields)
+            {
+                var v = f.GetValue(null);
+                JSValue jv;
+                if (f.FieldType == typeof(double))
+                {
+                    jv = new JSNumber((double)v);
+                }
+                else
+                {
+                    jv = new JSString(v.ToString());
+                }
+
+                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableProperty));
+            }
+
+            return r;
+        }
+        #endregion
+
+
 
         public static JSFunction Create(KeyString key, Type type)
         {

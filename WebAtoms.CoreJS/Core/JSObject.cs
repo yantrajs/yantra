@@ -9,6 +9,7 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
+    [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
     public partial class JSObject : JSValue
     {
         public static readonly KeyString KeyToJSON = "toJSON";
@@ -185,6 +186,24 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        internal override IEnumerable<JSValue> AllElements {
+            get {
+                // if this is an array, it will be handled by an Array...
+
+                // look for length property..
+
+                if (elements == null)
+                    yield break;
+                var l = this[KeyStrings.length];
+                if (l.IsNull || l.IsUndefined)
+                    yield break;
+                var n = (uint)l.IntValue;
+                for (uint i = 0; i < n; i++)
+                {
+                    yield return this.GetValue(elements[i]);
+                }
+            }
+        }
         internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true)
         {
             var elements = this.elements;
@@ -223,7 +242,8 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        private static void InternalAddProperty(JSObject target, uint key, JSValue pd)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InternalAddProperty(JSObject target, uint key, JSValue pd)
         {
             var p = new JSProperty();
             var value = pd[KeyStrings.value];
@@ -261,7 +281,8 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        private static void InternalAddProperty(JSObject target, KeyString key, JSValue pd)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InternalAddProperty(JSObject target, KeyString key, JSValue pd)
         {
             var p = new JSProperty
             {

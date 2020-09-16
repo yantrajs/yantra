@@ -146,17 +146,17 @@ namespace WebAtoms.CoreJS.Core
             }
 
             // create object prototype...
-            (Object, ObjectPrototype) =  CreateFrom(KeyStrings.Object, typeof(JSObject));
-            (Array, ArrayPrototype) = CreateFrom(KeyStrings.Array, typeof(JSArray));
-            (String, StringPrototype) = CreateFrom(KeyStrings.String, typeof(JSString));
-            (Number, NumberPrototype) = CreateFrom(KeyStrings.Number, typeof(JSNumber));
-            (Function, FunctionPrototype) = CreateFrom(KeyStrings.Function, typeof(JSFunction));
-            (Boolean, BooleanPrototype) = CreateFrom(KeyStrings.Boolean, typeof(JSBoolean));
-            (Error, ErrorPrototype) = CreateFrom(JSError.KeyError, typeof(JSError));
-            (TypeError, TypeErrorPrototype) = CreateFrom(JSTypeError.KeyTypeError, typeof(JSError), ErrorPrototype);
-            (RangeError, RangeErrorPrototype) = CreateFrom(JSTypeError.KeyRangeError, typeof(JSError), ErrorPrototype);
-            (Date, DatePrototype) = CreateFrom(KeyStrings.Date, typeof(JSDate));
-            (Map, MapPrototype) = CreateFrom(KeyStrings.Map, typeof(JSMap));
+            (Object, ObjectPrototype) =  this.Create<JSObject>(KeyStrings.Object);
+            (Array, ArrayPrototype) = this.Create<JSArray>(KeyStrings.Array);
+            (String, StringPrototype) = this.Create<JSString>(KeyStrings.String);
+            (Number, NumberPrototype) = this.Create<JSNumber>(KeyStrings.Number);
+            (Function, FunctionPrototype) = this.Create<JSFunction>(KeyStrings.Function);
+            (Boolean, BooleanPrototype) = this.Create<JSBoolean>(KeyStrings.Boolean);
+            (Error, ErrorPrototype) = this.Create<JSError>(JSError.KeyError);
+            (TypeError, TypeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
+            (RangeError, RangeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);
+            (Date, DatePrototype) = this.Create<JSDate>(KeyStrings.Date);
+            (Map, MapPrototype) = this.Create<JSMap>(KeyStrings.Map);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }

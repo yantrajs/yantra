@@ -88,5 +88,6 @@ namespace WebAtoms.CoreJS.Core
             set { } 
         }
 
+        internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();
     }
 }

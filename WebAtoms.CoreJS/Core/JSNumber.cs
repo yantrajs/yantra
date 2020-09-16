@@ -5,11 +5,13 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Transactions;
 using System.Xml.Schema;
+using WebAtoms.CoreJS.Core.Runtime;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
+    [JSRuntime(typeof(JSNumberStatic), typeof(JSNumberPrototype))]
     public sealed class JSNumber : JSPrimitive
     {
 
@@ -90,268 +92,14 @@ namespace WebAtoms.CoreJS.Core
             return value.ToString();
         }
 
-        [Static("isFinite")]
-        public static JSValue IsFinite(JSValue t,params JSValue[] a)
-        {
-            if (a[0] is JSNumber n) {
-                if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
-                    return JSBoolean.True;
-            }
-            return JSBoolean.False;
-        }
-
-        [Static("isInteger")]
-        public static JSValue IsInteger(JSValue t,params JSValue[] a)
-        {
-            if (a[0] is JSNumber n) { 
-                var v = n.value;
-                if(((int)v) == v) 
-                    return JSBoolean.True;
-            }
-            return JSBoolean.False;
-        }
 
         public static bool IsNaN(JSValue n)
         {
             return double.IsNaN(n.DoubleValue);
         }
 
-        [Static("isNaN")]
-        public static JSValue IsNaN(JSValue t,params JSValue[] a)
-        {
-            if (a[0] is JSNumber n)
-            {
-                if (double.IsNaN(n.value))
-                    return JSBoolean.True;
-            }
-            return JSBoolean.False;
-        }
+        
 
-        [Static("isSafeInteger")]
-        public static JSValue IsSafeInteger(JSValue t,params JSValue[] a)
-        {
-            if (a[0] is JSNumber n)
-            {
-                var v = n.value;
-                if (v >= MinSafeInteger && v <= MaxSafeInteger)
-                    return JSBoolean.True;
-            }
-            return JSBoolean.False;
-        }
-
-        [Static("parseFloat")]
-
-        public static JSValue ParseFloat(JSValue t,params JSValue[] a)
-        {
-            var nan = JSNumber.NaN;
-            if (a.Length > 0)
-            {
-                var p = a[0];
-                if (p.IsNumber)
-                    return p;
-                if (p.IsNull || p.IsUndefined)
-                    return nan;
-                var text = p.JSTrim();
-                if (text.Length > 0)
-                {
-                    int start = 0;
-                    char ch;
-                    bool hasDot = false;
-                    bool hasE = false;
-                    do {
-                        ch = text[start];
-                        if (char.IsDigit(ch))
-                        {
-                            start ++;
-                            continue;
-                        }
-                        if (ch == '.')
-                        {
-                            if (!hasDot)
-                            {
-                                hasDot = true;
-                                start++;
-                                continue;
-                            }
-                            break;
-                        }
-                        if (ch == 'E' || ch == 'e')
-                        {
-                            if (!hasE)
-                            {
-                                hasE = true;
-                                start++;
-                                if (start < text.Length)
-                                {
-                                    var next = text[start];
-                                    if (next == '+' || next == '-')
-                                    {
-                                        start++;
-                                        continue;
-                                    }
-                                }
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
-                    } while (start < text.Length);
-                    if (text.Length > start)
-                        text = text.Substring(0, start);
-                    if (text.EndsWith("e+"))
-                        text += "0";
-                    if (text.EndsWith("e"))
-                        text += "+0";
-                    if (double.TryParse(text, out var d))
-                    {
-                        return new JSNumber(d);
-                    }
-                    return nan;
-                }
-            }
-            return nan;
-        }
-
-
-        [Static("parseInt")]
-
-        public static JSValue ParseInt(JSValue t, params JSValue[] a)
-        {
-            var nan = JSNumber.NaN;
-            if (a.Length > 0)
-            {
-                var p = a[0];
-                if (p.IsNumber)
-                    return p;
-                if (p.IsNull || p.IsUndefined)
-                    return nan;
-                var text = p.JSTrim();
-                if (text.Length > 0)
-                {
-                    var radix = 10;
-                    if (a.Length > 2)
-                    {
-                        var a1 = a[1];
-                        if (a1.IsNull || a1.IsUndefined)
-                        {
-                            radix = 10;
-                        } else
-                        {
-                            var n = a1.DoubleValue;
-                            if (!double.IsNaN(n))
-                            {
-                                radix = (int)n;
-                                if (radix < 0 || radix == 1 || radix > 36)
-                                    return nan;
-                            }
-                        }
-                    }
-                    var d = NumberParser.ParseInt(text.Trim(), radix, false);
-                    return new JSNumber(d);
-                }
-            }
-            return nan;
-        }
-
-        [Prototype("toString")]
-
-        public static JSString ToString(JSValue t,params JSValue[] a)
-        {
-            var p = t;
-            if (!(p is JSNumber n))
-                throw JSContext.Current.NewTypeError($"Number.prototype.toExponential requires that 'this' be a Number");
-            return new JSString(n.value.ToString());
-        }
-
-        [Prototype("toExponential")]
-
-        public static JSString ToExponential(JSValue t,params JSValue[] a)
-        {
-            var p = t;
-            if (!(p is JSNumber n))
-                throw JSContext.Current.NewTypeError($"Number.prototype.toExponential requires that 'this' be a Number");
-            if (a[0] is JSNumber n1)
-            {
-                var v = n1.value;
-                if (double.IsNaN(v) || v > 100 || v < 1)
-                    throw JSContext.Current.NewRangeError("toExponential() digitis argument must be between 0 and 100");
-                var fx = $"#.{new string('#',(int)v)}e+0";
-                return new JSString(n.value.ToString(fx));
-            }
-            return new JSString(n.value.ToString("#.#################e+0"));
-        }
-
-        [Prototype("toFixed")]
-        public static JSString ToFixed(JSValue t,params JSValue[] a)
-        {
-            var p = t;
-            if (!(p is JSNumber n))
-                throw JSContext.Current.NewTypeError($"Number.prototype.toFixed requires that 'this' be a Number");
-            if (a[0] is JSNumber n1)
-            {
-                if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
-                    throw JSContext.Current.NewRangeError("toFixed() digitis argument must be between 0 and 100");
-                var i = (int)n1.value;
-                return new JSString(n.value.ToString($"F{i}"));
-            }
-            return new JSString(n.value.ToString("F0"));
-        }
-
-        [Prototype("toPrecision")]
-        public static JSString ToPrecision(JSValue t,params JSValue[] a)
-        {
-            var p = t;
-            if (!(p is JSNumber n))
-                throw JSContext.Current.NewTypeError($"Number.prototype.toFixed requires that 'this' be a Number");
-            if (a[0] is JSNumber n1)
-            {
-                if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
-                    throw JSContext.Current.NewRangeError("toPrecision() digitis argument must be between 0 and 100");
-                var i = (int)n1.value;
-                var d = n.value;
-                var prefix = 'G';
-                if (d < 1)
-                {
-                    prefix = 'F';
-                    // increase i for below 1
-                    while (d < 1)
-                    {
-                        d = d * 10;
-                        i++;
-                    }
-                    i--;
-                }
-                var txt = n.value.ToString($"{prefix}{i}")
-                    .ToLower()
-                    .Replace("e+0","0e+");
-                return new JSString(txt);
-            }
-            return new JSString(n.value.ToString("G2"));
-        }
-
-        [Prototype("toLocaleString")]
-        public static JSString ToLocaleString(JSValue t,params JSValue[] a)
-        {
-            var p = t;
-            if (!(p is JSNumber n))
-                throw JSContext.Current.NewTypeError($"Number.prototype.toFixed requires that 'this' be a Number");
-            if(a.Length > 0)
-            {
-                var p1 = a[0];
-                switch (p1)
-                {
-                    case JSNull _:
-                    case JSUndefined _:
-                        throw JSContext.Current.NewTypeError($"Cannot convert undefined or null to object");
-                }
-                var text = p1.ToString();
-                var ci = CultureInfo.GetCultureInfo(text);
-                if (ci == null)
-                    throw JSContext.Current.NewRangeError("Incorrect locale information provided");
-                return new JSString( n.value.ToString(ci.NumberFormat));
-            }
-            return new JSString(n.value.ToString("N2"));
-        }
 
         //public override JSValue AddValue(JSValue value)
         //{

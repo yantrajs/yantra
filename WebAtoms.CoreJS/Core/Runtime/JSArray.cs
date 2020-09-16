@@ -10,10 +10,12 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSArray
+
+    public class JSArrayStatic
     {
+
         [Static("from")]
-        public static JSValue StaticFrom(JSValue t,params JSValue[] a)
+        public static JSValue StaticFrom(JSValue t, params JSValue[] a)
         {
             var r = new JSArray();
             var f = a.GetAt(0);
@@ -22,9 +24,10 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewError("undefined is not iterable");
             if (f.IsNull)
                 throw JSContext.Current.NewError("null is not iterable");
-            switch (f) {
+            switch (f)
+            {
                 case JSString str:
-                    foreach(var ch in str.value)
+                    foreach (var ch in str.value)
                     {
                         JSValue item = new JSString(new string(ch, 1));
                         if (map is JSFunction fn)
@@ -50,13 +53,13 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("isArray")]
-        public static JSValue StaticIsArray(JSValue t,params JSValue[] a)
+        public static JSValue StaticIsArray(JSValue t, params JSValue[] a)
         {
             return a.GetAt(0) is JSArray ? JSBoolean.True : JSBoolean.False;
         }
 
         [Static("of")]
-        public static JSValue StaticOf(JSValue t,params JSValue[] a)
+        public static JSValue StaticOf(JSValue t, params JSValue[] a)
         {
             var r = new JSArray();
             if (a != null)

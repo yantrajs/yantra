@@ -4,6 +4,19 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class JSRuntimeAttribute: Attribute
+    {
+        public readonly Type StaticType;
+        public readonly Type Prototype;
+        public JSRuntimeAttribute(Type staticType, Type prototype)
+        {
+            this.Prototype = prototype;
+            this.StaticType = staticType;
+        }
+    }
+
     public enum MemberType: int
     {
         Method = 1,
