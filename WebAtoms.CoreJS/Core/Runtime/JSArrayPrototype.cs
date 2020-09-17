@@ -32,10 +32,9 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Push(JSValue t, params JSValue[] a)
         {
 
-            if (t.IsArray)
+            if (t is JSArray ta)
             {
 
-                var ta = (JSArray)t;
                 foreach (var item in a)
                 {
                     ta.elements[ta._length] = JSProperty.Property(item);
@@ -57,7 +56,7 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("pop")]
         public static JSValue Pop(JSValue t, params JSValue[] a)
         {
-            var ta = (JSArray)t;
+            var ta = t as JSArray;
             if (ta._length == 0)
                 return JSUndefined.Value;
             JSProperty r;
@@ -72,7 +71,7 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("slice")]
         public static JSArray Slice(JSValue t, params JSValue[] a)
         {
-            var ta = (JSArray)t;
+            var ta = t as JSArray;
             var start = a.TryGetAt(0, out var a0) ? a0.IntValue : 0;
             var end = a.TryGetAt(1, out var a1) ? a1.IntValue : -1;
             return ta.Slice(start, end);

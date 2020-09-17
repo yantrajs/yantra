@@ -8,12 +8,52 @@ namespace WebAtoms.CoreJS.Core.Runtime
 {
     public static class JSNumberPrototype
     {
+
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JSNumber ToNumber(this JSValue target, [CallerMemberName] string name = null)
         {
-            if (!(target.IsNumber))
+            if (!(target is JSNumber n))
                 throw JSContext.Current.NewTypeError($"Number.prototype.{name} requires that 'this' be a Number");
-            return (JSNumber)target;
+            return n;
+        }
+
+        [Prototype("clz")]
+        public static JSValue Clz(this JSValue target, JSValue[] args)
+        {
+            uint x = (uint)target.ToNumber().IntValue;
+
+            // Propagate leftmost 1-bit to the right 
+            x = x | (x >> 1);
+            x = x | (x >> 2);
+            x = x | (x >> 4);
+            x = x | (x >> 8);
+            x = x | (x >> 16);
+
+            int i = sizeof(int) * 8 - CountOneBits(x);
+            return new JSNumber(i);
+        }
+
+        /// <summary>
+        /// Counts the number of set bits in an integer.
+        /// </summary>
+        /// <param name="x"> The integer. </param>
+        /// <returns> The number of set bits in the integer. </returns>
+        private static int CountOneBits(uint x)
+        {
+            x -= ((x >> 1) & 0x55555555);
+            x = (((x >> 2) & 0x33333333) + (x & 0x33333333));
+            x = (((x >> 4) + x) & 0x0f0f0f0f);
+            x += (x >> 8);
+            x += (x >> 16);
+            return (int)(x & 0x0000003f);
+        }
+
+        [Prototype("valueOf")]
+        public static  JSValue ValueOf(JSValue t, JSValue[] a)
+        {
+            return t.ToNumber();
         }
 
         [Prototype("toString")]
