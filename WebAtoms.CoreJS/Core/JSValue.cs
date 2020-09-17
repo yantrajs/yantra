@@ -295,6 +295,9 @@ namespace WebAtoms.CoreJS.Core {
             return Delete(key);
         }
 
+        /// <summary>
+        /// Returns Elements of an Array or an Iterable...
+        /// </summary>
         internal abstract IEnumerable<JSValue> AllElements { get; }
 
 
