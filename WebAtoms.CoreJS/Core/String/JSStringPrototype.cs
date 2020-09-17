@@ -9,21 +9,21 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSStringPrototype
+    public static class JSStringPrototype
     {
 
-        private static JSString AsJSString(JSValue v, 
+        private static JSString AsJSString(this JSValue v, 
             [CallerMemberName] string helper = null)
         {
             if (v.IsUndefined || v.IsNull)
                 throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
-            if (v.IsString)
-                return (JSString)v;
+            if (v is JSString str)
+                return str;
             return new JSString(v.ToString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static string AsString(JSValue v,
+        private static string AsString(this JSValue v,
             [CallerMemberName] string helper = null)
         {
             if (v.IsUndefined || v.IsNull)
@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS.Core
         [GetProperty("length")]
         internal static JSValue GetLength(JSValue t,params JSValue[] a)
         {
-            return new JSNumber(((JSString)t).value.Length);
+            return new JSNumber(t.ToString().Length);
         }
 
         [SetProperty("length")]
