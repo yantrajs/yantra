@@ -47,6 +47,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject MapPrototype;
 
+        public readonly JSObject PromisePrototype;
+
         public readonly JSFunction String;
 
         public readonly JSFunction Function;
@@ -67,7 +69,11 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSFunction TypeError;
 
+        public readonly JSFunction Promise;
+
         public readonly JSObject JSON;
+
+        public readonly JSFunction Symbol;
 
         public readonly JSMath Math;
 
@@ -117,34 +123,7 @@ namespace WebAtoms.CoreJS.Core
                 return r;
             }
 
-            (JSFunction function, JSObject prototype) CreateFrom(KeyString name, Type type, JSObject baseType = null)
-            {
-                var r = new JSFunction(JSFunction.empty, name.ToString());
-                lock (cache)
-                {
-                    ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
-                    r.prototypeChain = baseType ?? ObjectPrototype;
-                    var cached = cache.GetOrCreate(name.Key, () => Bootstrap.Create(name, type));
-                    r.f = cached.f;
-                    var target = r.prototype.ownProperties;
-                    foreach (var p in cached.prototype.ownProperties.AllValues())
-                    {
-                        target[p.Key] = p.Value;
-                    }
-                    var ro = r.ownProperties;
-                    foreach (var p in cached.ownProperties.AllValues())
-                    {
-                        /// this is the case when we do not
-                        /// want to overwrite Function.prototype
-                        if (p.Key != KeyStrings.prototype.Key)
-                        {
-                            ro[p.Key] = p.Value;
-                        }
-                    }
-                }
-                return (r,r.prototype);
-            }
-
+            (Symbol, _) = this.Create<JSSymbol>(KeyStrings.Symbol);
             (Function, FunctionPrototype) = this.Create<JSFunction>(KeyStrings.Function);
             // create object prototype...
             (Object, ObjectPrototype) =  this.Create<JSObject>(KeyStrings.Object);
@@ -157,6 +136,7 @@ namespace WebAtoms.CoreJS.Core
             (RangeError, RangeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);
             (Date, DatePrototype) = this.Create<JSDate>(KeyStrings.Date);
             (Map, MapPrototype) = this.Create<JSMap>(KeyStrings.Map);
+            (Promise, PromisePrototype) = this.Create<JSPromise>(KeyStrings.Promise);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }

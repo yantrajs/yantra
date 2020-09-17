@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using WebAtoms.CoreJS.Core.Runtime;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
+    [JSRuntime(typeof(JSSymbolStatic), typeof(JSSymbolPrototype))]
     public class JSSymbol: JSValue
     {
 
@@ -53,7 +56,15 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
         {
-            throw new NotImplementedException("symbol is not a function");
+            var a = args.GetAt(0);
+            if (a.IsUndefined)
+                return new JSSymbol("");
+            return new JSSymbol(a.ToString());
+        }
+
+        public override JSValue CreateInstance(JSValue[] args)
+        {
+            throw new NotSupportedException();
         }
 
         public override JSBoolean StrictEquals(JSValue value)

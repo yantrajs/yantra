@@ -120,6 +120,8 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString Math;
         public readonly static KeyString JSON;
         public readonly static KeyString Date;
+        public readonly static KeyString Symbol;
+        public readonly static KeyString Promise;
         public readonly static KeyString Map;
         public readonly static KeyString toString;
         public readonly static KeyString valueOf;
@@ -175,6 +177,8 @@ namespace WebAtoms.CoreJS.Core
             set = Create("set");
             Date = Create("Date");
             Map = Create("Map");
+            Symbol = Create("Symbol");
+            Promise = Create("Promise");
             configurable = Create("configurable");
             enumerable = Create("enumerable");
             @readonly = Create("readonly");
