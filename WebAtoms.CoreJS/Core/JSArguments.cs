@@ -38,12 +38,12 @@ namespace WebAtoms.CoreJS.Core
             return args.Select((n) => new JSString(n)).ToArray();
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override JSBooleanPrototype Equals(JSValue value)
         {
             throw new NotImplementedException();
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override JSBooleanPrototype StrictEquals(JSValue value)
         {
             throw new NotImplementedException();
         }

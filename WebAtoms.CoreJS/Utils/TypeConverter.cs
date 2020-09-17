@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Utils
                 case JSValue jv:
                     return jv;
                 case bool b1:
-                    return b1 ? JSBoolean.True : JSBoolean.False;
+                    return b1 ? JSBooleanPrototype.True : JSBooleanPrototype.False;
                 case uint ui1:
                     return new JSNumber(ui1);
                 case int i1:

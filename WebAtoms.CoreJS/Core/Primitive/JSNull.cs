@@ -74,20 +74,20 @@ namespace WebAtoms.CoreJS.Core
         //    return new JSString("null" + value);
         //}
 
-        public override JSBoolean Equals(JSValue value)
+        public override JSBooleanPrototype Equals(JSValue value)
         {
             if (value.IsNull)
-                return JSBoolean.True;
+                return JSBooleanPrototype.True;
             if (value.IsUndefined)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override JSBooleanPrototype StrictEquals(JSValue value)
         {
             if (value.IsNull)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

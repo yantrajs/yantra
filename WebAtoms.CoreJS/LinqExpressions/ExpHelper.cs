@@ -721,11 +721,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression Property(Expression key, Expression getter, Expression setter)
         {
             getter = getter == null 
-                ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) 
-                : Expression.Convert(getter, typeof(Core.JSFunction));
+                ? (Expression)Expression.Constant(null, typeof(Core.JSFunctionStatic)) 
+                : Expression.Convert(getter, typeof(Core.JSFunctionStatic));
             setter = setter == null 
-                ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) 
-                : Expression.Convert(setter, typeof(Core.JSFunction));
+                ? (Expression)Expression.Constant(null, typeof(Core.JSFunctionStatic)) 
+                : Expression.Convert(setter, typeof(Core.JSFunctionStatic));
             return Expression.MemberInit(Expression.New(typeof(Core.JSProperty)),
                 Expression.Bind(_Key, key),
                 Expression.Bind(_Get, getter),
@@ -798,7 +798,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
     }
 
-    public class JSBooleanBuilder: TypeHelper<Core.JSBoolean>
+    public class JSBooleanBuilder: TypeHelper<Core.JSBooleanPrototype>
     {
 
         public static Expression True =
@@ -808,7 +808,7 @@ namespace WebAtoms.CoreJS.ExpHelper
             Expression.Field(null, Field("False"));
 
         private static FieldInfo _Value =
-            InternalField(nameof(Core.JSBoolean._value));
+            InternalField(nameof(Core.JSBooleanPrototype._value));
 
         public static Expression Value(Expression target)
         {
@@ -830,13 +830,13 @@ namespace WebAtoms.CoreJS.ExpHelper
                 );
         }
     }
-    public class JSFunctionBuilder: TypeHelper<Core.JSFunction>
+    public class JSFunctionBuilder: TypeHelper<Core.JSFunctionStatic>
     {
         private static ConstructorInfo _New =
             Constructor<JSFunctionDelegate, string, string>();
 
         private static FieldInfo _f =
-            InternalField(nameof(JSFunction.f));
+            InternalField(nameof(JSFunctionStatic.f));
 
         private static MethodInfo invokeFunction =
             typeof(JSValue).GetMethod("InvokeFunction");

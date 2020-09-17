@@ -10,10 +10,10 @@ namespace WebAtoms.CoreJS.Core
     internal static class Bootstrap
     {
 
-        private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
+        private static BinaryUInt32Map<JSFunctionStatic> cache = new BinaryUInt32Map<JSFunctionStatic>();
 
 
-        public static (JSFunction function, JSObject prototype) Create<T>(
+        public static (JSFunctionStatic function, JSObject prototype) Create<T>(
             this JSContext context, 
             KeyString key, 
             JSObject chain = null)
@@ -23,7 +23,7 @@ namespace WebAtoms.CoreJS.Core
                 var jsf = cache.GetOrCreate(key.Key, () =>
                 {
                     var type = typeof(T);
-                    JSFunction r = Create(key, type);
+                    JSFunctionStatic r = Create(key, type);
 
                     var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
                     if (rt != null)
@@ -46,7 +46,7 @@ namespace WebAtoms.CoreJS.Core
                     return r;
                 });
 
-                var copy = new JSFunction(jsf.f, key.ToString());
+                var copy = new JSFunctionStatic(jsf.f, key.ToString());
                 var target = copy.prototype.ownProperties;
                 foreach (var p in jsf.prototype.ownProperties.AllValues())
                 {
@@ -160,9 +160,9 @@ namespace WebAtoms.CoreJS.Core
 
 
 
-        public static JSFunction Create(KeyString key, Type type)
+        public static JSFunctionStatic Create(KeyString key, Type type)
         {
-            JSFunction r = new JSFunction(JSFunction.empty, key.ToString());
+            JSFunctionStatic r = new JSFunctionStatic(JSFunctionStatic.empty, key.ToString());
 
             var p = r.prototype;
             var all = type

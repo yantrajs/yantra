@@ -147,73 +147,73 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public abstract JSBoolean Equals(JSValue value);
+        public abstract JSBooleanPrototype Equals(JSValue value);
 
         internal static bool StaticEquals(JSValue left, JSValue right)
         {
             return left.Equals(right).BooleanValue;
         }
 
-        public abstract JSBoolean StrictEquals(JSValue value);
+        public abstract JSBooleanPrototype StrictEquals(JSValue value);
 
-        internal virtual JSBoolean Less(JSValue value)
+        internal virtual JSBooleanPrototype Less(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue < value.DoubleValue)
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) < 0)
-                    return JSBoolean.True;
+                    return JSBooleanPrototype.True;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
 
         }
-        internal virtual JSBoolean LessOrEqual(JSValue value)
+        internal virtual JSBooleanPrototype LessOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue <= value.DoubleValue)
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) <= 0)
-                    return JSBoolean.True;
+                    return JSBooleanPrototype.True;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
 
         }
 
-        internal virtual JSBoolean Greater(JSValue value)
+        internal virtual JSBooleanPrototype Greater(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue > value.DoubleValue)
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) > 0)
-                    return JSBoolean.True;
+                    return JSBooleanPrototype.True;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
 
         }
-        internal virtual JSBoolean GreaterOrEqual(JSValue value)
+        internal virtual JSBooleanPrototype GreaterOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined)) {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue >= value.DoubleValue)
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) >= 0)
-                    return JSBoolean.True;
+                    return JSBooleanPrototype.True;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
         }
 
         internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
@@ -280,11 +280,11 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual JSValue Delete(KeyString key)
         {
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
         }
         public virtual JSValue Delete(uint key)
         {
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
         }
 
         public JSValue Delete(JSValue index)

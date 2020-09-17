@@ -6,7 +6,7 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSFunction : JSObject
+    public partial class JSFunctionStatic : JSObject
     {
 
         internal static JSFunctionDelegate empty = (_, __) => _;
@@ -25,7 +25,7 @@ namespace WebAtoms.CoreJS.Core
         {
             return JSConstants.Function;
         }
-        public JSFunction(
+        public JSFunctionStatic(
             JSFunctionDelegate f,
             string name = null,
             string source = null): base(JSContext.Current?.FunctionPrototype)
@@ -83,9 +83,9 @@ namespace WebAtoms.CoreJS.Core
 
         [Prototype("bind")]
         public static JSValue Bind(JSValue t,params JSValue[] a) {
-            var fOriginal = (JSFunction)t;
+            var fOriginal = (JSFunctionStatic)t;
             var tx = a[0];
-            var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));
+            var fx = new JSFunctionStatic((bt, ba) => fOriginal.f(tx, ba));
             return fx;
         }
     }

@@ -42,11 +42,11 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override JSBooleanPrototype Equals(JSValue value)
         {
             if (value == this)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
         public override int GetHashCode()
@@ -67,11 +67,11 @@ namespace WebAtoms.CoreJS.Core
             throw new NotSupportedException();
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override JSBooleanPrototype StrictEquals(JSValue value)
         {
             if (value == this)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
         public override string ToString()

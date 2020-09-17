@@ -250,8 +250,8 @@ namespace WebAtoms.CoreJS.Core
         {
             var p = new JSProperty();
             var value = pd[KeyStrings.value];
-            var get = pd[KeyStrings.get] as JSFunction;
-            var set = pd[KeyStrings.set] as JSFunction;
+            var get = pd[KeyStrings.get] as JSFunctionStatic;
+            var set = pd[KeyStrings.set] as JSFunctionStatic;
             var pt = JSPropertyAttributes.Empty;
             if (pd[KeyStrings.configurable].BooleanValue)
                 pt |= JSPropertyAttributes.Configurable;
@@ -292,8 +292,8 @@ namespace WebAtoms.CoreJS.Core
                 key = key
             };
             var value = pd[KeyStrings.value];
-            var get = pd[KeyStrings.get] as JSFunction;
-            var set = pd[KeyStrings.set] as JSFunction;
+            var get = pd[KeyStrings.get] as JSFunctionStatic;
+            var set = pd[KeyStrings.set] as JSFunctionStatic;
             var pt = JSPropertyAttributes.Empty;
             if (pd[KeyStrings.configurable].BooleanValue)
                 pt |= JSPropertyAttributes.Configurable;
@@ -324,34 +324,34 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue Delete(KeyString key)
         {
             if (ownProperties?.RemoveAt(key.Key) ?? false)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
         public override JSValue Delete(uint key)
         {
             if (elements?.RemoveAt(key) ?? false)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override JSBooleanPrototype Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return JSBooleanPrototype.True;
             if (value is JSString str)
                 if (this.ToString() == str.value)
-                    return JSBoolean.True;
+                    return JSBooleanPrototype.True;
             if (DoubleValue == value.DoubleValue)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override JSBooleanPrototype StrictEquals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return JSBooleanPrototype.True;
+            return JSBooleanPrototype.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
@@ -359,53 +359,53 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("object is not a function");
         }
 
-        internal override JSBoolean Less(JSValue value)
+        internal override JSBooleanPrototype Less(JSValue value)
         {
             switch(value)
             {
                 case JSString strValue:
                     if (this.ToString().CompareTo(strValue.value) < 0)
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
                     break;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
         }
 
-        internal override JSBoolean LessOrEqual(JSValue value)
+        internal override JSBooleanPrototype LessOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return JSBooleanPrototype.True;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) <= 0):
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
         }
 
-        internal override JSBoolean Greater(JSValue value)
+        internal override JSBooleanPrototype Greater(JSValue value)
         {
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) > 0):
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
         }
 
-        internal override JSBoolean GreaterOrEqual(JSValue value)
+        internal override JSBooleanPrototype GreaterOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return JSBooleanPrototype.True;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) >= 0):
-                        return JSBoolean.True;
+                        return JSBooleanPrototype.True;
             }
-            return JSBoolean.False;
+            return JSBooleanPrototype.False;
         }
     }
 }

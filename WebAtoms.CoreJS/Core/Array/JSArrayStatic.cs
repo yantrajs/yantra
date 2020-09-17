@@ -30,7 +30,7 @@ namespace WebAtoms.CoreJS.Core
                     foreach (var ch in str.value)
                     {
                         JSValue item = new JSString(new string(ch, 1));
-                        if (map is JSFunction fn)
+                        if (map is JSFunctionStatic fn)
                         {
                             item = fn.InvokeFunction(t, item);
                         }
@@ -41,7 +41,7 @@ namespace WebAtoms.CoreJS.Core
                     foreach (var ch in array.elements.AllValues)
                     {
                         JSValue item = ch.Value.value;
-                        if (map is JSFunction fn)
+                        if (map is JSFunctionStatic fn)
                         {
                             item = fn.InvokeFunction(t, item);
                         }
@@ -55,7 +55,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("isArray")]
         public static JSValue StaticIsArray(JSValue t, params JSValue[] a)
         {
-            return a.GetAt(0) is JSArray ? JSBoolean.True : JSBoolean.False;
+            return a.GetAt(0) is JSArray ? JSBooleanPrototype.True : JSBooleanPrototype.False;
         }
 
         [Static("of")]

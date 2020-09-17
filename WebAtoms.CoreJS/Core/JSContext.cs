@@ -49,35 +49,35 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject PromisePrototype;
 
-        public readonly JSFunction String;
+        public readonly JSFunctionStatic String;
 
-        public readonly JSFunction Function;
+        public readonly JSFunctionStatic Function;
 
-        public readonly JSFunction Number;
+        public readonly JSFunctionStatic Number;
 
-        public readonly JSFunction Object;
+        public readonly JSFunctionStatic Object;
 
-        public readonly JSFunction Array;
+        public readonly JSFunctionStatic Array;
 
-        public readonly JSFunction Boolean;
+        public readonly JSFunctionStatic Boolean;
 
-        public readonly JSFunction Error;
+        public readonly JSFunctionStatic Error;
 
-        public readonly JSFunction RangeError;
+        public readonly JSFunctionStatic RangeError;
 
-        public readonly JSFunction Date;
+        public readonly JSFunctionStatic Date;
 
-        public readonly JSFunction TypeError;
+        public readonly JSFunctionStatic TypeError;
 
-        public readonly JSFunction Promise;
+        public readonly JSFunctionStatic Promise;
 
         public readonly JSObject JSON;
 
-        public readonly JSFunction Symbol;
+        public readonly JSFunctionStatic Symbol;
 
         public readonly JSMath Math;
 
-        public readonly JSFunction Map;
+        public readonly JSFunctionStatic Map;
 
         public static JSContext Current
         {
@@ -124,13 +124,13 @@ namespace WebAtoms.CoreJS.Core
             }
 
             (Symbol, _) = this.Create<JSSymbol>(KeyStrings.Symbol);
-            (Function, FunctionPrototype) = this.Create<JSFunction>(KeyStrings.Function);
+            (Function, FunctionPrototype) = this.Create<JSFunctionStatic>(KeyStrings.Function);
             // create object prototype...
             (Object, ObjectPrototype) =  this.Create<JSObject>(KeyStrings.Object);
             (Array, ArrayPrototype) = this.Create<JSArray>(KeyStrings.Array);
             (String, StringPrototype) = this.Create<JSString>(KeyStrings.String);
             (Number, NumberPrototype) = this.Create<JSNumber>(KeyStrings.Number);
-            (Boolean, BooleanPrototype) = this.Create<JSBoolean>(KeyStrings.Boolean);
+            (Boolean, BooleanPrototype) = this.Create<JSBooleanPrototype>(KeyStrings.Boolean);
             (Error, ErrorPrototype) = this.Create<JSError>(JSError.KeyError);
             (TypeError, TypeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
             (RangeError, RangeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);
@@ -141,7 +141,7 @@ namespace WebAtoms.CoreJS.Core
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }
 
-        private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
+        private static BinaryUInt32Map<JSFunctionStatic> cache = new BinaryUInt32Map<JSFunctionStatic>();
 
 
         public JSObject CreateObject()
@@ -162,9 +162,9 @@ namespace WebAtoms.CoreJS.Core
             return v;
         }
 
-        public JSFunction CreateFunction(JSFunctionDelegate fx)
+        public JSFunctionStatic CreateFunction(JSFunctionDelegate fx)
         {
-            var v = new JSFunction(fx);
+            var v = new JSFunctionStatic(fx);
             return v;
         }
 

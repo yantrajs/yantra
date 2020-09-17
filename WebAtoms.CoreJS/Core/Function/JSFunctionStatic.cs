@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSFunction
+    public partial class JSFunctionStatic
     {
         [Constructor]
         internal static JSValue Constructor(JSValue t, JSValue[] args)
@@ -15,7 +15,7 @@ namespace WebAtoms.CoreJS.Core
                 throw new JSException("No arguments were supplied to Function constructor");
             var body = args[len - 1];
             var bodyText = body is JSString @string ? @string.value : body.ToString();
-            var fx = new JSFunction(JSFunction.empty, "internal", bodyText);
+            var fx = new JSFunctionStatic(JSFunctionStatic.empty, "internal", bodyText);
 
             var sargs = args.Take(len - 1)
                 .Select(x => x.ToString())

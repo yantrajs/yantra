@@ -29,8 +29,8 @@ namespace WebAtoms.CoreJS.Core
 
         private List<JSFunctionDelegate> thenList;
         private List<JSFunctionDelegate> rejectList;
-        JSFunction resolveFunction;
-        JSFunction rejectFunction;
+        JSFunctionStatic resolveFunction;
+        JSFunctionStatic rejectFunction;
         private JSValue result;
 
         public JSPromise(JSValue @delegate) :
@@ -40,8 +40,8 @@ namespace WebAtoms.CoreJS.Core
             // to improve speed of promise, we will add then/catch here...
 
 
-            resolveFunction = new JSFunction((_, __) => Resolve(__.GetAt(0)));
-            rejectFunction = new JSFunction((_, __) => Reject(__.GetAt(0)));
+            resolveFunction = new JSFunctionStatic((_, __) => Resolve(__.GetAt(0)));
+            rejectFunction = new JSFunctionStatic((_, __) => Reject(__.GetAt(0)));
             @delegate.InvokeFunction(this, resolveFunction, rejectFunction);
 
         }

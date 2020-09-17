@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
                     case decimal ds:
                         return new JSNumber((double)ds);
                     case bool b:
-                        return b ? JSBoolean.True : JSBoolean.False;
+                        return b ? JSBooleanPrototype.True : JSBooleanPrototype.False;
                     case string s:
                         return new JSString(s);
                     case JSValue v:
