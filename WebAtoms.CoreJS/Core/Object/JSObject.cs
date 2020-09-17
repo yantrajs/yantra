@@ -250,8 +250,8 @@ namespace WebAtoms.CoreJS.Core
         {
             var p = new JSProperty();
             var value = pd[KeyStrings.value];
-            var get = pd[KeyStrings.get] as JSFunctionStatic;
-            var set = pd[KeyStrings.set] as JSFunctionStatic;
+            var get = pd[KeyStrings.get] as JSFunction;
+            var set = pd[KeyStrings.set] as JSFunction;
             var pt = JSPropertyAttributes.Empty;
             if (pd[KeyStrings.configurable].BooleanValue)
                 pt |= JSPropertyAttributes.Configurable;
@@ -292,8 +292,8 @@ namespace WebAtoms.CoreJS.Core
                 key = key
             };
             var value = pd[KeyStrings.value];
-            var get = pd[KeyStrings.get] as JSFunctionStatic;
-            var set = pd[KeyStrings.set] as JSFunctionStatic;
+            var get = pd[KeyStrings.get] as JSFunction;
+            var set = pd[KeyStrings.set] as JSFunction;
             var pt = JSPropertyAttributes.Empty;
             if (pd[KeyStrings.configurable].BooleanValue)
                 pt |= JSPropertyAttributes.Configurable;

@@ -43,41 +43,45 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject RangeErrorPrototype;
 
+        public readonly JSObject SyntaxErrorPrototype;
+
         public readonly JSObject DatePrototype;
 
         public readonly JSObject MapPrototype;
 
         public readonly JSObject PromisePrototype;
 
-        public readonly JSFunctionStatic String;
+        public readonly JSFunction String;
 
-        public readonly JSFunctionStatic Function;
+        public readonly JSFunction Function;
 
-        public readonly JSFunctionStatic Number;
+        public readonly JSFunction Number;
 
-        public readonly JSFunctionStatic Object;
+        public readonly JSFunction Object;
 
-        public readonly JSFunctionStatic Array;
+        public readonly JSFunction Array;
 
-        public readonly JSFunctionStatic Boolean;
+        public readonly JSFunction Boolean;
 
-        public readonly JSFunctionStatic Error;
+        public readonly JSFunction Error;
 
-        public readonly JSFunctionStatic RangeError;
+        public readonly JSFunction RangeError;
+        
+        public readonly JSFunction SyntaxError;
 
-        public readonly JSFunctionStatic Date;
+        public readonly JSFunction Date;
 
-        public readonly JSFunctionStatic TypeError;
+        public readonly JSFunction TypeError;
 
-        public readonly JSFunctionStatic Promise;
+        public readonly JSFunction Promise;
 
         public readonly JSObject JSON;
 
-        public readonly JSFunctionStatic Symbol;
+        public readonly JSFunction Symbol;
 
         public readonly JSMath Math;
 
-        public readonly JSFunctionStatic Map;
+        public readonly JSFunction Map;
 
         public static JSContext Current
         {
@@ -124,7 +128,7 @@ namespace WebAtoms.CoreJS.Core
             }
 
             (Symbol, _) = this.Create<JSSymbol>(KeyStrings.Symbol);
-            (Function, FunctionPrototype) = this.Create<JSFunctionStatic>(KeyStrings.Function);
+            (Function, FunctionPrototype) = this.Create<JSFunction>(KeyStrings.Function);
             // create object prototype...
             (Object, ObjectPrototype) =  this.Create<JSObject>(KeyStrings.Object);
             (Array, ArrayPrototype) = this.Create<JSArray>(KeyStrings.Array);
@@ -134,6 +138,7 @@ namespace WebAtoms.CoreJS.Core
             (Error, ErrorPrototype) = this.Create<JSError>(JSError.KeyError);
             (TypeError, TypeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
             (RangeError, RangeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);
+            (SyntaxError, SyntaxErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeySyntaxError, ErrorPrototype);
             (Date, DatePrototype) = this.Create<JSDate>(KeyStrings.Date);
             (Map, MapPrototype) = this.Create<JSMap>(KeyStrings.Map);
             (Promise, PromisePrototype) = this.Create<JSPromise>(KeyStrings.Promise);
@@ -141,7 +146,7 @@ namespace WebAtoms.CoreJS.Core
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }
 
-        private static BinaryUInt32Map<JSFunctionStatic> cache = new BinaryUInt32Map<JSFunctionStatic>();
+        private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
 
 
         public JSObject CreateObject()
@@ -162,9 +167,9 @@ namespace WebAtoms.CoreJS.Core
             return v;
         }
 
-        public JSFunctionStatic CreateFunction(JSFunctionDelegate fx)
+        public JSFunction CreateFunction(JSFunctionDelegate fx)
         {
-            var v = new JSFunctionStatic(fx);
+            var v = new JSFunction(fx);
             return v;
         }
 
@@ -178,6 +183,12 @@ namespace WebAtoms.CoreJS.Core
         internal JSException NewTypeError(string message)
         {
             return NewError(message, TypeErrorPrototype);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSException NewSyntaxError(string message)
+        {
+            return NewError(message, SyntaxErrorPrototype);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

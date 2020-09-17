@@ -9,6 +9,8 @@ namespace WebAtoms.CoreJS.Core
 
         public static readonly KeyString KeyTypeError = "TypeError";
 
+        public static readonly KeyString KeySyntaxError = "SyntaxError";
+
         public static string NotIterable(object name) => $"{name} is not iterable";
 
         public static string NotEntry(object name) => $"Iterator value {name} is an entry object";

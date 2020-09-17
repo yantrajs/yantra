@@ -55,7 +55,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             }
 
             var a = new JSObject();
-            var f = new JSFunctionStatic((t, a1) => new JSString("test"), "toJSON");
+            var f = new JSFunction((t, a1) => new JSString("test"), "toJSON");
             dynamic da = a;
             da["data"] = "data";
             da["toJSON"] = f;
@@ -90,7 +90,7 @@ namespace WebAtoms.CoreJS.Tests.Core.JSON
             da["a"] = "a";
             da["b"] = 1;
 
-            var fx = new JSFunctionStatic((t, a1) => {
+            var fx = new JSFunction((t, a1) => {
                 if (a1[1] is JSString js)
                     return js;
                 return JSUndefined.Value;

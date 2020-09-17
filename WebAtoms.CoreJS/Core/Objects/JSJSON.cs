@@ -62,7 +62,7 @@ namespace WebAtoms.CoreJS.Core
                 }
 
                 var r = a[1];
-                if (r is JSFunctionStatic rf)
+                if (r is JSFunction rf)
                 {
                     replacer = (item) =>
                      rf.f(item.target, item.key, item.value);
@@ -129,7 +129,7 @@ namespace WebAtoms.CoreJS.Core
                 case JSString str:
                     QuoteString(str.value, sb);
                     return;
-                case JSFunctionStatic _:
+                case JSFunction _:
                     // do nothing if value is function...
                     sb.Write("null");
                     return;
@@ -181,13 +181,13 @@ namespace WebAtoms.CoreJS.Core
                 {
                     if (value.get == null)
                         continue;
-                    jsValue = (value.get as JSFunctionStatic).f(target, JSArguments.Empty);
+                    jsValue = (value.get as JSFunction).f(target, JSArguments.Empty);
                 } else
                 {
                     jsValue = value.value;
                 }
 
-                if (jsValue.IsUndefined || jsValue is JSFunctionStatic)
+                if (jsValue.IsUndefined || jsValue is JSFunction)
                     continue;
 
                 jsValue = ToJson(jsValue);
@@ -239,7 +239,7 @@ namespace WebAtoms.CoreJS.Core
             var p = jobj.GetInternalProperty(JSObject.KeyToJSON);
             if (p.IsEmpty)
                 return value;
-            return (jobj.GetValue(p) as JSFunctionStatic).f(value, JSArguments.Empty);
+            return (jobj.GetValue(p) as JSFunction).f(value, JSArguments.Empty);
         }
 
 

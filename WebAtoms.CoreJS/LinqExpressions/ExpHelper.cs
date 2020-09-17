@@ -721,11 +721,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression Property(Expression key, Expression getter, Expression setter)
         {
             getter = getter == null 
-                ? (Expression)Expression.Constant(null, typeof(Core.JSFunctionStatic)) 
-                : Expression.Convert(getter, typeof(Core.JSFunctionStatic));
+                ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) 
+                : Expression.Convert(getter, typeof(Core.JSFunction));
             setter = setter == null 
-                ? (Expression)Expression.Constant(null, typeof(Core.JSFunctionStatic)) 
-                : Expression.Convert(setter, typeof(Core.JSFunctionStatic));
+                ? (Expression)Expression.Constant(null, typeof(Core.JSFunction)) 
+                : Expression.Convert(setter, typeof(Core.JSFunction));
             return Expression.MemberInit(Expression.New(typeof(Core.JSProperty)),
                 Expression.Bind(_Key, key),
                 Expression.Bind(_Get, getter),
@@ -830,13 +830,13 @@ namespace WebAtoms.CoreJS.ExpHelper
                 );
         }
     }
-    public class JSFunctionBuilder: TypeHelper<Core.JSFunctionStatic>
+    public class JSFunctionBuilder: TypeHelper<Core.JSFunction>
     {
         private static ConstructorInfo _New =
             Constructor<JSFunctionDelegate, string, string>();
 
         private static FieldInfo _f =
-            InternalField(nameof(JSFunctionStatic.f));
+            InternalField(nameof(JSFunction.f));
 
         private static MethodInfo invokeFunction =
             typeof(JSValue).GetMethod("InvokeFunction");

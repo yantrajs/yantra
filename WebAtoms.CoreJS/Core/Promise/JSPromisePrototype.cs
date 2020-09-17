@@ -21,7 +21,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
         {
             var p = t.ToPromise();
             var f = a.GetAt(0);
-            if (!(f is JSFunctionStatic fx))
+            if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
             p.Then(fx.f);
             return t;
@@ -32,7 +32,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
         {
             var p = t.ToPromise();
             var f = a.GetAt(0);
-            if (!(f is JSFunctionStatic fx))
+            if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
             p.Catch(fx.f);
             return t;
@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
         {
             var p = t.ToPromise();
             var f = a.GetAt(0);
-            if (!(f is JSFunctionStatic fx))
+            if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
             p.Then(fx.f);
             p.Catch(fx.f);

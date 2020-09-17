@@ -30,7 +30,7 @@ namespace WebAtoms.CoreJS.Core
                     foreach (var ch in str.value)
                     {
                         JSValue item = new JSString(new string(ch, 1));
-                        if (map is JSFunctionStatic fn)
+                        if (map is JSFunction fn)
                         {
                             item = fn.InvokeFunction(t, item);
                         }
@@ -41,7 +41,7 @@ namespace WebAtoms.CoreJS.Core
                     foreach (var ch in array.elements.AllValues)
                     {
                         JSValue item = ch.Value.value;
-                        if (map is JSFunctionStatic fn)
+                        if (map is JSFunction fn)
                         {
                             item = fn.InvokeFunction(t, item);
                         }

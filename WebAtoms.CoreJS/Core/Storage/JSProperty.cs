@@ -47,11 +47,11 @@ namespace WebAtoms.CoreJS.Core
         public JSPropertyAttributes Attributes;
 
         public KeyString key;
-        public JSFunctionStatic get;
+        public JSFunction get;
 
-        public JSFunctionStatic set { 
+        public JSFunction set { 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (JSFunctionStatic)value;
+            get => (JSFunction)value;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => this.value = value; 
         }
@@ -103,7 +103,7 @@ namespace WebAtoms.CoreJS.Core
         {
             return new JSProperty
             {
-                value = new JSFunctionStatic(d),
+                value = new JSFunction(d),
                 Attributes = attributes
             };
         }
@@ -130,8 +130,8 @@ namespace WebAtoms.CoreJS.Core
         {
             return new JSProperty
             {
-                get = new JSFunctionStatic(get),
-                set = set != null ? new JSFunctionStatic(set) : null,
+                get = new JSFunction(get),
+                set = set != null ? new JSFunction(set) : null,
                 Attributes = attributes
             };
         }
@@ -145,7 +145,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSProperty
             {
                 key = key,
-                value = new JSFunctionStatic(d),
+                value = new JSFunction(d),
                 Attributes = attributes
             };
         }
@@ -176,8 +176,8 @@ namespace WebAtoms.CoreJS.Core
             return new JSProperty
             {
                 key = key,
-                get = new JSFunctionStatic(get),
-                set = set != null ? new JSFunctionStatic(set) : null,
+                get = new JSFunction(get),
+                set = set != null ? new JSFunction(set) : null,
                 Attributes = attributes
             };
         }

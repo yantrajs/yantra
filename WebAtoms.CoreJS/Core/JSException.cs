@@ -51,7 +51,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSFunctionStatic ThrowNotFunction(JSValue value)
+        internal static JSFunction ThrowNotFunction(JSValue value)
         {
             throw new JSException($"{value} is not a function");
         }
