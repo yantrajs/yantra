@@ -55,7 +55,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("isArray")]
         public static JSValue StaticIsArray(JSValue t, params JSValue[] a)
         {
-            return a.GetAt(0) is JSArray ? JSBooleanPrototype.True : JSBooleanPrototype.False;
+            return a.GetAt(0) is JSArray ? JSBoolean.True : JSBoolean.False;
         }
 
         [Static("of")]

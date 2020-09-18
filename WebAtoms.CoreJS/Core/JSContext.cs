@@ -134,7 +134,7 @@ namespace WebAtoms.CoreJS.Core
             (Array, ArrayPrototype) = this.Create<JSArray>(KeyStrings.Array);
             (String, StringPrototype) = this.Create<JSString>(KeyStrings.String);
             (Number, NumberPrototype) = this.Create<JSNumber>(KeyStrings.Number);
-            (Boolean, BooleanPrototype) = this.Create<JSBooleanPrototype>(KeyStrings.Boolean);
+            (Boolean, BooleanPrototype) = this.Create<JSBoolean>(KeyStrings.Boolean);
             (Error, ErrorPrototype) = this.Create<JSError>(JSError.KeyError);
             (TypeError, TypeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
             (RangeError, RangeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);

@@ -44,20 +44,20 @@ namespace WebAtoms.CoreJS.Core
             throw JSContext.Current.NewTypeError($"Unable to delete {key} of undefined");
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (value.IsNull)
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (value.IsUndefined)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (value.IsUndefined)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

@@ -324,34 +324,34 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue Delete(KeyString key)
         {
             if (ownProperties?.RemoveAt(key.Key) ?? false)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue Delete(uint key)
         {
             if (elements?.RemoveAt(key) ?? false)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (value is JSString str)
                 if (this.ToString() == str.value)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             if (DoubleValue == value.DoubleValue)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
@@ -359,53 +359,53 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("object is not a function");
         }
 
-        internal override JSBooleanPrototype Less(JSValue value)
+        internal override JSBoolean Less(JSValue value)
         {
             switch(value)
             {
                 case JSString strValue:
                     if (this.ToString().CompareTo(strValue.value) < 0)
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
                     break;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        internal override JSBooleanPrototype LessOrEqual(JSValue value)
+        internal override JSBoolean LessOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) <= 0):
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        internal override JSBooleanPrototype Greater(JSValue value)
+        internal override JSBoolean Greater(JSValue value)
         {
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) > 0):
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        internal override JSBooleanPrototype GreaterOrEqual(JSValue value)
+        internal override JSBoolean GreaterOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) >= 0):
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
     }
 }

@@ -148,38 +148,38 @@ namespace WebAtoms.CoreJS.Core
             return base.Equals(obj);
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSNumber number
                     when (this.value == number.value):
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
                 case JSString @string
                     when (this.value == @string.DoubleValue):
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
                 case JSNull @null
                     when (this.value == 0D):
-                    return JSBooleanPrototype.True;
-                case JSBooleanPrototype boolean
+                    return JSBoolean.True;
+                case JSBoolean boolean
                     when (this.value == (boolean._value ? 1D : 0D)):
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (value is JSNumber n)
             {
                 if (this.value == n.value)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

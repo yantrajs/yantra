@@ -7,16 +7,16 @@ using System.Xml.Schema;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSBooleanPrototype : JSPrimitive
+    public partial class JSBoolean : JSPrimitive
     {
 
-        public static JSBooleanPrototype True = new JSBooleanPrototype(true);
+        public static JSBoolean True = new JSBoolean(true);
 
-        public static JSBooleanPrototype False = new JSBooleanPrototype(false);
+        public static JSBoolean False = new JSBoolean(false);
 
         internal readonly bool _value;
 
-        private JSBooleanPrototype(bool _value) : base()
+        private JSBoolean(bool _value) : base()
         {
             this._value = _value;
         }
@@ -60,31 +60,31 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool Equals(object obj)
         {
-            if (obj is JSBooleanPrototype b)
+            if (obj is JSBoolean b)
                 return this._value == b._value;
             return base.Equals(obj);
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (this._value) {
                 if (value.DoubleValue == 1)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             } else
             {
                 if (value.DoubleValue == 0)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (value.IsBoolean && value.BooleanValue == this._value)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False; 
+                return JSBoolean.True;
+            return JSBoolean.False; 
         }
 
         public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)

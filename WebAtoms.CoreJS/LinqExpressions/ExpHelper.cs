@@ -798,7 +798,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
     }
 
-    public class JSBooleanBuilder: TypeHelper<Core.JSBooleanPrototype>
+    public class JSBooleanBuilder: TypeHelper<Core.JSBoolean>
     {
 
         public static Expression True =
@@ -808,7 +808,7 @@ namespace WebAtoms.CoreJS.ExpHelper
             Expression.Field(null, Field("False"));
 
         private static FieldInfo _Value =
-            InternalField(nameof(Core.JSBooleanPrototype._value));
+            InternalField(nameof(Core.JSBoolean._value));
 
         public static Expression Value(Expression target)
         {

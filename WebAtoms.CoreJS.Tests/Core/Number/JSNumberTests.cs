@@ -64,7 +64,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
         {
             var Number = DynamicContext.Number;
             var i = double.PositiveInfinity;
-            JSBooleanPrototype b = Number.isFinite(i);
+            JSBoolean b = Number.isFinite(i);
 
 
             Assert.IsFalse(b.BooleanValue);
@@ -92,7 +92,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
             var Number = DynamicContext.Number;
             bool IsNaN(object x)
             {
-                JSBooleanPrototype b = Number.isNaN(x);
+                JSBoolean b = Number.isNaN(x);
                 return b._value;
             }
 
@@ -109,7 +109,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Number
             var Number = DynamicContext.Number;
             bool IsSafeInteger(object x)
             {
-                JSBooleanPrototype b = Number.isSafeInteger(x);
+                JSBoolean b = Number.isSafeInteger(x);
                 return b._value;
             }
 

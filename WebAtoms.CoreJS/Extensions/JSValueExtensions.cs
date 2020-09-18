@@ -79,7 +79,7 @@ namespace WebAtoms.CoreJS.Extensions
             }
         }
 
-        public static JSBooleanPrototype InstanceOf(this JSValue target, JSValue value)
+        public static JSBoolean InstanceOf(this JSValue target, JSValue value)
         {
             if (value.IsUndefined)
                 throw JSContext.Current.NewTypeError("Right side of instanceof is undefined");
@@ -89,16 +89,16 @@ namespace WebAtoms.CoreJS.Extensions
                 throw JSContext.Current.NewTypeError("Right side of instanceof is not an object");
             var p = target.prototypeChain;
             if (p == null)
-                return JSBooleanPrototype.False;
+                return JSBoolean.False;
             var c = p[KeyStrings.constructor];
             if (c.IsUndefined)
-                return JSBooleanPrototype.False;
+                return JSBoolean.False;
             if (c.StrictEquals(value).BooleanValue)
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             return c.InstanceOf(value);
         }
 
-        public static JSBooleanPrototype IsIn(this JSValue target, JSValue value)
+        public static JSBoolean IsIn(this JSValue target, JSValue value)
         {
             //var target = this;
             //while(target != null)
@@ -107,13 +107,13 @@ namespace WebAtoms.CoreJS.Extensions
             //}
             var tx = value as JSObject;
             if (tx == null)
-                return JSBooleanPrototype.False;
+                return JSBoolean.False;
             foreach(var a in tx.GetAllKeys())
             {
                 if (a.Equals(target).BooleanValue)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         //public static JSValue InvokeMethod(this JSValue target, KeyString key, JSValue[] args)

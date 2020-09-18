@@ -14,9 +14,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
             if (a[0] is JSNumber n)
             {
                 if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("isInteger")]
@@ -26,9 +26,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
             {
                 var v = n.value;
                 if (((int)v) == v)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("isNaN")]
@@ -37,9 +37,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
             if (a[0] is JSNumber n)
             {
                 if (double.IsNaN(n.value))
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("isSafeInteger")]
@@ -49,9 +49,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
             {
                 var v = n.value;
                 if (v >= JSNumber.MinSafeInteger && v <= JSNumber.MaxSafeInteger)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("parseFloat")]

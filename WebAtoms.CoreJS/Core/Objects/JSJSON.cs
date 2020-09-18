@@ -120,7 +120,7 @@ namespace WebAtoms.CoreJS.Core
                 case JSUndefined _:
                     sb.Write("null");
                     return;
-                case JSBooleanPrototype b:
+                case JSBoolean b:
                     sb.Write(b._value ? "true" : "false");
                     return;
                 case JSNumber n:

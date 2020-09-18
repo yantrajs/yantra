@@ -88,9 +88,9 @@ namespace WebAtoms.CoreJS.Core
                 foreach (var e in m.entries)
                 {
                     if (e.key.Equals(first).BooleanValue)
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
                 }
-                return JSBooleanPrototype.False;
+                return JSBoolean.False;
             }
 
             [Prototype("keys")]

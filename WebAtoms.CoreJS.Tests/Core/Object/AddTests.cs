@@ -84,8 +84,8 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
         public void Boolean()
         {
             
-            var True = JSBooleanPrototype.True;
-            var False = JSBooleanPrototype.False;
+            var True = JSBoolean.True;
+            var False = JSBoolean.False;
             Assert.IsTrue(JSNumber.IsNaN(True.AddValue(JSNumber.NaN)));
 
             Assert.IsTrue(JSNumber.IsNaN(True.AddValue(JSUndefined.Value)));

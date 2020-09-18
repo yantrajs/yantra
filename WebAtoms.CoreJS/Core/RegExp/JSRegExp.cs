@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace WebAtoms.CoreJS.Core
 {
+
+    [JSRuntime(typeof(JSRegExpStatic), typeof(JSRegExpPrototype))]
     public class JSRegExp: JSObject
     {
 
@@ -13,6 +15,8 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly bool globalSearch;
         internal Regex value;
+
+        internal int lastIndex = 0;
 
         public JSRegExp(string pattern, string flags)
         {
