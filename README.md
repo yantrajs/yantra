@@ -8,6 +8,7 @@ JavaScript Engine for .NET Standard
 3. Linq Expressions can be compiled to IL and can also be saved to an assembly for caching.
 4. User can evaluate context.current function to find current stack trace in JavaScript environment
 5. Majority of code is written as virtual method of JSValue derived object to reduce the amount of code to be generated.
+6. AOT platforms will not perform JIT Inlining, due to this, every method is implemented as simple Static method to avoid unnecessary one more method call after casting.
 
 # No support for primitive types
 This decision was taken based on following observation
@@ -44,22 +45,14 @@ On platforms where Roslyn is available, you can easily generate code high perfor
 https://github.com/agileobjects/ReadableExpressions
 
 ## Comparison with JInt and Jurassic
-|-------------------------------|---------------------|-----------------|--------------------|
 |Feature                        | Yantra              | JInt            | Jurassic           |
 |-------------------------------|---------------------|-----------------|--------------------|
 |JIT                            | Yes if Available    | No              | Yes                |
-|-------------------------------|---------------------|-----------------|--------------------|
 |AOT                            | Yes as Interpreted  | Yes             | No                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Platforms                      | All                 | All             | No iOS             |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Code Generation Type           | Linq Expressions    | Custom          | IL                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Readable Generated Code        | Yes                 | No              | Difficult to Read  |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Generated Code Context Free    | Yes                 | No              | No                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Context Isolation              | Yes                 | No              | No                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 
 
