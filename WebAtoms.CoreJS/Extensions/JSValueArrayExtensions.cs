@@ -15,6 +15,59 @@ namespace WebAtoms.CoreJS.Extensions
             return target.Length > index ? target[index] : (def ?? JSUndefined.Value);
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Get1(this JSValue[] target)
+        {
+            return target.Length > 0 ? target[0] : JSUndefined.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (JSValue,JSValue) Get2(this JSValue[] target)
+        {
+            switch(target.Length)
+            {
+                case 0:
+                    return (JSUndefined.Value, JSUndefined.Value);
+                case 1:
+                    return (target[0], JSUndefined.Value);
+            }
+            return (target[0], target[1]);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (JSValue, JSValue, JSValue) Get3(this JSValue[] target)
+        {
+            switch (target.Length)
+            {
+                case 0:
+                    return (JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
+                case 1:
+                    return (target[0], JSUndefined.Value, JSUndefined.Value);
+                case 2:
+                    return (target[0], target[1], JSUndefined.Value);
+            }
+            return (target[0], target[1], target[2]);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (JSValue, JSValue, JSValue, JSValue) Get4(this JSValue[] target)
+        {
+            switch (target.Length)
+            {
+                case 0:
+                    return (JSUndefined.Value, JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
+                case 1:
+                    return (target[0], JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
+                case 2:
+                    return (target[0], target[1], JSUndefined.Value, JSUndefined.Value);
+                case 3:
+                    return (target[0], target[1], target[2], JSUndefined.Value);
+            }
+            return (target[0], target[1], target[2], target[3]);
+        }
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetAt(this JSValue[] target, int index, out JSValue value)
         {

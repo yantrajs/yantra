@@ -51,6 +51,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject PromisePrototype;
 
+        public readonly JSObject RegExpPrototype;
+
         public readonly JSFunction String;
 
         public readonly JSFunction Function;
@@ -74,6 +76,8 @@ namespace WebAtoms.CoreJS.Core
         public readonly JSFunction TypeError;
 
         public readonly JSFunction Promise;
+
+        public readonly JSFunction RegExp;
 
         public readonly JSObject JSON;
 
@@ -142,6 +146,7 @@ namespace WebAtoms.CoreJS.Core
             (Date, DatePrototype) = this.Create<JSDate>(KeyStrings.Date);
             (Map, MapPrototype) = this.Create<JSMap>(KeyStrings.Map);
             (Promise, PromisePrototype) = this.Create<JSPromise>(KeyStrings.Promise);
+            (RegExp, RegExpPrototype) = this.Create<JSRegExp>(KeyStrings.RegExp);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }

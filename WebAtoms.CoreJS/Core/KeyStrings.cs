@@ -111,6 +111,9 @@ namespace WebAtoms.CoreJS.Core
 
     internal static class KeyStrings
     {
+        public readonly static KeyString __proto__;
+        public readonly static KeyString length;
+
         public readonly static KeyString Number;
         public readonly static KeyString Object;
         public readonly static KeyString String;
@@ -122,11 +125,14 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString Date;
         public readonly static KeyString Symbol;
         public readonly static KeyString Promise;
+
+        public readonly static KeyString RegExp;
+        public readonly static KeyString test;
+        
         public readonly static KeyString Map;
         public readonly static KeyString toString;
         public readonly static KeyString valueOf;
         public readonly static KeyString name;
-        public readonly static KeyString length;
         public readonly static KeyString prototype;
         public readonly static KeyString constructor;
         public readonly static KeyString configurable;
@@ -139,7 +145,6 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString value;
         public readonly static KeyString get;
         public readonly static KeyString set;
-        public readonly static KeyString __proto__;
         public readonly static KeyString undefined;
         public readonly static KeyString NaN;
         public readonly static KeyString @null;
@@ -154,39 +159,14 @@ namespace WebAtoms.CoreJS.Core
                 map.Save(key, js);
                 return js;
             }
-
-            toString = Create("toString");
-            name = Create("name");
-            constructor = Create("constructor");
-            prototype = Create("prototype");
-            __proto__ = Create("__proto__");
-            Number = Create("Number");
-            Object = Create("Object");
-            String = Create("String");
-            Array = Create("Array");
-            Function = Create("Function");
-            length = Create("length");
-            apply = Create("apply");
-            call = Create("call");
-            bind = Create("bind");
-            native = Create("native");
-            Boolean = Create("Boolean");
-            value = Create("value");
-            valueOf = Create("valueOf");
-            get = Create("get");
-            set = Create("set");
-            Date = Create("Date");
-            Map = Create("Map");
-            Symbol = Create("Symbol");
-            Promise = Create("Promise");
-            configurable = Create("configurable");
-            enumerable = Create("enumerable");
-            @readonly = Create("readonly");
-            undefined = Create("undefined");
-            NaN = Create("NaN");
-            @null = Create("null");
-            Math = Create("Math");
-            JSON = Create("JSON");
+            var t = typeof(KeyString);
+            foreach(var f in typeof(KeyStrings)
+                .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
+            {
+                if (f.FieldType != t)
+                    continue;
+                f.SetValue(null, Create(f.Name));
+            }
         }
 
         private static BinaryCharMap<KeyString> map = new BinaryCharMap<KeyString>();

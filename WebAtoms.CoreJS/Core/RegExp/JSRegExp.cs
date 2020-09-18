@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal int lastIndex = 0;
 
-        public JSRegExp(string pattern, string flags)
+        public JSRegExp(string pattern, string flags): base(JSContext.Current.RegExpPrototype)
         {
             this.flags = flags;
             this.pattern = pattern;
