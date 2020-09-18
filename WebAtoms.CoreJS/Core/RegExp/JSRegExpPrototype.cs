@@ -22,6 +22,37 @@ namespace WebAtoms.CoreJS.Core
             return n;
         }
 
+        [GetProperty("flags", JSPropertyAttributes.ConfigurableReadonlyProperty)]
+        public static JSValue GetFlags(JSValue t, JSValue[] a)
+        {
+            return new JSString(t.ToRegExp().flags);
+        }
+
+        [GetProperty("global", JSPropertyAttributes.ConfigurableReadonlyProperty)]
+        public static JSValue GetGlobal(JSValue t, JSValue[] a)
+        {
+            return t.ToRegExp().globalSearch ? JSBoolean.True : JSBoolean.False;
+        }
+
+
+        [GetProperty("ignoreCase", JSPropertyAttributes.ConfigurableReadonlyProperty)]
+        public static JSValue GetIgnoreCase(JSValue t, JSValue[] a)
+        {
+            return t.ToRegExp().ignoreCase ? JSBoolean.True : JSBoolean.False;
+        }
+
+        [GetProperty("multiline", JSPropertyAttributes.ConfigurableReadonlyProperty)]
+        public static JSValue GetMultiline(JSValue t, JSValue[] a)
+        {
+            return t.ToRegExp().multiline ? JSBoolean.True : JSBoolean.False;
+        }
+
+        [GetProperty("source", JSPropertyAttributes.ConfigurableReadonlyProperty)]
+        public static JSValue GetSource(JSValue t, JSValue[] a)
+        {
+            return new JSString(t.ToRegExp().pattern);
+        }
+
 
         [Prototype("test")]
         public static JSValue Test(JSValue t, JSValue[] a)

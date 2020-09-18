@@ -14,6 +14,8 @@ namespace WebAtoms.CoreJS.Core
         internal readonly string flags;
 
         internal readonly bool globalSearch;
+        internal readonly bool multiline;
+        internal readonly bool ignoreCase;
         internal Regex value;
 
         internal int lastIndex = 0;
@@ -23,7 +25,13 @@ namespace WebAtoms.CoreJS.Core
             this.flags = flags;
             this.pattern = pattern;
 
-            this.value = CreateRegex(pattern, ParseFlags(flags, ref this.globalSearch));
+            this.value = CreateRegex(pattern, ParseFlags(flags, ref this.globalSearch, ref this.ignoreCase, ref this.multiline));
+
+            this.DefineProperty(KeyStrings.lastIndex, 
+                JSProperty.Property(KeyStrings.lastIndex, 
+                (_,__) => new JSNumber(lastIndex), 
+                null, 
+                JSPropertyAttributes.ConfigurableReadonlyProperty ));
         }
 
         /// <summary>
@@ -34,7 +42,10 @@ namespace WebAtoms.CoreJS.Core
         /// i (ignore case)
         /// m (multiline search)</param>
         /// <returns> RegexOptions flags that correspond to the given flags. </returns>
-        private RegexOptions ParseFlags(string flags, ref bool globalSearch)
+        private RegexOptions ParseFlags(string flags, 
+            ref bool globalSearch,
+            ref bool ignoreCase,
+            ref bool multiline)
         {
             var options = RegexOptions.ECMAScript;
             globalSearch = false;
@@ -55,12 +66,14 @@ namespace WebAtoms.CoreJS.Core
                         if ((options & RegexOptions.IgnoreCase) == RegexOptions.IgnoreCase)
                             throw JSContext.Current.NewSyntaxError("The 'i' flag cannot be specified twice");
                         options |= RegexOptions.IgnoreCase;
+                        ignoreCase = true;
                     }
                     else if (flag == 'm')
                     {
                         if ((options & RegexOptions.Multiline) == RegexOptions.Multiline)
                             throw JSContext.Current.NewSyntaxError("The 'm' flag cannot be specified twice");
                         options |= RegexOptions.Multiline;
+                        multiline = true;
                     }
                     else
                     {

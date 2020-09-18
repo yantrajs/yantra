@@ -128,7 +128,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly static KeyString RegExp;
         public readonly static KeyString test;
-        
+        public readonly static KeyString lastIndex;
+
         public readonly static KeyString Map;
         public readonly static KeyString toString;
         public readonly static KeyString valueOf;
