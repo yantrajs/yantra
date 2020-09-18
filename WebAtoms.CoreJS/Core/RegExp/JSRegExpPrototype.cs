@@ -120,7 +120,10 @@ namespace WebAtoms.CoreJS.Core
         {
             if (r.globalSearch == false)
                 return 0;
-            return Math.Min(Math.Max(r.lastIndex, 0), input.Length);
+            var maxIndex = r.lastIndex > 0 ? r.lastIndex : 0;
+            var minIndex = maxIndex < input.Length ? maxIndex : input.Length;
+            // return Math.Min(Math.Max(r.lastIndex, 0), input.Length);
+            return minIndex;
         }
     }
 }
