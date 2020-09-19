@@ -11,6 +11,21 @@ namespace WebAtoms.CoreJS.Extensions
 {
     public static class JSValueExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSValue NullIfTrue(JSValue value)
+        {
+            if (value.BooleanValue)
+                return null;
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSValue NullIfFalse(JSValue value)
+        {
+            if (!value.BooleanValue)
+                return null;
+            return value;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IEnumerable<(JSValue Key, JSValue Value)> 

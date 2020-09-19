@@ -462,6 +462,22 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Assign(e, value);
         }
 
+        private readonly static MethodInfo _NullIfTrue =
+            type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfTrue));
+
+        public static Expression NullIfTrue(Expression exp)
+        {
+            return Expression.Call(null, _NullIfTrue, exp);
+        }
+
+        private readonly static MethodInfo _NullIfFalse =
+            type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfFalse));
+
+        public static Expression NullIfFalse(Expression exp)
+        {
+            return Expression.Call(null, _NullIfFalse, exp);
+        }
+
     }
 
     public class JSValueBuilder: TypeHelper<Core.JSValue>
@@ -644,15 +660,12 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         public static Expression LogicalAnd(Expression target, Expression value)
         {
-            return Expression.Condition(JSValueBuilder.BooleanValue(target), value, target, typeof(JSValue));
+            return Expression.Coalesce( JSValueExtensionsBuilder.NullIfTrue(target), value);
         }
 
         public static Expression LogicalOr(Expression target, Expression value)
         {
-            return Expression.Condition(
-                JSValueBuilder.BooleanValue(target),
-                target,
-                value, typeof(JSValue));
+            return Expression.Coalesce(JSValueExtensionsBuilder.NullIfFalse(target), value);
         }
 
         private static MethodInfo _GetAllKeys =
