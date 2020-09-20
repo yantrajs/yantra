@@ -10,7 +10,7 @@ using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.LinqExpressions;
 using WebAtoms.CoreJS.Parser;
 using WebAtoms.CoreJS.Utils;
-
+using static WebAtoms.CoreJS.FunctionScope;
 using Exp = System.Linq.Expressions.Expression;
 using ParameterExpression = System.Linq.Expressions.ParameterExpression;
 
@@ -80,7 +80,7 @@ namespace WebAtoms.CoreJS
 
             // add top level...
 
-            using (var fx = this.scope.Push(new FunctionScope(null)))
+            using (var fx = this.scope.Push(new FunctionScope((IFunctionDeclaration)null)))
             {
                 var jScript = parser.ParseScript();
 
@@ -110,44 +110,34 @@ namespace WebAtoms.CoreJS
                     Exp.Assign(argLength, Exp.ArrayLength(fx.ArgumentsExpression))
                 };
 
-                if (argsList != null) {
+                if (argsList != null)
+                {
                     int i = 0;
-                    foreach (var arg in argsList) {
-                        var px = Exp.Parameter(typeof(JSVariable));
-                        var ve = JSVariable.ValueExpression(px);
-                        fx.AddVariable(arg, ve, px);
-                        sList.Add(Exp.Assign(px, 
-                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, argLength, i++, arg)));
+                    foreach (var arg in argsList)
+                    {
+
+                        // global arguments are set here for FunctionConstructor
+
+                        fx.CreateVariable(arg,
+                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, argLength, i++, arg));
                     }
                 }
 
                 var l = fx.ReturnLabel;
-                
+
                 var script = Visit(jScript);
 
-
-
-
-
-                foreach(var ks in keyStrings)
+                foreach (var ks in keyStrings)
                 {
                     var v = ks.Value;
                     vList.Add(v);
                     sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
                 }
 
-                foreach(var v in fx.Variables)
+                foreach (var v in fx.Variables)
                 {
                     vList.Add(v.Variable);
-                    if (v.Create)
-                    {
-                        // create...
-                        sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Name)));
-                    }
-                    if (v.Init != null)
-                    {
-                        sList.Add(Exp.Assign(v.Expression, v.Init));
-                    }
+                    sList.Add(v.Init);
                 }
                 sList.Add(Exp.Return(l, script.ToJSValue()));
                 sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
@@ -245,15 +235,8 @@ namespace WebAtoms.CoreJS
 
                 foreach (var v in pList)
                 {
-                    var var1 = Exp.Variable(typeof(Core.JSVariable), v.Name);
-                    var vf = JSVariable.ValueExpression(var1);
-
-                    vList.Add(var1);
-                    sList.Add(Exp.Assign(var1, 
-                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, argumentElementsLength, i, v.Name)));
-
-                    s.AddVariable(v.Name, vf);
-
+                    var v1 = s.CreateVariable(v.Name, 
+                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, argumentElementsLength, i, v.Name));
                     i++;
                 }
 
@@ -266,10 +249,17 @@ namespace WebAtoms.CoreJS
                         {
                             continue;
                         }
-                        var fv = Exp.Variable(typeof(JSVariable), name);
-                        var fvf = JSVariable.ValueExpression(fv);
-                        s.AddVariable(name, fvf, fv);
-                        sList.Add(Exp.Assign(fv, JSVariableBuilder.New(name)));
+                        s.CreateVariable(name, JSVariableBuilder.New(name));
+                    }
+                    foreach(var vh in functionDeclaration.HoistingScope.VariableDeclarations)
+                    {
+                        foreach(var vd in vh.Declarations)
+                        {
+                            s.CreateVariable(vd.Id.As<Identifier>().Name,
+                                vd.Init == null
+                                ? null
+                                : VisitExpression(vd.Init), vh.Kind != VariableDeclarationKind.Var);
+                        }
                     }
                 }
 
@@ -286,18 +276,10 @@ namespace WebAtoms.CoreJS
                         throw new NotImplementedException();
                 }
 
-                // vList.AddRange(s.Variables.Select(x => x.Variable));
                 foreach(var v in s.Variables)
                 {
                     vList.Add(v.Variable);
-                    if (v.Create)
-                    {
-                        sList.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(v.Name ?? "a")));
-                    }
-                    if (v.Init != null)
-                    {
-                        sList.Add(Exp.Assign(v.Expression, v.Init));
-                    }
+                    sList.Add(v.Init);
                 }
 
                 sList.Add(lambdaBody);
@@ -337,12 +319,12 @@ namespace WebAtoms.CoreJS
                 {
                     if (jsFVarScope != null)
                     {
-                        jsFVarScope.Init = jfs;
+                        jsFVarScope.SetInit(jfs);
                         return jsFVarScope.Expression;
                     }
                     return jfs;
                 }
-                jsFVarScope.Init = jfs;
+                jsFVarScope.SetInit(jfs);
                 return jsFVarScope.Expression;
             }
         }
@@ -351,6 +333,7 @@ namespace WebAtoms.CoreJS
             where T: INode
             where TR: Exp
         {
+            // return exp();
             var s = this.scope.Top.Scope;
             var p = ast.Location.Start;
             try
@@ -358,7 +341,8 @@ namespace WebAtoms.CoreJS
                 return Exp.Block(
                     LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
                     exp());
-            }catch (Exception ex) when (!(ex is CompilerException))
+            }
+            catch (Exception ex) when (!(ex is CompilerException))
             {
                 throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
             }
@@ -398,32 +382,24 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        private List<(Exp variable, bool let, Exp init)> CreateVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
+        private List<VariableScope> CreateVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
         {
             // lets add variable...
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
-            var inits = new List<(Exp,bool, Exp)>();
-            bool let = variableDeclaration.Kind == VariableDeclarationKind.Let;
+            var inits = new List<VariableScope>();
+            bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
+                || variableDeclaration.Kind == VariableDeclarationKind.Const;
             foreach (var declarator in variableDeclaration.Declarations)
             {
                 
                 switch (declarator.Id)
                 {
                     case Esprima.Ast.Identifier id:
-                        var ve = Exp.Variable(typeof(JSVariable), id.Name);
-                        var vf = JSVariable.ValueExpression(ve);
-                        this.scope.Top.AddVariable(id.Name, vf, ve);
-                        // inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
-                        if (declarator.Init != null)
-                        {
-                            var init = VisitExpression(declarator.Init);
-                            inits.Add((vf, let, Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(init, id.Name))));
-                        }
-                        else
-                        {
-                            inits.Add((vf, let, Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(id.Name))));
-                        }
+                        var ve = this.scope.Top.CreateVariable(id.Name, declarator.Init != null
+                            ? ExpHelper.JSVariableBuilder.New(VisitExpression(declarator.Init), id.Name)
+                            : null, newScope);
+                        inits.Add(ve);
                         break;
                     default:
                         throw new NotSupportedException();
@@ -438,22 +414,23 @@ namespace WebAtoms.CoreJS
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
             var inits = new List<Exp>();
-            foreach(var declarator in variableDeclaration.Declarations)
+            bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
+                || variableDeclaration.Kind == VariableDeclarationKind.Const;
+            foreach (var declarator in variableDeclaration.Declarations)
             {
                 switch(declarator.Id)
                 {
                     case Esprima.Ast.Identifier id:
-                        var ve = Exp.Variable(typeof(JSVariable), id.Name);
-                        var vf = JSVariable.ValueExpression(ve);
-                        this.scope.Top.AddVariable(id.Name, vf, ve);
-                        // inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
+                        // variable might exist in current scope
+                        // do not create and just set a value here...
+                        var ve = this.scope.Top.CreateVariable(id.Name, null, newScope);
                         if (declarator.Init != null)
                         {
-                            var init = VisitExpression(declarator.Init);
-                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(init, id.Name) ));
+                            var init = ExpHelper.JSVariableBuilder.New(VisitExpression(declarator.Init), id.Name);
+                            inits.Add(Exp.Assign(ve.Variable, init));
                         } else
                         {
-                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(id.Name)));
+                            inits.Add(Exp.Assign(ve.Variable, JSVariableBuilder.New(id.Name)));
                         }
                         break;
                     default:
@@ -475,21 +452,13 @@ namespace WebAtoms.CoreJS
             {
                 var id = cb.Param.As<Identifier>();
                 var pe = Exp.Parameter(typeof(Exception));
-                var ve = Exp.Variable(typeof(JSVariable));
-                var vf = JSVariable.ValueExpression(ve);
-                var keyName = KeyOfName(id.Name);
-                var catchStatements = new List<Exp>();
 
-                scope.Top.CreateVariable(id.Name, vf);
+                var v = scope.Top.CreateVariable(id.Name, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name));
                 
-                catchStatements.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name)));
-                catchStatements.Add(Exp.Assign(ExpHelper.LexicalScopeBuilder.Index(keyName), ve));
-                catchStatements.Add(VisitStatement(cb.Body));
-
-                var catchBlock = Exp.Block(new ParameterExpression[] { ve }, catchStatements);
-
+                var catchBlock = Exp.Block(new ParameterExpression[] { v.Variable}, 
+                    Exp.Assign(v.Expression, v.Init),
+                    VisitBlockStatement(cb.Body));
                 var cbExp = Exp.Catch(pe, catchBlock.ToJSValue());
-
 
 
                 if (tryStatement.Finalizer != null)
@@ -715,7 +684,7 @@ namespace WebAtoms.CoreJS
                         break;
                     case VariableDeclaration vd:
                         var vdList = CreateVariableDeclaration(vd);
-                        identifier = vdList.First().variable;
+                        identifier = vdList.First().Variable;
                         break;
                 }
 
@@ -1309,15 +1278,39 @@ namespace WebAtoms.CoreJS
             return Exp.Break(ls.Break);
         }
 
+        private Exp NewLexicalScope(FunctionScope fnScope, Node exp, Func<Exp> factory)
+        {
+            using(var scope = this.scope.Push(fnScope))
+            {
+                var position = exp.Location.Start;
+
+                // collect variables...
+                var vList = new List<ParameterExpression>() { scope.Scope };
+
+                var visited = factory();
+
+                vList.AddRange(scope.VariableParameters);
+
+                return Exp.Block(vList, Exp.TryFinally(
+                    Exp.Block(
+                        Exp.Assign(scope.Scope, 
+                            ExpHelper.LexicalScopeBuilder.NewScope(
+                                FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column)),
+                        visited
+                        ).ToJSValue()
+                    , IDisposableBuilder.Dispose(scope.Scope)));
+            }
+        }
+
+        private Exp VisitStatements(in NodeList<IStatementListItem> body)
+        {
+            return Exp.Block(body.Select(x => VisitStatement((Statement)x)));
+        }
+
         protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
         {
-            var visitedList = blockStatement.Body.Select(a => VisitStatement((Statement)a)).ToList();
-
-            if (visitedList.Any())
-            {
-                return Exp.Block(visitedList);
-            }
-            return JSUndefinedBuilder.Value;
+            return this.NewLexicalScope(new FunctionScope(this.scope.Top), 
+                blockStatement , () => VisitStatements(blockStatement.Body));
         }
 
         private Exp CreateBlock(in NodeList<IStatementListItem> body) {
@@ -1327,9 +1320,7 @@ namespace WebAtoms.CoreJS
                 if (stmt is FunctionDeclaration fx && !string.IsNullOrEmpty(fx.Id?.Name))
                 {
                     var name = fx.Id.Name;
-                    var v = Exp.Variable(typeof(JSVariable), name);
-                    var vf = JSVariable.ValueExpression(v);
-                    this.scope.Top.CreateVariable(name, vf, v);
+                    this.scope.Top.CreateVariable(name);
                 }
                 items.Add(stmt);
             }

@@ -23,7 +23,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // pending new object initialization
 
-            RunTest("Syntax\\ObjectLiteral.js");
+            RunTest("Function\\fib.js");
 
         }
 

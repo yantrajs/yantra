@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using WebAtoms.CoreJS.Core;
-
+using WebAtoms.CoreJS.ExpHelper;
 using Exp = System.Linq.Expressions.Expression;
 
 namespace WebAtoms.CoreJS
@@ -38,7 +38,26 @@ namespace WebAtoms.CoreJS
 
             public bool Create { get; internal set; }
 
-            public Exp Init { get; internal set; }
+            public Exp Init { get; private set; }
+
+            public void SetInit(Expression exp)
+            {
+                if (exp != null)
+                {
+                    if (typeof(JSValue).IsAssignableFrom(exp.Type))
+                    {
+                        Init = Exp.Assign(Variable, JSVariableBuilder.New(exp, Name));
+                    }
+                    else
+                    {
+                        Init = Exp.Assign(Variable, exp);
+                    }
+                }
+                else
+                {
+                    Init = Exp.Assign(Variable, JSVariableBuilder.New(Name));
+                }
+            }
         }
 
         private List<VariableScope> variableScopeList = new List<VariableScope>();
@@ -70,6 +89,35 @@ namespace WebAtoms.CoreJS
             }
         }
 
+        public IEnumerable<ParameterExpression> VariableParameters
+        {
+            get
+            {
+                foreach (var s in variableScopeList)
+                {
+                    if (s.Variable != null)
+                    {
+                        yield return s.Variable;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<Expression> InitList
+        {
+            get
+            {
+                foreach (var s in variableScopeList)
+                {
+                    if (s.Init != null)
+                    {
+                        yield return s.Init;
+                    }
+                }
+            }
+        }
+
+
         public LabelTarget ReturnLabel { get; }
 
         public FunctionScope(Esprima.Ast.IFunction fx)
@@ -79,6 +127,17 @@ namespace WebAtoms.CoreJS
             this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
+        }
+
+        public FunctionScope(
+            FunctionScope p
+            )
+        {
+            this.Function = p.Function;
+            this.ThisExpression = p.ThisExpression;
+            this.ArgumentsExpression = p.ArgumentsExpression;
+            this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
+            ReturnLabel = p.ReturnLabel;
         }
 
         public Exp this[string name]
@@ -95,39 +154,57 @@ namespace WebAtoms.CoreJS
 
         public VariableScope CreateVariable(
             string name,
-            Exp exp,
-            ParameterExpression pe = null,
-            Exp init = null)
+            Exp init = null,
+            bool newScope = false)
         {
-            var v = new VariableScope
+            var v = this.variableScopeList.FirstOrDefault(x => x.Name == name);
+            if (v != null)
+                return v;
+
+            // search parent if it is in same function scope...
+            if (!newScope)
+            {
+                var p = this.Parent;
+                while (p != null && p.Function == this.Function)
+                {
+                    v = p.variableScopeList.FirstOrDefault(x => x.Name == name);
+                    if (v != null)
+                        return v;
+                    p = p.Parent;
+                }
+            }
+
+            var pe = Expression.Parameter(typeof(JSVariable), name);
+            var ve = JSVariable.ValueExpression(pe);
+            v = new VariableScope
             {
                 Name = name,
-                Expression = exp,
+                Expression = ve,
                 Variable = pe,
-                Init = init,
                 Create = true
             };
+            v.SetInit(init);
             this.variableScopeList.Add(v);
             return v;
         }
 
 
-        public VariableScope AddVariable(
-            string name, 
-            Exp exp, 
-            ParameterExpression pe = null,
-            Exp init = null)
-        {
-            var v = new VariableScope
-            {
-                Name = name,
-                Expression = exp,
-                Variable = pe,
-                Init = init
-            };
-            this.variableScopeList.Add(v);
-            return v;
-        }
+        //public VariableScope AddVariable(
+        //    string name, 
+        //    Exp exp, 
+        //    ParameterExpression pe = null,
+        //    Exp init = null)
+        //{
+        //    var v = new VariableScope
+        //    {
+        //        Name = name,
+        //        Expression = exp,
+        //        Variable = pe,
+        //        Init = init
+        //    };
+        //    this.variableScopeList.Add(v);
+        //    return v;
+        //}
         public VariableScope GetVariable(string name)
         {
             return this.variableScopeList.FirstOrDefault(x => x.Name == name)
