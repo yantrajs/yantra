@@ -31,7 +31,8 @@ namespace WebAtoms.CoreJS
 
         private ParameterExpression FileNameExpression;
 
-        private Dictionary<string, ParameterExpression> keyStrings = new Dictionary<string, ParameterExpression>();
+        private Dictionary<string, ParameterExpression> keyStrings 
+            = new Dictionary<string, ParameterExpression>();
 
         public Exp KeyOfName(string name)
         {
@@ -43,7 +44,8 @@ namespace WebAtoms.CoreJS
             return pe;
         }
 
-        private static ConcurrentDictionary<string, JSFunctionDelegate> scripts = new ConcurrentDictionary<string, JSFunctionDelegate>();
+        private static ConcurrentDictionary<string, JSFunctionDelegate> scripts 
+            = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
         internal static JSFunctionDelegate Compile(string code, string location = null, string[] args = null)
         {
