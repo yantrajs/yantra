@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Build.Tasks.Deployment.Bootstrapper;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using WebAtoms.CoreJS.Core.Objects;
+using WebAtoms.CoreJS.Core.Set;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -49,6 +51,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject MapPrototype;
 
+        public readonly JSObject SetPrototype;
+
         public readonly JSObject PromisePrototype;
 
         public readonly JSObject RegExpPrototype;
@@ -86,6 +90,8 @@ namespace WebAtoms.CoreJS.Core
         public readonly JSMath Math;
 
         public readonly JSFunction Map;
+
+        public readonly JSFunction Set;
 
         public static JSContext Current
         {
@@ -147,6 +153,7 @@ namespace WebAtoms.CoreJS.Core
             (Map, MapPrototype) = this.Create<JSMap>(KeyStrings.Map);
             (Promise, PromisePrototype) = this.Create<JSPromise>(KeyStrings.Promise);
             (RegExp, RegExpPrototype) = this.Create<JSRegExp>(KeyStrings.RegExp);
+            (Set, SetPrototype) = this.Create<JSSet>(KeyStrings.Set);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }

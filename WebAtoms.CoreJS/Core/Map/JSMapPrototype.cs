@@ -120,6 +120,7 @@ namespace WebAtoms.CoreJS.Core
                     key = first,
                     value = second
                 };
+                m.entries.Add(entry);
                 m.cache.Save(key, entry);
                 return second;
             }

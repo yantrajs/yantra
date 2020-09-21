@@ -131,6 +131,7 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString lastIndex;
 
         public readonly static KeyString Map;
+        public readonly static KeyString Set;
         public readonly static KeyString toString;
         public readonly static KeyString valueOf;
         public readonly static KeyString name;
