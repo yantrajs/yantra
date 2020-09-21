@@ -19,5 +19,7 @@ namespace WebAtoms.CoreJS.Core
         {
         }
 
+        protected JSMap(JSObject p): base(p) { }
+
     }
 }

@@ -1,23 +1,19 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using WebAtoms.CoreJS.Core.Runtime;
 using WebAtoms.CoreJS.Extensions;
 
-namespace WebAtoms.CoreJS.Core
+namespace WebAtoms.CoreJS.Core.Set
 {
-    public partial class JSWeakMap: JSObject
+    public partial class JSWeakSet : JSObject
     {
 
-        private BinaryCharMap<(WeakReference<JSValue> key, JSValue value)>
-            items = new BinaryCharMap<(WeakReference<JSValue> key, JSValue value)>();
+        private BinaryCharMap<WeakReference<JSValue>>
+            items = new BinaryCharMap<WeakReference<JSValue>>();
 
-        public JSWeakMap(): base(JSContext.Current.WeakMapPrototype)
+        public JSWeakSet() : base(JSContext.Current.WeakSetPrototype)
         {
             this.SetTimeout();
         }
@@ -29,7 +25,7 @@ namespace WebAtoms.CoreJS.Core
                 var keysToDelete = new List<string>();
                 foreach (var item in items.AllValues)
                 {
-                    if (!item.Value.key.TryGetTarget(out var v))
+                    if (!item.Value.TryGetTarget(out var v))
                     {
                         keysToDelete.Add(item.Key);
                     }
@@ -58,15 +54,15 @@ namespace WebAtoms.CoreJS.Core
         [Constructor]
         public static JSValue Constructor(JSValue t, JSValue[] a)
         {
-            return new JSWeakMap();
+            return new JSWeakSet();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static JSWeakMap ToWeakMap(JSValue t, [CallerMemberName] string name = null)
+        private static JSWeakSet ToWeakMap(JSValue t, [CallerMemberName] string name = null)
         {
-            if (t is JSWeakMap w)
+            if (t is JSWeakSet w)
                 return w;
-            throw JSContext.Current.NewTypeError($"WeakMap.prototype.{name} was not called with receiver WeakMap");
+            throw JSContext.Current.NewTypeError($"WeakSet.prototype.{name} was not called with receiver WeakSet");
         }
 
         [Prototype("delete")]
@@ -78,7 +74,7 @@ namespace WebAtoms.CoreJS.Core
                 var key = a.Get1().ToUniqueID();
                 if (w.items.RemoveAt(key))
                     return JSBoolean.True;
-                
+
             }
             return JSBoolean.False;
         }
@@ -92,9 +88,9 @@ namespace WebAtoms.CoreJS.Core
                 var key = a.Get1().ToUniqueID();
                 if (w.items.TryGetValue(key, out var v))
                 {
-                    if (v.key.TryGetTarget(out var vk))
+                    if (v.TryGetTarget(out var vk))
                     {
-                        return v.value;
+                        return vk;
                     }
                     w.items.RemoveAt(key);
                 }
@@ -114,7 +110,7 @@ namespace WebAtoms.CoreJS.Core
             lock (w.items)
             {
                 var key = first.ToUniqueID();
-                w.items.Save(key, ( new WeakReference<JSValue>(first), second ));
+                w.items.Save(key, new WeakReference<JSValue>(first));
             }
             return t;
         }
@@ -128,7 +124,7 @@ namespace WebAtoms.CoreJS.Core
                 var key = a.Get1().ToUniqueID();
                 if (w.items.TryGetValue(key, out var v))
                 {
-                    if (v.key.TryGetTarget(out var vk))
+                    if (v.TryGetTarget(out var vk))
                     {
                         return JSBoolean.True;
                     }

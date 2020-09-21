@@ -13,8 +13,13 @@ namespace WebAtoms.CoreJS.Core.Set
     [JSRuntime(typeof(JSMapStatic), typeof(JSMap.JSMapPrototype))]
     public class JSSet: JSMap {
 
+        public JSSet(): base(JSContext.Current.SetPrototype)
+        {
+
+        }
+
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue a[])
+        public static JSValue Constructor(JSValue t, JSValue[] a)
         {
             return new JSSet();
         }

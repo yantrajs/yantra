@@ -13,6 +13,11 @@ namespace WebAtoms.CoreJS.Core
     {
         protected TrieNode[] Buffer;
 
+        private long count;
+
+        public long Count => count;
+
+
         public TValue this[TKey input]
         {
             get
@@ -61,6 +66,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (v.Equals(value))
                 {
+                    count--;
                     Buffer[i].ClearValue();
                     return true;
                 }
@@ -101,6 +107,7 @@ namespace WebAtoms.CoreJS.Core
             ref var node = ref GetTrieNode(key, false);
             if (node.HasValue)
             {
+                count--;
                 node.ClearValue();
                 return true;
             }
@@ -127,6 +134,10 @@ namespace WebAtoms.CoreJS.Core
             if (node.IsNull)
             {
                 throw new KeyNotFoundException($"{key} not found..");
+            }
+            if (!node.HasValue)
+            {
+                count++;
             }
             node.Update(key, value);
         }
