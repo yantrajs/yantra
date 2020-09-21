@@ -12,15 +12,8 @@ namespace WebAtoms.CoreJS.Core
     public partial class JSMap: JSObject
     {
 
-        struct Entry
-        {
-            public int Index;
-            public JSValue key;
-            public JSValue value;
-        }
-
-        private List<Entry> entries = new List<Entry>();
-        private BinaryCharMap<Entry> cache = new BinaryCharMap<Entry>();
+        private LinkedList<(JSValue key,JSValue value)> entries = new LinkedList<(JSValue,JSValue)>();
+        private BinaryCharMap<LinkedListNode<(JSValue key,JSValue value)>> cache = new BinaryCharMap<LinkedListNode<(JSValue, JSValue)>>();
 
         public JSMap(): base(JSContext.Current.MapPrototype)
         {

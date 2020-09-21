@@ -36,7 +36,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 var m = ToMap(t);
                 m.entries.Clear();
-                m.cache = new BinaryCharMap<Entry>();
+                m.cache = new BinaryCharMap<LinkedListNode<(JSValue key, JSValue value)>>();
                 return JSUndefined.Value;
             }
 
@@ -47,7 +47,7 @@ namespace WebAtoms.CoreJS.Core
                 var key = a.Get1().ToUniqueID();
                 if(m.cache.TryRemove(key, out var e))
                 {
-                    m.entries.RemoveAt(e.Index);
+                    m.entries.Remove(e);
                 }
                 return JSUndefined.Value;
             }
@@ -81,7 +81,7 @@ namespace WebAtoms.CoreJS.Core
                 var m = ToMap(t);
                 var key = first.ToUniqueID();
                 if (m.cache.TryGetValue(key, out var e))
-                    return e.value;
+                    return e.Value.value;
                 return JSUndefined.Value;
             }
 
@@ -112,16 +112,10 @@ namespace WebAtoms.CoreJS.Core
                 var key = first.ToUniqueID();
                 if(m.cache.TryGetValue(key, out var entry))
                 {
-                    return entry.value;
+                    return entry.Value.value;
                 }
                 var index = m.entries.Count;
-                entry = new Entry { 
-                    Index = index,
-                    key = first,
-                    value = second
-                };
-                m.entries.Add(entry);
-                m.cache.Save(key, entry);
+                m.cache.Save(key, m.entries.AddLast((first, second)));
                 return second;
             }
 
