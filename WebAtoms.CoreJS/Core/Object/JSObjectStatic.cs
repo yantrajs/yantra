@@ -2,35 +2,54 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSObjectStatic
+    public static class JSObjectStatic
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSObject ToJSObject(this JSValue value)
+        {
+            if (value is JSObject @object)
+                return @object;
+            if (value.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+            throw JSContext.Current.NewTypeError(JSError.Parameter_is_not_an_object);
+        }
+
+        internal static bool TryNonEmptyCastJSObject(this JSValue value, out JSObject @object)
+        {
+            if (value.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+            @object = value as JSObject;
+            return @object != null;
+        }
 
         [Static("create")]
         internal static JSValue StaticCreate(JSValue t,params JSValue[] a)
         {
             var p = a[0];
-            if (p.IsUndefined || p.IsNull)
-                p = JSContext.Current.ObjectPrototype;
-            return new JSObject((JSObject)p);
+            if (!(p is JSObject proto))
+            {
+                if (!p.IsNull)
+                    throw JSContext.Current.NewTypeError("Object prototype may only be an Object or null");
+                proto = JSContext.Current.ObjectPrototype;
+            }
+            return new JSObject(proto);
         }
 
         [Static("assign")]
         internal static JSValue Assign(JSValue t,params JSValue[] a)
         {
-            if (a.Length == 0)
+            var (first,second) = a.Get2();
+            if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
-            var first = a[0];
-            if (first.IsNull || first.IsUndefined)
-                throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
-            if (a.Length == 1 || !(first is JSObject @firstObject))
+            if (!(first is JSObject firstObject))
                 return first;
-            var second = a[1];
             if (!(second is JSObject @object))
                 return first;
             if (@object.ownProperties != null)
@@ -47,7 +66,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue StaticEntries(JSValue t,params JSValue[] a)
         {
             var target = a[0];
-            if (target.IsNull || target.IsUndefined)
+            if (target.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             if (!target.IsObject)
                 return new JSArray();
@@ -79,7 +98,7 @@ namespace WebAtoms.CoreJS.Core
             if (!(a[0] is JSObject target))
                 throw JSContext.Current.NewTypeError("Object.defineProperty called on non-object");
             var pds = a[1];
-            if (pds.IsUndefined || pds.IsNull)
+            if (pds.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(pds is JSObject pdObject))
                 return target;
@@ -128,7 +147,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue _FromEntries(JSValue t,params JSValue[] a)
         {
             var v = a[0];
-            if (v.IsUndefined || v.IsNull)
+            if (v.IsNullOrUndefined)
             {
                 throw JSContext.Current.NewTypeError(JSTypeError.NotIterable("undefined"));
             }
@@ -178,7 +197,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue _Keys(JSValue t,params JSValue[] a)
         {
             var first = a[0];
-            if (first.IsUndefined)
+            if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
@@ -220,7 +239,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue _Values(JSValue t,params JSValue[] a)
         {
             var first = a[0];
-            if (first.IsUndefined)
+            if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
@@ -231,7 +250,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue _GetOwnPropertyDescriptor(JSValue t,params JSValue[] a)
         {
             var first = a[0];
-            if (first.IsUndefined)
+            if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             return t;
         }
@@ -240,7 +259,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue _GetOwnPropertyDescriptors(JSValue t,params JSValue[] a)
         {
             var first = a[0];
-            if (first.IsUndefined)
+            if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();

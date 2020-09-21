@@ -17,6 +17,8 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual bool IsNull => false;
 
+        internal virtual bool IsNullOrUndefined => false;
+
         public virtual bool IsNumber => false;
 
         public virtual bool IsObject => false;

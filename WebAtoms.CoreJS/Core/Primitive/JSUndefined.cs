@@ -29,6 +29,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool IsUndefined => true;
 
+        internal override bool IsNullOrUndefined => true;
+
         public override string ToString()
         {
             return "undefined";

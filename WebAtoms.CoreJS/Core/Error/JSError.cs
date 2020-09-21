@@ -17,6 +17,8 @@ namespace WebAtoms.CoreJS.Core
 
         public const string Cannot_convert_undefined_or_null_to_object = "Cannot convert undefined or null to object";
 
+        public const string Parameter_is_not_an_object = "Parameter is not an object";
+
 
         protected JSError( JSValue message, JSValue stack,  JSObject prototype) : base(prototype)
         {
