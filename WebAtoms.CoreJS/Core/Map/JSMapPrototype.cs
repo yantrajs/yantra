@@ -34,14 +34,21 @@ namespace WebAtoms.CoreJS.Core
             [Prototype("clear")]
             public static JSValue Clear(JSValue t, JSValue[] a)
             {
-                ToMap(t).entries.Clear();
+                var m = ToMap(t);
+                m.entries.Clear();
+                m.cache = new BinaryCharMap<Entry>();
                 return JSUndefined.Value;
             }
 
             [Prototype("delete")]
             public static JSValue Delete(JSValue t, JSValue[] a)
             {
-                ToMap(t).entries.Remove(new Entry { key = a[0] });
+                var m = ToMap(t);
+                var key = a.Get1().ToUniqueID();
+                if(m.cache.TryRemove(key, out var e))
+                {
+                    m.entries.RemoveAt(e.Index);
+                }
                 return JSUndefined.Value;
             }
 
@@ -72,11 +79,9 @@ namespace WebAtoms.CoreJS.Core
             {
                 var first = a.GetAt(0);
                 var m = ToMap(t);
-                foreach (var e in m.entries)
-                {
-                    if (e.key.Equals(first).BooleanValue)
-                        return e.value;
-                }
+                var key = first.ToUniqueID();
+                if (m.cache.TryGetValue(key, out var e))
+                    return e.value;
                 return JSUndefined.Value;
             }
 
@@ -85,11 +90,9 @@ namespace WebAtoms.CoreJS.Core
             {
                 var first = a.GetAt(0);
                 var m = ToMap(t);
-                foreach (var e in m.entries)
-                {
-                    if (e.key.Equals(first).BooleanValue)
-                        return JSBoolean.True;
-                }
+                var key = first.ToUniqueID();
+                if (m.cache.TryGetValue(key, out var _))
+                    return JSBoolean.True;
                 return JSBoolean.False;
             }
 
@@ -106,8 +109,18 @@ namespace WebAtoms.CoreJS.Core
                 var m = ToMap(t);
                 var first = a.GetAt(0);
                 var second = a.GetAt(1);
-                m.entries.Remove(new Entry { key = first });
-                m.entries.Add(new Entry { key = first, value = second });
+                var key = first.ToUniqueID();
+                if(m.cache.TryGetValue(key, out var entry))
+                {
+                    return entry.value;
+                }
+                var index = m.entries.Count;
+                entry = new Entry { 
+                    Index = index,
+                    key = first,
+                    value = second
+                };
+                m.cache.Save(key, entry);
                 return second;
             }
 

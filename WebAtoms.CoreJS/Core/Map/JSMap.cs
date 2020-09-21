@@ -14,25 +14,13 @@ namespace WebAtoms.CoreJS.Core
 
         struct Entry
         {
+            public int Index;
             public JSValue key;
             public JSValue value;
-
-            public override bool Equals(object obj)
-            {
-                if (obj is Entry entry)
-                {
-                    return key.Equals(entry.key).BooleanValue;
-                }
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return key.GetHashCode();
-            }
         }
 
         private List<Entry> entries = new List<Entry>();
+        private BinaryCharMap<Entry> cache = new BinaryCharMap<Entry>();
 
         public JSMap(): base(JSContext.Current.MapPrototype)
         {
