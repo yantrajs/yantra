@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using WebAtoms.CoreJS.Core.Objects;
 using WebAtoms.CoreJS.Core.Set;
+using WebAtoms.CoreJS.Core.Weak;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -57,6 +58,12 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject RegExpPrototype;
 
+        public readonly JSObject WeakRefPrototype;
+
+        internal readonly JSObject WeakMapPrototype;
+
+        internal readonly JSObject WeakSetPrototype;
+
         public readonly JSFunction String;
 
         public readonly JSFunction Function;
@@ -82,6 +89,11 @@ namespace WebAtoms.CoreJS.Core
         public readonly JSFunction Promise;
 
         public readonly JSFunction RegExp;
+
+        public readonly JSFunction WeakRef;
+
+        internal readonly JSFunction WeakSet;
+        internal readonly JSFunction WeakMap;
 
         public readonly JSObject JSON;
 
@@ -154,6 +166,9 @@ namespace WebAtoms.CoreJS.Core
             (Promise, PromisePrototype) = this.Create<JSPromise>(KeyStrings.Promise);
             (RegExp, RegExpPrototype) = this.Create<JSRegExp>(KeyStrings.RegExp);
             (Set, SetPrototype) = this.Create<JSSet>(KeyStrings.Set);
+            (WeakRef, WeakRefPrototype) = this.Create<JSWeakRef>(KeyStrings.WeakRef);
+            (WeakSet, WeakSetPrototype) = this.Create<JSWeakSet>(KeyStrings.WeakSet);
+            (WeakMap, WeakMapPrototype) = this.Create<JSWeakMap>(KeyStrings.WeakMap);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }

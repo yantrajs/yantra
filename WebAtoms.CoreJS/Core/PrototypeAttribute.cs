@@ -49,7 +49,7 @@ namespace WebAtoms.CoreJS.Core
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class PrototypeAttribute: Attribute
     {
-        public readonly string Name;
+        public readonly KeyString Name;
 
         public readonly MemberType MemberType;
 

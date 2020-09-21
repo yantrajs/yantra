@@ -31,13 +31,13 @@ namespace WebAtoms.CoreJS.Core
 
 
                         var cx = Fill(rt.StaticType, r);
-                        if (cx != null)
+                        if (cx != null && r.f == JSFunction.empty)
                         {
                             r.f = cx;
                         }
 
                         cx = Fill(rt.Prototype, r.prototype);
-                        if (cx != null)
+                        if (cx != null && r.f == JSFunction.empty)
                         {
                             r.f = cx;
                         }
@@ -75,6 +75,8 @@ namespace WebAtoms.CoreJS.Core
 
             JSFunctionDelegate r = null;
 
+            var ownProperties = target.ownProperties ?? (target.ownProperties = new PropertySequence());
+
             var p = target;
             var all = type
                 .GetMethods(BindingFlags.NonPublic
@@ -93,6 +95,9 @@ namespace WebAtoms.CoreJS.Core
                 if (mg.Any((x => !x.method.IsStatic)))
                     throw new NotSupportedException($"{f.method.Name} should be static method");
 
+                if (ownProperties.TryGetValue(f.attribute.Name.Key, out var _))
+                    continue;
+
                 var (m, pr) = f;
 
                 if (pr is ConstructorAttribute)
@@ -104,8 +109,8 @@ namespace WebAtoms.CoreJS.Core
                 if (pr.IsMethod)
                 {
 
-                    target.DefineProperty(pr.Name, JSProperty.Function(pr.Name,
-                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue));
+                    ownProperties[pr.Name.Key] = JSProperty.Function(pr.Name,
+                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue);
                     continue;
                 }
 
@@ -114,22 +119,22 @@ namespace WebAtoms.CoreJS.Core
                     var l = mg.Last();
                     var fdel = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
                     var ldel = (JSFunctionDelegate)l.method.CreateDelegate(typeof(JSFunctionDelegate));
-                    target.DefineProperty(mg.Key, JSProperty.Property(
+                    ownProperties[pr.Name.Key] = JSProperty.Property(
                         mg.Key,
                         f.attribute.IsGetProperty ? fdel : ldel,
                         !f.attribute.IsGetProperty ? fdel : ldel,
                         f.attribute.ConfigurableProperty
-                        ));
+                        );
                     continue;
                 }
 
                 var fx = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
-                target.DefineProperty(mg.Key, JSProperty.Property(
+                ownProperties[pr.Name.Key] = JSProperty.Property(
                     mg.Key,
                     f.attribute.IsGetProperty ? fx : null,
                     !f.attribute.IsGetProperty ? fx : null,
                     f.attribute.ConfigurableProperty
-                    ));
+                    );
 
 
             }
@@ -150,8 +155,10 @@ namespace WebAtoms.CoreJS.Core
                 {
                     jv = new JSString(v.ToString());
                 }
-
-                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableProperty));
+                if (ownProperties.TryGetValue(pr.Name.Key, out var _))
+                    continue;
+                ownProperties[pr.Name.Key] = 
+                    JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableProperty);
             }
 
             return r;
