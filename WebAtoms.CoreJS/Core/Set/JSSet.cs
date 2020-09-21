@@ -1,6 +1,7 @@
 ﻿using Esprima.Ast;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -56,6 +57,45 @@ namespace WebAtoms.CoreJS.Core.Set
             m.cache = new BinaryCharMap<LinkedListNode<JSValue>>();
             return JSUndefined.Value;
         }
+
+        [Prototype("entries")]
+        public static JSValue Entries(JSValue t, JSValue[] a)
+        {
+            return new JSArray(t.ToSet().entries.Select(x => new JSArray(x)));
+        }
+
+
+        [Prototype("forEach")]
+        public static JSValue ForEach(JSValue t, JSValue[] a)
+        {
+            var fx = a.GetAt(0);
+            if (!fx.IsFunction)
+                throw JSContext.Current.NewTypeError($"Function parameter expected");
+            var m = t.ToSet();
+            foreach (var e in m.entries)
+            {
+                fx.InvokeFunction(t, e, m);
+            }
+            return JSUndefined.Value;
+        }
+
+        [Prototype("has")]
+        public static JSValue Has(JSValue t, JSValue[] a)
+        {
+            var m = t.ToSet();
+            var key = a.Get1().ToUniqueID();
+            if (m.cache.TryGetValue(key, out var _))
+                return JSBoolean.True;
+            return JSBoolean.False;
+        }
+
+        [Prototype("values")]
+        public static JSValue Values(JSValue t, JSValue[] a)
+        {
+            return new JSArray(t.ToSet().entries);
+        }
+
+
     }
 
     internal static class JSSetStatic
