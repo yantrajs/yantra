@@ -90,7 +90,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("toString")]
-        internal new static JSValue ToString(JSValue t, params JSValue[] _)
+        internal static JSValue ToString(JSValue t, params JSValue[] _)
             => new JSString(
                 t is JSArray a
                     ? string.Join(",", a.All)
