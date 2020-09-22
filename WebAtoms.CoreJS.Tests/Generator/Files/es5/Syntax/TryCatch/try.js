@@ -4,4 +4,4 @@ try {
 } catch (e) {
     error = e;
 }
-asserts(error.name, error.name);
+assert(error, error);

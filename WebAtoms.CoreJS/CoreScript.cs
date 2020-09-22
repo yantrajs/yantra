@@ -134,11 +134,9 @@ namespace WebAtoms.CoreJS
                     sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
                 }
 
-                foreach (var v in fx.Variables)
-                {
-                    vList.Add(v.Variable);
-                    sList.Add(v.Init);
-                }
+                vList.AddRange(fx.VariableParameters);
+                sList.AddRange(fx.InitList);
+
                 sList.Add(Exp.Return(l, script.ToJSValue()));
                 sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
 
@@ -279,7 +277,10 @@ namespace WebAtoms.CoreJS
                 foreach(var v in s.Variables)
                 {
                     vList.Add(v.Variable);
-                    sList.Add(v.Init);
+                    if (v.Init != null)
+                    {
+                        sList.Add(v.Init);
+                    }
                 }
 
                 sList.Add(lambdaBody);
@@ -451,14 +452,13 @@ namespace WebAtoms.CoreJS
             if (cb != null)
             {
                 var id = cb.Param.As<Identifier>();
-                var pe = Exp.Parameter(typeof(Exception));
-
-                var v = scope.Top.CreateVariable(id.Name, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name));
+                var pe = scope.Top.CreateException(id.Name);
+                var v = scope.Top.CreateVariable(id.Name);
                 
-                var catchBlock = Exp.Block(new ParameterExpression[] {v.Variable}, 
-                    v.Init,
+                var catchBlock = Exp.Block(new ParameterExpression[] { v.Variable},
+                    Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.NewFromException(pe.Variable, id.Name)),
                     VisitBlockStatement(cb.Body));
-                var cbExp = Exp.Catch(pe, catchBlock.ToJSValue());
+                var cbExp = Exp.Catch(pe.Variable, catchBlock.ToJSValue());
 
 
                 if (tryStatement.Finalizer != null)

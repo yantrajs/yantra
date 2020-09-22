@@ -25,7 +25,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // RunTest("Function\\fib.js");
 
-            RunTest("Function\\class.js");
+            RunTest("Syntax\\TryCatch\\try.js");
 
         }
 

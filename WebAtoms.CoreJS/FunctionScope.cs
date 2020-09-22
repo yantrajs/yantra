@@ -42,20 +42,27 @@ namespace WebAtoms.CoreJS
 
             public void SetInit(Expression exp)
             {
-                if (exp != null)
+                if (Variable.Type == typeof(JSVariable))
                 {
-                    if (typeof(JSValue).IsAssignableFrom(exp.Type))
+                    if (exp != null)
                     {
-                        Init = Exp.Assign(Variable, JSVariableBuilder.New(exp, Name));
+                        if (typeof(JSValue).IsAssignableFrom(exp.Type))
+                        {
+                            Init = Exp.Assign(Variable, JSVariableBuilder.New(exp, Name));
+                        }
+                        else
+                        {
+                            Init = Exp.Assign(Variable, exp);
+                        }
                     }
                     else
                     {
-                        Init = Exp.Assign(Variable, exp);
+                        Init = Exp.Assign(Variable, JSVariableBuilder.New(Name));
                     }
                 }
                 else
                 {
-                    Init = Exp.Assign(Variable, JSVariableBuilder.New(Name));
+                    Init = Exp.Assign(Variable, exp);
                 }
             }
         }
@@ -151,6 +158,18 @@ namespace WebAtoms.CoreJS
                     variableScopeList.FirstOrDefault(x => x.Name == name)?.Expression
                     ?? (this.Parent?[name]);
             }
+        }
+
+        public VariableScope CreateException(string name)
+        {
+            var v = this.variableScopeList.FirstOrDefault(x => x.Name == name);
+            if (v != null)
+                return v;
+            v = new VariableScope {
+                Variable = Exp.Parameter(typeof(Exception), name + "Exp")
+            };
+            this.variableScopeList.Add(v);
+            return v;
         }
 
         public VariableScope CreateVariable(
