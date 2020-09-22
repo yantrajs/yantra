@@ -456,7 +456,7 @@ namespace WebAtoms.CoreJS
                 var v = scope.Top.CreateVariable(id.Name, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name));
                 
                 var catchBlock = Exp.Block(new ParameterExpression[] { v.Variable}, 
-                    Exp.Assign(v.Expression, v.Init),
+                    v.Init,
                     VisitBlockStatement(cb.Body));
                 var cbExp = Exp.Catch(pe, catchBlock.ToJSValue());
 

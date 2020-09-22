@@ -158,7 +158,7 @@ namespace WebAtoms.CoreJS.Core
                 if (ownProperties.TryGetValue(pr.Name.Key, out var _))
                     continue;
                 ownProperties[pr.Name.Key] = 
-                    JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableProperty);
+                    JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableReadonlyValue);
             }
 
             return r;
@@ -250,7 +250,7 @@ namespace WebAtoms.CoreJS.Core
                     jv = new JSString(v.ToString());
                 }
 
-                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableProperty));
+                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableReadonlyValue));
             }
 
             return r;

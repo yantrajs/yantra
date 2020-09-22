@@ -72,8 +72,7 @@ namespace WebAtoms.CoreJS
 
         public bool IsRoot => Function == null;
 
-        public LinkedStack<LoopScope> Loop
-            = new LinkedStack<LoopScope>();
+        public LinkedStack<LoopScope> Loop;
 
         public IEnumerable<VariableScope> Variables
         {
@@ -126,6 +125,7 @@ namespace WebAtoms.CoreJS
             this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
+            this.Loop = new LinkedStack<LoopScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
         }
 
@@ -137,6 +137,7 @@ namespace WebAtoms.CoreJS
             this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
+            this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
         }
 
