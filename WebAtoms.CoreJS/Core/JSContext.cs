@@ -64,36 +64,36 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly JSObject WeakSetPrototype;
 
-        public readonly JSFunction String;
+        //public readonly JSFunction String;
 
-        public readonly JSFunction Function;
+        //public readonly JSFunction Function;
 
-        public readonly JSFunction Number;
+        //public readonly JSFunction Number;
 
-        public readonly JSFunction Object;
+        //public readonly JSFunction Object;
 
-        public readonly JSFunction Array;
+        //public readonly JSFunction Array;
 
-        public readonly JSFunction Boolean;
+        //public readonly JSFunction Boolean;
 
-        public readonly JSFunction Error;
+        //public readonly JSFunction Error;
 
-        public readonly JSFunction RangeError;
+        //public readonly JSFunction RangeError;
         
-        public readonly JSFunction SyntaxError;
+        //public readonly JSFunction SyntaxError;
 
-        public readonly JSFunction Date;
+        //public readonly JSFunction Date;
 
-        public readonly JSFunction TypeError;
+        //public readonly JSFunction TypeError;
 
-        public readonly JSFunction Promise;
+        //public readonly JSFunction Promise;
 
-        public readonly JSFunction RegExp;
+        //public readonly JSFunction RegExp;
 
-        public readonly JSFunction WeakRef;
+        //public readonly JSFunction WeakRef;
 
-        internal readonly JSFunction WeakSet;
-        internal readonly JSFunction WeakMap;
+        //internal readonly JSFunction WeakSet;
+        //internal readonly JSFunction WeakMap;
 
         public readonly JSObject JSON;
 
@@ -149,26 +149,26 @@ namespace WebAtoms.CoreJS.Core
                 return r;
             }
 
-            (Symbol, _) = this.Create<JSSymbol>(KeyStrings.Symbol);
-            (Function, FunctionPrototype) = this.Create<JSFunction>(KeyStrings.Function);
+            this.Create<JSSymbol>(KeyStrings.Symbol);
+            FunctionPrototype = this.Create<JSFunction>(KeyStrings.Function);
             // create object prototype...
-            (Object, ObjectPrototype) =  this.Create<JSObject>(KeyStrings.Object);
-            (Array, ArrayPrototype) = this.Create<JSArray>(KeyStrings.Array);
-            (String, StringPrototype) = this.Create<JSString>(KeyStrings.String);
-            (Number, NumberPrototype) = this.Create<JSNumber>(KeyStrings.Number);
-            (Boolean, BooleanPrototype) = this.Create<JSBoolean>(KeyStrings.Boolean);
-            (Error, ErrorPrototype) = this.Create<JSError>(JSError.KeyError);
-            (TypeError, TypeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
-            (RangeError, RangeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);
-            (SyntaxError, SyntaxErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeySyntaxError, ErrorPrototype);
-            (Date, DatePrototype) = this.Create<JSDate>(KeyStrings.Date);
-            (Map, MapPrototype) = this.Create<JSMap>(KeyStrings.Map);
-            (Promise, PromisePrototype) = this.Create<JSPromise>(KeyStrings.Promise);
-            (RegExp, RegExpPrototype) = this.Create<JSRegExp>(KeyStrings.RegExp);
-            (Set, SetPrototype) = this.Create<JSSet>(KeyStrings.Set);
-            (WeakRef, WeakRefPrototype) = this.Create<JSWeakRef>(KeyStrings.WeakRef);
-            (WeakSet, WeakSetPrototype) = this.Create<JSWeakSet>(KeyStrings.WeakSet);
-            (WeakMap, WeakMapPrototype) = this.Create<JSWeakMap>(KeyStrings.WeakMap);
+            ObjectPrototype =  this.Create<JSObject>(KeyStrings.Object);
+            ArrayPrototype = this.Create<JSArray>(KeyStrings.Array);
+            StringPrototype = this.Create<JSString>(KeyStrings.String);
+            NumberPrototype = this.Create<JSNumber>(KeyStrings.Number);
+            BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean);
+            ErrorPrototype = this.Create<JSError>(JSError.KeyError);
+            TypeErrorPrototype = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
+            RangeErrorPrototype = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);
+            SyntaxErrorPrototype = this.Create<JSTypeError>(JSTypeError.KeySyntaxError, ErrorPrototype);
+            DatePrototype = this.Create<JSDate>(KeyStrings.Date);
+            MapPrototype = this.Create<JSMap>(KeyStrings.Map);
+            PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise);
+            RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp);
+            SetPrototype = this.Create<JSSet>(KeyStrings.Set);
+            WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef);
+            WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet);
+            WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
         }

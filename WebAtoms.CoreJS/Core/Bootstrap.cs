@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Core
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
 
 
-        public static (JSFunction function, JSObject prototype) Create<T>(
+        public static JSObject Create<T>(
             this JSContext context, 
             KeyString key, 
             JSObject chain = null)
@@ -64,7 +64,7 @@ namespace WebAtoms.CoreJS.Core
                 }
                 context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
                 copy.prototypeChain = chain ?? context.ObjectPrototype;
-                return (copy, copy.prototype);
+                return copy.prototype;
             }
         }
 
