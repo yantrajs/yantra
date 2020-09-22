@@ -33,6 +33,10 @@ On platforms where Roslyn is available, you can easily generate code high perfor
  ### Complexity
  1. Tail Call Optimization
 
+ ## No System.Text.Json
+
+ We are not going to use System.Text.Json because it is not available on .NET Frameworks. This library is designed to run on older platforms as well.
+
  ## Performance Points
 
  1. Do not use Switch pattern matching for types, 

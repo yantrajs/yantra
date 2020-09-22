@@ -4,9 +4,9 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Extensions;
 
@@ -22,9 +22,13 @@ namespace WebAtoms.CoreJS.Core
         [Static("parse")]
         public static JSValue Parse(JSValue t,params JSValue[] a)
         {
-            var first = a[0].ToString();
-
-            throw new NotSupportedException();
+            var (text, receiver) = a.Get2();
+            Func<JSValue, string, JSValue> r = null;
+            if (receiver is JSFunction function)
+            {
+                r = (o,k) => function.f(t, new JSValue[] { o, new JSString(k) });
+            }
+            return JSJsonParser.Parse(text.ToString(), r);
 
         }
 
