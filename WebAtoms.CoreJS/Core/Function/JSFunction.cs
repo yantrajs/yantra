@@ -59,7 +59,9 @@ namespace WebAtoms.CoreJS.Core
             var cx = JSContext.Current;
             JSValue obj = cx.CreateObject();
             obj.prototypeChain = prototype;
-            obj = f(obj, args);
+            var r = f(obj, args);
+            if (!r.IsUndefined)
+                return r;
             return obj;
         }
 
