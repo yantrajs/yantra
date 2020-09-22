@@ -618,43 +618,42 @@ namespace WebAtoms.CoreJS
             var continueTarget = Exp.Label();
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
-
-
-                var init = JSUndefinedBuilder.Value;
-                if (forStatement.Init != null)
+                return NewLexicalScope(new FunctionScope(this.scope.Top), forStatement, () =>
                 {
-
-                    switch (forStatement.Init)
+                    var init = JSUndefinedBuilder.Value;
+                    if (forStatement.Init != null)
                     {
-                        case VariableDeclaration vd:
-                            init = VisitVariableDeclaration(vd);
-                            break;
-                        case Expression exp:
-                            init = VisitExpression(exp);
-                            break;
-                        case Statement stmt:
-                            init = VisitStatement(stmt);
-                            break;
+                        switch (forStatement.Init)
+                        {
+                            case Expression exp:
+                                init = VisitExpression(exp);
+                                break;
+                            case Statement stmt:
+                                init = VisitStatement(stmt);
+                                break;
+                            default:
+                                throw new NotSupportedException();
+                        }
                     }
-                }
-                var list = new List<Exp>();
-                var body = VisitStatement(forStatement.Body);
-                var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
-                if (forStatement.Test != null)
-                {
-                    var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
+                    var list = new List<Exp>();
+                    var body = VisitStatement(forStatement.Body);
+                    var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
+                    if (forStatement.Test != null)
+                    {
+                        var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
 
-                    list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
-                }
-                list.Add(body);
-                if (update != null)
-                {
-                    list.Add(update);
-                }
-                return Exp.Block(init, Exp.Loop(
-                    Exp.Block(list),
-                    breakTarget,
-                    continueTarget));
+                        list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
+                    }
+                    list.Add(body);
+                    if (update != null)
+                    {
+                        list.Add(update);
+                    }
+                    return Exp.Block(init, Exp.Loop(
+                        Exp.Block(list),
+                        breakTarget,
+                        continueTarget));
+                });
             }
         }
 
@@ -664,51 +663,48 @@ namespace WebAtoms.CoreJS
             var continueTarget = Exp.Label();
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
+                return NewLexicalScope(new FunctionScope(this.scope.Top), forInStatement, () => {
 
-                var en = Exp.Variable(typeof(IEnumerator<JSValue>));
+                    var en = Exp.Variable(typeof(IEnumerator<JSValue>));
 
 
-                var pList = new List<ParameterExpression>() { 
-                    en
-                };
+                    var pList = new List<ParameterExpression>() {
+                        en
+                    };
 
-                var body = VisitStatement(forInStatement.Body);
+                    var body = VisitStatement(forInStatement.Body);
 
-                Exp identifier = null;
+                    Exp identifier = null;
 
-                var list = new List<Exp>();
-                switch (forInStatement.Left)
-                {
-                    case Identifier i:
-                        identifier = VisitIdentifier(i);
-                        break;
-                    case VariableDeclaration vd:
-                        var vdList = CreateVariableDeclaration(vd);
-                        identifier = vdList.First().Variable;
-                        break;
-                }
+                    var list = new List<Exp>();
+                    switch (forInStatement.Left)
+                    {
+                        case Identifier i:
+                            identifier = VisitIdentifier(i);
+                            break;
+                        case VariableDeclaration vd:
+                            var vdList = CreateVariableDeclaration(vd);
+                            identifier = vdList.First().Expression;
+                            break;
+                    }
 
-                //IEnumerable<JSValue> v = null;
-                //var en = v.GetEnumerator();
-                //en.MoveNext()
+                    var sList = new List<Exp>();
 
-                var sList = new List<Exp>();
+                    sList.Add(Exp.IfThen(Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)));
+                    sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
+                    // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
+                    sList.Add(body);
 
-                sList.Add(Exp.IfThen( Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)));
-                sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
-                // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
-                sList.Add(body);
+                    var bodyList = Exp.Block(sList);
 
-                var bodyList = Exp.Block(sList);
-
-                var right = VisitExpression(forInStatement.Right);
-                return Exp.Block(
-                    pList,
-                    Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
-                    Exp.Loop(bodyList, s.Break, s.Continue)
-                    );
+                    var right = VisitExpression(forInStatement.Right);
+                    return Exp.Block(
+                        pList,
+                        Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
+                        Exp.Loop(bodyList, s.Break, s.Continue)
+                        );
+                });
             }
-            throw new NotImplementedException();
         }
 
         protected override Exp VisitDoWhileStatement(Esprima.Ast.DoWhileStatement doWhileStatement)
