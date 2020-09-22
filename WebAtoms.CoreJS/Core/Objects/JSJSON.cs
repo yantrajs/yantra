@@ -236,7 +236,7 @@ namespace WebAtoms.CoreJS.Core
         {
             if (!(value is JSObject jobj))
                 return value;
-            var p = jobj.GetInternalProperty(JSObject.KeyToJSON);
+            var p = jobj.GetInternalProperty(KeyStrings.toJSON);
             if (p.IsEmpty)
                 return value;
             return (jobj.GetValue(p) as JSFunction).f(value, JSArguments.Empty);

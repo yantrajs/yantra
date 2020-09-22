@@ -121,14 +121,23 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString Function;
         public readonly static KeyString Boolean;
         public readonly static KeyString Math;
-        public readonly static KeyString JSON;
         public readonly static KeyString Date;
         public readonly static KeyString Symbol;
         public readonly static KeyString Promise;
 
+        public readonly static KeyString JSON;
+        public readonly static KeyString toJSON;
+
         public readonly static KeyString RegExp;
         public readonly static KeyString test;
         public readonly static KeyString lastIndex;
+
+        public readonly static KeyString Error;
+        public readonly static KeyString message;
+        public readonly static KeyString stack;
+        public readonly static KeyString RangeError;
+        public readonly static KeyString SyntaxError;
+        public readonly static KeyString TypeError;
 
         public readonly static KeyString Map;
         public readonly static KeyString Set;
@@ -140,9 +149,14 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString name;
         public readonly static KeyString prototype;
         public readonly static KeyString constructor;
+        
         public readonly static KeyString configurable;
         public readonly static KeyString enumerable;
         public readonly static KeyString @readonly;
+        public readonly static KeyString writable;
+
+        public readonly static KeyString @assert;
+        
         public readonly static KeyString apply;
         public readonly static KeyString call;
         public readonly static KeyString bind;

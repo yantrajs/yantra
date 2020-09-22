@@ -32,18 +32,6 @@ namespace WebAtoms.CoreJS.Core
     [StructLayout(LayoutKind.Sequential)]
     public struct JSProperty
     {
-        public readonly static KeyString KeyWritable = "writable";
-
-        public readonly static KeyString KeyEnumerable = "enumerable";
-
-        public readonly static KeyString KeyConfigurable = "configurable";
-
-        public readonly static KeyString KeyValue = "value";
-
-        public readonly static KeyString KeyGet = "get";
-
-        public readonly static KeyString KeySet = "set";
-
         public JSPropertyAttributes Attributes;
 
         public KeyString key;

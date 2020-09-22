@@ -11,8 +11,6 @@ namespace WebAtoms.CoreJS.Utils
     public class JSTestContext: JSContext
     {
 
-        private static KeyString assert = KeyStrings.GetOrCreate("assert");
-
         public JSTestContext()
         {
             var a = new JSFunction((t, a1) => {
@@ -25,7 +23,7 @@ namespace WebAtoms.CoreJS.Utils
             });
             var prototype = Bootstrap.Create("Assert", typeof(JSAssert));
             a.prototypeChain = prototype.prototype;
-            this[assert] = a;
+            this[KeyStrings.assert] = a;
         }
 
     }

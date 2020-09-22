@@ -12,7 +12,6 @@ namespace WebAtoms.CoreJS.Core
     [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
     public partial class JSObject : JSValue
     {
-        public static readonly KeyString KeyToJSON = "toJSON";
 
         public override bool BooleanValue => true;
 

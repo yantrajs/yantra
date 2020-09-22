@@ -27,18 +27,18 @@ namespace WebAtoms.CoreJS.Extensions
             if (px.IsValue)
             {
                 obj = new JSObject(
-                    JSProperty.Property(JSProperty.KeyConfigurable, px.IsConfigurable ? t : f),
-                    JSProperty.Property(JSProperty.KeyEnumerable, px.IsEnumerable ? t : f),
-                    JSProperty.Property(JSProperty.KeyWritable, !px.IsReadOnly ? t : f),
-                    JSProperty.Property(JSProperty.KeyValue, px.value)
+                    JSProperty.Property(KeyStrings.configurable, px.IsConfigurable ? t : f),
+                    JSProperty.Property(KeyStrings.enumerable, px.IsEnumerable ? t : f),
+                    JSProperty.Property(KeyStrings.writable, !px.IsReadOnly ? t : f),
+                    JSProperty.Property(KeyStrings.value, px.value)
                     );
             } else
             {
                 obj = new JSObject(
-                    JSProperty.Property(JSProperty.KeyConfigurable, px.IsConfigurable ? t : f),
-                    JSProperty.Property(JSProperty.KeyEnumerable, px.IsEnumerable ? t : f),
-                    JSProperty.Property(JSProperty.KeyGet, px.get),
-                    JSProperty.Property(JSProperty.KeySet, px.set)
+                    JSProperty.Property(KeyStrings.configurable, px.IsConfigurable ? t : f),
+                    JSProperty.Property(KeyStrings.enumerable, px.IsEnumerable ? t : f),
+                    JSProperty.Property(KeyStrings.@get, px.get),
+                    JSProperty.Property(KeyStrings.@set, px.set)
                     );
             }
             return obj;
