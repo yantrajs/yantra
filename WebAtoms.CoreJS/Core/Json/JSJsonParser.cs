@@ -8,9 +8,16 @@ namespace WebAtoms.CoreJS.Core
 {
     internal static class JSJsonParser
     {
+        private static void Next(this JsonTextReader reader)
+        {
+            if (!reader.Read())
+                throw new InvalidOperationException("Invalid or empty json");
+        }
+
         public static JSValue Parse(string str, Func<JSValue, string, JSValue> r)
         {
             JsonTextReader reader = new JsonTextReader(new StringReader(str));
+            reader.Next();
             return Read(reader, r);
         }
         static JSValue ReadObject(JsonTextReader reader, Func<JSValue, string, JSValue> r)
@@ -25,6 +32,9 @@ namespace WebAtoms.CoreJS.Core
                         return j;
                     case JsonToken.PropertyName:
                         var name = (string)reader.Value;
+
+                        reader.Next();
+
                         var value = Read(reader, r);
                         j[name] = value;
                         break;
