@@ -21,7 +21,8 @@ namespace WebAtoms.CoreJS.Core
             throw JSContext.Current.NewTypeError(JSError.Parameter_is_not_an_object);
         }
 
-        internal static bool TryNonEmptyCastJSObject(this JSValue value, out JSObject @object)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool TryAsObjectThrowIfNullOrUndefined(this JSValue value, out JSObject @object)
         {
             if (value.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
@@ -32,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("create")]
         internal static JSValue StaticCreate(JSValue t,params JSValue[] a)
         {
-            var p = a[0];
+            var p = a.Get1();
             if (!(p is JSObject proto))
             {
                 if (!p.IsNull)
@@ -121,22 +122,18 @@ namespace WebAtoms.CoreJS.Core
         [Static("defineProperty")]
         internal static JSValue _DefineProperty(JSValue t,params JSValue[] a)
         {
-            if (!(a[0] is JSObject target))
+            var (target, key, desc) = a.Get3();
+            if (!(target is JSObject targetObject))
                 throw new JSException("Object.defineProperty called on non-object");
-            if (!(a[2] is JSObject pd))
+            if (!(desc is JSObject pd))
                 throw new JSException("Property Description must be an object");
-            var a1 = a[1];
-            switch(a1)
+            var k = key.ToKey();
+            if (!k.IsUInt)
             {
-                case JSNumber number:
-                    JSObject.InternalAddProperty(target, (uint)number.IntValue, pd);
-                    break;
-                case JSString @string:
-                    JSObject.InternalAddProperty(target, @string.value, pd);
-                    break;
-                default:
-                    JSObject.InternalAddProperty(target, a1.ToString(), pd);
-                    break;
+                JSObject.InternalAddProperty(targetObject, k, pd);
+            } else
+            {
+                JSObject.InternalAddProperty(targetObject, k.Key, pd);
             }
             return target;
         }
@@ -146,7 +143,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSValue _FromEntries(JSValue t,params JSValue[] a)
         {
-            var v = a[0];
+            var v = a.Get1();
             if (v.IsNullOrUndefined)
             {
                 throw JSContext.Current.NewTypeError(JSTypeError.NotIterable("undefined"));
@@ -196,7 +193,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("keys")]
         internal static JSValue _Keys(JSValue t,params JSValue[] a)
         {
-            var first = a[0];
+            var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
@@ -214,7 +211,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSValue _Seal(JSValue t,params JSValue[] a)
         {
-            var first = a[0];
+            var first = a.Get1();
             if (!(first is JSObject @object))
                 return first;
             @object.ownProperties.Update((x, v) =>
@@ -228,8 +225,8 @@ namespace WebAtoms.CoreJS.Core
         [Static("setPrototypeOf")]
         internal static JSValue _SetPrototypeOf(JSValue t,params JSValue[] a)
         {
-            var first = a[0];
-            if (!(first is JSObject @object))
+            var first = a.Get1();
+            if (!(first is JSObject))
                 return first;
             first.prototypeChain = a[1] as JSObject;
             return first;
@@ -238,7 +235,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("values")]
         internal static JSValue _Values(JSValue t,params JSValue[] a)
         {
-            var first = a[0];
+            var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
@@ -249,7 +246,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("getOwnPropertyDescriptor")]
         internal static JSValue _GetOwnPropertyDescriptor(JSValue t,params JSValue[] a)
         {
-            var first = a[0];
+            var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             return t;
@@ -258,7 +255,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("getOwnPropertyDescriptors")]
         internal static JSValue _GetOwnPropertyDescriptors(JSValue t,params JSValue[] a)
         {
-            var first = a[0];
+            var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
@@ -283,7 +280,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("getPrototypeOf")]
         internal static JSValue _GetPrototypeOf(JSValue t,params JSValue[] a)
         {
-            var target = a[0];
+            var target = a.Get1();
             var p = target.prototypeChain;
             return p;
         }

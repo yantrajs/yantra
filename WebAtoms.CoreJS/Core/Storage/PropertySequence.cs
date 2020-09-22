@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -31,6 +32,13 @@ namespace WebAtoms.CoreJS.Core
                 i++;
             }
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool HasKey (uint key)
+        {
+            return map.HasKey(key);
+        }
+
         public bool RemoveAt(uint key)
         {
             if (map.TryGetValue(key, out var pkey))

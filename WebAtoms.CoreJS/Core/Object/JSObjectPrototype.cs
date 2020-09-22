@@ -15,14 +15,14 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("propertyIsEnumerable")]
         public static JSValue PropertyIsEnumerable(JSValue t, params JSValue[] a)
         {
-            if(t.IsUndefined || t.IsNull)
+            if(!t.TryAsObjectThrowIfNullOrUndefined(out var @object))
             {
-                throw JSContext.Current.NewError("Cannot convert undefined or null to object");
+                return JSBoolean.False;
             }
             if (a.Length > 0)
             {
                 var text = a[0].ToString();
-                var px = ((JSObject)t).GetInternalProperty(text, false);
+                var px = @object.GetInternalProperty(text, false);
                 if (!px.IsEmpty && px.IsEnumerable)
                     return JSBoolean.True;
             }
@@ -32,6 +32,9 @@ namespace WebAtoms.CoreJS.Core
 
         [Prototype("toString")]
         public static JSValue ToString(JSValue t,params JSValue[] a) => new JSString("[object Object]");
+
+        // [Prototype("toLocaleString")]
+        // public static JSValue ToLocaleString(JSValue t, params JSValue[] a)
 
 
         [GetProperty("__proto__")]
@@ -54,13 +57,24 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("hasOwnProperty")]
         internal static JSValue HasOwnProperty(JSValue t,params JSValue[] a)
         {
-            return t;
+            if (!t.TryAsObjectThrowIfNullOrUndefined(out var @object))
+                return JSBoolean.False;
+            var first = a.Get1();
+            var key = first.ToKey();
+            if (key.IsUInt)
+            {
+                if (@object.elements?.HasKey(key.Key) ?? false)
+                    return JSBoolean.True;
+            }
+            if (@object.ownProperties?.HasKey(key.Key) ?? false)
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         [Prototype("isPrototypeOf")]
         internal static JSValue IsPrototypeOf(JSValue t,params JSValue[] a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
 

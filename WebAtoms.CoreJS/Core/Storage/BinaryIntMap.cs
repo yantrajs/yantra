@@ -102,6 +102,18 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool HasKey(TKey key)
+        {
+            ref var node = ref GetTrieNode(key);
+            if (node.HasValue)
+            {
+                return true;
+            }
+            return false;
+        }
+
+
         public bool RemoveAt(TKey key)
         {
             ref var node = ref GetTrieNode(key, false);
