@@ -89,6 +89,11 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString NaN;
         public readonly static KeyString @null;
 
+        public readonly static KeyString @global;
+
+        public readonly static KeyString Module;
+        public readonly static KeyString module;
+
 
         // global methods...
         public readonly static KeyString eval;
@@ -104,23 +109,27 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly static KeyString arguments;
 
+
+
         static KeyStrings()
         {
-
-            KeyString Create(string key)
+            lock (map)
             {
-                var i = NextID++;
-                var js = new KeyString(key, (uint)i);
-                map.Save(key, js);
-                return js;
-            }
-            var t = typeof(KeyString);
-            foreach(var f in typeof(KeyStrings)
-                .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
-            {
-                if (f.FieldType != t)
-                    continue;
-                f.SetValue(null, Create(f.Name));
+                KeyString Create(string key)
+                {
+                    var i = NextID++;
+                    var js = new KeyString(key, (uint)i);
+                    map.Save(key, js);
+                    return js;
+                }
+                var t = typeof(KeyString);
+                foreach (var f in typeof(KeyStrings)
+                    .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
+                {
+                    if (f.FieldType != t)
+                        continue;
+                    f.SetValue(null, Create(f.Name));
+                }
             }
         }
 

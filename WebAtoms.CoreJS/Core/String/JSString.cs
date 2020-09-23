@@ -18,6 +18,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => value.Length > 0;
 
+        public override bool IsString => true;
+
         internal override KeyString ToKey()
         {
             return _keyString.Value != null

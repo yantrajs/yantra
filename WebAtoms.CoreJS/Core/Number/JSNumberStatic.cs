@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
@@ -9,6 +10,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
     public class JSNumberStatic
     {
         [Static("isFinite")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsFinite(JSValue t, params JSValue[] a)
         {
             if (a[0] is JSNumber n)
@@ -20,6 +22,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Static("isInteger")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsInteger(JSValue t, params JSValue[] a)
         {
             if (a[0] is JSNumber n)
@@ -32,6 +35,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Static("isNaN")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsNaN(JSValue t, params JSValue[] a)
         {
             if (a[0] is JSNumber n)
@@ -55,7 +59,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Static("parseFloat")]
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue ParseFloat(JSValue t, params JSValue[] a)
         {
             var nan = JSNumber.NaN;
@@ -130,7 +134,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
 
         [Static("parseInt")]
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue ParseInt(JSValue t, params JSValue[] a)
         {
             var nan = JSNumber.NaN;
