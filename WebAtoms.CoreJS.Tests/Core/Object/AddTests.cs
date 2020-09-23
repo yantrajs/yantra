@@ -46,7 +46,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
         [TestMethod]
         public void Object()
         {
-            var obj = JSContext.Current.CreateObject();
+            var obj = new JSObject();
 
             Assert.AreEqual("[object Object]4", obj.AddValue(4).ToString());
 

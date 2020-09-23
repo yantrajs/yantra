@@ -135,41 +135,10 @@ namespace WebAtoms.CoreJS.Core
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 
-            Bootstrap.Fill(typeof(JSGlobalStatic), this);
+            this.Fill<JSGlobalStatic>();
         }
 
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
-
-
-        public JSObject CreateObject()
-        {
-            var v = new JSObject();
-            return v;
-        }
-
-        public JSValue CreateNumber(double n)
-        {
-            var v = new JSNumber(n);
-            return v;
-        }
-
-        public JSString CreateString(string value)
-        {
-            var v = new JSString(value);
-            return v;
-        }
-
-        public JSFunction CreateFunction(JSFunctionDelegate fx)
-        {
-            var v = new JSFunction(fx);
-            return v;
-        }
-
-        public JSArray CreateArray()
-        {
-            var v = new JSArray();
-            return v;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSException NewTypeError(string message)

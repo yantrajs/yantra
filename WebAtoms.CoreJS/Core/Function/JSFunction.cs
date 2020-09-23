@@ -56,8 +56,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue CreateInstance(JSValue[] args)
         {
-            var cx = JSContext.Current;
-            JSValue obj = cx.CreateObject();
+            JSValue obj = new JSObject();
             obj.prototypeChain = prototype;
             var r = f(obj, args);
             if (!r.IsUndefined)

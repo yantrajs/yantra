@@ -19,7 +19,7 @@ assert(a[1] === 'k', a[1]); ");
         [TestMethod]
         public void Substring()
         {
-            var js = context.CreateString("akash");
+            var js = new JSString("akash");
 
             Assert.AreEqual(5, js.Length);
 

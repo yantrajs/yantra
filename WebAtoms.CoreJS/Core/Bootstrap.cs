@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
@@ -12,7 +13,28 @@ namespace WebAtoms.CoreJS.Core
 
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
 
+        private static BinaryCharMap<PropertySequence> propertyCache = new BinaryCharMap<PropertySequence>();
 
+        public static void Fill<T>(this JSContext context)
+        {
+            var type = typeof(T);
+            var key = type.FullName;
+            var cached = propertyCache.GetOrCreate(key, () => { 
+                lock(propertyCache)
+                {
+                    return propertyCache.GetOrCreate(key, () => {
+                        var ps = new JSObject();
+                        Fill(type, ps);
+                        return ps.ownProperties;
+                    });
+                }
+            });
+
+            foreach(var pk in cached.AllValues())
+            {
+                context.ownProperties[pk.Key] = pk.Value;
+            }
+        }
         public static JSObject Create<T>(
             this JSContext context, 
             KeyString key, 

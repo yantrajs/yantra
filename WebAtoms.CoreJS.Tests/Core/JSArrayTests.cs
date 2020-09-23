@@ -15,7 +15,7 @@ namespace WebAtoms.CoreJS.Tests.Core
         [TestMethod]
         public void PushPop()
         {
-            JSValue a = context.CreateArray();
+            JSValue a = new JSArray();
             dynamic da = a;
             JSValue n = da.push(11, 22 ,44);
 
@@ -41,10 +41,10 @@ namespace WebAtoms.CoreJS.Tests.Core
         [TestMethod]
         public void Sparse()
         {
-            var a = context.CreateArray();
+            var a = new JSArray();
             a.Length = 20;
-            a[0] = context.CreateNumber(0);
-            a[5] = context.CreateNumber(4);
+            a[0] = new JSNumber(0);
+            a[5] = new JSNumber(4);
 
             var list = a.All.ToList();
             Assert.AreEqual(20, list.Count);
@@ -54,7 +54,7 @@ namespace WebAtoms.CoreJS.Tests.Core
             Assert.AreEqual(JSUndefined.Value, list[1]);
             Assert.AreEqual(JSUndefined.Value, list[19]);
 
-            a[25] = context.CreateNumber(22);
+            a[25] = new JSNumber(22);
 
             Assert.AreEqual(26, a.Length);
 
@@ -72,7 +72,7 @@ namespace WebAtoms.CoreJS.Tests.Core
         [TestMethod]
         public void SliceTest()
         {
-            var a = context.CreateArray();
+            var a = new JSArray();
         }
 
     }
