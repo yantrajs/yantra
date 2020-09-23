@@ -36,14 +36,25 @@ namespace WebAtoms.CoreJS.Core
             return "undefined";
         }
 
+        public override JSValue this[KeyString name] {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of undefined");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of undefined");
+        }
+
+        public override JSValue this[uint key]
+        {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
+        }
+
         public override JSValue Delete(KeyString key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of undefined");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
         public override JSValue Delete(uint key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of undefined");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
         public override JSBoolean Equals(JSValue value)

@@ -43,12 +43,24 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue Delete(KeyString key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of null");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
         public override JSValue Delete(uint key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of null");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+        }
+
+        public override JSValue this[KeyString name]
+        {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of null");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {name} of null");
+        }
+
+        public override JSValue this[uint key]
+        {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
         }
 
 
