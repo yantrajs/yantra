@@ -21,6 +21,8 @@ namespace WebAtoms.CoreJS.Core
         public static JSNumber Zero = new JSNumber(0d);
         public static JSNumber One = new JSNumber(1d);
         public static JSNumber Two = new JSNumber(2d);
+        public static JSNumber PositiveInfinity = new JSNumber(double.PositiveInfinity);
+        public static JSNumber NegativeInfinity = new JSNumber(double.NegativeInfinity);
 
 
         [Static("EPSILON")]
@@ -42,10 +44,10 @@ namespace WebAtoms.CoreJS.Core
         public static readonly double MinValue = double.MinValue;
 
         [Static("POSITIVE_INFINITY")]
-        public static readonly double PositiveInfinity = double.PositiveInfinity;
+        public static readonly double PositiveInfinity1 = double.PositiveInfinity;
 
         [Static("NEGATIVE_INFINITY")]
-        public static readonly double NegativeInfinity = double.NegativeInfinity;
+        public static readonly double NegativeInfinity1 = double.NegativeInfinity;
 
         public override bool IsNumber => true;
 

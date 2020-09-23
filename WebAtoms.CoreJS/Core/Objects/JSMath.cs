@@ -68,5 +68,18 @@ namespace WebAtoms.CoreJS.Core.Objects
             return new JSNumber( Math.Floor(number + 0.5));
         }
 
+        [Static("floor")]
+        public static JSValue Floor(JSValue t, JSValue[] args) {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            if (double.IsNaN(d))
+                return JSNumber.NaN;
+            if (double.IsPositiveInfinity(d))
+                return JSNumber.PositiveInfinity;
+            if (double.IsNegativeInfinity(d))
+                return JSNumber.NegativeInfinity;
+            return new JSNumber(Math.Floor(d));
+        }
+
     }
 }
