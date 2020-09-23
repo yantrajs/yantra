@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
             set
             {
                 position = value;
-                Console.WriteLine($"{value.Line}, {value.Column}");
+                // Console.WriteLine($"{value.Line}, {value.Column}");
             }
         }
 

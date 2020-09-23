@@ -274,14 +274,8 @@ namespace WebAtoms.CoreJS
                         throw new NotImplementedException();
                 }
 
-                foreach(var v in s.Variables)
-                {
-                    vList.Add(v.Variable);
-                    if (v.Init != null)
-                    {
-                        sList.Add(v.Init);
-                    }
-                }
+                vList.AddRange(s.VariableParameters);
+                sList.AddRange(s.InitList);
 
                 sList.Add(lambdaBody);
 

@@ -64,46 +64,9 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly JSObject WeakSetPrototype;
 
-        //public readonly JSFunction String;
-
-        //public readonly JSFunction Function;
-
-        //public readonly JSFunction Number;
-
-        //public readonly JSFunction Object;
-
-        //public readonly JSFunction Array;
-
-        //public readonly JSFunction Boolean;
-
-        //public readonly JSFunction Error;
-
-        //public readonly JSFunction RangeError;
-        
-        //public readonly JSFunction SyntaxError;
-
-        //public readonly JSFunction Date;
-
-        //public readonly JSFunction TypeError;
-
-        //public readonly JSFunction Promise;
-
-        //public readonly JSFunction RegExp;
-
-        //public readonly JSFunction WeakRef;
-
-        //internal readonly JSFunction WeakSet;
-        //internal readonly JSFunction WeakMap;
-
         public readonly JSObject JSON;
 
-        public readonly JSFunction Symbol;
-
         public readonly JSMath Math;
-
-        public readonly JSFunction Map;
-
-        public readonly JSFunction Set;
 
         public static JSContext Current
         {
@@ -171,6 +134,8 @@ namespace WebAtoms.CoreJS.Core
             WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
+
+
         }
 
         private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
