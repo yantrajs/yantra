@@ -6,4 +6,4 @@
     return AmdLoader;
 }());
 
-assert(AmdLoader.instance.name === "loader");
+assert.strictEqual(AmdLoader.instance.name,"loader");
