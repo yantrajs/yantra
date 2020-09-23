@@ -60,3 +60,11 @@ https://github.com/agileobjects/ReadableExpressions
 |Context Isolation              | Yes                 | No              | No                 |
 
 
+## Unit Testing
+
+1. `assert()`, This function will test if given value is true (that is not empty, not zero, not null and not undefined).
+2. `assert.strictEqual(left, right [,error])` checks if left is strictly equal to right, displays error if it does not match.
+3. `assert.notStrictEqual(left, right [,error])` checks if left is not strictly equal to right, displays error if it matches.
+4. `assert.throws(fn [, error] [, message])` executes given function and expects an error.
+5. `assert.matches(left, regex, [, error])` checks if left matches right regex, displays error if it does not match.
+6. `assert.doesNotMatch(left, regex, [, error])` checks if left matches right regex, displays error if it does not match.
