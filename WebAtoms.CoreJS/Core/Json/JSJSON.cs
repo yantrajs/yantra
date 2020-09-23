@@ -12,6 +12,8 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
+    public delegate JSValue JsonParserReceiver((string key, JSValue value) property);
+
     public class JSJSON: JSObject
     {
 
@@ -23,10 +25,10 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Parse(JSValue t,params JSValue[] a)
         {
             var (text, receiver) = a.Get2();
-            Func<JSValue, string, JSValue> r = null;
+            JsonParserReceiver r = null;
             if (receiver is JSFunction function)
             {
-                r = (o,k) => function.f(t, new JSValue[] { o, new JSString(k) });
+                r = (p) => function.f(t, new JSValue[] { new JSString(p.key), p.value });
             }
             return JSJsonParser.Parse(text.ToString(), r);
 

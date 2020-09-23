@@ -14,13 +14,13 @@ namespace WebAtoms.CoreJS.Core
                 throw new InvalidOperationException("Invalid or empty json");
         }
 
-        public static JSValue Parse(string str, Func<JSValue, string, JSValue> r)
+        public static JSValue Parse(string str, JsonParserReceiver r)
         {
             JsonTextReader reader = new JsonTextReader(new StringReader(str));
             reader.Next();
             return Read(reader, r);
         }
-        static JSValue ReadObject(JsonTextReader reader, Func<JSValue, string, JSValue> r)
+        static JSValue ReadObject(JsonTextReader reader, JsonParserReceiver r)
         {
             var j = new JSObject();
             // read properties...
@@ -36,6 +36,12 @@ namespace WebAtoms.CoreJS.Core
                         reader.Next();
 
                         var value = Read(reader, r);
+
+                        value = r?.Invoke((name, value)) ?? value;
+                        if (value.IsUndefined)
+                        {
+                            continue;
+                        }
                         j[name] = value;
                         break;
                     default:
@@ -44,7 +50,7 @@ namespace WebAtoms.CoreJS.Core
             }
             return j;
         }
-        static JSValue ReadArray(JsonTextReader reader, Func<JSValue, string, JSValue> r)
+        static JSValue ReadArray(JsonTextReader reader, JsonParserReceiver r)
         {
             var j = new JSArray();
             // read properties...
@@ -55,8 +61,8 @@ namespace WebAtoms.CoreJS.Core
             return j;
         }
         static JSValue Read(
-            JsonTextReader reader, 
-            Func<JSValue, string, JSValue> r)
+            JsonTextReader reader,
+            JsonParserReceiver r)
         {
             switch (reader.TokenType)
             {
