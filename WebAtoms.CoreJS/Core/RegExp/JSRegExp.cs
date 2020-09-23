@@ -147,5 +147,10 @@ namespace WebAtoms.CoreJS.Core
 
             return new Regex(pattern, options);
         }
+
+        public override string ToString()
+        {
+            return $"/{this.pattern}/{this.flags}";
+        }
     }
 }

@@ -11,8 +11,10 @@
     },
 };
 
-let cardPicker = deck.createCardPicker();
-let pickedCard = cardPicker();
-let result = "card: " + pickedCard.card + " of " + pickedCard.suit;
+assert.throws(() => {
+    let cardPicker = deck.createCardPicker();
+    let pickedCard = cardPicker();
+});
+// let result = "card: " + pickedCard.card + " of " + pickedCard.suit;
 
 //assert(result === "", result);
