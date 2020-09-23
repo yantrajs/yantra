@@ -21,30 +21,29 @@ namespace WebAtoms.CoreJS
     {
         public JSFunctionDelegate Method { get; }
 
-        private LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
+        readonly LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
         // private ParsedScript Code;
 
-        private string Code;
+        readonly string Code;
 
-        private ParameterExpression FileNameExpression;
+        readonly ParameterExpression FileNameExpression;
 
-        private Dictionary<string, ParameterExpression> keyStrings 
+        readonly Dictionary<string, ParameterExpression> keyStrings
             = new Dictionary<string, ParameterExpression>();
 
         public Exp KeyOfName(string name)
         {
-            ParameterExpression pe;
-            if (keyStrings.TryGetValue(name, out pe))
+            if (keyStrings.TryGetValue(name, out ParameterExpression pe))
                 return pe;
             pe = Exp.Variable(typeof(KeyString), name);
             keyStrings.Add(name, pe);
             return pe;
         }
 
-        private static ConcurrentDictionary<string, JSFunctionDelegate> scripts 
+        static readonly ConcurrentDictionary<string, JSFunctionDelegate> scripts
             = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
         internal static JSFunctionDelegate Compile(string code, string location = null, string[] args = null)
@@ -595,8 +594,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitExpression(Expression expression)
         {
-            var r = expression.Range;
-            var p = expression.Location.Start ;//  this.Code.Position(r);
+            var p = expression.Location.Start ;
             try
             {
                 return base.VisitExpression(expression);
@@ -682,12 +680,13 @@ namespace WebAtoms.CoreJS
                             break;
                     }
 
-                    var sList = new List<Exp>();
-
-                    sList.Add(Exp.IfThen(Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)));
-                    sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
-                    // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
-                    sList.Add(body);
+                    var sList = new List<Exp>
+                    {
+                        Exp.IfThen(Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)),
+                        Exp.Assign(identifier, EnumerableBuilder.Current(en)),
+                        // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
+                        body
+                    };
 
                     var bodyList = Exp.Block(sList);
 
@@ -757,11 +756,10 @@ namespace WebAtoms.CoreJS
                 case UnaryOperator.Delete:
                     // delete expression...
                     var me = target as Esprima.Ast.MemberExpression;
-                    Exp pe = null;
                     var targetObj = VisitExpression(me.Object);
                     if (me.Computed)
                     {
-                        pe = VisitExpression(me.Property);
+                        Exp pe = VisitExpression(me.Property);
                         return JSValueBuilder.Delete(targetObj, pe);
                     } else
                     {
@@ -874,8 +872,7 @@ namespace WebAtoms.CoreJS
                 }
                 if (p.Kind == PropertyKind.Get || p.Kind == PropertyKind.Set)
                 {
-                    ExpressionHolder m = null;
-                    if (!properties.TryGetValue(name, out m))
+                    if (!properties.TryGetValue(name, out var m))
                     {
                         m = new ExpressionHolder { };
                         properties[name] = m;

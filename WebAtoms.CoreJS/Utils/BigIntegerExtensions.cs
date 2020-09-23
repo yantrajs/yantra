@@ -51,5 +51,6 @@ namespace WebAtoms.CoreJS.Utils
         {
             return value << shift;
         }
+
     }
 }
