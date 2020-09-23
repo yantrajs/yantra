@@ -14,6 +14,6 @@ var aInScope = null;
 
 var aOutside = a;
 
-assert(aInFunction === "b");
-assert(aOutside === "a");
-assert(aInScope === "c");
+assert.strictEqual("b", aInFunction);
+assert.strictEqual("a", aOutside);
+assert.strictEqual("c", aInScope);

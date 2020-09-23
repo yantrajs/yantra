@@ -9,5 +9,5 @@ var aInFunction = null;
 
 var aOutside = a;
 
-assert(aInFunction === "b");
-assert(aOutside === "a");
+assert.strictEqual("b", aInFunction);
+assert.strictEqual("a" , aOutside);

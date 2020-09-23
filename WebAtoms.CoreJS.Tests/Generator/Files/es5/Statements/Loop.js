@@ -5,7 +5,7 @@
         a++;
         b += a;
     }
-    assert(b === "2345678910", b);
+    assert.strictEqual("2345678910", b);
 })();
 (function () {
     var a = 1;
@@ -14,5 +14,5 @@
         b += a;
         a++;
     }
-    assert(b === "12345678910", b);
+    assert.strictEqual("12345678910", b);
 })()

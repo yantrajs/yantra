@@ -2,7 +2,7 @@
 Object.defineProperty(a, "b", {
     value: 1
 });
-assert(a.b === 1);
+assert.strictEqual(a.b, 1);
 
 var n = 1;
 
@@ -12,11 +12,11 @@ Object.defineProperty(a, "c", {
         return n;
     }
 });
-assert(a.c === 1);
+assert.strictEqual(a.c, 1);
 
 n = 2;
 
-assert(a.c === 2);
+assert.strictEqual(a.c, 2);
 Object.defineProperty(a, "c", {
     set: function (v) {
         n = v;
@@ -27,5 +27,5 @@ Object.defineProperty(a, "c", {
 });
 
 a.c = 4;
-assert(n === 4);
-assert(a.c === 4);
+assert.strictEqual(n, 4);
+assert.strictEqual(a.c, 4);

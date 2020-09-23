@@ -1,6 +1,6 @@
-﻿assert(("nul" < null) === false);
+﻿assert.strictEqual(false, ("nul" < null));
 
-assert(("nul" < 0) === false);
+assert.strictEqual(false, ("nul" < 0));
 
 assert(("nul" > "0"));
 

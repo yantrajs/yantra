@@ -3,6 +3,6 @@ var source = { b: 4, c: 5 };
 
 var returnedTarget = Object.assign(target, source);
 
-assert(returnedTarget.a === 1);
-assert(returnedTarget.b === 4);
-assert(returnedTarget.c === 5);
+assert.strictEqual(returnedTarget.a, 1);
+assert.strictEqual(returnedTarget.b, 4);
+assert.strictEqual(returnedTarget.c, 5);

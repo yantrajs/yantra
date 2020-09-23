@@ -2,11 +2,11 @@
     b: 3
 };
 
-assert(a.b === 3);
+assert.strictEqual(a.b, 3);
 
 var c = {
-    get c(n) {
-        return "c";
+    get c() {
+        return "d";
     }
 };
-assert(c.c === "c", "c.c is " + a.c);
+assert.strictEqual(c.c, "d");

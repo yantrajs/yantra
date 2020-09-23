@@ -4,10 +4,10 @@ assert((false && {}) === false);
 
 assert((0 && {}) === 0);
 
-assert(typeof (0 || {}) === "object");
+assert.strictEqual(typeof (0 || {}), "object");
 
-assert(typeof (1 && {}) === "object");
+assert.strictEqual(typeof (1 && {}), "object");
 
-assert((1 && null) === null);
+assert.strictEqual((1 && null), null);
 
-assert((1 || null) === 1);
+assert.strictEqual((1 || null), 1);

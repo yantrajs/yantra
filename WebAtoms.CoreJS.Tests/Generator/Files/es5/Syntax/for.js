@@ -6,4 +6,4 @@
     return s;
 }
 
-assert(a(3) === "012", a(3));
+assert.strictEqual("012", a(3));
