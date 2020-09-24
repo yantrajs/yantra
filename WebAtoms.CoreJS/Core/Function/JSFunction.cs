@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Core
     public partial class JSFunction : JSObject
     {
 
-        internal static JSFunctionDelegate empty = (_, __) => _;
+        internal static JSFunctionDelegate empty = (a) => a.This;
 
         internal readonly JSObject prototype;
 
@@ -54,11 +54,11 @@ namespace WebAtoms.CoreJS.Core
             return this.source;
         }
 
-        public override JSValue CreateInstance(JSValue[] args)
+        public override JSValue CreateInstance(Arguments a)
         {
             JSValue obj = new JSObject();
             obj.prototypeChain = prototype;
-            var r = f(obj, args);
+            var r = f(a);
             if (!r.IsUndefined)
                 return r;
             return obj;

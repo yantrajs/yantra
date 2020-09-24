@@ -224,12 +224,12 @@ namespace WebAtoms.CoreJS.Core {
         }
 
 
-        public virtual JSValue CreateInstance(JSValue[] args)
+        public virtual JSValue CreateInstance(Arguments a)
         {
             throw new NotImplementedException();
         }
 
-        public abstract JSValue InvokeFunction(JSValue thisValue,params JSValue[] args);
+        public abstract JSValue InvokeFunction(Arguments a);
 
         /// <summary>
         /// Warning do not use in concatenation
