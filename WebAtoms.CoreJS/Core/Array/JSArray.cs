@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSArray(): base(JSContext.Current.ArrayPrototype)
         {
-            elements = new BinaryUInt32Map<JSProperty>();
+            elements = new UInt32Trie<JSProperty>();
         }
 
         public JSArray(params JSValue[] items): this((IEnumerable<JSValue>)items)
@@ -60,7 +60,7 @@ namespace WebAtoms.CoreJS.Core
                 }
                 if (this._length <= name)
                     this._length = name + 1;
-                elements = elements ?? (elements = new BinaryUInt32Map<JSProperty>());
+                elements = elements ?? (elements = new UInt32Trie<JSProperty>());
                 elements[name] = JSProperty.Property(value);
             }
         }

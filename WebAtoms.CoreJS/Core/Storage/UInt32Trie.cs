@@ -1,18 +1,53 @@
-﻿using System;
+﻿using Esprima.Ast;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using WebAtoms.CoreJS.Core.Storage;
 
 namespace WebAtoms.CoreJS.Core
 {
+    internal enum TrieNodeState : byte
+    {
+        HasValue = 1,
+        HasIndex = 2,
+        HasDefaultValue = 4,
+        Null = 0xff
+    }
 
-    internal class ConcurrentUIntTrie<T>: ConcurrentBaseMap<uint, T>
+
+    internal class UInt32Trie<T>: BaseMap<uint, T>
     {
 
-        public ConcurrentUIntTrie(): base(4,8)
+        public UInt32Trie(): base(4, 16)
         {
+        }
 
+
+        protected override IEnumerable<(uint Key, T Value, uint index)> Enumerate(UInt32 index)
+        {
+            var last = index + this.size;
+            for (UInt32 i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                if (node.HasValue)
+                {
+                    yield return (node.Key, node.Value, i);
+                }
+            }
+            for (UInt32 i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                if (!node.HasIndex)
+                {
+                    continue;
+                }
+                var fi = node.FirstChildIndex;
+                foreach (var a in Enumerate(fi)) yield return a;
+            }
         }
 
         protected override ref TrieNode GetTrieNode(uint key, bool create = false)
@@ -20,7 +55,7 @@ namespace WebAtoms.CoreJS.Core
             ref var node = ref TrieNode.Empty;
 
             // only case for zero...
-            if (key == 0)
+            if(key == 0)
             {
                 return ref Buffer[0];
             }
@@ -41,15 +76,14 @@ namespace WebAtoms.CoreJS.Core
             start = 0x3;
             uint index = uint.MaxValue;
             // incremenet of two bits...
-            for (i = 0; i <= last; i += 2)
+            for (i = 0; i <= last; i+=2)
             {
                 byte bk = (byte)((key & start) >> i);
                 if (index == uint.MaxValue)
                 {
                     node = ref Buffer[bk];
                     index = bk;
-                }
-                else
+                } else
                 {
                     if (!node.HasIndex)
                     {

@@ -1,17 +1,12 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Data;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using WebAtoms.CoreJS.Core.Storage;
 
 namespace WebAtoms.CoreJS.Core
 {
-    internal abstract class BaseMap<TKey, TValue>: IBitTrie<TKey, TValue, BaseMap<TKey,TValue>.TrieNode>
-        where TKey: IComparable<TKey>
+    internal abstract class BaseMap<TKey, TValue> : IBitTrie<TKey, TValue, BaseMap<TKey, TValue>.TrieNode>
+        where TKey : IComparable<TKey>
     {
         protected TrieNode[] Buffer;
 
@@ -48,8 +43,9 @@ namespace WebAtoms.CoreJS.Core
 
         public IEnumerable<(TKey Key, TValue Value)> AllValues
         {
-            get {
-                foreach (var (k,v, _) in Enumerate(0))
+            get
+            {
+                foreach (var (k, v, _) in Enumerate(0))
                 {
                     yield return (k, v);
                 }
@@ -87,7 +83,7 @@ namespace WebAtoms.CoreJS.Core
 
         public bool TryGetKeyOf(TValue value, out TKey key)
         {
-            foreach(var (k, v, _) in Enumerate(0))
+            foreach (var (k, v, _) in Enumerate(0))
             {
                 if (v.Equals(value))
                 {
@@ -101,7 +97,7 @@ namespace WebAtoms.CoreJS.Core
 
         public bool RemoveValue(TValue value)
         {
-            foreach(var (_,v,i) in Enumerate(0))
+            foreach (var (_, v, i) in Enumerate(0))
             {
                 if (v.Equals(value))
                 {
@@ -269,13 +265,13 @@ namespace WebAtoms.CoreJS.Core
                 get => this._Value;
             }
 
-            
+
             public bool HasIndex
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return (State &  TrieNodeState.HasIndex) > 0;
+                    return (State & TrieNodeState.HasIndex) > 0;
                 }
             }
 
@@ -284,7 +280,7 @@ namespace WebAtoms.CoreJS.Core
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
-                    return State !=  TrieNodeState.Null && (State & TrieNodeState.HasValue) > 0;
+                    return State != TrieNodeState.Null && (State & TrieNodeState.HasValue) > 0;
                 }
             }
 
@@ -304,136 +300,5 @@ namespace WebAtoms.CoreJS.Core
             }
 
         }
-    }
-
-    internal enum TrieNodeState : byte
-    {
-        HasValue = 1,
-        HasIndex = 2,
-        HasDefaultValue = 4,
-        Null = 0xff
-    }
-
-    internal static class ByteEnumerableExtensions {
-
-        public static IEnumerable<byte> ToBytes(this UInt32 input)
-        {
-            yield return (byte)((input & (UInt32)0xFF000000) >> 24);
-            yield return (byte)((input & (UInt32)0xFF0000) >> 16);
-            yield return (byte)((input & (UInt32)0xFF00) >> 8);
-            yield return (byte)((input & (UInt32)0xFF));
-        }
-
-    }
-
-    internal class BinaryUInt32Map<T>: BinaryByteMap<T>
-    {
-        //public T this [UInt32 index]
-        //{
-        //    get
-        //    {
-        //        if (this.TryGetValue(index.ToBytes(), out var t))
-        //            return t;
-        //        return default;
-        //    }
-        //    set
-        //    {
-        //        this.Save(index.ToBytes(), value);
-        //    }
-        //}
-    }
-
-    internal class BinaryByteMap<T>: BaseMap<uint, T>
-    {
-
-        public BinaryByteMap(): base(4, 16)
-        {
-        }
-
-
-        protected override IEnumerable<(uint Key, T Value, uint index)> Enumerate(UInt32 index)
-        {
-            var last = index + this.size;
-            for (UInt32 i = index; i < last; i++)
-            {
-                var node = Buffer[i];
-                if (node.HasValue)
-                {
-                    yield return (node.Key, node.Value, i);
-                }
-            }
-            for (UInt32 i = index; i < last; i++)
-            {
-                var node = Buffer[i];
-                if (!node.HasIndex)
-                {
-                    continue;
-                }
-                var fi = node.FirstChildIndex;
-                foreach (var a in Enumerate(fi)) yield return a;
-            }
-        }
-
-        protected override ref TrieNode GetTrieNode(uint key, bool create = false)
-        {
-            ref var node = ref TrieNode.Empty;
-
-            // only case for zero...
-            if(key == 0)
-            {
-                return ref Buffer[0];
-            }
-
-            UInt32 start = 0xc0000000;
-            Int32 i;
-            for (i = 30; i >= 0; i -= 2)
-            {
-                byte bk = (byte)((key & start) >> i);
-                if (bk == 0)
-                {
-                    start = start >> 2;
-                    continue;
-                }
-                break;
-            }
-            var last = i;
-            start = 0x3;
-            uint index = uint.MaxValue;
-            // incremenet of two bits...
-            for (i = 0; i <= last; i+=2)
-            {
-                byte bk = (byte)((key & start) >> i);
-                if (index == uint.MaxValue)
-                {
-                    node = ref Buffer[bk];
-                    index = bk;
-                } else
-                {
-                    if (!node.HasIndex)
-                    {
-                        if (!create)
-                        {
-                            return ref TrieNode.Empty;
-                        }
-
-                        var position = next;
-                        next += this.size;
-                        this.EnsureCapacity(next);
-                        Buffer[index].UpdateIndex(position);
-                        index = position + bk;
-                        node = ref Buffer[index];
-                    }
-                    else
-                    {
-                        index = node.FirstChildIndex + bk;
-                        node = ref Buffer[index];
-                    }
-                }
-                start = start << 2;
-            }
-
-            return ref node;
-        }
-
     }
 }

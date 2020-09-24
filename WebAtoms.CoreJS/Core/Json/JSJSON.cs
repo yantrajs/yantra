@@ -75,13 +75,13 @@ namespace WebAtoms.CoreJS.Core
                 } else if (r is JSArray ra)
                 {
 
-                    BinaryCharMap<int> map = null;
+                    StringTrie<int> map = null;
                     
                     replacer = (item) =>
                     {
                         if (map == null)
                         {
-                            map = new BinaryCharMap<int>();
+                            map = new StringTrie<int>();
                             foreach (var ritem in ra.All)
                             {
                                 map[ritem.ToString()] = 1;

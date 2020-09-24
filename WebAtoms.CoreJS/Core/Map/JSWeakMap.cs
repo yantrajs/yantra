@@ -14,8 +14,8 @@ namespace WebAtoms.CoreJS.Core
     public partial class JSWeakMap: JSObject
     {
 
-        private BinaryCharMap<(WeakReference<JSValue> key, JSValue value)>
-            items = new BinaryCharMap<(WeakReference<JSValue> key, JSValue value)>();
+        private StringTrie<(WeakReference<JSValue> key, JSValue value)>
+            items = new StringTrie<(WeakReference<JSValue> key, JSValue value)>();
 
         public JSWeakMap(): base(JSContext.Current.WeakMapPrototype)
         {

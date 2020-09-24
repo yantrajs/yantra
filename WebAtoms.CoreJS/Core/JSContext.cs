@@ -135,7 +135,7 @@ namespace WebAtoms.CoreJS.Core
             this.Fill<JSGlobalStatic>();
         }
 
-        private static ConcurrentUIntTrie<JSFunction> cache = new ConcurrentUIntTrie<JSFunction>();
+        private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSException NewTypeError(string message)

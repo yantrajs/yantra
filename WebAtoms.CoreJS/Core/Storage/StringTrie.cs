@@ -1,22 +1,25 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using WebAtoms.CoreJS.Core.Storage;
 
 [assembly: InternalsVisibleTo("WebAtoms.CoreJS.Tests")]
-namespace WebAtoms.CoreJS.Core
-{
-    internal class ConcurrentCharMap<T> : ConcurrentBaseMap<string, T>
+namespace WebAtoms.CoreJS.Core {
+
+    internal class CharMapValue<T>
+    {
+        public string Key;
+        public T Value;
+    }
+
+    internal class StringTrie<T>: BaseMap<string, T>
     {
 
-        public ConcurrentCharMap() : base(4, 1024)
+        public StringTrie(): base(4, 1024)
         {
 
         }
-
-        public ConcurrentCharMap(uint size) : base(4, size)
-        {
-
-        }
-
 
         int bitSize = 2;
         uint bitBig = 0xC000;
@@ -25,7 +28,26 @@ namespace WebAtoms.CoreJS.Core
 
         public int Total = 0;
 
-        public int Size => Buffer.Length;
+        public int Size => Buffer.Length;        
+
+        protected override IEnumerable<(string Key, T Value, UInt32 index)> Enumerate(UInt32 index)
+        {
+            var last = index + this.size;
+            for (UInt32 i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                var fi = node.FirstChildIndex;
+                if (node.HasValue)
+                {
+                    yield return (node.Key, node.Value, i);
+                }
+                if (!node.HasIndex)
+                {
+                    continue;
+                }
+                foreach (var a in Enumerate(fi)) yield return a;
+            }
+        }
 
         protected override ref TrieNode GetTrieNode(string keyString, bool create = false)
         {
@@ -79,13 +101,7 @@ namespace WebAtoms.CoreJS.Core
                                 var dirty = node.Value;
                                 var old = node.Key;
                                 node.UpdateDefaultValue(keyString, default);
-                                // this.Save(old, dirty);
-                                // node.Update(old, dirty);
-
-                                // need to save without lock...
-                                ref var newNode = ref GetTrieNode(old, true);
-                                newNode.Update(old, dirty);
-
+                                this.Save(old, dirty);
                                 return ref node;
                             }
                         }

@@ -8,7 +8,7 @@ namespace WebAtoms.CoreJS.Core
     public class PropertySequence
     {
 
-        private BinaryUInt32Map<int> map = new BinaryUInt32Map<int>();
+        private UInt32Trie<int> map = new UInt32Trie<int>();
         private List<JSProperty> properties = new List<JSProperty>();
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()

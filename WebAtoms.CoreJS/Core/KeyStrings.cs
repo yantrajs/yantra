@@ -133,7 +133,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        private static ConcurrentCharMap<KeyString> map = new ConcurrentCharMap<KeyString>();
+        private static ConcurrentStringTrie<KeyString> map = new ConcurrentStringTrie<KeyString>();
 
         private static int NextID = 1;
 

@@ -11,10 +11,10 @@ namespace WebAtoms.CoreJS.Core
     internal static class Bootstrap
     {
 
-        private static ConcurrentUIntTrie<JSFunction> cache = new ConcurrentUIntTrie<JSFunction>();
+        private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
 
-        private static ConcurrentCharMap<PropertySequence> propertyCache
-            = new ConcurrentCharMap<PropertySequence>(64);
+        private static ConcurrentStringTrie<PropertySequence> propertyCache
+            = new ConcurrentStringTrie<PropertySequence>(64);
 
         public static void Fill<T>(this JSContext context)
         {

@@ -10,8 +10,8 @@ namespace WebAtoms.CoreJS.Core.Set
     public partial class JSWeakSet : JSObject
     {
 
-        private BinaryCharMap<WeakReference<JSValue>>
-            items = new BinaryCharMap<WeakReference<JSValue>>();
+        private StringTrie<WeakReference<JSValue>>
+            items = new StringTrie<WeakReference<JSValue>>();
 
         public JSWeakSet() : base(JSContext.Current.WeakSetPrototype)
         {

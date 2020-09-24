@@ -6,7 +6,7 @@ using WebAtoms.CoreJS.Core.Storage;
 
 namespace WebAtoms.CoreJS.Core
 {
-    internal abstract class ConcurrentBaseMap<TKey, T> : IBitTrie<TKey, T, ConcurrentBaseMap<TKey, T>.TrieNode>
+    internal abstract class ConcurrentTrie<TKey, T> : IBitTrie<TKey, T, ConcurrentTrie<TKey, T>.TrieNode>
     {
 
         #region Struct TrieNode
@@ -140,7 +140,7 @@ namespace WebAtoms.CoreJS.Core
             set => Save(key, value);
         }
 
-        public ConcurrentBaseMap(uint size, uint grow)
+        public ConcurrentTrie(uint size, uint grow)
         {
             this.size = size;
             this.next = size;
