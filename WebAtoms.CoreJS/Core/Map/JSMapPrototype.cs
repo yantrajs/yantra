@@ -36,7 +36,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 var m = ToMap(t);
                 m.entries.Clear();
-                m.cache = new BinaryCharMap<LinkedListNode<(JSValue key, JSValue value)>>();
+                m.cache = new StringTrie<LinkedListNode<(JSValue key, JSValue value)>>();
                 return JSUndefined.Value;
             }
 

@@ -14,7 +14,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
         [TestMethod]
         public void CharMap()
         {
-            var a = new BinaryCharMap<int>();
+            var a = new StringTrie<int>();
 
             a["a"] = 1;
             a["b"] = 2;
@@ -37,7 +37,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
         [TestMethod]
         public void BigMap()
         {
-            var a = new BinaryCharMap<int>();
+            var a = new StringTrie<int>();
             a["toString"] = 1;
             a["constructor"] = 2;
             a["push"] = 3;
@@ -47,7 +47,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
         [TestMethod]
         public void IntMap()
         {
-            var a = new BinaryUInt32Map<int>();
+            var a = new UInt32Trie<int>();
 
             a[1] = 1;
             a[3] = 2;

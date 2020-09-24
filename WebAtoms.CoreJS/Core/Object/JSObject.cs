@@ -54,7 +54,7 @@ namespace WebAtoms.CoreJS.Core
             return KeyStrings.GetOrCreate(this.ToString());
         }
 
-        internal BinaryUInt32Map<JSProperty> elements;
+        internal UInt32Trie<JSProperty> elements;
         internal PropertySequence ownProperties;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -114,7 +114,7 @@ namespace WebAtoms.CoreJS.Core
                     }
                     return;
                 }
-                elements = elements ?? (elements = new BinaryUInt32Map<JSProperty>());
+                elements = elements ?? (elements = new UInt32Trie<JSProperty>());
                 elements[name] = JSProperty.Property(value);
             }
         }
@@ -274,7 +274,7 @@ namespace WebAtoms.CoreJS.Core
                 p.value = value;
             }
             p.Attributes = pt;
-            var elements = target.elements ?? (target.elements = new BinaryUInt32Map<JSProperty>());
+            var elements = target.elements ?? (target.elements = new UInt32Trie<JSProperty>());
             elements[key] = p;
             if (target is JSArray array)
             {

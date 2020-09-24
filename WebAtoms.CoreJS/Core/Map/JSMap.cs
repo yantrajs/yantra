@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Core
     {
 
         private LinkedList<(JSValue key,JSValue value)> entries = new LinkedList<(JSValue,JSValue)>();
-        private BinaryCharMap<LinkedListNode<(JSValue key,JSValue value)>> cache = new BinaryCharMap<LinkedListNode<(JSValue, JSValue)>>();
+        private StringTrie<LinkedListNode<(JSValue key,JSValue value)>> cache = new StringTrie<LinkedListNode<(JSValue, JSValue)>>();
 
         public JSMap(): base(JSContext.Current.MapPrototype)
         {

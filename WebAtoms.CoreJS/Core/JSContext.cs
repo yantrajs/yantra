@@ -96,10 +96,7 @@ namespace WebAtoms.CoreJS.Core
                 var r = Activator.CreateInstance<T>();
                 r.ownProperties = new PropertySequence();
                 var cached = cache.GetOrCreate(name.Key, () => { 
-                    lock(cache)
-                    {
-                        return Bootstrap.Create(name, typeof(T));
-                    }
+                    return Bootstrap.Create(name, typeof(T));
                 });
 
                 ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
@@ -138,7 +135,7 @@ namespace WebAtoms.CoreJS.Core
             this.Fill<JSGlobalStatic>();
         }
 
-        private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
+        private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSException NewTypeError(string message)
