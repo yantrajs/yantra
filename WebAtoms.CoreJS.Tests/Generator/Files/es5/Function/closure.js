@@ -34,3 +34,5 @@ let pickedCard = cardPicker();
 assert(pickedCard.card);
 assert(pickedCard.suit);
 
+assert.match(pickedCard.card + " of " + pickedCard.suit, /\d+\sof\s\w+/i);
+

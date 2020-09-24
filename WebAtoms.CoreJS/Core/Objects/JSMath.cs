@@ -68,6 +68,14 @@ namespace WebAtoms.CoreJS.Core.Objects
             return new JSNumber( Math.Floor(number + 0.5));
         }
 
+        /// <summary>
+        /// We do not want to recreate new objects for standard known constants. 
+        /// Hence, we ned to check and return already existing constants.
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         [Static("floor")]
         public static JSValue Floor(JSValue t, JSValue[] args) {
             var first = args.Get1();
