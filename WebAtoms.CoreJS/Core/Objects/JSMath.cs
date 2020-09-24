@@ -78,7 +78,8 @@ namespace WebAtoms.CoreJS.Core.Objects
                 return JSNumber.PositiveInfinity;
             if (double.IsNegativeInfinity(d))
                 return JSNumber.NegativeInfinity;
-            return new JSNumber(Math.Floor(d));
+            var r = new JSNumber(Math.Floor(d));
+            return r;
         }
 
     }

@@ -65,8 +65,6 @@ namespace WebAtoms.CoreJS.Utils
             try
             {
                 left.InvokeFunction(t);
-                var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Function fn did not throw any error";
-                throw new JSException(msg);
             }
             catch (Exception ex)
             {
@@ -75,12 +73,14 @@ namespace WebAtoms.CoreJS.Utils
                     var errorText = error.ToString();
                     if (errorText != ex.Message)
                     {
-                        var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Error was expected {errorText} but received {ex.Message}";
-                        throw new JSException(msg);
+                        var msg1 = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Error was expected {errorText} but received {ex.Message}";
+                        throw new JSException(msg1);
                     }
                 }
+                return JSUndefined.Value;
             }
-            return JSUndefined.Value;
+            var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Function fn did not throw any error";
+            throw new JSException(msg);
         }
 
         [Prototype("fail")]

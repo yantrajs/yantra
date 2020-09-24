@@ -327,19 +327,19 @@ namespace WebAtoms.CoreJS
             where T: INode
             where TR: Exp
         {
-            // return exp();
-            var s = this.scope.Top.Scope;
-            var p = ast.Location.Start;
-            try
-            {
-                return Exp.Block(
-                    LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
-                    exp());
-            }
-            catch (Exception ex) when (!(ex is CompilerException))
-            {
-                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
-            }
+            return exp();
+            //var s = this.scope.Top.Scope;
+            //var p = ast.Location.Start;
+            //try
+            //{
+            //    return Exp.Block(
+            //        LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
+            //        exp());
+            //}
+            //catch (Exception ex) when (!(ex is CompilerException))
+            //{
+            //    throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+            //}
         }
 
         protected override Exp VisitStatement(Statement statement)
@@ -920,7 +920,7 @@ namespace WebAtoms.CoreJS
                     }
                     return ExpHelper.JSValueBuilder.Index(
                         VisitExpression(memberExpression.Object),
-                        KeyOfName(id.Name));
+                        VisitIdentifier(id));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.BooleanLiteral:
                     return ExpHelper.JSValueBuilder.Index(
@@ -1201,8 +1201,9 @@ namespace WebAtoms.CoreJS
                 return JSValueBuilder.InvokeMethod(obj, name, paramArray);
 
             } else {
-                var a = ExpHelper.JSNullBuilder.Value;
-                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(VisitExpression(callExpression.Callee), a, paramArray));
+                var a = ExpHelper.JSUndefinedBuilder.Value;
+                var callee = VisitExpression(callExpression.Callee);
+                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(callee, a, paramArray));
             }
         }
 
