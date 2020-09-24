@@ -8,7 +8,7 @@ namespace WebAtoms.CoreJS.Core.Storage
 {
     internal interface IBitTrie<TKey, TValue, TNode>
     {
-
+        long Count { get; }
         void Save(TKey key, TValue value);
 
         TValue GetOrCreate(TKey key, Func<TValue> value);

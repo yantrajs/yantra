@@ -6,7 +6,7 @@ using WebAtoms.CoreJS.Core.Storage;
 
 namespace WebAtoms.CoreJS.Core
 {
-    internal class ConcurrentBinaryByteMap<T> : IBitTrie<uint, T, BinaryByteMap<T>.TrieNode>
+    internal abstract class ConcurrentBaseMap<TKey, T> : IBitTrie<TKey, T, ConcurrentBaseMap<TKey, T>.TrieNode>
     {
 
         #region Struct TrieNode
@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
                 this.State |= TrieNodeState.HasIndex;
             }
 
-            public void Update(uint key, T value)
+            public void Update(TKey key, T value)
             {
                 if (State == TrieNodeState.Null)
                     throw new InvalidOperationException();
@@ -54,7 +54,7 @@ namespace WebAtoms.CoreJS.Core
                 this._Value = value;
             }
 
-            public void UpdateDefaultValue(uint key, T value)
+            public void UpdateDefaultValue(TKey key, T value)
             {
                 if (State == TrieNodeState.Null)
                     throw new InvalidOperationException();
@@ -63,7 +63,7 @@ namespace WebAtoms.CoreJS.Core
                 this._Value = value;
             }
 
-            public uint Key;
+            public TKey Key;
 
             public T Value
             {
@@ -109,13 +109,15 @@ namespace WebAtoms.CoreJS.Core
 
         private ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim();
 
-        private UInt32 next = 4;
-        private UInt32 size = 4;
-        private UInt32 grow = 16;
+        protected UInt32 next;
+        protected readonly UInt32 size;
+        protected readonly uint grow;
 
-        private TrieNode[] Buffer;
+        protected TrieNode[] Buffer;
 
-        public IEnumerable<(uint Key, T Value)> AllValues
+        public long Count => throw new NotImplementedException();
+
+        public IEnumerable<(TKey Key, T Value)> AllValues
         {
             get
             {
@@ -126,7 +128,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public T this[uint key]
+        public T this[TKey key]
         {
             get
             {
@@ -138,12 +140,15 @@ namespace WebAtoms.CoreJS.Core
             set => Save(key, value);
         }
 
-        public ConcurrentBinaryByteMap()
+        public ConcurrentBaseMap(uint size, uint grow)
         {
+            this.size = size;
+            this.next = size;
+            this.grow = grow;
             Buffer = new TrieNode[grow];
         }
 
-        public int Update(Func<UInt32, T, (bool replace, T value)> update)
+        public int Update(Func<TKey, T, (bool replace, T value)> update)
         {
             try
             {
@@ -156,7 +161,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        private int Update(Func<UInt32, T, (bool replace, T value)> update, UInt32 index)
+        protected int Update(Func<TKey, T, (bool replace, T value)> update, UInt32 index)
         {
             int count = 0;
             var last = index + this.size;
@@ -186,7 +191,7 @@ namespace WebAtoms.CoreJS.Core
             return count;
         }
 
-        protected IEnumerable<(uint key, T value)> Enumerate(UInt32 index)
+        protected IEnumerable<(TKey key, T value)> Enumerate(UInt32 index)
         {
             var last = index + this.size;
             for (UInt32 i = index; i < last; i++)
@@ -209,69 +214,9 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        ref TrieNode GetTrieNode(uint key, bool create = false)
-        {
-            ref var node = ref TrieNode.Empty;
+        protected abstract ref TrieNode GetTrieNode(TKey key, bool create = false);
 
-            // only case for zero...
-            if (key == 0)
-            {
-                return ref Buffer[0];
-            }
-
-            UInt32 start = 0xc0000000;
-            Int32 i;
-            for (i = 30; i >= 0; i -= 2)
-            {
-                byte bk = (byte)((key & start) >> i);
-                if (bk == 0)
-                {
-                    start = start >> 2;
-                    continue;
-                }
-                break;
-            }
-            var last = i;
-            start = 0x3;
-            uint index = uint.MaxValue;
-            // incremenet of two bits...
-            for (i = 0; i <= last; i += 2)
-            {
-                byte bk = (byte)((key & start) >> i);
-                if (index == uint.MaxValue)
-                {
-                    node = ref Buffer[bk];
-                    index = bk;
-                }
-                else
-                {
-                    if (!node.HasIndex)
-                    {
-                        if (!create)
-                        {
-                            return ref TrieNode.Empty;
-                        }
-
-                        var position = next;
-                        next += this.size;
-                        this.EnsureCapacity(next);
-                        Buffer[index].UpdateIndex(position);
-                        index = position + bk;
-                        node = ref Buffer[index];
-                    }
-                    else
-                    {
-                        index = node.FirstChildIndex + bk;
-                        node = ref Buffer[index];
-                    }
-                }
-                start = start << 2;
-            }
-
-            return ref node;
-        }
-
-        void EnsureCapacity(UInt32 i1)
+        protected void EnsureCapacity(UInt32 i1)
         {
             if (this.Buffer.Length <= i1)
             {
@@ -282,7 +227,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public void Save(uint key, T value)
+        public void Save(TKey key, T value)
         {
             lockSlim.EnterWriteLock();
             ref var node = ref GetTrieNode(key, true);
@@ -290,7 +235,7 @@ namespace WebAtoms.CoreJS.Core
             lockSlim.ExitWriteLock();
         }
 
-        public T GetOrCreate(uint key, Func<T> value)
+        public T GetOrCreate(TKey key, Func<T> value)
         {
             try
             {
@@ -303,13 +248,14 @@ namespace WebAtoms.CoreJS.Core
                 node.Update(key, r);
                 lockSlim.ExitWriteLock();
                 return r;
-            } finally
-            {                
+            }
+            finally
+            {
                 lockSlim.ExitUpgradeableReadLock();
             }
         }
 
-        public bool TryGetValue(uint key, out T value)
+        public bool TryGetValue(TKey key, out T value)
         {
             lockSlim.EnterReadLock();
             ref var node = ref GetTrieNode(key, false);
@@ -324,7 +270,7 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
-        public bool RemoveAt(uint key)
+        public bool RemoveAt(TKey key)
         {
             lockSlim.EnterUpgradeableReadLock();
             ref var node = ref GetTrieNode(key, false);
@@ -340,7 +286,7 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
-        public bool HasKey(uint key)
+        public bool HasKey(TKey key)
         {
             lockSlim.EnterReadLock();
             ref var node = ref GetTrieNode(key, false);
@@ -349,7 +295,7 @@ namespace WebAtoms.CoreJS.Core
             return b;
         }
 
-        public bool TryRemove(uint key, out T value)
+        public bool TryRemove(TKey key, out T value)
         {
             lockSlim.EnterUpgradeableReadLock();
             ref var node = ref GetTrieNode(key, false);

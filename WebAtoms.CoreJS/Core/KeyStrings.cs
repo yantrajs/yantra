@@ -133,7 +133,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        private static BinaryCharMap<KeyString> map = new BinaryCharMap<KeyString>();
+        private static ConcurrentCharMap<KeyString> map = new ConcurrentCharMap<KeyString>();
 
         private static int NextID = 1;
 
@@ -145,13 +145,8 @@ namespace WebAtoms.CoreJS.Core
         {
             return map.GetOrCreate(key, () =>
             {
-                lock (map)
-                {
-                    return map.GetOrCreate(key, () => {
-                        var i = (uint)Interlocked.Increment(ref NextID);
-                        return new KeyString(key, i);
-                    });
-                }
+                var i = (uint)Interlocked.Increment(ref NextID);
+                return new KeyString(key, i);
             });
         }
 

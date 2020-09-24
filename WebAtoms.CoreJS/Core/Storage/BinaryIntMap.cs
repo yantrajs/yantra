@@ -10,14 +10,26 @@ using WebAtoms.CoreJS.Core.Storage;
 
 namespace WebAtoms.CoreJS.Core
 {
-    internal abstract class BaseMap<TKey, TValue>
+    internal abstract class BaseMap<TKey, TValue>: IBitTrie<TKey, TValue, BaseMap<TKey,TValue>.TrieNode>
         where TKey: IComparable<TKey>
     {
         protected TrieNode[] Buffer;
 
         private long count;
 
+        protected uint size;
+        protected uint next;
+        protected readonly uint grow;
+
         public long Count => count;
+
+        public BaseMap(uint size, uint grow)
+        {
+            this.size = size;
+            this.next = size;
+            this.grow = grow;
+            Buffer = new TrieNode[grow];
+        }
 
 
         public TValue this[TKey input]
@@ -37,16 +49,41 @@ namespace WebAtoms.CoreJS.Core
         public IEnumerable<(TKey Key, TValue Value)> AllValues
         {
             get {
-                foreach (var a in Enumerate(0))
+                foreach (var (k,v, _) in Enumerate(0))
                 {
-                    yield return (a.key, a.value);
+                    yield return (k, v);
                 }
             }
         }
 
-        protected abstract IEnumerable<(TKey key, TValue value, UInt32 index)> Enumerate(UInt32 index);
+        protected abstract IEnumerable<(TKey Key, TValue Value, UInt32 index)> Enumerate(UInt32 index);
 
-        public abstract int Update(Func<TKey, TValue, (bool replace, TValue value)> update, UInt32 start = 0);
+        protected int Update(Func<TKey, TValue, (bool replace, TValue value)> update, UInt32 index = 0)
+        {
+            int count = 0;
+            var last = index + this.size;
+            for (uint i = index; i < last; i++)
+            {
+                var node = Buffer[i];
+                var fi = node.FirstChildIndex;
+                if (node.HasValue)
+                {
+                    var uv = update(node.Key, node.Value);
+                    if (uv.replace)
+                    {
+                        node.Update(node.Key, uv.value);
+                        count++;
+                    }
+                    continue;
+                }
+                if (!node.HasIndex)
+                {
+                    continue;
+                }
+                count += Update(update, fi);
+            }
+            return count;
+        }
 
         public bool TryGetKeyOf(TValue value, out TKey key)
         {
@@ -154,6 +191,22 @@ namespace WebAtoms.CoreJS.Core
                 count++;
             }
             node.Update(key, value);
+        }
+
+        public int Update(Func<TKey, TValue, (bool replace, TValue value)> func)
+        {
+            return Update(func, default);
+        }
+
+        protected void EnsureCapacity(UInt32 i1)
+        {
+            if (this.Buffer.Length <= i1)
+            {
+                // add 16  more...
+                var b = new TrieNode[i1 + grow];
+                Array.Copy(this.Buffer, b, this.Buffer.Length);
+                this.Buffer = b;
+            }
         }
 
 
@@ -290,163 +343,15 @@ namespace WebAtoms.CoreJS.Core
         //}
     }
 
-    internal class BinaryByteMap<T>: IBitTrie<uint,T, BinaryByteMap<T>.TrieNode>
+    internal class BinaryByteMap<T>: BaseMap<uint, T>
     {
 
-        #region Struct TrieNode
-
-        internal struct TrieNode
+        public BinaryByteMap(): base(4, 16)
         {
-
-            internal static TrieNode Empty = new TrieNode
-            {
-                State = TrieNodeState.Null
-            };
-
-            public bool IsNull
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return this.State == TrieNodeState.Null;
-                }
-            }
-
-            private TrieNodeState State;
-
-            /// <summary>
-            /// Index to next node set...
-            /// </summary>
-            public UInt32 FirstChildIndex;
-
-            private T _Value;
-
-            public void UpdateIndex(UInt32 index)
-            {
-                if (State == TrieNodeState.Null)
-                    throw new InvalidOperationException();
-                this.FirstChildIndex = index;
-                this.State |= TrieNodeState.HasIndex;
-            }
-
-            public void Update(uint key, T value)
-            {
-                if (State == TrieNodeState.Null)
-                    throw new InvalidOperationException();
-                this.Key = key;
-                this.State |= TrieNodeState.HasValue;
-                this._Value = value;
-            }
-
-            public void UpdateDefaultValue(uint key, T value)
-            {
-                if (State == TrieNodeState.Null)
-                    throw new InvalidOperationException();
-                this.Key = key;
-                this.State = (this.State & TrieNodeState.HasIndex) | TrieNodeState.HasDefaultValue;
-                this._Value = value;
-            }
-
-            public uint Key;
-
-            public T Value
-            {
-                get => this._Value;
-            }
-
-
-            public bool HasIndex
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return (State & TrieNodeState.HasIndex) > 0;
-                }
-            }
-
-            public bool HasValue
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return State != TrieNodeState.Null && (State & TrieNodeState.HasValue) > 0;
-                }
-            }
-
-            public bool HasDefaultValue
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return State != TrieNodeState.Null && (State & TrieNodeState.HasDefaultValue) > 0;
-                }
-            }
-
-
-            public void ClearValue()
-            {
-                this.State &= TrieNodeState.HasIndex;
-            }
-
-        }
-        #endregion
-
-
-        private UInt32 next = 4;
-        private UInt32 size = 4;
-        private UInt32 grow = 16;
-
-        private TrieNode[] Buffer;
-
-        public IEnumerable<(uint Key, T Value)> AllValues => Enumerate(0);
-
-        public T this[uint key] {
-            get
-            {
-                ref var n = ref GetTrieNode(key);
-                if (n.HasValue)
-                    return n.Value;
-                return default;
-            }
-            set => Save(key, value);
         }
 
-        public BinaryByteMap()
-        {
-            Buffer = new TrieNode[grow];
-        }
 
-        public int Update(Func<UInt32, T, (bool replace, T value)> update) => Update(update, 0);
-
-        private int Update(Func<UInt32, T, (bool replace,T value)> update, UInt32 index = 0)
-        {
-            int count = 0;
-            var last = index + this.size;
-            for (uint i = index; i < last; i++)
-            {
-                var node = Buffer[i];
-                var fi = node.FirstChildIndex;
-                if (node.HasValue)
-                {
-                    var uv = update(node.Key, node.Value);
-                    if (uv.replace)
-                    {
-                        Buffer[i].Update(node.Key, uv.value);
-                        count++;
-                        continue;
-                    }
-                    continue;
-                }
-                if (!node.HasIndex)
-                {
-                    continue;
-                }
-                count += Update(update, fi);
-            }
-            return count;
-        }
-
-        protected IEnumerable<(uint key, T value)> Enumerate(UInt32 index)
+        protected override IEnumerable<(uint Key, T Value, uint index)> Enumerate(UInt32 index)
         {
             var last = index + this.size;
             for (UInt32 i = index; i < last; i++)
@@ -454,7 +359,7 @@ namespace WebAtoms.CoreJS.Core
                 var node = Buffer[i];
                 if (node.HasValue)
                 {
-                    yield return (node.Key, node.Value);
+                    yield return (node.Key, node.Value, i);
                 }
             }
             for (UInt32 i = index; i < last; i++)
@@ -469,7 +374,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        ref TrieNode GetTrieNode(uint key, bool create = false)
+        protected override ref TrieNode GetTrieNode(uint key, bool create = false)
         {
             ref var node = ref TrieNode.Empty;
 
@@ -528,79 +433,6 @@ namespace WebAtoms.CoreJS.Core
             }
 
             return ref node;
-        }
-
-        void EnsureCapacity(UInt32 i1)
-        {
-            if (this.Buffer.Length <= i1)
-            {
-                // add 16  more...
-                var b = new TrieNode[i1 + grow];
-                Array.Copy(this.Buffer, b, this.Buffer.Length);
-                this.Buffer = b;
-            }
-        }
-
-        public void Save(uint key, T value)
-        {
-            ref var node = ref GetTrieNode(key, true);
-            if (node.IsNull)
-                throw new KeyNotFoundException();
-            node.Update(key, value);
-        }
-
-        public T GetOrCreate(uint key, Func<T> value)
-        {
-            ref var node = ref GetTrieNode(key, true);
-            if (node.IsNull)
-                throw new KeyNotFoundException();
-            if (node.HasValue)
-                return node.Value;
-            var r = value();
-            node.Update(key, r);
-            return r;
-        }
-
-        public bool TryGetValue(uint key, out T value)
-        {
-            ref var node = ref GetTrieNode(key, false);
-            if (node.HasValue)
-            {
-                value = node.Value;
-                return true;
-            }
-            value = default;
-            return false;
-        }
-
-        public bool RemoveAt(uint key)
-        {
-            ref var node = ref GetTrieNode(key, false);
-            if (node.HasValue)
-            {
-                node.ClearValue();
-                return true;
-            }
-            return false;
-        }
-
-        public bool HasKey(uint key)
-        {
-            ref var node = ref GetTrieNode(key, false);
-            return node.HasValue;
-        }
-
-        public bool TryRemove(uint key, out T value)
-        {
-            ref var node = ref GetTrieNode(key, false);
-            if (node.HasValue)
-            {
-                value = node.Value;
-                node.ClearValue();
-                return true;
-            }
-            value = default;
-            return false;
         }
 
     }

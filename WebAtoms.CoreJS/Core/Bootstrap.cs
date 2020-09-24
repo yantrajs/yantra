@@ -11,83 +11,78 @@ namespace WebAtoms.CoreJS.Core
     internal static class Bootstrap
     {
 
-        private static BinaryUInt32Map<JSFunction> cache = new BinaryUInt32Map<JSFunction>();
+        private static ConcurrentUIntTrie<JSFunction> cache = new ConcurrentUIntTrie<JSFunction>();
 
-        private static BinaryCharMap<PropertySequence> propertyCache = new BinaryCharMap<PropertySequence>();
+        private static ConcurrentCharMap<PropertySequence> propertyCache
+            = new ConcurrentCharMap<PropertySequence>(64);
 
         public static void Fill<T>(this JSContext context)
         {
             var type = typeof(T);
             var key = type.FullName;
-            var cached = propertyCache.GetOrCreate(key, () => { 
-                lock(propertyCache)
-                {
-                    return propertyCache.GetOrCreate(key, () => {
-                        var ps = new JSObject();
-                        Fill(type, ps);
-                        return ps.ownProperties;
-                    });
-                }
+            var cached = propertyCache.GetOrCreate(key, () =>
+            {
+                var ps = new JSObject();
+                Fill(type, ps);
+                return ps.ownProperties;
             });
 
-            foreach(var pk in cached.AllValues())
+            foreach (var pk in cached.AllValues())
             {
                 context.ownProperties[pk.Key] = pk.Value;
             }
         }
+
         public static JSObject Create<T>(
             this JSContext context, 
             KeyString key, 
             JSObject chain = null)
         {
-            lock (cache)
+            var jsf = cache.GetOrCreate(key.Key, () =>
             {
-                var jsf = cache.GetOrCreate(key.Key, () =>
+                var type = typeof(T);
+                JSFunction r = Create(key, type);
+
+                var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
+                if (rt != null)
                 {
-                    var type = typeof(T);
-                    JSFunction r = Create(key, type);
 
-                    var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
-                    if (rt != null)
+
+                    var cx = Fill(rt.StaticType, r);
+                    if (cx != null && r.f == JSFunction.empty)
                     {
-
-
-                        var cx = Fill(rt.StaticType, r);
-                        if (cx != null && r.f == JSFunction.empty)
-                        {
-                            r.f = cx;
-                        }
-
-                        cx = Fill(rt.Prototype, r.prototype);
-                        if (cx != null && r.f == JSFunction.empty)
-                        {
-                            r.f = cx;
-                        }
+                        r.f = cx;
                     }
 
-                    return r;
-                });
-
-                var copy = new JSFunction(jsf.f, key.ToString());
-                var target = copy.prototype.ownProperties;
-                foreach (var p in jsf.prototype.ownProperties.AllValues())
-                {
-                    target[p.Key] = p.Value;
-                }
-                var ro = copy.ownProperties;
-                foreach (var p in jsf.ownProperties.AllValues())
-                {
-                    /// this is the case when we do not
-                    /// want to overwrite Function.prototype
-                    if (p.Key != KeyStrings.prototype.Key)
+                    cx = Fill(rt.Prototype, r.prototype);
+                    if (cx != null && r.f == JSFunction.empty)
                     {
-                        ro[p.Key] = p.Value;
+                        r.f = cx;
                     }
                 }
-                context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
-                copy.prototypeChain = chain ?? context.ObjectPrototype;
-                return copy.prototype;
+
+                return r;
+            });
+
+            var copy = new JSFunction(jsf.f, key.ToString());
+            var target = copy.prototype.ownProperties;
+            foreach (var p in jsf.prototype.ownProperties.AllValues())
+            {
+                target[p.Key] = p.Value;
             }
+            var ro = copy.ownProperties;
+            foreach (var p in jsf.ownProperties.AllValues())
+            {
+                /// this is the case when we do not
+                /// want to overwrite Function.prototype
+                if (p.Key != KeyStrings.prototype.Key)
+                {
+                    ro[p.Key] = p.Value;
+                }
+            }
+            context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
+            copy.prototypeChain = chain ?? context.ObjectPrototype;
+            return copy.prototype;
         }
 
         #region Fill
