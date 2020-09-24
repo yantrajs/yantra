@@ -33,13 +33,6 @@ namespace WebAtoms.CoreJS.Core.Objects
         [Static(nameof(SQRT2))]
         public static double SQRT2 = Math.Sqrt(2);
 
-        [Static("abs")]
-        public static JSValue Abs(JSValue t, JSValue[] args)
-        {
-            return new JSNumber(Math.Abs(t.DoubleValue));
-        }
-             
-
         [Static("random")]
         public static JSValue Random(JSValue t, JSValue[] args)
         {
@@ -87,6 +80,42 @@ namespace WebAtoms.CoreJS.Core.Objects
             if (double.IsNegativeInfinity(d))
                 return JSNumber.NegativeInfinity;
             var r = new JSNumber(Math.Floor(d));
+            return r;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("acos")]
+        public static JSValue Acos(JSValue t, JSValue[] args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            if (double.IsNaN(d))
+                return JSNumber.NaN;
+            if (double.IsPositiveInfinity(d))
+                return JSNumber.PositiveInfinity;
+            if (double.IsNegativeInfinity(d))
+                return JSNumber.NegativeInfinity;
+            var r = new JSNumber(Math.Acos(d));
+            return r;
+        }
+
+        [Static("abs")]
+        public static JSValue Abs(JSValue t, JSValue[] args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            if (double.IsNaN(d))
+                return JSNumber.NaN;
+            if (double.IsPositiveInfinity(d))
+                return JSNumber.PositiveInfinity;
+            if (double.IsNegativeInfinity(d))
+                return JSNumber.NegativeInfinity;
+            var r = new JSNumber(Math.Abs(d));
             return r;
         }
 
