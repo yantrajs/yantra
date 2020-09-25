@@ -4,7 +4,7 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public struct Arguments
+    public readonly struct Arguments
     {
 
         public static Arguments Empty = new Arguments { };
@@ -13,19 +13,19 @@ namespace WebAtoms.CoreJS.Core
 
         private const int MinArray = 5;
 
-        private int length;
+        private readonly int length;
 
-        public JSValue This;
+        public readonly JSValue This;
 
-        private JSValue Arg0;
+        private readonly JSValue Arg0;
 
-        private JSValue Arg1;
+        private readonly JSValue Arg1;
 
-        private JSValue Arg2;
+        private readonly JSValue Arg2;
 
-        private JSValue Arg3;
+        private readonly JSValue Arg3;
 
-        private JSValue[] Args;
+        private readonly JSValue[] Args;
 
         public Arguments CopyForCall()
         {
