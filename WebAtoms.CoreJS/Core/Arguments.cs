@@ -145,17 +145,19 @@ namespace WebAtoms.CoreJS.Core
             };
         }
 
-        public static Arguments New(JSValue @this, JSValue[] args)
+        public Arguments(JSValue @this, JSValue[] args)
         {
             if (args.Length < MinArray)
             {
                 throw new InvalidOperationException();
             }
-            return new Arguments { 
-                This = @this,
-                length = args.Length,
-                Args = args
-            };
+            This = @this;
+            length = args.Length;
+            Arg0 = null;
+            Arg1 = null;
+            Arg2 = null;
+            Arg3 = null;
+            Args = args;
         }
 
         public JSValue Get1()
