@@ -158,5 +158,36 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = new JSNumber(Math.Log(d + Math.Sqrt(d * d + 1.0)));
             return r;
         }
+
+        [Static("atan")]
+        public static JSValue Atan(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Atan(d));
+            return r;
+        }
+
+        [Static("atan2")]
+        public static JSValue Atan2(in Arguments args)
+        {
+            var (first, second) = args.Get2();
+            var d1 = first.DoubleValue;
+            var d2 = second.DoubleValue;
+
+            if (double.IsInfinity(d1) || double.IsInfinity(d2))
+            {
+                if (double.IsPositiveInfinity(d1) && double.IsPositiveInfinity(d2))
+                    return new JSNumber(Math.PI / 4.0);
+                if (double.IsPositiveInfinity(d1) && double.IsNegativeInfinity(d2))
+                    return new JSNumber(3.0 * Math.PI / 4.0);
+                if (double.IsNegativeInfinity(d1) && double.IsPositiveInfinity(d2))
+                    return new JSNumber(-Math.PI / 4.0);
+                if (double.IsNegativeInfinity(d1) && double.IsNegativeInfinity(d2))
+                    return new JSNumber(-3.0 * Math.PI / 4.0);
+            }
+            var r = new JSNumber(Math.Atan2(d1,d2));
+            return r;
+        }
     }
 }
