@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -45,6 +46,41 @@ namespace WebAtoms.CoreJS.Core
             }
             return JSBoolean.True;
         }
+
+        [Prototype("copyWithIn")]
+        public static JSValue CopyWithIn(in Arguments a)
+        {
+            var array = a.This;
+            if (array.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            var len = array.Length;
+
+            var (target, start, end) = a.Get3();
+
+            var relativeTarget = target.IntValue;
+
+            var to = relativeTarget < 0
+                ? Math.Max(len + relativeTarget, 0)
+                : Math.Min(relativeTarget, len);
+
+            var relativeStart = start.IntValue;
+
+            var from = relativeStart < 0
+                ? Math.Max(len + relativeStart, 0)
+                : Math.Min(relativeStart, len);
+
+            var relativeEnd = end.IsUndefined ? len : end.IntValue;
+
+            var final = relativeEnd < 0
+                ? Math.Max(len + relativeEnd, 0)
+                : Math.Min(relativeEnd, len);
+
+            var count = Math.Min(final - from, len - to);
+
+
+            throw new NotImplementedException();
+        }
+
 
         [Prototype("push")]
         public static JSValue Push(in Arguments a)
