@@ -81,6 +81,67 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException();
         }
 
+        [Prototype("filter")]
+        public static JSValue Filter(in Arguments a)
+        {
+            var @this = a.This;
+            var callback = a.Get1();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
+            var r = new JSArray();
+            int i = 0;
+            foreach(var item in @this.AllElements)
+            {
+                var itemParams = new Arguments(@this, item, new JSNumber(i++), @this);
+                if (fn.f(itemParams).BooleanValue)
+                {
+                    r.Add(item);
+                }
+            }
+            return r;
+        }
+
+        [Prototype("find")]
+        public static JSValue Find(in Arguments a)
+        {
+            var @this = a.This;
+            var callback = a.Get1();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            int i = 0;
+            foreach (var item in @this.AllElements)
+            {
+                var itemParams = new Arguments(@this, item, new JSNumber(i++), @this);
+                if (fn.f(itemParams).BooleanValue)
+                {
+                    return item;
+                }
+            }
+            return JSUndefined.Value;
+
+        }
+
+
+        [Prototype("findIndex")]
+        public static JSValue FindIndex(in Arguments a)
+        {
+            var @this = a.This;
+            var callback = a.Get1();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            int i = 0;
+            foreach (var item in @this.AllElements)
+            {
+                var n = new JSNumber(i++);
+                var itemParams = new Arguments(@this, item, n, @this);
+                if (fn.f(itemParams).BooleanValue)
+                {
+                    return n;
+                }
+            }
+            return JSUndefined.Value;
+
+        }
 
         [Prototype("push")]
         public static JSValue Push(in Arguments a)
