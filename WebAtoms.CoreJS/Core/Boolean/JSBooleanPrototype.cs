@@ -9,9 +9,9 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] args)
+        public static JSValue Constructor(in Arguments a)
         {
-            var first = args.GetAt(0);
+            var first = a.Get1();
             return first.BooleanValue ? JSBoolean.True : JSBoolean.False;
         }
 

@@ -12,7 +12,7 @@ namespace WebAtoms.CoreJS.Core
         internal static class JSMapPrototype
         {
             [Constructor]
-            public static JSValue Constructor(JSValue t, JSValue[] args)
+            public static JSValue Constructor(in Arguments a)
             {
                 return new JSMap();
             }
@@ -26,24 +26,24 @@ namespace WebAtoms.CoreJS.Core
 
 
             [GetProperty("size")]
-            public static JSValue GetSize(JSValue t, JSValue[] a)
+            public static JSValue GetSize(in Arguments a)
             {
-                return new JSNumber(ToMap(t).entries.Count);
+                return new JSNumber(ToMap(a.This).entries.Count);
             }
 
             [Prototype("clear")]
-            public static JSValue Clear(JSValue t, JSValue[] a)
+            public static JSValue Clear(in Arguments a)
             {
-                var m = ToMap(t);
+                var m = ToMap(a.This);
                 m.entries.Clear();
                 m.cache = new StringTrie<LinkedListNode<(JSValue key, JSValue value)>>();
                 return JSUndefined.Value;
             }
 
             [Prototype("delete")]
-            public static JSValue Delete(JSValue t, JSValue[] a)
+            public static JSValue Delete(in Arguments a)
             {
-                var m = ToMap(t);
+                var m = ToMap(a.This);
                 var key = a.Get1().ToUniqueID();
                 if(m.cache.TryRemove(key, out var e))
                 {
@@ -54,31 +54,31 @@ namespace WebAtoms.CoreJS.Core
 
 
             [Prototype("entries")]
-            public static JSValue Entries(JSValue t, JSValue[] a)
+            public static JSValue Entries(in Arguments a)
             {
-                return new JSArray(ToMap(t).entries.Select(x => new JSArray(x.key, x.value)));
+                return new JSArray(ToMap(a.This).entries.Select(x => new JSArray(x.key, x.value)));
             }
 
 
             [Prototype("forEach")]
-            public static JSValue ForEach(JSValue t, JSValue[] a)
+            public static JSValue ForEach(in Arguments a)
             {
-                var fx = a.GetAt(0);
+                var fx = a.Get1();
                 if (!fx.IsFunction)
                     throw JSContext.Current.NewTypeError($"Function parameter expected");
-                var m = ToMap(t);
+                var m = ToMap(a.This);
                 foreach (var e in m.entries)
                 {
-                    fx.InvokeFunction(new Arguments(t, e.value, e.key, m));
+                    fx.InvokeFunction(new Arguments(a.This, e.value, e.key, m));
                 }
                 return JSUndefined.Value;
             }
 
             [Prototype("get")]
-            public static JSValue Get(JSValue t, JSValue[] a)
+            public static JSValue Get(in Arguments a)
             {
-                var first = a.GetAt(0);
-                var m = ToMap(t);
+                var first = a.Get1();
+                var m = ToMap(a.This);
                 var key = first.ToUniqueID();
                 if (m.cache.TryGetValue(key, out var e))
                     return e.Value.value;
@@ -86,10 +86,10 @@ namespace WebAtoms.CoreJS.Core
             }
 
             [Prototype("has")]
-            public static JSValue Has(JSValue t, JSValue[] a)
+            public static JSValue Has(in Arguments a)
             {
-                var first = a.GetAt(0);
-                var m = ToMap(t);
+                var first = a.Get1();
+                var m = ToMap(a.This);
                 var key = first.ToUniqueID();
                 if (m.cache.TryGetValue(key, out var _))
                     return JSBoolean.True;
@@ -97,18 +97,17 @@ namespace WebAtoms.CoreJS.Core
             }
 
             [Prototype("keys")]
-            public static JSValue Keys(JSValue t, JSValue[] a)
+            public static JSValue Keys(in Arguments a)
             {
-                return new JSArray(ToMap(t).entries.Select(x => x.key));
+                return new JSArray(ToMap(a.This).entries.Select(x => x.key));
             }
 
 
             [Prototype("set")]
-            public static JSValue Set(JSValue t, JSValue[] a)
+            public static JSValue Set(in Arguments a)
             {
-                var m = ToMap(t);
-                var first = a.GetAt(0);
-                var second = a.GetAt(1);
+                var m = ToMap(a.This);
+                var (first, second) = a.Get2();
                 var key = first.ToUniqueID();
                 if(m.cache.TryGetValue(key, out var entry))
                 {
@@ -120,9 +119,9 @@ namespace WebAtoms.CoreJS.Core
             }
 
             [Prototype("values")]
-            public static JSValue Values(JSValue t, JSValue[] a)
+            public static JSValue Values(in Arguments a)
             {
-                return new JSArray(ToMap(t).entries.Select(x => x.value));
+                return new JSArray(ToMap(a.This).entries.Select(x => x.value));
             }
         }
     }

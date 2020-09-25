@@ -13,15 +13,15 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Prototype("propertyIsEnumerable")]
-        public static JSValue PropertyIsEnumerable(JSValue t, params JSValue[] a)
+        public static JSValue PropertyIsEnumerable(in Arguments a)
         {
-            if(!t.TryAsObjectThrowIfNullOrUndefined(out var @object))
+            if(!a.This.TryAsObjectThrowIfNullOrUndefined(out var @object))
             {
                 return JSBoolean.False;
             }
             if (a.Length > 0)
             {
-                var text = a[0].ToString();
+                var text = a.Get1().ToString();
                 var px = @object.GetInternalProperty(text, false);
                 if (!px.IsEmpty && px.IsEnumerable)
                     return JSBoolean.True;
@@ -31,33 +31,33 @@ namespace WebAtoms.CoreJS.Core
 
 
         [Prototype("toString")]
-        public static JSValue ToString(JSValue t,params JSValue[] a) => new JSString("[object Object]");
+        public static JSValue ToString(in Arguments a) => new JSString("[object Object]");
 
         // [Prototype("toLocaleString")]
         // public static JSValue ToLocaleString(JSValue t, params JSValue[] a)
 
 
         [GetProperty("__proto__")]
-        internal static JSValue PrototypeGet(JSValue t,params JSValue[] a)
+        internal static JSValue PrototypeGet(in Arguments a)
         {
-            return t.prototypeChain;
+            return a.This.prototypeChain;
         }
 
         [SetProperty("__proto__")]
-        internal static JSValue PrototypeSet(JSValue t,params JSValue[] a)
+        internal static JSValue PrototypeSet(in Arguments a)
         {
-            var a0 = a[0];
+            var a0 = a.Get1() as JSObject;
             var o = a0 as JSObject;
             if (o != null)
-                t.prototypeChain = o;
+                a.This.prototypeChain = o;
             return a0;
         }
 
 
         [Prototype("hasOwnProperty")]
-        internal static JSValue HasOwnProperty(JSValue t,params JSValue[] a)
+        internal static JSValue HasOwnProperty(in Arguments a)
         {
-            if (!t.TryAsObjectThrowIfNullOrUndefined(out var @object))
+            if (!a.This.TryAsObjectThrowIfNullOrUndefined(out var @object))
                 return JSBoolean.False;
             var first = a.Get1();
             var key = first.ToKey();
@@ -72,7 +72,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("isPrototypeOf")]
-        internal static JSValue IsPrototypeOf(JSValue t,params JSValue[] a)
+        internal static JSValue IsPrototypeOf(in Arguments a)
         {
             throw new NotImplementedException();
         }

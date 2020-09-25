@@ -22,10 +22,11 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("parse")]
-        public static JSValue Parse(JSValue t,params JSValue[] a)
+        public static JSValue Parse(in Arguments a)
         {
             var (text, receiver) = a.Get2();
             JsonParserReceiver r = null;
+            var t = a.This;
             if (receiver is JSFunction function)
             {
                 r = (p) => function.f( new Arguments(t, new JSString(p.key), p.value));
@@ -43,9 +44,9 @@ namespace WebAtoms.CoreJS.Core
 
 
         [Static("stringify")]
-        public static JSValue Stringify(JSValue t,params JSValue[] a)
+        public static JSValue Stringify(in Arguments a)
         {
-            var f = a[0];
+            var (f, r, pi) = a.Get3();
             if (f.IsUndefined)
                 return f;
             TextWriter sb = new StringWriter();
@@ -57,7 +58,6 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (a.Length > 2)
                 {
-                    var pi = a[2];
                     if (pi is JSNumber jn)
                     {
                         indent = new string(' ', pi.IntValue);
@@ -67,7 +67,6 @@ namespace WebAtoms.CoreJS.Core
                     }
                 }
 
-                var r = a[1];
                 if (r is JSFunction rf)
                 {
                     replacer = (item) =>

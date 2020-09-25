@@ -6,11 +6,11 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Prototype("concat")]
-        public static JSValue Concat(JSValue t, params JSValue[] a)
+        public static JSValue Concat(in Arguments a)
         {
             var r = new JSArray();
-            var f = a.GetAt(0);
-            foreach (var e in t.AllElements)
+            var f = a.Get1();
+            foreach (var e in a.This.AllElements)
             {
                 r.elements[r._length++] = JSProperty.Property(e);
             }
@@ -29,13 +29,13 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("push")]
-        public static JSValue Push(JSValue t, params JSValue[] a)
+        public static JSValue Push(in Arguments a)
         {
-
+            var t = a.This;
             if (t is JSArray ta)
             {
 
-                foreach (var item in a)
+                foreach (var item in a.All)
                 {
                     ta.elements[ta._length] = JSProperty.Property(item);
                     ta._length++;
@@ -44,7 +44,7 @@ namespace WebAtoms.CoreJS.Core
             }
             var l = t[KeyStrings.length];
             uint ln = (uint)(l.IsNumber ? l.IntValue : 0);
-            foreach (var item in a)
+            foreach (var item in a.All)
             {
                 t[ln++] = item;
             }
@@ -54,9 +54,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("pop")]
-        public static JSValue Pop(JSValue t, params JSValue[] a)
+        public static JSValue Pop(in Arguments a)
         {
-            var ta = t as JSArray;
+            var ta = a.This as JSArray;
             if (ta._length == 0)
                 return JSUndefined.Value;
             JSProperty r;
@@ -69,30 +69,30 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("slice")]
-        public static JSArray Slice(JSValue t, params JSValue[] a)
+        public static JSArray Slice(in Arguments a)
         {
-            var ta = t as JSArray;
-            var start = a.TryGetAt(0, out var a0) ? a0.IntValue : 0;
-            var end = a.TryGetAt(1, out var a1) ? a1.IntValue : -1;
+            var ta = a.This as JSArray;
+            var start = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
+            var end = a.TryGetAt(0, out var a2) ? a2.IntValue : -1;
             return ta.Slice(start, end);
         }
 
         [GetProperty("length")]
-        internal static JSValue GetLength(JSValue t, params JSValue[] a)
+        internal static JSValue GetLength(in Arguments a)
         {
-            return new JSNumber(((JSArray)t)._length);
+            return new JSNumber((a.This as JSArray)._length);
         }
 
         [SetProperty("length")]
-        internal static JSValue SetLength(JSValue t, params JSValue[] a)
+        internal static JSValue SetLength(in Arguments a)
         {
-            return new JSNumber(((JSArray)t)._length = (uint)a[0].IntValue);
+            return new JSNumber((a.This as JSArray)._length = (uint)a.Get1().IntValue);
         }
 
         [Prototype("toString")]
-        internal static JSValue ToString(JSValue t, params JSValue[] _)
+        internal static JSValue ToString(in Arguments args)
             => new JSString(
-                t is JSArray a
+                args.This is JSArray a
                     ? string.Join(",", a.All)
                     : "[object Object]");
 

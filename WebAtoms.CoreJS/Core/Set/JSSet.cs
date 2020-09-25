@@ -19,20 +19,20 @@ namespace WebAtoms.CoreJS.Core.Set
         }
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] a)
+        public static JSValue Constructor(in Arguments a)
         {
             return new JSSet();
         }
 
         [Prototype("add")]
-        public static JSValue Add(JSValue t, JSValue[] a)
+        public static JSValue Add(in Arguments a)
         {
             var f = a.Get1();
-            return JSMapPrototype.Set(t, new JSValue[] { f, f });
+            return JSMapPrototype.Set(new Arguments(a.This, f, f));
         }
 
         [Prototype("set")]
-        public static JSValue Set(JSValue t, JSValue[] a)
+        public static JSValue Set(in Arguments a)
         {
             throw new NotImplementedException();
         }

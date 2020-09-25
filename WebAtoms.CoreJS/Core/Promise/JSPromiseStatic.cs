@@ -11,9 +11,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
     public static class JSPromiseStatic
     {
         [Static("all")]
-        public static JSValue All(JSValue t, JSValue[] a)
+        public static JSValue All(in Arguments a)
         {
-            var f = a.GetAt(0);
+            var f = a.Get1();
             if (f.IsUndefined)
                 throw JSContext.Current.NewTypeError($"The parameter must be an iterable");
 

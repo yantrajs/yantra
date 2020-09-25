@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Core
 
         private const int MinArray = 5;
 
-        private readonly int length;
+        public readonly int Length;
 
         public readonly JSValue This;
 
@@ -27,9 +27,43 @@ namespace WebAtoms.CoreJS.Core
 
         private readonly JSValue[] Args;
 
+        public IEnumerable<JSValue> All
+        {
+            get
+            {
+                switch (Length)
+                {
+                    case 0:
+                        yield break;
+                    case 1:
+                        yield return Arg0;
+                        yield break;
+                    case 2:
+                        yield return Arg0;
+                        yield return Arg1;
+                        yield break;
+                    case 3:
+                        yield return Arg0;
+                        yield return Arg1;
+                        yield return Arg2;
+                        yield break;
+                    case 4:
+                        yield return Arg0;
+                        yield return Arg1;
+                        yield return Arg2;
+                        yield return Arg3;
+                        yield break;
+                    default:
+                        foreach (var a in Args)
+                            yield return a;
+                        yield break;
+                }
+            }
+        }
+
         public Arguments CopyForCall()
         {
-            switch(length)
+            switch(Length)
             {
                 case 0:
                     return new Arguments(JSUndefined.Value);
@@ -44,7 +78,7 @@ namespace WebAtoms.CoreJS.Core
                 case 5:
                     return new Arguments(Args[0], Args[1], Args[2], Args[3], Args[4]);
                 default:
-                    var sa = new JSValue[length - 1];
+                    var sa = new JSValue[Length - 1];
                     Array.Copy(Args, 1, sa, 0, sa.Length);
                     return new Arguments(Args[0], sa);
             }
@@ -77,7 +111,7 @@ namespace WebAtoms.CoreJS.Core
         public Arguments(JSValue @this)
         {
             This = @this;
-            length = 0;
+            Length = 0;
             Arg0 = null;
             Arg1 = null;
             Arg2 = null;
@@ -88,7 +122,7 @@ namespace WebAtoms.CoreJS.Core
         public Arguments(JSValue @this, JSValue a0)
         {
             This = @this;
-            length = 1;
+            Length = 1;
             Arg0 = a0;
             Arg1 = null;
             Arg2 = null;
@@ -99,7 +133,7 @@ namespace WebAtoms.CoreJS.Core
         public Arguments(JSValue @this, JSValue a0, JSValue a1)
         {
             This = @this;
-            length = 2;
+            Length = 2;
             Arg0 = a0;
             Arg1 = a1;
             Arg2 = null;
@@ -111,7 +145,7 @@ namespace WebAtoms.CoreJS.Core
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2)
         {
             This = @this;
-            length = 3;
+            Length = 3;
             Arg0 = a0;
             Arg1 = a1;
             Arg2 = a2;
@@ -122,7 +156,7 @@ namespace WebAtoms.CoreJS.Core
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2, JSValue a3)
         {
             This = @this;
-            length = 4;
+            Length = 4;
             Arg0 = a0;
             Arg1 = a1;
             Arg2 = a2;
@@ -133,8 +167,8 @@ namespace WebAtoms.CoreJS.Core
         public Arguments(JSValue @this, JSValue[] args)
         {
             This = @this;
-            length = args.Length;
-            switch(length)
+            Length = args.Length;
+            switch(Length)
             {
                 case 0:
                     Arg0 = null;
@@ -183,7 +217,7 @@ namespace WebAtoms.CoreJS.Core
 
         private Arguments(JSValue @this, Arguments src)
         {
-            length = src.length;
+            Length = src.Length;
             Arg0 = src.Arg0;
             Arg1 = src.Arg1;
             Arg2 = src.Arg2;
@@ -199,48 +233,48 @@ namespace WebAtoms.CoreJS.Core
 
         public JSValue Get1()
         {
-            if (length == 0)
+            if (Length == 0)
                 return JSUndefined.Value;
-            if (length < MinArray)
+            if (Length < MinArray)
                 return Arg0;
             return Args[0];
         }
 
         public (JSValue, JSValue) Get2()
         {
-            if (length == 0)
+            if (Length == 0)
                 return (JSUndefined.Value, JSUndefined.Value);
-            if (length == 1)
+            if (Length == 1)
                 return (Arg0, JSUndefined.Value);
-            if (length < MinArray)
+            if (Length < MinArray)
                 return (Arg0, Arg1);
             return (Args[0], Args[1]);
         }
 
         public (JSValue, JSValue, JSValue) Get3()
         {
-            if (length == 0)
+            if (Length == 0)
                 return (JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
-            if (length == 1)
+            if (Length == 1)
                 return (Arg0, JSUndefined.Value, JSUndefined.Value);
-            if (length == 2)
+            if (Length == 2)
                 return (Arg0, Arg1, JSUndefined.Value);
-            if (length < MinArray)
+            if (Length < MinArray)
                 return (Arg0, Arg1, Arg2);
             return (Args[0], Args[1], Args[2]);
         }
 
         public (JSValue, JSValue, JSValue, JSValue) Get4()
         {
-            if (length == 0)
+            if (Length == 0)
                 return (JSUndefined.Value, JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
-            if (length == 1)
+            if (Length == 1)
                 return (Arg0, JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
-            if (length == 2)
+            if (Length == 2)
                 return (Arg0, Arg1, JSUndefined.Value, JSUndefined.Value);
-            if (length == 3)
+            if (Length == 3)
                 return (Arg0, Arg1, Arg2, JSUndefined.Value);
-            if (length < MinArray)
+            if (Length < MinArray)
                 return (Arg0, Arg1, Arg2, Arg3);
             return (Args[0], Args[1], Args[2], Args[3]);
         }
@@ -248,6 +282,34 @@ namespace WebAtoms.CoreJS.Core
         public JSValue[] GetArgs()
         {
             return Args;
+        }
+
+        public bool TryGetAt(int index, out JSValue a)
+        {
+            if (Length > index)
+            {
+                switch(index)
+                {
+                    case 0:
+                        a = Arg0;
+                        break;
+                    case 1:
+                        a = Arg1;
+                        break;
+                    case 2:
+                        a = Arg2;
+                        break;
+                    case 3:
+                        a = Arg3;
+                        break;
+                    default:
+                        a = Args[index];
+                        break;
+                }
+                return true;
+            }
+            a = null;
+            return false;
         }
     }
 }

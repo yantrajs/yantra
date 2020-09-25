@@ -52,7 +52,7 @@ namespace WebAtoms.CoreJS.Core.Set
         }
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] a)
+        public static JSValue Constructor(in Arguments a)
         {
             return new JSWeakSet();
         }
@@ -66,9 +66,9 @@ namespace WebAtoms.CoreJS.Core.Set
         }
 
         [Prototype("delete")]
-        public static JSValue Delete(JSValue t, JSValue[] a)
+        public static JSValue Delete(in Arguments a)
         {
-            var w = ToWeakMap(t);
+            var w = ToWeakMap(a.This);
             lock (w.items)
             {
                 var key = a.Get1().ToUniqueID();
@@ -80,9 +80,9 @@ namespace WebAtoms.CoreJS.Core.Set
         }
 
         [Prototype("get")]
-        public static JSValue Get(JSValue t, JSValue[] a)
+        public static JSValue Get(in Arguments a)
         {
-            var w = ToWeakMap(t);
+            var w = ToWeakMap(a.This);
             lock (w.items)
             {
                 var key = a.Get1().ToUniqueID();
@@ -101,10 +101,10 @@ namespace WebAtoms.CoreJS.Core.Set
         }
 
         [Prototype("set")]
-        public static JSValue Set(JSValue t, JSValue[] a)
+        public static JSValue Set(in Arguments a)
         {
-            var w = ToWeakMap(t);
-            var (first, second) = a.Get2();
+            var w = ToWeakMap(a.This);
+            var first = a.Get1();
             if (!(first is JSObject))
                 throw JSContext.Current.NewTypeError($"Key cannot be a primitive value");
             lock (w.items)
@@ -112,13 +112,13 @@ namespace WebAtoms.CoreJS.Core.Set
                 var key = first.ToUniqueID();
                 w.items.Save(key, new WeakReference<JSValue>(first));
             }
-            return t;
+            return w;
         }
 
         [Prototype("has")]
-        public static JSValue Has(JSValue t, JSValue[] a)
+        public static JSValue Has(in Arguments a)
         {
-            var w = ToWeakMap(t);
+            var w = ToWeakMap(a.This);
             lock (w.items)
             {
                 var key = a.Get1().ToUniqueID();

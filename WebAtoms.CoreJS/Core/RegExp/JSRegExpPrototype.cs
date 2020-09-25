@@ -8,7 +8,7 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] a)
+        public static JSValue Constructor(in Arguments a)
         {
             var (pattern, flags) = a.Get2();
             return new JSRegExp(pattern.ToString(), flags.IsNull || flags.IsUndefined ? "" : flags.ToString());
@@ -23,42 +23,42 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [GetProperty("flags", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetFlags(JSValue t, JSValue[] a)
+        public static JSValue GetFlags(in Arguments a)
         {
-            return new JSString(t.ToRegExp().flags);
+            return new JSString(a.This.ToRegExp().flags);
         }
 
         [GetProperty("global", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetGlobal(JSValue t, JSValue[] a)
+        public static JSValue GetGlobal(in Arguments a)
         {
-            return t.ToRegExp().globalSearch ? JSBoolean.True : JSBoolean.False;
+            return a.This.ToRegExp().globalSearch ? JSBoolean.True : JSBoolean.False;
         }
 
 
         [GetProperty("ignoreCase", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetIgnoreCase(JSValue t, JSValue[] a)
+        public static JSValue GetIgnoreCase(in Arguments a)
         {
-            return t.ToRegExp().ignoreCase ? JSBoolean.True : JSBoolean.False;
+            return a.This.ToRegExp().ignoreCase ? JSBoolean.True : JSBoolean.False;
         }
 
         [GetProperty("multiline", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetMultiline(JSValue t, JSValue[] a)
+        public static JSValue GetMultiline(in Arguments a)
         {
-            return t.ToRegExp().multiline ? JSBoolean.True : JSBoolean.False;
+            return a.This.ToRegExp().multiline ? JSBoolean.True : JSBoolean.False;
         }
 
         [GetProperty("source", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetSource(JSValue t, JSValue[] a)
+        public static JSValue GetSource(in Arguments a)
         {
-            return new JSString(t.ToRegExp().pattern);
+            return new JSString(a.This.ToRegExp().pattern);
         }
 
 
         [Prototype("test")]
-        public static JSValue Test(JSValue t, JSValue[] a)
+        public static JSValue Test(in Arguments a)
         {
-            var r = t.ToRegExp();
-            var text = a.GetAt(0).ToString();
+            var r = a.This.ToRegExp();
+            var text = a.Get1().ToString();
             var match = r.value.Match(text, r.CalculateStartPosition(text));
             if (match.Success)
             {
@@ -72,10 +72,10 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("test")]
-        public static JSValue Exec(JSValue t, JSValue[] a)
+        public static JSValue Exec(in Arguments a)
         {
-            var r = t.ToRegExp();
-            var input = a.GetAt(0).ToString();
+            var r = a.This.ToRegExp();
+            var input = a.Get1().ToString();
             // Perform the regular expression matching.
             var match = r.value.Match(input, r.CalculateStartPosition(input));
 
