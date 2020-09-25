@@ -482,6 +482,8 @@ namespace WebAtoms.CoreJS.ExpHelper
 
     public class JSValueBuilder: TypeHelper<Core.JSValue>
     {
+        private static readonly Type type = typeof(JSValue);
+
         private static PropertyInfo _DoubleValue =
             Property(nameof(Core.JSValue.DoubleValue));
         public static Expression DoubleValue(Expression exp)
@@ -547,11 +549,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _InvokeMethodKeyString
-            = InternalMethod<KeyString, Arguments>(nameof(JSValue.InvokeMethod));
+            = type.MethodStartsWith(nameof(JSValue.InvokeMethod), typeof(KeyString));
         private static MethodInfo _InvokeMethodUInt
-            = InternalMethod<uint, Arguments>(nameof(JSValue.InvokeMethod));
+            = type.MethodStartsWith(nameof(JSValue.InvokeMethod), typeof(uint));
         private static MethodInfo _InvokeMethodJSValue
-            = InternalMethod<JSValue, Arguments>(nameof(JSValue.InvokeMethod));
+            = type.MethodStartsWith(nameof(JSValue.InvokeMethod), typeof(JSValue));
 
         public static Expression InvokeMethod(Expression target, Expression method, Expression args)
         {
@@ -816,6 +818,19 @@ namespace WebAtoms.CoreJS.ExpHelper
             }
             var a = Expression.NewArrayInit(typeof(JSValue), args);
             return Expression.New(_New, @this, a);
+        }
+
+        private readonly static FieldInfo _This =
+            type.GetField(nameof(Arguments.This));
+        public static Expression This(Expression arguments)
+        {
+            return Expression.Field(arguments, _This);
+        }
+        private readonly static FieldInfo _Length =
+            type.GetField(nameof(Arguments.Length));
+        public static Expression Length(Expression arguments)
+        {
+            return Expression.Field(arguments, _Length);
         }
 
     }

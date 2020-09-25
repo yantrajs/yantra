@@ -71,7 +71,7 @@ namespace WebAtoms.CoreJS
 
         public Esprima.Ast.IFunction Function { get; }
 
-        public Expression ThisExpression { get; internal set; }
+        public Expression ThisExpression { get; }
 
         public Expression ArgumentsExpression { get; }
 
@@ -128,12 +128,22 @@ namespace WebAtoms.CoreJS
 
         public LabelTarget ReturnLabel { get; }
 
-        public FunctionScope(Esprima.Ast.IFunction fx)
+        public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null)
         {
             this.Function = fx;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
             this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            this.ArgumentsExpression = Arguments;
+            if (previousThis != null)
+            {
+                this.ThisExpression = previousThis;
+            }
+            else
+            {
+                this.ThisExpression = ArgumentsBuilder.This(Arguments);
+            }
+
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Loop = new LinkedStack<LoopScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));

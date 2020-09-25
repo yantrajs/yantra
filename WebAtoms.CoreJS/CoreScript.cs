@@ -106,7 +106,7 @@ namespace WebAtoms.CoreJS
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
                     Exp.Assign(lScope, ExpHelper.LexicalScopeBuilder.NewScope(FileNameExpression,"",1,1)),
-                    Exp.Assign(argLength, Exp.ArrayLength(fx.ArgumentsExpression))
+                    Exp.Assign(argLength, ArgumentsBuilder.Length(fx.ArgumentsExpression))
                 };
 
                 if (argsList != null)
@@ -187,7 +187,7 @@ namespace WebAtoms.CoreJS
 
             var functionName  = functionDeclaration.Id?.Name;
 
-            using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
+            using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis)))
             {
                 var lexicalScopeVar = cs.Scope;
 
@@ -203,10 +203,6 @@ namespace WebAtoms.CoreJS
                 var s = cs;
                 // use this to create variables...
                 var t = s.ThisExpression;
-                if (previousThis!=null)
-                {
-                    s.ThisExpression = previousThis;
-                }
                 var args = s.ArgumentsExpression;
 
                 var r = s.ReturnLabel;

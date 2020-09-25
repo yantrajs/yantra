@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace WebAtoms.CoreJS
@@ -73,6 +74,32 @@ namespace WebAtoms.CoreJS
                 throw new MethodAccessException($"Constructor {type.Name}({tl}) not found");
             }
             return c;
+        }
+
+        public static MethodInfo MethodStartsWith(this Type type, string name, params Type[] args)
+        {
+            var ms = type.GetMethods()
+                .Where(x => x.Name == name);
+            foreach(var m in ms)
+            {
+                var pl = m.GetParameters();
+                if (pl.Length <= args.Length)
+                    continue;
+                int i = 0;
+                bool found = true;
+                foreach(var t in args)
+                {
+                    if (pl[i++].ParameterType != t)
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    return m;
+            }
+            var tl = string.Join(",", args.Select(x => x.Name));
+            throw new MethodAccessException($"Method not found {name}");
         }
     }
 }
