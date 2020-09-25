@@ -73,12 +73,12 @@ namespace WebAtoms.CoreJS.Core.Objects
         public static JSValue Floor(JSValue t, JSValue[] args) {
             var first = args.Get1();
             var d = first.DoubleValue;
-            if (double.IsNaN(d))
-                return JSNumber.NaN;
-            if (double.IsPositiveInfinity(d))
-                return JSNumber.PositiveInfinity;
-            if (double.IsNegativeInfinity(d))
-                return JSNumber.NegativeInfinity;
+            //if (double.IsNaN(d))
+            //    return JSNumber.NaN;
+            //if (double.IsPositiveInfinity(d))
+            //    return JSNumber.PositiveInfinity;
+            //if (double.IsNegativeInfinity(d))
+            //    return JSNumber.NegativeInfinity;
             var r = new JSNumber(Math.Floor(d));
             return r;
         }
@@ -94,12 +94,12 @@ namespace WebAtoms.CoreJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            if (double.IsNaN(d))
-                return JSNumber.NaN;
-            if (double.IsPositiveInfinity(d))
-                return JSNumber.PositiveInfinity;
-            if (double.IsNegativeInfinity(d))
-                return JSNumber.NegativeInfinity;
+            //if (double.IsNaN(d))
+            //    return JSNumber.NaN;
+            //if (double.IsPositiveInfinity(d))
+            //    return JSNumber.PositiveInfinity;
+            //if (double.IsNegativeInfinity(d))
+            //    return JSNumber.NegativeInfinity;
             var r = new JSNumber(Math.Acos(d));
             return r;
         }
@@ -109,13 +109,22 @@ namespace WebAtoms.CoreJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            if (double.IsNaN(d))
-                return JSNumber.NaN;
-            if (double.IsPositiveInfinity(d))
-                return JSNumber.PositiveInfinity;
-            if (double.IsNegativeInfinity(d))
-                return JSNumber.NegativeInfinity;
+            //if (double.IsNaN(d))
+            //    return JSNumber.NaN;
+            //if (double.IsPositiveInfinity(d))
+            //    return JSNumber.PositiveInfinity;
+            //if (double.IsNegativeInfinity(d))
+            //    return JSNumber.NegativeInfinity;
             var r = new JSNumber(Math.Abs(d));
+            return r;
+        }
+
+        [Static("acosh")]
+        public static JSValue Acosh(JSValue t, JSValue[] args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Log(d + Math.Sqrt((d * d) - 1.0)));
             return r;
         }
 

@@ -327,19 +327,19 @@ namespace WebAtoms.CoreJS
             where T: INode
             where TR: Exp
         {
-            return exp();
-            //var s = this.scope.Top.Scope;
-            //var p = ast.Location.Start;
-            //try
-            //{
-            //    return Exp.Block(
-            //        LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
-            //        exp());
-            //}
-            //catch (Exception ex) when (!(ex is CompilerException))
-            //{
-            //    throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
-            //}
+            //return exp();
+            var s = this.scope.Top.Scope;
+            var p = ast.Location.Start;
+            try
+            {
+                return Exp.Block(
+                    LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
+                    exp());
+            }
+            catch (Exception ex) when (!(ex is CompilerException))
+            {
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+            }
         }
 
         protected override Exp VisitStatement(Statement statement)
