@@ -9,21 +9,21 @@ namespace WebAtoms.CoreJS.Core
     public class JSGlobalStatic
     {
         [Static("decodeURI")]
-        public static JSValue DecodeURI(JSValue t, JSValue[] a)
+        public static JSValue DecodeURI(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.UnescapeDataString(f));
         }
 
         [Static("decodeURIComponent")]
-        public static JSValue DecodeURIComponent(JSValue t, JSValue[] a)
+        public static JSValue DecodeURIComponent(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.UnescapeDataString(f));
         }
 
         [Static("eval")]
-        public static JSValue Eval(JSValue t, JSValue[] a)
+        public static JSValue Eval(in Arguments a)
         {
             var f = a.Get1();
             if (!f.IsString)
@@ -33,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("encodeURI")]
-        public static JSValue EncodeURI(JSValue t, JSValue[] a)
+        public static JSValue EncodeURI(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.EscapeUriString(f));
@@ -41,34 +41,34 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("encodeURIComponent")]
-        public static JSValue EncodeURIComponent(JSValue t, JSValue[] a)
+        public static JSValue EncodeURIComponent(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.EscapeDataString(f));
         }
 
         [Static("isFinite")]
-        public static JSValue IsFinite(JSValue t, JSValue[] a)
+        public static JSValue IsFinite(in Arguments a)
         {
-            return JSNumberStatic.IsFinite(t, a);
+            return JSNumberStatic.IsFinite(a);
         }
 
         [Static("isNaN")]
-        public static JSValue IsNaN(JSValue t, JSValue[] a)
+        public static JSValue IsNaN(in Arguments a)
         {
-            return JSNumberStatic.IsNaN(t, a);
+            return JSNumberStatic.IsNaN(a);
         }
 
         [Static("parseFloat")]
-        public static JSValue ParseFloat(JSValue t, JSValue[] a)
+        public static JSValue ParseFloat(in Arguments a)
         {
-            return JSNumberStatic.ParseFloat(t, a);
+            return JSNumberStatic.ParseFloat(a);
         }
 
         [Static("parseInt")]
-        public static JSValue ParseInt(JSValue t, JSValue[] a)
+        public static JSValue ParseInt(in Arguments a)
         {
-            return JSNumberStatic.ParseInt(t, a);
+            return JSNumberStatic.ParseInt(a);
         }
 
     }

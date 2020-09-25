@@ -31,7 +31,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("create")]
-        internal static JSValue StaticCreate(JSValue t,params JSValue[] a)
+        internal static JSValue StaticCreate(in Arguments a)
         {
             var p = a.Get1();
             if (!(p is JSObject proto))
@@ -44,7 +44,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("assign")]
-        internal static JSValue Assign(JSValue t,params JSValue[] a)
+        internal static JSValue Assign(in Arguments a)
         {
             var (first,second) = a.Get2();
             if (first.IsNullOrUndefined)
@@ -64,9 +64,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("entries")]
-        internal static JSValue StaticEntries(JSValue t,params JSValue[] a)
+        internal static JSValue StaticEntries(in Arguments a)
         {
-            var target = a[0];
+            var target = a.Get1();
             if (target.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             if (!target.IsObject)
@@ -88,17 +88,18 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("freeze")]
-        internal static JSValue Freeze(JSValue t,params JSValue[] a)
+        internal static JSValue Freeze(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("defineProperties")]
-        internal static JSValue _DefineProperties(JSValue t,params JSValue[] a)
+        internal static JSValue _DefineProperties(in Arguments a)
         {
-            if (!(a[0] is JSObject target))
+            var (a0, a1) = a.Get2();
+            if (!(a0 is JSObject target))
                 throw JSContext.Current.NewTypeError("Object.defineProperty called on non-object");
-            var pds = a[1];
+            var pds = a1;
             if (pds.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(pds is JSObject pdObject))
@@ -120,7 +121,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("defineProperty")]
-        internal static JSValue _DefineProperty(JSValue t,params JSValue[] a)
+        internal static JSValue _DefineProperty(in Arguments a)
         {
             var (target, key, desc) = a.Get3();
             if (!(target is JSObject targetObject))
@@ -141,7 +142,7 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("fromEntries")]
 
-        internal static JSValue _FromEntries(JSValue t,params JSValue[] a)
+        internal static JSValue _FromEntries(in Arguments a)
         {
             var v = a.Get1();
             if (v.IsNullOrUndefined)
@@ -167,31 +168,31 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("is")]
 
-        internal static JSValue _Is(JSValue t,params JSValue[] a)
+        internal static JSValue _Is(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("isExtensible")]
-        internal static JSValue _IsExtensible(JSValue t,params JSValue[] a)
+        internal static JSValue _IsExtensible(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("isFrozen")]
-        internal static JSValue _IsFrozen(JSValue t,params JSValue[] a)
+        internal static JSValue _IsFrozen(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("isSealed")]
-        internal static JSValue _IsSealed(JSValue t,params JSValue[] a)
+        internal static JSValue _IsSealed(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("keys")]
-        internal static JSValue _Keys(JSValue t,params JSValue[] a)
+        internal static JSValue _Keys(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
@@ -202,14 +203,14 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("preventExtensions")]
-        internal static JSValue _PreventExtensions(JSValue t,params JSValue[] a)
+        internal static JSValue _PreventExtensions(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("seal")]
 
-        internal static JSValue _Seal(JSValue t,params JSValue[] a)
+        internal static JSValue _Seal(in Arguments a)
         {
             var first = a.Get1();
             if (!(first is JSObject @object))
@@ -223,17 +224,17 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("setPrototypeOf")]
-        internal static JSValue _SetPrototypeOf(JSValue t,params JSValue[] a)
+        internal static JSValue _SetPrototypeOf(in Arguments a)
         {
-            var first = a.Get1();
+            var (first, second) = a.Get2();
             if (!(first is JSObject))
                 return first;
-            first.prototypeChain = a[1] as JSObject;
+            first.prototypeChain = second as JSObject ?? first.prototypeChain;
             return first;
         }
 
         [Static("values")]
-        internal static JSValue _Values(JSValue t,params JSValue[] a)
+        internal static JSValue _Values(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
@@ -244,16 +245,16 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("getOwnPropertyDescriptor")]
-        internal static JSValue _GetOwnPropertyDescriptor(JSValue t,params JSValue[] a)
+        internal static JSValue _GetOwnPropertyDescriptor(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("getOwnPropertyDescriptors")]
-        internal static JSValue _GetOwnPropertyDescriptors(JSValue t,params JSValue[] a)
+        internal static JSValue _GetOwnPropertyDescriptors(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
@@ -266,19 +267,19 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("getOwnPropertyNames")]
-        internal static JSValue _GetOwnPropertyNames(JSValue t,params JSValue[] a)
+        internal static JSValue _GetOwnPropertyNames(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("getOwnPropertySymbols")]
-        internal static JSValue _GetOwnPropertySymbols(JSValue t,params JSValue[] a)
+        internal static JSValue _GetOwnPropertySymbols(in Arguments a)
         {
-            return t;
+            throw new NotImplementedException();
         }
 
         [Static("getPrototypeOf")]
-        internal static JSValue _GetPrototypeOf(JSValue t,params JSValue[] a)
+        internal static JSValue _GetPrototypeOf(in Arguments a)
         {
             var target = a.Get1();
             var p = target.prototypeChain;

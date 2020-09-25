@@ -29,7 +29,7 @@ namespace WebAtoms.CoreJS.Core
 
             this.DefineProperty(KeyStrings.lastIndex, 
                 JSProperty.Property(KeyStrings.lastIndex, 
-                (_,__) => new JSNumber(lastIndex), 
+                (in Arguments a) => new JSNumber(lastIndex), 
                 null, 
                 JSPropertyAttributes.ConfigurableReadonlyProperty ));
         }

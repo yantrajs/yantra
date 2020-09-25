@@ -26,9 +26,9 @@ namespace WebAtoms.CoreJS.Core
             return target.Equals(value);
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
-            return target.InvokeFunction(thisValue, args);
+            return target.InvokeFunction(a);
         }
 
         public override JSBoolean StrictEquals(JSValue value)
@@ -47,7 +47,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] a)
+        public static JSValue Constructor(in Arguments a)
         {
             var (f, s) = a.Get2();
             return new JSProxy(f as JSObject, s as JSObject);

@@ -40,9 +40,9 @@ namespace WebAtoms.CoreJS.Core
             // to improve speed of promise, we will add then/catch here...
 
 
-            resolveFunction = new JSFunction((_, __) => Resolve(__.GetAt(0)));
-            rejectFunction = new JSFunction((_, __) => Reject(__.GetAt(0)));
-            @delegate.InvokeFunction(this, resolveFunction, rejectFunction);
+            resolveFunction = new JSFunction((in Arguments a) => Resolve(a.Get1()));
+            rejectFunction = new JSFunction((in Arguments a) => Reject(a.Get1()));
+            @delegate.InvokeFunction(new Arguments(this, resolveFunction, rejectFunction));
 
         }
 
@@ -70,7 +70,7 @@ namespace WebAtoms.CoreJS.Core
                     // do what....
                     try
                     {
-                        then.InvokeFunction(value, resolveFunction, rejectFunction);
+                        then.InvokeFunction(new Arguments(value, resolveFunction, rejectFunction));
                     } 
                     catch(JSException jse)
                     {
@@ -92,7 +92,7 @@ namespace WebAtoms.CoreJS.Core
                 this.thenList = null;
                 foreach (var t in thenList)
                 {
-                    t(this, value);
+                    t(new Arguments(this, value));
                 }
             }
 
@@ -111,7 +111,7 @@ namespace WebAtoms.CoreJS.Core
                 this.rejectList = null;
                 foreach (var t in rejectList)
                 {
-                    t(this, value);
+                    t(new Arguments(this, value));
                 }
             }
             return JSUndefined.Value;
@@ -122,7 +122,7 @@ namespace WebAtoms.CoreJS.Core
         {
             if (this.state == PromiseState.Resolved)
             {
-                d(this, this.result);
+                d(new Arguments(this, this.result));
                 return;
             }
             if (this.state != PromiseState.Pending)
@@ -136,7 +136,7 @@ namespace WebAtoms.CoreJS.Core
         {
             if (this.state == PromiseState.Rejected)
             {
-                d(this, this.result);
+                d(new Arguments(this, this.result));
                 return;
             }
             if (this.state != PromiseState.Pending)

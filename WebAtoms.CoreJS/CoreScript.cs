@@ -46,7 +46,7 @@ namespace WebAtoms.CoreJS
         static readonly ConcurrentDictionary<string, JSFunctionDelegate> scripts
             = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        internal static JSFunctionDelegate Compile(string code, string location = null, string[] args = null)
+        internal static JSFunctionDelegate Compile(string code, string location = null, IList<string> args = null)
         {
             return scripts.GetOrAdd(code, (k) =>
             {
@@ -58,11 +58,11 @@ namespace WebAtoms.CoreJS
         public static JSValue Evaluate(string code, string location = null)
         {
             var fx = Compile(code, location);
-            return fx(JSContext.Current, JSArguments.Empty);
+            return fx(new Arguments(JSContext.Current));
         }
 
 
-        public CoreScript(string code, string location = null, string[] argsList = null)
+        public CoreScript(string code, string location = null, IList<string> argsList = null)
         {
             this.Code = code;
             location = location ?? "vm.js";
@@ -106,7 +106,7 @@ namespace WebAtoms.CoreJS
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
                     Exp.Assign(lScope, ExpHelper.LexicalScopeBuilder.NewScope(FileNameExpression,"",1,1)),
-                    Exp.Assign(argLength, Exp.ArrayLength(fx.ArgumentsExpression))
+                    Exp.Assign(argLength, ArgumentsBuilder.Length(fx.ArgumentsExpression))
                 };
 
                 if (argsList != null)
@@ -118,7 +118,7 @@ namespace WebAtoms.CoreJS
                         // global arguments are set here for FunctionConstructor
 
                         fx.CreateVariable(arg,
-                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, argLength, i++, arg));
+                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, i++, arg));
                     }
                 }
 
@@ -145,7 +145,7 @@ namespace WebAtoms.CoreJS
                         ExpHelper.IDisposableBuilder.Dispose(lScope))
                 );
 
-                var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
+                var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
                 this.Method = lambda.Compile();
 
@@ -179,6 +179,7 @@ namespace WebAtoms.CoreJS
             var previousScope = this.scope.Top;
 
             // if this is an arrowFunction then override previous thisExperssion
+
             var previousThis = this.scope.Top.ThisExpression;
             if (!(functionDeclaration is ArrowFunctionExpression))
             {
@@ -187,7 +188,8 @@ namespace WebAtoms.CoreJS
 
             var functionName  = functionDeclaration.Id?.Name;
 
-            using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
+
+            using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis)))
             {
                 var lexicalScopeVar = cs.Scope;
 
@@ -203,10 +205,6 @@ namespace WebAtoms.CoreJS
                 var s = cs;
                 // use this to create variables...
                 var t = s.ThisExpression;
-                if (previousThis!=null)
-                {
-                    s.ThisExpression = previousThis;
-                }
                 var args = s.ArgumentsExpression;
 
                 var r = s.ReturnLabel;
@@ -221,19 +219,19 @@ namespace WebAtoms.CoreJS
                 
 
                 var argumentElements = args;
-                var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
-                vList.Add(argumentElementsLength);
+                // var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
+                // vList.Add(argumentElementsLength);
 
-                sList.Add(Exp.Assign(argumentElementsLength, 
-                    Exp.Condition(
-                        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
-                            Exp.ArrayLength(argumentElements),
-                            Exp.Constant(0, typeof(int)))));
+                //sList.Add(Exp.Assign(argumentElementsLength, 
+                //    Exp.Condition(
+                //        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
+                //            Exp.ArrayLength(argumentElements),
+                //            Exp.Constant(0, typeof(int)))));
 
                 foreach (var v in pList)
                 {
                     var v1 = s.CreateVariable(v.Name, 
-                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, argumentElementsLength, i, v.Name));
+                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, v.Name));
                     i++;
                 }
 
@@ -303,7 +301,7 @@ namespace WebAtoms.CoreJS
                         block,
                         ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
 
-                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
+                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
 
 
                 // create new JSFunction instance...
@@ -327,7 +325,7 @@ namespace WebAtoms.CoreJS
             where T: INode
             where TR: Exp
         {
-            //return exp();
+            // return exp();
             var s = this.scope.Top.Scope;
             var p = ast.Location.Start;
             try
@@ -903,7 +901,7 @@ namespace WebAtoms.CoreJS
         {
             var constructor = VisitExpression(newExpression.Callee);
             var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e)).ToList();
-            var pe = ExpHelper.JSArgumentsBuilder.New(args);
+            var pe = ArgumentsBuilder.New( JSUndefinedBuilder.Value, args);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
 
@@ -1166,9 +1164,6 @@ namespace WebAtoms.CoreJS
             var calle = callExpression.Callee;
             var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e)).ToList();
             
-            var paramArray = args.Any()
-                ? ExpHelper.JSArgumentsBuilder.New(args)
-                : ExpHelper.JSArgumentsBuilder.Empty();
             if (calle is Esprima.Ast.MemberExpression me)
             {
                 // invoke method...
@@ -1197,13 +1192,18 @@ namespace WebAtoms.CoreJS
 
 
                 // var name = KeyOfName(id.Name);
+                var paramArray = args.Any()
+                    ? ArgumentsBuilder.New(obj, args)
+                    : ArgumentsBuilder.Empty();
 
                 return JSValueBuilder.InvokeMethod(obj, name, paramArray);
 
             } else {
-                var a = ExpHelper.JSUndefinedBuilder.Value;
+                var paramArray = args.Any()
+                    ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args)
+                    : ArgumentsBuilder.Empty();
                 var callee = VisitExpression(callExpression.Callee);
-                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(callee, a, paramArray));
+                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(callee, paramArray));
             }
         }
 

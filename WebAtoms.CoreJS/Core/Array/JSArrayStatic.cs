@@ -15,11 +15,11 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Static("from")]
-        public static JSValue StaticFrom(JSValue t, params JSValue[] a)
+        public static JSValue StaticFrom(in Arguments a)
         {
             var r = new JSArray();
-            var f = a.GetAt(0);
-            var map = a.GetAt(1);
+            var (f, map) = a.Get2();
+            var t = a.This;
             if (f.IsUndefined)
                 throw JSContext.Current.NewError("undefined is not iterable");
             if (f.IsNull)
@@ -32,7 +32,7 @@ namespace WebAtoms.CoreJS.Core
                         JSValue item = new JSString(new string(ch, 1));
                         if (map is JSFunction fn)
                         {
-                            item = fn.InvokeFunction(t, item);
+                            item = fn.InvokeFunction(new Arguments(t, item));
                         }
                         r.elements[r._length++] = JSProperty.Property(item);
                     }
@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Core
                         JSValue item = ch.Value.value;
                         if (map is JSFunction fn)
                         {
-                            item = fn.InvokeFunction(t, item);
+                            item = fn.InvokeFunction(new Arguments(t, item));
                         }
                         r.elements[r._length++] = JSProperty.Property(item);
                     }
@@ -53,21 +53,18 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("isArray")]
-        public static JSValue StaticIsArray(JSValue t, params JSValue[] a)
+        public static JSValue StaticIsArray(in Arguments a)
         {
-            return a.GetAt(0) is JSArray ? JSBoolean.True : JSBoolean.False;
+            return a.Get1() is JSArray ? JSBoolean.True : JSBoolean.False;
         }
 
         [Static("of")]
-        public static JSValue StaticOf(JSValue t, params JSValue[] a)
+        public static JSValue StaticOf(in Arguments a)
         {
             var r = new JSArray();
-            if (a != null)
+            foreach (var e in a.All)
             {
-                foreach (var e in a)
-                {
-                    r.elements[r._length++] = JSProperty.Property(e);
-                }
+                r.elements[r._length++] = JSProperty.Property(e);
             }
             return r;
         }

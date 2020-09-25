@@ -34,16 +34,16 @@ namespace WebAtoms.CoreJS.Core.Objects
         public static double SQRT2 = Math.Sqrt(2);
 
         [Static("random")]
-        public static JSValue Random(JSValue t, JSValue[] args)
+        public static JSValue Random(in Arguments a)
         {
             var r = randomGenertor ?? (randomGenertor = new Random());
             return new JSNumber(r.NextDouble());
         }
 
         [Static("round")]
-        public static JSValue Round(JSValue t, JSValue[] args)
+        public static JSValue Round(in Arguments args)
         {
-            var first = args.GetAt(0);
+            var first = args.Get1();
             if (first.IsUndefined)
                 return JSNumber.NaN;
             if (first.IsNull)
@@ -70,7 +70,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         /// <param name="args"></param>
         /// <returns></returns>
         [Static("floor")]
-        public static JSValue Floor(JSValue t, JSValue[] args) {
+        public static JSValue Floor(in Arguments args) {
             var first = args.Get1();
             var d = first.DoubleValue;
             //if (double.IsNaN(d))
@@ -90,7 +90,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         /// <param name="args"></param>
         /// <returns></returns>
         [Static("acos")]
-        public static JSValue Acos(JSValue t, JSValue[] args)
+        public static JSValue Acos(in Arguments args)
         {
             var first = args.Get1();
             var d = first.DoubleValue;
@@ -105,7 +105,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         }
 
         [Static("abs")]
-        public static JSValue Abs(JSValue t, JSValue[] args)
+        public static JSValue Abs(in Arguments args)
         {
             var first = args.Get1();
             var d = first.DoubleValue;

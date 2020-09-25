@@ -29,7 +29,7 @@ assert(a[1] === 'k', a[1]); ");
 
             var zero = new JSNumber(0);
             var length = new JSNumber(2);
-            var prefix = js.InvokeMethod("substr", zero, length);
+            var prefix = js.InvokeMethod("substr", new Arguments(js, zero, length));
 
             Assert.AreEqual(2, prefix.Length);
 

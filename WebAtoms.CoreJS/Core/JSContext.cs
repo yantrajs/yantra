@@ -15,7 +15,7 @@ using WebAtoms.CoreJS.Core.Weak;
 namespace WebAtoms.CoreJS.Core
 {
 
-    public delegate JSValue JSFunctionDelegate(JSValue thisValue, params JSValue[] arguments);
+    public delegate JSValue JSFunctionDelegate(in Arguments a);
 
     public class JSContext: JSObject, IDisposable
     {

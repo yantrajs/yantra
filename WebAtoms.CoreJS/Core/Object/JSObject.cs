@@ -89,7 +89,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     if (p.set != null)
                     {
-                        p.set.f(this, value);
+                        p.set.f(new Arguments(this, value));
                         return;
                     }
                     return;
@@ -109,7 +109,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     if (p.set != null)
                     {
-                        p.set.f(this, value);
+                        p.set.f(new Arguments(this, value));
                         return;
                     }
                     return;
@@ -161,7 +161,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 var v = this.GetValue(px);
                 if (v.IsFunction)
-                    v = v.InvokeFunction(this);
+                    v = v.InvokeFunction(new Arguments(this));
                 if (v == this)
                     throw new StackOverflowException();
                 return v.ToString();
@@ -180,7 +180,7 @@ namespace WebAtoms.CoreJS.Core
                 var fx = this[KeyStrings.valueOf];
                 if (fx.IsUndefined)
                     return NumberParser.CoerceToNumber(this.ToString());
-                var v = fx.InvokeFunction(this, JSArguments.Empty);
+                var v = fx.InvokeFunction(new Arguments(this));
                 return v.DoubleValue;
             }
         }
@@ -353,7 +353,7 @@ namespace WebAtoms.CoreJS.Core
             return JSBoolean.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException("object is not a function");
         }

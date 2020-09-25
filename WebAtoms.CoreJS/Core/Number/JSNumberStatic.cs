@@ -11,9 +11,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
     {
         [Static("isFinite")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue IsFinite(JSValue t, params JSValue[] a)
+        public static JSValue IsFinite(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
                     return JSBoolean.True;
@@ -23,9 +23,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
         [Static("isInteger")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue IsInteger(JSValue t, params JSValue[] a)
+        public static JSValue IsInteger(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 var v = n.value;
                 if (((int)v) == v)
@@ -36,9 +36,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
         [Static("isNaN")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue IsNaN(JSValue t, params JSValue[] a)
+        public static JSValue IsNaN(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 if (double.IsNaN(n.value))
                     return JSBoolean.True;
@@ -47,9 +47,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Static("isSafeInteger")]
-        public static JSValue IsSafeInteger(JSValue t, params JSValue[] a)
+        public static JSValue IsSafeInteger(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 var v = n.value;
                 if (v >= JSNumber.MinSafeInteger && v <= JSNumber.MaxSafeInteger)
@@ -60,12 +60,12 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
         [Static("parseFloat")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue ParseFloat(JSValue t, params JSValue[] a)
+        public static JSValue ParseFloat(in Arguments a)
         {
             var nan = JSNumber.NaN;
             if (a.Length > 0)
             {
-                var p = a[0];
+                var p = a.Get1();
                 if (p.IsNumber)
                     return p;
                 if (p.IsNull || p.IsUndefined)
@@ -135,12 +135,12 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
         [Static("parseInt")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue ParseInt(JSValue t, params JSValue[] a)
+        public static JSValue ParseInt(in Arguments a)
         {
             var nan = JSNumber.NaN;
             if (a.Length > 0)
             {
-                var p = a[0];
+                var p = a.Get1();
                 if (p.IsNumber)
                     return p;
                 if (p.IsNull || p.IsUndefined)
@@ -151,7 +151,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
                     var radix = 10;
                     if (a.Length > 2)
                     {
-                        var a1 = a[1];
+                        var (_, a1) = a.Get2();
                         if (a1.IsNull || a1.IsUndefined)
                         {
                             radix = 10;

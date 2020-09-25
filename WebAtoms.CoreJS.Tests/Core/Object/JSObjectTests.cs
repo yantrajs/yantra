@@ -53,8 +53,8 @@ namespace WebAtoms.CoreJS.Tests.Core.Object
         public void EqualsTest()
         {
             var a = CoreScript.Evaluate("[2]");
-
-            var p = context["Object"].InvokeMethod("getPrototypeOf", a);
+            var obj = context["object"];
+            var p = context["Object"].InvokeMethod("getPrototypeOf", new Arguments(obj, a));
 
             var ap = context["Array"]["prototype"];
 

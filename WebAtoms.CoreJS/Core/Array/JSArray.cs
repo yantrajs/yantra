@@ -53,7 +53,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     if (p.set != null)
                     {
-                        p.set.f(this, value);
+                        p.set.f(new Arguments(this, value));
                         return;
                     }
                     return;

@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Utils
     public class JSAssert: JSObject
     {
         [Prototype("strictEqual")]
-        public static JSValue StrictEqual(JSValue t, params JSValue[] a)
+        public static JSValue StrictEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
             if (!left.StrictEquals(right).BooleanValue)
@@ -21,7 +21,7 @@ namespace WebAtoms.CoreJS.Utils
         }
 
         [Prototype("notStrictEqual")]
-        public static JSValue NotStrictEqual(JSValue t, params JSValue[] a)
+        public static JSValue NotStrictEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
             if (left.StrictEquals(right).BooleanValue)
@@ -33,7 +33,7 @@ namespace WebAtoms.CoreJS.Utils
         }
 
         [Prototype("equal")]
-        public static JSValue Equal(JSValue t, params JSValue[] a)
+        public static JSValue Equal(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
             if (!left.Equals(right).BooleanValue)
@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Utils
         }
 
         [Prototype("notEqual")]
-        public static JSValue NotEqual(JSValue t, params JSValue[] a)
+        public static JSValue NotEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
             if (left.Equals(right).BooleanValue)
@@ -57,14 +57,14 @@ namespace WebAtoms.CoreJS.Utils
         }
 
         [Prototype("throws")]
-        public static JSValue Throws(JSValue t, params JSValue[] a)
+        public static JSValue Throws(in Arguments a)
         {
             var (left, error, msgObj) = a.Get3();
             if (!left.IsFunction)
                 throw new JSException("assert.throws expect first parameter to be Function");
             try
             {
-                left.InvokeFunction(t);
+                left.InvokeFunction(a);
             }
             catch (Exception ex)
             {
@@ -84,7 +84,7 @@ namespace WebAtoms.CoreJS.Utils
         }
 
         [Prototype("fail")]
-        public static JSValue Fail(JSValue t, params JSValue[] a)
+        public static JSValue Fail(in Arguments a)
         {
             var msgObj = a.Get1();
             var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Failed";
@@ -92,7 +92,7 @@ namespace WebAtoms.CoreJS.Utils
         }
 
         [Prototype("match")]
-        public static JSValue Match(JSValue t, params JSValue[] a)
+        public static JSValue Match(in Arguments a)
         {
             var (text, regex, msgObj) = a.Get3();
             if(!(regex is JSRegExp match))

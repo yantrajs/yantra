@@ -14,7 +14,7 @@ namespace WebAtoms.CoreJS.Extensions
         {
             if (p.IsEmpty)
                 return JSUndefined.Value;
-            return p.IsValue ? p.value : p.get.f(target, JSArguments.Empty);
+            return p.IsValue ? p.value : p.get.f(new Arguments(target));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

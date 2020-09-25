@@ -16,15 +16,15 @@ namespace WebAtoms.CoreJS.Core.Weak
         }
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] a)
+        public static JSValue Constructor(in Arguments a)
         {
             return new JSWeakRef(a.Get1());
         }
 
         [Prototype("deref")]
-        public static JSValue Deref(JSValue t, JSValue[] a)
+        public static JSValue Deref(in Arguments a)
         {
-            if (!(t is JSWeakRef wr))
+            if (!(a.This is JSWeakRef wr))
                 throw JSContext.Current.NewTypeError("WeakRef.prototype.deref receiver is not WeakRef");
             if (wr.weak.TryGetTarget(out var v))
                 return v;

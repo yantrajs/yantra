@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Core
     public partial class JSFunction : JSObject
     {
 
-        internal static JSFunctionDelegate empty = (_, __) => _;
+        internal static JSFunctionDelegate empty = (in Arguments a) => a.This;
 
         internal readonly JSObject prototype;
 
@@ -54,39 +54,40 @@ namespace WebAtoms.CoreJS.Core
             return this.source;
         }
 
-        public override JSValue CreateInstance(JSValue[] args)
+        public override JSValue CreateInstance(in Arguments a)
         {
             JSValue obj = new JSObject();
             obj.prototypeChain = prototype;
-            var r = f(obj, args);
+            var a1 = a.OverrideThis(obj);
+            var r = f(a1);
             if (!r.IsUndefined)
                 return r;
             return obj;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
-            return f(thisValue, args);
+            return f(a);
         }
 
         [Prototype("call")]
-        public static JSValue Call(JSValue receiver, params JSValue[] p)
+        public static JSValue Call(in Arguments a)
         {
-            var (first, args) = p.Slice();
-            return receiver.InvokeFunction(first, args);
+            var a1 = a.CopyForCall();
+            return a.This.InvokeFunction(a1);
         }
 
         [Prototype("apply")]
-        public static JSValue Apply(JSValue t,params JSValue[] a){
-            var ar = a;
-            return t.InvokeFunction(ar[0], new JSArguments(ar[1] as JSArray));
+        public static JSValue Apply(in Arguments a){
+            var ar = a.CopyForApply();
+            return a.This.InvokeFunction(ar);
         }
 
         [Prototype("bind")]
-        public static JSValue Bind(JSValue t,params JSValue[] a) {
-            var fOriginal = (JSFunction)t;
-            var tx = a[0];
-            var fx = new JSFunction((bt, ba) => fOriginal.f(tx, ba));
+        public static JSValue Bind(in Arguments a) {
+            var fOriginal = a.This as JSFunction;
+            var a1 = a.OverrideThis(a.This);
+            var fx = new JSFunction((in Arguments a2) => fOriginal.f(a2));
             return fx;
         }
     }

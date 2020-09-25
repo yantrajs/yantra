@@ -56,7 +56,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] a)
+        public static JSValue Constructor(in Arguments a)
         {
             return new JSWeakMap();
         }
@@ -70,9 +70,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("delete")]
-        public static JSValue Delete(JSValue t, JSValue[] a)
+        public static JSValue Delete(in Arguments a)
         {
-            var w = ToWeakMap(t);
+            var w = ToWeakMap(a.This);
             lock (w.items)
             {
                 var key = a.Get1().ToUniqueID();
@@ -84,9 +84,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("get")]
-        public static JSValue Get(JSValue t, JSValue[] a)
+        public static JSValue Get(in Arguments a)
         {
-            var w = ToWeakMap(t);
+            var w = ToWeakMap(a.This);
             lock (w.items)
             {
                 var key = a.Get1().ToUniqueID();
@@ -105,9 +105,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("set")]
-        public static JSValue Set(JSValue t, JSValue[] a)
+        public static JSValue Set(in Arguments a)
         {
-            var w = ToWeakMap(t);
+            var w = ToWeakMap(a.This);
             var (first, second) = a.Get2();
             if (!(first is JSObject))
                 throw JSContext.Current.NewTypeError($"Key cannot be a primitive value");
@@ -116,13 +116,13 @@ namespace WebAtoms.CoreJS.Core
                 var key = first.ToUniqueID();
                 w.items.Save(key, ( new WeakReference<JSValue>(first), second ));
             }
-            return t;
+            return a.This;
         }
 
         [Prototype("has")]
-        public static JSValue Has(JSValue t, JSValue[] a)
+        public static JSValue Has(in Arguments a)
         {
-            var w = ToWeakMap(t);
+            var w = ToWeakMap(a.This);
             lock (w.items)
             {
                 var key = a.Get1().ToUniqueID();
