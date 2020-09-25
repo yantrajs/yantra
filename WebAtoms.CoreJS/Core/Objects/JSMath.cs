@@ -120,7 +120,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         }
 
         [Static("acosh")]
-        public static JSValue Acosh(JSValue t, JSValue[] args)
+        public static JSValue Acosh(in Arguments args)
         {
             var first = args.Get1();
             var d = first.DoubleValue;
