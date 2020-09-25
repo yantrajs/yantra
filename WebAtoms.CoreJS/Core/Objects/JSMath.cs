@@ -119,6 +119,13 @@ namespace WebAtoms.CoreJS.Core.Objects
             return r;
         }
 
+        /// <summary>
+        /// Ref. Jurrasic - MathObject.cs
+        /// public static double Acosh(double number)
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+
         [Static("acosh")]
         public static JSValue Acosh(in Arguments args)
         {
@@ -128,5 +135,28 @@ namespace WebAtoms.CoreJS.Core.Objects
             return r;
         }
 
+        [Static("asin")]
+        public static JSValue Asin(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Asin(d));
+            return r;
+        }
+
+        /// <summary>
+        /// Ref. Jurrasic - MathObject.cs
+        /// public static double Asinh(double number)
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("asinh")]
+        public static JSValue Asinh(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Log(d + Math.Sqrt(d * d + 1.0)));
+            return r;
+        }
     }
 }
