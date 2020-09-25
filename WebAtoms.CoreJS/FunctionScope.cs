@@ -141,7 +141,9 @@ namespace WebAtoms.CoreJS
             }
             else
             {
-                this.ThisExpression = ArgumentsBuilder.This(Arguments);
+                // this.ThisExpression = Expression.Parameter(typeof(JSValue));
+                var _this = this.CreateVariable("this", ArgumentsBuilder.This(Arguments) );
+                this.ThisExpression = _this.Expression;
             }
 
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");

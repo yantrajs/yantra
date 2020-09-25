@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
@@ -29,6 +30,7 @@ namespace WebAtoms.CoreJS.Core
 
         public IEnumerable<JSValue> All
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 switch (Length)
@@ -61,6 +63,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments CopyForCall()
         {
             switch(Length)
@@ -83,7 +86,7 @@ namespace WebAtoms.CoreJS.Core
                     return new Arguments(Args[0], sa);
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments CopyForApply()
         {
 
@@ -107,7 +110,7 @@ namespace WebAtoms.CoreJS.Core
                     return new Arguments(@this, argArray);
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this)
         {
             This = @this;
@@ -118,7 +121,7 @@ namespace WebAtoms.CoreJS.Core
             Arg3 = null;
             Args = null;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0)
         {
             This = @this;
@@ -129,7 +132,7 @@ namespace WebAtoms.CoreJS.Core
             Arg3 = null;
             Args = null;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1)
         {
             This = @this;
@@ -141,7 +144,7 @@ namespace WebAtoms.CoreJS.Core
             Args = null;
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2)
         {
             This = @this;
@@ -152,7 +155,7 @@ namespace WebAtoms.CoreJS.Core
             Arg3 = null;
             Args = null;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2, JSValue a3)
         {
             This = @this;
@@ -164,6 +167,7 @@ namespace WebAtoms.CoreJS.Core
             Args = null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue[] args)
         {
             This = @this;
@@ -215,6 +219,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Arguments(JSValue @this, Arguments src)
         {
             Length = src.Length;
@@ -226,11 +231,13 @@ namespace WebAtoms.CoreJS.Core
             This = @this;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments OverrideThis(JSValue @this)
         {
             return new Arguments(@this, this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JSValue Get1()
         {
             if (Length == 0)
@@ -240,6 +247,7 @@ namespace WebAtoms.CoreJS.Core
             return Args[0];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (JSValue, JSValue) Get2()
         {
             if (Length == 0)
@@ -250,6 +258,7 @@ namespace WebAtoms.CoreJS.Core
                 return (Arg0, Arg1);
             return (Args[0], Args[1]);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
         public (JSValue, JSValue, JSValue) Get3()
         {
@@ -264,6 +273,7 @@ namespace WebAtoms.CoreJS.Core
             return (Args[0], Args[1], Args[2]);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (JSValue, JSValue, JSValue, JSValue) Get4()
         {
             if (Length == 0)
@@ -284,6 +294,7 @@ namespace WebAtoms.CoreJS.Core
             return Args;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetAt(int index, out JSValue a)
         {
             if (Length > index)
@@ -310,6 +321,28 @@ namespace WebAtoms.CoreJS.Core
             }
             a = null;
             return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSValue GetAt(int index)
+        {
+            if (Length > index)
+            {
+                switch (index)
+                {
+                    case 0:
+                        return Arg0;
+                    case 1:
+                        return Arg1;
+                    case 2:
+                        return Arg2;
+                    case 3:
+                        return Arg3;
+                    default:
+                        return Args[index];
+                }
+            }
+            return JSUndefined.Value;
         }
     }
 }

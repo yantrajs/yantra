@@ -58,7 +58,8 @@ namespace WebAtoms.CoreJS.Core
         {
             JSValue obj = new JSObject();
             obj.prototypeChain = prototype;
-            var r = f(a);
+            var a1 = a.OverrideThis(obj);
+            var r = f(a1);
             if (!r.IsUndefined)
                 return r;
             return obj;

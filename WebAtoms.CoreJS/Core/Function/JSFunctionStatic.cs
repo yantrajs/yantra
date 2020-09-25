@@ -13,13 +13,17 @@ namespace WebAtoms.CoreJS.Core
             var len = args.Length;
             if (len == 0)
                 throw new JSException("No arguments were supplied to Function constructor");
-            var body = args.Get1();
+            JSValue body = null;
+            var sargs = args.All.Select(x =>
+                {
+                    body = x;
+                    return x.ToString();
+                })
+                .ToList().Take(len-1).ToList();
+
             var bodyText = body is JSString @string ? @string.value : body.ToString();
             var fx = new JSFunction(JSFunction.empty, "internal", bodyText);
 
-            var sargs = args.All.Take(len - 1)
-                .Select(x => x.ToString())
-                .ToArray();
 
             // parse and create method...
             var fx1 = CoreScript.Compile(bodyText, "internal", sargs);

@@ -67,6 +67,13 @@ namespace WebAtoms.CoreJS.ExpHelper
             return a;
         }
 
+        protected static MethodInfo InternalMethod(string name)
+        {
+            var a = typeof(T)
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Instance | BindingFlags.Static);
+            return a.First(x => x.Name == name);
+        }
+
         protected static MethodInfo InternalMethod<T1>(string name)
         {
             var a = typeof(T)
@@ -416,19 +423,13 @@ namespace WebAtoms.CoreJS.ExpHelper
         {
             return Expression.New(_NewFromException, value, Expression.Constant(name, typeof(string)));
         }
-        public static Expression FromArgument(Expression args, Expression length, int i, string name)
+
+        private static MethodInfo _NewFromArgument
+            = InternalMethod(nameof(JSVariable.New));
+
+        public static Expression FromArgument(Expression args, int i, string name)
         {
-            var ie = Expression.Constant(i);
-            var lessThan = Expression.LessThan(ie, length);
-            var ai = Expression.ArrayAccess(args, ie);
-            var undefined = JSUndefinedBuilder.Value;
-            var c = Expression.Condition(
-                    lessThan,
-                    ai,
-                    undefined);
-            return Expression.New(_New, 
-                    c,
-                Expression.Constant(name));
+            return Expression.Call(null, _NewFromArgument, args, Expression.Constant(i), Expression.Constant(name));
         }
 
 
@@ -585,7 +586,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         internal static MethodInfo _CreateInstance
-            = Method<JSValue[]>(nameof(JSValue.CreateInstance));
+            = Method(nameof(JSValue.CreateInstance));
 
         public static Expression CreateInstance(Expression target, Expression args) {
             return Expression.Call(target, _CreateInstance, args); 

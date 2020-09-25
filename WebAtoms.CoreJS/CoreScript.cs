@@ -46,7 +46,7 @@ namespace WebAtoms.CoreJS
         static readonly ConcurrentDictionary<string, JSFunctionDelegate> scripts
             = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        internal static JSFunctionDelegate Compile(string code, string location = null, string[] args = null)
+        internal static JSFunctionDelegate Compile(string code, string location = null, IList<string> args = null)
         {
             return scripts.GetOrAdd(code, (k) =>
             {
@@ -62,7 +62,7 @@ namespace WebAtoms.CoreJS
         }
 
 
-        public CoreScript(string code, string location = null, string[] argsList = null)
+        public CoreScript(string code, string location = null, IList<string> argsList = null)
         {
             this.Code = code;
             location = location ?? "vm.js";
@@ -118,7 +118,7 @@ namespace WebAtoms.CoreJS
                         // global arguments are set here for FunctionConstructor
 
                         fx.CreateVariable(arg,
-                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, argLength, i++, arg));
+                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, i++, arg));
                     }
                 }
 
@@ -179,6 +179,7 @@ namespace WebAtoms.CoreJS
             var previousScope = this.scope.Top;
 
             // if this is an arrowFunction then override previous thisExperssion
+
             var previousThis = this.scope.Top.ThisExpression;
             if (!(functionDeclaration is ArrowFunctionExpression))
             {
@@ -186,6 +187,7 @@ namespace WebAtoms.CoreJS
             }
 
             var functionName  = functionDeclaration.Id?.Name;
+
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis)))
             {
@@ -217,19 +219,19 @@ namespace WebAtoms.CoreJS
                 
 
                 var argumentElements = args;
-                var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
-                vList.Add(argumentElementsLength);
+                // var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
+                // vList.Add(argumentElementsLength);
 
-                sList.Add(Exp.Assign(argumentElementsLength, 
-                    Exp.Condition(
-                        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
-                            Exp.ArrayLength(argumentElements),
-                            Exp.Constant(0, typeof(int)))));
+                //sList.Add(Exp.Assign(argumentElementsLength, 
+                //    Exp.Condition(
+                //        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
+                //            Exp.ArrayLength(argumentElements),
+                //            Exp.Constant(0, typeof(int)))));
 
                 foreach (var v in pList)
                 {
                     var v1 = s.CreateVariable(v.Name, 
-                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, argumentElementsLength, i, v.Name));
+                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, v.Name));
                     i++;
                 }
 
@@ -323,19 +325,19 @@ namespace WebAtoms.CoreJS
             where T: INode
             where TR: Exp
         {
-            return exp();
-            //var s = this.scope.Top.Scope;
-            //var p = ast.Location.Start;
-            //try
-            //{
-            //    return Exp.Block(
-            //        LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
-            //        exp());
-            //}
-            //catch (Exception ex) when (!(ex is CompilerException))
-            //{
-            //    throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
-            //}
+            // return exp();
+            var s = this.scope.Top.Scope;
+            var p = ast.Location.Start;
+            try
+            {
+                return Exp.Block(
+                    LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
+                    exp());
+            }
+            catch (Exception ex) when (!(ex is CompilerException))
+            {
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+            }
         }
 
         protected override Exp VisitStatement(Statement statement)
