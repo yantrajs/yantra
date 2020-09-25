@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Net.Http.Headers;
+using System.Text;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -139,8 +141,72 @@ namespace WebAtoms.CoreJS.Core
                     return n;
                 }
             }
-            return JSUndefined.Value;
+            return JSNumber.MinusOne;
+        }
 
+        [Prototype("forEach")]
+        public static JSValue ForEach(in Arguments a)
+        {
+            var @this = a.This;
+            var callback = a.Get1();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            int i = 0;
+            foreach (var item in @this.AllElements)
+            {
+                var n = new JSNumber(i++);
+                var itemParams = new Arguments(@this, item, n, @this);
+                fn.f(itemParams);
+            }
+            return JSUndefined.Value;
+        }
+
+        [Prototype("includes")]
+        public static JSValue Includes(in Arguments a)
+        {
+            var @this = a.This;
+            var first = a.Get1();
+            foreach (var item in @this.AllElements)
+            {
+                if (item.Equals(first).BooleanValue)
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
+
+        [Prototype("indexOf")]
+        public static JSValue IndexOf(in Arguments a)
+        {
+            var @this = a.This;
+            var first = a.Get1();
+            int i = 0;
+            foreach (var item in @this.AllElements)
+            {
+                if (first.Equals(item).BooleanValue)
+                    return new JSNumber(i);
+                i++;
+            }
+            return JSNumber.MinusOne;
+        }
+
+        [Prototype("join")]
+        public static JSValue Join(in Arguments a)
+        {
+            var @this = a.This;
+            var first = a.Get1();
+            var sep = first.IsUndefined ? "," : first.ToString();
+            var sb = new StringBuilder();
+            bool isFirst = true;
+            foreach (var item in @this.AllElements)
+            {
+                if(!isFirst)
+                {
+                    sb.Append(sep);
+                }
+                isFirst = false;
+                sb.Append(item.ToString());
+            }
+            return new JSString(sb.ToString());
         }
 
         [Prototype("push")]

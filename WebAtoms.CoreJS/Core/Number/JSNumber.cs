@@ -18,6 +18,7 @@ namespace WebAtoms.CoreJS.Core
         internal readonly double value;
 
         public static JSNumber NaN = new JSNumber(double.NaN);
+        public static JSNumber MinusOne = new JSNumber(-1);
         public static JSNumber Zero = new JSNumber(0d);
         public static JSNumber One = new JSNumber(1d);
         public static JSNumber Two = new JSNumber(2d);
