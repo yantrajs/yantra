@@ -224,12 +224,12 @@ namespace WebAtoms.CoreJS.Core {
         }
 
 
-        public virtual JSValue CreateInstance(Arguments a)
+        public virtual JSValue CreateInstance(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
-        public abstract JSValue InvokeFunction(Arguments a);
+        public abstract JSValue InvokeFunction(in Arguments a);
 
         /// <summary>
         /// Warning do not use in concatenation
@@ -252,32 +252,32 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual string ToDetailString()
         {
-            return (InvokeMethod(KeyStrings.toString, JSArguments.Empty) as JSString)?.value;
+            return (InvokeMethod(KeyStrings.toString, Arguments.Empty) as JSString)?.value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(KeyString name,params JSValue[] args)
+        public virtual JSValue InvokeMethod(KeyString name, in Arguments a)
         {
             var fx = this[name];
             if (fx.IsUndefined)
                 throw new MethodAccessException($"Method {name} not found on {this}");
-            return fx.InvokeFunction(this, args);
+            return fx.InvokeFunction(a.OverrideThis(this));
         }
 
-        public JSValue InvokeMethod(uint name, params JSValue[] args)
+        public JSValue InvokeMethod(uint name, in Arguments a)
         {
             var fx = this[name];
             if (fx.IsUndefined)
                 throw new MethodAccessException($"Method {name} not found on {this}");
-            return fx.InvokeFunction(this, args);
+            return fx.InvokeFunction(a.OverrideThis(this));
         }
 
-        public JSValue InvokeMethod(JSValue name,params JSValue[] args)
+        public JSValue InvokeMethod(JSValue name, in Arguments a)
         {
             var key = name.ToKey();
             if (key.IsUInt)
-                return InvokeMethod(key.Key, args);
-            return InvokeMethod(key, args);
+                return InvokeMethod(key.Key, a);
+            return InvokeMethod(key, a);
         }
 
         public virtual JSValue Delete(KeyString key)
@@ -303,7 +303,7 @@ namespace WebAtoms.CoreJS.Core {
         internal abstract IEnumerable<JSValue> AllElements { get; }
 
 
-        internal JSValue InternalInvoke(object name,params JSValue[] args)
+        internal JSValue InternalInvoke(object name, in Arguments a)
         {
             JSValue fx = null;
             switch(name)
@@ -320,7 +320,7 @@ namespace WebAtoms.CoreJS.Core {
             }
             if (fx.IsUndefined)
                 throw JSContext.Current.NewTypeError($"Cannot invoke {name} of object as it is undefined");
-            return fx.InvokeFunction(this, args);
+            return fx.InvokeFunction(a.OverrideThis(this));
         }
 
         DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter)
