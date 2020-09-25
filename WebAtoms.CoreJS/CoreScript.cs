@@ -145,7 +145,7 @@ namespace WebAtoms.CoreJS
                         ExpHelper.IDisposableBuilder.Dispose(lScope))
                 );
 
-                var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
+                var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
                 this.Method = lambda.Compile();
 
@@ -303,7 +303,7 @@ namespace WebAtoms.CoreJS
                         block,
                         ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
 
-                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
+                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
 
 
                 // create new JSFunction instance...
@@ -903,7 +903,7 @@ namespace WebAtoms.CoreJS
         {
             var constructor = VisitExpression(newExpression.Callee);
             var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e)).ToList();
-            var pe = ExpHelper.JSArgumentsBuilder.New(args);
+            var pe = ArgumentsBuilder.New( JSUndefinedBuilder.Value, args);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
 
@@ -1166,9 +1166,6 @@ namespace WebAtoms.CoreJS
             var calle = callExpression.Callee;
             var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e)).ToList();
             
-            var paramArray = args.Any()
-                ? ExpHelper.JSArgumentsBuilder.New(args)
-                : ExpHelper.JSArgumentsBuilder.Empty();
             if (calle is Esprima.Ast.MemberExpression me)
             {
                 // invoke method...
@@ -1197,13 +1194,18 @@ namespace WebAtoms.CoreJS
 
 
                 // var name = KeyOfName(id.Name);
+                var paramArray = args.Any()
+                    ? ArgumentsBuilder.New(obj, args)
+                    : ArgumentsBuilder.Empty();
 
                 return JSValueBuilder.InvokeMethod(obj, name, paramArray);
 
             } else {
-                var a = ExpHelper.JSUndefinedBuilder.Value;
+                var paramArray = args.Any()
+                    ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args)
+                    : ArgumentsBuilder.Empty();
                 var callee = VisitExpression(callExpression.Callee);
-                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(callee, a, paramArray));
+                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(callee, paramArray));
             }
         }
 

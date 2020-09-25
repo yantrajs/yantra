@@ -547,11 +547,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _InvokeMethodKeyString
-            = InternalMethod<KeyString, JSValue[]>(nameof(JSValue.InvokeMethod));
+            = InternalMethod<KeyString, Arguments>(nameof(JSValue.InvokeMethod));
         private static MethodInfo _InvokeMethodUInt
-            = InternalMethod<uint, JSValue[]>(nameof(JSValue.InvokeMethod));
+            = InternalMethod<uint, Arguments>(nameof(JSValue.InvokeMethod));
         private static MethodInfo _InvokeMethodJSValue
-            = InternalMethod<JSValue, JSValue[]>(nameof(JSValue.InvokeMethod));
+            = InternalMethod<JSValue, Arguments>(nameof(JSValue.InvokeMethod));
 
         public static Expression InvokeMethod(Expression target, Expression method, Expression args)
         {
@@ -768,48 +768,100 @@ namespace WebAtoms.CoreJS.ExpHelper
 
     }
 
-    public class JSArgumentsBuilder: TypeHelper<Core.JSArguments>
+    public class ArgumentsBuilder
     {
+        private static readonly Type type = typeof(Arguments);
 
-        private static FieldInfo _Elements =
-            InternalField(nameof(Core.JSArguments.elements));
-
-        public static Expression Elements(Expression target)
-        {
-            return Expression.Field(target, _Elements);
-        }
-
-        private static ConstructorInfo _New =
-            Constructor<Core.JSValue[]>();
-
-        public static Expression New(IEnumerable<Expression> list)
-        {
-            if (!list.Any())
-            {
-                return JSArgumentsBuilder.Empty();
-            }
-            return Expression.NewArrayInit(typeof(Core.JSValue),list);
-        }
-
-        private static FieldInfo _Empty =
-            Field("Empty");
+        private readonly static Expression _Empty =
+            Expression.Field(null, type.GetField(nameof(Arguments.Empty)));
 
         public static Expression Empty()
         {
-            return Expression.Field(null, _Empty);
+            return _Empty;
         }
 
+        private readonly static ConstructorInfo _New0
+            = type.Constructor(new Type[] { typeof(JSValue) });
 
-        private static PropertyInfo _Index
-            = IndexProperty<uint>();
+        private readonly static ConstructorInfo _New1
+            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue) });
 
-        public static Expression Index(Expression target, uint value)
+        private readonly static ConstructorInfo _New2
+            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue), typeof(JSValue) });
+        
+        private readonly static ConstructorInfo _New3
+            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue) });
+
+        private readonly static ConstructorInfo _New4
+            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue) });
+
+        private readonly static ConstructorInfo _New
+            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[])});
+        public static Expression New(Expression @this, List<Expression> args)
         {
-            return Expression.MakeIndex(target, _Index, new Expression[] {
-                Expression.Constant(value)
-            });
+            var newList = new List<Expression>() { @this };
+            newList.AddRange(args);
+            switch (args.Count)
+            {
+                case 0:
+                    return Expression.New(_New0, newList);
+                case 1:
+                    return Expression.New(_New1, newList);
+                case 2:
+                    return Expression.New(_New2, newList);
+                case 3:
+                    return Expression.New(_New3, newList);
+                case 4:
+                    return Expression.New(_New4, newList);
+            }
+            var a = Expression.NewArrayInit(typeof(JSValue), args);
+            return Expression.New(_New, @this, a);
         }
+
     }
+
+    //public class JSArgumentsBuilder: TypeHelper<Core.JSArguments>
+    //{
+
+    //    private static FieldInfo _Elements =
+    //        InternalField(nameof(Core.JSArguments.elements));
+
+    //    public static Expression Elements(Expression target)
+    //    {
+    //        return Expression.Field(target, _Elements);
+    //    }
+
+    //    private static ConstructorInfo _New =
+    //        Constructor<Core.JSValue[]>();
+
+    //    public static Expression New(IEnumerable<Expression> list)
+    //    {
+    //        if (!list.Any())
+    //        {
+    //            return JSArgumentsBuilder.Empty();
+    //        }
+    //        return Expression.NewArrayInit(typeof(Core.JSValue),list);
+    //    }
+
+    //    private static FieldInfo _Empty =
+    //        Field("Empty");
+
+    //    public static Expression Empty()
+    //    {
+    //        return Expression.Field(null, _Empty);
+    //    }
+
+
+    //    private static PropertyInfo _Index
+    //        = IndexProperty<uint>();
+
+    //    public static Expression Index(Expression target, uint value)
+    //    {
+    //        return Expression.MakeIndex(target, _Index, new Expression[] {
+    //            Expression.Constant(value)
+    //        });
+    //    }
+    //}
 
     public class JSBooleanBuilder: TypeHelper<Core.JSBoolean>
     {
@@ -854,13 +906,13 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static MethodInfo invokeFunction =
             typeof(JSValue).GetMethod("InvokeFunction");
 
-        public static Expression InvokeFunction(Expression target, Expression t, Expression args)
+        public static Expression InvokeFunction(Expression target, Expression args)
         {
             // var asFunction = Expression.Coalesce(Expression.TypeAs(target, typeof(JSFunction)),
             //    JSExceptionBuilder.ThrowNotFunction(target));
             // var field = Expression.Field(asFunction, _f);
             // return Expression.Invoke(field, t, args);
-            return Expression.Call(target, invokeFunction, t, args);
+            return Expression.Call(target, invokeFunction, args);
         }
 
         public static Expression New(Expression del, string name, string code)

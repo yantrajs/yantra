@@ -63,5 +63,16 @@ namespace WebAtoms.CoreJS
             }
             return m;
         }
+
+        public static ConstructorInfo Constructor(this Type type, params Type[] types)
+        {
+            var c = type.GetConstructor(types);
+            if (c == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Constructor {type.Name}({tl}) not found");
+            }
+            return c;
+        }
     }
 }
