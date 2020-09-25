@@ -1,4 +1,5 @@
-﻿using WebAtoms.CoreJS.Extensions;
+﻿using System.Drawing;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -26,6 +27,23 @@ namespace WebAtoms.CoreJS.Core
                 r.elements[r._length++] = JSProperty.Property(f);
             }
             return r;
+        }
+
+        [Prototype("every")]
+        public static JSValue Every(in Arguments a)
+        {
+            var array = a.This;
+            var first = a.Get1();
+            if (!(first is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"First argument is not function");
+            int i = 0;
+            foreach(var item in array.AllElements)
+            {
+                var itemArgs = new Arguments(a.This, item, new JSNumber(i++), array);
+                if (!fn.f(itemArgs).BooleanValue)
+                    return JSBoolean.False;
+            }
+            return JSBoolean.True;
         }
 
         [Prototype("push")]
