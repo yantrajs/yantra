@@ -183,6 +183,22 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
+        [Prototype("reverse")]
+        public static JSValue Reverse(in Arguments a)
+        {
+            var @this = a.This;
+            var callback = a.Get1();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var r = new JSArray();
+            for (int i = @this.Length - 1 ; i >= 0; i--)
+            {
+                r.Add(@this[(uint)i]);
+            }
+            return JSUndefined.Value;
+
+        }
+
         [Prototype("slice")]
         public static JSArray Slice(in Arguments a)
         {
