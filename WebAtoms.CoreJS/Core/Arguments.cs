@@ -29,29 +29,25 @@ namespace WebAtoms.CoreJS.Core
 
         public Arguments CopyForCall()
         {
-            var a = new Arguments { 
-                This = length > 0 ? Arg0 : JSUndefined.Value,
-                length = this.length > 0 ? this.length - 1 : 0,
-                Arg0 = Arg1,
-                Arg1 = Arg2,
-                Arg2 = Arg3
-            };
-            if (this.length == MinArray)
+            switch(length)
             {
-                a.This = Args[0];
-                a.Arg0 = Args[1];
-                a.Arg1 = Args[2];
-                a.Arg2 = Args[3];
-                a.Arg3 = Args[4];
-                return a;
+                case 0:
+                    return new Arguments(JSUndefined.Value);
+                case 1:
+                    return new Arguments(Arg0);
+                case 2:
+                    return new Arguments(Arg0, Arg1);
+                case 3:
+                    return new Arguments(Arg0, Arg1, Arg2);
+                case 4:
+                    return new Arguments(Arg0, Arg1, Arg2, Arg3);
+                case 5:
+                    return new Arguments(Args[0], Args[1], Args[2], Args[3], Args[4]);
+                default:
+                    var sa = new JSValue[length - 1];
+                    Array.Copy(Args, 1, sa, 0, sa.Length);
+                    return new Arguments(Args[0], sa);
             }
-            if (this.length > MinArray)
-            {
-                a.This = Args[0];
-                a.Args = new JSValue[length - 1];
-                Array.Copy(Args, 1,  a.Args, 0, a.Args.Length);
-            }
-            return a;
         }
 
         public Arguments CopyForApply()
@@ -60,104 +56,145 @@ namespace WebAtoms.CoreJS.Core
             // in apply first parameter is @this and rest is An Array
             var (@this, args) = Get2();
             if (!(args is JSArray argArray))
-                return New(@this);
+                return new Arguments(@this);
             switch(argArray._length)
             {
                 case 0:
-                    return New(@this);
+                    return new Arguments(@this);
                 case 1:
-                    return New(@this, argArray[0]);
+                    return new Arguments(@this, argArray[0]);
                 case 2:
-                    return New(@this, argArray[0], argArray[1]);
+                    return new Arguments(@this, argArray[0], argArray[1]);
                 case 3:
-                    return New(@this, argArray[0], argArray[1], argArray[2]);
+                    return new Arguments(@this, argArray[0], argArray[1], argArray[2]);
                 case 4:
-                    return New(@this, argArray[0], argArray[1], argArray[2], argArray[3]);
+                    return new Arguments(@this, argArray[0], argArray[1], argArray[2], argArray[3]);
                 default:
-                    return New(@this, argArray);
+                    return new Arguments(@this, argArray);
             }
         }
 
-        public static Arguments New(JSValue @this)
+        public Arguments(JSValue @this)
         {
-            return new Arguments { 
-                This = @this
-            };
-        }
-
-        public static Arguments New(JSValue @this, JSValue a0)
-        {
-            return new Arguments
-            {
-                This = @this,
-                length = 1,
-                Arg0 = a0
-            };
-        }
-
-        public static Arguments New(JSValue @this, JSValue a0, JSValue a1)
-        {
-            return new Arguments
-            {
-                This = @this,
-                length = 2,
-                Arg0 = a0,
-                Arg1 = a1
-            };
-        }
-
-        public static Arguments New(JSValue @this, JSValue a0, JSValue a1, JSValue a2)
-        {
-            return new Arguments
-            {
-                This = @this,
-                length = 3,
-                Arg0 = a0,
-                Arg1 = a1,
-                Arg2 = a2
-            };
-        }
-
-        public static Arguments New(JSValue @this, JSValue a0, JSValue a1, JSValue a2, JSValue a3)
-        {
-            return new Arguments
-            {
-                This = @this,
-                length = 4,
-                Arg0 = a0,
-                Arg1 = a1,
-                Arg2 = a2,
-                Arg3 = a3
-            };
-        }
-
-        public Arguments OverrideThis(JSValue @this)
-        {
-            return new Arguments
-            {
-                This = @this,
-                length = length,
-                Arg0 = Arg0,
-                Arg1 = Arg1,
-                Arg2 = Arg2,
-                Arg3 = Arg3,
-                Args = Args
-            };
-        }
-
-        public Arguments(JSValue @this, JSValue[] args)
-        {
-            if (args.Length < MinArray)
-            {
-                throw new InvalidOperationException();
-            }
             This = @this;
-            length = args.Length;
+            length = 0;
             Arg0 = null;
             Arg1 = null;
             Arg2 = null;
             Arg3 = null;
-            Args = args;
+            Args = null;
+        }
+
+        public Arguments(JSValue @this, JSValue a0)
+        {
+            This = @this;
+            length = 1;
+            Arg0 = a0;
+            Arg1 = null;
+            Arg2 = null;
+            Arg3 = null;
+            Args = null;
+        }
+
+        public Arguments(JSValue @this, JSValue a0, JSValue a1)
+        {
+            This = @this;
+            length = 2;
+            Arg0 = a0;
+            Arg1 = a1;
+            Arg2 = null;
+            Arg3 = null;
+            Args = null;
+        }
+
+
+        public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2)
+        {
+            This = @this;
+            length = 3;
+            Arg0 = a0;
+            Arg1 = a1;
+            Arg2 = a2;
+            Arg3 = null;
+            Args = null;
+        }
+
+        public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2, JSValue a3)
+        {
+            This = @this;
+            length = 4;
+            Arg0 = a0;
+            Arg1 = a1;
+            Arg2 = a2;
+            Arg3 = a3;
+            Args = null;
+        }
+
+        public Arguments(JSValue @this, JSValue[] args)
+        {
+            This = @this;
+            length = args.Length;
+            switch(length)
+            {
+                case 0:
+                    Arg0 = null;
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 1:
+                    Arg0 = args[0];
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 2:
+                    Arg0 = args[0];
+                    Arg1 = args[1];
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 3:
+                    Arg0 = args[0];
+                    Arg1 = args[1];
+                    Arg2 = args[2];
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 4:
+                    Arg0 = args[0];
+                    Arg1 = args[1];
+                    Arg2 = args[2];
+                    Arg3 = args[3];
+                    Args = null;
+                    break;
+                default:
+                    Arg0 = null;
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = args;
+                    break;
+            }
+        }
+
+        private Arguments(JSValue @this, Arguments src)
+        {
+            length = src.length;
+            Arg0 = src.Arg0;
+            Arg1 = src.Arg1;
+            Arg2 = src.Arg2;
+            Arg3 = src.Arg3;
+            Args = src.Args;
+            This = @this;
+        }
+
+        public Arguments OverrideThis(JSValue @this)
+        {
+            return new Arguments(@this, this);
         }
 
         public JSValue Get1()

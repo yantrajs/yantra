@@ -48,7 +48,7 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException();
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException();
         }

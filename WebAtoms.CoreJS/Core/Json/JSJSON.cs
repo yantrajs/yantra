@@ -28,7 +28,7 @@ namespace WebAtoms.CoreJS.Core
             JsonParserReceiver r = null;
             if (receiver is JSFunction function)
             {
-                r = (p) => function.f(t, new JSValue[] { new JSString(p.key), p.value });
+                r = (p) => function.f( new Arguments(t, new JSString(p.key), p.value));
             }
             return JSJsonParser.Parse(text.ToString(), r);
 
@@ -71,7 +71,7 @@ namespace WebAtoms.CoreJS.Core
                 if (r is JSFunction rf)
                 {
                     replacer = (item) =>
-                     rf.f(item.target, item.key, item.value);
+                     rf.f(new Arguments(item.target, item.key, item.value));
                 } else if (r is JSArray ra)
                 {
 
@@ -187,7 +187,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     if (value.get == null)
                         continue;
-                    jsValue = (value.get as JSFunction).f(target, JSArguments.Empty);
+                    jsValue = (value.get as JSFunction).f(new Arguments(target));
                 } else
                 {
                     jsValue = value.value;
@@ -245,7 +245,7 @@ namespace WebAtoms.CoreJS.Core
             var p = jobj.GetInternalProperty(KeyStrings.toJSON);
             if (p.IsEmpty)
                 return value;
-            return (jobj.GetValue(p) as JSFunction).f(value, JSArguments.Empty);
+            return (jobj.GetValue(p) as JSFunction).f(new Arguments(value));
         }
 
 

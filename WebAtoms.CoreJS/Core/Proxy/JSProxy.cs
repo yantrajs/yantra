@@ -26,9 +26,9 @@ namespace WebAtoms.CoreJS.Core
             return target.Equals(value);
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue, params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
-            return target.InvokeFunction(thisValue, args);
+            return target.InvokeFunction(a);
         }
 
         public override JSBoolean StrictEquals(JSValue value)

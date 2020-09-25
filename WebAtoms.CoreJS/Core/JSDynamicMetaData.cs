@@ -25,7 +25,7 @@ namespace WebAtoms.CoreJS.Core
         {
             if (name == "ToString")
                 return target.ToString();
-            return target.InvokeMethod(name, a);
+            return target.InvokeMethod(name, new Arguments(target, a));
         }
 
         public static JSValue[] __CreateArguments(object[] args)

@@ -32,7 +32,7 @@ namespace WebAtoms.CoreJS.Core
                         JSValue item = new JSString(new string(ch, 1));
                         if (map is JSFunction fn)
                         {
-                            item = fn.InvokeFunction(t, item);
+                            item = fn.InvokeFunction(new Arguments(t, item));
                         }
                         r.elements[r._length++] = JSProperty.Property(item);
                     }
@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Core
                         JSValue item = ch.Value.value;
                         if (map is JSFunction fn)
                         {
-                            item = fn.InvokeFunction(t, item);
+                            item = fn.InvokeFunction(new Arguments(t, item));
                         }
                         r.elements[r._length++] = JSProperty.Property(item);
                     }

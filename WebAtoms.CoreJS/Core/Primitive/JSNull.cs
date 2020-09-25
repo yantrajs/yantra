@@ -104,7 +104,7 @@ namespace WebAtoms.CoreJS.Core
             return JSBoolean.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException("null is not a function");
         }

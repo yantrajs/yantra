@@ -36,9 +36,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
                     var ni = i++;
                     total = i;
                     
-                    p.Then((_, args) =>
+                    p.Then((in Arguments args) =>
                     {
-                        var r = args.GetAt(0);
+                        var r = args.Get1();
                         result[ni] = r;
                         total--;
                         if (total <= 0)
@@ -47,8 +47,8 @@ namespace WebAtoms.CoreJS.Core.Runtime
                         }
                         return JSUndefined.Value;
                     });
-                    p.Catch((_, args) => {
-                        reject(args.GetAt(0));
+                    p.Catch((in Arguments args) => {
+                        reject(args.Get1());
                         return JSUndefined.Value;
                     });
                 }

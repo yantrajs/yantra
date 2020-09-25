@@ -64,7 +64,7 @@ namespace WebAtoms.CoreJS.Utils
                 throw new JSException("assert.throws expect first parameter to be Function");
             try
             {
-                left.InvokeFunction(t);
+                left.InvokeFunction(new Arguments(t));
             }
             catch (Exception ex)
             {

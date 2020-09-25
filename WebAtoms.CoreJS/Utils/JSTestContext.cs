@@ -13,9 +13,8 @@ namespace WebAtoms.CoreJS.Utils
 
         public JSTestContext()
         {
-            var a = new JSFunction((t, a1) => {
-                var test = a1.GetAt(0);
-                var message = a1.GetAt(1);
+            var a = new JSFunction((in Arguments args) => {
+                var (test, message) = args.Get2();
                 message = message.IsUndefined ? new JSString($"Assert failed, no message") : message;
                 if (!test.BooleanValue)
                     throw new JSException(message);

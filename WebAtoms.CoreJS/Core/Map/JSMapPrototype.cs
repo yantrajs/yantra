@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS.Core
                 var m = ToMap(t);
                 foreach (var e in m.entries)
                 {
-                    fx.InvokeFunction(t, e.value, e.key, m);
+                    fx.InvokeFunction(new Arguments(t, e.value, e.key, m));
                 }
                 return JSUndefined.Value;
             }

@@ -58,7 +58,7 @@ namespace WebAtoms.CoreJS
         public static JSValue Evaluate(string code, string location = null)
         {
             var fx = Compile(code, location);
-            return fx(JSContext.Current, JSArguments.Empty);
+            return fx(new Arguments(JSContext.Current));
         }
 
 

@@ -54,15 +54,15 @@ namespace WebAtoms.CoreJS.Core
             return (int)Key.Key;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
-            var a = args.GetAt(0);
-            if (a.IsUndefined)
+            var f = a.Get1();
+            if (f.IsUndefined)
                 return new JSSymbol("");
             return new JSSymbol(a.ToString());
         }
 
-        public override JSValue CreateInstance(JSValue[] args)
+        public override JSValue CreateInstance(in Arguments a)
         {
             throw new NotSupportedException();
         }
