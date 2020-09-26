@@ -15,7 +15,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => true;
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = true)
         {
             return Key;
         }

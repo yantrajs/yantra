@@ -115,19 +115,19 @@ namespace WebAtoms.CoreJS.Extensions
 
         public static JSBoolean IsIn(this JSValue target, JSValue value)
         {
-            //var target = this;
-            //while(target != null)
-            //{
-            //    target.prototypeChain 
-            //}
             var tx = value as JSObject;
             if (tx == null)
                 return JSBoolean.False;
-            foreach(var a in tx.GetAllKeys())
+            var key = target.ToKey(false);
+            if (key.IsUInt)
             {
-                if (a.Equals(target).BooleanValue)
+                var p = tx.GetInternalProperty(key.Key);
+                if (p.IsEnumerable)
                     return JSBoolean.True;
             }
+            var p1 = tx.GetInternalProperty(key);
+            if (p1.IsEnumerable)
+                return JSBoolean.True;
             return JSBoolean.False;
         }
 

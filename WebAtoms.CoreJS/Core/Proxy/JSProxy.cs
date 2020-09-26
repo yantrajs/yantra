@@ -41,7 +41,7 @@ namespace WebAtoms.CoreJS.Core
             return target.TypeOf();
         }
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = false)
         {
             return target.ToKey();
         }

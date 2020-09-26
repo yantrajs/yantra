@@ -151,6 +151,12 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGet(string key, out KeyString ks)
+        {
+            return map.TryGetValue(key, out ks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static KeyString NewSymbol(string name)
         {
             return new KeyString($"Symbol({name})", (uint)Interlocked.Increment(ref NextID));

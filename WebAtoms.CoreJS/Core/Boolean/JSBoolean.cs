@@ -95,7 +95,7 @@ namespace WebAtoms.CoreJS.Core
         private static KeyString @true = KeyStrings.GetOrCreate("true");
         private static KeyString @false = KeyStrings.GetOrCreate("false");
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = false)
         {
             return this._value ? @true : @false;
         }

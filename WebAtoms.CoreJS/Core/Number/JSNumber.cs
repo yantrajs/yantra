@@ -62,7 +62,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.NumberPrototype;
         }
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = false)
         {
             var n = this.value;
             if (double.IsNaN(n))
@@ -71,6 +71,12 @@ namespace WebAtoms.CoreJS.Core
                 return new KeyString(null, 0);
             if (n > 0 && ((int)n) == n)
                 return new KeyString(null, (uint)n);
+            if (!create)
+            {
+                if (KeyStrings.TryGet(n.ToString(), out var k))
+                    return k;
+                return KeyStrings.undefined;
+            }
             return KeyStrings.GetOrCreate(n.ToString());
         }
 

@@ -1231,7 +1231,7 @@ namespace WebAtoms.CoreJS
                         list.Add(VisitExpression(exp));
                         break;
                     case null:
-                        list.Add(JSUndefinedBuilder.Value);
+                        list.Add(Exp.Constant(null, typeof(JSValue)));
                         break;
                     default:
                         throw new NotImplementedException();

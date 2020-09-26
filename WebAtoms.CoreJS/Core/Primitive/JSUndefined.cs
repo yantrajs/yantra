@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue Value = new JSUndefined();
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = true)
         {
             return KeyStrings.undefined;
         }

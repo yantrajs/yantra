@@ -209,6 +209,57 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(sb.ToString());
         }
 
+        [Prototype("keys")]
+        public static JSValue Keys(in Arguments a)
+        {
+            var @this = a.This;
+            var r = new JSArray();
+            for (int i = 0; i < @this.Length; i++)
+            {
+                r.Add(new JSNumber(i));
+            }
+            return r;
+
+        }
+
+        [Prototype("lastIndexOf")]
+        public static JSValue LastIndexOf(in Arguments a)
+        {
+            var @this = a.This;
+            var first = a.Get1();
+            var n = @this.Length;
+            if (n == 0)
+                return JSNumber.MinusOne;
+            var i = (uint)(n - 1);
+            while(i >= 0)
+            {
+                var item = @this[i];
+                if (item.Equals(first).BooleanValue)
+                    return new JSNumber(i);
+                if (i == 0)
+                    break;
+                i--;
+            }
+            return JSNumber.MinusOne;
+        }
+
+        [Prototype("map")]
+        public static JSValue Map(in Arguments a)
+        {
+            var @this = a.This;
+            var callback = a.Get1();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var r = new JSArray();
+            var i = 0;
+            foreach (var item in @this.AllElements)
+            {
+                var itemArgs = new Arguments(@this, item, new JSNumber(i++), @this);
+                r.Add(fn.f(itemArgs));
+            }
+            return r;
+        }
+
         [Prototype("push")]
         public static JSValue Push(in Arguments a)
         {

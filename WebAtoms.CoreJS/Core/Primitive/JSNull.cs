@@ -31,7 +31,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal override bool IsNullOrUndefined => true; 
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = false)
         {
             return KeyStrings.@null;
         }

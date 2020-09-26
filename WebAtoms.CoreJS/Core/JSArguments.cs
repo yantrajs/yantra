@@ -22,7 +22,7 @@ namespace WebAtoms.CoreJS.Core
             return JSConstants.Object;
         }
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = false)
         {
             throw new NotImplementedException();
         }

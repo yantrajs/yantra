@@ -100,7 +100,7 @@ namespace WebAtoms.CoreJS.Core {
             this.prototypeChain = prototype;
         }
 
-        internal abstract KeyString ToKey();
+        internal abstract KeyString ToKey(bool create = true);
 
         public virtual JSValue this[KeyString name]
         {

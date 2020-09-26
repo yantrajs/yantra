@@ -20,8 +20,14 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool IsString => true;
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = true)
         {
+            if (!create)
+            {
+                if(!KeyStrings.TryGet(this.value, out _keyString))
+                    return KeyStrings.undefined;
+                return _keyString;
+            }
             return _keyString.Value != null
                 ? _keyString
                 : (_keyString = KeyStrings.GetOrCreate(this.value));
