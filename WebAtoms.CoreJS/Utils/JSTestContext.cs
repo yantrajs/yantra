@@ -15,9 +15,11 @@ namespace WebAtoms.CoreJS.Utils
         {
             var a = new JSFunction((in Arguments args) => {
                 var (test, message) = args.Get2();
-                message = message.IsUndefined ? new JSString($"Assert failed, no message") : message;
                 if (!test.BooleanValue)
+                {
+                    message = message.IsUndefined ? new JSString($"Assert failed, no message, {test}") : message;
                     throw new JSException(message);
+                }
                 return JSUndefined.Value;
             });
             var prototype = Bootstrap.Create("Assert", typeof(JSAssert));
