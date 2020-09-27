@@ -46,25 +46,25 @@ namespace WebAtoms.CoreJS.Tests.Core
             a[0] = new JSNumber(0);
             a[5] = new JSNumber(4);
 
-            var list = a.All.ToList();
+            var list = a.GetArrayElements().ToList();
             Assert.AreEqual(20, list.Count);
 
-            Assert.AreEqual(0, list[0].IntValue);
-            Assert.AreEqual(4, list[5].IntValue);
-            Assert.AreEqual(JSUndefined.Value, list[1]);
-            Assert.AreEqual(JSUndefined.Value, list[19]);
+            Assert.AreEqual(0, list[0].value.IntValue);
+            Assert.AreEqual(4, list[5].value.IntValue);
+            Assert.AreEqual(JSUndefined.Value, list[1].value);
+            Assert.AreEqual(JSUndefined.Value, list[19].value);
 
             a[25] = new JSNumber(22);
 
             Assert.AreEqual(26, a.Length);
 
-            list = a.All.ToList();
+            list = a.GetArrayElements().ToList();
             Assert.AreEqual(26, list.Count);
-            Assert.AreEqual(0, list[0].IntValue);
-            Assert.AreEqual(4, list[5].IntValue);
-            Assert.AreEqual(JSUndefined.Value, list[1]);
-            Assert.AreEqual(JSUndefined.Value, list[19]);
-            Assert.AreEqual(22, list[25].IntValue);
+            Assert.AreEqual(0, list[0].value.IntValue);
+            Assert.AreEqual(4, list[5].value.IntValue);
+            Assert.AreEqual(JSUndefined.Value, list[1].value);
+            Assert.AreEqual(JSUndefined.Value, list[19].value);
+            Assert.AreEqual(22, list[25].value.IntValue);
             Assert.AreEqual(JSUndefined.Value, a[109]);
             Assert.AreEqual(26, list.Count);
         }

@@ -300,7 +300,7 @@ namespace WebAtoms.CoreJS.Core {
         /// <summary>
         /// Returns Elements of an Array or an Iterable...
         /// </summary>
-        internal abstract IEnumerable<JSValue> AllElements { get; }
+        internal abstract IEnumerable<(uint index,JSValue value)> AllElements { get; }
 
 
         internal JSValue InternalInvoke(object name, in Arguments a)

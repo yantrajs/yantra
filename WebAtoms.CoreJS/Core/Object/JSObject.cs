@@ -191,7 +191,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal override IEnumerable<JSValue> AllElements {
+        internal override IEnumerable<(uint index, JSValue value)> AllElements {
             get {
                 // if this is an array, it will be handled by an Array...
 
@@ -205,7 +205,7 @@ namespace WebAtoms.CoreJS.Core
                 var n = (uint)l.IntValue;
                 for (uint i = 0; i < n; i++)
                 {
-                    yield return this.GetValue(elements[i]);
+                    yield return (i, this.GetValue(elements[i]));
                 }
             }
         }

@@ -30,7 +30,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
                 foreach (var e in f.AllElements)
                 {
                     empty = false;
-                    if (!(e is JSPromise p))
+                    if (!(e.value is JSPromise p))
                         throw JSContext.Current.NewTypeError($"All parameters must be Promise");
                     var item = e;
                     var ni = i++;

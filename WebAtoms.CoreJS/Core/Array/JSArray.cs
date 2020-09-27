@@ -34,13 +34,22 @@ namespace WebAtoms.CoreJS.Core
 
         public override string ToString()
         {
-            return string.Join(",", All);
+            var sb = new StringBuilder();
+            bool first = true;
+            foreach(var item in GetArrayElements())
+            {
+                if (!first)
+                    sb.Append(',');
+                if (!item.value.IsUndefined)
+                    sb.Append(item.value);
+                first = false;
+            }
+            return sb.ToString();
         }
 
         public override string ToDetailString()
         {
-            var all = All.Select(a => a.ToDetailString());
-            return $"[{string.Join(", ", all)}]";
+            return $"[{this.ToString()}]"; ;
         }
 
         public override JSValue this[uint name]
@@ -67,28 +76,31 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool IsArray => true;
 
-        public IEnumerable<JSValue> All
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IEnumerable<(uint index, JSValue value)> GetArrayElements(bool withHoles = true)
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
+            uint i = 0;
+            foreach(var a in elements.AllValues)
             {
-                int i = 0;
-                foreach(var a in elements.AllValues)
+                var index = a.Key;
+                while (index > i)
                 {
-                    var index = a.Key;
-                    while (index > i)
+                    if (withHoles)
                     {
-                        yield return JSUndefined.Value;
-                        i++;
+                        yield return (i, JSUndefined.Value);
                     }
-                    yield return a.Value.value;
                     i++;
                 }
-                while (i < _length)
+                yield return (i, a.Value.value);
+                i++;
+            }
+            while (i < _length)
+            {
+                if (withHoles)
                 {
-                    yield return JSUndefined.Value;
-                    i++;
+                    yield return (i, JSUndefined.Value);
                 }
+                i++;
             }
         }
 
@@ -128,7 +140,7 @@ namespace WebAtoms.CoreJS.Core
             return this;
         }
 
-        internal override IEnumerable<JSValue> AllElements  => this.All;
+        internal override IEnumerable<(uint index, JSValue value)> AllElements  => this.GetArrayElements(false);
 
     }
 }

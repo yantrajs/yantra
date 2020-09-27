@@ -16,14 +16,18 @@ namespace WebAtoms.CoreJS.Core
             var f = a.Get1();
             foreach (var e in a.This.AllElements)
             {
-                r.elements[r._length++] = JSProperty.Property(e);
+                r.elements[e.index] = JSProperty.Property(e.value);
             }
-            if (f.IsArray)
+            r._length = (uint)a.This.Length;
+            if (f is JSArray ary)
             {
-                foreach (var e in f.AllElements)
+                var start = r._length;
+                foreach (var e in ary.GetArrayElements(false))
                 {
-                    r.elements[r._length++] = JSProperty.Property(e);
+                    var ei = start + e.index;
+                    r.elements[ei] = JSProperty.Property(e.value);
                 }
+                r._length = (uint)a.This.Length + ary._length;
             }
             else
             {
@@ -39,10 +43,9 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
-            int i = 0;
             foreach(var item in array.AllElements)
             {
-                var itemArgs = new Arguments(a.This, item, new JSNumber(i++), array);
+                var itemArgs = new Arguments(a.This, item.value, new JSNumber(item.index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -91,13 +94,12 @@ namespace WebAtoms.CoreJS.Core
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
             var r = new JSArray();
-            int i = 0;
             foreach(var item in @this.AllElements)
             {
-                var itemParams = new Arguments(@this, item, new JSNumber(i++), @this);
+                var itemParams = new Arguments(@this, item.value, new JSNumber(item.index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
-                    r.Add(item);
+                    r.Add(item.value);
                 }
             }
             return r;
@@ -110,13 +112,12 @@ namespace WebAtoms.CoreJS.Core
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            int i = 0;
             foreach (var item in @this.AllElements)
             {
-                var itemParams = new Arguments(@this, item, new JSNumber(i++), @this);
+                var itemParams = new Arguments(@this, item.value, new JSNumber(item.index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
-                    return item;
+                    return item.value;
                 }
             }
             return JSUndefined.Value;
@@ -131,14 +132,13 @@ namespace WebAtoms.CoreJS.Core
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            int i = 0;
             foreach (var item in @this.AllElements)
             {
-                var n = new JSNumber(i++);
-                var itemParams = new Arguments(@this, item, n, @this);
+                var index = new JSNumber(item.index);
+                var itemParams = new Arguments(@this, item.value, index, @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
-                    return n;
+                    return index;
                 }
             }
             return JSNumber.MinusOne;
@@ -151,11 +151,10 @@ namespace WebAtoms.CoreJS.Core
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            int i = 0;
             foreach (var item in @this.AllElements)
             {
-                var n = new JSNumber(i++);
-                var itemParams = new Arguments(@this, item, n, @this);
+                var n = new JSNumber(item.index);
+                var itemParams = new Arguments(@this, item.value, n, @this);
                 fn.f(itemParams);
             }
             return JSUndefined.Value;
@@ -168,7 +167,7 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             foreach (var item in @this.AllElements)
             {
-                if (item.Equals(first).BooleanValue)
+                if (item.value.Equals(first).BooleanValue)
                     return JSBoolean.True;
             }
             return JSBoolean.False;
@@ -179,12 +178,10 @@ namespace WebAtoms.CoreJS.Core
         {
             var @this = a.This;
             var first = a.Get1();
-            int i = 0;
             foreach (var item in @this.AllElements)
             {
-                if (first.Equals(item).BooleanValue)
-                    return new JSNumber(i);
-                i++;
+                if (first.Equals(item.value).BooleanValue)
+                    return new JSNumber(item.index);
             }
             return JSNumber.MinusOne;
         }
@@ -204,7 +201,7 @@ namespace WebAtoms.CoreJS.Core
                     sb.Append(sep);
                 }
                 isFirst = false;
-                sb.Append(item.ToString());
+                sb.Append(item.value.ToString());
             }
             return new JSString(sb.ToString());
         }
@@ -251,10 +248,9 @@ namespace WebAtoms.CoreJS.Core
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var r = new JSArray();
-            var i = 0;
             foreach (var item in @this.AllElements)
             {
-                var itemArgs = new Arguments(@this, item, new JSNumber(i++), @this);
+                var itemArgs = new Arguments(@this, item.value, new JSNumber(item.index), @this);
                 r.Add(fn.f(itemArgs));
             }
             return r;
@@ -338,7 +334,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue ToString(in Arguments args)
             => new JSString(
                 args.This is JSArray a
-                    ? string.Join(",", a.All)
+                    ? a.ToString()
                     : "[object Object]");
 
 
