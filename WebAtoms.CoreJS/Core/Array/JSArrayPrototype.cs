@@ -404,10 +404,10 @@ namespace WebAtoms.CoreJS.Core
                 return first;
             for(uint i = 1; i < n - 1; i++)
             {
-                oe[i - 1] = oe[i];
+                if (oe.TryRemove(i, out var p))
+                    oe[i - 1] = p;
             }
             @this.Length = n - 1;
-            oe.RemoveAt((uint)(n - 2));
             return first;
 
         }
@@ -415,10 +415,67 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("slice")]
         public static JSArray Slice(in Arguments a)
         {
-            var ta = a.This as JSArray;
             var start = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
-            var end = a.TryGetAt(0, out var a2) ? a2.IntValue : -1;
-            return ta.Slice(start, end);
+            var end = a.TryGetAt(1, out var a2) ? a2.IntValue : -1;
+            JSArray r = new JSArray();
+            uint l;
+            uint ni;
+            if (a.This is JSArray ary)
+            {
+                if (end >= 0)
+                {
+                    l = (uint)end >= ary._length ? ary._length - 1: (uint)end;
+                }
+                else 
+                {
+                    int n = ((int)ary._length) + end;
+                    l = n >= 0 ? (uint)n + 1 : ary._length;
+                }
+                ni = 0;
+                for (uint i = (uint)start; i < l; i++)
+                {
+                    if (ary.elements.TryGetValue(i, out var p))
+                    {
+                        r.elements[ni++] = p;
+                    } else
+                    {
+                        ni++;
+                    }
+                }
+                r._length = ni;
+                return r;
+            }
+            if (!(a.This is JSObject @object))
+                return r;
+            var e = @object.elements;
+            if (e == null)
+                return r;
+            // array like object..
+            l = ((uint)@object.Length) >> 0;
+            if (end >= 0)
+            {
+                l = (uint)end >= l ? l - 1 : (uint)end;
+            }
+            else
+            {
+                int n = ((int)l) + end;
+                l = n >= 0 ? (uint)n + 1 : l;
+            }
+            ni = 0;
+            for (uint i = (uint)start; i < l; i++)
+            {
+                if (e.TryGetValue(i, out var p))
+                {
+                    r.elements[ni++] = p;
+                }
+                else
+                {
+                    ni++;
+                }
+            }
+            r._length = ni;
+
+            return r;
         }
 
         [GetProperty("length")]

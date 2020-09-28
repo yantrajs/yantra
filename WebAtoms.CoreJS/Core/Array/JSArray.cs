@@ -110,23 +110,6 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        public JSArray Slice(int value, int length = -1)
-        {
-            JSArray a = new JSArray();
-            uint l = _length;
-            if (length != -1)
-            {
-                l = (uint)length > _length ? _length : (uint)length;
-            }
-            for (uint i = (uint)value; i < l; i++)
-            {
-                var item = elements[i];
-                if (item.IsEmpty) continue;
-                a.elements[i] = item;
-            }
-            return a;
-        }
-
         public JSArray Add(JSValue item)
         {
             if (item == null)
