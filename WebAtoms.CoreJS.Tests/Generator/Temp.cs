@@ -13,8 +13,9 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         private void RunTest(string file)
         {
-            var text = System.IO.File.ReadAllText("../../../Generator/Files/es5/" + file);
-            CoreScript.Evaluate(text);
+            var fileObj = new System.IO.FileInfo("../../../Generator/Files/es5/" + file);
+            var text = System.IO.File.ReadAllText(fileObj.FullName);
+            CoreScript.Evaluate(text, fileObj.FullName);
         }
 
 
@@ -23,7 +24,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // pending new object initialization
 
-            // RunTest("Function\\closure.js");
+            RunTest("Function\\closure.js");
 
             // RunTest("Syntax\\TryCatch\\try.js");
 

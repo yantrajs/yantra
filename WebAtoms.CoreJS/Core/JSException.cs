@@ -13,6 +13,9 @@ namespace WebAtoms.CoreJS.Core
 
         public JSValue Stack { get; }
 
+        private List<(string target, string file, int line, int column)> trace
+            = new List<(string target, string file, int line, int column)>();
+
         public JSException(string message): base(message)
         {
             Error = new JSError(new JSString(message), JSUndefined.Value);
@@ -39,6 +42,7 @@ namespace WebAtoms.CoreJS.Core
             while (top != null)
             {
                 sb.AppendLine($"{top.Function} {top.FileName} {top.Position.Line},{top.Position.Column}");
+                trace.Add((top.Function, top.FileName, top.Position.Line, top.Position.Column));
                 top = top.Parent;
             }
             return new JSString(sb.ToString());
@@ -55,19 +59,43 @@ namespace WebAtoms.CoreJS.Core
         {
             throw new JSException($"{value} is not a function");
         }
-        public override string Message => 
-            this.Stack != null 
-            ? $"{Stack}{base.Message}"
-            : base.Message;
 
-        public override string ToString()
+        public override string StackTrace
         {
-            if (this.Stack != null)
+            get
             {
-                return $"{Error}{Stack}{base.ToString()}";
+                var sb = new StringBuilder();
+                foreach(var item in trace)
+                {
+                    sb.Append("at ");
+                    sb.Append(string.IsNullOrWhiteSpace(item.target)
+                        ? "native"
+                        : item.target);
+                    sb.Append(" in ");
+                    sb.Append(item.file);
+                    sb.Append(":line ");
+                    sb.Append(item.line);
+                    // sb.Append(" , ");
+                    // sb.Append(item.column + 1);
+                    sb.AppendLine();
+                }
+                return sb.ToString();
             }
-            return base.ToString();
         }
+
+        //public override string Message => 
+        //    this.Stack != null 
+        //    ? $"{Stack}{base.Message}"
+        //    : base.Message;
+
+        //public override string ToString()
+        //{
+        //    if (this.Stack != null)
+        //    {
+        //        return $"{Error}{Stack}{base.ToString()}";
+        //    }
+        //    return base.ToString();
+        //}
 
 
 
