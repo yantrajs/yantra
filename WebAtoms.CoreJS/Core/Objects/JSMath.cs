@@ -207,5 +207,14 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = Math.Pow(Math.Abs(d), 1.0 / 3.0);
             return new JSNumber (d < 0 ? -r : r);
         }
+
+        [Static("ceil")]
+        public static JSValue Ceil(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Ceiling(d));
+            return r;
+        }
     }
 }
