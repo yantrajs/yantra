@@ -33,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
             FileName = fileName;
             Function = function;
             position = new Position(line, column);
-            Console.WriteLine($"{function}, {line}, {column}");
+            // Console.WriteLine($"{function}, {line}, {column}");
         }
 
         public string FileName;

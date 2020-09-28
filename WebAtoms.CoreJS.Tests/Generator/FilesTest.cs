@@ -60,7 +60,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 content = await fs.ReadToEndAsync();
             }
             var jc = new JSTestContext();
-            CoreScript.Evaluate(content, name);
+            CoreScript.Evaluate(content, x.FullName);
 
         }
 

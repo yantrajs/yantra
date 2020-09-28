@@ -42,7 +42,17 @@ namespace WebAtoms.CoreJS.Core
             while (top != null)
             {
                 sb.AppendLine($"{top.Function} {top.FileName} {top.Position.Line},{top.Position.Column}");
-                trace.Add((top.Function, top.FileName, top.Position.Line, top.Position.Column));
+                var fx = top.Function;
+                var file = top.FileName;
+                if (string.IsNullOrWhiteSpace(fx))
+                {
+                    fx = "native";
+                }
+                if(string.IsNullOrWhiteSpace(file))
+                {
+                    file = "file";
+                }
+                trace.Add((fx, file, top.Position.Line, top.Position.Column));
                 top = top.Parent;
             }
             return new JSString(sb.ToString());
@@ -68,9 +78,7 @@ namespace WebAtoms.CoreJS.Core
                 foreach(var item in trace)
                 {
                     sb.Append("at ");
-                    sb.Append(string.IsNullOrWhiteSpace(item.target)
-                        ? "native"
-                        : item.target);
+                    sb.Append(item.target);
                     sb.Append(" in ");
                     sb.Append(item.file);
                     sb.Append(":line ");
