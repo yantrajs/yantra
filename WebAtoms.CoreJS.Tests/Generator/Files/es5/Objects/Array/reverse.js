@@ -1,0 +1,1 @@
+﻿assert.strictEqual([0,1,2,3,4,5].reverse().toString(), "5,4,3,2,1,0");

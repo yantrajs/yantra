@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
@@ -320,6 +321,31 @@ namespace WebAtoms.CoreJS.Core
             return initialValue;
         }
 
+        [Prototype("reduceRight")]
+        public static JSValue ReduceRight(in Arguments a)
+        {
+            var r = new JSArray();
+            var @this = a.This;
+            var (callback, initialValue) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.reduce");
+            var start = @this.Length - 1;
+            if (a.Length == 1)
+            {
+                if (@this.Length == 0)
+                    throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
+                initialValue = @this[(uint)start];
+                start--;
+            }
+            for (int i = start; i >= 0; i--)
+            {
+                var item = @this[(uint)i];
+                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(i), @this);
+                initialValue = fn.f(itemArgs);
+            }
+            return initialValue;
+        }
+
         [Prototype("reverse")]
         public static JSValue Reverse(in Arguments a)
         {
@@ -329,7 +355,32 @@ namespace WebAtoms.CoreJS.Core
             {
                 r.Add(@this[(uint)i]);
             }
-            return JSUndefined.Value;
+            return r;
+
+        }
+
+        [Prototype("shift")]
+        public static JSValue Shift(in Arguments a)
+        {
+            var @this = a.This;
+            JSValue first = JSUndefined.Value;
+            if (@this is JSArray ary)
+            {
+                uint lastIndex = 0;
+                foreach(var item in ary.GetArrayElements(false).ToList())
+                {
+                    if(first == null)
+                    {
+                        first = item.value;
+                        lastIndex = item.index;
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+            return first;
 
         }
 
