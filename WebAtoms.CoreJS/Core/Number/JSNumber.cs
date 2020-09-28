@@ -107,7 +107,10 @@ namespace WebAtoms.CoreJS.Core
             return double.IsNaN(n.DoubleValue);
         }
 
-        
+        public override JSValue AddValue(JSValue value)
+        {
+            return new JSNumber(this.value + value.DoubleValue);
+        }
 
 
         //public override JSValue AddValue(JSValue value)

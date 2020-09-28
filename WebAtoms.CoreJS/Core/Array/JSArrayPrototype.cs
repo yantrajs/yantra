@@ -296,6 +296,30 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
+        [Prototype("reduce")]
+        public static JSValue Reduce(in Arguments a)
+        {
+            var r = new JSArray();
+            var @this = a.This;
+            var (callback, initialValue) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.reduce");
+            var en = @this.AllElements.GetEnumerator();
+            if (a.Length == 1)
+            {
+                if (!en.MoveNext())
+                    throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
+                initialValue = en.Current.value;
+            }
+            while (en.MoveNext())
+            {
+                var item = en.Current.value;
+                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(en.Current.index), @this);
+                initialValue = fn.f(itemArgs);
+            }
+            return initialValue;
+        }
+
         [Prototype("reverse")]
         public static JSValue Reverse(in Arguments a)
         {

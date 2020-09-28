@@ -16,3 +16,4 @@ var a = {};
 Array.prototype.push.call(a, 1);
 
 assert.strictEqual(a.length, 1);
+assert.strictEqual(a[0], 1);
