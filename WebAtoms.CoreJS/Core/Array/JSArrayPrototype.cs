@@ -489,11 +489,6 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("sort")]
         public static JSValue Sort(in Arguments a)
         {
-            var list = new List<JSValue>();
-            foreach(var item in a.This.AllElements)
-            {
-                list.Add(item.value);
-            }
 
             var fx = a.Get1();
             Comparison<JSValue> cx = null;
@@ -508,9 +503,21 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (!fx.IsUndefined)
                     throw JSContext.Current.NewTypeError($"Argument is not a function");
-                cx = (l, r) => l.Less(r).BooleanValue ? -1 :
-                    l.Equals(r).BooleanValue ? 0 :
-                    1;
+
+                // lets use map...
+                //StringTrie<JSValue> trie = new StringTrie<JSValue>();
+                //foreach(var item in a.This.AllElements)
+                //{
+
+                //}
+                cx = (l, r) => (l.IsUndefined ? string.Empty : l.ToString())
+                    .CompareTo(r.IsUndefined ? string.Empty : r.ToString());
+            }
+
+            var list = new List<JSValue>();
+            foreach (var item in a.This.AllElements)
+            {
+                list.Add(item.value);
             }
 
             list.Sort(cx);

@@ -11,6 +11,9 @@ namespace WebAtoms.CoreJS.Core
     [JSRuntime(typeof(JSStringStatic), typeof(JSStringPrototype))]
     public partial class JSString : JSPrimitive
     {
+
+        internal static JSString Empty = new JSString(string.Empty);
+
         internal readonly string value;
         KeyString _keyString = new KeyString(null,0);
 
