@@ -79,7 +79,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal JSObject AddProperty(KeyString key, JSValue value)
         {
-            ownProperties[key.Key] = JSProperty.Property(value);
+            ownProperties[key.Key] = JSProperty.Property(key, value);
             return this;
         }
 

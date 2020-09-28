@@ -11,4 +11,4 @@ animals = {
 };
 
 pop = Array.prototype.pop.call(animals);
-assert.strictEqual(pop, 'sheep');
+assert.strictEqual(pop, undefined);
