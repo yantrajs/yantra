@@ -478,6 +478,23 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
+        [Prototype("some")]
+        public static JSValue Some(in Arguments a)
+        {
+            var array = a.This;
+            var first = a.Get1();
+            if (!(first is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"First argument is not function");
+            foreach (var item in array.AllElements)
+            {
+                var itemArgs = new Arguments(a.This, item.value, new JSNumber(item.index), array);
+                if (fn.f(itemArgs).BooleanValue)
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
+
+
         [GetProperty("length")]
         internal static JSValue GetLength(in Arguments a)
         {

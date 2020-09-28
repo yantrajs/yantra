@@ -44,6 +44,19 @@ namespace WebAtoms.CoreJS.Utils
             return JSUndefined.Value;
         }
 
+        [Prototype("doubleEqual")]
+        public static JSValue DoubleEqual(in Arguments a)
+        {
+            var (left, right, msgObj) = a.Get3();
+            if (!(Math.Abs(left.DoubleValue - right.DoubleValue) < 0.0001))
+            {
+                var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
+                throw new JSException(msg);
+            }
+            return JSUndefined.Value;
+        }
+
+
         [Prototype("notEqual")]
         public static JSValue NotEqual(in Arguments a)
         {
