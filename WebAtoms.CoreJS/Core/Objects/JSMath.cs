@@ -189,5 +189,23 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = new JSNumber(Math.Atan2(d1,d2));
             return r;
         }
+
+        [Static("atanh")]
+        public static JSValue Atanh(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Log((1.0 + d) / (1.0 - d)) / 2.0);
+            return r;
+        }
+
+        [Static("cbrt")]
+        public static JSValue Cbrt(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = Math.Pow(Math.Abs(d), 1.0 / 3.0);
+            return new JSNumber (d < 0 ? -r : r);
+        }
     }
 }

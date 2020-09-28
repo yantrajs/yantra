@@ -109,6 +109,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly static KeyString arguments;
 
+        public readonly static KeyString Infinity;
+
 
 
         static KeyStrings()

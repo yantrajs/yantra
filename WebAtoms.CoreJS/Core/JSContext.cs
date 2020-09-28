@@ -133,6 +133,8 @@ namespace WebAtoms.CoreJS.Core
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 
             this.Fill<JSGlobalStatic>();
+
+            this[KeyStrings.Infinity] = JSNumber.PositiveInfinity;
         }
 
         private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
