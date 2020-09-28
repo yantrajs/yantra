@@ -363,23 +363,43 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Shift(in Arguments a)
         {
             var @this = a.This;
-            JSValue first = JSUndefined.Value;
+            JSValue first = @this[(uint)0];
+
             if (@this is JSArray ary)
             {
-                uint lastIndex = 0;
-                foreach(var item in ary.GetArrayElements(false).ToList())
+                var en = ary.GetArrayElements(false).GetEnumerator();
+                if (en.MoveNext())
                 {
-                    if(first == null)
+                    var item = en.Current;
+                    if(item.index > 0)
                     {
-                        first = item.value;
-                        lastIndex = item.index;
-                    }
-                    else
-                    {
-
+                        // shift...
+                        ary.elements[item.index - 1] = ary.elements[item.index];
                     }
                 }
+                while (en.MoveNext())
+                {
+                    var item = en.Current;
+                    ary.elements[item.index - 1] = ary.elements[item.index];
+                }
+                ary._length = ary._length - 1;
+                return first;
             }
+
+            if (!(@this is JSObject @object))
+                return first;
+
+            var n = @this.Length;
+            if (n == 0)
+                return first;
+            var oe = @object.elements;
+            if (oe == null)
+                return first;
+            for(uint i = 1; i < n - 1; i++)
+            {
+                oe[i - 1] = oe[i];
+            }
+            @this.Length = n - 1;
             return first;
 
         }

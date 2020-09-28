@@ -245,6 +245,29 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        public override int Length {
+            get
+            {
+                var ownp = this.ownProperties;
+                if (ownp == null)
+                {
+                    return 0;
+                }
+                var l = ownp[KeyStrings.length.Key];
+                if (!l.IsEmpty)
+                {
+                    var n = this.GetValue(l);
+                    var nvalue = ((uint)(int)n.DoubleValue) >> 0;
+                    return (int)nvalue;
+                }
+                return 0;
+            }
+            set {
+                var ownp = this.ownProperties ?? (this.ownProperties = new PropertySequence());
+                ownp[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length,new JSNumber(value));
+            }
+        }
+
         internal override IEnumerable<(uint index, JSValue value)> AllElements {
             get {
                 // if this is an array, it will be handled by an Array...
