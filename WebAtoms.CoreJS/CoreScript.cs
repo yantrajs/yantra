@@ -853,7 +853,6 @@ namespace WebAtoms.CoreJS
                         break;
                     case Literal l when l.TokenType == TokenType.NumericLiteral:
                         key = Exp.Constant((uint)l.NumericValue);
-                        name = l.StringValue;
                         break;
                     default:
                         throw new NotSupportedException();
@@ -870,8 +869,10 @@ namespace WebAtoms.CoreJS
                 {
                     if (!properties.TryGetValue(name, out var m))
                     {
-                        m = new ExpressionHolder { 
-                            Key = key
+                        m = new ExpressionHolder {
+                            Key = key,
+                            Getter = Exp.Constant(null, typeof(JSFunction)),
+                            Setter = Exp.Constant(null, typeof(JSFunction))
                         };
                         properties[name] = m;
                         keys.Add(m);
