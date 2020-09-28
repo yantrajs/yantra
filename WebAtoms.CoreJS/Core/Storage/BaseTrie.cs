@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using WebAtoms.CoreJS.Core.Storage;
 
@@ -41,6 +43,9 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        /// <summary>
+        /// Recursive enumerators are bad...
+        /// </summary>
         public IEnumerable<(TKey Key, TValue Value)> AllValues
         {
             get
@@ -51,6 +56,41 @@ namespace WebAtoms.CoreJS.Core
                 }
             }
         }
+
+
+        ////ref struct Enumerator 
+        ////{
+        ////    private BaseMap<TKey, TValue> map;
+        ////    private uint index;
+        ////    private TValue value;
+        ////    public Enumerator(BaseMap<TKey,TValue> map, uint start)
+        ////    {
+        ////        this.map = map;
+        ////        index = start;
+        ////        value = default;
+        ////    }
+
+        ////    public bool MoveNext()
+        ////    {
+        ////        if (index < this.map.size)
+        ////        {
+        ////            ref var node = ref map.Buffer[index];
+        ////            if (node.HasValue)
+        ////            {
+        ////                value = node.Value;
+        ////                return true;
+        ////            }
+        ////        } else
+        ////        {
+
+        ////        }
+        ////        index++;
+        ////        return false;
+        ////    }
+
+        ////    public TValue Current => value;
+
+        ////}
 
         protected abstract IEnumerable<(TKey Key, TValue Value, UInt32 index)> Enumerate(UInt32 index);
 

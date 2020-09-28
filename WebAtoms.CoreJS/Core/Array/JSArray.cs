@@ -79,28 +79,16 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(uint index, JSValue value)> GetArrayElements(bool withHoles = true)
         {
-            uint i = 0;
-            foreach(var a in elements.AllValues)
+            uint l = this._length;
+            for (uint i = 0; i < l; i++)
             {
-                var index = a.Key;
-                while (index > i)
+                if(elements.TryGetValue(i, out var p))
                 {
-                    if (withHoles)
-                    {
-                        yield return (i, JSUndefined.Value);
-                    }
-                    i++;
+                    yield return (i, p.value);
+                    continue;
                 }
-                yield return (i, a.Value.value);
-                i++;
-            }
-            while (i < _length)
-            {
                 if (withHoles)
-                {
                     yield return (i, JSUndefined.Value);
-                }
-                i++;
             }
         }
 
