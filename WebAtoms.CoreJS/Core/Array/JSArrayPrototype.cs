@@ -371,6 +371,7 @@ namespace WebAtoms.CoreJS.Core
                 var elements = ary.elements;
                 if (en.MoveNext())
                 {
+                    var item = en.Current;
                     if(item.index > 0)
                     {
                         // shift...
