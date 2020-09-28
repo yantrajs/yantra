@@ -363,26 +363,32 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Shift(in Arguments a)
         {
             var @this = a.This;
-            JSValue first = @this[(uint)0];
+            JSValue first = JSUndefined.Value;
 
             if (@this is JSArray ary)
             {
                 var en = ary.GetArrayElements(false).GetEnumerator();
+                var elements = ary.elements;
                 if (en.MoveNext())
                 {
-                    var item = en.Current;
                     if(item.index > 0)
                     {
                         // shift...
-                        ary.elements[item.index - 1] = ary.elements[item.index];
+                        elements[item.index - 1] = elements[item.index];
+                        elements.RemoveAt(item.index);
+                    } else
+                    {
+                        first = item.value;
+                        elements.RemoveAt(0);
                     }
                 }
                 while (en.MoveNext())
                 {
                     var item = en.Current;
-                    ary.elements[item.index - 1] = ary.elements[item.index];
+                    elements[item.index - 1] = elements[item.index];
+                    elements.RemoveAt(item.index);
                 }
-                ary._length = ary._length - 1;
+                ary._length -= 1;
                 return first;
             }
 
@@ -400,6 +406,7 @@ namespace WebAtoms.CoreJS.Core
                 oe[i - 1] = oe[i];
             }
             @this.Length = n - 1;
+            oe.RemoveAt((uint)(n - 2));
             return first;
 
         }
