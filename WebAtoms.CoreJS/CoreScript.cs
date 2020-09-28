@@ -994,6 +994,14 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitIdentifier(Esprima.Ast.Identifier identifier)
         {
             // if this is null, fetch from global...
+            if (identifier.Name == "arguments")
+            {
+                var functionScope = this.scope.Top.TopScope;
+                var vs = functionScope.CreateVariable("arguments",
+                    JSArgumentsBuilder.New(functionScope.ArgumentsExpression));
+                return vs.Expression;
+            }
+
             var local = this.scope.Top[identifier.Name];
             if (local != null)
                 return local;

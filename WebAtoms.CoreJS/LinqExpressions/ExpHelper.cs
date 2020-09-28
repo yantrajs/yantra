@@ -845,6 +845,18 @@ namespace WebAtoms.CoreJS.ExpHelper
 
     }
 
+    public class JSArgumentsBuilder
+    {
+        private static Type type = typeof(JSArguments);
+        private static ConstructorInfo _New
+            = type.Constructor(new Type[] { typeof(Arguments).MakeByRefType() });
+
+        public static Expression New(Expression args)
+        {
+            return Expression.New(_New, args);
+        }
+    }
+
     public class ArgumentsBuilder
     {
         private static readonly Type type = typeof(Arguments);

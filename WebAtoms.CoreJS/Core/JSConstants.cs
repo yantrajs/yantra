@@ -7,6 +7,9 @@ namespace WebAtoms.CoreJS.Core
     internal class JSConstants
     {
 
+        public static readonly JSString Arguments =
+            new JSString("arguments");
+
         public static readonly JSString Undefined =
             new JSString("undefined");
 

@@ -445,13 +445,11 @@ namespace WebAtoms.CoreJS.Core
                 r._length = ni;
                 return r;
             }
-            if (!(a.This is JSObject @object))
-                return r;
-            var e = @object.elements;
-            if (e == null)
-                return r;
+            var @object = a.This;
             // array like object..
             l = ((uint)@object.Length) >> 0;
+            if (l == 0)
+                return r;
             if (end >= 0)
             {
                 l = (uint)end >= l ? l - 1 : (uint)end;
@@ -464,14 +462,7 @@ namespace WebAtoms.CoreJS.Core
             ni = 0;
             for (uint i = (uint)start; i < l; i++)
             {
-                if (e.TryGetValue(i, out var p))
-                {
-                    r.elements[ni++] = p;
-                }
-                else
-                {
-                    ni++;
-                }
+                r[ni++] = @object[i];
             }
             r._length = ni;
 

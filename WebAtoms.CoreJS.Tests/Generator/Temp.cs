@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // pending new object initialization
 
-            RunTest("Function\\closure.js");
+            RunTest("Objects\\Array\\slice.js");
 
             // RunTest("Syntax\\TryCatch\\try.js");
 

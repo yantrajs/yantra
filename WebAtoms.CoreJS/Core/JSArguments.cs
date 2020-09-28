@@ -6,46 +6,52 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSArguments: JSValue
+    public class JSArguments: JSPrimitive
     {
+        [GetProperty("length")]
+        public static JSValue GetLength(in Arguments a)
+        {
+            return new JSNumber(a.This.Length);
+        }
+
+        [SetProperty("length")]
+        public static JSValue SetLength(in Arguments a)
+        {
+            // do nothing...
+            return a.Get1();
+        }
 
         public static JSValue[] Empty = new JSValue[] { };
 
         public override int Length { 
-            get => (int)this._length;
+            get => arguments.Length;
             set { } }
 
         public override bool BooleanValue => true;
 
         public override JSValue TypeOf()
         {
-            return JSConstants.Object;
+            return JSConstants.Arguments;
         }
 
         internal override KeyString ToKey(bool create = false)
         {
-            throw new NotImplementedException();
+            return KeyStrings.arguments;
         }
 
-
-        public static JSValue[] From(params double[] args)
-        {
-            return args.Select((n) => new JSNumber(n)).ToArray();
-        }
-
-        public static JSValue[] From(params string[] args)
-        {
-            return args.Select((n) => new JSString(n)).ToArray();
-        }
 
         public override JSBoolean Equals(JSValue value)
         {
-            throw new NotImplementedException();
+            if (object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
         {
-            throw new NotImplementedException();
+            if (object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override JSValue InvokeFunction(in Arguments a)
@@ -53,41 +59,34 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException();
         }
 
-        internal readonly uint _length;
-        internal JSValue[] elements = null;
+        internal Arguments arguments = Arguments.Empty;
 
-        public JSArguments(JSArray a): base(JSContext.Current.ObjectPrototype)
+        public JSArguments(in Arguments args)
         {
-            _length = (uint)a._length;
-            uint i;
-            elements = new JSValue[_length];
-            for(i = 0; i<_length; i++)
+            arguments = args;
+        }
+
+        protected override JSObject GetPrototype()
+        {
+            return JSContext.Current.ObjectPrototype;
+        }
+
+        public override JSValue this[uint key] 
+        {
+            get => arguments.GetAt((int)key);
+            set => base[key] = value;
+        }
+
+        internal override IEnumerable<(uint index, JSValue value)> AllElements
+        {
+            get
             {
-                elements[i] = a[i];
+                uint i = 0;
+                foreach(var e in arguments.All)
+                {
+                    yield return (i++, e);
+                }
             }
         }
-
-        private JSArguments(): base(JSContext.Current.ObjectPrototype)
-        {
-
-        }
-
-        public JSArguments(JSValue[] args) : base(JSContext.Current.ObjectPrototype)
-        {
-            _length = (uint)args.Count();
-            uint i = 0;
-            elements = new JSValue[_length];
-            foreach (var item in args)
-            {
-                elements[i++] = item;
-            }
-        }
-
-        public new JSValue this[uint key] { 
-            get => key>= _length ? JSUndefined.Value : elements[key];
-            set { } 
-        }
-
-        internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
     }
 }

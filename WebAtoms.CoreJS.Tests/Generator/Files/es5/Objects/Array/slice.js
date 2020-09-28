@@ -17,3 +17,11 @@ var args = {
 let list1 = list(args);
 
 assert.strictEqual(list1.toString(), "1,2,3");
+
+function list2() {
+    return Array.prototype.slice.call(arguments);
+}
+
+list1 = list2(1,2,3);
+
+assert.strictEqual(list1.toString(), "1,2,3");

@@ -128,6 +128,19 @@ namespace WebAtoms.CoreJS
 
         public LabelTarget ReturnLabel { get; }
 
+        public FunctionScope TopScope
+        {
+            get
+            {
+                var p = this;
+                while (p.Parent != null && p.Function == p.Parent.Function)
+                {
+                    p = p.Parent;
+                }
+                return p;
+            }
+        }
+
         public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null)
         {
             this.Function = fx;
