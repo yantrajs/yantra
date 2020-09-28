@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -485,6 +486,37 @@ namespace WebAtoms.CoreJS.Core
             return JSBoolean.False;
         }
 
+        [Prototype("sort")]
+        public static JSValue Sort(in Arguments a)
+        {
+            var list = new List<JSValue>();
+            foreach(var item in a.This.AllElements)
+            {
+                list.Add(item.value);
+            }
+
+            var fx = a.Get1();
+            Comparison<JSValue> cx = null;
+            if (fx is JSFunction fn)
+            {
+                var @this = a.This;
+                cx = (l, r) => {
+                    var arg = new Arguments(@this, l, r);
+                    return (int)(fn.f(arg).DoubleValue);
+                };
+            } else
+            {
+                if (!fx.IsUndefined)
+                    throw JSContext.Current.NewTypeError($"Argument is not a function");
+                cx = (l, r) => l.Less(r).BooleanValue ? -1 :
+                    l.Equals(r).BooleanValue ? 0 :
+                    1;
+            }
+
+            list.Sort(cx);
+
+            return new JSArray(list);
+        }
 
         [GetProperty("length")]
         internal static JSValue GetLength(in Arguments a)
