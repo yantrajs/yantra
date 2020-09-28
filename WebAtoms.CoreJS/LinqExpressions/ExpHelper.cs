@@ -718,7 +718,7 @@ namespace WebAtoms.CoreJS.ExpHelper
             type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSValue) });
 
         private static MethodInfo _AddPropertyAccessors =
-            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSFunction), typeof(JSFunction) });
+            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSFunction), typeof(JSFunction) });
 
         public static Expression New(IList<ExpressionHolder> keyValues)
         {
@@ -768,7 +768,7 @@ namespace WebAtoms.CoreJS.ExpHelper
                 {
                     if (px.Value != null)
                     {
-                        _newObj = Expression.Call(_newObj, _AddElement, px.Key, px.Value);
+                        _newObj = Expression.Call(_newObj, _AddProperty, px.Key, px.Value);
                     } else
                     {
                         _newObj = Expression.Call(_newObj, _AddPropertyAccessors, px.Key, px.Getter, px.Setter);
