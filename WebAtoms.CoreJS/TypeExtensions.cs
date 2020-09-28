@@ -10,6 +10,20 @@ namespace WebAtoms.CoreJS
     internal static class TypeExtensions
     {
 
+        public static MethodInfo InternalMethod(this Type type, string name, params Type[] types)
+        {
+            var m = type.GetMethod(name,
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance,
+                null, types, null);
+            if (m == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Method {name}({tl}) not found on {type.FullName}");
+            }
+            return m;
+        }
+
+
         public static MethodInfo StaticMethod(this Type type, string name, params Type[] types)
         {
             var m = type.GetMethod(name,

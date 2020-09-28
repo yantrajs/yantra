@@ -49,6 +49,60 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        internal static JSObject NewWithProperties()
+        {
+            var o = new JSObject();
+            o.ownProperties = new PropertySequence();
+            return o;
+        }
+
+        internal static JSObject NewWithElements()
+        {
+            var o = new JSObject();
+            o.elements = new UInt32Trie<JSProperty>();
+            return o;
+        }
+
+        internal static JSObject NewWithPropertiesAndElements()
+        {
+            var o = new JSObject();
+            o.ownProperties = new PropertySequence();
+            o.elements = new UInt32Trie<JSProperty>();
+            return o;
+        }
+
+        internal JSObject AddElement(uint index, JSValue value)
+        {
+            elements[index] = JSProperty.Property(value);
+            return this;
+        }
+
+        internal JSObject AddProperty(KeyString key, JSValue value)
+        {
+            ownProperties[key.Key] = JSProperty.Property(value);
+            return this;
+        }
+
+        internal JSObject AddProperty(KeyString key, JSFunction getter, JSFunction setter)
+        {
+            ownProperties[key.Key] = JSProperty.Property(key, getter?.f, setter?.f);
+            return this;
+        }
+
+
+        internal JSObject AddProperty(JSValue key, JSValue value)
+        {
+            var k = key.ToKey(true);
+            if (k.IsUInt)
+            {
+                elements[k.Key] = JSProperty.Property(value);
+            } else
+            {
+                ownProperties[k.Key] = JSProperty.Property(value);
+            }
+            return this;
+        }
+
         internal override KeyString ToKey(bool create = true)
         {
             if (!create)

@@ -830,12 +830,6 @@ namespace WebAtoms.CoreJS
             return Exp.Block(list);
         }
 
-        class ExpressionHolder
-        {
-            public Exp Value;
-            public Exp Getter;
-            public Exp Setter;
-        }
 
         protected override Exp VisitObjectExpression(Esprima.Ast.ObjectExpression objectExpression)
         {
@@ -853,8 +847,12 @@ namespace WebAtoms.CoreJS
                         key = KeyOfName(id.Name);
                         name = id.Name;
                         break;
-                    case Literal l:
+                    case Literal l when l.TokenType == TokenType.StringLiteral:
                         key = KeyOfName(l.StringValue);
+                        name = l.StringValue;
+                        break;
+                    case Literal l when l.TokenType == TokenType.NumericLiteral:
+                        key = Exp.Constant((uint)l.NumericValue);
                         name = l.StringValue;
                         break;
                     default:
@@ -872,7 +870,9 @@ namespace WebAtoms.CoreJS
                 {
                     if (!properties.TryGetValue(name, out var m))
                     {
-                        m = new ExpressionHolder { };
+                        m = new ExpressionHolder { 
+                            Key = key
+                        };
                         properties[name] = m;
                         keys.Add(m);
                     }
@@ -884,17 +884,21 @@ namespace WebAtoms.CoreJS
                     {
                         m.Setter = value;
                     }
-                    m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter, m.Setter);
+                    // m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter, m.Setter);
                     continue;
                 }
                 else
                 {
-                    value = ExpHelper.JSPropertyBuilder.Value(key, value);
+                    // value = ExpHelper.JSPropertyBuilder.Value(key, value);
+                    keys.Add(new ExpressionHolder { 
+                        Key = key,
+                        Value = value
+                    });
                 }
-                keys.Add(new ExpressionHolder { Value = value });
+                // keys.Add(new ExpressionHolder { Value = value });
             }
 
-            return ExpHelper.JSObjectBuilder.New(keys.Select((x) => (x.Value)));
+            return ExpHelper.JSObjectBuilder.New(keys);
         }
 
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)
@@ -1322,4 +1326,13 @@ namespace WebAtoms.CoreJS
             return JSUndefinedBuilder.Value;
         }
     }
+
+    public class ExpressionHolder
+    {
+        public Exp Key;
+        public Exp Value;
+        public Exp Getter;
+        public Exp Setter;
+    }
+
 }
