@@ -109,6 +109,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue AddValue(JSValue value)
         {
+            if (value is JSString @string)
+                return new JSString(this.value + @string.value);
             return new JSNumber(this.value + value.DoubleValue);
         }
 
