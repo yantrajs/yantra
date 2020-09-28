@@ -246,5 +246,15 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r= clz32Table[x >> 26];
             return new JSNumber(r);
         }
+
+        [Static("cos")]
+        public static JSValue Cos(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Cos(d));
+            return r;
+        }
+
     }
 }
