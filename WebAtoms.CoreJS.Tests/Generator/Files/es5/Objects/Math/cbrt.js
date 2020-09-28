@@ -10,4 +10,5 @@ assert.strictEqual(Math.cbrt(-1), -1);
 assert.strictEqual(Math.cbrt(1), 1);
 assert.strictEqual(Math.cbrt(Infinity), Infinity);
 assert.strictEqual(Math.ceil(Math.cbrt(64)), 4);
+//assert.strictEqual(Math.cbrt(64), 4);
 
