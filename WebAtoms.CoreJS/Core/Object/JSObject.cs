@@ -257,7 +257,7 @@ namespace WebAtoms.CoreJS.Core
                 if (!l.IsEmpty)
                 {
                     var n = this.GetValue(l);
-                    var nvalue = ((uint)(int)n.DoubleValue) >> 0;
+                    var nvalue = ((uint)n.DoubleValue) >> 0;
                     return (int)nvalue;
                 }
                 return 0;

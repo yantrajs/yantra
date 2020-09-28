@@ -216,5 +216,35 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = new JSNumber(Math.Ceiling(d));
             return r;
         }
+
+        private static readonly int[] clz32Table = new int[] {
+            32, 31,  0, 16,  0, 30,  3,  0, 15,  0,  0,  0, 29, 10,  2,  0,
+             0,  0, 12, 14, 21,  0, 19,  0,  0, 28,  0, 25,  0,  9,  1,  0,
+            17,  0,  4,  0,  0,  0, 11,  0, 13, 22, 20,  0, 26,  0,  0, 18,
+             5,  0,  0, 23,  0, 27,  0,  6,  0, 24,  7,  0,  8,  0,  0,  0
+        };
+
+
+        /// <summary>
+        /// we have Int value, so we might want to replace DoubleValue with Intvalue, 
+        /// But since the implementation is not complete, we have continued with Doublevalue
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("clz32")]
+        public static JSValue Clz32(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var x = ((uint)d) >> 0;
+            x = x | (x >> 1);       // Propagate leftmost
+            x = x | (x >> 2);       // 1-bit to the right.
+            x = x | (x >> 4);
+            x = x | (x >> 8);
+            x = x | (x >> 16);
+            x = x * 0x06EB14F9;     // Multiplier is 7*255**3.
+            var r= clz32Table[x >> 26];
+            return new JSNumber(r);
+        }
     }
 }
