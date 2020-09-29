@@ -1,5 +1,4 @@
-﻿
-assert(Number.isNaN(Math.cos()));
+﻿assert(Number.isNaN(Math.cos()));
 assert(Number.isNaN(Math.cos(undefined)));
 assert.strictEqual(Math.cos(null), 1);
 assert.strictEqual(Math.cos(0), 1);

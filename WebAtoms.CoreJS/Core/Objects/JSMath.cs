@@ -122,6 +122,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         /// <summary>
         /// Ref. Jurrasic - MathObject.cs
         /// public static double Acosh(double number)
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L462
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
@@ -147,6 +148,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         /// <summary>
         /// Ref. Jurrasic - MathObject.cs
         /// public static double Asinh(double number)
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L462
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
@@ -167,6 +169,12 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = new JSNumber(Math.Atan(d));
             return r;
         }
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L144
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
 
         [Static("atan2")]
         public static JSValue Atan2(in Arguments args)
@@ -190,6 +198,11 @@ namespace WebAtoms.CoreJS.Core.Objects
             return r;
         }
 
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L475
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         [Static("atanh")]
         public static JSValue Atanh(in Arguments args)
         {
@@ -199,6 +212,11 @@ namespace WebAtoms.CoreJS.Core.Objects
             return r;
         }
 
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L475
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         [Static("cbrt")]
         public static JSValue Cbrt(in Arguments args)
         {
@@ -228,6 +246,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         /// <summary>
         /// we have Int value, so we might want to replace DoubleValue with Intvalue, 
         /// But since the implementation is not complete, we have continued with Doublevalue
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L475
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
@@ -255,6 +274,113 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = new JSNumber(Math.Cos(d));
             return r;
         }
+
+        [Static("cosh")]
+        public static JSValue Cosh(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Cosh(d));
+            return r;
+        }
+
+        [Static("exp")]
+        public static JSValue Exp(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Exp(d));
+            return r;
+        }
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L397
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("expm1")]
+        public static JSValue Expm1(in Arguments args)
+        {
+            var first = args.Get1();
+            double r;
+            var d = first.DoubleValue;
+            if (Math.Abs(d) < 0.01)
+            {
+                // For small numbers, use a taylor series approximation.
+                r = d * (1.0 + d * (1.0 / 2.0 + d * (1.0 / 6.0 + d *
+                    (1.0 / 24.0 + d * (1.0 / 120.0 + d * (1.0 / 720.0 + d * (1.0 / 5040.0)))))));
+                return new JSNumber(r) ;
+            }
+            // Otherwise just use the normal exp function.
+            r = Math.Exp(d) - 1.0;
+            return new JSNumber(r);
+            
+        }
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L569
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("fround")]
+        public static JSValue Fround(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = (double)(float)d;
+            return new JSNumber(r);
+            
+        }
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L489
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("hypot")]
+        public static JSValue Hypot(in Arguments args)
+        {
+            int length = args.Length;
+            if (length == 0)
+                return JSNumber.Zero;
+            if (length == 1) {
+                return new JSNumber(Math.Abs(args.Get1().DoubleValue));
+            }
+            var (first, second) = args.Get2();
+            double d1 = first.DoubleValue;
+            double d2 = second.DoubleValue;
+            
+            if (length == 2)
+                return new JSNumber(Hypot(d1, d2));
+
+            double result = Hypot(d1, d2);
+            for (int i = 2; i < length; i++) {
+                double val = args.GetAt(i).DoubleValue;
+
+                result = Hypot(result, val);
+            }
+            return new JSNumber(result);
+
+        }
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L511
+        /// </summary>
+        /// <param name="number1"></param>
+        /// <param name="number2"></param>
+        /// <returns></returns>
+        public static double Hypot(double number1, double number2) {
+            double abs1 = Math.Abs(number1);
+            double abs2 = Math.Abs(number2);
+            double min = Math.Min(abs1, abs2);
+            double max = Math.Max(abs1, abs2);
+            double u = min / max;
+            if (min == 0)
+                return max;
+            return max * Math.Sqrt(1 + u * u);
+
+        }
+
 
     }
 }

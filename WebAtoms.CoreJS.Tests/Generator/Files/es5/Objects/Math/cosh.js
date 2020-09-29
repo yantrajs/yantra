@@ -1,0 +1,12 @@
+﻿assert(Number.isNaN(Math.cosh()));
+assert(Number.isNaN(Math.cosh(undefined)));
+assert.strictEqual(Math.cosh(null), 1);
+assert.strictEqual(Math.cosh(0), 1);
+assert.strictEqual(Math.cosh(""), 1);
+assert(isNaN(Math.cosh("abcd")));
+assert.doubleEqual(Math.cosh("1.2"), 1.8106555673243747);
+assert.doubleEqual(Math.cosh(" 1.2"), 1.8106555673243747);
+assert.strictEqual(Math.cosh(Infinity), Infinity);
+assert.doubleEqual(Math.cosh(1), 1.5430806348152437);
+assert.doubleEqual(Math.cosh(-1), 1.5430806348152437);
+assert.strictEqual(Math.cosh(2), 3.7621956910836314);
