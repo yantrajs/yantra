@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using WebAtoms.CoreJS.Core.Storage;
@@ -122,9 +123,10 @@ namespace WebAtoms.CoreJS.Core
             get
             {
                 lockSlim.EnterReadLock();
-                foreach (var item in this.Enumerate(0))
-                    yield return item;
+                var list = new List<(TKey Key, T Value)>(this.Buffer.Length / 4);
+                Enumerate(0, list);
                 lockSlim.ExitReadLock();
+                return list;
             }
         }
 
@@ -191,26 +193,26 @@ namespace WebAtoms.CoreJS.Core
             return count;
         }
 
-        protected IEnumerable<(TKey key, T value)> Enumerate(UInt32 index)
+        protected void Enumerate(UInt32 index, List<(TKey Key, T Value)> all)
         {
             var last = index + this.size;
             for (UInt32 i = index; i < last; i++)
             {
-                var node = Buffer[i];
+                ref var node = ref Buffer[i];
                 if (node.HasValue)
                 {
-                    yield return (node.Key, node.Value);
+                    all.Add((node.Key, node.Value));
                 }
             }
             for (UInt32 i = index; i < last; i++)
             {
-                var node = Buffer[i];
+                ref var node = ref Buffer[i];
                 if (!node.HasIndex)
                 {
                     continue;
                 }
                 var fi = node.FirstChildIndex;
-                foreach (var a in Enumerate(fi)) yield return a;
+                Enumerate(fi, all);
             }
         }
 

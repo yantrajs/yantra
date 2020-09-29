@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using WebAtoms.CoreJS.Core.Storage;
@@ -30,22 +31,21 @@ namespace WebAtoms.CoreJS.Core {
 
         public int Size => Buffer.Length;        
 
-        protected override IEnumerable<(string Key, T Value, UInt32 index)> Enumerate(UInt32 index)
+        protected override void Enumerate(UInt32 index, List<(string Key, T Value)> all)
         {
             var last = index + this.size;
             for (UInt32 i = index; i < last; i++)
             {
-                var node = Buffer[i];
-                var fi = node.FirstChildIndex;
+                ref var node = ref Buffer[i];
                 if (node.HasValue)
                 {
-                    yield return (node.Key, node.Value, i);
+                    all.Add((node.Key, node.Value));
                 }
                 if (!node.HasIndex)
                 {
                     continue;
                 }
-                foreach (var a in Enumerate(fi)) yield return a;
+                Enumerate(node.FirstChildIndex, all);
             }
         }
 

@@ -27,26 +27,26 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        protected override IEnumerable<(uint Key, T Value, uint index)> Enumerate(UInt32 index)
+        protected override void Enumerate(UInt32 index, List<(uint Key, T Value)> all)
         {
             var last = index + this.size;
             for (UInt32 i = index; i < last; i++)
             {
-                var node = Buffer[i];
+                ref var node = ref Buffer[i];
                 if (node.HasValue)
                 {
-                    yield return (node.Key, node.Value, i);
+                    all.Add((node.Key, node.Value));
                 }
             }
             for (UInt32 i = index; i < last; i++)
             {
-                var node = Buffer[i];
+                ref var node = ref Buffer[i];
                 if (!node.HasIndex)
                 {
                     continue;
                 }
                 var fi = node.FirstChildIndex;
-                foreach (var a in Enumerate(fi)) yield return a;
+                Enumerate(fi, all);
             }
         }
 

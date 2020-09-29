@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esprima.Ast;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -50,10 +51,26 @@ namespace WebAtoms.CoreJS.Core
         {
             get
             {
-                foreach (var (k, v, _) in Enumerate(0))
-                {
-                    yield return (k, v);
-                }
+               List<(TKey key, TValue value)> all = new List<(TKey key, TValue value)>(this.Buffer.Length/4);
+                //void Yield(uint start, uint size, TrieNode[] buffer, List<(TKey, TValue)> list)
+                //{
+                //    var last = start + size;
+                //    for (uint i = start; i < last; i++)
+                //    {
+                //        ref var node = ref buffer[i];
+                //        if (node.HasValue)
+                //        {
+                //            list.Add((node.Key, node.Value));
+                //        }
+                //        if (node.HasIndex)
+                //        {
+                //            Yield(node.FirstChildIndex, size, buffer, list);
+                //        }
+                //    }
+                //}
+                //Yield(0, this.size, Buffer, all);
+                Enumerate(0, all);
+                return all;
             }
         }
 
@@ -92,7 +109,7 @@ namespace WebAtoms.CoreJS.Core
 
         ////}
 
-        protected abstract IEnumerable<(TKey Key, TValue Value, UInt32 index)> Enumerate(UInt32 index);
+        protected abstract void Enumerate(UInt32 index, List<(TKey Key,TValue Value)> all);
 
         protected int Update(Func<TKey, TValue, (bool replace, TValue value)> update, UInt32 index = 0)
         {
@@ -100,7 +117,7 @@ namespace WebAtoms.CoreJS.Core
             var last = index + this.size;
             for (uint i = index; i < last; i++)
             {
-                var node = Buffer[i];
+                ref var node = ref Buffer[i];
                 var fi = node.FirstChildIndex;
                 if (node.HasValue)
                 {
@@ -123,7 +140,7 @@ namespace WebAtoms.CoreJS.Core
 
         public bool TryGetKeyOf(TValue value, out TKey key)
         {
-            foreach (var (k, v, _) in Enumerate(0))
+            foreach (var (k, v) in this.AllValues)
             {
                 if (v.Equals(value))
                 {
@@ -137,16 +154,31 @@ namespace WebAtoms.CoreJS.Core
 
         public bool RemoveValue(TValue value)
         {
-            foreach (var (_, v, i) in Enumerate(0))
+            bool removed = false;
+            void Yield(uint start)
             {
-                if (v.Equals(value))
+                var last = start + this.size;
+                for (uint i = start; i < last; i++)
                 {
-                    count--;
-                    Buffer[i].ClearValue();
-                    return true;
+                    ref var node = ref Buffer[i];
+                    if (node.HasValue)
+                    {
+                        if (node.Value.Equals(value))
+                        {
+                            removed = true;
+                            count--;
+                            node.ClearValue();
+                            return;
+                        }
+                    }
+                    if (node.HasIndex)
+                    {
+                        Yield(node.FirstChildIndex);
+                    }
                 }
             }
-            return false;
+            Yield(0);
+            return removed;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
