@@ -86,7 +86,7 @@ namespace WebAtoms.CoreJS.Core {
                     }
                     else
                     {
-                        if (node.HasValue && node.Key == keyString)
+                        if (node.Key == keyString)
                             return ref node;
                         // if this branch has no value
                         // store value here...
@@ -128,8 +128,17 @@ namespace WebAtoms.CoreJS.Core {
                             node = ref Buffer[index];
                         }
                     }
-                    start = start << bitSize;
+                    start <<= bitSize;
                 }
+            }
+
+            if (node.Key.CompareTo(keyString) > 0)
+            {
+                var dirty = node.Value;
+                var old = node.Key;
+                node.UpdateDefaultValue(keyString, default);
+                this.Save(old, dirty);
+                return ref node;
             }
 
             if (created)

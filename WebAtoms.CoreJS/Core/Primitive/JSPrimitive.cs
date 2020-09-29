@@ -33,7 +33,12 @@ namespace WebAtoms.CoreJS.Core
             get
             {
                 ResolvePrototype();
-                return this.GetValue(prototypeChain.GetInternalProperty(name));
+                var px = prototypeChain.GetInternalProperty(name);
+                if (px.IsEmpty)
+                {
+                    throw JSContext.Current.NewTypeError($"{name} property not found on {this}");
+                }
+                return this.GetValue(px);
             }
             set
             {
