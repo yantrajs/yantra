@@ -8,8 +8,8 @@ namespace WebAtoms.CoreJS.Core
     public class PropertySequence
     {
 
-        private UInt32Trie<int> map = new CompactUInt32Trie<int>();
-        // private UInt32Trie<int> map = new UInt32Trie<int>();
+        // private UInt32Trie<int> map = new CompactUInt32Trie<int>();
+        private UInt32Trie<int> map = new UInt32Trie<int>();
         private List<JSProperty> properties = new List<JSProperty>();
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()

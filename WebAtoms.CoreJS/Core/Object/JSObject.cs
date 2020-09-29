@@ -489,5 +489,15 @@ namespace WebAtoms.CoreJS.Core
             }
             return JSBoolean.False;
         }
+
+        internal override bool TryGetValue(uint i, out JSProperty value)
+        {
+            if (elements == null)
+            {
+                value = new JSProperty();
+                return false;
+            }
+            return elements.TryGetValue(i, out value);
+        }
     }
 }

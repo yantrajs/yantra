@@ -264,16 +264,17 @@ namespace WebAtoms.CoreJS.Core
             var t = a.This;
             if (t is JSArray ta)
             {
-
+                var i = ta._length;
                 foreach (var item in a.All)
                 {
-                    ta.elements[ta._length] = JSProperty.Property(item);
-                    ta._length++;
+                    ta.elements[i++] = JSProperty.Property(item);
+                    
                 }
+                ta._length = i;
                 return new JSNumber(ta._length);
             }
-            var l = t[KeyStrings.length];
-            uint ln = (uint)(l.IsNumber ? l.IntValue : 0);
+            
+            uint ln = (uint)t.Length;
             foreach (var item in a.All)
             {
                 t[ln++] = item;
@@ -523,6 +524,47 @@ namespace WebAtoms.CoreJS.Core
             list.Sort(cx);
 
             return new JSArray(list);
+        }
+
+        [Prototype("splice")]
+        public static JSValue Splice(in Arguments a)
+        {
+            var r = new JSArray();
+            var (startP, deleteCountP) = a.Get2();
+
+            var start = startP.IsUndefined ? 0 : startP.IntValue;
+            var length = a.This.Length;
+
+            var @this = a.This;
+
+            if (start <0)
+            {
+                start = Math.Max(length + start, 0);
+            }
+            if (deleteCountP.IsUndefined)
+            {
+                // cut the array and return..
+                if (start == 0)
+                {
+                    return r;
+                }
+                for (uint i = (uint)start; i < length; i++)
+                {
+                    if(@this.TryGetValue(i, out var p))
+                    {
+                        r.elements[i] = p;
+                    }
+                }
+                for (uint i = (uint)start; i < length; i++)
+                {
+                    @this.Delete(i);
+                }
+                r._length = (uint)length - (uint)start;
+                return r;
+            }
+
+            throw new NotImplementedException();
+
         }
 
         [GetProperty("length")]

@@ -328,5 +328,10 @@ namespace WebAtoms.CoreJS.Core {
             return new JSDynamicMetaData(parameter, this);
         }
 
+        internal virtual bool TryGetValue(uint i, out JSProperty value)
+        {
+            value = new JSProperty { };
+            return false;
+        }
     }
 }
