@@ -1,0 +1,17 @@
+﻿assert(Number.isNaN(Math.round()));
+assert(Number.isNaN(Math.round(undefined)));
+assert.strictEqual(Math.round(null), 0);
+assert.strictEqual(Math.round(0), 0);
+assert.strictEqual(Math.round(""), 0);
+assert(Number.isNaN(Math.round("abcd")));
+assert.strictEqual(Math.round("1.2"), 1);
+assert.strictEqual(Math.round(" 1.2"), 1);
+assert.strictEqual(Math.round("1.9"), 2);
+assert.strictEqual(Math.round(Infinity), Infinity);
+assert.strictEqual(Math.round(0.9), 1);
+assert.strictEqual(Math.round(-5.05), -5);
+assert.strictEqual(Math.round(-5.5), -5);
+assert.strictEqual(Math.round(-5.95), -6);
+assert.strictEqual(Math.round(5.05), 5);
+assert.strictEqual(Math.round(5.5), 6);
+assert.strictEqual(Math.round(5.95), 6);
