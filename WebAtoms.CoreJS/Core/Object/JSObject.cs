@@ -522,7 +522,7 @@ namespace WebAtoms.CoreJS.Core
                         elements[j] = p;
                     }
                 }
-                this.Length -= diff;
+                this.Length += diff;
                 return;
             }
             else

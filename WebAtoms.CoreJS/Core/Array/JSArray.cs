@@ -40,7 +40,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (!first)
                     sb.Append(',');
-                if (!item.value.IsUndefined)
+                if (item.value != null && !item.value.IsUndefined)
                     sb.Append(item.value);
                 first = false;
             }

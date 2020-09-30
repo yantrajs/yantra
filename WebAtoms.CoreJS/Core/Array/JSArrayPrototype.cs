@@ -572,7 +572,8 @@ namespace WebAtoms.CoreJS.Core
 
                 }
                 r._length = (uint)deleteCount;
-                @this.MoveElements(start - deleteCount, start);
+                @this.MoveElements(end, start);
+                // @this.Length -= deleteCount;
             }
 
             var insertLength = a.Length - 2;
