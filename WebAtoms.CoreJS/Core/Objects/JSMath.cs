@@ -409,6 +409,78 @@ namespace WebAtoms.CoreJS.Core.Objects
 
         }
 
+        [Static("log10")]
+        public static JSValue Log10(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = Math.Log10(d);
+            return new JSNumber(r);
+
+        }
+
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L375
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("log1p")]
+        public static JSValue Log1p(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            double r;
+            if (Math.Abs(d) < 0.01)
+            {
+                // For small numbers, use a taylor series approximation.
+                r =  d * (1.0 + d * (-1.0 / 2.0 + d * (1.0 / 3.0 + d *
+                    (-1.0 / 4.0 + d * (1.0 / 5.0 + d * (-1.0 / 6.0 + d * (1.0 / 7.0)))))));
+                return new JSNumber(r);
+            }
+            // Otherwise just use the normal log function.
+                r = Math.Log(1.0 + d);
+                return new JSNumber(r);
+
+        }
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L363
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+
+        [Static("log2")]
+        public static JSValue Log2(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = Math.Log(d) / LN2; ;
+            return new JSNumber(r);
+
+        }
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L224
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("max")]
+        public static JSValue Max(in Arguments args)
+        {
+         
+            int length = args.Length;
+            double result = double.NegativeInfinity;
+            for (int i = 0; i < length; i++)
+            {
+                double val = args.GetAt(i).DoubleValue;
+
+                if (val > result || double.IsNaN(val))
+                    result = val;
+            }
+            return new JSNumber(result);
+
+        }
 
     }
 
