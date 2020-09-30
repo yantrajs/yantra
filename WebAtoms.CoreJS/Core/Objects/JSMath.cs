@@ -382,5 +382,34 @@ namespace WebAtoms.CoreJS.Core.Objects
         }
 
 
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L556
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("imul")]
+        public static JSValue Imul(in Arguments args)
+        {
+            var (first, second) = args.Get2();
+            var d1 = (uint)first.DoubleValue;
+            var d2 = (uint)second.DoubleValue;
+            var r = (int)(d1 * d2);
+            return new JSNumber(r);
+
+        }
+
+
+        [Static("log")]
+        public static JSValue Log(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = Math.Log(d);
+            return new JSNumber(r);
+
+        }
+
+
     }
+
 }
