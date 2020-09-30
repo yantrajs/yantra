@@ -591,6 +591,25 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
+        [Prototype("unshift")]
+        public static JSValue Unshift(in Arguments a)
+        {
+            var @this = a.This;
+
+            var l = a.This.Length;
+            if (l > 0)
+            {
+                // move.. 
+                @this.MoveElements(0, l - 1);
+
+                for (uint i = 0; i < a.Length; i++)
+                {
+                    @this[i] = a.GetAt((int)i);
+                }
+            }
+            return new JSNumber(a.This.Length);
+        }
+
         [GetProperty("length")]
         internal static JSValue GetLength(in Arguments a)
         {
