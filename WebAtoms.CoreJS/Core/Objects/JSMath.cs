@@ -525,8 +525,25 @@ namespace WebAtoms.CoreJS.Core.Objects
 
         }
 
-      
 
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L540
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("sign")]
+        public static JSValue Sign(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            if (double.IsNaN(d))
+                return JSNumber.NaN; 
+            if (d == -0.0)
+                return JSNumber.NegativeZero;
+            var r = Math.Sign(d);
+            return new JSNumber(r);
+
+        }
     }
 
 }
