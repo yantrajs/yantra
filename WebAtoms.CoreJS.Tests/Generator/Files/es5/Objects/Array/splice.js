@@ -51,9 +51,9 @@ assert.strictEqual(1, removed.length);
 assert.strictEqual("mandarin", removed.toString());
 assert.strictEqual("angel,clown,sturgeon", myFish.toString());
 
-//myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
-//removed = myFish.splice(2);
-//assert.strictEqual(2, removed.length);
-//assert.strictEqual("mandarin,sturgeon", removed.toString());
-//assert.strictEqual("angel,clown", myFish.toString());
+myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
+removed = myFish.splice(2);
+assert.strictEqual(2, removed.length);
+assert.strictEqual("mandarin,sturgeon", removed.toString());
+assert.strictEqual("angel,clown", myFish.toString());
 

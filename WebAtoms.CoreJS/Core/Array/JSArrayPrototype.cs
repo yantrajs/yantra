@@ -551,7 +551,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     return r;
                 }
-                deleteCount = length;
+                deleteCount = length - start;
             } else
             {
                 deleteCount = deleteCountP.IntValue;
