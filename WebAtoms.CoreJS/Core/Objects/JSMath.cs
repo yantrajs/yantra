@@ -455,7 +455,7 @@ namespace WebAtoms.CoreJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = Math.Log(d) / LN2; ;
+            var r = Math.Log(d) / LN2; 
             return new JSNumber(r);
 
         }
@@ -482,6 +482,48 @@ namespace WebAtoms.CoreJS.Core.Objects
 
         }
 
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L241
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("min")]
+        public static JSValue Min(in Arguments args)
+        {
+
+            int length = args.Length;
+            double result = double.PositiveInfinity;
+            for (int i = 0; i < length; i++)
+            {
+                double val = args.GetAt(i).DoubleValue;
+
+                if (val < result || double.IsNaN(val))
+                    result = val;
+            }
+            return new JSNumber(result);
+
+        }
+
+
+        /// <summary>
+        /// https://github.com/paulbartrum/jurassic/blob/0522bcb42b29f87bdf65ae74b9a450179c1d168d/Jurassic/Library/MathObject.cs#L257
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Static("pow")]
+        public static JSValue Pow(in Arguments args)
+        {
+            var (first, second) = args.Get2();
+            var @base = first.DoubleValue;
+            var exponent = second.DoubleValue;
+            if ((@base == 1.0 || @base == -1) && double.IsInfinity(exponent))
+                return JSNumber.NaN;
+            if (double.IsNaN(@base) && exponent == 0.0)
+                return JSNumber.One;
+            var r = Math.Pow(@base, exponent);
+            return new JSNumber(r);
+
+        }
     }
 
 }
