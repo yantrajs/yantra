@@ -524,6 +524,9 @@ namespace WebAtoms.CoreJS.Core.Objects
             return new JSNumber(r);
 
         }
+
+      
+
     }
 
 }
