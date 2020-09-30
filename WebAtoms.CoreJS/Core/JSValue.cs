@@ -260,7 +260,7 @@ namespace WebAtoms.CoreJS.Core {
         {
             var fx = this[name];
             if (fx.IsUndefined)
-                throw new MethodAccessException($"Method {name} not found on {this}");
+                throw new JSException($"Method {name} not found on {this}");
             return fx.InvokeFunction(a.OverrideThis(this));
         }
 
@@ -268,7 +268,7 @@ namespace WebAtoms.CoreJS.Core {
         {
             var fx = this[name];
             if (fx.IsUndefined)
-                throw new MethodAccessException($"Method {name} not found on {this}");
+                throw new JSException($"Method {name} not found on {this}");
             return fx.InvokeFunction(a.OverrideThis(this));
         }
 
