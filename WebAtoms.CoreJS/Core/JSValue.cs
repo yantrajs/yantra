@@ -333,5 +333,16 @@ namespace WebAtoms.CoreJS.Core {
             value = new JSProperty { };
             return false;
         }
+
+        internal virtual void MoveElements(int start, int to)
+        {
+
+        }
+
+        internal virtual bool TryRemove(uint i, out JSProperty p)
+        {
+            p = new JSProperty();
+            return false;
+        }
     }
 }

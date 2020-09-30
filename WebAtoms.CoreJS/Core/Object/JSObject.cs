@@ -499,5 +499,51 @@ namespace WebAtoms.CoreJS.Core
             }
             return elements.TryGetValue(i, out value);
         }
+
+        /// <summary>
+        /// Moves elements from `start` to `to`.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="count"></param>
+        /// <param name="to"></param>
+        internal override void MoveElements(int start, int to)
+        {
+            var elements = this.elements ?? (this.elements = new UInt32Trie<JSProperty>());
+
+            var end = this.Length - 1;
+            var diff = to - start;
+            if (start > to)
+            {
+
+                for (uint i = (uint)start, j = (uint)to; i <= end; i++, j++)
+                {
+                    if (elements.TryRemove(i, out var p))
+                    {
+                        elements[j] = p;
+                    }
+                }
+                this.Length += diff;
+                return;
+            }
+            else
+            {
+                for (int i = end, j = (this.Length + diff - 1); i >= start; i--, j--)
+                {
+                    if (elements.TryRemove((uint)i, out var p))
+                    {
+                        elements[(uint)j] = p;
+                    }
+                }
+                this.Length += diff;
+            }
+
+        }
+
+        internal override bool TryRemove(uint i, out JSProperty p)
+        {
+            if(elements == null)
+                return base.TryRemove(i, out p);
+            return elements.TryRemove(i, out p);
+        }
     }
 }
