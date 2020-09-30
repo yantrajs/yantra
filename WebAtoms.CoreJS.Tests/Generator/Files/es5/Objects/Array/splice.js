@@ -33,14 +33,27 @@ assert.strictEqual(1, removed.length);
 assert.strictEqual("drum", removed[0]);
 assert.strictEqual("angel,clown,trumpet,sturgeon", myFish.toString());
 
-//myFish = ['angel', 'clown', 'trumpet', 'sturgeon']
-//removed = myFish.splice(0, 2, 'parrot', 'anemone', 'blue')
-//assert.strictEqual(2, removed.length);
-//assert.strictEqual("angel,clown", removed.toString());
-//assert.strictEqual("parrot,anemone,blue,trumpet,sturgeon", myFish.toString());
+myFish = ['angel', 'clown', 'trumpet', 'sturgeon']
+removed = myFish.splice(0, 2, 'parrot', 'anemone', 'blue')
+assert.strictEqual(2, removed.length);
+assert.strictEqual("angel,clown", removed.toString());
+assert.strictEqual("parrot,anemone,blue,trumpet,sturgeon", myFish.toString());
 
-//myFish = ['parrot', 'anemone', 'blue', 'trumpet', 'sturgeon'];
-//removed = myFish.splice(2, 2);
-//assert.strictEqual(2, removed.length);
-//assert.strictEqual("blue,trumpet", removed.toString());
-//assert.strictEqual("parrot,anemon,sturgeon", myFish.toString());
+myFish = ['parrot', 'anemone', 'blue', 'trumpet', 'sturgeon'];
+removed = myFish.splice(2, 2);
+assert.strictEqual(2, removed.length);
+assert.strictEqual("blue,trumpet", removed.toString());
+assert.strictEqual("parrot,anemone,sturgeon", myFish.toString());
+
+myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
+removed = myFish.splice(-2, 1);
+assert.strictEqual(1, removed.length);
+assert.strictEqual("mandarin", removed.toString());
+assert.strictEqual("angel,clown,sturgeon", myFish.toString());
+
+myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
+removed = myFish.splice(2);
+assert.strictEqual(2, removed.length);
+assert.strictEqual("mandarin,sturgeon", removed.toString());
+assert.strictEqual("angel,clown", myFish.toString());
+

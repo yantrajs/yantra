@@ -381,6 +381,8 @@ namespace WebAtoms.CoreJS.Core
         {
             if (Length > index)
             {
+                if (Length >= MinArray)
+                    return Args[index];
                 switch (index)
                 {
                     case 0:
