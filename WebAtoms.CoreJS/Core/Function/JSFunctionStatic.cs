@@ -14,6 +14,11 @@ namespace WebAtoms.CoreJS.Core
             if (len == 0)
                 throw new JSException("No arguments were supplied to Function constructor");
             JSValue body = null;
+            var en = new Arguments.ArgumentsEnumerator();
+            while (en.MoveNext())
+            {
+
+            }
             var sargs = args.All.Select(x =>
                 {
                     body = x;

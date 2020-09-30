@@ -265,9 +265,10 @@ namespace WebAtoms.CoreJS.Core
             if (t is JSArray ta)
             {
                 var i = ta._length;
-                foreach (var item in a.All)
+                var en = new Arguments.ArgumentsEnumerator(a);
+                while(en.MoveNext())
                 {
-                    ta.elements[i++] = JSProperty.Property(item);
+                    ta.elements[i++] = JSProperty.Property(en.Current);
                     
                 }
                 ta._length = i;
@@ -275,9 +276,10 @@ namespace WebAtoms.CoreJS.Core
             }
             
             uint ln = (uint)t.Length;
-            foreach (var item in a.All)
+            var en1 = new Arguments.ArgumentsEnumerator(a);
+            while(en1.MoveNext())
             {
-                t[ln++] = item;
+                t[ln++] = en1.Current;
             }
             var n = new JSNumber(ln);
             t[KeyStrings.length] = n;

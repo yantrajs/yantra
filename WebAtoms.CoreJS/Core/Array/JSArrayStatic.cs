@@ -62,9 +62,10 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue StaticOf(in Arguments a)
         {
             var r = new JSArray();
-            foreach (var e in a.All)
+            var en = new Arguments.ArgumentsEnumerator(a);
+            while(en.MoveNext())
             {
-                r.elements[r._length++] = JSProperty.Property(e);
+                r.elements[r._length++] = JSProperty.Property(en.Current);
             }
             return r;
         }
