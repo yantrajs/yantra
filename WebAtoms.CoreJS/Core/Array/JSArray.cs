@@ -113,5 +113,10 @@ namespace WebAtoms.CoreJS.Core
 
         internal override IEnumerable<(uint index, JSValue value)> AllElements  => this.GetArrayElements(false);
 
+        internal override bool TryRemove(uint i, out JSProperty p)
+        {
+            return elements.TryRemove(i, out p);
+        }
+
     }
 }

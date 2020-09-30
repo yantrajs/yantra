@@ -543,6 +543,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 start = Math.Max(length + start, 0);
             }
+            var deleteCount = 0;
             if (deleteCountP.IsUndefined)
             {
                 // cut the array and return..
@@ -550,22 +551,42 @@ namespace WebAtoms.CoreJS.Core
                 {
                     return r;
                 }
-                for (uint i = (uint)start; i < length; i++)
-                {
-                    if(@this.TryGetValue(i, out var p))
-                    {
-                        r.elements[i] = p;
-                    }
+                deleteCount = length;
+            } else
+            {
+                deleteCount = deleteCountP.IntValue;
+                if (deleteCount >= length - start) {
+                    deleteCount = length - start;
                 }
-                for (uint i = (uint)start; i < length; i++)
-                {
-                    @this.Delete(i);
-                }
-                r._length = (uint)length - (uint)start;
-                return r;
             }
 
-            throw new NotImplementedException();
+            if (deleteCount > 0)
+            {
+                // copy items...
+                var end = start + deleteCount;
+                for (uint i = (uint)start, j = 0; i <end; i++, j++)
+                {
+                    if(@this.TryGetValue(i, out var p)) {
+                        r[j] = p.value;
+                    }
+
+                }
+                r._length = (uint)deleteCount;
+                @this.MoveElements(start - deleteCount, start);
+            }
+
+            var insertLength = a.Length - 2;
+            if (insertLength > 0)
+            {
+                // move items...
+                @this.MoveElements(start, start + insertLength);
+                for (int i = 2, j = start; i < a.Length; i++, j++)
+                {
+                    @this[(uint)j] = a.GetAt(i);
+                }
+            }
+
+            return r;
 
         }
 
