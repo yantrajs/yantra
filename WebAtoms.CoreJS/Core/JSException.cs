@@ -16,29 +16,58 @@ namespace WebAtoms.CoreJS.Core
         private List<(string target, string file, int line, int column)> trace
             = new List<(string target, string file, int line, int column)>();
 
-        public JSException(string message): base(message)
+        public JSException(
+            string message, 
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0): base(message)
         {
-            Error = new JSError(new JSString(message), JSUndefined.Value);
+            if (function != null)
+            {
+                this.trace.Add((function, filePath ?? "Unknown", line, 1));
+            }
             Stack = Capture();
+            Error = new JSError(new JSString(message), Stack);
         }
 
-        public JSException(string message, JSObject prototype) : base(message)
+        public JSException(
+            string message, 
+            JSObject prototype,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(message)
         {
-            Error = new JSError(new JSString(message), JSUndefined.Value);
+            if (function != null)
+            {
+                this.trace.Add((function, filePath ?? "Unknown", line, 1));
+            }
+            Stack = Capture();
+            Error = new JSError(new JSString(message), Stack);
             Error.prototypeChain = prototype;
-            Stack = Capture();
         }
 
-        public JSException(JSValue message) : base(message.ToString())
+        public JSException(
+            JSValue message) : base(message.ToString())
         {
-            Error = new JSError(message, JSUndefined.Value);
             Stack = Capture();
+            if (message is JSError error) {
+                error[KeyStrings.stack] = Stack;
+            }
+            else
+            {
+                Error = new JSError(message, Stack);
+            }
         }
 
         private JSValue Capture()
         {
             var sb = new StringBuilder();
             var top = JSContext.Current.Scope.Top;
+            if (trace.Count > 0)
+            {
+                var f = trace[0];
+                sb.AppendLine($"{f.target} {f.file} {f.line},{f.column}");
+            }
             while (top != null)
             {
                 sb.AppendLine($"{top.Function} {top.FileName} {top.Position.Line},{top.Position.Column}");
@@ -67,7 +96,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSFunction ThrowNotFunction(JSValue value)
         {
-            throw new JSException($"{value} is not a function");
+            throw JSContext.Current.NewTypeError($"{value} is not a function");
         }
 
         public override string StackTrace

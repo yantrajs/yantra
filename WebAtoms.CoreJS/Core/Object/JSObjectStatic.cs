@@ -125,9 +125,9 @@ namespace WebAtoms.CoreJS.Core
         {
             var (target, key, desc) = a.Get3();
             if (!(target is JSObject targetObject))
-                throw new JSException("Object.defineProperty called on non-object");
+                throw JSContext.Current.NewTypeError("Object.defineProperty called on non-object");
             if (!(desc is JSObject pd))
-                throw new JSException("Property Description must be an object");
+                throw JSContext.Current.NewTypeError("Property Description must be an object");
             var k = key.ToKey();
             if (!k.IsUInt)
             {
