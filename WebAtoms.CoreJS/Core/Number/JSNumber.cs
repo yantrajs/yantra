@@ -207,10 +207,16 @@ namespace WebAtoms.CoreJS.Core
         {
             if(value is JSNumber number)
             {
-                if (this.value == number.value)
-                    return JSBoolean.True;
-                if (this.value == -0.0d && number.value == -0.0d)
-                    return JSBoolean.True;
+                if (this.value == 0 || number.value == 0)
+                {
+                    return BitConverter.DoubleToInt64Bits(this.value) == BitConverter.DoubleToInt64Bits(number.value)
+                        ? JSBoolean.True
+                        : JSBoolean.False;
+                } else
+                {
+                    if (this.value == number.value)
+                        return JSBoolean.True;
+                }
                 if (double.IsNaN(this.value) && double.IsNaN(number.value))
                     return JSBoolean.True;
             }

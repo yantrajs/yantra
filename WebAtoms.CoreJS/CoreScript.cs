@@ -746,6 +746,11 @@ namespace WebAtoms.CoreJS
                 case UnaryOperator.Plus:
                     return ExpHelper.JSNumberBuilder.New(Exp.UnaryPlus(DoubleValue(target)));
                 case UnaryOperator.Minus:
+                    switch(target)
+                    {
+                        case Literal l when l.TokenType == TokenType.NumericLiteral:
+                            return JSNumberBuilder.New(Exp.Constant(-l.NumericValue));
+                    }
                     return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
                 case UnaryOperator.BitwiseNot:
                     return ExpHelper.JSNumberBuilder.New(Exp.Not( Exp.Convert(DoubleValue(target),typeof(int))));
