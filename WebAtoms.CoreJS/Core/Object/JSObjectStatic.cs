@@ -167,10 +167,10 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("is")]
-
         internal static JSValue _Is(in Arguments a)
         {
-            throw new NotImplementedException();
+            var (first, second) = a.Get2();
+            return first.Is(second);
         }
 
         [Static("isExtensible")]
@@ -269,7 +269,13 @@ namespace WebAtoms.CoreJS.Core
         [Static("getOwnPropertyNames")]
         internal static JSValue _GetOwnPropertyNames(in Arguments a)
         {
-            throw new NotImplementedException();
+            var first = a.Get1();
+            if (first.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(first is JSObject jobj))
+                return new JSArray();
+            var keys = jobj.ownProperties.AllValues().Select(x => x.Value.key.ToJSValue());
+            return new JSArray(keys);
         }
 
         [Static("getOwnPropertySymbols")]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using WebAtoms.CoreJS.Core.Runtime;
 using WebAtoms.CoreJS.Extensions;
+using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -12,7 +13,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue DecodeURI(in Arguments a)
         {
             var f = a.Get1().ToString();
-            return new JSString(Uri.UnescapeDataString(f));
+            return new JSString(UriHelper.DecodeURI(f));
         }
 
         [Static("decodeURIComponent")]

@@ -81,10 +81,10 @@ namespace WebAtoms.CoreJS.Core
         {
             get
             {
-                uint i = 0;
-                foreach(var e in arguments.All)
+                var al = arguments.Length;
+                for (uint i = 0; i < al; i++)
                 {
-                    yield return (i++, e);
+                    yield return (i, arguments.GetAt(0));
                 }
             }
         }

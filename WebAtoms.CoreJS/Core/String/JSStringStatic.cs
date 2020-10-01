@@ -17,8 +17,10 @@ namespace WebAtoms.CoreJS.Core
             StringBuilder sb = new StringBuilder();
             if (a.Length == 0)
                 return new JSString(string.Empty);
-            foreach(var ch in a.All)
+            var al = a.Length;
+            for(var ai = 0; ai < al; ai++)
             {
+                var ch = a.GetAt(ai);
                 sb.Append((char)ch.IntValue);
             }
             return new JSString(sb.ToString());
