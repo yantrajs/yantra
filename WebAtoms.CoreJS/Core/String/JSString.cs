@@ -127,6 +127,13 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException($"\"{value}\" is not a function");
         }
 
+        internal override JSBoolean Is(JSValue value)
+        {
+            if (value is JSString @string && this.value == @string.value)
+                return JSBoolean.True;
+            return JSBoolean.False;
+
+        }
 
     }
 }

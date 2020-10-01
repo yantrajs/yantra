@@ -170,7 +170,8 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSValue _Is(in Arguments a)
         {
-            throw new NotImplementedException();
+            var (first, second) = a.Get2();
+            return first.Is(second);
         }
 
         [Static("isExtensible")]

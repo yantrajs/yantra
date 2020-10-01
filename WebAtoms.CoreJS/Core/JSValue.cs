@@ -223,6 +223,11 @@ namespace WebAtoms.CoreJS.Core {
             yield break;
         }
 
+        internal virtual JSBoolean Is(JSValue value)
+        {
+            return object.ReferenceEquals(this, value) ? JSBoolean.True : JSBoolean.False;
+        }
+
 
         public virtual JSValue CreateInstance(in Arguments a)
         {

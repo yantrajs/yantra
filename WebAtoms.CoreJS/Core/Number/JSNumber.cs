@@ -6,6 +6,7 @@ using System.Text;
 using System.Transactions;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Core.Runtime;
+using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -202,5 +203,18 @@ namespace WebAtoms.CoreJS.Core
             throw JSContext.Current.NewTypeError($"{this.value} is not a function");
         }
 
+        internal override JSBoolean Is(JSValue value)
+        {
+            if(value is JSNumber number)
+            {
+                if (this.value == number.value)
+                    return JSBoolean.True;
+                if (this.value == -0.0d && number.value == -0.0d)
+                    return JSBoolean.True;
+                if (double.IsNaN(this.value) && double.IsNaN(number.value))
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
     }
 }
