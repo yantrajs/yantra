@@ -23,8 +23,4 @@
     <ProjectReference Include="..\WebAtoms.CoreJS\WebAtoms.CoreJS.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Generator\Files\es5\Objects\Date\" />
-  </ItemGroup>
-
 </Project>
