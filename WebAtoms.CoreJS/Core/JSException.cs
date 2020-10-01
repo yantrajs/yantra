@@ -70,17 +70,17 @@ namespace WebAtoms.CoreJS.Core
             }
             while (top != null)
             {
-                sb.AppendLine($"    at {top.Function}:{top.FileName}:{top.Position.Line},{top.Position.Column}");
                 var fx = top.Function;
                 var file = top.FileName;
                 if (string.IsNullOrWhiteSpace(fx))
                 {
                     fx = "native";
                 }
-                if(string.IsNullOrWhiteSpace(file))
+                if (string.IsNullOrWhiteSpace(file))
                 {
                     file = "file";
                 }
+                sb.AppendLine($"    at {fx}:{file}:{top.Position.Line},{top.Position.Column}");
                 trace.Add((fx, file, top.Position.Line, top.Position.Column));
                 top = top.Parent;
             }
