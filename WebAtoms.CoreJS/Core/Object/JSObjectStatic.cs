@@ -162,9 +162,9 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSObject();
             if ((v is JSArray va))
             {
-                foreach(var item in va.elements.AllValues)
+                for (uint i = 0; i < va._length; i++)
                 {
-                    var vi = item.Value;
+                    var vi = va.elements[i];
                     if (!(vi.value is JSArray ia))
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
                     var first = ia[0];
