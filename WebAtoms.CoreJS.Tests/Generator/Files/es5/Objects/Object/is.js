@@ -31,3 +31,9 @@ var b = a;
 assert(Object.is(a, b));
 
 assert(!Object.is(a, {}));
+
+
+assert(!Object.is(Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY));
+assert(Object.is(Number.POSITIVE_INFINITY, Infinity));
+
+assert(Object.is(Number.NaN, parseFloat("abcd")));

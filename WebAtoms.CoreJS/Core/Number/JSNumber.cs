@@ -18,21 +18,24 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly double value;
 
+        [Static("NaN")]
         public static JSNumber NaN = new JSNumber(double.NaN);
+
         public static JSNumber MinusOne = new JSNumber(-1);
         public static JSNumber Zero = new JSNumber(0d);
         public static JSNumber NegativeZero = new JSNumber(-0d);
         public static JSNumber One = new JSNumber(1d);
         public static JSNumber Two = new JSNumber(2d);
+
+        [Static("POSITIVE_INFINITY")]
         public static JSNumber PositiveInfinity = new JSNumber(double.PositiveInfinity);
+
+        [Static("NEGATIVE_INFINITY")]
         public static JSNumber NegativeInfinity = new JSNumber(double.NegativeInfinity);
 
 
         [Static("EPSILON")]
         public static readonly double Epsilon = double.Epsilon;
-
-        [Static("NAN")]
-        public static readonly double JSNaN = double.NaN;
 
         [Static("MAX_SAFE_INTEGER")]
         public static readonly double MaxSafeInteger = 9007199254740991d;
@@ -45,12 +48,6 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("MIN_VALUE")]
         public static readonly double MinValue = double.MinValue;
-
-        [Static("POSITIVE_INFINITY")]
-        public static readonly double PositiveInfinity1 = double.PositiveInfinity;
-
-        [Static("NEGATIVE_INFINITY")]
-        public static readonly double NegativeInfinity1 = double.NegativeInfinity;
 
         public override bool IsNumber => true;
 
@@ -212,12 +209,11 @@ namespace WebAtoms.CoreJS.Core
                     return BitConverter.DoubleToInt64Bits(this.value) == BitConverter.DoubleToInt64Bits(number.value)
                         ? JSBoolean.True
                         : JSBoolean.False;
-                } else
-                {
-                    if (this.value == number.value)
-                        return JSBoolean.True;
-                }
-                if (double.IsNaN(this.value) && double.IsNaN(number.value))
+                } 
+                
+                if (double.IsNaN(this.value))
+                    return double.IsNaN(number.value) ? JSBoolean.True : JSBoolean.False;
+                if (this.value == number.value)
                     return JSBoolean.True;
             }
             return JSBoolean.False;

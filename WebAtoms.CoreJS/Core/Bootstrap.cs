@@ -163,14 +163,17 @@ namespace WebAtoms.CoreJS.Core
             foreach (var (f, pr) in fields)
             {
                 var v = f.GetValue(null);
-                JSValue jv;
-                if (f.FieldType == typeof(double))
+                JSValue jv = v as JSValue;
+                if (jv == null)
                 {
-                    jv = new JSNumber((double)v);
-                }
-                else
-                {
-                    jv = new JSString(v.ToString());
+                    if (f.FieldType == typeof(double))
+                    {
+                        jv = new JSNumber((double)v);
+                    }
+                    else
+                    {
+                        jv = new JSString(v.ToString());
+                    }
                 }
                 if (ownProperties.TryGetValue(pr.Name.Key, out var _))
                     continue;
@@ -258,13 +261,17 @@ namespace WebAtoms.CoreJS.Core
             {
                 var target = pr.IsStatic ? r : p;
                 var v = f.GetValue(null);
-                JSValue jv;
-                if (f.FieldType == typeof(double))
+                JSValue jv = v as JSValue;
+                if (jv == null)
                 {
-                    jv = new JSNumber((double)v);
-                } else
-                {
-                    jv = new JSString(v.ToString());
+                    if (f.FieldType == typeof(double))
+                    {
+                        jv = new JSNumber((double)v);
+                    }
+                    else
+                    {
+                        jv = new JSString(v.ToString());
+                    }
                 }
 
                 target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableReadonlyValue));
