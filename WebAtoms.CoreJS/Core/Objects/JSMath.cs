@@ -555,6 +555,15 @@ namespace WebAtoms.CoreJS.Core.Objects
             return r;
         }
 
+
+        [Static("sinh")]
+        public static JSValue Sinh(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Sinh(d));
+            return r;
+        }
     }
 
 }
