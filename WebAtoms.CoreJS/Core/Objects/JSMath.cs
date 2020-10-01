@@ -564,6 +564,17 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = new JSNumber(Math.Sinh(d));
             return r;
         }
+
+
+        [Static("sqrt")]
+        public static JSValue Sqrt(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Sqrt(d));
+            return r;
+        }
+
     }
 
 }
