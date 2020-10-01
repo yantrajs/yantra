@@ -6,10 +6,16 @@ namespace WebAtoms.CoreJS.Core.Date
 {
     public static class JSDateStatic
     {
+
+        public static long epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+
         [Static("UTC")]
         internal static JSValue UTC(in Arguments a)
         {
-            return new JSDate(DateTime.UtcNow);
+            var (year, month, day, hour, minute, second, millisecond) = a.Get7Int();
+            var val =  ToJSDate(ToDateTime(year, month, day, hour, minute, second, millisecond, DateTimeKind.Utc));
+            return new JSNumber(val);
+
         }
 
         [Static("now")]
@@ -21,15 +27,93 @@ namespace WebAtoms.CoreJS.Core.Date
         [Static("parse")]
         internal static JSValue Parse(in Arguments a)
         {
+            
             return new JSDate(DateTime.Parse(a.Get1().ToString()));
         }
 
-        [Prototype("getYear")]
-        internal static JSValue GetYear(in Arguments a)
+        //[Prototype("getYear")]
+        //internal static JSValue GetYear(in Arguments a)
+        //{
+        //    if (!(a.This is JSDate d))
+        //        throw JSContext.Current.NewTypeError("Method Date.prototype.getYear called on incompatible receiver");
+        //    return new JSNumber(d.value.Year - 2000);
+        //}
+
+
+        /// <summary>
+        /// Converts a .NET date into a javascript date.
+        /// </summary>
+        /// <param name="dateTime"> The .NET date. </param>
+        /// <returns> The number of milliseconds since January 1, 1970, 00:00:00 UTC </returns>
+        internal static double ToJSDate(DateTime dateTime)
         {
-            if (!(a.This is JSDate d))
-                throw JSContext.Current.NewTypeError("Method Date.prototype.getYear called on incompatible receiver");
-            return new JSNumber(d.value.Year - 2000);
+            if (dateTime == JSDate.InvalidDate)
+                return double.NaN;
+            // The spec requires that the time value is an integer.
+            // We could round to nearest, but then date.toUTCString() would be different from Date(date.getTime()).toUTCString().
+            var diff = dateTime.Ticks - epoch;
+            return Math.Floor((double)(diff / 10000));
+        }
+
+        /// <summary>
+        /// Given the components of a date, returns the equivalent .NET date.
+        /// </summary>
+        /// <param name="year"> The full year. </param>
+        /// <param name="month"> The month as an integer between 0 and 11 (january to december). </param>
+        /// <param name="day"> The day of the month, from 1 to 31.  Defaults to 1. </param>
+        /// <param name="hour"> The number of hours since midnight, from 0 to 23.  Defaults to 0. </param>
+        /// <param name="minute"> The number of minutes, from 0 to 59.  Defaults to 0. </param>
+        /// <param name="second"> The number of seconds, from 0 to 59.  Defaults to 0. </param>
+        /// <param name="millisecond"> The number of milliseconds, from 0 to 999.  Defaults to 0. </param>
+        /// <param name="kind"> Indicates whether the components are in UTC or local time. </param>
+        /// <returns> The equivalent .NET date. </returns>
+        internal static DateTime ToDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, DateTimeKind kind)
+        {
+            // DateTime doesn't support years below year 1.
+            if (year < 0)
+                return JSDate.InvalidDate;
+
+            if (0 <= year && year <= 99)
+            {
+                year += 1900;
+            }
+
+            if (month >= 0 && month < 12 &&
+                day >= 1 && day <= DateTime.DaysInMonth(year, month + 1) &&
+                hour >= 0 && hour < 24 &&
+                minute >= 0 && minute < 60 &&
+                second >= 0 && second < 60 &&
+                millisecond >= 0 && millisecond < 1000)
+            {
+                // All parameters are in range.
+                return new DateTime(year, month + 1, day, hour, minute, second, millisecond, kind);
+            }
+            else
+            {
+                // One or more parameters are out of range.
+                try
+                {
+                    DateTime value = new DateTime(year, 1, 1, 0, 0, 0, kind);
+                    value = value.AddMonths(month);
+                    if (day != 1)
+                        value = value.AddDays(day - 1);
+                    if (hour != 0)
+                        value = value.AddHours(hour);
+                    if (minute != 0)
+                        value = value.AddMinutes(minute);
+                    if (second != 0)
+                        value = value.AddSeconds(second);
+                    if (millisecond != 0)
+                        value = value.AddMilliseconds(millisecond);
+                    return value;
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // One or more of the parameters was NaN or way too big or way too small.
+                    // Return a sentinel invalid date.
+                    return JSDate.InvalidDate;
+                }
+            }
         }
     }
 }

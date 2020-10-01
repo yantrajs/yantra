@@ -343,6 +343,30 @@ namespace WebAtoms.CoreJS.Core
             return (Args[0], Args[1], Args[2], Args[3]);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public (int, int, int, int, int, int, int) Get7Int()
+        {
+            if (Length == 0)
+                return (0, 0, 0, 0, 0, 0, 0);
+            if (Length == 1)
+                return (Arg0.IntValue, 0, 0, 0, 0, 0, 0);
+            if (Length == 2)
+                return (Arg0.IntValue, Arg1.IntValue, 0, 0, 0, 0, 0);
+            if (Length == 3)
+                return (Arg0.IntValue, Arg1.IntValue, Arg2.IntValue, 0, 0, 0, 0);
+            if (Length == 4)
+                return (Arg0.IntValue, Arg1.IntValue, Arg2.IntValue, Arg3.IntValue, 0, 0, 0);
+            if (Length == 5)
+                return (Args[0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, 0, 0);
+            if (Length == 6)
+                return (Args[0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, Args[5].IntValue,0);
+           
+           return (Args[0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, Args[5].IntValue, Args[6].IntValue);
+
+           
+        }
+
+
         public JSValue[] GetArgs()
         {
             return Args;

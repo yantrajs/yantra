@@ -9,6 +9,8 @@ namespace WebAtoms.CoreJS.Core
     public class JSDate: JSObject
     {
 
+        internal static readonly DateTime InvalidDate = DateTime.MinValue;
+
         internal DateTime value;
 
         public DateTime Value
@@ -21,6 +23,9 @@ namespace WebAtoms.CoreJS.Core
         {
             this.value = time;
         }
+
+       
+
 
     }
 }
