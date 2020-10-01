@@ -46,7 +46,7 @@ namespace WebAtoms.CoreJS.Core
         [SetProperty("__proto__")]
         internal static JSValue PrototypeSet(in Arguments a)
         {
-            var a0 = a.Get1() as JSObject;
+            var a0 = a.Get1();
             var o = a0 as JSObject;
             if (o != null)
                 a.This.prototypeChain = o;
