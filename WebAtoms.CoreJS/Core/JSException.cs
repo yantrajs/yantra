@@ -66,11 +66,11 @@ namespace WebAtoms.CoreJS.Core
             if (trace.Count > 0)
             {
                 var f = trace[0];
-                sb.AppendLine($"{f.target} {f.file} {f.line},{f.column}");
+                sb.AppendLine($"    at {f.target}:{f.file}:{f.line},{f.column}");
             }
             while (top != null)
             {
-                sb.AppendLine($"{top.Function} {top.FileName} {top.Position.Line},{top.Position.Column}");
+                sb.AppendLine($"    at {top.Function}:{top.FileName}:{top.Position.Line},{top.Position.Column}");
                 var fx = top.Function;
                 var file = top.FileName;
                 if (string.IsNullOrWhiteSpace(fx))
