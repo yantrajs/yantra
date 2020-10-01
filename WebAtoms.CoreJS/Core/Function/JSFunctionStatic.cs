@@ -14,17 +14,20 @@ namespace WebAtoms.CoreJS.Core
             if (len == 0)
                 throw new JSException("No arguments were supplied to Function constructor");
             JSValue body = null;
-            var en = new Arguments.ArgumentsEnumerator();
-            while (en.MoveNext())
+            var al = args.Length;
+            var last = al - 1;
+            var sargs = new List<string>();
+            for(var ai=0; ai<al; ai++)
             {
-
-            }
-            var sargs = args.All.Select(x =>
+                var item = args.GetAt(ai);
+                if (ai == last)
                 {
-                    body = x;
-                    return x.ToString();
-                })
-                .ToList().Take(len-1).ToList();
+                    body = item;
+                } else
+                {
+                    sargs.Add(item.ToString());
+                }
+            }
 
             var bodyText = body is JSString @string ? @string.value : body.ToString();
             var fx = new JSFunction(JSFunction.empty, "internal", bodyText);

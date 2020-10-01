@@ -262,13 +262,15 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Push(in Arguments a)
         {
             var t = a.This;
+            int ai, al;
             if (t is JSArray ta)
             {
                 var i = ta._length;
-                var en = new Arguments.ArgumentsEnumerator(a);
-                while(en.MoveNext())
+                al = a.Length;
+                for(ai = 0; ai < al; ai++)
                 {
-                    ta.elements[i++] = JSProperty.Property(en.Current);
+                    var item = a.GetAt(ai);
+                    ta.elements[i++] = JSProperty.Property(item);
                     
                 }
                 ta._length = i;
@@ -276,10 +278,10 @@ namespace WebAtoms.CoreJS.Core
             }
             
             uint ln = (uint)t.Length;
-            var en1 = new Arguments.ArgumentsEnumerator(a);
-            while(en1.MoveNext())
+            al = a.Length;
+            for(ai = 0; ai <al; ai++)
             {
-                t[ln++] = en1.Current;
+                t[ln++] = a.GetAt(ai);
             }
             var n = new JSNumber(ln);
             t[KeyStrings.length] = n;

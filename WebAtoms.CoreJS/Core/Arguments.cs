@@ -1,63 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
 
-
+    [StructLayout(LayoutKind.Sequential)]
     public readonly struct Arguments
     {
 
-        public ref struct ArgumentsEnumerator
-        {
+        //public unsafe ref struct ArgumentsEnumerator
+        //{
 
-            Arguments Args;
-            JSValue current;
-            int index;
-            public ArgumentsEnumerator(in Arguments a)
-            {
-                Args = a;
-                index = -1;
-                current = null;
-            }
+        //    Arguments* Args;
+        //    JSValue current;
+        //    int index;
+        //    public ArgumentsEnumerator(Arguments* a)
+        //    {
+        //        Args = &a;
+        //        index = -1;
+        //        current = null;
+        //    }
 
-            public bool MoveNext()
-            {
-                index++;
-                if (index < Args.Length)
-                {
-                    switch (index)
-                    {
-                        case 0:
-                            current = Args.Arg0;
-                            break;
-                        case 1:
-                            current = Args.Arg1;
-                            break;
-                        case 2:
-                            current = Args.Arg2;
-                            break;
-                        case 3:
-                            current = Args.Arg3;
-                            break;
-                        default:
-                            current = Args.Args[index];
-                            break;
+        //    public bool MoveNext()
+        //    {
+        //        index++;
+        //        if (index < Args.Length)
+        //        {
+        //            switch (index)
+        //            {
+        //                case 0:
+        //                    current = Args.Arg0;
+        //                    break;
+        //                case 1:
+        //                    current = Args.Arg1;
+        //                    break;
+        //                case 2:
+        //                    current = Args.Arg2;
+        //                    break;
+        //                case 3:
+        //                    current = Args.Arg3;
+        //                    break;
+        //                default:
+        //                    current = Args.Args[index];
+        //                    break;
 
-                    }
-                    return true;
-                }
-                return false;
-            }
+        //            }
+        //            return true;
+        //        }
+        //        return false;
+        //    }
 
-            public bool IsFirst => index == 0;
+        //    public bool IsFirst => index == 0;
 
-            public bool IsLast => index == Args.Length - 1;
+        //    public bool IsLast => index == Args.Length - 1;
 
-            public JSValue Current => current ?? JSUndefined.Value;
-        }
+        //    public JSValue Current => current ?? JSUndefined.Value;
+        //}
 
         public static Arguments Empty = new Arguments { };
 
@@ -376,28 +377,51 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        internal JSValue this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                if (Length > index)
+                {
+                    if (Length >= MinArray)
+                        return Args[index];
+                    switch (index)
+                    {
+                        case 0:
+                            return Arg0;
+                        case 1:
+                            return Arg1;
+                        case 2:
+                            return Arg2;
+                        case 3:
+                            return Arg3;
+                        default:
+                            return Args[index];
+                    }
+                }
+                return JSUndefined.Value;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSValue GetAt(int index)
         {
-            if (Length > index)
+            if (Length >= MinArray)
+                return Args[index];
+            switch (index)
             {
-                if (Length >= MinArray)
-                    return Args[index];
-                switch (index)
-                {
-                    case 0:
-                        return Arg0;
-                    case 1:
-                        return Arg1;
-                    case 2:
-                        return Arg2;
-                    case 3:
-                        return Arg3;
-                    default:
-                        return Args[index];
-                }
+                case 0:
+                    return Arg0 ?? JSUndefined.Value;
+                case 1:
+                    return Arg1 ?? JSUndefined.Value;
+                case 2:
+                    return Arg2 ?? JSUndefined.Value;
+                case 3:
+                    return Arg3 ?? JSUndefined.Value;
+                default:
+                    return index >= Length ? JSUndefined.Value : Args[index];
             }
-            return JSUndefined.Value;
         }
     }
 }
