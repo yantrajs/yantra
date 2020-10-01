@@ -48,6 +48,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject SyntaxErrorPrototype;
 
+        public readonly JSObject URIErrorPrototype;
+
         public readonly JSObject DatePrototype;
 
         public readonly JSObject MapPrototype;
@@ -121,6 +123,7 @@ namespace WebAtoms.CoreJS.Core
             TypeErrorPrototype = this.Create<JSTypeError>(KeyStrings.TypeError, ErrorPrototype);
             RangeErrorPrototype = this.Create<JSTypeError>(KeyStrings.RangeError, ErrorPrototype);
             SyntaxErrorPrototype = this.Create<JSTypeError>(KeyStrings.SyntaxError, ErrorPrototype);
+            URIErrorPrototype = this.Create<JSTypeError>(KeyStrings.URIError, ErrorPrototype);
             DatePrototype = this.Create<JSDate>(KeyStrings.Date);
             MapPrototype = this.Create<JSMap>(KeyStrings.Map);
             PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise);
@@ -149,6 +152,12 @@ namespace WebAtoms.CoreJS.Core
         internal JSException NewSyntaxError(string message)
         {
             return NewError(message, SyntaxErrorPrototype);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSException NewURIError(string message)
+        {
+            return new JSException(message, URIErrorPrototype);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
