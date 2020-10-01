@@ -1,0 +1,12 @@
+﻿assert(Number.isNaN(Math.sin()));
+assert(Number.isNaN(Math.sin(undefined)));
+assert.strictEqual(Math.sin(null), 0);
+assert.strictEqual(Math.sin(0), 0);
+assert.strictEqual(Math.sin(""), 0);
+assert(isNaN(Math.sin("abcd")));
+assert.doubleEqual(Math.sin("1.2"), 0.9320390859672263);
+assert.doubleEqual(Math.sin(" 1.2"), 0.9320390859672263);
+assert(isNaN(Math.sin(Infinity)));
+assert.doubleEqual(Math.sin(1) * 10, 8.414709848078965);
+assert.doubleEqual(Math.sin(2) * 10, 9.092974268256818);
+assert.doubleEqual(Math.sin(Math.PI) * 10, 1.2246467991473533e-15);

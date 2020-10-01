@@ -544,6 +544,17 @@ namespace WebAtoms.CoreJS.Core.Objects
             return new JSNumber(r);
 
         }
+
+
+        [Static("sin")]
+        public static JSValue Sin(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Sin(d));
+            return r;
+        }
+
     }
 
 }
