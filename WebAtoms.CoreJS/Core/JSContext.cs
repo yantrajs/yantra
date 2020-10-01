@@ -136,47 +136,55 @@ namespace WebAtoms.CoreJS.Core
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 
             this.Fill<JSGlobalStatic>();
-
-            this[KeyStrings.Infinity] = JSNumber.PositiveInfinity;
         }
 
         private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewTypeError(string message)
+        internal JSException NewTypeError(string message, 
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return NewError(message, TypeErrorPrototype);
+            return new JSException(message, TypeErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewSyntaxError(string message)
+        internal JSException NewSyntaxError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return NewError(message, SyntaxErrorPrototype);
+            return new JSException(message, SyntaxErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewURIError(string message)
+        internal JSException NewURIError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, URIErrorPrototype);
+            return new JSException(message, URIErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewRangeError(string message)
+        internal JSException NewRangeError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return NewError(message, RangeErrorPrototype);
+            return new JSException(message, RangeErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewError(string message)
+        internal JSException NewError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return NewError(message, ErrorPrototype);
+            return new JSException(message, ErrorPrototype, function, filePath, line);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JSException NewError(string message, JSObject prototype)
-        {
-            return new JSException(message, prototype);
-        }
 
     }
 }

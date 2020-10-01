@@ -12,7 +12,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var len = args.Length;
             if (len == 0)
-                throw new JSException("No arguments were supplied to Function constructor");
+                throw JSContext.Current.NewTypeError("No arguments were supplied to Function constructor");
             JSValue body = null;
             var al = args.Length;
             var last = al - 1;

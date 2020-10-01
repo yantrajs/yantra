@@ -9,6 +9,12 @@ namespace WebAtoms.CoreJS.Core
 {
     public class JSGlobalStatic
     {
+        [Static("Infinity")]
+        public static JSNumber Infinity = JSNumber.PositiveInfinity;
+
+        [Static("NaN")]
+        public static JSNumber NaN = JSNumber.NaN;
+
         [Static("decodeURI")]
         public static JSValue DecodeURI(in Arguments a)
         {
