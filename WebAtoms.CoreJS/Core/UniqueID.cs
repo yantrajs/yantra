@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Core
     {
 
 
-        private static KeyString UniqueIDKey = KeyStrings.NewSymbol("UniqueID");
+        private static JSSymbol UniqueIDKey = new JSSymbol("UniqueID");
 
         internal static string ToUniqueID(this JSValue value)
         {
@@ -29,13 +29,13 @@ namespace WebAtoms.CoreJS.Core
 
         private static string GenerateID(JSObject obj)
         {
-            var op = obj.ownProperties ?? (obj.ownProperties = new PropertySequence());
-            if(op.TryGetValue(UniqueIDKey.Key, out var px))
+            var op = obj.symbols ?? (obj.symbols = new CompactUInt32Trie<JSProperty>());
+            if(op.TryGetValue(UniqueIDKey.Key.Key, out var px))
             {
                 return $"ID:{px.value}";
             }
             var id = Interlocked.Increment(ref NextID);
-            op[UniqueIDKey.Key] = JSProperty.Property(new JSString(id.ToString()), JSPropertyAttributes.ConfigurableReadonlyValue);
+            op[UniqueIDKey.Key.Key] = JSProperty.Property(new JSString(id.ToString()), JSPropertyAttributes.ConfigurableReadonlyValue);
             return $"ID:{id}";
         }
 

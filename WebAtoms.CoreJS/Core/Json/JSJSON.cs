@@ -179,7 +179,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 var key = p.Key;
                 var value = p.Value;
-                if (value.key.IsSymbol || value.IsEmpty || !value.IsEnumerable)
+                if (value.IsEmpty || !value.IsEnumerable)
                     continue;
                 JSValue jsValue;
                 if (!value.IsValue)

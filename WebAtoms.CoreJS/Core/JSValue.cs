@@ -127,16 +127,33 @@ namespace WebAtoms.CoreJS.Core {
             set { }
         }
 
+        public virtual JSValue this[JSSymbol symbol]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return this.GetValue(prototypeChain.GetInternalProperty(symbol));
+            }
+            set { }
+        }
 
         public JSValue this[JSValue key]
         {
             get
             {
+                if (key is JSSymbol symbol)
+                    return this[symbol];
                 var k = key.ToKey();
                 return k.IsUInt ? this[k.Key] : this[k];
             }
             set
             {
+                if (key is JSSymbol symbol)
+                {
+                    this[symbol] = value;
+                    return;
+                }
                 var k = key.ToKey();
                 if (k.IsUInt)
                 {

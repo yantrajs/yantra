@@ -129,12 +129,20 @@ namespace WebAtoms.CoreJS.Core
             if (!(desc is JSObject pd))
                 throw JSContext.Current.NewTypeError("Property Description must be an object");
             var k = key.ToKey();
-            if (!k.IsUInt)
+            if (k.IsSymbol)
             {
-                JSObject.InternalAddProperty(targetObject, k, pd);
-            } else
+                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
+            }
+            else
             {
-                JSObject.InternalAddProperty(targetObject, k.Key, pd);
+                if (!k.IsUInt)
+                {
+                    JSObject.InternalAddProperty(targetObject, k, pd);
+                }
+                else
+                {
+                    JSObject.InternalAddProperty(targetObject, k.Key, pd);
+                }
             }
             return target;
         }

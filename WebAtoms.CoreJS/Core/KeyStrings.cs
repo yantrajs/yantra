@@ -160,9 +160,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString NewSymbol(string name)
+        internal static KeyString NewSymbol(string name, uint id)
         {
-            return new KeyString($"Symbol({name})", (uint)Interlocked.Increment(ref NextID));
+            return new KeyString($"Symbol({name})", id);
         }
 
     }
