@@ -594,6 +594,15 @@ namespace WebAtoms.CoreJS.Core.Objects
             var r = new JSNumber(Math.Tanh(d));
             return r;
         }
+
+        [Static("trunc")]
+        public static JSValue Trunc(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Truncate(d));
+            return r;
+        }
     }
 
 }
