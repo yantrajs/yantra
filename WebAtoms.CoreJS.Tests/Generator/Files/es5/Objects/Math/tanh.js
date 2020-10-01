@@ -1,0 +1,12 @@
+﻿assert(Number.isNaN(Math.tanh()));
+assert(Number.isNaN(Math.tanh(undefined)));
+assert.strictEqual(Math.tanh(null), 0);
+assert.strictEqual(Math.tanh(0), 0);
+assert.strictEqual(Math.tanh(""), 0);
+assert(isNaN(Math.tanh("abcd")));
+assert.doubleEqual(Math.tanh("1.2"), 0.8336546070121552);
+assert.doubleEqual(Math.tanh(" 1.2"), 0.8336546070121552);
+assert.strictEqual(Math.tanh(Infinity), 1);
+assert.strictEqual(Math.tanh(-1), -0.7615941559557649);
+assert.doubleEqual(Math.tanh(0.5), 0.46211715726000974);
+assert.doubleEqual(Math.tanh(1), 0.7615941559557649);

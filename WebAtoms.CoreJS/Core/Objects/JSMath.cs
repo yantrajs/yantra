@@ -544,6 +544,56 @@ namespace WebAtoms.CoreJS.Core.Objects
             return new JSNumber(r);
 
         }
+
+
+        [Static("sin")]
+        public static JSValue Sin(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Sin(d));
+            return r;
+        }
+
+
+        [Static("sinh")]
+        public static JSValue Sinh(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Sinh(d));
+            return r;
+        }
+
+
+        [Static("sqrt")]
+        public static JSValue Sqrt(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Sqrt(d));
+            return r;
+        }
+
+
+
+        [Static("tan")]
+        public static JSValue Tan(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Tan(d));
+            return r;
+        }
+
+        [Static("tanh")]
+        public static JSValue Tanh(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Tanh(d));
+            return r;
+        }
     }
 
 }

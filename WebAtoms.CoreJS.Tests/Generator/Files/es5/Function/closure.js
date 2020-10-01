@@ -31,8 +31,9 @@ deck = {
 
 let cardPicker = deck.createCardPicker();
 let pickedCard = cardPicker();
-assert(pickedCard.card);
-assert(pickedCard.suit);
+// This test is no longer required as sometimes it comes 0
+//assert(pickedCard.card);
+//assert(pickedCard.suit);
 
 assert.match(pickedCard.card + " of " + pickedCard.suit, /\d+\sof\s\w+/i);
 
