@@ -575,6 +575,25 @@ namespace WebAtoms.CoreJS.Core.Objects
             return r;
         }
 
+
+
+        [Static("tan")]
+        public static JSValue Tan(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Tan(d));
+            return r;
+        }
+
+        [Static("tanh")]
+        public static JSValue Tanh(in Arguments args)
+        {
+            var first = args.Get1();
+            var d = first.DoubleValue;
+            var r = new JSNumber(Math.Tanh(d));
+            return r;
+        }
     }
 
 }

@@ -7,5 +7,5 @@ assert(isNaN(Math.atanh("abcd")));
 assert(isNaN(Math.atanh("1.2")));
 assert(isNaN(Math.atanh(" 1.2")));
 assert.strictEqual(Math.atanh(-1), Number.NEGATIVE_INFINITY);
-assert.strictEqual(Math.atanh(0.5), 0.5493061443340549);
+assert.doubleEqual(Math.atanh(0.5), 0.5493061443340549);
 assert.strictEqual(Math.atanh(1), Number.POSITIVE_INFINITY);
