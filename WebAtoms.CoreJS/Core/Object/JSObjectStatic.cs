@@ -55,9 +55,11 @@ namespace WebAtoms.CoreJS.Core
                 return first;
             if (@object.ownProperties != null)
             {
-                foreach (var item in @object.ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(@object.ownProperties);
+                while(en.MoveNext())
                 {
-                    firstObject.ownProperties[item.Key] = item.Value;
+                    var item = en.Current;
+                    firstObject.ownProperties[item.key.Key] = item;
                 }
             }
             return first;
@@ -165,10 +167,19 @@ namespace WebAtoms.CoreJS.Core
                     var vi = item.Value;
                     if (!(vi.value is JSArray ia))
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
-                    var first = ia[0].ToString();
+                    var first = ia[0];
                     var second = ia[1];
-                    r.DefineProperty(first, JSProperty.Property(first, second,
-                        JSPropertyAttributes.EnumerableConfigurableValue));
+                    if (first is JSSymbol symbol)
+                    {
+                        r.DefineProperty(symbol, JSProperty.Property(symbol.Key, second,
+                            JSPropertyAttributes.EnumerableConfigurableValue));
+                    }
+                    else
+                    {
+                        var key = first.ToKey();
+                        r.DefineProperty(key, JSProperty.Property(key, second,
+                            JSPropertyAttributes.EnumerableConfigurableValue));
+                    }
                 }
             }
             return r;
@@ -269,9 +280,15 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            return new JSObject(jobj.ownProperties.AllValues().Select(x => 
-                JSProperty.Property(x.Value.key, x.Value.ToJSValue())
-            ));
+            var r = new JSObject();
+            var en = new PropertySequence.Enumerator(jobj.ownProperties);
+            while(en.MoveNext())
+            {
+                var x = en.Current;
+                var p = JSProperty.Property(x.key, x.ToJSValue());
+                r.elements[x.key.Key] = p;
+            }
+            return r;
         }
 
         [Static("getOwnPropertyNames")]
@@ -282,14 +299,25 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            var keys = jobj.ownProperties.AllValues().Select(x => x.Value.key.ToJSValue());
-            return new JSArray(keys);
+            var en = new PropertySequence.Enumerator(jobj.ownProperties);
+            var r = new JSArray();
+            while (en.MoveNext())
+            {
+                r.Add(en.Current.ToJSValue());
+            }
+            return r;
         }
 
         [Static("getOwnPropertySymbols")]
         internal static JSValue _GetOwnPropertySymbols(in Arguments a)
         {
-            throw new NotImplementedException();
+            var first = a.Get1();
+            if (first.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(first is JSObject jobj))
+                return new JSArray();
+            var keys = jobj.symbols.AllValues.Select(x => x.Value.key.ToJSValue());
+            return new JSArray(keys);
         }
 
         [Static("getPrototypeOf")]

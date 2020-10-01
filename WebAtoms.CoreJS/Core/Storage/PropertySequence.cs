@@ -8,8 +8,30 @@ namespace WebAtoms.CoreJS.Core
     public class PropertySequence
     {
 
-        // private UInt32Trie<int> map = new CompactUInt32Trie<int>();
-        private UInt32Trie<int> map = new UInt32Trie<int>();
+        public struct Enumerator
+        {
+            List<JSProperty>.Enumerator enumerator;
+            public Enumerator(PropertySequence ps)
+            {
+                this.enumerator = ps.properties.GetEnumerator();
+            }
+
+            public bool MoveNext()
+            {
+                while (this.enumerator.MoveNext())
+                {
+                    var current = this.enumerator.Current;
+                    if (current.Attributes == JSPropertyAttributes.Deleted)
+                        continue;
+                    return true;
+                }
+                return false;
+            }
+
+            public JSProperty Current => this.enumerator.Current;
+        }
+
+        private UInt32Trie<int> map = new CompactUInt32Trie<int>();
         private List<JSProperty> properties = new List<JSProperty>();
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()

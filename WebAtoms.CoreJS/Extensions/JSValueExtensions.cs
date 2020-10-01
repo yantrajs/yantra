@@ -50,14 +50,16 @@ namespace WebAtoms.CoreJS.Extensions
             var ownProperties = @object.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
+                    var p = en.Current;
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!p.IsEnumerable)
                             continue;
                     }
-                    yield return (p.Value.ToJSValue(), value.GetValue(p.Value));
+                    yield return (p.ToJSValue(), value.GetValue(p));
                 }
             }
 
@@ -87,9 +89,11 @@ namespace WebAtoms.CoreJS.Extensions
             var ownProperties = @object.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
-                    yield return (-1, p.Value.key, value.GetValue(p.Value));
+                    var p = en.Current;
+                    yield return (-1, p.key, value.GetValue(p));
                 }
             }
         }

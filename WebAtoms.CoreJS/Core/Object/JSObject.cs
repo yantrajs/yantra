@@ -354,14 +354,16 @@ namespace WebAtoms.CoreJS.Core
             var ownProperties = this.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
+                    var p = en.Current;
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!p.IsEnumerable)
                             continue;
                     }
-                    yield return p.Value.ToJSValue();
+                    yield return p.ToJSValue();
                 }
             }
 
