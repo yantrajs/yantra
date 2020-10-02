@@ -29,8 +29,13 @@ namespace WebAtoms.CoreJS.Core
             return JSBoolean.False;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
         [Prototype("toString")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "JavaScript Method Signature is Standard")]
         public static JSValue ToString(in Arguments a) => new JSString("[object Object]");
 
         // [Prototype("toLocaleString")]
@@ -47,8 +52,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue PrototypeSet(in Arguments a)
         {
             var a0 = a.Get1();
-            var o = a0 as JSObject;
-            if (o != null)
+            if (a0 is JSObject o)
                 a.This.prototypeChain = o;
             return a0;
         }
@@ -60,7 +64,7 @@ namespace WebAtoms.CoreJS.Core
             if (!a.This.TryAsObjectThrowIfNullOrUndefined(out var @object))
                 return JSBoolean.False;
             var first = a.Get1();
-            var key = first.ToKey();
+            var key = first.ToKey(false);
             if (key.IsUInt)
             {
                 if (@object.elements?.HasKey(key.Key) ?? false)

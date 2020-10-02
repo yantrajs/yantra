@@ -37,6 +37,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             return GetFiles(dir, dir).Select(x => new object[] { x }).ToList();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Sent by Test Engine")]
         public static string GetDisplayName(MethodInfo methodInfo, object[] data)
         {
             var p = ((FileInfo, string))data[0];
