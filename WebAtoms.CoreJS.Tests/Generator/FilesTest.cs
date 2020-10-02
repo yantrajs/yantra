@@ -1,17 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
-using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
-[assembly: Parallelize(Scope = ExecutionScope.MethodLevel, Workers = 4)]
 namespace WebAtoms.CoreJS.Tests.Generator
 {
     public class FileCollection<T>
@@ -53,15 +47,14 @@ namespace WebAtoms.CoreJS.Tests.Generator
         [DynamicData("AllTests", DynamicDataDisplayName = "GetDisplayName")]
         public async Task RunFile((FileInfo, string) test)
         {
-            var (x, name) = test;
+            var (x, _) = test;
             string content;
             using (var fs = x.OpenText())
             {
                 content = await fs.ReadToEndAsync();
             }
-            var jc = new JSTestContext();
+            using var jc = new JSTestContext();
             CoreScript.Evaluate(content, x.FullName);
-
         }
 
     }
