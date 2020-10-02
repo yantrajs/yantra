@@ -54,23 +54,29 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSObject NewWithProperties()
         {
-            var o = new JSObject();
-            o.ownProperties = new PropertySequence();
+            var o = new JSObject
+            {
+                ownProperties = new PropertySequence()
+            };
             return o;
         }
 
         internal static JSObject NewWithElements()
         {
-            var o = new JSObject();
-            o.elements = new UInt32Trie<JSProperty>();
+            var o = new JSObject
+            {
+                elements = new UInt32Trie<JSProperty>()
+            };
             return o;
         }
 
         internal static JSObject NewWithPropertiesAndElements()
         {
-            var o = new JSObject();
-            o.ownProperties = new PropertySequence();
-            o.elements = new UInt32Trie<JSProperty>();
+            var o = new JSObject
+            {
+                ownProperties = new PropertySequence(),
+                elements = new UInt32Trie<JSProperty>()
+            };
             return o;
         }
 
@@ -340,14 +346,14 @@ namespace WebAtoms.CoreJS.Core
             var elements = this.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues)
+                foreach (var (Key, Value) in elements.AllValues)
                 {
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!Value.IsEnumerable)
                             continue;
                     }
-                    yield return new JSNumber(p.Key);
+                    yield return new JSNumber(Key);
                 }
             }
 
