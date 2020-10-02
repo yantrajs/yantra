@@ -80,43 +80,6 @@ namespace WebAtoms.CoreJS.Core
 
         private readonly JSValue[] Args;
 
-        
-
-        public IEnumerable<JSValue> All
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                switch (Length)
-                {
-                    case 0:
-                        yield break;
-                    case 1:
-                        yield return Arg0;
-                        yield break;
-                    case 2:
-                        yield return Arg0;
-                        yield return Arg1;
-                        yield break;
-                    case 3:
-                        yield return Arg0;
-                        yield return Arg1;
-                        yield return Arg2;
-                        yield break;
-                    case 4:
-                        yield return Arg0;
-                        yield return Arg1;
-                        yield return Arg2;
-                        yield return Arg3;
-                        yield break;
-                    default:
-                        foreach (var a in Args)
-                            yield return a;
-                        yield break;
-                }
-            }
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments CopyForCall()
         {

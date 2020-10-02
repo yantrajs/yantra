@@ -54,9 +54,10 @@ namespace WebAtoms.CoreJS.Core
                 var last = i;
                 start = bitLast;
                 // incremenet of two bits...
+                uint keyIndex = key;
                 for (i = 0; i <= last; i += bitSize)
                 {
-                    byte bk = (byte)((key & start) >> i);
+                    byte bk = (byte)(keyIndex & bitLast);
                     if (index == uint.MaxValue)
                     {
                         node = ref Buffer[bk];
@@ -64,7 +65,7 @@ namespace WebAtoms.CoreJS.Core
                     }
                     else
                     {
-                        if (node.HasValue && node.Key == keyString)
+                        if (node.Key == keyString)
                             return ref node;
                         // if this branch has no value
                         // store value here...
@@ -79,14 +80,9 @@ namespace WebAtoms.CoreJS.Core
                                 var dirty = node.Value;
                                 var old = node.Key;
                                 node.UpdateDefaultValue(keyString, default);
-                                // this.Save(old, dirty);
-                                // node.Update(old, dirty);
-
-                                // need to save without lock...
-                                ref var newNode = ref GetTrieNode(old, true);
-                                newNode.Update(old, dirty);
-
-                                return ref node;
+                                ref var childNode = ref GetTrieNode(old, true);
+                                childNode.Update(old, dirty);
+                                return ref Buffer[index];
                             }
                         }
 
@@ -112,8 +108,19 @@ namespace WebAtoms.CoreJS.Core
                             node = ref Buffer[index];
                         }
                     }
-                    start = start << bitSize;
+                    keyIndex >>= bitSize;
                 }
+            }
+
+            if (node.Key.CompareTo(keyString) > 0)
+            {
+                var dirty = node.Value;
+                var old = node.Key;
+                node.UpdateDefaultValue(keyString, default);
+                // this.Save(old, dirty);
+                ref var childNode = ref GetTrieNode(old, true);
+                childNode.Update(old, dirty);
+                return ref Buffer[index];
             }
 
             if (created)

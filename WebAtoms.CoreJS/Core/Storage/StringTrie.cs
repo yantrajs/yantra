@@ -76,9 +76,10 @@ namespace WebAtoms.CoreJS.Core {
                 var last = i;
                 start = bitLast;
                 // incremenet of two bits...
+                uint keyIndex = key;
                 for (i = 0; i <= last; i += bitSize)
                 {
-                    byte bk = (byte)((key & start) >> i);
+                    byte bk = (byte)(keyIndex & bitLast);
                     if (index == uint.MaxValue)
                     {
                         node = ref Buffer[bk];
@@ -102,7 +103,7 @@ namespace WebAtoms.CoreJS.Core {
                                 var old = node.Key;
                                 node.UpdateDefaultValue(keyString, default);
                                 this.Save(old, dirty);
-                                return ref node;
+                                return ref Buffer[index];
                             }
                         }
 
@@ -128,7 +129,7 @@ namespace WebAtoms.CoreJS.Core {
                             node = ref Buffer[index];
                         }
                     }
-                    start <<= bitSize;
+                    keyIndex >>= bitSize;
                 }
             }
 
@@ -138,7 +139,7 @@ namespace WebAtoms.CoreJS.Core {
                 var old = node.Key;
                 node.UpdateDefaultValue(keyString, default);
                 this.Save(old, dirty);
-                return ref node;
+                return ref Buffer[index];
             }
 
             if (created)

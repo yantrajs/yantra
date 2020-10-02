@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -23,13 +24,13 @@ namespace WebAtoms.CoreJS.Core
                 return ref Buffer[0];
             }
 
-            UInt32 start = 0x3;
             Int32 i;
             uint index = uint.MaxValue;
+            uint keyIndex = key;
             // incremenet of two bits...
             for (i = 0; i < 32; i += 2)
             {
-                var bk = ((key & start) >> i);
+                var bk = keyIndex & 0x3;
                 if (index == uint.MaxValue)
                 {
                     node = ref Buffer[bk];
@@ -81,7 +82,8 @@ namespace WebAtoms.CoreJS.Core
                 }
 
 
-                start <<= 2;
+                // start <<= 2;
+                keyIndex >>= 2;
             }
             if (create)
             {
