@@ -65,7 +65,7 @@ namespace WebAtoms.CoreJS.Core
                 var bk = ((key & start) >> i);
                 if (bk == 0)
                 {
-                    start = start >> 2;
+                    start >>= 2;
                     continue;
                 }
                 break;

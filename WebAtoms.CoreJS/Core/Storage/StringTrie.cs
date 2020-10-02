@@ -22,10 +22,10 @@ namespace WebAtoms.CoreJS.Core {
 
         }
 
-        int bitSize = 2;
-        uint bitBig = 0xC000;
-        uint bitLast = 0x3;
-        int bitLength = 14;
+        const int bitSize = 2;
+        const uint bitBig = 0xC000;
+        const uint bitLast = 0x3;
+        const int bitLength = 14;
 
         public int Total = 0;
 
@@ -68,7 +68,7 @@ namespace WebAtoms.CoreJS.Core {
                     byte bk = (byte)((key & start) >> i);
                     if (bk == 0)
                     {
-                        start = start >> bitSize;
+                        start >>= bitSize;
                         continue;
                     }
                     break;
