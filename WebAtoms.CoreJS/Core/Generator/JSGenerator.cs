@@ -142,5 +142,26 @@ namespace WebAtoms.CoreJS.Core.Generator
             }
             return generator.Next(a.Length == 0 ? null : a.Get1());
         }
+
+        [Prototype("return")]
+        public static JSValue Return(in Arguments a)
+        {
+            if (!(a.This is JSGenerator generator))
+            {
+                throw JSContext.Current.NewTypeError($"receiver for Generator.prototype.next should be generator");
+            }
+            return generator.Return(a.Get1());
+        }
+
+        [Prototype("throw")]
+        public static JSValue Throw(in Arguments a)
+        {
+            if (!(a.This is JSGenerator generator))
+            {
+                throw JSContext.Current.NewTypeError($"receiver for Generator.prototype.next should be generator");
+            }
+            return generator.Return(a.Get1());
+        }
+
     }
 }
