@@ -24,6 +24,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         // wait by generator thread...
         AutoResetEvent wait;
+        Thread thread;
 
         public JSValue Next(JSValue replaceOld = null)
         {
@@ -41,9 +42,15 @@ namespace WebAtoms.CoreJS.Core.Generator
             {
                 yield = new AutoResetEvent(false);
                 wait = new AutoResetEvent(false);
-                ThreadPool.QueueUserWorkItem(RunGenerator, this);
-                yield.WaitOne();
+                // using ThreadPool could be dangerous as it might run on somebody
+                // else's thread creating conflicts...
+                // ThreadPool.QueueUserWorkItem(RunGenerator, this);
+                this.thread = new Thread(RunGenerator);
+                thread.Start(this);
+
+                while (!thread.IsAlive) ;
             }
+
             wait.Set();
             yield.WaitOne();
 
@@ -92,7 +99,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         {
             JSGenerator generator = state as JSGenerator;
             JSContext.Current = generator.context;
-            generator.yield.Set();
+            // generator.yield.Set();
             generator.wait.WaitOne();
             generator.@delegate(generator, generator.a);
             generator.done = true;
