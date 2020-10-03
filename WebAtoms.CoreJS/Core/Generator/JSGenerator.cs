@@ -26,6 +26,27 @@ namespace WebAtoms.CoreJS.Core.Generator
         AutoResetEvent wait;
         Thread thread;
 
+        public JSValue Return(JSValue value)
+        {
+            this.done = true;
+            this.value = JSUndefined.Value;
+            thread?.Abort();
+            return (JSObject.NewWithProperties())
+                    .AddProperty(KeyStrings.value, value)
+                    .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+        }
+
+        public JSValue Throw(JSValue value)
+        {
+            thread?.Abort();
+            return ValueObject;
+        }
+
+        public JSValue ValueObject => (JSObject.NewWithProperties())
+                    .AddProperty(KeyStrings.value, this.value)
+                    .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+        private Exception lastError;
+
         public JSValue Next(JSValue replaceOld = null)
         {
             if (replaceOld != null)
@@ -34,9 +55,8 @@ namespace WebAtoms.CoreJS.Core.Generator
             }
             if (this.done)
             {
-                return (JSObject.NewWithProperties())
-                    .AddProperty(KeyStrings.value, JSUndefined.Value)
-                    .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+                this.value = JSUndefined.Value;
+                return ValueObject;
             }
             if (yield == null)
             {
@@ -54,16 +74,16 @@ namespace WebAtoms.CoreJS.Core.Generator
             wait.Set();
             yield.WaitOne();
 
+            if (this.lastError != null)
+                throw lastError;
+
             if (this.done)
             {
-                return (JSObject.NewWithProperties())
-                    .AddProperty(KeyStrings.value, JSUndefined.Value)
-                    .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+                this.value = JSUndefined.Value;
+                return ValueObject;
             }
 
-            return (JSObject.NewWithProperties())
-                .AddProperty(KeyStrings.value, value)
-                .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+            return ValueObject;
         }
 
         public JSValue Yield(JSValue value)
@@ -98,12 +118,19 @@ namespace WebAtoms.CoreJS.Core.Generator
         private static void RunGenerator(object state)
         {
             JSGenerator generator = state as JSGenerator;
-            JSContext.Current = generator.context;
-            // generator.yield.Set();
-            generator.wait.WaitOne();
-            generator.@delegate(generator, generator.a);
-            generator.done = true;
-            generator.yield.Set();
+            try
+            {
+                JSContext.Current = generator.context;
+                // generator.yield.Set();
+                generator.wait.WaitOne();
+                generator.@delegate(generator, generator.a);
+                generator.done = true;
+                generator.yield.Set();
+            }catch (Exception ex)
+            {
+                generator.lastError = ex;
+                generator.yield.Set();
+            }
         }
 
         [Prototype("next")]
