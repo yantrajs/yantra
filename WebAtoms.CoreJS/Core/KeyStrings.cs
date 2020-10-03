@@ -84,6 +84,7 @@ namespace WebAtoms.CoreJS.Core
         
         public readonly static KeyString native;
         public readonly static KeyString value;
+        public readonly static KeyString done;
         public readonly static KeyString get;
         public readonly static KeyString set;
         public readonly static KeyString undefined;

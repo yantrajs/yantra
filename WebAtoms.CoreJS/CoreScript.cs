@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.LinqExpressions;
@@ -301,7 +302,9 @@ namespace WebAtoms.CoreJS
                         block,
                         ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
 
-                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
+                var lambda = functionDeclaration.Generator 
+                    ? Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.Generator, cs.Arguments)
+                    : Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
 
 
                 // create new JSFunction instance...
@@ -1093,7 +1096,11 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitYieldExpression(Esprima.Ast.YieldExpression yieldExpression)
         {
-            throw new NotImplementedException();
+            if (yieldExpression.Delegate)
+            {
+                return JSGeneratorBuilder.Delegate(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
+            }
+            return JSGeneratorBuilder.Yield(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
         }
 
         protected override Exp VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)

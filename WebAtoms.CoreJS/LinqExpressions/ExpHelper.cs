@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.ExpHelper
@@ -227,6 +228,24 @@ namespace WebAtoms.CoreJS.ExpHelper
         {
             return Expression.MakeIndex(Current, _Index, new Expression[] { key });
         }
+    }
+
+    public class JSGeneratorBuilder
+    {
+        private static Type type = typeof(JSGenerator);
+        private static MethodInfo yield = type.GetMethod(nameof(JSGenerator.Yield), new Type[] { typeof(JSValue) });
+        private static MethodInfo @delegate = type.GetMethod(nameof(JSGenerator.Delegate), new Type[] { typeof(JSValue) });
+
+        public static Expression Yield(Expression generator, Expression value)
+        {
+            return Expression.Call(generator, yield, value);
+        }
+
+        public static Expression Delegate(Expression generator, Expression value)
+        {
+            return Expression.Call(generator, @delegate, value);
+        }
+
     }
 
     public class LexicalScopeBuilder: TypeHelper<Core.LexicalScope>

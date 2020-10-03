@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esprima.Ast;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -13,10 +14,12 @@ namespace WebAtoms.CoreJS.Core.Generator
         readonly JSGeneratorDelegate @delegate;
         readonly Arguments a;
         JSValue value;
+        bool done;
         public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)
         {
             this.@delegate = @delegate;
             this.a = a;
+            done = false;
         }
 
         // wait by current thread...
@@ -27,17 +30,27 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Next()
         {
+            if (this.done)
+            {
+                return (new JSObject())
+                    .AddProperty(KeyStrings.value, value)
+                    .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+            }
             if (yield == null)
             {
                 yield = new AutoResetEvent(false);
+                wait = new AutoResetEvent(false);
                 ThreadPool.QueueUserWorkItem(RunGenerator, this);
+                yield.WaitOne();
             }
             wait.Set();
             yield.WaitOne();
-            return value;
+            return (new JSObject())
+                .AddProperty(KeyStrings.value, value)
+                .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
         }
 
-        internal JSValue Yield(JSValue value)
+        public JSValue Yield(JSValue value)
         {
             yield.Set();
             this.value = value;
@@ -45,10 +58,25 @@ namespace WebAtoms.CoreJS.Core.Generator
             return this.value;
         }
 
+        public JSValue Delegate(JSValue value)
+        {
+            if (!(value is JSGenerator generator))
+                throw JSContext.Current.NewTypeError($"value is not generator");
+            while(!generator.done)
+            {
+                this.Yield(generator.Next());
+            }
+            return this.value;
+        }
+
         private static void RunGenerator(object state)
         {
             JSGenerator generator = state as JSGenerator;
+            generator.yield.Set();
+            generator.wait.WaitOne();
             generator.@delegate(generator, generator.a);
+            generator.done = true;
+            generator.yield.Set();
         }
     }
 

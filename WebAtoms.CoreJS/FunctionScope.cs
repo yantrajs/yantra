@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.ExpHelper;
 using Exp = System.Linq.Expressions.Expression;
 
@@ -141,9 +142,21 @@ namespace WebAtoms.CoreJS
             }
         }
 
+        public ParameterExpression Generator
+        {
+            get;set;
+        }
+
         public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null)
         {
             this.Function = fx;
+            if (fx?.Generator ?? false)
+            {
+                Generator = Expression.Parameter(typeof(JSGenerator));
+            } else
+            {
+                Generator = null;
+            }
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
             this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType());
@@ -171,6 +184,7 @@ namespace WebAtoms.CoreJS
             this.Function = p.Function;
             this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
+            this.Generator = p.Generator;
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
