@@ -96,6 +96,9 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString Module;
         public readonly static KeyString module;
 
+        public readonly static KeyString Generator;
+        public readonly static KeyString next;
+
 
         // global methods...
         public readonly static KeyString eval;

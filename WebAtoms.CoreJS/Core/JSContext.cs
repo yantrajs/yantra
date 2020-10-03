@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Core.Objects;
 using WebAtoms.CoreJS.Core.Set;
 using WebAtoms.CoreJS.Core.Weak;
@@ -65,6 +66,8 @@ namespace WebAtoms.CoreJS.Core
         internal readonly JSObject WeakMapPrototype;
 
         internal readonly JSObject WeakSetPrototype;
+
+        internal readonly JSObject GeneratorPrototype;
 
         public readonly JSObject JSON;
 
@@ -132,6 +135,7 @@ namespace WebAtoms.CoreJS.Core
             WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef);
             WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet);
             WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap);
+            GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 

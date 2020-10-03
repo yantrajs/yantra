@@ -1016,6 +1016,19 @@ namespace WebAtoms.CoreJS.ExpHelper
                 );
         }
     }
+
+    public class JSGeneratorFunctionBuilder
+    {
+        private static Type type = typeof(JSGeneratorFunction);
+
+        private static ConstructorInfo _New =
+            type.Constructor(typeof(JSGeneratorDelegate), typeof(string), typeof(string));
+
+        public static Expression New(Expression @delegate, string name, string code)
+        {
+            return Expression.New(_New, @delegate, Expression.Constant(name), Expression.Constant(code));
+        }
+    }
     public class JSFunctionBuilder: TypeHelper<Core.JSFunction>
     {
         private static ConstructorInfo _New =

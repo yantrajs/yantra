@@ -308,7 +308,9 @@ namespace WebAtoms.CoreJS
 
 
                 // create new JSFunction instance...
-                var jfs = ExpHelper.JSFunctionBuilder.New(lambda, fxName, code);
+                var jfs = functionDeclaration.Generator 
+                    ? JSGeneratorFunctionBuilder.New(lambda, fxName, code)
+                    : JSFunctionBuilder.New(lambda, fxName, code);
 
                 if (!(functionDeclaration is Esprima.Ast.FunctionDeclaration))
                 {

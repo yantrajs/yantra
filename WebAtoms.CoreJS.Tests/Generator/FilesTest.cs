@@ -10,10 +10,14 @@ namespace WebAtoms.CoreJS.Tests.Generator
 {
     public class FileCollection<T>
     {
-        public static IEnumerable<object[]> AllTests
-            => GetFileCollection(typeof(T).Name);
+        public static IEnumerable<object[]> ES5Files
+            => GetFileCollection(typeof(T).Name, "es5");
 
-        public static IEnumerable<object[]> GetFileCollection(string folder)
+        public static IEnumerable<object[]> ES6Files
+            => GetFileCollection(typeof(T).Name, "es6");
+
+
+        public static IEnumerable<object[]> GetFileCollection(string folder, string root)
         {
             static IEnumerable<(FileInfo, string)> GetFiles(DirectoryInfo files, DirectoryInfo root)
             {
@@ -33,7 +37,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
                     }
                 }
             }
-            var dir = new DirectoryInfo("../../../Generator/Files/es5/" + folder);
+            var dir = new DirectoryInfo("../../../Generator/Files/" + root +  "/" + folder);
             return GetFiles(dir, dir).Select(x => new object[] { x }).ToList();
         }
 
@@ -45,8 +49,22 @@ namespace WebAtoms.CoreJS.Tests.Generator
         }
 
         [TestMethod]
-        [DynamicData("AllTests", DynamicDataDisplayName = "GetDisplayName")]
-        public async Task RunFile((FileInfo, string) test)
+        [DynamicData(nameof(ES5Files), DynamicDataDisplayName = "GetDisplayName")]
+        public async Task RunES5((FileInfo, string) test)
+        {
+            var (x, _) = test;
+            string content;
+            using (var fs = x.OpenText())
+            {
+                content = await fs.ReadToEndAsync();
+            }
+            using var jc = new JSTestContext();
+            CoreScript.Evaluate(content, x.FullName);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(ES6Files), DynamicDataDisplayName = "GetDisplayName")]
+        public async Task RunES6((FileInfo, string) test)
         {
             var (x, _) = test;
             string content;
