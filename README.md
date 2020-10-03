@@ -9,6 +9,8 @@ JavaScript Engine for .NET Standard
 4. User can evaluate context.current function to find current stack trace in JavaScript environment
 5. Majority of code is written as virtual method of JSValue derived object to reduce the amount of code to be generated.
 6. AOT platforms will not perform JIT Inlining, due to this, every method is implemented as simple Static method to avoid unnecessary one more method call after casting.
+7. Generators are implemented as Suspended Threads, as generating complex state machine at runtime would be very time consuming and would require too much of code analysis.
+8. Async/Await will be generated over generators.
 
 # No support for primitive types
 This decision was taken based on following observation

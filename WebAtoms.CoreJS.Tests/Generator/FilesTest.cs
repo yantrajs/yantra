@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,16 +10,16 @@ using System.Threading.Tasks;
 using WebAtoms.CoreJS.Utils;
 namespace WebAtoms.CoreJS.Tests.Generator
 {
-    public class FileCollection<T>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class FolderAttribute: Attribute, ITestDataSource
     {
-        public static IEnumerable<object[]> ES5Files
-            => GetFileCollection(typeof(T).Name, "es5");
+        readonly string root;
+        public FolderAttribute(string root)
+        {
+            this.root = root;
+        }
 
-        public static IEnumerable<object[]> ES6Files
-            => GetFileCollection(typeof(T).Name, "es6");
-
-
-        public static IEnumerable<object[]> GetFileCollection(string folder, string root)
+        public IEnumerable<object[]> GetData(MethodInfo method)
         {
             static IEnumerable<(FileInfo, string)> GetFiles(DirectoryInfo files, DirectoryInfo root)
             {
@@ -37,22 +39,28 @@ namespace WebAtoms.CoreJS.Tests.Generator
                     }
                 }
             }
-            var dir = new DirectoryInfo("../../../Generator/Files/" + root +  "/" + folder);
-            return GetFiles(dir, dir).Select(x => new object[] { x }).ToList();
+            var dir = new DirectoryInfo("../../../Generator/Files/" + root +  "/" + method.DeclaringType.Name);
+            var list = GetFiles(dir, dir).Select(x => new object[] { x }).ToList();
+            return list;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Sent by Test Engine")]
-        public static string GetDisplayName(MethodInfo methodInfo, object[] data)
+        public string GetDisplayName(MethodInfo methodInfo, object[] data)
         {
             var p = ((FileInfo, string))data[0];
             return p.Item2;
         }
+    }
 
-        [TestMethod]
-        [DynamicData(nameof(ES5Files), DynamicDataDisplayName = "GetDisplayName")]
-        public async Task RunES5((FileInfo, string) test)
+    public abstract class FileTest
+    {
+        public abstract Task Run((FileInfo, string) test);
+
+        protected async Task RunTest((FileInfo, string) test)
         {
-            var (x, _) = test;
+            var (x, y) = test;
+            if (y == null)
+                return;
             string content;
             using (var fs = x.OpenText())
             {
@@ -62,52 +70,83 @@ namespace WebAtoms.CoreJS.Tests.Generator
             CoreScript.Evaluate(content, x.FullName);
         }
 
+    }
+
+
+    [TestClass]
+    public class Objects: FileTest
+    {
+        [Folder("es5")]
         [TestMethod]
-        [DynamicData(nameof(ES6Files), DynamicDataDisplayName = "GetDisplayName")]
-        public async Task RunES6((FileInfo, string) test)
+        public override Task Run((FileInfo,string) test)
         {
-            var (x, _) = test;
-            string content;
-            using (var fs = x.OpenText())
-            {
-                content = await fs.ReadToEndAsync();
-            }
-            using var jc = new JSTestContext();
-            CoreScript.Evaluate(content, x.FullName);
+            return RunTest(test);
+        }   
+    }
+
+    [TestClass]
+    public class Statements : FileTest
+    {
+        [Folder("es5")]
+        [TestMethod]
+        public override Task Run((FileInfo, string) test)
+        {
+            return RunTest(test);
+        }
+    }
+
+    [TestClass]
+    public class Syntax : FileTest
+    {
+        [Folder("es5")]
+        [TestMethod]
+        public override Task Run((FileInfo, string) test)
+        {
+            return RunTest(test);
+        }
+
+        [Folder("es6")]
+        [TestMethod]
+        public Task RunES6((FileInfo, string) test)
+        {
+            return RunTest(test);
         }
 
     }
 
-
     [TestClass]
-    public class Objects: FileCollection<Objects>
+    public class String : FileTest
     {
-    }
-
-    [TestClass]
-    public class Statements : FileCollection<Statements>
-    {
-    }
-
-    [TestClass]
-    public class Syntax : FileCollection<Syntax>
-    {
-    }
-
-    [TestClass]
-    public class String : FileCollection<String>
-    {
+        [TestMethod]
+        [Folder("es5")]
+        public override Task Run((FileInfo, string) test)
+        {
+            return RunTest(test);
+        }
     }
 
 
     [TestClass]
-    public class Function : FileCollection<Function>
+    public class Function : FileTest
     {
+
+        [TestMethod]
+        [Folder("es5")]
+        public override Task Run((FileInfo, string) test)
+        {
+            return RunTest(test);
+        }
+
     }
 
     // [TestClass]
-    public class Index : FileCollection<Index>
+    public class Index : FileTest
     {
+        [Folder("es5")]
+        public override Task Run((FileInfo, string) test)
+        {
+            return RunTest(test);
+        }
     }
 
 }
