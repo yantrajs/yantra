@@ -6,6 +6,13 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Utils
 {
+    //public class JSConsole: JSObject
+    //{
+    //    public JSConsole(): base(JSContext.Current.ObjectPrototype)
+    //    {
+            
+    //    }
+    //}
 
 
     public class JSTestContext: JSContext

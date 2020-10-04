@@ -117,6 +117,9 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString Infinity;
 
 
+        public readonly static KeyString console;
+        public readonly static KeyString log;
+
 
         static KeyStrings()
         {
