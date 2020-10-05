@@ -294,8 +294,7 @@ namespace WebAtoms.CoreJS.Core
             var ta = a.This as JSArray;
             if (ta == null || ta._length == 0)
                 return JSUndefined.Value;
-            JSProperty r;
-            if (ta.elements.TryRemove(ta._length - 1, out r))
+            if (ta.elements.TryRemove(ta._length - 1, out JSProperty r))
             {
                 ta._length--;
                 return r.value;

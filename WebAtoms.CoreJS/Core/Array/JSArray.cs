@@ -36,12 +36,14 @@ namespace WebAtoms.CoreJS.Core
         {
             var sb = new StringBuilder();
             bool first = true;
-            foreach(var item in GetArrayElements())
+            var en = new ElementEnumerator(this);
+            while(en.MoveNext())
             {
+                var item = en.Current;
                 if (!first)
                     sb.Append(',');
-                if (item.value != null && !item.value.IsUndefined)
-                    sb.Append(item.value);
+                if (item != null && !item.IsUndefined)
+                    sb.Append(item);
                 first = false;
             }
             return sb.ToString();
