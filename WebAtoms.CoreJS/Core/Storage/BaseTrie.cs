@@ -121,10 +121,10 @@ namespace WebAtoms.CoreJS.Core
                 var fi = node.FirstChildIndex;
                 if (node.HasValue)
                 {
-                    var uv = update(node.Key, node.Value);
-                    if (uv.replace)
+                    var (replace, value) = update(node.Key, node.Value);
+                    if (replace)
                     {
-                        node.Update(node.Key, uv.value);
+                        node.Update(node.Key, value);
                         count++;
                     }
                     continue;

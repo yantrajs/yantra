@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
@@ -133,6 +134,40 @@ namespace WebAtoms.CoreJS.Core
                 return JSBoolean.True;
             return JSBoolean.False;
 
+        }
+
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator(this.value.GetEnumerator());
+        }
+
+        private struct ElementEnumerator : IEnumerator<JSValue>
+        {
+
+            readonly CharEnumerator en;
+            public ElementEnumerator(CharEnumerator en)
+            {
+                this.en = en;
+            }
+
+            public JSValue Current => new JSString(new string(en.Current,1));
+
+            object IEnumerator.Current => new JSString(new string(en.Current, 1));
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return en.MoveNext();
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
         }
 
     }

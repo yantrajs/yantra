@@ -12,6 +12,9 @@ namespace WebAtoms.CoreJS.Core
     [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
     public partial class JSObject : JSValue
     {
+        internal UInt32Trie<JSProperty> elements;
+        internal PropertySequence ownProperties;
+        internal CompactUInt32Trie<JSProperty> symbols;
 
         public override bool BooleanValue => true;
 
@@ -51,23 +54,29 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSObject NewWithProperties()
         {
-            var o = new JSObject();
-            o.ownProperties = new PropertySequence();
+            var o = new JSObject
+            {
+                ownProperties = new PropertySequence()
+            };
             return o;
         }
 
         internal static JSObject NewWithElements()
         {
-            var o = new JSObject();
-            o.elements = new UInt32Trie<JSProperty>();
+            var o = new JSObject
+            {
+                elements = new UInt32Trie<JSProperty>()
+            };
             return o;
         }
 
         internal static JSObject NewWithPropertiesAndElements()
         {
-            var o = new JSObject();
-            o.ownProperties = new PropertySequence();
-            o.elements = new UInt32Trie<JSProperty>();
+            var o = new JSObject
+            {
+                ownProperties = new PropertySequence(),
+                elements = new UInt32Trie<JSProperty>()
+            };
             return o;
         }
 
@@ -114,9 +123,6 @@ namespace WebAtoms.CoreJS.Core
             return KeyStrings.GetOrCreate(this.ToString());
         }
 
-        internal UInt32Trie<JSProperty> elements;
-        internal PropertySequence ownProperties;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSProperty GetInternalProperty(KeyString key, bool inherited = true)
         {
@@ -133,6 +139,17 @@ namespace WebAtoms.CoreJS.Core
         internal JSProperty GetInternalProperty(uint key, bool inherited = true)
         {
             if (elements != null && elements.TryGetValue(key, out var r))
+            {
+                return r;
+            }
+            if (inherited && prototypeChain != null)
+                return prototypeChain.GetInternalProperty(key, inherited);
+            return new JSProperty();
+        }
+
+        internal JSProperty GetInternalProperty(JSSymbol key, bool inherited = true)
+        {
+            if (symbols != null && symbols.TryGetValue(key.Key.Key, out var r))
             {
                 return r;
             }
@@ -177,6 +194,44 @@ namespace WebAtoms.CoreJS.Core
                 elements = elements ?? (elements = new UInt32Trie<JSProperty>());
                 elements[name] = JSProperty.Property(value);
             }
+        }
+
+        public override JSValue this[JSSymbol name]
+        {
+            get => this.GetValue(GetInternalProperty(name));
+            set
+            {
+                var p = GetInternalProperty(name);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(new Arguments(this, value));
+                        return;
+                    }
+                    return;
+                }
+                this.symbols = this.symbols ?? new CompactUInt32Trie<JSProperty>();
+                symbols[name.Key.Key] = JSProperty.Property(value);
+            }
+        }
+
+
+        public JSValue DefineProperty(JSSymbol name, JSProperty p)
+        {
+            var key = name.Key.Key;
+            var symbols = this.symbols ?? (this.symbols = new CompactUInt32Trie<JSProperty>());
+            var old = symbols[key];
+            if (!old.IsEmpty)
+            {
+                if (!old.IsConfigurable)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+            }
+            p.key = name.Key;
+            symbols[key] = p;
+            return JSUndefined.Value;
         }
 
         public JSValue DefineProperty(KeyString name, JSProperty p)
@@ -291,28 +346,30 @@ namespace WebAtoms.CoreJS.Core
             var elements = this.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues)
+                foreach (var (Key, Value) in elements.AllValues)
                 {
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!Value.IsEnumerable)
                             continue;
                     }
-                    yield return new JSNumber(p.Key);
+                    yield return new JSNumber(Key);
                 }
             }
 
             var ownProperties = this.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
+                    var p = en.Current;
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!p.IsEnumerable)
                             continue;
                     }
-                    yield return p.Value.ToJSValue();
+                    yield return p.ToJSValue();
                 }
             }
 
@@ -402,6 +459,44 @@ namespace WebAtoms.CoreJS.Core
             var ownProperties = target.ownProperties ?? (target.ownProperties = new PropertySequence());
             ownProperties[p.key.Key] = p;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InternalAddProperty(JSObject target, JSSymbol key, JSValue pd)
+        {
+            var p = new JSProperty
+            {
+                key = key.Key
+            };
+            var value = pd[KeyStrings.value];
+            var get = pd[KeyStrings.get] as JSFunction;
+            var set = pd[KeyStrings.set] as JSFunction;
+            var pt = JSPropertyAttributes.Empty;
+            if (pd[KeyStrings.configurable].BooleanValue)
+                pt |= JSPropertyAttributes.Configurable;
+            if (pd[KeyStrings.enumerable].BooleanValue)
+                pt |= JSPropertyAttributes.Enumerable;
+            if (pd[KeyStrings.@readonly].BooleanValue)
+                pt |= JSPropertyAttributes.Readonly;
+            if (get != null)
+            {
+                pt |= JSPropertyAttributes.Property;
+                p.get = get;
+            }
+            if (set != null)
+            {
+                pt |= JSPropertyAttributes.Property;
+                p.set = set;
+            }
+            if (get == null && set == null)
+            {
+                pt |= JSPropertyAttributes.Value;
+                p.value = value;
+            }
+            p.Attributes = pt;
+            var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
+            symbols[p.key.Key] = p;
+        }
+
 
         public override JSValue Delete(KeyString key)
         {
@@ -545,5 +640,41 @@ namespace WebAtoms.CoreJS.Core
                 return base.TryRemove(i, out p);
             return elements.TryRemove(i, out p);
         }
+
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator(this);
+        }
+
+        private struct ElementEnumerator : IEnumerator<JSValue>
+        {
+            private readonly JSObject @object;
+            IEnumerator<(uint Key, JSProperty Value)> en;
+            public ElementEnumerator(JSObject @object)
+            {
+                this.en = @object.elements?.AllValues.GetEnumerator();
+                this.@object = @object;
+            }
+
+            public JSValue Current => @object.GetValue(en.Current.Value);
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return en?.MoveNext() ?? false;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 }

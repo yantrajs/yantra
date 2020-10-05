@@ -29,10 +29,10 @@ namespace WebAtoms.CoreJS.Core
             Int32 i;
             for (i = 30; i >= 0; i -= 2)
             {
-                byte bk = (byte)((key & start) >> i);
+                var bk = ((key & start) >> i);
                 if (bk == 0)
                 {
-                    start = start >> 2;
+                    start >>= 2;
                     continue;
                 }
                 break;
@@ -40,10 +40,11 @@ namespace WebAtoms.CoreJS.Core
             var last = i;
             start = 0x3;
             uint index = uint.MaxValue;
+            uint keyIndex = key;
             // incremenet of two bits...
             for (i = 0; i <= last; i += 2)
             {
-                byte bk = (byte)((key & start) >> i);
+                var bk = keyIndex & 0x3;
                 if (index == uint.MaxValue)
                 {
                     node = ref Buffer[bk];
@@ -71,7 +72,8 @@ namespace WebAtoms.CoreJS.Core
                         node = ref Buffer[index];
                     }
                 }
-                start = start << 2;
+                //start = start << 2;
+                keyIndex >>= 2;
             }
 
             return ref node;

@@ -67,6 +67,22 @@ namespace WebAtoms.CoreJS.Tests.Maps
             Assert.AreEqual(4, all[3].Value);
         }
 
+        [TestMethod]
+        public void CompactIntMap()
+        {
+            var a = new CompactUInt32Trie<int>();
+
+            int max = 100;
+            for (int i = max; i >= 0; i--)
+            {
+                a[(uint)i] = i;
+            }
+
+            for (int i = 0; i < max; i++)
+            {
+                Assert.AreEqual(a[(uint)i], i);
+            }
+        }
 
     }
 }

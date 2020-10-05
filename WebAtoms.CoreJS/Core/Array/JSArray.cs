@@ -36,12 +36,14 @@ namespace WebAtoms.CoreJS.Core
         {
             var sb = new StringBuilder();
             bool first = true;
-            foreach(var item in GetArrayElements())
+            var en = new ElementEnumerator(this);
+            while(en.MoveNext())
             {
+                var item = en.Current;
                 if (!first)
                     sb.Append(',');
-                if (item.value != null && !item.value.IsUndefined)
-                    sb.Append(item.value);
+                if (item != null && !item.IsUndefined)
+                    sb.Append(item);
                 first = false;
             }
             return sb.ToString();
@@ -118,5 +120,68 @@ namespace WebAtoms.CoreJS.Core
             return elements.TryRemove(i, out p);
         }
 
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator(this);
+        }
+
+        private struct ElementEnumerator: IEnumerator<JSValue>
+        {
+            uint length;
+            uint index;
+            UInt32Trie<JSProperty> elements;
+            public ElementEnumerator(JSArray array)
+            {
+                this.length = array._length;
+                this.elements = array.elements;
+                index = uint.MaxValue;
+            }
+
+            public JSValue Current => elements[index].value;
+
+            object IEnumerator.Current => elements[index].value;
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return (index = (index == uint.MaxValue) ? 0 : (index + 1)) < length;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        internal void AddRange(JSValue iterator)
+        {
+            var et = this.elements;
+            var el = this._length;
+            if (iterator is JSArray ary)
+            {
+                var l = ary._length;
+                var e = ary.elements;
+                for (uint i = 0; i < l; i++)
+                {
+                    if(e.TryGetValue(i, out var v))
+                    {
+                        et[el++] = v;
+                    }
+                }
+                this._length = el;
+                return;
+            }
+
+            var en = iterator.GetElementEnumerator();
+            while (en.MoveNext())
+            {
+                et[el++] = JSProperty.Property(en.Current);
+            }
+            this._length = el;
+        }
     }
 }

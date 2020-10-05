@@ -6,20 +6,104 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
-[assembly: Parallelize(Scope = ExecutionScope.MethodLevel, Workers = 4)]
 namespace WebAtoms.CoreJS.Tests.Generator
 {
-    public class FileCollection<T>
+    public class TestFolderAttribute: TestMethodAttribute
     {
-        public static IEnumerable<object[]> AllTests
-            => GetFileCollection(typeof(T).Name);
+        readonly string root;
+        public TestFolderAttribute(string root)
+        {
+            this.root = root;
+        }
 
-        public static IEnumerable<object[]> GetFileCollection(string folder)
+        public override TestResult[] Execute(ITestMethod testMethod)
+        {
+            var files = GetData();
+            var result = new TestResult[files.Count];
+            Parallel.ForEach(files, (a,l,i) =>
+            {
+                result[i] = RunTest(a);
+            });
+            return result;
+        }
+
+        public List<(FileInfo,string)> GetData()
+        {
+            var files = new List<(FileInfo,string)>();
+            static void GetFiles(DirectoryInfo files, List<(FileInfo,string)> list)
+            {
+                foreach (var file in files.EnumerateFiles())
+                {
+                    var name = file.FullName;
+                    if (!name.EndsWith(".js"))
+                        continue;
+                    list.Add((file, files.Name + "\\" + file.Name));
+                }
+                foreach (var dir in files.EnumerateDirectories())
+                {
+                    GetFiles(dir, list);
+                }
+            }
+            var dir = new DirectoryInfo("../../../Generator/Files/" + root);
+            GetFiles(dir, files);
+            return files;
+        }
+
+        protected TestResult RunTest((FileInfo file, string name) testCase)
+        {
+            var watch = new Stopwatch();
+            watch.Start();
+            Exception lastError = null;
+            StringBuilder sb = new StringBuilder();
+            try
+            {
+                string content;
+                using (var fs = testCase.file.OpenText())
+                {
+                    content = fs.ReadToEnd();
+                }
+                using var jc = new JSTestContext();
+                var c = new JSObject
+                {
+                    ownProperties = new PropertySequence()
+                };
+                c.ownProperties[KeyStrings.log.Key] = JSProperty.Property(new JSFunction((in Arguments a) => {
+                    var text = a.Get1();
+                    sb.AppendLine(text.ToDetailString());
+                    return text;
+                }));
+                jc[KeyStrings.console] = c;
+                CoreScript.Evaluate(content, testCase.file.FullName);
+            } catch (Exception ex)
+            {
+                lastError = ex;
+            }
+            watch.Stop();
+            return new TestResult {
+                Outcome = lastError  == null ? UnitTestOutcome.Passed : UnitTestOutcome.Failed,
+                DisplayName = testCase.name,
+                Duration = watch.Elapsed,
+                TestFailureException = lastError,
+                LogOutput = sb.ToString()
+            };
+        }
+
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class FolderAttribute: Attribute, ITestDataSource
+    {
+        readonly string root;
+        public FolderAttribute(string root)
+        {
+            this.root = root;
+        }
+
+        public IEnumerable<object[]> GetData(MethodInfo method)
         {
             static IEnumerable<(FileInfo, string)> GetFiles(DirectoryInfo files, DirectoryInfo root)
             {
@@ -39,63 +123,99 @@ namespace WebAtoms.CoreJS.Tests.Generator
                     }
                 }
             }
-            var dir = new DirectoryInfo("../../../Generator/Files/es5/" + folder);
-            return GetFiles(dir, dir).Select(x => new object[] { x }).ToList();
+            var dir = new DirectoryInfo("../../../Generator/Files/" + root +  "/" + method.DeclaringType.Name);
+            var list = GetFiles(dir, dir).Select(x => new object[] { x }).ToList();
+            return list;
         }
 
-        public static string GetDisplayName(MethodInfo methodInfo, object[] data)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Sent by Test Engine")]
+        public string GetDisplayName(MethodInfo methodInfo, object[] data)
         {
             var p = ((FileInfo, string))data[0];
             return p.Item2;
         }
+    }
 
-        [TestMethod]
-        [DynamicData("AllTests", DynamicDataDisplayName = "GetDisplayName")]
-        public async Task RunFile((FileInfo, string) test)
+    public abstract class FileTest
+    {
+        public abstract Task Run((FileInfo, string) test);
+
+        protected async Task RunTest((FileInfo, string) test)
         {
-            var (x, name) = test;
+            var (x, y) = test;
+            if (y == null)
+                return;
             string content;
             using (var fs = x.OpenText())
             {
                 content = await fs.ReadToEndAsync();
             }
-            var jc = new JSTestContext();
+            using var jc = new JSTestContext();
             CoreScript.Evaluate(content, x.FullName);
-
         }
 
     }
 
 
     [TestClass]
-    public class Objects: FileCollection<Objects>
+    public class ES5
     {
+        [TestFolder("es5\\Objects")]
+        public void Objects()
+        {
+            
+        }
+
+        [TestFolder("es5\\Statements")]
+        public void Statements()
+        {
+
+        }
+
+        [TestFolder("es5\\Syntax")]
+        public void Syntax()
+        {
+
+        }
+
+        [TestFolder("es5\\Function")]
+        public void Function()
+        {
+
+        }
+
     }
 
     [TestClass]
-    public class Statements : FileCollection<Statements>
+    public class ES6
     {
+        [TestFolder("es6\\Syntax")]
+        public void Syntax()
+        {
+
+        }
+
     }
 
     [TestClass]
-    public class Syntax : FileCollection<Syntax>
+    public class String : FileTest
     {
-    }
-
-    [TestClass]
-    public class String : FileCollection<String>
-    {
-    }
-
-
-    [TestClass]
-    public class Function : FileCollection<Function>
-    {
+        [TestMethod]
+        [Folder("es5")]
+        public override Task Run((FileInfo, string) test)
+        {
+            return RunTest(test);
+        }
     }
 
     // [TestClass]
-    public class Index : FileCollection<Index>
+    public class Index : FileTest
     {
+        [Folder("es5")]
+        public override Task Run((FileInfo, string) test)
+        {
+            return RunTest(test);
+        }
     }
 
 }

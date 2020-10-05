@@ -12,23 +12,22 @@ namespace ScriptRunner
         public static void Main(string[] args)
         {
             var script = System.IO.File.ReadAllText(args[0]);
-            using (var jc = new JSTestContext())
+            using var jc = new JSTestContext();
+            jc["global"] = jc;
+            var a = new Stopwatch();
+            try
             {
-                jc["global"] = jc;
-                var a = new Stopwatch();
-                try
-                {
-                    a.Start();
-                    CoreScript.Evaluate(script, args[1]);
-                } catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-                a.Stop();
-                Console.WriteLine($"Total time: {a.Elapsed}");
-                var t = KeyString.Total;
-                Console.WriteLine($"Total: {t.total} Size: {t.size} Last Index: {t.next}");
+                a.Start();
+                CoreScript.Evaluate(script, args[1]);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            a.Stop();
+            Console.WriteLine($"Total time: {a.Elapsed}");
+            var (size, total, next) = KeyString.Total;
+            Console.WriteLine($"Total: {total} Size: {size} Last Index: {next}");
         }
     }
 

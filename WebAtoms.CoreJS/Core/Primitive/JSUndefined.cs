@@ -80,5 +80,11 @@ namespace WebAtoms.CoreJS.Core
 
         internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
 
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            throw JSContext.Current.NewTypeError("undefined is not iterable");
+        }
+
+
     }
 }

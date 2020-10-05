@@ -11,6 +11,8 @@ namespace WebAtoms.CoreJS.Core
     public class JSSymbol: JSValue
     {
 
+        private static int SymbolID = 1;
+
         internal readonly KeyString Key;
 
         public override bool BooleanValue => true;
@@ -22,12 +24,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSSymbol(string name) : base(JSContext.Current.ObjectPrototype)
         {
-            Key = KeyStrings.NewSymbol(name);
-        }
-
-        internal JSSymbol(KeyString k) : base(JSContext.Current.ObjectPrototype)
-        {
-            Key = k;
+            Key = KeyStrings.NewSymbol(name, (uint)Interlocked.Increment(ref SymbolID));
         }
 
         public override JSValue TypeOf()

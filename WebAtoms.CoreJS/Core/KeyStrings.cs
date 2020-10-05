@@ -84,6 +84,7 @@ namespace WebAtoms.CoreJS.Core
         
         public readonly static KeyString native;
         public readonly static KeyString value;
+        public readonly static KeyString done;
         public readonly static KeyString get;
         public readonly static KeyString set;
         public readonly static KeyString undefined;
@@ -94,6 +95,9 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly static KeyString Module;
         public readonly static KeyString module;
+
+        public readonly static KeyString Generator;
+        public readonly static KeyString next;
 
 
         // global methods...
@@ -112,6 +116,9 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly static KeyString Infinity;
 
+
+        public readonly static KeyString console;
+        public readonly static KeyString log;
 
 
         static KeyStrings()
@@ -160,9 +167,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString NewSymbol(string name)
+        internal static KeyString NewSymbol(string name, uint id)
         {
-            return new KeyString($"Symbol({name})", (uint)Interlocked.Increment(ref NextID));
+            return new KeyString($"Symbol({name})", id);
         }
 
     }

@@ -36,28 +36,30 @@ namespace WebAtoms.CoreJS.Extensions
             var elements = @object.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues)
+                foreach (var (Key, Value) in elements.AllValues)
                 {
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!Value.IsEnumerable)
                             continue;
                     }
-                    yield return ( new JSNumber(p.Key), value.GetValue(p.Value));
+                    yield return ( new JSNumber(Key), value.GetValue(Value));
                 }
             }
 
             var ownProperties = @object.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
+                    var p = en.Current;
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!p.IsEnumerable)
                             continue;
                     }
-                    yield return (p.Value.ToJSValue(), value.GetValue(p.Value));
+                    yield return (p.ToJSValue(), value.GetValue(p));
                 }
             }
 
@@ -78,18 +80,20 @@ namespace WebAtoms.CoreJS.Extensions
             var elements = @object.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues)
+                foreach (var (Key, Value) in elements.AllValues)
                 {
-                    yield return ((int)p.Key, KeyString.Empty, value.GetValue(p.Value));
+                    yield return ((int)Key, KeyString.Empty, value.GetValue(Value));
                 }
             }
 
             var ownProperties = @object.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
-                    yield return (-1, p.Value.key, value.GetValue(p.Value));
+                    var p = en.Current;
+                    yield return (-1, p.key, value.GetValue(p));
                 }
             }
         }
@@ -115,8 +119,7 @@ namespace WebAtoms.CoreJS.Extensions
 
         public static JSBoolean IsIn(this JSValue target, JSValue value)
         {
-            var tx = value as JSObject;
-            if (tx == null)
+            if (!(value is JSObject tx))
                 return JSBoolean.False;
             var key = target.ToKey(false);
             if (key.IsUInt)

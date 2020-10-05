@@ -55,9 +55,11 @@ namespace WebAtoms.CoreJS.Core
                 return first;
             if (@object.ownProperties != null)
             {
-                foreach (var item in @object.ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(@object.ownProperties);
+                while(en.MoveNext())
                 {
-                    firstObject.ownProperties[item.Key] = item.Value;
+                    var item = en.Current;
+                    firstObject.ownProperties[item.key.Key] = item;
                 }
             }
             return first;
@@ -94,7 +96,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("defineProperties")]
-        internal static JSValue _DefineProperties(in Arguments a)
+        internal static JSValue DefineProperties(in Arguments a)
         {
             var (a0, a1) = a.Get2();
             if (!(a0 is JSObject target))
@@ -121,7 +123,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("defineProperty")]
-        internal static JSValue _DefineProperty(in Arguments a)
+        internal static JSValue DefineProperty(in Arguments a)
         {
             var (target, key, desc) = a.Get3();
             if (!(target is JSObject targetObject))
@@ -129,12 +131,20 @@ namespace WebAtoms.CoreJS.Core
             if (!(desc is JSObject pd))
                 throw JSContext.Current.NewTypeError("Property Description must be an object");
             var k = key.ToKey();
-            if (!k.IsUInt)
+            if (k.IsSymbol)
             {
-                JSObject.InternalAddProperty(targetObject, k, pd);
-            } else
+                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
+            }
+            else
             {
-                JSObject.InternalAddProperty(targetObject, k.Key, pd);
+                if (!k.IsUInt)
+                {
+                    JSObject.InternalAddProperty(targetObject, k, pd);
+                }
+                else
+                {
+                    JSObject.InternalAddProperty(targetObject, k.Key, pd);
+                }
             }
             return target;
         }
@@ -142,7 +152,7 @@ namespace WebAtoms.CoreJS.Core
 
         [Static("fromEntries")]
 
-        internal static JSValue _FromEntries(in Arguments a)
+        internal static JSValue FromEntries(in Arguments a)
         {
             var v = a.Get1();
             if (v.IsNullOrUndefined)
@@ -152,47 +162,56 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSObject();
             if ((v is JSArray va))
             {
-                foreach(var item in va.elements.AllValues)
+                for (uint i = 0; i < va._length; i++)
                 {
-                    var vi = item.Value;
+                    var vi = va.elements[i];
                     if (!(vi.value is JSArray ia))
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
-                    var first = ia[0].ToString();
+                    var first = ia[0];
                     var second = ia[1];
-                    r.DefineProperty(first, JSProperty.Property(first, second,
-                        JSPropertyAttributes.EnumerableConfigurableValue));
+                    if (first is JSSymbol symbol)
+                    {
+                        r.DefineProperty(symbol, JSProperty.Property(symbol.Key, second,
+                            JSPropertyAttributes.EnumerableConfigurableValue));
+                    }
+                    else
+                    {
+                        var key = first.ToKey();
+                        r.DefineProperty(key, JSProperty.Property(key, second,
+                            JSPropertyAttributes.EnumerableConfigurableValue));
+                    }
                 }
             }
             return r;
         }
 
         [Static("is")]
-        internal static JSValue _Is(in Arguments a)
+        internal static JSValue Is(in Arguments a)
         {
             var (first, second) = a.Get2();
             return first.Is(second);
         }
 
         [Static("isExtensible")]
-        internal static JSValue _IsExtensible(in Arguments a)
+        internal static JSValue IsExtensible(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
         [Static("isFrozen")]
-        internal static JSValue _IsFrozen(in Arguments a)
+        internal static JSValue IsFrozen(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
         [Static("isSealed")]
-        internal static JSValue _IsSealed(in Arguments a)
+        internal static JSValue IsSealed(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
         [Static("keys")]
-        internal static JSValue _Keys(in Arguments a)
+        internal static JSValue Keys(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
@@ -203,14 +222,14 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("preventExtensions")]
-        internal static JSValue _PreventExtensions(in Arguments a)
+        internal static JSValue PreventExtensions(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
         [Static("seal")]
 
-        internal static JSValue _Seal(in Arguments a)
+        internal static JSValue Seal(in Arguments a)
         {
             var first = a.Get1();
             if (!(first is JSObject @object))
@@ -224,7 +243,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("setPrototypeOf")]
-        internal static JSValue _SetPrototypeOf(in Arguments a)
+        internal static JSValue SetPrototypeOf(in Arguments a)
         {
             var (first, second) = a.Get2();
             if (!(first is JSObject))
@@ -234,7 +253,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("values")]
-        internal static JSValue _Values(in Arguments a)
+        internal static JSValue Values(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
@@ -245,7 +264,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("getOwnPropertyDescriptor")]
-        internal static JSValue _GetOwnPropertyDescriptor(in Arguments a)
+        internal static JSValue GetOwnPropertyDescriptor(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
@@ -254,38 +273,55 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("getOwnPropertyDescriptors")]
-        internal static JSValue _GetOwnPropertyDescriptors(in Arguments a)
+        internal static JSValue GetOwnPropertyDescriptors(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            return new JSObject(jobj.ownProperties.AllValues().Select(x => 
-                JSProperty.Property(x.Value.key, x.Value.ToJSValue())
-            ));
+            var r = new JSObject();
+            var en = new PropertySequence.Enumerator(jobj.ownProperties);
+            while(en.MoveNext())
+            {
+                var x = en.Current;
+                var p = JSProperty.Property(x.key, x.ToJSValue());
+                r.elements[x.key.Key] = p;
+            }
+            return r;
         }
 
         [Static("getOwnPropertyNames")]
-        internal static JSValue _GetOwnPropertyNames(in Arguments a)
+        internal static JSValue GetOwnPropertyNames(in Arguments a)
         {
             var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            var keys = jobj.ownProperties.AllValues().Select(x => x.Value.key.ToJSValue());
-            return new JSArray(keys);
+            var en = new PropertySequence.Enumerator(jobj.ownProperties);
+            var r = new JSArray();
+            while (en.MoveNext())
+            {
+                r.Add(en.Current.ToJSValue());
+            }
+            return r;
         }
 
         [Static("getOwnPropertySymbols")]
-        internal static JSValue _GetOwnPropertySymbols(in Arguments a)
+        internal static JSValue GetOwnPropertySymbols(in Arguments a)
         {
-            throw new NotImplementedException();
+            var first = a.Get1();
+            if (first.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(first is JSObject jobj))
+                return new JSArray();
+            var keys = jobj.symbols.AllValues.Select(x => x.Value.key.ToJSValue());
+            return new JSArray(keys);
         }
 
         [Static("getPrototypeOf")]
-        internal static JSValue _GetPrototypeOf(in Arguments a)
+        internal static JSValue GetPrototypeOf(in Arguments a)
         {
             var target = a.Get1();
             var p = target.prototypeChain;

@@ -88,7 +88,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override double DoubleValue => value;
 
-        public override bool BooleanValue => double.IsNaN(value)  ? false : value != 0;
+        public override bool BooleanValue => !double.IsNaN(value) && value != 0;
 
         public override string ToString()
         {
@@ -173,7 +173,7 @@ namespace WebAtoms.CoreJS.Core
                 case JSString @string
                     when (this.value == @string.DoubleValue):
                     return JSBoolean.True;
-                case JSNull @null
+                case JSNull _
                     when (this.value == 0D):
                     return JSBoolean.True;
                 case JSBoolean boolean

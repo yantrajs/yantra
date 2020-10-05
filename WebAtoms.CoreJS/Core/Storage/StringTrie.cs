@@ -22,10 +22,10 @@ namespace WebAtoms.CoreJS.Core {
 
         }
 
-        int bitSize = 2;
-        uint bitBig = 0xC000;
-        uint bitLast = 0x3;
-        int bitLength = 14;
+        const int bitSize = 2;
+        const uint bitBig = 0xC000;
+        const uint bitLast = 0x3;
+        const int bitLength = 14;
 
         public int Total = 0;
 
@@ -68,7 +68,7 @@ namespace WebAtoms.CoreJS.Core {
                     byte bk = (byte)((key & start) >> i);
                     if (bk == 0)
                     {
-                        start = start >> bitSize;
+                        start >>= bitSize;
                         continue;
                     }
                     break;
@@ -76,9 +76,10 @@ namespace WebAtoms.CoreJS.Core {
                 var last = i;
                 start = bitLast;
                 // incremenet of two bits...
+                uint keyIndex = key;
                 for (i = 0; i <= last; i += bitSize)
                 {
-                    byte bk = (byte)((key & start) >> i);
+                    byte bk = (byte)(keyIndex & bitLast);
                     if (index == uint.MaxValue)
                     {
                         node = ref Buffer[bk];
@@ -102,7 +103,7 @@ namespace WebAtoms.CoreJS.Core {
                                 var old = node.Key;
                                 node.UpdateDefaultValue(keyString, default);
                                 this.Save(old, dirty);
-                                return ref node;
+                                return ref Buffer[index];
                             }
                         }
 
@@ -128,7 +129,7 @@ namespace WebAtoms.CoreJS.Core {
                             node = ref Buffer[index];
                         }
                     }
-                    start <<= bitSize;
+                    keyIndex >>= bitSize;
                 }
             }
 
@@ -138,7 +139,7 @@ namespace WebAtoms.CoreJS.Core {
                 var old = node.Key;
                 node.UpdateDefaultValue(keyString, default);
                 this.Save(old, dirty);
-                return ref node;
+                return ref Buffer[index];
             }
 
             if (created)

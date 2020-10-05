@@ -20,35 +20,26 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSArray();
             var (f, map) = a.Get2();
             var t = a.This;
-            if (f.IsUndefined)
-                throw JSContext.Current.NewError("undefined is not iterable");
-            if (f.IsNull)
-                throw JSContext.Current.NewError("null is not iterable");
-            switch (f)
+            var en = f.GetElementEnumerator();
+            uint length = 0;
+            var elements = r.elements;
+
+            if (map is JSFunction fx)
             {
-                case JSString str:
-                    foreach (var ch in str.value)
-                    {
-                        JSValue item = new JSString(new string(ch, 1));
-                        if (map is JSFunction fn)
-                        {
-                            item = fn.InvokeFunction(new Arguments(t, item));
-                        }
-                        r.elements[r._length++] = JSProperty.Property(item);
-                    }
-                    return r;
-                case JSArray array:
-                    foreach (var ch in array.GetArrayElements())
-                    {
-                        JSValue item = ch.value;
-                        if (map is JSFunction fn)
-                        {
-                            item = fn.InvokeFunction(new Arguments(t, item));
-                        }
-                        r.elements[r._length++] = JSProperty.Property(item);
-                    }
-                    return r;
+                var cb = fx.f;
+                while (en.MoveNext())
+                {
+                    elements[length++] = JSProperty.Property(cb(new Arguments(t, en.Current)));
+                }
             }
+            else
+            {
+                while (en.MoveNext())
+                {
+                    elements[length++] = JSProperty.Property(en.Current);
+                }
+            }
+            r._length = length;
             return r;
         }
 

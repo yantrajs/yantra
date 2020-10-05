@@ -175,11 +175,12 @@ namespace WebAtoms.CoreJS.Core
             bool first = true;
             // the only left type is JSObject...
             var obj = target as JSObject;
-            foreach(var p in obj.ownProperties.AllValues())
+            var pen = new PropertySequence.Enumerator(obj.ownProperties);
+            while(pen.MoveNext())
             {
-                var key = p.Key;
-                var value = p.Value;
-                if (value.key.IsSymbol || value.IsEmpty || !value.IsEnumerable)
+                var p = pen.Current;
+                var value = p;
+                if (value.IsEmpty || !value.IsEnumerable)
                     continue;
                 JSValue jsValue;
                 if (!value.IsValue)

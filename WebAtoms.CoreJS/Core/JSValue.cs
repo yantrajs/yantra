@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -127,16 +128,33 @@ namespace WebAtoms.CoreJS.Core {
             set { }
         }
 
+        public virtual JSValue this[JSSymbol symbol]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return this.GetValue(prototypeChain.GetInternalProperty(symbol));
+            }
+            set { }
+        }
 
         public JSValue this[JSValue key]
         {
             get
             {
+                if (key is JSSymbol symbol)
+                    return this[symbol];
                 var k = key.ToKey();
                 return k.IsUInt ? this[k.Key] : this[k];
             }
             set
             {
+                if (key is JSSymbol symbol)
+                {
+                    this[symbol] = value;
+                    return;
+                }
                 var k = key.ToKey();
                 if (k.IsUInt)
                 {
@@ -348,6 +366,33 @@ namespace WebAtoms.CoreJS.Core {
         {
             p = new JSProperty();
             return false;
+        }
+
+        internal virtual IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator();
+        }
+
+        private struct ElementEnumerator : IEnumerator<JSValue>
+        {
+            public JSValue Current => throw new NotImplementedException();
+
+            object IEnumerator.Current => throw new NotImplementedException();
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return false;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
