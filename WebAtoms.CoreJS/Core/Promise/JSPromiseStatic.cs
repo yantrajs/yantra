@@ -14,8 +14,8 @@ namespace WebAtoms.CoreJS.Core.Runtime
         public static JSValue All(in Arguments a)
         {
             var f = a.Get1();
-            if (f.IsUndefined)
-                throw JSContext.Current.NewTypeError($"The parameter must be an iterable");
+
+            var en = f.GetElementEnumerator();
 
             var result = new List<JSValue>();
 
@@ -23,14 +23,19 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
             return new JSPromise((resolve, reject) =>
             {
+                var sc = JSContext.Current.synchronizationContext;
+                if (sc == null)
+                    throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
+
                 int total = 0;
 
-                bool empty = true;                
+                bool empty = true;   
 
-                foreach (var e in f.AllElements)
+                while(en.MoveNext())
                 {
+                    var e = en.Current;
                     empty = false;
-                    if (!(e.value is JSPromise p))
+                    if (!(e is JSPromise p))
                         throw JSContext.Current.NewTypeError($"All parameters must be Promise");
                     var item = e;
                     var ni = i++;
@@ -38,24 +43,30 @@ namespace WebAtoms.CoreJS.Core.Runtime
                     
                     p.Then((in Arguments args) =>
                     {
-                        var r = args.Get1();
-                        result[ni] = r;
+                        var r1 = args.Get1();
+                        sc.Post((r) => { 
+                        result[ni] = r as JSValue;
                         total--;
                         if (total <= 0)
                         {
                             resolve(new JSArray(result));
                         }
+                        }, r1);
                         return JSUndefined.Value;
-                    });
-                    p.Catch((in Arguments args) => {
-                        reject(args.Get1());
+                    }, (in Arguments args) => {
+                        var v = args.Get1();
+                        sc.Post((o) => { 
+                            reject(o as JSValue);
+                        }, v);
                         return JSUndefined.Value;
                     });
                 }
 
                 if (empty)
                 {
-                    resolve(new JSArray());
+                    sc.Post((o) => {
+                        resolve(new JSArray());
+                    }, null);
                 }
             });
         }

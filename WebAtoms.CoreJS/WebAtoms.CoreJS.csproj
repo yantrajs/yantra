@@ -17,6 +17,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Folder Include="Core\Array\Typed\" />
     <Folder Include="Emit\" />
   </ItemGroup>
   

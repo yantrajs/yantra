@@ -22,5 +22,14 @@ namespace WebAtoms.CoreJS.Core
         {
 
         }
+
+        public static JSValue From(Exception ex)
+        {
+            if(ex is JSException jse)
+            {
+                return jse.Error;
+            }
+            return new JSError(new JSString(ex.Message), new JSString(""));
+        }
     }
 }

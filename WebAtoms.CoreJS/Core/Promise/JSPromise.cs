@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core.Runtime;
 using WebAtoms.CoreJS.Extensions;
@@ -18,6 +20,7 @@ namespace WebAtoms.CoreJS.Core
     public class JSPromise: JSObject
     {
 
+
         internal enum PromiseState
         {
             Pending,
@@ -27,17 +30,21 @@ namespace WebAtoms.CoreJS.Core
 
         internal PromiseState state = PromiseState.Pending;
 
-        private List<JSFunctionDelegate> thenList;
-        private List<JSFunctionDelegate> rejectList;
+        private List<Action> thenList;
+        private List<Action> rejectList;
         JSFunction resolveFunction;
         JSFunction rejectFunction;
-        private JSValue result;
+        private JSValue result = JSUndefined.Value;
 
         public JSPromise(JSValue @delegate) :
             base(JSContext.Current.PromisePrototype)
         {
 
             // to improve speed of promise, we will add then/catch here...
+            var sc = JSContext.Current.synchronizationContext;
+            if (sc == null)
+                throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
+
 
 
             resolveFunction = new JSFunction((in Arguments a) => Resolve(a.Get1()));
@@ -68,18 +75,21 @@ namespace WebAtoms.CoreJS.Core
                 if (then.IsFunction)
                 {
                     // do what....
-                    try
+                    Post(() =>
                     {
-                        then.InvokeFunction(new Arguments(value, resolveFunction, rejectFunction));
-                    } 
-                    catch(JSException jse)
-                    {
-                        Reject(jse.Error);
-                    }
-                    catch (Exception ex)
-                    {
-                        Reject(new JSString(ex.ToString()));
-                    }
+                        try
+                        {
+                            then.InvokeFunction(new Arguments(value, resolveFunction, rejectFunction));
+                        }
+                        catch (JSException jse)
+                        {
+                            Reject(jse.Error);
+                        }
+                        catch (Exception ex)
+                        {
+                            Reject(new JSString(ex.ToString()));
+                        }
+                    });
                     return JSUndefined.Value;
                 }
             }
@@ -92,7 +102,7 @@ namespace WebAtoms.CoreJS.Core
                 this.thenList = null;
                 foreach (var t in thenList)
                 {
-                    t(new Arguments(this, value));
+                    Post(t);
                 }
             }
 
@@ -111,38 +121,73 @@ namespace WebAtoms.CoreJS.Core
                 this.rejectList = null;
                 foreach (var t in rejectList)
                 {
-                    t(new Arguments(this, value));
+                    Post(t);
                 }
             }
             return JSUndefined.Value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Then(JSFunctionDelegate d)
+        internal JSValue Then(JSFunctionDelegate resolved, JSFunctionDelegate failed)
         {
+            Action resolveAction = () =>
+            {
+                this.result = (resolved?.Invoke(new Arguments(this, this.result))) ?? this.result;
+            };
+
+            Action failAction = () => {
+                this.result = (failed?.Invoke(new Arguments(this, this.result))) ?? this.result;
+            };
+
             if (this.state == PromiseState.Resolved)
             {
-                d(new Arguments(this, this.result));
-                return;
+                Post(resolveAction);
+                return this;
             }
-            if (this.state != PromiseState.Pending)
-                return;
-            var thenList = this.thenList ?? (this.thenList = new List<JSFunctionDelegate>());
-            thenList.Add(d);
+            if(this.state == PromiseState.Rejected)
+            {
+                Post(failAction);
+                return this;
+            }
+            return new JSPromise((rs, rf) => {
+                if (resolved != null)
+                {
+                    var thenList = this.thenList ?? (this.thenList = new List<Action>());
+                    thenList.Add(() => {
+                        try
+                        {
+                            resolveAction();
+                            rs(this.result);
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = JSError.From(ex);
+                            rf(error);
+                        }
+                    });
+                }
+                if(failed != null)
+                {
+                    var catchList = this.rejectList ?? (this.rejectList = new List<Action>());
+                    catchList.Add(() => { 
+                        try
+                        {
+                            failAction();
+                            rf(this.resolveFunction);
+                        } catch (Exception ex)
+                        {
+                            var error = JSError.From(ex);
+                            rf(error);
+                        }
+                    });
+
+                }
+            });
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Catch(JSFunctionDelegate d)
+        private void Post(Action action)
         {
-            if (this.state == PromiseState.Rejected)
-            {
-                d(new Arguments(this, this.result));
-                return;
-            }
-            if (this.state != PromiseState.Pending)
-                return;
-            var thenList = this.rejectList ?? (this.rejectList = new List<JSFunctionDelegate>());
-            thenList.Add(d);
+            SynchronizationContext.Current.Post((_) => action(), this);
         }
 
     }
