@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core.BigInt;
+using WebAtoms.CoreJS.Core.Debug;
 using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Core.Objects;
 using WebAtoms.CoreJS.Core.Set;
@@ -19,6 +20,10 @@ namespace WebAtoms.CoreJS.Core
 {
 
     public delegate JSValue JSFunctionDelegate(in Arguments a);
+
+    public delegate void LogEventHandler(JSContext context, JSValue value);
+
+    public delegate void ErrorEventHandler(JSContext context, Exception error);
 
     public class JSContext: JSObject, IDisposable
     {
@@ -89,6 +94,10 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        public event LogEventHandler Log;
+
+        public event ErrorEventHandler Error;
+
         public JSContext(SynchronizationContext synchronizationContext = null)
         {
             this.synchronizationContext = synchronizationContext ?? SynchronizationContext.Current;
@@ -146,6 +155,11 @@ namespace WebAtoms.CoreJS.Core
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 
             this.Fill<JSGlobalStatic>();
+
+            var c = new JSObject();
+            c.prototypeChain = Bootstrap.Create("console", typeof(JSConsole));
+            this[KeyStrings.console] = c;
+
         }
 
         private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
@@ -196,22 +210,27 @@ namespace WebAtoms.CoreJS.Core
             return new JSException(message, ErrorPrototype, function, filePath, line);
         }
 
-        public void ReportError(Exception ex)
+        internal void ReportError(Exception ex)
         {
-            var cx = this[KeyStrings.console];
-            if (cx.IsUndefined)
-            {
-                System.Diagnostics.Debug.WriteLine(ex);
-                return;
-            }
+            Error?.Invoke(this, ex);
+            //var cx = this[KeyStrings.console];
+            //if (cx.IsUndefined)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex);
+            //    return;
+            //}
 
-            var log = cx[KeyStrings.log];
-            if (log.IsUndefined)
-            {
-                System.Diagnostics.Debug.WriteLine(ex);
-                return;
-            }
-            log.InvokeFunction(new Arguments(cx, new JSString(ex.ToString())));
+            //var log = cx[KeyStrings.log];
+            //if (log.IsUndefined)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex);
+            //    return;
+            //}
+            //log.InvokeFunction(new Arguments(cx, new JSString(ex.ToString())));
+        }
+        public void ReportLog(JSValue f)
+        {
+            Log?.Invoke(this, f);
         }
 
 

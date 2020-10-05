@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Debug;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Utils
@@ -17,7 +18,6 @@ namespace WebAtoms.CoreJS.Utils
 
     public class JSTestContext: JSContext
     {
-
         public JSTestContext()
         {
             var a = new JSFunction((in Arguments args) => {

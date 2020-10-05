@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -23,37 +24,36 @@ namespace WebAtoms.CoreJS.Tests.Generator
         public override TestResult[] Execute(ITestMethod testMethod)
         {
             var files = GetData();
-            var result = new TestResult[files.Count];
-            Parallel.ForEach(files, (a,l,i) =>
-            {
-                result[i] = RunTest(a);
+            TestResult[] result = null;
+            AsyncPump.Run(async () => {
+                result = await Task.WhenAll(GetData()
+                    .Select((x) => Task.Run(() => RunTest(x))).ToList());
             });
             return result;
         }
 
-        public List<(FileInfo,string)> GetData()
+        public IEnumerable<(FileInfo,string)> GetData()
         {
-            var files = new List<(FileInfo,string)>();
-            static void GetFiles(DirectoryInfo files, List<(FileInfo,string)> list)
+            static IEnumerable<(FileInfo,string)> GetFiles(DirectoryInfo files)
             {
                 foreach (var file in files.EnumerateFiles())
                 {
                     var name = file.FullName;
                     if (!name.EndsWith(".js"))
                         continue;
-                    list.Add((file, files.Name + "\\" + file.Name));
+                    yield return (file, files.Name + "\\" + file.Name);
                 }
                 foreach (var dir in files.EnumerateDirectories())
                 {
-                    GetFiles(dir, list);
+                    foreach (var x in GetFiles(dir))
+                        yield return x;
                 }
             }
             var dir = new DirectoryInfo("../../../Generator/Files/" + root);
-            GetFiles(dir, files);
-            return files;
+            return GetFiles(dir);
         }
 
-        protected TestResult RunTest((FileInfo file, string name) testCase)
+        protected async Task<TestResult> RunTest((FileInfo file, string name) testCase)
         {
             var watch = new Stopwatch();
             watch.Start();
@@ -64,19 +64,11 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 string content;
                 using (var fs = testCase.file.OpenText())
                 {
-                    content = fs.ReadToEnd();
+                    content = await fs.ReadToEndAsync();
                 }
                 using var jc = new JSTestContext();
-                var c = new JSObject
-                {
-                    ownProperties = new PropertySequence()
-                };
-                c.ownProperties[KeyStrings.log.Key] = JSProperty.Property(new JSFunction((in Arguments a) => {
-                    var text = a.Get1();
-                    sb.AppendLine(text.ToDetailString());
-                    return text;
-                }));
-                jc[KeyStrings.console] = c;
+                jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
+                jc.Error += (_, e) => lastError = e;
                 CoreScript.Evaluate(content, testCase.file.FullName);
             } catch (Exception ex)
             {
