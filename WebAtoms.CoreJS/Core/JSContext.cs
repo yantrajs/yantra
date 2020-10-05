@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Core.Objects;
 using WebAtoms.CoreJS.Core.Set;
@@ -85,9 +86,10 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public JSContext()
+        public JSContext(SynchronizationContext synchronizationContext = null)
         {
-            
+            this.synchronizationContext = synchronizationContext ?? SynchronizationContext.Current;
+
             Scope.Push(new LexicalScope("", "", 1, 1));
             Scope.Top.IsRoot = true;
 
@@ -143,6 +145,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
+        internal readonly SynchronizationContext synchronizationContext;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSException NewTypeError(string message, 

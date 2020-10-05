@@ -23,8 +23,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
             var f = a.Get1();
             if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Then(fx.f);
-            return p;
+            return p.Then(fx.f, null);
         }
 
         [Prototype("catch")]
@@ -34,7 +33,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
             var f = a.Get1();
             if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Catch(fx.f);
+            p.Then(null, fx.f);
             return p;
         }
 
@@ -45,9 +44,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
             var f = a.Get1();
             if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Then(fx.f);
-            p.Catch(fx.f);
-            return p;
+            return p.Then(fx.f, fx.f);
         }
     }
 }
