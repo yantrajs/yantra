@@ -54,6 +54,8 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual int IntValue => (int)this.DoubleValue;
 
+        public virtual long BigIntValue => (long)this.DoubleValue;
+
         internal JSObject prototypeChain;
 
         /// <summary>

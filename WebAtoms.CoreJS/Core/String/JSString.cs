@@ -22,6 +22,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => value.Length > 0;
 
+        public override long BigIntValue => long.TryParse(value, out var n) ? n : 0;
+
         public override bool IsString => true;
 
         internal override KeyString ToKey(bool create = true)

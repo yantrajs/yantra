@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Threading;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.CompilerServices;
@@ -187,7 +188,11 @@ namespace WebAtoms.CoreJS.Core
 
         private void Post(Action action)
         {
-            SynchronizationContext.Current.Post((_) => action(), this);
+            // SynchronizationContext.Current.Post((_) => action(), this);
+            AsyncPump.Run(() => {
+                action();
+                return Task.CompletedTask;
+            });
         }
 
     }

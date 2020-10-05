@@ -25,6 +25,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly static KeyString Number;
 
+        public readonly static KeyString BigInt;
+
         public readonly static KeyString Object;
         public readonly static KeyString toString;
 

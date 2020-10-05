@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WebAtoms.CoreJS.Core.BigInt;
 using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Core.Objects;
 using WebAtoms.CoreJS.Core.Set;
@@ -69,6 +70,8 @@ namespace WebAtoms.CoreJS.Core
         internal readonly JSObject WeakSetPrototype;
 
         internal readonly JSObject GeneratorPrototype;
+
+        internal readonly JSObject BigIntPrototype;
 
         public readonly JSObject JSON;
 
@@ -138,6 +141,7 @@ namespace WebAtoms.CoreJS.Core
             WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet);
             WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap);
             GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator);
+            BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 
@@ -190,6 +194,24 @@ namespace WebAtoms.CoreJS.Core
             [CallerLineNumber] int line = 0)
         {
             return new JSException(message, ErrorPrototype, function, filePath, line);
+        }
+
+        public void ReportError(Exception ex)
+        {
+            var cx = this[KeyStrings.console];
+            if (cx.IsUndefined)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                return;
+            }
+
+            var log = cx[KeyStrings.log];
+            if (log.IsUndefined)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                return;
+            }
+            log.InvokeFunction(new Arguments(cx, new JSString(ex.ToString())));
         }
 
 

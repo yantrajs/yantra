@@ -90,6 +90,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => !double.IsNaN(value) && value != 0;
 
+        public override long BigIntValue => (long)this.value;
+
         public override string ToString()
         {
             return value.ToString();

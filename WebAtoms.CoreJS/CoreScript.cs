@@ -1,9 +1,11 @@
 ﻿using Esprima;
 using Esprima.Ast;
+using Microsoft.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.ExpHelper;
@@ -56,10 +58,26 @@ namespace WebAtoms.CoreJS
             });
         }
 
+        public static JSValue EvaluateWithTasks(string code, string location = null)
+        {
+            var fx = Compile(code, location);
+            var result = JSUndefined.Value;
+            var ctx = JSContext.Current;
+            AsyncPump.Run(() => {
+                result = fx(new Arguments(ctx));
+                return Task.CompletedTask;
+            });
+            return result;
+        }
+
+
         public static JSValue Evaluate(string code, string location = null)
         {
             var fx = Compile(code, location);
-            return fx(new Arguments(JSContext.Current));
+            var result = JSUndefined.Value;
+            var ctx = JSContext.Current;
+            result = fx(new Arguments(ctx));
+            return result;
         }
 
 
