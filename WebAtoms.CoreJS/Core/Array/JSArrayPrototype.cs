@@ -286,8 +286,7 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("pop")]
         public static JSValue Pop(in Arguments a)
         {
-            var ta = a.This as JSArray;
-            if (ta == null || ta._length == 0)
+            if (!(a.This is JSArray ta) || ta._length == 0)
                 return JSUndefined.Value;
             if (ta.elements.TryRemove(ta._length - 1, out JSProperty r))
             {
