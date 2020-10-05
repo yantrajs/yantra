@@ -67,8 +67,10 @@ namespace WebAtoms.CoreJS.Tests.Generator
                     content = fs.ReadToEnd();
                 }
                 using var jc = new JSTestContext();
-                var c = new JSObject();
-                c.ownProperties = new PropertySequence();
+                var c = new JSObject
+                {
+                    ownProperties = new PropertySequence()
+                };
                 c.ownProperties[KeyStrings.log.Key] = JSProperty.Property(new JSFunction((in Arguments a) => {
                     var text = a.Get1();
                     sb.AppendLine(text.ToDetailString());
@@ -159,25 +161,25 @@ namespace WebAtoms.CoreJS.Tests.Generator
     public class ES5
     {
         [TestFolder("es5\\Objects")]
-        public void Objects(FileInfo test)
+        public void Objects()
         {
             
         }
 
         [TestFolder("es5\\Statements")]
-        public void Statements(FileInfo test)
+        public void Statements()
         {
 
         }
 
         [TestFolder("es5\\Syntax")]
-        public void Syntax(FileInfo test)
+        public void Syntax()
         {
 
         }
 
         [TestFolder("es5\\Function")]
-        public void Function(FileInfo test)
+        public void Function()
         {
 
         }
@@ -188,7 +190,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
     public class ES6
     {
         [TestFolder("es6\\Syntax")]
-        public void Syntax(FileInfo test)
+        public void Syntax()
         {
 
         }

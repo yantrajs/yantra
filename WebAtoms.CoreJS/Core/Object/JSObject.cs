@@ -640,5 +640,41 @@ namespace WebAtoms.CoreJS.Core
                 return base.TryRemove(i, out p);
             return elements.TryRemove(i, out p);
         }
+
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator(this);
+        }
+
+        private struct ElementEnumerator : IEnumerator<JSValue>
+        {
+            private readonly JSObject @object;
+            IEnumerator<(uint Key, JSProperty Value)> en;
+            public ElementEnumerator(JSObject @object)
+            {
+                this.en = @object.elements?.AllValues.GetEnumerator();
+                this.@object = @object;
+            }
+
+            public JSValue Current => @object.GetValue(en.Current.Value);
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return en?.MoveNext() ?? false;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 }

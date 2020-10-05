@@ -63,6 +63,11 @@ namespace WebAtoms.CoreJS.Core
             set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
         }
 
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            throw JSContext.Current.NewTypeError("null is not iterable");
+        }
+
 
         //public override JSValue AddValue(JSValue value)
         //{

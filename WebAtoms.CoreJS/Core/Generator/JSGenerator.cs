@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace WebAtoms.CoreJS.Core.Generator
@@ -113,6 +115,39 @@ namespace WebAtoms.CoreJS.Core.Generator
                 this.Yield(generator.Next());
             }
             return this.value;
+        }
+
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator(this);
+        }
+
+        private struct ElementEnumerator: IEnumerator<JSValue>
+        {
+            readonly JSGenerator generator;
+            public ElementEnumerator(JSGenerator generator)
+            {
+                this.generator = generator;
+            }
+
+            public JSValue Current => generator.value;
+
+            object IEnumerator.Current => generator.value;
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return generator.Next().BooleanValue;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private static void RunGenerator(object state)

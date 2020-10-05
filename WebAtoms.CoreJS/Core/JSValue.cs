@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -366,5 +367,40 @@ namespace WebAtoms.CoreJS.Core {
             p = new JSProperty();
             return false;
         }
+
+        internal virtual IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator();
+        }
+
+        private struct ElementEnumerator : IEnumerator<JSValue>
+        {
+            public JSValue Current => throw new NotImplementedException();
+
+            object IEnumerator.Current => throw new NotImplementedException();
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return false;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
+
+    //ref struct ElementEnumerator
+    //{
+    //    public ElementEnumerator(JSValue value)
+    //    {
+
+    //    }
+    //}
 }
