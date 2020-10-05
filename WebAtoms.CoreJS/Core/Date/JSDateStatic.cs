@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
+using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core.Date
 {
@@ -24,16 +26,40 @@ namespace WebAtoms.CoreJS.Core.Date
             return new JSDate(DateTime.Now);
         }
 
+        /// <summary>
+        /// Jint - private JsValue Parse(JsValue thisObj, JsValue[] arguments), but we changed 
+        ///  DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal to DateTimeStyles.AssumeLocal
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
         [Static("parse")]
         internal static JSValue Parse(in Arguments a)
         {
             var text = a.Get1().ToString();
-            if (DateTime.TryParse(text, out var result)) {
-                return new JSDate(result);
+            double val;
+            //if (DateTime.TryParse(text, out var result)) {
+            //    val = ToJSDate(result);
+            //    return new JSNumber(val);
+            //}
+            //result = DateParser.Parse(text);
+            //val = ToJSDate(result);
+            //return new JSNumber(val);
+            if (!DateTime.TryParseExact(text, DateParser.DefaultFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
+            {
+                if (!DateTime.TryParseExact(text, DateParser.SecondaryFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                {
+                    if (!DateTime.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out result))
+                    {
+                        if (!DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                        {
+                            // unrecognized dates should return NaN (15.9.4.2)
+                            return JSNumber.NaN;
+                        }
+                    }
+                }
             }
-
-
-            return JSNumber.NaN;
+            val = ToJSDate(result);
+            return new JSNumber(val);
         }
 
         //[Prototype("getYear")]
@@ -56,6 +82,15 @@ namespace WebAtoms.CoreJS.Core.Date
                 return double.NaN;
             // The spec requires that the time value is an integer.
             // We could round to nearest, but then date.toUTCString() would be different from Date(date.getTime()).toUTCString().
+            switch(dateTime.Kind)
+            {
+                case DateTimeKind.Local:
+                    dateTime = dateTime.ToUniversalTime();
+                    break;
+                case DateTimeKind.Unspecified:
+                    dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                    break;
+            }
             var diff = dateTime.Ticks - epoch;
             return Math.Floor((double)(diff / 10000));
         }
