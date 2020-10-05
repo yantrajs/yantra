@@ -395,12 +395,4 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
     }
-
-    //ref struct ElementEnumerator
-    //{
-    //    public ElementEnumerator(JSValue value)
-    //    {
-
-    //    }
-    //}
 }

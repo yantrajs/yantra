@@ -16,24 +16,13 @@ namespace WebAtoms.CoreJS.Core
         {
             var r = new JSArray();
             var f = a.Get1();
-            foreach (var e in a.This.AllElements)
-            {
-                r.elements[e.index] = JSProperty.Property(e.value);
-            }
-            r._length = (uint)a.This.Length;
-            if (f is JSArray ary)
-            {
-                var start = r._length;
-                foreach (var e in ary.GetArrayElements(false))
-                {
-                    var ei = start + e.index;
-                    r.elements[ei] = JSProperty.Property(e.value);
-                }
-                r._length = (uint)a.This.Length + ary._length;
+            r.AddRange(a.This);
+            if (f.IsString) {
+                r.Add(f);
             }
             else
             {
-                r.elements[r._length++] = JSProperty.Property(f);
+                r.AddRange(f);
             }
             return r;
         }
@@ -45,9 +34,12 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
-            foreach(var item in array.AllElements)
+            var en = array.GetElementEnumerator();
+            uint index = 0;
+            while(en.MoveNext())
             {
-                var itemArgs = new Arguments(a.This, item.value, new JSNumber(item.index), array);
+                var item = en.Current;
+                var itemArgs = new Arguments(a.This, item, new JSNumber(index++), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -96,12 +88,15 @@ namespace WebAtoms.CoreJS.Core
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
             var r = new JSArray();
-            foreach(var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            uint i = 0;
+            while(en.MoveNext())
             {
-                var itemParams = new Arguments(@this, item.value, new JSNumber(item.index), @this);
+                var item = en.Current;
+                var itemParams = new Arguments(@this, item, new JSNumber(i++), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
-                    r.Add(item.value);
+                    r.Add(item);
                 }
             }
             return r;
