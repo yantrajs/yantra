@@ -64,7 +64,7 @@ namespace WebAtoms.CoreJS.Core
 
         public bool RemoveAt(uint key)
         {
-            if (map.TryGetValue(key, out var pkey))
+            if (map.TryRemove(key, out var pkey))
             {
                 // move all properties up...
                 properties[pkey] = new JSProperty { Attributes = JSPropertyAttributes.Deleted };
