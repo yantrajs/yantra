@@ -21,14 +21,19 @@ namespace WebAtoms.CoreJS.Core.Date
         [Static("now")]
         internal static JSValue Now(in Arguments a)
         {
-            return new JSDate(DateTime.UtcNow);
+            return new JSDate(DateTime.Now);
         }
 
         [Static("parse")]
         internal static JSValue Parse(in Arguments a)
         {
-            
-            return new JSDate(DateTime.Parse(a.Get1().ToString()));
+            var text = a.Get1().ToString();
+            if (DateTime.TryParse(text, out var result)) {
+                return new JSDate(result);
+            }
+
+
+            return JSNumber.NaN;
         }
 
         //[Prototype("getYear")]
@@ -73,6 +78,7 @@ namespace WebAtoms.CoreJS.Core.Date
             if (year < 0)
                 return JSDate.InvalidDate;
 
+            // This step was missing from Jurrasic, add 1900 to year < 2000 to get full year. 
             if (0 <= year && year <= 99)
             {
                 year += 1900;
@@ -115,5 +121,7 @@ namespace WebAtoms.CoreJS.Core.Date
                 }
             }
         }
+
+
     }
 }
