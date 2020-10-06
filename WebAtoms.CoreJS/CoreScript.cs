@@ -621,7 +621,7 @@ namespace WebAtoms.CoreJS
                 return base.VisitExpression(expression);
             }catch (Exception ex) when (!(ex is CompilerException))
             {
-                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}\r\n{ex}", ex);
             }
         }
 
@@ -1170,7 +1170,12 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitTemplateLiteral(Esprima.Ast.TemplateLiteral templateLiteral)
         {
-            throw new NotImplementedException();
+            var quasis = new List<string>();
+            foreach(var quasi in templateLiteral.Quasis)
+            {
+                quasis.Add(quasi.Value.Raw);
+            }
+            return JSTemplateStringBuilder.New(quasis, templateLiteral.Expressions.Select(x => VisitExpression(x)));
         }
 
         protected override Exp VisitTemplateElement(Esprima.Ast.TemplateElement templateElement)

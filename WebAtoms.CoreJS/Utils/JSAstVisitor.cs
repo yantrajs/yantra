@@ -386,7 +386,8 @@ namespace WebAtoms.CoreJS.Utils
                     return VisitArrowFunctionExpression(expression.As<ArrowFunctionExpression>());
                 case Nodes.YieldExpression:
                     return VisitYieldExpression(expression.As<YieldExpression>());
-                    
+                case Nodes.TemplateLiteral:
+                    return VisitTemplateLiteral(expression.As<TemplateLiteral>());
                 default:
                     // return VisitUnknownNode(expression);
                     throw new NotImplementedException($"{expression.GetType().FullName}");

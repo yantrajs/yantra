@@ -7,9 +7,9 @@ namespace WebAtoms.CoreJS.Core.String
     public class JSTemplateString
     {
         StringBuilder sb;
-        public JSTemplateString()
+        public JSTemplateString(int size)
         {
-            sb = new StringBuilder();
+            sb = new StringBuilder(size);
         }
 
         public JSTemplateString AddQuasi(string text)
@@ -27,6 +27,11 @@ namespace WebAtoms.CoreJS.Core.String
         public override string ToString()
         {
             return sb.ToString();
+        }
+
+        public JSValue ToJSString()
+        {
+            return new JSString(sb.ToString());
         }
 
     }
