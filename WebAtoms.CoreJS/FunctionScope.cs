@@ -211,7 +211,26 @@ namespace WebAtoms.CoreJS
                 Variable = Exp.Parameter(typeof(Exception), name + "Exp")
             };
             this.variableScopeList.Add(v);
+            
             return v;
+        }
+
+        private VariableScope tempVariable;
+
+        public VariableScope GetTempVariable()
+        {
+            var ts = TopScope;
+            if(ts.tempVariable == null)
+            {
+                var t = Expression.Variable(typeof(JSValue));
+                ts.variableScopeList.Add(new VariableScope { 
+                    Name = "#temp",
+                    Variable = t,
+                    Expression = t,
+                    Create = true
+                });
+            }
+            return ts.tempVariable;
         }
 
         public VariableScope CreateVariable(

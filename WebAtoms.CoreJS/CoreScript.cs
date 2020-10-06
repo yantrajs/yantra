@@ -423,6 +423,119 @@ namespace WebAtoms.CoreJS
             return inits;
         }
 
+        private Exp CreateMemberExpression(Exp target, Expression property, bool computed)
+        {
+            switch (property)
+            {
+                case Identifier id:
+                    if (!computed)
+                    {
+                        return ExpHelper.JSValueBuilder.Index(
+                            target,
+                            KeyOfName(id.Name));
+                    }
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        VisitIdentifier(id));
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.BooleanLiteral:
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        l.BooleanValue ? (uint)0 : (uint)1);
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.StringLiteral:
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        KeyOfName(l.StringValue));
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.NumericLiteral
+                        && l.NumericValue >= 0 && (l.NumericValue % 1 == 0):
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        (uint)l.NumericValue);
+                case StaticMemberExpression se:
+                    return JSValueBuilder.Index(target, VisitExpression(se.Property));
+
+            }
+            if (computed)
+            {
+                return JSValueBuilder.Index(target, VisitExpression(property));
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private Exp CreateAssignment(IArrayPatternElement pattern, Exp init, bool createVariable = false) {
+            Exp target;
+            List<Exp> inits;
+            switch (pattern)
+            {
+                case Identifier id:
+                    if (createVariable)
+                    {
+                        var v = this.scope.Top.CreateVariable(id.Name);
+                        target = v.Expression;
+                    } else
+                    {
+                        target = this.VisitIdentifier(id);
+                    }
+                    return Exp.Assign(target, init);
+                case ObjectPattern objectPattern:
+                    inits = new List<Exp>();
+                    foreach(var prop in objectPattern.Properties)
+                    {
+                        Exp start = null;
+                        switch (prop)
+                        {
+                            case Property property:
+                                switch (property.Key)
+                                {
+                                    case Identifier id:
+                                        start = CreateMemberExpression(init, id, property.Computed);
+                                        break;
+                                    default:
+                                        throw new NotImplementedException();
+                                }
+                                switch(property.Value)
+                                {
+                                    case Identifier vid:
+                                        inits.Add(CreateAssignment(vid, start));
+                                        break;
+                                    case IArrayPatternElement vp:
+                                        inits.Add(CreateAssignment(vp, start));
+                                        break;
+                                    default:
+                                        throw new NotImplementedException();
+                                } 
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
+                    }
+                    return Exp.Block(inits);
+                case ArrayPattern arrayPattern:
+                    inits = new List<Exp>();
+                    int index = -1;
+                    foreach(var element in arrayPattern.Elements)
+                    {
+                        index++;
+                        Exp start = null;
+                        switch (element)
+                        {
+                            case Identifier id:
+                                if (createVariable)
+                                {
+
+                                }
+                                break;
+                        }
+                    }
+                    return Exp.Block(inits);
+            }
+            throw new NotImplementedException();
+        }
+
+
         protected override Exp VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
         {
             // lets add variable...
@@ -431,6 +544,8 @@ namespace WebAtoms.CoreJS
             var inits = new List<Exp>();
             bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
                 || variableDeclaration.Kind == VariableDeclarationKind.Const;
+            VariableScope temp;
+
             foreach (var declarator in variableDeclaration.Declarations)
             {
                 switch(declarator.Id)
@@ -447,6 +562,20 @@ namespace WebAtoms.CoreJS
                         {
                             inits.Add(Exp.Assign(ve.Variable, JSVariableBuilder.New(id.Name)));
                         }
+                        break;
+                    case Esprima.Ast.ObjectPattern objectPattern:
+                        // it will always have an init...
+                        // put init in temp...
+                        temp = this.scope.Top.GetTempVariable();
+                        inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                        inits.Add(CreateAssignment(objectPattern, temp.Expression, true));
+                        break;
+                    case Esprima.Ast.ArrayPattern arrayPattern:
+                        // it will always have an init...
+                        // put init in temp...
+                        temp = this.scope.Top.GetTempVariable();
+                        inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                        inits.Add(CreateAssignment(arrayPattern, temp.Expression, true));
                         break;
                     default:
                         throw new NotSupportedException();
@@ -1155,6 +1284,13 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitAssignmentPattern(Esprima.Ast.AssignmentPattern assignmentPattern)
         {
+            switch (assignmentPattern.Left)
+            {
+                case ObjectPattern objectPattern:
+                    return CreateAssignment(objectPattern, VisitExpression(assignmentPattern.Right as Expression ));
+                case ArrayPattern arrayPattern:
+                    return CreateAssignment(arrayPattern, VisitExpression(assignmentPattern.Right as Expression));
+            }
             throw new NotImplementedException();
         }
 
