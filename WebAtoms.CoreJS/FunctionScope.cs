@@ -223,12 +223,14 @@ namespace WebAtoms.CoreJS
             if(ts.tempVariable == null)
             {
                 var t = Expression.Variable(typeof(JSValue));
-                ts.variableScopeList.Add(new VariableScope { 
+                ts.tempVariable = new VariableScope
+                {
                     Name = "#temp",
                     Variable = t,
                     Expression = t,
                     Create = true
-                });
+                };
+                ts.variableScopeList.Add(ts.tempVariable);
             }
             return ts.tempVariable;
         }

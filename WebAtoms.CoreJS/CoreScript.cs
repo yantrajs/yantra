@@ -359,7 +359,7 @@ namespace WebAtoms.CoreJS
             }
             catch (Exception ex) when (!(ex is CompilerException))
             {
-                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column} {ex}", ex);
             }
         }
 
@@ -499,10 +499,10 @@ namespace WebAtoms.CoreJS
                                 switch(property.Value)
                                 {
                                     case Identifier vid:
-                                        inits.Add(CreateAssignment(vid, start));
+                                        inits.Add(CreateAssignment(vid, start, true));
                                         break;
                                     case IArrayPatternElement vp:
-                                        inits.Add(CreateAssignment(vp, start));
+                                        inits.Add(CreateAssignment(vp, start, true));
                                         break;
                                     default:
                                         throw new NotImplementedException();
@@ -523,10 +523,8 @@ namespace WebAtoms.CoreJS
                         switch (element)
                         {
                             case Identifier id:
-                                if (createVariable)
-                                {
-
-                                }
+                                start = JSValueBuilder.Index(init, (uint)index);
+                                inits.Add(CreateAssignment(id, start));
                                 break;
                         }
                     }
