@@ -37,5 +37,109 @@ assert(a[1] === 'k', a[1]); ");
 
         }
 
+        [TestMethod]
+        public void CodeCharAt()
+        { }
+
+        [TestMethod]
+        public void CodePointAt()
+        { }
+
+        [TestMethod]
+        public void Concat()
+        { }
+
+        [TestMethod]
+        public void EndsWith()
+        { }
+
+        [TestMethod]
+        public void Includes()
+        { }
+
+        [TestMethod]
+        public void IndexOf()
+        { }
+
+        [TestMethod]
+        public void LastIndexOf()
+        { }
+
+        [TestMethod]
+        public void Match()
+        { }
+
+        [TestMethod]
+        public void MatchAll()
+        { }
+
+        [TestMethod]
+        public void Normalize()
+        { }
+
+        [TestMethod]
+        public void PadEnd()
+        { }
+
+        [TestMethod]
+        public void PadStart()
+        { }
+
+        [TestMethod]
+        public void Repeat()
+        { }
+
+        [TestMethod]
+        public void Replace()
+        { }
+
+        [TestMethod]
+        public void ReplaceAll()
+        { }
+
+        [TestMethod]
+        public void Search()
+        { }
+
+        [TestMethod]
+        public void Slice()
+        { }
+
+        [TestMethod]
+        public void Split()
+        { }
+
+        [TestMethod]
+        public void ToLocaleLowerCase()
+        { }
+
+        [TestMethod]
+        public void ToLocaleUpperCase()
+        { }
+
+        [TestMethod]
+        public void ToLowerCase()
+        { }
+
+        [TestMethod]
+        public void ToUpperCase()
+        { }
+
+        [TestMethod]
+        public void Trim()
+        { }
+
+        [TestMethod]
+        public void TrimEnd()
+        { }
+
+        [TestMethod]
+        public void TrimStart()
+        { }
+
+        [TestMethod]
+        public void ValueOf()
+        { }
+
     }
 }
