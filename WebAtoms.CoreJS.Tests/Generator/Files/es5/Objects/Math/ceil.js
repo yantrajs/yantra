@@ -1,0 +1,12 @@
+﻿assert(Number.isNaN(Math.ceil()));
+assert(Number.isNaN(Math.ceil(undefined)));
+assert.strictEqual(Math.ceil(null), 0);
+assert.strictEqual(Math.ceil(0), 0);
+assert.strictEqual(Math.ceil(""), 0);
+assert(Number.isNaN(Math.ceil("abcd")));
+assert.strictEqual(Math.ceil("1.2"), 2);
+assert.strictEqual(Math.ceil(" 1.2"), 2);
+assert.strictEqual(Math.ceil(.095), 1);
+assert.strictEqual(Math.ceil(4), 4);
+assert.strictEqual(Math.ceil(7.004), 8);
+assert.strictEqual(Math.ceil(-7.004), -7);

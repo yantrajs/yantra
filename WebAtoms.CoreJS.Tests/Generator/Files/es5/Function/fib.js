@@ -6,4 +6,4 @@
     return fib(n - 1) + fib(n - 2);
 }
 
-assert(fib(5) === 3);
+assert.strictEqual(fib(5),3);

@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Tests
         [TestMethod]
         public void CharTest()
         {
-            var tm = new BinaryCharMap<string>();
+            var tm = new StringTrie<string>();
 
             var i1 = "k1";
             var i2 = "k2";
@@ -32,7 +32,7 @@ namespace WebAtoms.CoreJS.Tests
         [TestMethod]
         public void IntTest()
         {
-            var im = new BinaryUInt32Map<string>();
+            var im = new UInt32Trie<string>();
 
             var i1 = (uint)4;
             var i2 = (uint)687;

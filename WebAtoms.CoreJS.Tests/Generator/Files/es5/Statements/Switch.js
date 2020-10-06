@@ -14,7 +14,7 @@ function run() {
 }
 run();
 run();
-assert(a === "a");
+assert.strictEqual(a, "a");
 a = "2";
 run();
-assert(a === "1");
+assert.strictEqual(a, "1");

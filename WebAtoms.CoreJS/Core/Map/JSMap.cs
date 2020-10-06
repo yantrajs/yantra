@@ -12,31 +12,14 @@ namespace WebAtoms.CoreJS.Core
     public partial class JSMap: JSObject
     {
 
-        struct Entry
-        {
-            public JSValue key;
-            public JSValue value;
-
-            public override bool Equals(object obj)
-            {
-                if (obj is Entry entry)
-                {
-                    return key.Equals(entry.key).BooleanValue;
-                }
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return key.GetHashCode();
-            }
-        }
-
-        private List<Entry> entries = new List<Entry>();
+        private LinkedList<(JSValue key,JSValue value)> entries = new LinkedList<(JSValue,JSValue)>();
+        private StringTrie<LinkedListNode<(JSValue key,JSValue value)>> cache = new StringTrie<LinkedListNode<(JSValue, JSValue)>>();
 
         public JSMap(): base(JSContext.Current.MapPrototype)
         {
         }
+
+        protected JSMap(JSObject p): base(p) { }
 
     }
 }

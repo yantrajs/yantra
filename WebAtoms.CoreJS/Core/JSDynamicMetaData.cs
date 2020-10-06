@@ -25,7 +25,7 @@ namespace WebAtoms.CoreJS.Core
         {
             if (name == "ToString")
                 return target.ToString();
-            return target.InvokeMethod(name, a);
+            return target.InvokeMethod(name, new Arguments(target, a));
         }
 
         public static JSValue[] __CreateArguments(object[] args)
@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
                     case decimal ds:
                         return new JSNumber((double)ds);
                     case bool b:
-                        return b ? JSBooleanPrototype.True : JSBooleanPrototype.False;
+                        return b ? JSBoolean.True : JSBoolean.False;
                     case string s:
                         return new JSString(s);
                     case JSValue v:

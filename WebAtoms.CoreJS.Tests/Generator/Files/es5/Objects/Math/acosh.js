@@ -1,0 +1,15 @@
+﻿assert(Number.isNaN(Math.acosh()));
+assert(Number.isNaN(Math.acosh(undefined)));
+//assert.strictEqual(Math.acosh(null), 1.5707963267948966);
+//assert.strictEqual(Math.acosh(0), 1.5707963267948966);
+//assert.strictEqual(Math.acosh(""), 1.5707963267948966);
+assert(isNaN(Math.acosh(null)));
+assert(isNaN(Math.acosh(0)));
+assert(isNaN(Math.acosh("")));
+assert(isNaN(Math.acosh("abcd")));
+assert.strictEqual(Math.acosh("1.2"), 0.6223625037147785);
+assert.strictEqual(Math.acosh(" 1.2"), 0.6223625037147785);
+assert(isNaN(Math.acosh("0.999999999999")));
+assert.strictEqual(Math.acosh(1), 0);
+assert.strictEqual(Math.acosh(2), 1.3169578969248166);
+assert.strictEqual(Math.acosh(2.5), 1.5667992369724109);

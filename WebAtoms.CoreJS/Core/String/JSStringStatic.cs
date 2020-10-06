@@ -12,13 +12,15 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Static("fromCharCode")]
-        internal static JSValue FromCharCode(JSValue target, JSValue[] args)
+        internal static JSValue FromCharCode(in Arguments a)
         {
             StringBuilder sb = new StringBuilder();
-            if (args == null)
+            if (a.Length == 0)
                 return new JSString(string.Empty);
-            foreach(var ch in args)
+            var al = a.Length;
+            for(var ai = 0; ai < al; ai++)
             {
+                var ch = a.GetAt(ai);
                 sb.Append((char)ch.IntValue);
             }
             return new JSString(sb.ToString());

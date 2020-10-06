@@ -1,18 +1,19 @@
 ﻿var animals = ['pigs', 'goats', 'sheep'];
 var count = animals.push("cows");
 
-assert(count === 4, count);
+assert.strictEqual(count, 4);
 
-assert(animals[3] === "cows");
+assert.strictEqual(animals[3], "cows");
 
 count = animals.push('chickens', 'cats', 'dogs');
 
-assert(count === 7, count);
+assert.strictEqual(count, 7);
 
-assert(animals[5] === "cats");
+assert.strictEqual(animals[5], "cats");
 
 var a = {};
 
 Array.prototype.push.call(a, 1);
 
-assert(a.length === 1);
+assert.strictEqual(a.length, 1);
+assert.strictEqual(a[0], 1);

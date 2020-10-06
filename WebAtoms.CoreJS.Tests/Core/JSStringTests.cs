@@ -19,7 +19,7 @@ assert(a[1] === 'k', a[1]); ");
         [TestMethod]
         public void Substring()
         {
-            var js = context.CreateString("akash");
+            var js = new JSString("akash");
 
             Assert.AreEqual(5, js.Length);
 
@@ -29,7 +29,7 @@ assert(a[1] === 'k', a[1]); ");
 
             var zero = new JSNumber(0);
             var length = new JSNumber(2);
-            var prefix = js.InvokeMethod("substr", zero, length);
+            var prefix = js.InvokeMethod("substr", new Arguments(js, zero, length));
 
             Assert.AreEqual(2, prefix.Length);
 

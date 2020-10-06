@@ -8,6 +8,9 @@ JavaScript Engine for .NET Standard
 3. Linq Expressions can be compiled to IL and can also be saved to an assembly for caching.
 4. User can evaluate context.current function to find current stack trace in JavaScript environment
 5. Majority of code is written as virtual method of JSValue derived object to reduce the amount of code to be generated.
+6. AOT platforms will not perform JIT Inlining, due to this, every method is implemented as simple Static method to avoid unnecessary one more method call after casting.
+7. Generators are implemented as Suspended Threads, as generating complex state machine at runtime would be very time consuming and would require too much of code analysis.
+8. Async/Await will be generated over generators.
 
 # No support for primitive types
 This decision was taken based on following observation
@@ -32,6 +35,10 @@ On platforms where Roslyn is available, you can easily generate code high perfor
  ### Complexity
  1. Tail Call Optimization
 
+ ## No System.Text.Json
+
+ We are not going to use System.Text.Json because it is not available on .NET Frameworks. This library is designed to run on older platforms as well.
+
  ## Performance Points
 
  1. Do not use Switch pattern matching for types, 
@@ -44,22 +51,22 @@ On platforms where Roslyn is available, you can easily generate code high perfor
 https://github.com/agileobjects/ReadableExpressions
 
 ## Comparison with JInt and Jurassic
-|-------------------------------|---------------------|-----------------|--------------------|
 |Feature                        | Yantra              | JInt            | Jurassic           |
 |-------------------------------|---------------------|-----------------|--------------------|
 |JIT                            | Yes if Available    | No              | Yes                |
-|-------------------------------|---------------------|-----------------|--------------------|
 |AOT                            | Yes as Interpreted  | Yes             | No                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Platforms                      | All                 | All             | No iOS             |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Code Generation Type           | Linq Expressions    | Custom          | IL                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Readable Generated Code        | Yes                 | No              | Difficult to Read  |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Generated Code Context Free    | Yes                 | No              | No                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 |Context Isolation              | Yes                 | No              | No                 |
-|-------------------------------|---------------------|-----------------|--------------------|
 
 
+## Unit Testing
+
+1. `assert()`, This function will test if given value is true (that is not empty, not zero, not null and not undefined).
+2. `assert.strictEqual(left, right [,error])` checks if left is strictly equal to right, displays error if it does not match.
+3. `assert.notStrictEqual(left, right [,error])` checks if left is not strictly equal to right, displays error if it matches.
+4. `assert.throws(fn [, error] [, message])` executes given function and expects an error.
+5. `assert.matches(left, regex, [, error])` checks if left matches right regex, displays error if it does not match.
+6. `assert.doesNotMatch(left, regex, [, error])` checks if left matches right regex, displays error if it does not match.

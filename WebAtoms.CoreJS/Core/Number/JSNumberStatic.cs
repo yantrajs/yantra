@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
@@ -9,59 +10,62 @@ namespace WebAtoms.CoreJS.Core.Runtime
     public class JSNumberStatic
     {
         [Static("isFinite")]
-        public static JSValue IsFinite(JSValue t, params JSValue[] a)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue IsFinite(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 if (n.value != double.NaN && n.value > Double.NegativeInfinity && n.value < double.PositiveInfinity)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("isInteger")]
-        public static JSValue IsInteger(JSValue t, params JSValue[] a)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue IsInteger(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 var v = n.value;
                 if (((int)v) == v)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("isNaN")]
-        public static JSValue IsNaN(JSValue t, params JSValue[] a)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue IsNaN(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 if (double.IsNaN(n.value))
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("isSafeInteger")]
-        public static JSValue IsSafeInteger(JSValue t, params JSValue[] a)
+        public static JSValue IsSafeInteger(in Arguments a)
         {
-            if (a[0] is JSNumber n)
+            if (a.Get1() is JSNumber n)
             {
                 var v = n.value;
                 if (v >= JSNumber.MinSafeInteger && v <= JSNumber.MaxSafeInteger)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         [Static("parseFloat")]
-
-        public static JSValue ParseFloat(JSValue t, params JSValue[] a)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue ParseFloat(in Arguments a)
         {
             var nan = JSNumber.NaN;
             if (a.Length > 0)
             {
-                var p = a[0];
+                var p = a.Get1();
                 if (p.IsNumber)
                     return p;
                 if (p.IsNull || p.IsUndefined)
@@ -130,13 +134,13 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
 
         [Static("parseInt")]
-
-        public static JSValue ParseInt(JSValue t, params JSValue[] a)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue ParseInt(in Arguments a)
         {
             var nan = JSNumber.NaN;
             if (a.Length > 0)
             {
-                var p = a[0];
+                var p = a.Get1();
                 if (p.IsNumber)
                     return p;
                 if (p.IsNull || p.IsUndefined)
@@ -147,7 +151,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
                     var radix = 10;
                     if (a.Length > 2)
                     {
-                        var a1 = a[1];
+                        var (_, a1) = a.Get2();
                         if (a1.IsNull || a1.IsUndefined)
                         {
                             radix = 10;

@@ -34,50 +34,50 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Prototype("charAt")]
-        public static JSValue CharAt(JSValue t, JSValue[] a)
+        public static JSValue CharAt(in Arguments a)
         {
-            var text = AsString(t);
+            var text = AsString(a.This);
             var at = a.TryGetAt(0, out var n) ? n.IntValue : 0;
             return new JSString(new string(text[at], 1));
         }
 
         [Prototype("substring")]
-        public static JSValue Substring(JSValue t,params JSValue[] a) 
+        public static JSValue Substring(in Arguments a) 
         {
-            var j = t as JSString;
+            var j = a.This as JSString;
             if (j == null)
                 return JSUndefined.Value;
             if (!a.TryGetAt(0, out var start))
-                return t;
+                return a.This;
             if (!a.TryGetAt(1, out var length))
                 return new JSString(j.value.Substring(start.IntValue));
             return new JSString(j.value.Substring(start.IntValue, length.IntValue));
         }
 
         [Prototype("substr")]
-        public static JSValue Substr(JSValue t,params JSValue[] a)
+        public static JSValue Substr(in Arguments a)
         {
-            return Substring(t, a);
+            return Substring(a);
         }
 
         [Prototype("toString")]
-        public static JSValue ToString(JSValue t,params JSValue[] a)
+        public static JSValue ToString(in Arguments a)
         {
-            return t;
+            return a.This;
         }
 
 
 
         [GetProperty("length")]
-        internal static JSValue GetLength(JSValue t,params JSValue[] a)
+        internal static JSValue GetLength(in Arguments a)
         {
-            return new JSNumber(t.ToString().Length);
+            return new JSNumber(a.This.ToString().Length);
         }
 
         [SetProperty("length")]
-        internal static JSValue SetLength(JSValue t,params JSValue[] a)
+        internal static JSValue SetLength(in Arguments a)
         {
-            return a[0];
+            return a.Get1();
         }
 
         [Prototype("charCodeAt")]

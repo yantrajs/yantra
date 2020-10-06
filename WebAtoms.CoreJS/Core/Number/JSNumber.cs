@@ -6,6 +6,7 @@ using System.Text;
 using System.Transactions;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Core.Runtime;
+using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -17,17 +18,24 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly double value;
 
+        [Static("NaN")]
         public static JSNumber NaN = new JSNumber(double.NaN);
+
+        public static JSNumber MinusOne = new JSNumber(-1);
         public static JSNumber Zero = new JSNumber(0d);
+        public static JSNumber NegativeZero = new JSNumber(-0d);
         public static JSNumber One = new JSNumber(1d);
         public static JSNumber Two = new JSNumber(2d);
+
+        [Static("POSITIVE_INFINITY")]
+        public static JSNumber PositiveInfinity = new JSNumber(double.PositiveInfinity);
+
+        [Static("NEGATIVE_INFINITY")]
+        public static JSNumber NegativeInfinity = new JSNumber(double.NegativeInfinity);
 
 
         [Static("EPSILON")]
         public static readonly double Epsilon = double.Epsilon;
-
-        [Static("NAN")]
-        public static readonly double JSNaN = double.NaN;
 
         [Static("MAX_SAFE_INTEGER")]
         public static readonly double MaxSafeInteger = 9007199254740991d;
@@ -41,12 +49,6 @@ namespace WebAtoms.CoreJS.Core
         [Static("MIN_VALUE")]
         public static readonly double MinValue = double.MinValue;
 
-        [Static("POSITIVE_INFINITY")]
-        public static readonly double PositiveInfinity = double.PositiveInfinity;
-
-        [Static("NEGATIVE_INFINITY")]
-        public static readonly double NegativeInfinity = double.NegativeInfinity;
-
         public override bool IsNumber => true;
 
         public override JSValue TypeOf()
@@ -59,7 +61,7 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.NumberPrototype;
         }
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = false)
         {
             var n = this.value;
             if (double.IsNaN(n))
@@ -68,6 +70,12 @@ namespace WebAtoms.CoreJS.Core
                 return new KeyString(null, 0);
             if (n > 0 && ((int)n) == n)
                 return new KeyString(null, (uint)n);
+            if (!create)
+            {
+                if (KeyStrings.TryGet(n.ToString(), out var k))
+                    return k;
+                return KeyStrings.undefined;
+            }
             return KeyStrings.GetOrCreate(n.ToString());
         }
 
@@ -80,7 +88,9 @@ namespace WebAtoms.CoreJS.Core
 
         public override double DoubleValue => value;
 
-        public override bool BooleanValue => double.IsNaN(value)  ? false : value != 0;
+        public override bool BooleanValue => !double.IsNaN(value) && value != 0;
+
+        public override long BigIntValue => (long)this.value;
 
         public override string ToString()
         {
@@ -98,7 +108,12 @@ namespace WebAtoms.CoreJS.Core
             return double.IsNaN(n.DoubleValue);
         }
 
-        
+        public override JSValue AddValue(JSValue value)
+        {
+            if (value is JSString @string)
+                return new JSString(this.value + @string.value);
+            return new JSNumber(this.value + value.DoubleValue);
+        }
 
 
         //public override JSValue AddValue(JSValue value)
@@ -148,44 +163,62 @@ namespace WebAtoms.CoreJS.Core
             return base.Equals(obj);
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSNumber number
                     when (this.value == number.value):
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
                 case JSString @string
                     when (this.value == @string.DoubleValue):
-                    return JSBooleanPrototype.True;
-                case JSNull @null
+                    return JSBoolean.True;
+                case JSNull _
                     when (this.value == 0D):
-                    return JSBooleanPrototype.True;
-                case JSBooleanPrototype boolean
+                    return JSBoolean.True;
+                case JSBoolean boolean
                     when (this.value == (boolean._value ? 1D : 0D)):
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (value is JSNumber n)
             {
                 if (this.value == n.value)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw JSContext.Current.NewTypeError($"{this.value} is not a function");
         }
 
+        internal override JSBoolean Is(JSValue value)
+        {
+            if(value is JSNumber number)
+            {
+                if (this.value == 0 || number.value == 0)
+                {
+                    return BitConverter.DoubleToInt64Bits(this.value) == BitConverter.DoubleToInt64Bits(number.value)
+                        ? JSBoolean.True
+                        : JSBoolean.False;
+                } 
+                
+                if (double.IsNaN(this.value))
+                    return double.IsNaN(number.value) ? JSBoolean.True : JSBoolean.False;
+                if (this.value == number.value)
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
     }
 }

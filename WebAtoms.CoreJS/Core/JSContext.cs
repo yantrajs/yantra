@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Build.Tasks.Deployment.Bootstrapper;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -7,12 +8,22 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using WebAtoms.CoreJS.Core.BigInt;
+using WebAtoms.CoreJS.Core.Debug;
+using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Core.Objects;
+using WebAtoms.CoreJS.Core.Set;
+using WebAtoms.CoreJS.Core.Weak;
 
 namespace WebAtoms.CoreJS.Core
 {
 
-    public delegate JSValue JSFunctionDelegate(JSValue thisValue, params JSValue[] arguments);
+    public delegate JSValue JSFunctionDelegate(in Arguments a);
+
+    public delegate void LogEventHandler(JSContext context, JSValue value);
+
+    public delegate void ErrorEventHandler(JSContext context, Exception error);
 
     public class JSContext: JSObject, IDisposable
     {
@@ -43,41 +54,33 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSObject RangeErrorPrototype;
 
+        public readonly JSObject SyntaxErrorPrototype;
+
+        public readonly JSObject URIErrorPrototype;
+
         public readonly JSObject DatePrototype;
 
         public readonly JSObject MapPrototype;
 
+        public readonly JSObject SetPrototype;
+
         public readonly JSObject PromisePrototype;
 
-        public readonly JSFunctionStatic String;
+        public readonly JSObject RegExpPrototype;
 
-        public readonly JSFunctionStatic Function;
+        public readonly JSObject WeakRefPrototype;
 
-        public readonly JSFunctionStatic Number;
+        internal readonly JSObject WeakMapPrototype;
 
-        public readonly JSFunctionStatic Object;
+        internal readonly JSObject WeakSetPrototype;
 
-        public readonly JSFunctionStatic Array;
+        internal readonly JSObject GeneratorPrototype;
 
-        public readonly JSFunctionStatic Boolean;
-
-        public readonly JSFunctionStatic Error;
-
-        public readonly JSFunctionStatic RangeError;
-
-        public readonly JSFunctionStatic Date;
-
-        public readonly JSFunctionStatic TypeError;
-
-        public readonly JSFunctionStatic Promise;
+        internal readonly JSObject BigIntPrototype;
 
         public readonly JSObject JSON;
 
-        public readonly JSFunctionStatic Symbol;
-
         public readonly JSMath Math;
-
-        public readonly JSFunctionStatic Map;
 
         public static JSContext Current
         {
@@ -91,9 +94,14 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public JSContext()
+        public event LogEventHandler Log;
+
+        public event ErrorEventHandler Error;
+
+        public JSContext(SynchronizationContext synchronizationContext = null)
         {
-            
+            this.synchronizationContext = synchronizationContext ?? SynchronizationContext.Current;
+
             Scope.Push(new LexicalScope("", "", 1, 1));
             Scope.Top.IsRoot = true;
 
@@ -107,10 +115,7 @@ namespace WebAtoms.CoreJS.Core
                 var r = Activator.CreateInstance<T>();
                 r.ownProperties = new PropertySequence();
                 var cached = cache.GetOrCreate(name.Key, () => { 
-                    lock(cache)
-                    {
-                        return Bootstrap.Create(name, typeof(T));
-                    }
+                    return Bootstrap.Create(name, typeof(T));
                 });
 
                 ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
@@ -123,80 +128,111 @@ namespace WebAtoms.CoreJS.Core
                 return r;
             }
 
-            (Symbol, _) = this.Create<JSSymbol>(KeyStrings.Symbol);
-            (Function, FunctionPrototype) = this.Create<JSFunctionStatic>(KeyStrings.Function);
+            this.Create<JSSymbol>(KeyStrings.Symbol);
+            FunctionPrototype = this.Create<JSFunction>(KeyStrings.Function);
             // create object prototype...
-            (Object, ObjectPrototype) =  this.Create<JSObject>(KeyStrings.Object);
-            (Array, ArrayPrototype) = this.Create<JSArray>(KeyStrings.Array);
-            (String, StringPrototype) = this.Create<JSString>(KeyStrings.String);
-            (Number, NumberPrototype) = this.Create<JSNumber>(KeyStrings.Number);
-            (Boolean, BooleanPrototype) = this.Create<JSBooleanPrototype>(KeyStrings.Boolean);
-            (Error, ErrorPrototype) = this.Create<JSError>(JSError.KeyError);
-            (TypeError, TypeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyTypeError, ErrorPrototype);
-            (RangeError, RangeErrorPrototype) = this.Create<JSTypeError>(JSTypeError.KeyRangeError, ErrorPrototype);
-            (Date, DatePrototype) = this.Create<JSDate>(KeyStrings.Date);
-            (Map, MapPrototype) = this.Create<JSMap>(KeyStrings.Map);
-            (Promise, PromisePrototype) = this.Create<JSPromise>(KeyStrings.Promise);
+            ObjectPrototype =  this.Create<JSObject>(KeyStrings.Object);
+            ArrayPrototype = this.Create<JSArray>(KeyStrings.Array);
+            StringPrototype = this.Create<JSString>(KeyStrings.String);
+            NumberPrototype = this.Create<JSNumber>(KeyStrings.Number);
+            BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean);
+            ErrorPrototype = this.Create<JSError>(KeyStrings.Error);
+            TypeErrorPrototype = this.Create<JSTypeError>(KeyStrings.TypeError, ErrorPrototype);
+            RangeErrorPrototype = this.Create<JSTypeError>(KeyStrings.RangeError, ErrorPrototype);
+            SyntaxErrorPrototype = this.Create<JSTypeError>(KeyStrings.SyntaxError, ErrorPrototype);
+            URIErrorPrototype = this.Create<JSTypeError>(KeyStrings.URIError, ErrorPrototype);
+            DatePrototype = this.Create<JSDate>(KeyStrings.Date);
+            MapPrototype = this.Create<JSMap>(KeyStrings.Map);
+            PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise);
+            RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp);
+            SetPrototype = this.Create<JSSet>(KeyStrings.Set);
+            WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef);
+            WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet);
+            WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap);
+            GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator);
+            BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt);
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
+
+            this.Fill<JSGlobalStatic>();
+
+            var c = new JSObject();
+            c.prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype;
+            this[KeyStrings.console] = c;
+
         }
 
-        private static BinaryUInt32Map<JSFunctionStatic> cache = new BinaryUInt32Map<JSFunctionStatic>();
+        private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
+        internal readonly SynchronizationContext synchronizationContext;
 
-
-        public JSObject CreateObject()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSException NewTypeError(string message, 
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            var v = new JSObject();
-            return v;
-        }
-
-        public JSValue CreateNumber(double n)
-        {
-            var v = new JSNumber(n);
-            return v;
-        }
-
-        public JSString CreateString(string value)
-        {
-            var v = new JSString(value);
-            return v;
-        }
-
-        public JSFunctionStatic CreateFunction(JSFunctionDelegate fx)
-        {
-            var v = new JSFunctionStatic(fx);
-            return v;
-        }
-
-        public JSArray CreateArray()
-        {
-            var v = new JSArray();
-            return v;
+            return new JSException(message, TypeErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewTypeError(string message)
+        internal JSException NewSyntaxError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return NewError(message, TypeErrorPrototype);
+            return new JSException(message, SyntaxErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewRangeError(string message)
+        internal JSException NewURIError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return NewError(message, RangeErrorPrototype);
+            return new JSException(message, URIErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewError(string message)
+        internal JSException NewRangeError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return NewError(message, ErrorPrototype);
+            return new JSException(message, RangeErrorPrototype, function, filePath, line);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JSException NewError(string message, JSObject prototype)
+        internal JSException NewError(string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, prototype);
+            return new JSException(message, ErrorPrototype, function, filePath, line);
         }
+
+        internal void ReportError(Exception ex)
+        {
+            Error?.Invoke(this, ex);
+            //var cx = this[KeyStrings.console];
+            //if (cx.IsUndefined)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex);
+            //    return;
+            //}
+
+            //var log = cx[KeyStrings.log];
+            //if (log.IsUndefined)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex);
+            //    return;
+            //}
+            //log.InvokeFunction(new Arguments(cx, new JSString(ex.ToString())));
+        }
+        public void ReportLog(JSValue f)
+        {
+            Log?.Invoke(this, f);
+        }
+
 
     }
 }

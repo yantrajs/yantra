@@ -13,32 +13,75 @@ namespace WebAtoms.CoreJS.Core
 
         public JSValue Stack { get; }
 
-        public JSException(string message): base(message)
+        private List<(string target, string file, int line, int column)> trace
+            = new List<(string target, string file, int line, int column)>();
+
+        public JSException(
+            string message, 
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0): base(message)
         {
-            Error = new JSError(new JSString(message), JSUndefined.Value);
+            if (function != null)
+            {
+                this.trace.Add((function, filePath ?? "Unknown", line, 1));
+            }
             Stack = Capture();
+            Error = new JSError(new JSString(message), Stack);
         }
 
-        public JSException(string message, JSObject prototype) : base(message)
+        public JSException(
+            string message, 
+            JSObject prototype,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(message)
         {
-            Error = new JSError(new JSString(message), JSUndefined.Value);
+            if (function != null)
+            {
+                this.trace.Add((function, filePath ?? "Unknown", line, 1));
+            }
+            Stack = Capture();
+            Error = new JSError(new JSString(message), Stack);
             Error.prototypeChain = prototype;
-            Stack = Capture();
         }
 
-        public JSException(JSValue message) : base(message.ToString())
+        public JSException(
+            JSValue message) : base(message.ToString())
         {
-            Error = new JSError(message, JSUndefined.Value);
             Stack = Capture();
+            if (message is JSError error) {
+                error[KeyStrings.stack] = Stack;
+            }
+            else
+            {
+                Error = new JSError(message, Stack);
+            }
         }
 
         private JSValue Capture()
         {
             var sb = new StringBuilder();
             var top = JSContext.Current.Scope.Top;
+            if (trace.Count > 0)
+            {
+                var f = trace[0];
+                sb.AppendLine($"    at {f.target}:{f.file}:{f.line},{f.column}");
+            }
             while (top != null)
             {
-                sb.AppendLine($"{top.Function} {top.FileName} {top.Position.Line},{top.Position.Column}");
+                var fx = top.Function;
+                var file = top.FileName;
+                if (string.IsNullOrWhiteSpace(fx))
+                {
+                    fx = "native";
+                }
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    file = "file";
+                }
+                sb.AppendLine($"    at {fx}:{file}:{top.Position.Line},{top.Position.Column}");
+                trace.Add((fx, file, top.Position.Line, top.Position.Column));
                 top = top.Parent;
             }
             return new JSString(sb.ToString());
@@ -51,23 +94,45 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSFunctionStatic ThrowNotFunction(JSValue value)
+        internal static JSFunction ThrowNotFunction(JSValue value)
         {
-            throw new JSException($"{value} is not a function");
+            throw JSContext.Current.NewTypeError($"{value} is not a function");
         }
-        public override string Message => 
-            this.Stack != null 
-            ? $"{Stack}{base.Message}"
-            : base.Message;
 
-        public override string ToString()
+        public override string StackTrace
         {
-            if (this.Stack != null)
+            get
             {
-                return $"{Error}{Stack}{base.ToString()}";
+                var sb = new StringBuilder();
+                foreach(var item in trace)
+                {
+                    sb.Append("at ");
+                    sb.Append(item.target);
+                    sb.Append(" in ");
+                    sb.Append(item.file);
+                    sb.Append(":line ");
+                    sb.Append(item.line);
+                    // sb.Append(" , ");
+                    // sb.Append(item.column + 1);
+                    sb.AppendLine();
+                }
+                return sb.ToString();
             }
-            return base.ToString();
         }
+
+        //public override string Message => 
+        //    this.Stack != null 
+        //    ? $"{Stack}{base.Message}"
+        //    : base.Message;
+
+        //public override string ToString()
+        //{
+        //    if (this.Stack != null)
+        //    {
+        //        return $"{Error}{Stack}{base.ToString()}";
+        //    }
+        //    return base.ToString();
+        //}
 
 
 

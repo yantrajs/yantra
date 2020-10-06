@@ -1,0 +1,12 @@
+﻿assert(Number.isNaN(Math.exp()));
+assert(Number.isNaN(Math.exp(undefined)));
+assert.strictEqual(Math.exp(null), 1);
+assert.strictEqual(Math.exp(0), 1);
+assert.strictEqual(Math.exp(""), 1);
+assert(isNaN(Math.exp("abcd")));
+assert.doubleEqual(Math.exp("1.2"), 3.3201169227365472);
+assert.doubleEqual(Math.exp(" 1.2"), 3.3201169227365472);
+assert.strictEqual(Math.exp(Infinity), Infinity);
+assert.doubleEqual(Math.exp(1), 2.718281828459045);
+assert.doubleEqual(Math.exp(-1), 0.36787944117144233);
+assert.strictEqual(Math.exp(2), 7.38905609893065);

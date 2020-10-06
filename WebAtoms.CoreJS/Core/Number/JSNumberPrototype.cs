@@ -20,9 +20,9 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Prototype("clz")]
-        public static JSValue Clz(this JSValue target, JSValue[] args)
+        public static JSValue Clz(in Arguments a)
         {
-            uint x = (uint)target.ToNumber().IntValue;
+            uint x = (uint)a.This.ToNumber().IntValue;
 
             // Propagate leftmost 1-bit to the right 
             x = x | (x >> 1);
@@ -51,25 +51,25 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Prototype("valueOf")]
-        public static  JSValue ValueOf(JSValue t, JSValue[] a)
+        public static  JSValue ValueOf(in Arguments a)
         {
-            return t.ToNumber();
+            return a.This.ToNumber();
         }
 
         [Prototype("toString")]
 
-        public static JSString ToString(JSValue t, params JSValue[] a)
+        public static JSString ToString(in Arguments a)
         {
-            var n = t.ToNumber();
+            var n = a.This.ToNumber();
             return new JSString(n.value.ToString());
         }
 
         [Prototype("toExponential")]
 
-        public static JSString ToExponential(JSValue t, params JSValue[] a)
+        public static JSString ToExponential(in Arguments a)
         {
-            var n = t.ToNumber();
-            if (a[0] is JSNumber n1)
+            var n = a.This.ToNumber();
+            if (a.Get1() is JSNumber n1)
             {
                 var v = n1.value;
                 if (double.IsNaN(v) || v > 100 || v < 1)
@@ -81,10 +81,10 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Prototype("toFixed")]
-        public static JSString ToFixed(JSValue t, params JSValue[] a)
+        public static JSString ToFixed(in Arguments a)
         {
-            var n = t.ToNumber();
-            if (a[0] is JSNumber n1)
+            var n = a.This.ToNumber();
+            if (a.Get1() is JSNumber n1)
             {
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
                     throw JSContext.Current.NewRangeError("toFixed() digitis argument must be between 0 and 100");
@@ -95,10 +95,10 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Prototype("toPrecision")]
-        public static JSString ToPrecision(JSValue t, params JSValue[] a)
+        public static JSString ToPrecision(in Arguments a)
         {
-            var n = t.ToNumber();
-            if (a[0] is JSNumber n1)
+            var n = a.This.ToNumber();
+            if (a.Get1() is JSNumber n1)
             {
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
                     throw JSContext.Current.NewRangeError("toPrecision() digitis argument must be between 0 and 100");
@@ -125,12 +125,12 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Prototype("toLocaleString")]
-        public static JSString ToLocaleString(JSValue t, params JSValue[] a)
+        public static JSString ToLocaleString(in Arguments a)
         {
-            var n = t.ToNumber();
+            var n = a.This.ToNumber();
             if (a.Length > 0)
             {
-                var p1 = a[0];
+                var p1 = a.Get1();
                 switch (p1)
                 {
                     case JSNull _:

@@ -15,7 +15,7 @@ namespace WebAtoms.CoreJS.Tests.Core.Date
         {
 
             var a = CoreScript.Evaluate("Date.now()");
-            Assert.IsTrue(a is JSDate);
+            Assert.IsTrue(a is JSNumber);
         }
 
     }

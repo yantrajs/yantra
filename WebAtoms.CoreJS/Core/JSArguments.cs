@@ -6,88 +6,87 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class JSArguments: JSValue
+    public class JSArguments: JSPrimitive
     {
+        [GetProperty("length")]
+        public static JSValue GetLength(in Arguments a)
+        {
+            return new JSNumber(a.This.Length);
+        }
+
+        [SetProperty("length")]
+        public static JSValue SetLength(in Arguments a)
+        {
+            // do nothing...
+            return a.Get1();
+        }
 
         public static JSValue[] Empty = new JSValue[] { };
 
         public override int Length { 
-            get => (int)this._length;
+            get => arguments.Length;
             set { } }
 
         public override bool BooleanValue => true;
 
         public override JSValue TypeOf()
         {
-            return JSConstants.Object;
+            return JSConstants.Arguments;
         }
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = false)
+        {
+            return KeyStrings.arguments;
+        }
+
+
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            return JSBoolean.False;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            return JSBoolean.False;
+        }
+
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
+        internal Arguments arguments = Arguments.Empty;
 
-        public static JSValue[] From(params double[] args)
+        public JSArguments(in Arguments args)
         {
-            return args.Select((n) => new JSNumber(n)).ToArray();
+            arguments = args;
         }
 
-        public static JSValue[] From(params string[] args)
+        protected override JSObject GetPrototype()
         {
-            return args.Select((n) => new JSString(n)).ToArray();
+            return JSContext.Current.ObjectPrototype;
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSValue this[uint key] 
         {
-            throw new NotImplementedException();
+            get => arguments.GetAt((int)key);
+            set => base[key] = value;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        internal override IEnumerable<(uint index, JSValue value)> AllElements
         {
-            throw new NotImplementedException();
-        }
-
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal readonly uint _length;
-        internal JSValue[] elements = null;
-
-        public JSArguments(JSArray a): base(JSContext.Current.ObjectPrototype)
-        {
-            _length = (uint)a._length;
-            uint i;
-            elements = new JSValue[_length];
-            for(i = 0; i<_length; i++)
+            get
             {
-                elements[i] = a[i];
+                var al = arguments.Length;
+                for (uint i = 0; i < al; i++)
+                {
+                    yield return (i, arguments.GetAt(0));
+                }
             }
         }
-
-        private JSArguments(): base(JSContext.Current.ObjectPrototype)
-        {
-
-        }
-
-        public JSArguments(JSValue[] args) : base(JSContext.Current.ObjectPrototype)
-        {
-            _length = (uint)args.Count();
-            uint i = 0;
-            elements = new JSValue[_length];
-            foreach (var item in args)
-            {
-                elements[i++] = item;
-            }
-        }
-
-        public new JSValue this[uint key] { 
-            get => key>= _length ? JSUndefined.Value : elements[key];
-            set { } 
-        }
-
-        internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();
     }
 }

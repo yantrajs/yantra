@@ -1,0 +1,11 @@
+﻿assert(Number.isNaN(Math.asinh()));
+assert(Number.isNaN(Math.asinh(undefined)));
+assert.strictEqual(Math.asinh(null), 0);
+assert.strictEqual(Math.asinh(0), 0);
+assert.strictEqual(Math.asinh(""), 0);
+assert(isNaN(Math.asinh("abcd")));
+assert.doubleEqual(Math.asinh("1.2"), 1.015973134179692);
+assert.doubleEqual(Math.asinh(" 1.2"), 1.015973134179692);
+assert.doubleEqual(Math.asinh(1), 0.8813735870195429);
+assert.doubleEqual(Math.asinh(-1), -0.8813735870195428);
+assert.doubleEqual(Math.asinh(2), 1.4436354751788103);

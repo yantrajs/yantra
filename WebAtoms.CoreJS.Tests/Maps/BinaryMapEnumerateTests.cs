@@ -14,7 +14,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
         [TestMethod]
         public void CharMap()
         {
-            var a = new BinaryCharMap<int>();
+            var a = new StringTrie<int>();
 
             a["a"] = 1;
             a["b"] = 2;
@@ -37,7 +37,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
         [TestMethod]
         public void BigMap()
         {
-            var a = new BinaryCharMap<int>();
+            var a = new StringTrie<int>();
             a["toString"] = 1;
             a["constructor"] = 2;
             a["push"] = 3;
@@ -47,7 +47,7 @@ namespace WebAtoms.CoreJS.Tests.Maps
         [TestMethod]
         public void IntMap()
         {
-            var a = new BinaryUInt32Map<int>();
+            var a = new UInt32Trie<int>();
 
             a[1] = 1;
             a[3] = 2;
@@ -67,6 +67,22 @@ namespace WebAtoms.CoreJS.Tests.Maps
             Assert.AreEqual(4, all[3].Value);
         }
 
+        [TestMethod]
+        public void CompactIntMap()
+        {
+            var a = new CompactUInt32Trie<int>();
+
+            int max = 100;
+            for (int i = max; i >= 0; i--)
+            {
+                a[(uint)i] = i;
+            }
+
+            for (int i = 0; i < max; i++)
+            {
+                Assert.AreEqual(a[(uint)i], i);
+            }
+        }
 
     }
 }

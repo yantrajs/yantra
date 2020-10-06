@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             Assert.IsTrue(f.IsFunction);
 
-            var r = f.InvokeFunction(context, JSArguments.From(1,2));
+            var r = f.InvokeFunction(new Arguments(context, new JSNumber(1), new JSNumber(2)));
 
             Assert.AreEqual(3, r.IntValue);
         }
@@ -58,7 +58,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             Assert.IsTrue(f.IsFunction);
 
-            var r = f.InvokeFunction(context, JSArguments.From(1));
+            var r = f.InvokeFunction(new Arguments(context, new JSNumber(1)));
 
             Assert.AreEqual(5, r.IntValue);
         }
@@ -72,7 +72,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             Assert.IsTrue(f.IsFunction);
 
-            var r = f.InvokeFunction(context, JSArguments.From(1));
+            var r = f.InvokeFunction(new Arguments(context, new JSNumber(1)));
 
             Assert.AreEqual(5, r.IntValue);
 

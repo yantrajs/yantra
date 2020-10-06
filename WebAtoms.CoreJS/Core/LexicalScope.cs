@@ -23,17 +23,17 @@ namespace WebAtoms.CoreJS.Core
 
     public class LexicalScope : LinkedStackItem<LexicalScope>
     {
-        private readonly BinaryUInt32Map<JSVariable> scope;
+        private readonly UInt32Trie<JSVariable> scope;
 
         internal bool IsRoot = false;
 
         internal LexicalScope(string fileName, string function, int line, int column)
         {
-            this.scope = new BinaryUInt32Map<JSVariable>();
+            this.scope = new UInt32Trie<JSVariable>();
             FileName = fileName;
             Function = function;
             position = new Position(line, column);
-            Console.WriteLine($"{function}, {line}, {column}");
+            // Console.WriteLine($"{function}, {line}, {column}");
         }
 
         public string FileName;
@@ -45,7 +45,7 @@ namespace WebAtoms.CoreJS.Core
             set
             {
                 position = value;
-                Console.WriteLine($"{value.Line}, {value.Column}");
+                // Console.WriteLine($"{value.Line}, {value.Column}");
             }
         }
 

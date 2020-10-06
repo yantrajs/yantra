@@ -11,6 +11,21 @@ namespace WebAtoms.CoreJS.Extensions
 {
     public static class JSValueExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSValue NullIfTrue(JSValue value)
+        {
+            if (value.BooleanValue)
+                return null;
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSValue NullIfFalse(JSValue value)
+        {
+            if (!value.BooleanValue)
+                return null;
+            return value;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IEnumerable<(JSValue Key, JSValue Value)> 
@@ -21,28 +36,30 @@ namespace WebAtoms.CoreJS.Extensions
             var elements = @object.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues)
+                foreach (var (Key, Value) in elements.AllValues)
                 {
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!Value.IsEnumerable)
                             continue;
                     }
-                    yield return ( new JSNumber(p.Key), value.GetValue(p.Value));
+                    yield return ( new JSNumber(Key), value.GetValue(Value));
                 }
             }
 
             var ownProperties = @object.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
+                    var p = en.Current;
                     if (showEnumerableOnly)
                     {
-                        if (!p.Value.IsEnumerable)
+                        if (!p.IsEnumerable)
                             continue;
                     }
-                    yield return (p.Value.ToJSValue(), value.GetValue(p.Value));
+                    yield return (p.ToJSValue(), value.GetValue(p));
                 }
             }
 
@@ -63,23 +80,25 @@ namespace WebAtoms.CoreJS.Extensions
             var elements = @object.elements;
             if (elements != null)
             {
-                foreach (var p in elements.AllValues)
+                foreach (var (Key, Value) in elements.AllValues)
                 {
-                    yield return ((int)p.Key, KeyString.Empty, value.GetValue(p.Value));
+                    yield return ((int)Key, KeyString.Empty, value.GetValue(Value));
                 }
             }
 
             var ownProperties = @object.ownProperties;
             if (ownProperties != null)
             {
-                foreach (var p in ownProperties.AllValues())
+                var en = new PropertySequence.Enumerator(ownProperties);
+                while(en.MoveNext())
                 {
-                    yield return (-1, p.Value.key, value.GetValue(p.Value));
+                    var p = en.Current;
+                    yield return (-1, p.key, value.GetValue(p));
                 }
             }
         }
 
-        public static JSBooleanPrototype InstanceOf(this JSValue target, JSValue value)
+        public static JSBoolean InstanceOf(this JSValue target, JSValue value)
         {
             if (value.IsUndefined)
                 throw JSContext.Current.NewTypeError("Right side of instanceof is undefined");
@@ -89,31 +108,30 @@ namespace WebAtoms.CoreJS.Extensions
                 throw JSContext.Current.NewTypeError("Right side of instanceof is not an object");
             var p = target.prototypeChain;
             if (p == null)
-                return JSBooleanPrototype.False;
+                return JSBoolean.False;
             var c = p[KeyStrings.constructor];
             if (c.IsUndefined)
-                return JSBooleanPrototype.False;
+                return JSBoolean.False;
             if (c.StrictEquals(value).BooleanValue)
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             return c.InstanceOf(value);
         }
 
-        public static JSBooleanPrototype IsIn(this JSValue target, JSValue value)
+        public static JSBoolean IsIn(this JSValue target, JSValue value)
         {
-            //var target = this;
-            //while(target != null)
-            //{
-            //    target.prototypeChain 
-            //}
-            var tx = value as JSObject;
-            if (tx == null)
-                return JSBooleanPrototype.False;
-            foreach(var a in tx.GetAllKeys())
+            if (!(value is JSObject tx))
+                return JSBoolean.False;
+            var key = target.ToKey(false);
+            if (key.IsUInt)
             {
-                if (a.Equals(target).BooleanValue)
-                    return JSBooleanPrototype.True;
+                var p = tx.GetInternalProperty(key.Key);
+                if (p.IsEnumerable)
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            var p1 = tx.GetInternalProperty(key);
+            if (p1.IsEnumerable)
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         //public static JSValue InvokeMethod(this JSValue target, KeyString key, JSValue[] args)

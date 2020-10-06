@@ -8,9 +8,12 @@ namespace WebAtoms.CoreJS.Core.Runtime
     {
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] a)
+        public static JSValue Constructor(in Arguments a)
         {
-            throw new NotSupportedException();
+            var name = a.Get1();
+            if (name.IsUndefined)
+                return new JSSymbol("");
+            return new JSSymbol(name.ToString());
         }
 
     }

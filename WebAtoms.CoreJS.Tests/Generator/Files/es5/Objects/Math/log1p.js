@@ -1,0 +1,14 @@
+﻿assert(Number.isNaN(Math.log1p()));
+assert(Number.isNaN(Math.log1p(undefined)));
+assert.strictEqual(Math.log1p(null), 0);
+assert.strictEqual(Math.log1p(0), 0);
+assert.strictEqual(Math.log1p(""), 0);
+assert(Number.isNaN(Math.log1p("abcd")));
+assert.doubleEqual(Math.log1p("1.2"), 0.7884573603642702);
+assert.doubleEqual(Math.log1p(" 1.2"), 0.7884573603642702);
+assert.strictEqual(Math.log1p(-1), Number.NEGATIVE_INFINITY);
+assert.doubleEqual(Math.log1p("1"), 0.6931471805599453);
+assert.strictEqual(Math.log1p(Infinity), Infinity);
+assert(Number.isNaN(Math.log1p(-2)));
+assert.strictEqual(Math.log1p(-1), Number.NEGATIVE_INFINITY);
+assert.doubleEqual(Math.log1p(1), 0.6931471805599453);

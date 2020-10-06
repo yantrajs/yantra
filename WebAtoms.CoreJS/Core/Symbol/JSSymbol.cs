@@ -11,23 +11,20 @@ namespace WebAtoms.CoreJS.Core
     public class JSSymbol: JSValue
     {
 
+        private static int SymbolID = 1;
+
         internal readonly KeyString Key;
 
         public override bool BooleanValue => true;
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = true)
         {
             return Key;
         }
 
         public JSSymbol(string name) : base(JSContext.Current.ObjectPrototype)
         {
-            Key = KeyStrings.NewSymbol(name);
-        }
-
-        internal JSSymbol(KeyString k) : base(JSContext.Current.ObjectPrototype)
-        {
-            Key = k;
+            Key = KeyStrings.NewSymbol(name, (uint)Interlocked.Increment(ref SymbolID));
         }
 
         public override JSValue TypeOf()
@@ -42,11 +39,11 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (value == this)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override int GetHashCode()
@@ -54,24 +51,24 @@ namespace WebAtoms.CoreJS.Core
             return (int)Key.Key;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
-            var a = args.GetAt(0);
-            if (a.IsUndefined)
+            var f = a.Get1();
+            if (f.IsUndefined)
                 return new JSSymbol("");
             return new JSSymbol(a.ToString());
         }
 
-        public override JSValue CreateInstance(JSValue[] args)
+        public override JSValue CreateInstance(in Arguments a)
         {
             throw new NotSupportedException();
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (value == this)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         public override string ToString()
@@ -79,7 +76,7 @@ namespace WebAtoms.CoreJS.Core
             return Key.Value;
         }
 
-        internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();
+        internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
 
     }
 }

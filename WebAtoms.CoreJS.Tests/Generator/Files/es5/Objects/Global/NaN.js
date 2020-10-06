@@ -1,0 +1,1 @@
+﻿assert(Number.isNaN(NaN));

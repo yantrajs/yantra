@@ -7,13 +7,13 @@
     return m + b;
 };
 
-assert(a(1) === 3);
+assert.strictEqual(a(1),3);
 
 // top level hoisting
 var b = {
     c: 4
 };
-assert(cx() === 4);
+assert.strictEqual(cx(), 4);
 function cx() {
     return b.c;
 }
@@ -39,7 +39,7 @@ var t = function (t) {
     return t + 1;
 };
 
-assert(t(2) === 3);
+assert.strictEqual(t(2),3);
 function n() {
     var t = function (t) {
 
@@ -48,4 +48,4 @@ function n() {
     return t(3);
 }
 
-assert(n() === 5);
+assert.strictEqual(n(), 5);

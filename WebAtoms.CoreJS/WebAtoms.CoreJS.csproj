@@ -13,10 +13,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   
   <ItemGroup>
+    <Folder Include="Core\Array\Typed\" />
     <Folder Include="Emit\" />
   </ItemGroup>
   

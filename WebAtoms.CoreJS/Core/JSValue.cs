@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -16,6 +17,8 @@ namespace WebAtoms.CoreJS.Core {
         public virtual bool IsUndefined => false;
 
         public virtual bool IsNull => false;
+
+        internal virtual bool IsNullOrUndefined => false;
 
         public virtual bool IsNumber => false;
 
@@ -49,7 +52,9 @@ namespace WebAtoms.CoreJS.Core {
 
         public abstract JSValue TypeOf();
 
-        public virtual int IntValue => 0;
+        public virtual int IntValue => (int)this.DoubleValue;
+
+        public virtual long BigIntValue => (long)this.DoubleValue;
 
         internal JSObject prototypeChain;
 
@@ -98,7 +103,7 @@ namespace WebAtoms.CoreJS.Core {
             this.prototypeChain = prototype;
         }
 
-        internal abstract KeyString ToKey();
+        internal abstract KeyString ToKey(bool create = true);
 
         public virtual JSValue this[KeyString name]
         {
@@ -125,16 +130,33 @@ namespace WebAtoms.CoreJS.Core {
             set { }
         }
 
+        public virtual JSValue this[JSSymbol symbol]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return this.GetValue(prototypeChain.GetInternalProperty(symbol));
+            }
+            set { }
+        }
 
         public JSValue this[JSValue key]
         {
             get
             {
+                if (key is JSSymbol symbol)
+                    return this[symbol];
                 var k = key.ToKey();
                 return k.IsUInt ? this[k.Key] : this[k];
             }
             set
             {
+                if (key is JSSymbol symbol)
+                {
+                    this[symbol] = value;
+                    return;
+                }
                 var k = key.ToKey();
                 if (k.IsUInt)
                 {
@@ -147,73 +169,73 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
-        public abstract JSBooleanPrototype Equals(JSValue value);
+        public abstract JSBoolean Equals(JSValue value);
 
         internal static bool StaticEquals(JSValue left, JSValue right)
         {
             return left.Equals(right).BooleanValue;
         }
 
-        public abstract JSBooleanPrototype StrictEquals(JSValue value);
+        public abstract JSBoolean StrictEquals(JSValue value);
 
-        internal virtual JSBooleanPrototype Less(JSValue value)
+        internal virtual JSBoolean Less(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue < value.DoubleValue)
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) < 0)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
 
         }
-        internal virtual JSBooleanPrototype LessOrEqual(JSValue value)
+        internal virtual JSBoolean LessOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue <= value.DoubleValue)
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) <= 0)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
 
         }
 
-        internal virtual JSBooleanPrototype Greater(JSValue value)
+        internal virtual JSBoolean Greater(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue > value.DoubleValue)
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) > 0)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
 
         }
-        internal virtual JSBooleanPrototype GreaterOrEqual(JSValue value)
+        internal virtual JSBoolean GreaterOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined)) {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue >= value.DoubleValue)
-                        return JSBooleanPrototype.True;
+                        return JSBoolean.True;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) >= 0)
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
@@ -221,13 +243,18 @@ namespace WebAtoms.CoreJS.Core {
             yield break;
         }
 
+        internal virtual JSBoolean Is(JSValue value)
+        {
+            return object.ReferenceEquals(this, value) ? JSBoolean.True : JSBoolean.False;
+        }
 
-        public virtual JSValue CreateInstance(JSValue[] args)
+
+        public virtual JSValue CreateInstance(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
-        public abstract JSValue InvokeFunction(JSValue thisValue,params JSValue[] args);
+        public abstract JSValue InvokeFunction(in Arguments a);
 
         /// <summary>
         /// Warning do not use in concatenation
@@ -250,41 +277,41 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual string ToDetailString()
         {
-            return (InvokeMethod(KeyStrings.toString, JSArguments.Empty) as JSString)?.value;
+            return this.ToString();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(KeyString name,params JSValue[] args)
+        public virtual JSValue InvokeMethod(KeyString name, in Arguments a)
         {
             var fx = this[name];
             if (fx.IsUndefined)
-                throw new MethodAccessException($"Method {name} not found on {this}");
-            return fx.InvokeFunction(this, args);
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {this}");
+            return fx.InvokeFunction(a.OverrideThis(this));
         }
 
-        public JSValue InvokeMethod(uint name, params JSValue[] args)
+        public JSValue InvokeMethod(uint name, in Arguments a)
         {
             var fx = this[name];
             if (fx.IsUndefined)
-                throw new MethodAccessException($"Method {name} not found on {this}");
-            return fx.InvokeFunction(this, args);
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {this}");
+            return fx.InvokeFunction(a.OverrideThis(this));
         }
 
-        public JSValue InvokeMethod(JSValue name,params JSValue[] args)
+        public JSValue InvokeMethod(JSValue name, in Arguments a)
         {
             var key = name.ToKey();
             if (key.IsUInt)
-                return InvokeMethod(key.Key, args);
-            return InvokeMethod(key, args);
+                return InvokeMethod(key.Key, a);
+            return InvokeMethod(key, a);
         }
 
         public virtual JSValue Delete(KeyString key)
         {
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
         public virtual JSValue Delete(uint key)
         {
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
         public JSValue Delete(JSValue index)
@@ -298,10 +325,10 @@ namespace WebAtoms.CoreJS.Core {
         /// <summary>
         /// Returns Elements of an Array or an Iterable...
         /// </summary>
-        internal abstract IEnumerable<JSValue> AllElements { get; }
+        internal abstract IEnumerable<(uint index,JSValue value)> AllElements { get; }
 
 
-        internal JSValue InternalInvoke(object name,params JSValue[] args)
+        internal JSValue InternalInvoke(object name, in Arguments a)
         {
             JSValue fx = null;
             switch(name)
@@ -318,7 +345,7 @@ namespace WebAtoms.CoreJS.Core {
             }
             if (fx.IsUndefined)
                 throw JSContext.Current.NewTypeError($"Cannot invoke {name} of object as it is undefined");
-            return fx.InvokeFunction(this, args);
+            return fx.InvokeFunction(a.OverrideThis(this));
         }
 
         DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter)
@@ -326,5 +353,48 @@ namespace WebAtoms.CoreJS.Core {
             return new JSDynamicMetaData(parameter, this);
         }
 
+        internal virtual bool TryGetValue(uint i, out JSProperty value)
+        {
+            value = new JSProperty { };
+            return false;
+        }
+
+        internal virtual void MoveElements(int start, int to)
+        {
+
+        }
+
+        internal virtual bool TryRemove(uint i, out JSProperty p)
+        {
+            p = new JSProperty();
+            return false;
+        }
+
+        internal virtual IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator();
+        }
+
+        private struct ElementEnumerator : IEnumerator<JSValue>
+        {
+            public JSValue Current => throw new NotImplementedException();
+
+            object IEnumerator.Current => throw new NotImplementedException();
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return false;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

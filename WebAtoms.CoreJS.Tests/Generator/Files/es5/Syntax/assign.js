@@ -2,4 +2,4 @@
     b: 1
 };
 
-assert((a.b = 3) === 3);
+assert.strictEqual(3, (a.b = 3));

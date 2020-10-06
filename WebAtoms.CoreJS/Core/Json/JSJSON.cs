@@ -4,14 +4,16 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json;
 using System.Xml.Schema;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
+    public delegate JSValue JsonParserReceiver((string key, JSValue value) property);
+
     public class JSJSON: JSObject
     {
 
@@ -20,11 +22,16 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [Static("parse")]
-        public static JSValue Parse(JSValue t,params JSValue[] a)
+        public static JSValue Parse(in Arguments a)
         {
-            var first = a[0].ToString();
-
-            throw new NotSupportedException();
+            var (text, receiver) = a.Get2();
+            JsonParserReceiver r = null;
+            var t = a.This;
+            if (receiver is JSFunction function)
+            {
+                r = (p) => function.f( new Arguments(t, new JSString(p.key), p.value));
+            }
+            return JSJsonParser.Parse(text.ToString(), r);
 
         }
 
@@ -37,9 +44,9 @@ namespace WebAtoms.CoreJS.Core
 
 
         [Static("stringify")]
-        public static JSValue Stringify(JSValue t,params JSValue[] a)
+        public static JSValue Stringify(in Arguments a)
         {
-            var f = a[0];
+            var (f, r, pi) = a.Get3();
             if (f.IsUndefined)
                 return f;
             TextWriter sb = new StringWriter();
@@ -51,7 +58,6 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (a.Length > 2)
                 {
-                    var pi = a[2];
                     if (pi is JSNumber jn)
                     {
                         indent = new string(' ', pi.IntValue);
@@ -61,24 +67,23 @@ namespace WebAtoms.CoreJS.Core
                     }
                 }
 
-                var r = a[1];
-                if (r is JSFunctionStatic rf)
+                if (r is JSFunction rf)
                 {
                     replacer = (item) =>
-                     rf.f(item.target, item.key, item.value);
+                     rf.f(new Arguments(item.target, item.key, item.value));
                 } else if (r is JSArray ra)
                 {
 
-                    BinaryCharMap<int> map = null;
+                    StringTrie<int> map = null;
                     
                     replacer = (item) =>
                     {
                         if (map == null)
                         {
-                            map = new BinaryCharMap<int>();
-                            foreach (var ritem in ra.All)
+                            map = new StringTrie<int>();
+                            foreach (var ritem in ra.GetArrayElements(false))
                             {
-                                map[ritem.ToString()] = 1;
+                                map[ritem.value.ToString()] = 1;
                             }
                         }
                         if (map.TryGetValue(item.key.ToString(), out var a1))
@@ -120,7 +125,7 @@ namespace WebAtoms.CoreJS.Core
                 case JSUndefined _:
                     sb.Write("null");
                     return;
-                case JSBooleanPrototype b:
+                case JSBoolean b:
                     sb.Write(b._value ? "true" : "false");
                     return;
                 case JSNumber n:
@@ -129,7 +134,7 @@ namespace WebAtoms.CoreJS.Core
                 case JSString str:
                     QuoteString(str.value, sb);
                     return;
-                case JSFunctionStatic _:
+                case JSFunction _:
                     // do nothing if value is function...
                     sb.Write("null");
                     return;
@@ -140,7 +145,7 @@ namespace WebAtoms.CoreJS.Core
                         indent.Indent++;
                     }
                     bool f = true;
-                    foreach(var item in a.All)
+                    foreach(var item in a.GetArrayElements(true))
                     {
                         if (!f)
                         {
@@ -151,7 +156,7 @@ namespace WebAtoms.CoreJS.Core
                         {
                             sb.WriteLine();
                         }
-                        Stringify(sb, ToJson(item), replacer, indent);
+                        Stringify(sb, ToJson(item.value), replacer, indent);
                     }
                     if (indent != null)
                     {
@@ -170,24 +175,25 @@ namespace WebAtoms.CoreJS.Core
             bool first = true;
             // the only left type is JSObject...
             var obj = target as JSObject;
-            foreach(var p in obj.ownProperties.AllValues())
+            var pen = new PropertySequence.Enumerator(obj.ownProperties);
+            while(pen.MoveNext())
             {
-                var key = p.Key;
-                var value = p.Value;
-                if (value.key.IsSymbol || value.IsEmpty || !value.IsEnumerable)
+                var p = pen.Current;
+                var value = p;
+                if (value.IsEmpty || !value.IsEnumerable)
                     continue;
                 JSValue jsValue;
                 if (!value.IsValue)
                 {
                     if (value.get == null)
                         continue;
-                    jsValue = (value.get as JSFunctionStatic).f(target, JSArguments.Empty);
+                    jsValue = (value.get as JSFunction).f(new Arguments(target));
                 } else
                 {
                     jsValue = value.value;
                 }
 
-                if (jsValue.IsUndefined || jsValue is JSFunctionStatic)
+                if (jsValue.IsUndefined || jsValue is JSFunction)
                     continue;
 
                 jsValue = ToJson(jsValue);
@@ -236,10 +242,10 @@ namespace WebAtoms.CoreJS.Core
         {
             if (!(value is JSObject jobj))
                 return value;
-            var p = jobj.GetInternalProperty(JSObject.KeyToJSON);
+            var p = jobj.GetInternalProperty(KeyStrings.toJSON);
             if (p.IsEmpty)
                 return value;
-            return (jobj.GetValue(p) as JSFunctionStatic).f(value, JSArguments.Empty);
+            return (jobj.GetValue(p) as JSFunction).f(new Arguments(value));
         }
 
 

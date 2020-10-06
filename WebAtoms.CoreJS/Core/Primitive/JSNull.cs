@@ -29,7 +29,9 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool IsNull => true;
 
-        internal override KeyString ToKey()
+        internal override bool IsNullOrUndefined => true; 
+
+        internal override KeyString ToKey(bool create = false)
         {
             return KeyStrings.@null;
         }
@@ -41,12 +43,29 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue Delete(KeyString key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of null");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
         public override JSValue Delete(uint key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of null");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
+        }
+
+        public override JSValue this[KeyString name]
+        {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of null");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {name} of null");
+        }
+
+        public override JSValue this[uint key]
+        {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+        }
+
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            throw JSContext.Current.NewTypeError("null is not iterable");
         }
 
 
@@ -74,27 +93,27 @@ namespace WebAtoms.CoreJS.Core
         //    return new JSString("null" + value);
         //}
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (value.IsNull)
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (value.IsUndefined)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (value.IsNull)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException("null is not a function");
         }
 
-        internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();
+        internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
     }
 }

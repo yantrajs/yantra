@@ -7,4 +7,4 @@
 
 var me = Object.create(person);
 assert(me.printIntroduction);
-assert(typeof me.printIntroduction === "function");
+assert.strictEqual(typeof me.printIntroduction, "function");

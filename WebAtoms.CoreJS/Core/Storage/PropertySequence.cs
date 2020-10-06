@@ -1,13 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace WebAtoms.CoreJS.Core
 {
     public class PropertySequence
     {
 
-        private BinaryUInt32Map<int> map = new BinaryUInt32Map<int>();
+        public struct Enumerator
+        {
+            List<JSProperty>.Enumerator enumerator;
+            public Enumerator(PropertySequence ps)
+            {
+                this.enumerator = ps.properties.GetEnumerator();
+            }
+
+            public bool MoveNext()
+            {
+                while (this.enumerator.MoveNext())
+                {
+                    var current = this.enumerator.Current;
+                    if (current.Attributes == JSPropertyAttributes.Deleted)
+                        continue;
+                    return true;
+                }
+                return false;
+            }
+
+            public JSProperty Current => this.enumerator.Current;
+        }
+
+        private UInt32Trie<int> map = new CompactUInt32Trie<int>();
         private List<JSProperty> properties = new List<JSProperty>();
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()
@@ -31,9 +55,16 @@ namespace WebAtoms.CoreJS.Core
                 i++;
             }
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool HasKey (uint key)
+        {
+            return map.HasKey(key);
+        }
+
         public bool RemoveAt(uint key)
         {
-            if (map.TryGetValue(key, out var pkey))
+            if (map.TryRemove(key, out var pkey))
             {
                 // move all properties up...
                 properties[pkey] = new JSProperty { Attributes = JSPropertyAttributes.Deleted };

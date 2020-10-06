@@ -17,37 +17,34 @@ namespace WebAtoms.CoreJS.Core.Runtime
         }
 
         [Prototype("then")]
-        public static JSValue Then(JSValue t, JSValue[] a)
+        public static JSValue Then(in Arguments a)
         {
-            var p = t.ToPromise();
-            var f = a.GetAt(0);
-            if (!(f is JSFunctionStatic fx))
+            var p = a.This.ToPromise();
+            var f = a.Get1();
+            if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Then(fx.f);
-            return t;
+            return p.Then(fx.f, null);
         }
 
         [Prototype("catch")]
-        public static JSValue Catch(JSValue t, JSValue[] a)
+        public static JSValue Catch(in Arguments a)
         {
-            var p = t.ToPromise();
-            var f = a.GetAt(0);
-            if (!(f is JSFunctionStatic fx))
+            var p = a.This.ToPromise();
+            var f = a.Get1();
+            if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Catch(fx.f);
-            return t;
+            p.Then(null, fx.f);
+            return p;
         }
 
         [Prototype("finally")]
-        public static JSValue Finally(JSValue t, JSValue[] a)
+        public static JSValue Finally(in Arguments a)
         {
-            var p = t.ToPromise();
-            var f = a.GetAt(0);
-            if (!(f is JSFunctionStatic fx))
+            var p = a.This.ToPromise();
+            var f = a.Get1();
+            if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Then(fx.f);
-            p.Catch(fx.f);
-            return t;
+            return p.Then(fx.f, fx.f);
         }
     }
 }

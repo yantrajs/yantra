@@ -1,16 +1,19 @@
 ﻿using Esprima;
 using Esprima.Ast;
+using Microsoft.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.LinqExpressions;
 using WebAtoms.CoreJS.Parser;
 using WebAtoms.CoreJS.Utils;
-
+using static WebAtoms.CoreJS.FunctionScope;
 using Exp = System.Linq.Expressions.Expression;
 using ParameterExpression = System.Linq.Expressions.ParameterExpression;
 
@@ -21,31 +24,32 @@ namespace WebAtoms.CoreJS
     {
         public JSFunctionDelegate Method { get; }
 
-        private LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
+        readonly LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
         // private ParsedScript Code;
 
-        private string Code;
+        readonly string Code;
 
-        private ParameterExpression FileNameExpression;
+        readonly ParameterExpression FileNameExpression;
 
-        private Dictionary<string, ParameterExpression> keyStrings = new Dictionary<string, ParameterExpression>();
+        readonly Dictionary<string, ParameterExpression> keyStrings
+            = new Dictionary<string, ParameterExpression>();
 
         public Exp KeyOfName(string name)
         {
-            ParameterExpression pe;
-            if (keyStrings.TryGetValue(name, out pe))
+            if (keyStrings.TryGetValue(name, out ParameterExpression pe))
                 return pe;
             pe = Exp.Variable(typeof(KeyString), name);
             keyStrings.Add(name, pe);
             return pe;
         }
 
-        private static ConcurrentDictionary<string, JSFunctionDelegate> scripts = new ConcurrentDictionary<string, JSFunctionDelegate>();
+        static readonly ConcurrentDictionary<string, JSFunctionDelegate> scripts
+            = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        internal static JSFunctionDelegate Compile(string code, string location = null, string[] args = null)
+        internal static JSFunctionDelegate Compile(string code, string location = null, IList<string> args = null)
         {
             return scripts.GetOrAdd(code, (k) =>
             {
@@ -54,14 +58,30 @@ namespace WebAtoms.CoreJS
             });
         }
 
-        public static JSValue Evaluate(string code, string location = null)
+        public static JSValue EvaluateWithTasks(string code, string location = null)
         {
             var fx = Compile(code, location);
-            return fx(JSContext.Current, JSArguments.Empty);
+            var result = JSUndefined.Value;
+            var ctx = JSContext.Current;
+            AsyncPump.Run(() => {
+                result = fx(new Arguments(ctx));
+                return Task.CompletedTask;
+            });
+            return result;
         }
 
 
-        public CoreScript(string code, string location = null, string[] argsList = null)
+        public static JSValue Evaluate(string code, string location = null)
+        {
+            var fx = Compile(code, location);
+            var result = JSUndefined.Value;
+            var ctx = JSContext.Current;
+            result = fx(new Arguments(ctx));
+            return result;
+        }
+
+
+        public CoreScript(string code, string location = null, IList<string> argsList = null)
         {
             this.Code = code;
             location = location ?? "vm.js";
@@ -78,7 +98,7 @@ namespace WebAtoms.CoreJS
 
             // add top level...
 
-            using (var fx = this.scope.Push(new FunctionScope(null)))
+            using (var fx = this.scope.Push(new FunctionScope((IFunctionDeclaration)null)))
             {
                 var jScript = parser.ParseScript();
 
@@ -105,48 +125,36 @@ namespace WebAtoms.CoreJS
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
                     Exp.Assign(lScope, ExpHelper.LexicalScopeBuilder.NewScope(FileNameExpression,"",1,1)),
-                    Exp.Assign(argLength, Exp.ArrayLength(fx.ArgumentsExpression))
+                    Exp.Assign(argLength, ArgumentsBuilder.Length(fx.ArgumentsExpression))
                 };
 
-                if (argsList != null) {
+                if (argsList != null)
+                {
                     int i = 0;
-                    foreach (var arg in argsList) {
-                        var px = Exp.Parameter(typeof(JSVariable));
-                        var ve = JSVariable.ValueExpression(px);
-                        fx.AddVariable(arg, ve, px);
-                        sList.Add(Exp.Assign(px, 
-                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, argLength, i++, arg)));
+                    foreach (var arg in argsList)
+                    {
+
+                        // global arguments are set here for FunctionConstructor
+
+                        fx.CreateVariable(arg,
+                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, i++, arg));
                     }
                 }
 
                 var l = fx.ReturnLabel;
-                
+
                 var script = Visit(jScript);
 
-
-
-
-
-                foreach(var ks in keyStrings)
+                foreach (var ks in keyStrings)
                 {
                     var v = ks.Value;
                     vList.Add(v);
                     sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
                 }
 
-                foreach(var v in fx.Variables)
-                {
-                    vList.Add(v.Variable);
-                    if (v.Create)
-                    {
-                        // create...
-                        sList.Add(Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.New(v.Name)));
-                    }
-                    if (v.Init != null)
-                    {
-                        sList.Add(Exp.Assign(v.Expression, v.Init));
-                    }
-                }
+                vList.AddRange(fx.VariableParameters);
+                sList.AddRange(fx.InitList);
+
                 sList.Add(Exp.Return(l, script.ToJSValue()));
                 sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
 
@@ -156,7 +164,7 @@ namespace WebAtoms.CoreJS
                         ExpHelper.IDisposableBuilder.Dispose(lScope))
                 );
 
-                var lambda = Exp.Lambda<JSFunctionDelegate>(script, te, args);
+                var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
                 this.Method = lambda.Compile();
 
@@ -190,6 +198,7 @@ namespace WebAtoms.CoreJS
             var previousScope = this.scope.Top;
 
             // if this is an arrowFunction then override previous thisExperssion
+
             var previousThis = this.scope.Top.ThisExpression;
             if (!(functionDeclaration is ArrowFunctionExpression))
             {
@@ -198,7 +207,8 @@ namespace WebAtoms.CoreJS
 
             var functionName  = functionDeclaration.Id?.Name;
 
-            using (var cs = scope.Push(new FunctionScope(functionDeclaration)))
+
+            using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis)))
             {
                 var lexicalScopeVar = cs.Scope;
 
@@ -214,10 +224,6 @@ namespace WebAtoms.CoreJS
                 var s = cs;
                 // use this to create variables...
                 var t = s.ThisExpression;
-                if (previousThis!=null)
-                {
-                    s.ThisExpression = previousThis;
-                }
                 var args = s.ArgumentsExpression;
 
                 var r = s.ReturnLabel;
@@ -232,26 +238,19 @@ namespace WebAtoms.CoreJS
                 
 
                 var argumentElements = args;
-                var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
-                vList.Add(argumentElementsLength);
+                // var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
+                // vList.Add(argumentElementsLength);
 
-                sList.Add(Exp.Assign(argumentElementsLength, 
-                    Exp.Condition(
-                        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
-                            Exp.ArrayLength(argumentElements),
-                            Exp.Constant(0, typeof(int)))));
+                //sList.Add(Exp.Assign(argumentElementsLength, 
+                //    Exp.Condition(
+                //        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
+                //            Exp.ArrayLength(argumentElements),
+                //            Exp.Constant(0, typeof(int)))));
 
                 foreach (var v in pList)
                 {
-                    var var1 = Exp.Variable(typeof(Core.JSVariable), v.Name);
-                    var vf = JSVariable.ValueExpression(var1);
-
-                    vList.Add(var1);
-                    sList.Add(Exp.Assign(var1, 
-                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, argumentElementsLength, i, v.Name)));
-
-                    s.AddVariable(v.Name, vf);
-
+                    var v1 = s.CreateVariable(v.Name, 
+                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, v.Name));
                     i++;
                 }
 
@@ -264,10 +263,17 @@ namespace WebAtoms.CoreJS
                         {
                             continue;
                         }
-                        var fv = Exp.Variable(typeof(JSVariable), name);
-                        var fvf = JSVariable.ValueExpression(fv);
-                        s.AddVariable(name, fvf, fv);
-                        sList.Add(Exp.Assign(fv, JSVariableBuilder.New(name)));
+                        s.CreateVariable(name, JSVariableBuilder.New(name));
+                    }
+                    foreach(var vh in functionDeclaration.HoistingScope.VariableDeclarations)
+                    {
+                        foreach(var vd in vh.Declarations)
+                        {
+                            s.CreateVariable(vd.Id.As<Identifier>().Name,
+                                vd.Init == null
+                                ? null
+                                : VisitExpression(vd.Init), vh.Kind != VariableDeclarationKind.Var);
+                        }
                     }
                 }
 
@@ -284,19 +290,8 @@ namespace WebAtoms.CoreJS
                         throw new NotImplementedException();
                 }
 
-                // vList.AddRange(s.Variables.Select(x => x.Variable));
-                foreach(var v in s.Variables)
-                {
-                    vList.Add(v.Variable);
-                    if (v.Create)
-                    {
-                        sList.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(v.Name ?? "a")));
-                    }
-                    if (v.Init != null)
-                    {
-                        sList.Add(Exp.Assign(v.Expression, v.Init));
-                    }
-                }
+                vList.AddRange(s.VariableParameters);
+                sList.AddRange(s.InitList);
 
                 sList.Add(lambdaBody);
 
@@ -325,22 +320,26 @@ namespace WebAtoms.CoreJS
                         block,
                         ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
 
-                var lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, t, args);
+                var lambda = functionDeclaration.Generator 
+                    ? Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.Generator, cs.Arguments)
+                    : Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
 
 
                 // create new JSFunction instance...
-                var jfs = ExpHelper.JSFunctionBuilder.New(lambda, fxName, code);
+                var jfs = functionDeclaration.Generator 
+                    ? JSGeneratorFunctionBuilder.New(lambda, fxName, code)
+                    : JSFunctionBuilder.New(lambda, fxName, code);
 
                 if (!(functionDeclaration is Esprima.Ast.FunctionDeclaration))
                 {
                     if (jsFVarScope != null)
                     {
-                        jsFVarScope.Init = jfs;
+                        jsFVarScope.SetInit(jfs);
                         return jsFVarScope.Expression;
                     }
                     return jfs;
                 }
-                jsFVarScope.Init = jfs;
+                jsFVarScope.SetInit(jfs);
                 return jsFVarScope.Expression;
             }
         }
@@ -349,6 +348,7 @@ namespace WebAtoms.CoreJS
             where T: INode
             where TR: Exp
         {
+            // return exp();
             var s = this.scope.Top.Scope;
             var p = ast.Location.Start;
             try
@@ -356,9 +356,10 @@ namespace WebAtoms.CoreJS
                 return Exp.Block(
                     LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
                     exp());
-            }catch (Exception ex) when (!(ex is CompilerException))
+            }
+            catch (Exception ex) when (!(ex is CompilerException))
             {
-                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column} {ex}", ex);
             }
         }
 
@@ -396,32 +397,24 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        private List<(Exp variable, bool let, Exp init)> CreateVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
+        private List<VariableScope> CreateVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
         {
             // lets add variable...
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
-            var inits = new List<(Exp,bool, Exp)>();
-            bool let = variableDeclaration.Kind == VariableDeclarationKind.Let;
+            var inits = new List<VariableScope>();
+            bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
+                || variableDeclaration.Kind == VariableDeclarationKind.Const;
             foreach (var declarator in variableDeclaration.Declarations)
             {
                 
                 switch (declarator.Id)
                 {
                     case Esprima.Ast.Identifier id:
-                        var ve = Exp.Variable(typeof(JSVariable), id.Name);
-                        var vf = JSVariable.ValueExpression(ve);
-                        this.scope.Top.AddVariable(id.Name, vf, ve);
-                        // inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
-                        if (declarator.Init != null)
-                        {
-                            var init = VisitExpression(declarator.Init);
-                            inits.Add((vf, let, Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(init, id.Name))));
-                        }
-                        else
-                        {
-                            inits.Add((vf, let, Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(id.Name))));
-                        }
+                        var ve = this.scope.Top.CreateVariable(id.Name, declarator.Init != null
+                            ? ExpHelper.JSVariableBuilder.New(VisitExpression(declarator.Init), id.Name)
+                            : null, newScope);
+                        inits.Add(ve);
                         break;
                     default:
                         throw new NotSupportedException();
@@ -430,29 +423,157 @@ namespace WebAtoms.CoreJS
             return inits;
         }
 
+        private Exp CreateMemberExpression(Exp target, Expression property, bool computed)
+        {
+            switch (property)
+            {
+                case Identifier id:
+                    if (!computed)
+                    {
+                        return ExpHelper.JSValueBuilder.Index(
+                            target,
+                            KeyOfName(id.Name));
+                    }
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        VisitIdentifier(id));
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.BooleanLiteral:
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        l.BooleanValue ? (uint)0 : (uint)1);
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.StringLiteral:
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        KeyOfName(l.StringValue));
+                case Literal l
+                    when l.TokenType == Esprima.TokenType.NumericLiteral
+                        && l.NumericValue >= 0 && (l.NumericValue % 1 == 0):
+                    return ExpHelper.JSValueBuilder.Index(
+                        target,
+                        (uint)l.NumericValue);
+                case StaticMemberExpression se:
+                    return JSValueBuilder.Index(target, VisitExpression(se.Property));
+
+            }
+            if (computed)
+            {
+                return JSValueBuilder.Index(target, VisitExpression(property));
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private Exp CreateAssignment(IArrayPatternElement pattern, Exp init, bool createVariable = false) {
+            Exp target;
+            List<Exp> inits;
+            switch (pattern)
+            {
+                case Identifier id:
+                    if (createVariable)
+                    {
+                        var v = this.scope.Top.CreateVariable(id.Name);
+                        target = v.Expression;
+                    } else
+                    {
+                        target = this.VisitIdentifier(id);
+                    }
+                    return Exp.Assign(target, init);
+                case ObjectPattern objectPattern:
+                    inits = new List<Exp>();
+                    foreach(var prop in objectPattern.Properties)
+                    {
+                        Exp start = null;
+                        switch (prop)
+                        {
+                            case Property property:
+                                switch (property.Key)
+                                {
+                                    case Identifier id:
+                                        start = CreateMemberExpression(init, id, property.Computed);
+                                        break;
+                                    default:
+                                        throw new NotImplementedException();
+                                }
+                                switch(property.Value)
+                                {
+                                    case Identifier vid:
+                                        inits.Add(CreateAssignment(vid, start, true));
+                                        break;
+                                    case IArrayPatternElement vp:
+                                        inits.Add(CreateAssignment(vp, start, true));
+                                        break;
+                                    default:
+                                        throw new NotImplementedException();
+                                } 
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
+                    }
+                    return Exp.Block(inits);
+                case ArrayPattern arrayPattern:
+                    inits = new List<Exp>();
+                    int index = -1;
+                    foreach(var element in arrayPattern.Elements)
+                    {
+                        index++;
+                        Exp start = null;
+                        switch (element)
+                        {
+                            case Identifier id:
+                                start = JSValueBuilder.Index(init, (uint)index);
+                                inits.Add(CreateAssignment(id, start));
+                                break;
+                        }
+                    }
+                    return Exp.Block(inits);
+            }
+            throw new NotImplementedException();
+        }
+
+
         protected override Exp VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
         {
             // lets add variable...
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
             var inits = new List<Exp>();
-            foreach(var declarator in variableDeclaration.Declarations)
+            bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
+                || variableDeclaration.Kind == VariableDeclarationKind.Const;
+            VariableScope temp;
+
+            foreach (var declarator in variableDeclaration.Declarations)
             {
                 switch(declarator.Id)
                 {
                     case Esprima.Ast.Identifier id:
-                        var ve = Exp.Variable(typeof(JSVariable), id.Name);
-                        var vf = JSVariable.ValueExpression(ve);
-                        this.scope.Top.AddVariable(id.Name, vf, ve);
-                        // inits.Add(Exp.Assign(ve, Exp.New(typeof(JSVariable))));
+                        // variable might exist in current scope
+                        // do not create and just set a value here...
+                        var ve = this.scope.Top.CreateVariable(id.Name, null, newScope);
                         if (declarator.Init != null)
                         {
-                            var init = VisitExpression(declarator.Init);
-                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(init, id.Name) ));
+                            var init = ExpHelper.JSVariableBuilder.New(VisitExpression(declarator.Init), id.Name);
+                            inits.Add(Exp.Assign(ve.Variable, init));
                         } else
                         {
-                            inits.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.New(id.Name)));
+                            inits.Add(Exp.Assign(ve.Variable, JSVariableBuilder.New(id.Name)));
                         }
+                        break;
+                    case Esprima.Ast.ObjectPattern objectPattern:
+                        // it will always have an init...
+                        // put init in temp...
+                        temp = this.scope.Top.GetTempVariable();
+                        inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                        inits.Add(CreateAssignment(objectPattern, temp.Expression, true));
+                        break;
+                    case Esprima.Ast.ArrayPattern arrayPattern:
+                        // it will always have an init...
+                        // put init in temp...
+                        temp = this.scope.Top.GetTempVariable();
+                        inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                        inits.Add(CreateAssignment(arrayPattern, temp.Expression, true));
                         break;
                     default:
                         throw new NotSupportedException();
@@ -472,22 +593,13 @@ namespace WebAtoms.CoreJS
             if (cb != null)
             {
                 var id = cb.Param.As<Identifier>();
-                var pe = Exp.Parameter(typeof(Exception));
-                var ve = Exp.Variable(typeof(JSVariable));
-                var vf = JSVariable.ValueExpression(ve);
-                var keyName = KeyOfName(id.Name);
-                var catchStatements = new List<Exp>();
-
-                scope.Top.CreateVariable(id.Name, vf);
+                var pe = scope.Top.CreateException(id.Name);
+                var v = scope.Top.CreateVariable(id.Name);
                 
-                catchStatements.Add(Exp.Assign(ve, ExpHelper.JSVariableBuilder.NewFromException(pe, id.Name)));
-                catchStatements.Add(Exp.Assign(ExpHelper.LexicalScopeBuilder.Index(keyName), ve));
-                catchStatements.Add(VisitStatement(cb.Body));
-
-                var catchBlock = Exp.Block(new ParameterExpression[] { ve }, catchStatements);
-
-                var cbExp = Exp.Catch(pe, catchBlock.ToJSValue());
-
+                var catchBlock = Exp.Block(new ParameterExpression[] { v.Variable},
+                    Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.NewFromException(pe.Variable, id.Name)),
+                    VisitBlockStatement(cb.Body));
+                var cbExp = Exp.Catch(pe.Variable, catchBlock.ToJSValue());
 
 
                 if (tryStatement.Finalizer != null)
@@ -630,14 +742,13 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitExpression(Expression expression)
         {
-            var r = expression.Range;
-            var p = expression.Location.Start ;//  this.Code.Position(r);
+            var p = expression.Location.Start ;
             try
             {
                 return base.VisitExpression(expression);
             }catch (Exception ex) when (!(ex is CompilerException))
             {
-                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}", ex);
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}\r\n{ex}", ex);
             }
         }
 
@@ -647,43 +758,42 @@ namespace WebAtoms.CoreJS
             var continueTarget = Exp.Label();
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
-
-
-                var init = JSUndefinedBuilder.Value;
-                if (forStatement.Init != null)
+                return NewLexicalScope(new FunctionScope(this.scope.Top), forStatement, () =>
                 {
-
-                    switch (forStatement.Init)
+                    var init = JSUndefinedBuilder.Value;
+                    if (forStatement.Init != null)
                     {
-                        case VariableDeclaration vd:
-                            init = VisitVariableDeclaration(vd);
-                            break;
-                        case Expression exp:
-                            init = VisitExpression(exp);
-                            break;
-                        case Statement stmt:
-                            init = VisitStatement(stmt);
-                            break;
+                        switch (forStatement.Init)
+                        {
+                            case Expression exp:
+                                init = VisitExpression(exp);
+                                break;
+                            case Statement stmt:
+                                init = VisitStatement(stmt);
+                                break;
+                            default:
+                                throw new NotSupportedException();
+                        }
                     }
-                }
-                var list = new List<Exp>();
-                var body = VisitStatement(forStatement.Body);
-                var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
-                if (forStatement.Test != null)
-                {
-                    var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
+                    var list = new List<Exp>();
+                    var body = VisitStatement(forStatement.Body);
+                    var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
+                    if (forStatement.Test != null)
+                    {
+                        var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(forStatement.Test)));
 
-                    list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
-                }
-                list.Add(body);
-                if (update != null)
-                {
-                    list.Add(update);
-                }
-                return Exp.Block(init, Exp.Loop(
-                    Exp.Block(list),
-                    breakTarget,
-                    continueTarget));
+                        list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
+                    }
+                    list.Add(body);
+                    if (update != null)
+                    {
+                        list.Add(update);
+                    }
+                    return Exp.Block(init, Exp.Loop(
+                        Exp.Block(list),
+                        breakTarget,
+                        continueTarget));
+                });
             }
         }
 
@@ -693,51 +803,49 @@ namespace WebAtoms.CoreJS
             var continueTarget = Exp.Label();
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
+                return NewLexicalScope(new FunctionScope(this.scope.Top), forInStatement, () => {
 
-                var en = Exp.Variable(typeof(IEnumerator<JSValue>));
+                    var en = Exp.Variable(typeof(IEnumerator<JSValue>));
 
 
-                var pList = new List<ParameterExpression>() { 
-                    en
-                };
+                    var pList = new List<ParameterExpression>() {
+                        en
+                    };
 
-                var body = VisitStatement(forInStatement.Body);
+                    var body = VisitStatement(forInStatement.Body);
 
-                Exp identifier = null;
+                    Exp identifier = null;
 
-                var list = new List<Exp>();
-                switch (forInStatement.Left)
-                {
-                    case Identifier i:
-                        identifier = VisitIdentifier(i);
-                        break;
-                    case VariableDeclaration vd:
-                        var vdList = CreateVariableDeclaration(vd);
-                        identifier = vdList.First().variable;
-                        break;
-                }
+                    var list = new List<Exp>();
+                    switch (forInStatement.Left)
+                    {
+                        case Identifier i:
+                            identifier = VisitIdentifier(i);
+                            break;
+                        case VariableDeclaration vd:
+                            var vdList = CreateVariableDeclaration(vd);
+                            identifier = vdList.First().Expression;
+                            break;
+                    }
 
-                //IEnumerable<JSValue> v = null;
-                //var en = v.GetEnumerator();
-                //en.MoveNext()
+                    var sList = new List<Exp>
+                    {
+                        Exp.IfThen(Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)),
+                        Exp.Assign(identifier, EnumerableBuilder.Current(en)),
+                        // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
+                        body
+                    };
 
-                var sList = new List<Exp>();
+                    var bodyList = Exp.Block(sList);
 
-                sList.Add(Exp.IfThen( Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)));
-                sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
-                // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
-                sList.Add(body);
-
-                var bodyList = Exp.Block(sList);
-
-                var right = VisitExpression(forInStatement.Right);
-                return Exp.Block(
-                    pList,
-                    Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
-                    Exp.Loop(bodyList, s.Break, s.Continue)
-                    );
+                    var right = VisitExpression(forInStatement.Right);
+                    return Exp.Block(
+                        pList,
+                        Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
+                        Exp.Loop(bodyList, s.Break, s.Continue)
+                        );
+                });
             }
-            throw new NotImplementedException();
         }
 
         protected override Exp VisitDoWhileStatement(Esprima.Ast.DoWhileStatement doWhileStatement)
@@ -788,6 +896,11 @@ namespace WebAtoms.CoreJS
                 case UnaryOperator.Plus:
                     return ExpHelper.JSNumberBuilder.New(Exp.UnaryPlus(DoubleValue(target)));
                 case UnaryOperator.Minus:
+                    switch(target)
+                    {
+                        case Literal l when l.TokenType == TokenType.NumericLiteral:
+                            return JSNumberBuilder.New(Exp.Constant(-l.NumericValue));
+                    }
                     return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
                 case UnaryOperator.BitwiseNot:
                     return ExpHelper.JSNumberBuilder.New(Exp.Not( Exp.Convert(DoubleValue(target),typeof(int))));
@@ -796,11 +909,10 @@ namespace WebAtoms.CoreJS
                 case UnaryOperator.Delete:
                     // delete expression...
                     var me = target as Esprima.Ast.MemberExpression;
-                    Exp pe = null;
                     var targetObj = VisitExpression(me.Object);
                     if (me.Computed)
                     {
-                        pe = VisitExpression(me.Property);
+                        Exp pe = VisitExpression(me.Property);
                         return JSValueBuilder.Delete(targetObj, pe);
                     } else
                     {
@@ -873,12 +985,6 @@ namespace WebAtoms.CoreJS
             return Exp.Block(list);
         }
 
-        class ExpressionHolder
-        {
-            public Exp Value;
-            public Exp Getter;
-            public Exp Setter;
-        }
 
         protected override Exp VisitObjectExpression(Esprima.Ast.ObjectExpression objectExpression)
         {
@@ -896,9 +1002,12 @@ namespace WebAtoms.CoreJS
                         key = KeyOfName(id.Name);
                         name = id.Name;
                         break;
-                    case Literal l:
+                    case Literal l when l.TokenType == TokenType.StringLiteral:
                         key = KeyOfName(l.StringValue);
                         name = l.StringValue;
+                        break;
+                    case Literal l when l.TokenType == TokenType.NumericLiteral:
+                        key = Exp.Constant((uint)l.NumericValue);
                         break;
                     default:
                         throw new NotSupportedException();
@@ -913,10 +1022,13 @@ namespace WebAtoms.CoreJS
                 }
                 if (p.Kind == PropertyKind.Get || p.Kind == PropertyKind.Set)
                 {
-                    ExpressionHolder m = null;
-                    if (!properties.TryGetValue(name, out m))
+                    if (!properties.TryGetValue(name, out var m))
                     {
-                        m = new ExpressionHolder { };
+                        m = new ExpressionHolder {
+                            Key = key,
+                            Getter = Exp.Constant(null, typeof(JSFunction)),
+                            Setter = Exp.Constant(null, typeof(JSFunction))
+                        };
                         properties[name] = m;
                         keys.Add(m);
                     }
@@ -928,24 +1040,28 @@ namespace WebAtoms.CoreJS
                     {
                         m.Setter = value;
                     }
-                    m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter, m.Setter);
+                    // m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter, m.Setter);
                     continue;
                 }
                 else
                 {
-                    value = ExpHelper.JSPropertyBuilder.Value(key, value);
+                    // value = ExpHelper.JSPropertyBuilder.Value(key, value);
+                    keys.Add(new ExpressionHolder { 
+                        Key = key,
+                        Value = value
+                    });
                 }
-                keys.Add(new ExpressionHolder { Value = value });
+                // keys.Add(new ExpressionHolder { Value = value });
             }
 
-            return ExpHelper.JSObjectBuilder.New(keys.Select((x) => (x.Value)));
+            return ExpHelper.JSObjectBuilder.New(keys);
         }
 
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)
         {
             var constructor = VisitExpression(newExpression.Callee);
             var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e)).ToList();
-            var pe = ExpHelper.JSArgumentsBuilder.New(args);
+            var pe = ArgumentsBuilder.New( JSUndefinedBuilder.Value, args);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
 
@@ -962,7 +1078,7 @@ namespace WebAtoms.CoreJS
                     }
                     return ExpHelper.JSValueBuilder.Index(
                         VisitExpression(memberExpression.Object),
-                        KeyOfName(id.Name));
+                        VisitIdentifier(id));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.BooleanLiteral:
                     return ExpHelper.JSValueBuilder.Index(
@@ -1033,6 +1149,14 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitIdentifier(Esprima.Ast.Identifier identifier)
         {
             // if this is null, fetch from global...
+            if (identifier.Name == "arguments")
+            {
+                var functionScope = this.scope.Top.TopScope;
+                var vs = functionScope.CreateVariable("arguments",
+                    JSArgumentsBuilder.New(functionScope.ArgumentsExpression));
+                return vs.Expression;
+            }
+
             var local = this.scope.Top[identifier.Name];
             if (local != null)
                 return local;
@@ -1119,7 +1243,11 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitYieldExpression(Esprima.Ast.YieldExpression yieldExpression)
         {
-            throw new NotImplementedException();
+            if (yieldExpression.Delegate)
+            {
+                return JSGeneratorBuilder.Delegate(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
+            }
+            return JSGeneratorBuilder.Yield(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
         }
 
         protected override Exp VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)
@@ -1154,6 +1282,13 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitAssignmentPattern(Esprima.Ast.AssignmentPattern assignmentPattern)
         {
+            switch (assignmentPattern.Left)
+            {
+                case ObjectPattern objectPattern:
+                    return CreateAssignment(objectPattern, VisitExpression(assignmentPattern.Right as Expression ));
+                case ArrayPattern arrayPattern:
+                    return CreateAssignment(arrayPattern, VisitExpression(assignmentPattern.Right as Expression));
+            }
             throw new NotImplementedException();
         }
 
@@ -1169,7 +1304,12 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitTemplateLiteral(Esprima.Ast.TemplateLiteral templateLiteral)
         {
-            throw new NotImplementedException();
+            var quasis = new List<string>();
+            foreach(var quasi in templateLiteral.Quasis)
+            {
+                quasis.Add(quasi.Value.Raw);
+            }
+            return JSTemplateStringBuilder.New(quasis, templateLiteral.Expressions.Select(x => VisitExpression(x)));
         }
 
         protected override Exp VisitTemplateElement(Esprima.Ast.TemplateElement templateElement)
@@ -1208,9 +1348,6 @@ namespace WebAtoms.CoreJS
             var calle = callExpression.Callee;
             var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e)).ToList();
             
-            var paramArray = args.Any()
-                ? ExpHelper.JSArgumentsBuilder.New(args)
-                : ExpHelper.JSArgumentsBuilder.Empty();
             if (calle is Esprima.Ast.MemberExpression me)
             {
                 // invoke method...
@@ -1239,12 +1376,18 @@ namespace WebAtoms.CoreJS
 
 
                 // var name = KeyOfName(id.Name);
+                var paramArray = args.Any()
+                    ? ArgumentsBuilder.New(obj, args)
+                    : ArgumentsBuilder.Empty();
 
                 return JSValueBuilder.InvokeMethod(obj, name, paramArray);
 
             } else {
-                var a = ExpHelper.JSNullBuilder.Value;
-                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(VisitExpression(callExpression.Callee), a, paramArray));
+                var paramArray = args.Any()
+                    ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args)
+                    : ArgumentsBuilder.Empty();
+                var callee = VisitExpression(callExpression.Callee);
+                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(callee, paramArray));
             }
         }
 
@@ -1272,7 +1415,7 @@ namespace WebAtoms.CoreJS
                         list.Add(VisitExpression(exp));
                         break;
                     case null:
-                        list.Add(JSUndefinedBuilder.Value);
+                        list.Add(Exp.Constant(null, typeof(JSValue)));
                         break;
                     default:
                         throw new NotImplementedException();
@@ -1307,15 +1450,39 @@ namespace WebAtoms.CoreJS
             return Exp.Break(ls.Break);
         }
 
+        private Exp NewLexicalScope(FunctionScope fnScope, Node exp, Func<Exp> factory)
+        {
+            using(var scope = this.scope.Push(fnScope))
+            {
+                var position = exp.Location.Start;
+
+                // collect variables...
+                var vList = new List<ParameterExpression>() { scope.Scope };
+
+                var visited = factory();
+
+                vList.AddRange(scope.VariableParameters);
+
+                return Exp.Block(vList, Exp.TryFinally(
+                    Exp.Block(
+                        Exp.Assign(scope.Scope, 
+                            ExpHelper.LexicalScopeBuilder.NewScope(
+                                FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column)),
+                        visited
+                        ).ToJSValue()
+                    , IDisposableBuilder.Dispose(scope.Scope)));
+            }
+        }
+
+        private Exp VisitStatements(in NodeList<IStatementListItem> body)
+        {
+            return Exp.Block(body.Select(x => VisitStatement((Statement)x)));
+        }
+
         protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
         {
-            var visitedList = blockStatement.Body.Select(a => VisitStatement((Statement)a)).ToList();
-
-            if (visitedList.Any())
-            {
-                return Exp.Block(visitedList);
-            }
-            return JSUndefinedBuilder.Value;
+            return this.NewLexicalScope(new FunctionScope(this.scope.Top), 
+                blockStatement , () => VisitStatements(blockStatement.Body));
         }
 
         private Exp CreateBlock(in NodeList<IStatementListItem> body) {
@@ -1325,9 +1492,7 @@ namespace WebAtoms.CoreJS
                 if (stmt is FunctionDeclaration fx && !string.IsNullOrEmpty(fx.Id?.Name))
                 {
                     var name = fx.Id.Name;
-                    var v = Exp.Variable(typeof(JSVariable), name);
-                    var vf = JSVariable.ValueExpression(v);
-                    this.scope.Top.CreateVariable(name, vf, v);
+                    this.scope.Top.CreateVariable(name);
                 }
                 items.Add(stmt);
             }
@@ -1341,4 +1506,13 @@ namespace WebAtoms.CoreJS
             return JSUndefinedBuilder.Value;
         }
     }
+
+    public class ExpressionHolder
+    {
+        public Exp Key;
+        public Exp Value;
+        public Exp Getter;
+        public Exp Setter;
+    }
+
 }

@@ -5,14 +5,14 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSBooleanPrototype
+    public partial class JSBoolean
     {
 
         [Constructor]
-        public static JSValue Constructor(JSValue t, JSValue[] args)
+        public static JSValue Constructor(in Arguments a)
         {
-            var first = args.GetAt(0);
-            return first.BooleanValue ? JSBooleanPrototype.True : JSBooleanPrototype.False;
+            var first = a.Get1();
+            return first.BooleanValue ? JSBoolean.True : JSBoolean.False;
         }
 
     }

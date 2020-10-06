@@ -1,0 +1,11 @@
+﻿assert(Number.isNaN(Math.atanh()));
+assert(Number.isNaN(Math.atanh(undefined)));
+assert.strictEqual(Math.atanh(null), 0);
+assert.strictEqual(Math.atanh(0), 0);
+assert.strictEqual(Math.atanh(""), 0);
+assert(isNaN(Math.atanh("abcd")));
+assert(isNaN(Math.atanh("1.2")));
+assert(isNaN(Math.atanh(" 1.2")));
+assert.strictEqual(Math.atanh(-1), Number.NEGATIVE_INFINITY);
+assert.doubleEqual(Math.atanh(0.5), 0.5493061443340549);
+assert.strictEqual(Math.atanh(1), Number.POSITIVE_INFINITY);

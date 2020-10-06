@@ -7,189 +7,145 @@ using System.Threading;
 
 namespace WebAtoms.CoreJS.Core
 {
-
-    public struct KeyString
-    {
-
-        public readonly static KeyString Empty = new KeyString();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator KeyString(string value)
-        {
-            return KeyStrings.GetOrCreate(value);
-        }
-
-        public readonly string Value;
-        public readonly uint Key;
-        public readonly JSSymbol Symbol;
-        public readonly JSString String;
-
-        public bool IsSymbol
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return Symbol != null;
-            }
-        }
-
-        public bool IsString
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return String != null;
-            }
-        }
-
-        public bool IsUInt
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return Value == null;
-            }
-        }
-
-        internal KeyString(string value, uint key)
-        {
-            this.Value = value;
-            this.Key = key;
-            this.String = null;
-            this.Symbol = null;
-        }
-
-
-        internal KeyString(string value, uint key, JSString @string)
-        {
-            this.Value = value;
-            this.Key = key;
-            this.String = @string;
-            this.Symbol = null;
-        }
-
-        internal KeyString(string value, uint key, JSSymbol symbol)
-        {
-            this.Value = value;
-            this.Key = key;
-            this.Symbol = symbol;
-            this.String = null;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is KeyString k)
-                return Key == k.Key;
-            if (obj is string sv)
-                return Value == sv;
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)Key;
-        }
-
-        public override string ToString()
-        {
-            return Value;
-        }
-
-        public JSValue ToJSValue()
-        {
-            if (Symbol != null)
-                return Symbol;
-            if (String != null)
-                return String;
-            return new JSString(Value, this);
-        }
-
-        public static (int size, int total, int next) Total =>
-            KeyStrings.Total;
-
-    }
-
+    /// <summary>
+    /// KeyStrings is a collection of frequently used string, KeyString is created with
+    /// a unique numeric ID, which can be used as a key to store key value pair in Object.
+    /// 
+    /// UInt32 has only 4 bytes, and using it as key will reduce storage in binary map. 
+    /// 
+    /// Compiler will create KeyStrings of all referenced keys in the script if they are not part of
+    /// this class.
+    /// 
+    /// KeyString created with same string will always save.
+    /// </summary>
     internal static class KeyStrings
     {
-        public readonly static KeyString Number;
-        public readonly static KeyString Object;
-        public readonly static KeyString String;
-        public readonly static KeyString Array;
-        public readonly static KeyString Function;
-        public readonly static KeyString Boolean;
-        public readonly static KeyString Math;
-        public readonly static KeyString JSON;
-        public readonly static KeyString Date;
-        public readonly static KeyString Symbol;
-        public readonly static KeyString Promise;
-        public readonly static KeyString Map;
-        public readonly static KeyString toString;
-        public readonly static KeyString valueOf;
-        public readonly static KeyString name;
+        public readonly static KeyString __proto__;
         public readonly static KeyString length;
-        public readonly static KeyString prototype;
-        public readonly static KeyString constructor;
-        public readonly static KeyString configurable;
-        public readonly static KeyString enumerable;
-        public readonly static KeyString @readonly;
+
+        public readonly static KeyString Number;
+
+        public readonly static KeyString BigInt;
+
+        public readonly static KeyString Object;
+        public readonly static KeyString toString;
+
+        public readonly static KeyString String;
+        public readonly static KeyString substring;
+
+        public readonly static KeyString Array;
+
+        public readonly static KeyString Function;
         public readonly static KeyString apply;
         public readonly static KeyString call;
         public readonly static KeyString bind;
+
+        public readonly static KeyString Boolean;
+        public readonly static KeyString Math;
+        public readonly static KeyString Date;
+        public readonly static KeyString Symbol;
+
+        public readonly static KeyString Promise;
+        public readonly static KeyString then;
+        public readonly static KeyString @catch;
+
+        public readonly static KeyString JSON;
+        public readonly static KeyString parse;
+        public readonly static KeyString stringify;
+        public readonly static KeyString toJSON;
+
+
+        public readonly static KeyString RegExp;
+        public readonly static KeyString test;
+        public readonly static KeyString lastIndex;
+
+        public readonly static KeyString Error;
+        public readonly static KeyString message;
+        public readonly static KeyString stack;
+        public readonly static KeyString RangeError;
+        public readonly static KeyString SyntaxError;
+        public readonly static KeyString TypeError;
+        public readonly static KeyString URIError;
+
+        public readonly static KeyString Map;
+        public readonly static KeyString Set;
+        public readonly static KeyString WeakRef;
+        public readonly static KeyString WeakMap; 
+        public readonly static KeyString WeakSet;
+        public readonly static KeyString valueOf;
+        public readonly static KeyString name;
+        public readonly static KeyString prototype;
+        public readonly static KeyString constructor;
+        
+        public readonly static KeyString configurable;
+        public readonly static KeyString enumerable;
+        public readonly static KeyString @readonly;
+        public readonly static KeyString writable;
+
+        public readonly static KeyString @assert;
+        
         public readonly static KeyString native;
         public readonly static KeyString value;
+        public readonly static KeyString done;
         public readonly static KeyString get;
         public readonly static KeyString set;
-        public readonly static KeyString __proto__;
         public readonly static KeyString undefined;
         public readonly static KeyString NaN;
         public readonly static KeyString @null;
 
+        public readonly static KeyString @global;
+
+        public readonly static KeyString Module;
+        public readonly static KeyString module;
+
+        public readonly static KeyString Generator;
+        public readonly static KeyString next;
+
+
+        // global methods...
+        public readonly static KeyString eval;
+        public readonly static KeyString encodeURI;
+        public readonly static KeyString encodeURIComponent;
+        public readonly static KeyString decodeURI;
+        public readonly static KeyString decodeURIComponent;
+
+        public readonly static KeyString isFinite;
+        public readonly static KeyString isNaN;
+        public readonly static KeyString parseFloat;
+        public readonly static KeyString parseInt;
+
+        public readonly static KeyString arguments;
+
+        public readonly static KeyString Infinity;
+
+
+        public readonly static KeyString console;
+        public readonly static KeyString log;
+
+
         static KeyStrings()
         {
-
-            KeyString Create(string key)
+            lock (map)
             {
-                var i = NextID++;
-                var js = new KeyString(key, (uint)i);
-                map.Save(key, js);
-                return js;
+                KeyString Create(string key)
+                {
+                    var i = NextID++;
+                    var js = new KeyString(key, (uint)i);
+                    map.Save(key, js);
+                    return js;
+                }
+                var t = typeof(KeyString);
+                foreach (var f in typeof(KeyStrings)
+                    .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
+                {
+                    if (f.FieldType != t)
+                        continue;
+                    f.SetValue(null, Create(f.Name));
+                }
             }
-
-            toString = Create("toString");
-            name = Create("name");
-            constructor = Create("constructor");
-            prototype = Create("prototype");
-            __proto__ = Create("__proto__");
-            Number = Create("Number");
-            Object = Create("Object");
-            String = Create("String");
-            Array = Create("Array");
-            Function = Create("Function");
-            length = Create("length");
-            apply = Create("apply");
-            call = Create("call");
-            bind = Create("bind");
-            native = Create("native");
-            Boolean = Create("Boolean");
-            value = Create("value");
-            valueOf = Create("valueOf");
-            get = Create("get");
-            set = Create("set");
-            Date = Create("Date");
-            Map = Create("Map");
-            Symbol = Create("Symbol");
-            Promise = Create("Promise");
-            configurable = Create("configurable");
-            enumerable = Create("enumerable");
-            @readonly = Create("readonly");
-            undefined = Create("undefined");
-            NaN = Create("NaN");
-            @null = Create("null");
-            Math = Create("Math");
-            JSON = Create("JSON");
         }
 
-        private static BinaryCharMap<KeyString> map = new BinaryCharMap<KeyString>();
+        private static ConcurrentStringTrie<KeyString> map = new ConcurrentStringTrie<KeyString>();
 
         private static int NextID = 1;
 
@@ -199,7 +155,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static KeyString GetOrCreate(string key)
         {
-            lock(map) return map.GetOrCreate(key, () =>
+            return map.GetOrCreate(key, () =>
             {
                 var i = (uint)Interlocked.Increment(ref NextID);
                 return new KeyString(key, i);
@@ -207,9 +163,15 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString NewSymbol(string name)
+        public static bool TryGet(string key, out KeyString ks)
         {
-            return new KeyString($"Symbol({name})", (uint)Interlocked.Increment(ref NextID));
+            return map.TryGetValue(key, out ks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static KeyString NewSymbol(string name, uint id)
+        {
+            return new KeyString($"Symbol({name})", id);
         }
 
     }

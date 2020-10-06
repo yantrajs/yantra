@@ -1,0 +1,12 @@
+﻿assert(Number.isNaN(Math.sinh()));
+assert(Number.isNaN(Math.sinh(undefined)));
+assert.strictEqual(Math.sinh(null), 0);
+assert.strictEqual(Math.sinh(0), 0);
+assert.strictEqual(Math.sinh(""), 0);
+assert(isNaN(Math.sinh("abcd")));
+assert.doubleEqual(Math.sinh("1.2"), 1.5094613554121725);
+assert.doubleEqual(Math.sinh(" 1.2"), 1.5094613554121725);
+assert.strictEqual(Math.sinh(Infinity), Infinity);
+assert.doubleEqual(Math.sinh(1), 1.1752011936438014);
+assert.doubleEqual(Math.sinh(-1), -1.1752011936438014);
+assert.doubleEqual(Math.sinh(2), 3.626860407847019);

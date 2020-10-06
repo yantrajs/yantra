@@ -1,0 +1,10 @@
+﻿assert(Number.isNaN(Math.asin()));
+assert(Number.isNaN(Math.asin(undefined)));
+assert.strictEqual(Math.asin(null), 0);
+assert.strictEqual(Math.asin(0), 0);
+assert.strictEqual(Math.asin(""), 0);
+assert(isNaN(Math.asin("abcd")));
+assert(isNaN(Math.asin("1.2")));
+assert(isNaN(Math.asin(" 1.2")));
+assert.strictEqual(Math.asin(6 / 10), 0.6435011087932844);
+assert(isNaN(Math.asin(5/3)));

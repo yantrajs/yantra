@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
@@ -11,6 +12,9 @@ namespace WebAtoms.CoreJS.Core
     [JSRuntime(typeof(JSStringStatic), typeof(JSStringPrototype))]
     public partial class JSString : JSPrimitive
     {
+
+        internal static JSString Empty = new JSString(string.Empty);
+
         internal readonly string value;
         KeyString _keyString = new KeyString(null,0);
 
@@ -18,8 +22,18 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool BooleanValue => value.Length > 0;
 
-        internal override KeyString ToKey()
+        public override long BigIntValue => long.TryParse(value, out var n) ? n : 0;
+
+        public override bool IsString => true;
+
+        internal override KeyString ToKey(bool create = true)
         {
+            if (!create)
+            {
+                if(!KeyStrings.TryGet(this.value, out _keyString))
+                    return KeyStrings.undefined;
+                return _keyString;
+            }
             return _keyString.Value != null
                 ? _keyString
                 : (_keyString = KeyStrings.GetOrCreate(this.value));
@@ -80,42 +94,83 @@ namespace WebAtoms.CoreJS.Core
             return base.Equals(obj);
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             switch (value)
             {
                 case JSString strValue
                     when ((this.value == strValue.value)
                     || (this.DoubleValue == value.DoubleValue)):
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
                 case JSNumber number
                     when ((this.DoubleValue == number.value)
                         || (this.value.CompareTo(number.value.ToString()) == 0)):
-                    return JSBooleanPrototype.True;
-                case JSBooleanPrototype boolean
+                    return JSBoolean.True;
+                case JSBoolean boolean
                     when (this.DoubleValue == (boolean._value ? 1D : 0D)):
-                    return JSBooleanPrototype.True;
+                    return JSBoolean.True;
             }
-            return JSBooleanPrototype.False;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (value is JSString s)
                 if (s.value == this.value)
-                    return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                    return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException($"\"{value}\" is not a function");
         }
 
+        internal override JSBoolean Is(JSValue value)
+        {
+            if (value is JSString @string && this.value == @string.value)
+                return JSBoolean.True;
+            return JSBoolean.False;
+
+        }
+
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            return new ElementEnumerator(this.value.GetEnumerator());
+        }
+
+        private struct ElementEnumerator : IEnumerator<JSValue>
+        {
+
+            readonly CharEnumerator en;
+            public ElementEnumerator(CharEnumerator en)
+            {
+                this.en = en;
+            }
+
+            public JSValue Current => new JSString(new string(en.Current,1));
+
+            object IEnumerator.Current => new JSString(new string(en.Current, 1));
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+                return en.MoveNext();
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
 
     }
 }

@@ -15,59 +15,48 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Static("from")]
-        public static JSValue StaticFrom(JSValue t, params JSValue[] a)
+        public static JSValue StaticFrom(in Arguments a)
         {
             var r = new JSArray();
-            var f = a.GetAt(0);
-            var map = a.GetAt(1);
-            if (f.IsUndefined)
-                throw JSContext.Current.NewError("undefined is not iterable");
-            if (f.IsNull)
-                throw JSContext.Current.NewError("null is not iterable");
-            switch (f)
+            var (f, map) = a.Get2();
+            var t = a.This;
+            var en = f.GetElementEnumerator();
+            uint length = 0;
+            var elements = r.elements;
+
+            if (map is JSFunction fx)
             {
-                case JSString str:
-                    foreach (var ch in str.value)
-                    {
-                        JSValue item = new JSString(new string(ch, 1));
-                        if (map is JSFunctionStatic fn)
-                        {
-                            item = fn.InvokeFunction(t, item);
-                        }
-                        r.elements[r._length++] = JSProperty.Property(item);
-                    }
-                    return r;
-                case JSArray array:
-                    foreach (var ch in array.elements.AllValues)
-                    {
-                        JSValue item = ch.Value.value;
-                        if (map is JSFunctionStatic fn)
-                        {
-                            item = fn.InvokeFunction(t, item);
-                        }
-                        r.elements[r._length++] = JSProperty.Property(item);
-                    }
-                    return r;
+                var cb = fx.f;
+                while (en.MoveNext())
+                {
+                    elements[length++] = JSProperty.Property(cb(new Arguments(t, en.Current)));
+                }
             }
+            else
+            {
+                while (en.MoveNext())
+                {
+                    elements[length++] = JSProperty.Property(en.Current);
+                }
+            }
+            r._length = length;
             return r;
         }
 
         [Static("isArray")]
-        public static JSValue StaticIsArray(JSValue t, params JSValue[] a)
+        public static JSValue StaticIsArray(in Arguments a)
         {
-            return a.GetAt(0) is JSArray ? JSBooleanPrototype.True : JSBooleanPrototype.False;
+            return a.Get1() is JSArray ? JSBoolean.True : JSBoolean.False;
         }
 
         [Static("of")]
-        public static JSValue StaticOf(JSValue t, params JSValue[] a)
+        public static JSValue StaticOf(in Arguments a)
         {
             var r = new JSArray();
-            if (a != null)
+            var al = a.Length;
+            for(var ai = 0; ai<al; ai++)
             {
-                foreach (var e in a)
-                {
-                    r.elements[r._length++] = JSProperty.Property(e);
-                }
+                r.elements[r._length++] = JSProperty.Property(a.GetAt(ai));
             }
             return r;
         }

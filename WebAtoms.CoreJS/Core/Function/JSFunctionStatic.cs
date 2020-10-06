@@ -5,21 +5,33 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public partial class JSFunctionStatic
+    public partial class JSFunction
     {
         [Constructor]
-        internal static JSValue Constructor(JSValue t, JSValue[] args)
+        internal static JSValue Constructor(in Arguments args)
         {
             var len = args.Length;
             if (len == 0)
-                throw new JSException("No arguments were supplied to Function constructor");
-            var body = args[len - 1];
-            var bodyText = body is JSString @string ? @string.value : body.ToString();
-            var fx = new JSFunctionStatic(JSFunctionStatic.empty, "internal", bodyText);
+                throw JSContext.Current.NewTypeError("No arguments were supplied to Function constructor");
+            JSValue body = null;
+            var al = args.Length;
+            var last = al - 1;
+            var sargs = new List<string>();
+            for(var ai=0; ai<al; ai++)
+            {
+                var item = args.GetAt(ai);
+                if (ai == last)
+                {
+                    body = item;
+                } else
+                {
+                    sargs.Add(item.ToString());
+                }
+            }
 
-            var sargs = args.Take(len - 1)
-                .Select(x => x.ToString())
-                .ToArray();
+            var bodyText = body is JSString @string ? @string.value : body.ToString();
+            var fx = new JSFunction(JSFunction.empty, "internal", bodyText);
+
 
             // parse and create method...
             var fx1 = CoreScript.Compile(bodyText, "internal", sargs);

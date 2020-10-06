@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Core
 
         public static JSValue Value = new JSUndefined();
 
-        internal override KeyString ToKey()
+        internal override KeyString ToKey(bool create = true)
         {
             return KeyStrings.undefined;
         }
@@ -29,43 +29,62 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool IsUndefined => true;
 
+        internal override bool IsNullOrUndefined => true;
+
         public override string ToString()
         {
             return "undefined";
         }
 
+        public override JSValue this[KeyString name] {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of undefined");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of undefined");
+        }
+
+        public override JSValue this[uint key]
+        {
+            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
+        }
+
         public override JSValue Delete(KeyString key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of undefined");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
         public override JSValue Delete(uint key)
         {
-            throw JSContext.Current.NewTypeError($"Unable to delete {key} of undefined");
+            throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
-        public override JSBooleanPrototype Equals(JSValue value)
+        public override JSBoolean Equals(JSValue value)
         {
             if (value.IsNull)
-                return JSBooleanPrototype.True;
+                return JSBoolean.True;
             if (value.IsUndefined)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSBooleanPrototype StrictEquals(JSValue value)
+        public override JSBoolean StrictEquals(JSValue value)
         {
             if (value.IsUndefined)
-                return JSBooleanPrototype.True;
-            return JSBooleanPrototype.False;
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
-        public override JSValue InvokeFunction(JSValue thisValue,params JSValue[] args)
+        public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException("undefined is not a function");
         }
 
-        internal override IEnumerable<JSValue> AllElements => throw new NotImplementedException();
+        internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
+
+        internal override IEnumerator<JSValue> GetElementEnumerator()
+        {
+            throw JSContext.Current.NewTypeError("undefined is not iterable");
+        }
+
 
     }
 }
