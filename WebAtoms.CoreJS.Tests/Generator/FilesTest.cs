@@ -25,7 +25,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
         {
             var files = GetData();
             TestResult[] result = null;
-            //var taskList = files.ToList();
+            var taskList = files.ToList();
             //result = new TestResult[taskList.Count];
             //Parallel.ForEach(taskList, (x, c,i) => {
             //    AsyncPump.Run(async () => {
@@ -35,8 +35,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
             //});
             AsyncPump.Run(async () =>
             {
-                result = await Task.WhenAll(GetData()
-                    .Select((x) => Task.Run(() => RunTest(x))).ToList());
+                var tasks = taskList.Select(x => Task.Run(() => RunTest(x))).ToList();
+                result = await Task.WhenAll(tasks);
             });
             return result;
         }
