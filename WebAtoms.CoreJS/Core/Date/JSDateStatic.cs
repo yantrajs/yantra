@@ -23,7 +23,8 @@ namespace WebAtoms.CoreJS.Core.Date
         [Static("now")]
         internal static JSValue Now(in Arguments a)
         {
-            return new JSDate(DateTime.Now);
+            var result = ToJSDate(DateTime.Now);
+            return new JSNumber(result);
         }
 
         /// <summary>
