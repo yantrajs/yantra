@@ -176,6 +176,12 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         }
 
+        [TestFolder("es5\\Objects\\Date")]
+        public void Date()
+        {
+
+        }
+
     }
 
     [TestClass]

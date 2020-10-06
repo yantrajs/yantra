@@ -277,7 +277,7 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual string ToDetailString()
         {
-            return (InvokeMethod(KeyStrings.toString, Arguments.Empty) as JSString)?.value;
+            return this.ToString();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

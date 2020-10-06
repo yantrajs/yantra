@@ -157,7 +157,7 @@ namespace WebAtoms.CoreJS.Core
             this.Fill<JSGlobalStatic>();
 
             var c = new JSObject();
-            c.prototypeChain = Bootstrap.Create("console", typeof(JSConsole));
+            c.prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype;
             this[KeyStrings.console] = c;
 
         }
