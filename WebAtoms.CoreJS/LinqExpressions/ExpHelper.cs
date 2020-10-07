@@ -58,6 +58,21 @@ namespace WebAtoms.CoreJS.ExpHelper
                         && x.GetParameters()[2].ParameterType == typeof(T3));
         }
 
+        protected static ConstructorInfo Constructor<T1, T2, T3, T4>()
+        {
+            var c = typeof(T).GetConstructor(new Type[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4) });
+            if (c != null)
+                return c;
+            var list = typeof(T).GetConstructors(BindingFlags.Public | BindingFlags.NonPublic);
+            return list.FirstOrDefault(x =>
+                        x.GetParameters().Length == 4
+                        && x.GetParameters()[0].ParameterType == typeof(T1)
+                        && x.GetParameters()[1].ParameterType == typeof(T2)
+                        && x.GetParameters()[2].ParameterType == typeof(T3)
+                        && x.GetParameters()[3].ParameterType == typeof(T4));
+        }
+
+
         protected static MethodInfo Method(string name)
         {
             return typeof(T).GetMethod(name);
@@ -1079,7 +1094,7 @@ namespace WebAtoms.CoreJS.ExpHelper
     public class JSFunctionBuilder: TypeHelper<Core.JSFunction>
     {
         private static ConstructorInfo _New =
-            Constructor<JSFunctionDelegate, string, string>();
+            Constructor<JSFunctionDelegate, string, string, int>();
 
         private static FieldInfo _f =
             InternalField(nameof(JSFunction.f));
@@ -1096,11 +1111,12 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Call(target, invokeFunction, args);
         }
 
-        public static Expression New(Expression del, string name, string code)
+        public static Expression New(Expression del, string name, string code, int length)
         {
             return Expression.New(_New , del, 
                 Expression.Constant(name), 
-                Expression.Constant(code));
+                Expression.Constant(code),
+                Expression.Constant(length));
         }
     }
 

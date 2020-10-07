@@ -23,9 +23,10 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         // wait by current thread...
         // AutoResetEvent yield;
+        ManualResetEventSlim yield;
 
         // wait by generator thread...
-        AutoResetEvent wait;
+        ManualResetEventSlim wait;
         Thread thread;
 
         public JSValue Return(JSValue value)
@@ -62,7 +63,8 @@ namespace WebAtoms.CoreJS.Core.Generator
             }
             if (wait == null)
             {
-                wait = new AutoResetEvent(false);
+                wait = new ManualResetEventSlim(false);
+                yield = new ManualResetEventSlim(false);
                 this.thread = new Thread(RunGenerator);
                 thread.Start(this);
             } else
@@ -71,7 +73,8 @@ namespace WebAtoms.CoreJS.Core.Generator
             }
 
             // wait.Set();
-            wait.WaitOne();
+            yield.Reset();
+            yield.Wait();
 
             if (this.lastError != null)
                 throw lastError;
@@ -87,9 +90,10 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Yield(JSValue value)
         {
-            wait.Set();
+            yield.Set();
             this.value = value;
-            wait.WaitOne();
+            wait.Reset();
+            wait.Wait();
             return this.value;
         }
 
@@ -157,11 +161,11 @@ namespace WebAtoms.CoreJS.Core.Generator
                 // generator.wait.WaitOne();
                 generator.@delegate(generator, generator.a);
                 generator.done = true;
-                generator.wait.Set();
+                generator.yield.Set();
             }catch (Exception ex)
             {
                 generator.lastError = ex;
-                generator.wait.Set();
+                generator.yield.Set();
             }
         }
 

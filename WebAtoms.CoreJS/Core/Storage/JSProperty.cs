@@ -128,12 +128,12 @@ namespace WebAtoms.CoreJS.Core
         internal static JSProperty Function(
             KeyString key,
             JSFunctionDelegate d,
-            JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableValue)
+            JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableValue, int length = 0)
         {
             return new JSProperty
             {
                 key = key,
-                value = new JSFunction(d),
+                value = new JSFunction(d, null, null, length),
                 Attributes = attributes
             };
         }

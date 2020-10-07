@@ -28,7 +28,8 @@ namespace WebAtoms.CoreJS.Core
         public JSFunction(
             JSFunctionDelegate f,
             string name = null,
-            string source = null): base(JSContext.Current?.FunctionPrototype)
+            string source = null,
+            int length = 0): base(JSContext.Current?.FunctionPrototype)
         {
             this.f = f;
             this.name = name ?? "native";
@@ -41,6 +42,7 @@ namespace WebAtoms.CoreJS.Core
             this[KeyStrings.name] = name != null
                 ? new JSString(name)
                 : new JSString("native");
+            this[KeyStrings.length] = new JSNumber(length);
 
         }
 

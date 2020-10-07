@@ -11,6 +11,8 @@ namespace WebAtoms.CoreJS.Core
 
         internal static readonly DateTime InvalidDate = DateTime.MinValue;
 
+        internal static readonly JSDate invalidDate = new JSDate(DateTime.MinValue);
+
         internal DateTime value;
 
         public DateTime Value
