@@ -22,7 +22,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         }
 
         // wait by current thread...
-        AutoResetEvent yield;
+        // AutoResetEvent yield;
 
         // wait by generator thread...
         AutoResetEvent wait;
@@ -60,21 +60,18 @@ namespace WebAtoms.CoreJS.Core.Generator
                 this.value = JSUndefined.Value;
                 return ValueObject;
             }
-            if (yield == null)
+            if (wait == null)
             {
-                yield = new AutoResetEvent(false);
                 wait = new AutoResetEvent(false);
-                // using ThreadPool could be dangerous as it might run on somebody
-                // else's thread creating conflicts...
-                // ThreadPool.QueueUserWorkItem(RunGenerator, this);
                 this.thread = new Thread(RunGenerator);
                 thread.Start(this);
-
-                while (!thread.IsAlive) ;
+            } else
+            {
+                wait.Set();
             }
 
-            wait.Set();
-            yield.WaitOne();
+            // wait.Set();
+            wait.WaitOne();
 
             if (this.lastError != null)
                 throw lastError;
@@ -90,7 +87,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Yield(JSValue value)
         {
-            yield.Set();
+            wait.Set();
             this.value = value;
             wait.WaitOne();
             return this.value;
@@ -157,14 +154,14 @@ namespace WebAtoms.CoreJS.Core.Generator
             {
                 JSContext.Current = generator.context;
                 // generator.yield.Set();
-                generator.wait.WaitOne();
+                // generator.wait.WaitOne();
                 generator.@delegate(generator, generator.a);
                 generator.done = true;
-                generator.yield.Set();
+                generator.wait.Set();
             }catch (Exception ex)
             {
                 generator.lastError = ex;
-                generator.yield.Set();
+                generator.wait.Set();
             }
         }
 
