@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -99,9 +100,6 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
-        private static ConcurrentDictionary<long, CancellationTokenSource> tokens
-            = new ConcurrentDictionary<long, CancellationTokenSource>();
-
         private static long timeouts = 1;
 
         private static ConcurrentDictionary<long, CancellationTokenSource> intervalTokens
@@ -120,24 +118,37 @@ namespace WebAtoms.CoreJS.Core
             var delay = timeout.IsUndefined ? 0 : timeout.IntValue;
             var key = Interlocked.Increment(ref intervals);
             intervalTokens.AddOrUpdate(key, cancel, (a1, a2) => cancel);
+            JSContext current = JSContext.Current;
 
             Func<Task> task = async () => {
-                while (!cancel.IsCancellationRequested)
+                try
                 {
-                    try
+                    while (!cancel.IsCancellationRequested)
                     {
-                        await Task.Delay(delay);
-                        f.f(new Arguments(@this));
-                    } catch (Exception ex)
-                    {
-                        JSContext.Current.ReportError(ex);
+                        try
+                        {
+                            await Task.Delay(delay, cancel.Token);
+                            f.f(new Arguments(@this));
+                        }
+                        catch (Exception ex)
+                        {
+                            current.ReportError(ex);
+                        }
                     }
+                } catch (TaskCanceledException)
+                {
+
+                } catch (Exception ex)
+                {
+                    current.ReportError(ex);
+                }
+                if(current.waitTask != null)
+                {
+                    await current.waitTask;
                 }
             };
 
-            task().ContinueWith((t) => {
-                intervalTokens.TryRemove(key, out var n);
-            });
+            current.waitTask = task();
 
             return new JSBigInt(key);
         }
@@ -154,28 +165,49 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
+        private static ConcurrentDictionary<long, CancellationTokenSource> tokens
+            = new ConcurrentDictionary<long, CancellationTokenSource>();
+
         [Static("setTimeout", Length = 2)]
         public static JSValue SetTimeout(in Arguments a)
         {
             var cancel = new CancellationTokenSource();
             var @this = a.This;
             var (fx, timeout) = a.Get2();
+            var current = JSContext.Current;
             if (!(fx is JSFunction f))
-                throw JSContext.Current.NewTypeError("Argument is not a function");
+                throw current.NewTypeError("Argument is not a function");
             var delay = timeout.IsUndefined ? 0 : timeout.IntValue;
             var key = Interlocked.Increment(ref timeouts);
-            tokens.AddOrUpdate(key, cancel, (a1,a2) => cancel);
-            
-            Task.Delay(delay, cancel.Token).ContinueWith((t) => {
+
+            // LinkedListNode<Task> node = current.waitTasks.AddLast((Task)null);
+            tokens.AddOrUpdate(key, cancel, (a1, a2) => a2);
+
+            var oldWait = current.waitTask;
+
+            async Task RunTask()
+            {
                 try
                 {
+                    await Task.Delay(delay, cancel.Token);
                     f.f(new Arguments(@this));
-                    tokens.TryRemove(key, out var aa);
-                }catch (Exception ex)
-                {
-                    JSContext.Current.ReportError(ex);
                 }
-            });
+                catch (TaskCanceledException)
+                {
+
+                } catch (Exception ex)
+                {
+                    current.ReportError(ex);
+                }
+                tokens.TryRemove(key, out var aa);
+                if(oldWait != null)
+                {
+                    await oldWait;
+                }
+            }
+
+            current.waitTask = RunTask();
+
             return new JSBigInt(key);
         }
 
@@ -186,6 +218,7 @@ namespace WebAtoms.CoreJS.Core
             if(tokens.TryRemove(n, out var token))
             {
                 token.Cancel();
+                // JSContext.Current.waitTasks.Remove(token.node);
             }
             return JSUndefined.Value;
         }

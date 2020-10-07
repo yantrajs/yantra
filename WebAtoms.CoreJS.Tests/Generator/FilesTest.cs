@@ -62,7 +62,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             return GetFiles(dir);
         }
 
-        protected virtual void Evaluate(string content, string fullName)
+        protected virtual void Evaluate(JSTestContext context, string content, string fullName)
         {
             CoreScript.Evaluate(content, fullName);
         }
@@ -83,7 +83,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 using var jc = new JSTestContext();
                 jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
                 jc.Error += (_, e) => lastError = e;
-                Evaluate(content, testCase.file.FullName);
+                Evaluate(jc, content, testCase.file.FullName);
             } catch (Exception ex)
             {
                 lastError = ex;
@@ -108,12 +108,20 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         }
 
-        protected override void Evaluate(string content, string fullName)
+        protected override void Evaluate(JSTestContext context, string content, string fullName)
         {
-            AsyncPump.Run(() =>
+            AsyncPump.Run(async () =>
             {
-                base.Evaluate(content, fullName);
-                return Task.FromResult(0);
+                base.Evaluate(context, content, fullName);
+                //foreach (var task in context.waitTasks)
+                //    await task;
+                if(context.waitTask != null)
+                {
+                    try
+                    {
+                        await context.waitTask;
+                    }catch (TaskCanceledException) { }
+                }
             });
         }
     }
