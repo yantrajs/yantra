@@ -186,6 +186,41 @@ namespace WebAtoms.CoreJS
             return CreateFunction(functionDeclaration);
         }
 
+        private Exp CreateClass(Identifier id, Expression super, ClassBody body)
+        {
+
+            // need to save super..
+            // create a super variable...
+            Exp superExp = null;
+            if (super != null)
+            {
+                superExp = VisitExpression(super);
+            }
+
+            foreach(var property in body.Body)
+            {
+                switch (property.Kind)
+                {
+                    case PropertyKind.None:
+                        break;
+                    case PropertyKind.Data:
+                        break;
+                    case PropertyKind.Get:
+                        break;
+                    case PropertyKind.Set:
+                        break;
+                    case PropertyKind.Init:
+                        break;
+                    case PropertyKind.Constructor:
+                        break;
+                    case PropertyKind.Method:
+                        break;
+                }
+            }
+
+            throw new NotImplementedException();
+        }
+
         private Exp CreateFunction(
             Esprima.Ast.IFunction functionDeclaration
             )
@@ -1173,7 +1208,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitClassExpression(Esprima.Ast.ClassExpression classExpression)
         {
-            throw new NotImplementedException();
+            return CreateClass(classExpression.Id, classExpression.SuperClass, classExpression.Body);
         }
 
         protected override Exp VisitExportDefaultDeclaration(Esprima.Ast.ExportDefaultDeclaration exportDefaultDeclaration)
@@ -1233,7 +1268,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitClassDeclaration(Esprima.Ast.ClassDeclaration classDeclaration)
         {
-            throw new NotImplementedException();
+            return CreateClass(classDeclaration.Id, classDeclaration.SuperClass, classDeclaration.Body);
         }
 
         protected override Exp VisitClassBody(Esprima.Ast.ClassBody classBody)
