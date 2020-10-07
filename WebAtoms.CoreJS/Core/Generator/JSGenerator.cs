@@ -21,6 +21,12 @@ namespace WebAtoms.CoreJS.Core.Generator
             done = false;
         }
 
+        ~JSGenerator()
+        {
+            yield?.Dispose();
+            wait?.Dispose();
+        }
+
         // wait by current thread...
         // AutoResetEvent yield;
         ManualResetEventSlim yield;
@@ -34,6 +40,8 @@ namespace WebAtoms.CoreJS.Core.Generator
             this.done = true;
             this.value = JSUndefined.Value;
             thread?.Abort();
+            yield?.Dispose();
+            wait?.Dispose();
             return (JSObject.NewWithProperties())
                     .AddProperty(KeyStrings.value, value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
@@ -82,6 +90,8 @@ namespace WebAtoms.CoreJS.Core.Generator
             if (this.done)
             {
                 this.value = JSUndefined.Value;
+                yield?.Dispose();
+                wait?.Dispose();
                 return ValueObject;
             }
 
