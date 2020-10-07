@@ -32,15 +32,11 @@ namespace WebAtoms.CoreJS.Tests.Generator
             var taskList = files.ToList();
             result = new TestResult[taskList.Count];
             watch.Start();
-            Parallel.ForEach(taskList, (x, c, i) =>
+            AsyncPump.Run(async () =>
             {
-                result[i] = RunTest(x);
+                var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
+                result = await Task.WhenAll(tasks);
             });
-            //AsyncPump.Run(async () =>
-            //{
-            //    var tasks = taskList.Select(x => Task.Run(() => RunTest(x))).ToList();
-            //    result = await Task.WhenAll(tasks);
-            //});
             watch.Stop();
             return result;
         }
@@ -66,7 +62,11 @@ namespace WebAtoms.CoreJS.Tests.Generator
             return GetFiles(dir);
         }
 
-        protected TestResult RunTest((FileInfo file, string name) testCase)
+        protected virtual void Evaluate(string content, string fullName)
+        {
+            CoreScript.Evaluate(content, fullName);
+        }
+        protected async Task<TestResult> RunAsyncTest((FileInfo file, string name) testCase)
         {
             // var watch = new Stopwatch();
             // watch.Start();
@@ -75,18 +75,15 @@ namespace WebAtoms.CoreJS.Tests.Generator
             StringBuilder sb = new StringBuilder();
             try
             {
-                AsyncPump.Run( async () =>
+                string content;
+                using (var fs = testCase.file.OpenText())
                 {
-                    string content;
-                    using (var fs = testCase.file.OpenText())
-                    {
-                        content = await fs.ReadToEndAsync();
-                    }
-                    using var jc = new JSTestContext();
-                    jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
-                    jc.Error += (_, e) => lastError = e;
-                    CoreScript.Evaluate(content, testCase.file.FullName);
-                });
+                    content = await fs.ReadToEndAsync();
+                }
+                using var jc = new JSTestContext();
+                jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
+                jc.Error += (_, e) => lastError = e;
+                Evaluate(content, testCase.file.FullName);
             } catch (Exception ex)
             {
                 lastError = ex;
@@ -103,6 +100,24 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
     }
 
+    [AttributeUsage(AttributeTargets.Method)]
+    public class AsyncTestFolderAttribute: TestFolderAttribute
+    {
+        public AsyncTestFolderAttribute(string root) : base(root)
+        {
+
+        }
+
+        protected override void Evaluate(string content, string fullName)
+        {
+            AsyncPump.Run(() =>
+            {
+                base.Evaluate(content, fullName);
+                return Task.FromResult(0);
+            });
+        }
+    }
+
 
     [TestClass]
     public class ES5
@@ -113,30 +128,46 @@ namespace WebAtoms.CoreJS.Tests.Generator
             
         }
 
-        [TestFolder("es5\\Statements")]
-        public void Statements()
-        {
 
-        }
-
-        [TestFolder("es5\\Syntax")]
-        public void Syntax()
-        {
-
-        }
-
-        [TestFolder("es5\\Function")]
-        public void Function()
-        {
-
-        }
-
-        [TestFolder("es5\\Objects\\Date")]
+        [AsyncTestFolder("es5\\Objects\\Date")]
         public void Date()
         {
 
         }
 
+    }
+
+    [TestClass]
+    public class Statements
+    {
+        [TestFolder("es5\\Statements")]
+        public void Run()
+        {
+
+        }
+
+    }
+
+    [TestClass]
+    public class Syntax
+    {
+        [TestFolder("es5\\Syntax")]
+        public void Run()
+        {
+
+        }
+
+    }
+
+
+    [TestClass]
+    public class Function
+    {
+        [TestFolder("es5\\Function")]
+        public void Run()
+        {
+
+        }
     }
 
     [TestClass]
@@ -193,7 +224,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
     [TestClass]
     public class Promise
     {
-        [TestFolder("es5\\Promise")]
+        [AsyncTestFolder("es5\\Promise")]
         public void Run()
         {
 
