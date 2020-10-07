@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core.Runtime
@@ -19,7 +20,12 @@ namespace WebAtoms.CoreJS.Core.Runtime
         [Static("reject")]
         public static JSValue Reject(in Arguments a)
         {
-            return new JSPromise(a.Get1(), JSPromise.PromiseState.Rejected);
+            var reason = a.Get1();
+            if(reason.IsNullOrUndefined)
+            {
+                throw JSContext.Current.NewTypeError($"Failure reason must be provided for rejected promise");
+            }
+            return new JSPromise(reason, JSPromise.PromiseState.Rejected);
         }
 
 
@@ -36,7 +42,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
             return new JSPromise((resolve, reject) =>
             {
-                var sc = JSContext.Current.synchronizationContext;
+                var sc = SynchronizationContext.Current;
                 if (sc == null)
                     throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 

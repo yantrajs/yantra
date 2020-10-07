@@ -194,13 +194,14 @@ namespace WebAtoms.CoreJS.Core
             });
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Post(Action action)
         {
-            // SynchronizationContext.Current.Post((_) => action(), this);
-            AsyncPump.Run(() => {
-                action();
-                return Task.CompletedTask;
-            });
+            SynchronizationContext.Current.Post((_) => action(), null);
+            //AsyncPump.Run(() => {
+            //    action();
+            //    return Task.CompletedTask;
+            //});
         }
 
     }
