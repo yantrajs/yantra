@@ -14,7 +14,8 @@ namespace WebAtoms.CoreJS.Core
         [Constructor(Length = 1)]
         public static JSValue Contructor(in Arguments a)
         {
-            throw new NotImplementedException();
+            // throw JSContext.Current.NewTypeError("Not supported");
+            return new JSArray();
         }
 
         [Prototype("concat", Length = 1)]

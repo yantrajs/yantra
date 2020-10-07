@@ -29,14 +29,14 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(UriHelper.DecodeURI(f));
         }
 
-        [Static("decodeURIComponent")]
+        [Static("decodeURIComponent", Length = 1)]
         public static JSValue DecodeURIComponent(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.UnescapeDataString(f));
         }
 
-        [Static("eval")]
+        [Static("eval", Length = 1)]
         public static JSValue Eval(in Arguments a)
         {
             var f = a.Get1();
@@ -46,7 +46,7 @@ namespace WebAtoms.CoreJS.Core
             return CoreScript.Evaluate(text);
         }
 
-        [Static("encodeURI")]
+        [Static("encodeURI", Length = 1)]
         public static JSValue EncodeURI(in Arguments a)
         {
             var f = a.Get1().ToString();
@@ -54,38 +54,38 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        [Static("encodeURIComponent")]
+        [Static("encodeURIComponent", Length = 1)]
         public static JSValue EncodeURIComponent(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.EscapeDataString(f));
         }
 
-        [Static("isFinite")]
+        [Static("isFinite", Length = 1)]
         public static JSValue IsFinite(in Arguments a)
         {
             return JSNumberStatic.IsFinite(a);
         }
 
-        [Static("isNaN")]
+        [Static("isNaN", Length = 1)]
         public static JSValue IsNaN(in Arguments a)
         {
             return JSNumberStatic.IsNaN(a);
         }
 
-        [Static("parseFloat")]
+        [Static("parseFloat", Length = 1)]
         public static JSValue ParseFloat(in Arguments a)
         {
             return JSNumberStatic.ParseFloat(a);
         }
 
-        [Static("parseInt")]
+        [Static("parseInt", Length = 2)]
         public static JSValue ParseInt(in Arguments a)
         {
             return JSNumberStatic.ParseInt(a);
         }
 
-        [Static("setImmediate")]
+        [Static("setImmediate", Length = 1)]
         public static JSValue SetImmediate(in Arguments a)
         {
             var @this = a.This;
@@ -104,7 +104,57 @@ namespace WebAtoms.CoreJS.Core
 
         private static long timeouts = 1;
 
-        [Static("setTimeout")]
+        private static ConcurrentDictionary<long, CancellationTokenSource> intervalTokens
+            = new ConcurrentDictionary<long, CancellationTokenSource>();
+
+        private static long intervals = 1;
+
+        [Static("setInterval", Length = 2)]
+        public static JSValue SetInterval(in Arguments a)
+        {
+            var cancel = new CancellationTokenSource();
+            var @this = a.This;
+            var (fx, timeout) = a.Get2();
+            if (!(fx is JSFunction f))
+                throw JSContext.Current.NewTypeError("Argument is not a function");
+            var delay = timeout.IsUndefined ? 0 : timeout.IntValue;
+            var key = Interlocked.Increment(ref intervals);
+            intervalTokens.AddOrUpdate(key, cancel, (a1, a2) => cancel);
+
+            Func<Task> task = async () => {
+                while (!cancel.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await Task.Delay(delay);
+                        f.f(new Arguments(@this));
+                    } catch (Exception ex)
+                    {
+                        JSContext.Current.ReportError(ex);
+                    }
+                }
+            };
+
+            task().ContinueWith((t) => {
+                intervalTokens.TryRemove(key, out var n);
+            });
+
+            return new JSBigInt(key);
+        }
+
+        [Static("clearInterval", Length = 1)]
+        public static JSValue ClearInterval(in Arguments a)
+        {
+            var n = a.Get1().BigIntValue;
+            if (intervalTokens.TryRemove(n, out var token))
+            {
+                token.Cancel();
+            }
+            return JSUndefined.Value;
+        }
+
+
+        [Static("setTimeout", Length = 2)]
         public static JSValue SetTimeout(in Arguments a)
         {
             var cancel = new CancellationTokenSource();
@@ -115,15 +165,13 @@ namespace WebAtoms.CoreJS.Core
             var delay = timeout.IsUndefined ? 0 : timeout.IntValue;
             var key = Interlocked.Increment(ref timeouts);
             tokens.AddOrUpdate(key, cancel, (a1,a2) => cancel);
-            AsyncPump.Run( async () => {
+            
+            Task.Delay(delay, cancel.Token).ContinueWith((t) => {
                 try
                 {
-                    await Task.Delay(delay, cancel.Token);
                     f.f(new Arguments(@this));
                     tokens.TryRemove(key, out var aa);
-                } catch (TaskCanceledException) {
-
-                } catch (Exception ex)
+                }catch (Exception ex)
                 {
                     JSContext.Current.ReportError(ex);
                 }
@@ -131,7 +179,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSBigInt(key);
         }
 
-        [Static("clearTimeout")]
+        [Static("clearTimeout", Length = 1)]
         public static JSValue ClearTimeout(in Arguments a)
         {
             var n = a.Get1().BigIntValue;
