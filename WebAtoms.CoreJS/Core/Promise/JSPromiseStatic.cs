@@ -10,6 +10,19 @@ namespace WebAtoms.CoreJS.Core.Runtime
 {
     public static class JSPromiseStatic
     {
+        [Static("resolve")]
+        public static JSValue Resolve(in Arguments a)
+        {
+            return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
+        }
+
+        [Static("reject")]
+        public static JSValue Reject(in Arguments a)
+        {
+            return new JSPromise(a.Get1(), JSPromise.PromiseState.Rejected);
+        }
+
+
         [Static("all")]
         public static JSValue All(in Arguments a)
         {

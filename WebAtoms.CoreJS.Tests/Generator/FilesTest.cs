@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
@@ -23,24 +24,23 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         private Stopwatch watch = new Stopwatch();
 
+
         public override TestResult[] Execute(ITestMethod testMethod)
         {
             var files = GetData();
             TestResult[] result = null;
             var taskList = files.ToList();
-            //result = new TestResult[taskList.Count];
-            //Parallel.ForEach(taskList, (x, c,i) => {
-            //    AsyncPump.Run(async () => {
-            //        var r = await RunTest(x);
-            //        result[i] = r;
-            //    });
-            //});
+            result = new TestResult[taskList.Count];
             watch.Start();
-            AsyncPump.Run(async () =>
+            Parallel.ForEach(taskList, (x, c, i) =>
             {
-                var tasks = taskList.Select(x => Task.Run(() => RunTest(x))).ToList();
-                result = await Task.WhenAll(tasks);
+                result[i] = RunTest(x);
             });
+            //AsyncPump.Run(async () =>
+            //{
+            //    var tasks = taskList.Select(x => Task.Run(() => RunTest(x))).ToList();
+            //    result = await Task.WhenAll(tasks);
+            //});
             watch.Stop();
             return result;
         }
@@ -66,7 +66,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             return GetFiles(dir);
         }
 
-        protected async Task<TestResult> RunTest((FileInfo file, string name) testCase)
+        protected TestResult RunTest((FileInfo file, string name) testCase)
         {
             // var watch = new Stopwatch();
             // watch.Start();
@@ -75,15 +75,18 @@ namespace WebAtoms.CoreJS.Tests.Generator
             StringBuilder sb = new StringBuilder();
             try
             {
-                string content;
-                using (var fs = testCase.file.OpenText())
+                AsyncPump.Run( async () =>
                 {
-                    content = await fs.ReadToEndAsync();
-                }
-                using var jc = new JSTestContext();
-                jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
-                jc.Error += (_, e) => lastError = e;
-                CoreScript.Evaluate(content, testCase.file.FullName);
+                    string content;
+                    using (var fs = testCase.file.OpenText())
+                    {
+                        content = await fs.ReadToEndAsync();
+                    }
+                    using var jc = new JSTestContext();
+                    jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
+                    jc.Error += (_, e) => lastError = e;
+                    CoreScript.Evaluate(content, testCase.file.FullName);
+                });
             } catch (Exception ex)
             {
                 lastError = ex;
@@ -181,6 +184,16 @@ namespace WebAtoms.CoreJS.Tests.Generator
     public class Math
     {
         [TestFolder("es5\\Math")]
+        public void Run()
+        {
+
+        }
+    }
+
+    [TestClass]
+    public class Promise
+    {
+        [TestFolder("es5\\Promise")]
         public void Run()
         {
 

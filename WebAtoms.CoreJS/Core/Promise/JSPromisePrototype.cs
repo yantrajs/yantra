@@ -16,6 +16,12 @@ namespace WebAtoms.CoreJS.Core.Runtime
             return p;
         }
 
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+            return new JSPromise(a.Get1());
+        }
+
         [Prototype("then")]
         public static JSValue Then(in Arguments a)
         {
