@@ -88,6 +88,8 @@ namespace WebAtoms.CoreJS.Core
             var fOriginal = a.This as JSFunction;
             var a1 = a.OverrideThis(a.This);
             var fx = new JSFunction((in Arguments a2) => fOriginal.f(a2));
+            // need to set prototypeChain...
+            fx.prototypeChain = fOriginal;
             return fx;
         }
     }
