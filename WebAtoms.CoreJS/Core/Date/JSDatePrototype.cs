@@ -86,5 +86,15 @@ namespace WebAtoms.CoreJS.Core.Date
 
             return new JSNumber(@this.value.ToJSDate());
         }
+
+        [Prototype("getDay", Length = 0)]
+        internal static JSValue GetDay(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.DayOfWeek;
+            return new JSNumber((double)result);
+        }
     }
 }
