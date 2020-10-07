@@ -147,7 +147,9 @@ namespace WebAtoms.CoreJS
             get;set;
         }
 
-        public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null)
+        public Expression Super { get; private set; }
+
+        public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null, Expression super = null)
         {
             this.Function = fx;
             if (fx?.Generator ?? false)
@@ -157,6 +159,7 @@ namespace WebAtoms.CoreJS
             {
                 Generator = null;
             }
+            this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
             this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType());
@@ -185,6 +188,7 @@ namespace WebAtoms.CoreJS
             this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
             this.Generator = p.Generator;
+            this.Super = p.Super;
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;

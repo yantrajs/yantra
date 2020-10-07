@@ -197,8 +197,13 @@ namespace WebAtoms.CoreJS
                 superExp = VisitExpression(super);
             }
 
+            Exp constructor = null;
+            Dictionary<string, ExpressionHolder> cache = new Dictionary<string, ExpressionHolder>();
+            List<ExpressionHolder> members = new List<ExpressionHolder>();
+            ExpressionHolder expHolder;
             foreach(var property in body.Body)
             {
+                var name = property.Key.As<Identifier>()?.Name;
                 switch (property.Kind)
                 {
                     case PropertyKind.None:
@@ -206,23 +211,56 @@ namespace WebAtoms.CoreJS
                     case PropertyKind.Data:
                         break;
                     case PropertyKind.Get:
+                        if(!cache.TryGetValue(name, out expHolder))
+                        {
+                            expHolder = new ExpressionHolder();
+                            expHolder.Key = KeyOfName(name);
+                            cache[name] = expHolder;
+                            members.Add(expHolder);
+                        }
+                        expHolder.Getter = CreateFunction(property.Value.As<IFunction>(), superExp);
                         break;
                     case PropertyKind.Set:
+                        if (!cache.TryGetValue(name, out expHolder))
+                        {
+                            expHolder = new ExpressionHolder();
+                            expHolder.Key = KeyOfName(name);
+                            cache[name] = expHolder;
+                            members.Add(expHolder);
+                        }
+                        expHolder.Setter = CreateFunction(property.Value.As<IFunction>(), superExp);
                         break;
                     case PropertyKind.Init:
                         break;
                     case PropertyKind.Constructor:
+                        constructor = CreateFunction(property.Value.As<IFunction>(), superExp);
                         break;
                     case PropertyKind.Method:
+                        members.Add(new ExpressionHolder()
+                        {
+                            Key = KeyOfName(name),
+                            Value = CreateFunction(property.Value.As<IFunction>(), superExp)
+                        });
                         break;
                 }
             }
 
-            throw new NotImplementedException();
+            Exp retValue = JSClassBuilder.New(constructor, superExp, id?.Name ?? "Unnamed");
+            foreach(var exp in members)
+            {
+                if(exp.Value != null)
+                {
+                    retValue = JSClassBuilder.AddValue(retValue, exp.Key, exp.Value);
+                    continue;
+                }
+                retValue = JSClassBuilder.AddProperty(retValue, exp.Key, exp.Getter, exp.Setter);
+            }
+            return retValue;
         }
 
         private Exp CreateFunction(
-            Esprima.Ast.IFunction functionDeclaration
+            Esprima.Ast.IFunction functionDeclaration,
+            Exp super = null
             )
         {
             var code = Code.Substring(functionDeclaration.Range.Start, 
@@ -243,7 +281,7 @@ namespace WebAtoms.CoreJS
             var functionName  = functionDeclaration.Id?.Name;
 
 
-            using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis)))
+            using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis, super)))
             {
                 var lexicalScopeVar = cs.Scope;
 
@@ -273,14 +311,6 @@ namespace WebAtoms.CoreJS
                 
 
                 var argumentElements = args;
-                // var argumentElementsLength = Exp.Variable(typeof(int), "args.Length");
-                // vList.Add(argumentElementsLength);
-
-                //sList.Add(Exp.Assign(argumentElementsLength, 
-                //    Exp.Condition(
-                //        Exp.NotEqual(Exp.Constant(null, typeof(Core.JSValue[])),argumentElements),
-                //            Exp.ArrayLength(argumentElements),
-                //            Exp.Constant(0, typeof(int)))));
 
                 foreach (var v in pList)
                 {
