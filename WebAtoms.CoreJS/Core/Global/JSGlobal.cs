@@ -22,7 +22,7 @@ namespace WebAtoms.CoreJS.Core
         [Static("NaN")]
         public static JSNumber NaN = JSNumber.NaN;
 
-        [Static("decodeURI")]
+        [Static("decodeURI", Length = 1)]
         public static JSValue DecodeURI(in Arguments a)
         {
             var f = a.Get1().ToString();
