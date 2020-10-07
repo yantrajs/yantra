@@ -75,7 +75,7 @@ namespace WebAtoms.CoreJS.Core.Date
         /// </summary>
         /// <param name="dateTime"> The .NET date. </param>
         /// <returns> The number of milliseconds since January 1, 1970, 00:00:00 UTC </returns>
-        internal static double ToJSDate(DateTime dateTime)
+        internal static double ToJSDate(this DateTime dateTime)
         {
             if (dateTime == JSDate.InvalidDate)
                 return double.NaN;

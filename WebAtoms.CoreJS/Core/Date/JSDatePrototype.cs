@@ -38,5 +38,53 @@ namespace WebAtoms.CoreJS.Core.Date
             var result = @this.value.Day;
             return new JSNumber(result);
         }
+
+        /// <summary>
+        /// If invalid date, return false
+        /// If diff is undefined or NaN, return false
+        /// else return true
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="diff"></param>
+        /// <param name="diffValue"></param>
+        /// <returns></returns>
+        internal static bool IsValid(JSDate @this, JSValue diff, out double diffValue)
+        {
+            diffValue = 0;
+            if (@this.value == DateTime.MinValue)
+                return false;
+
+            if (diff.IsUndefined)
+            {
+                @this.value = DateTime.MinValue;
+                return false;
+            }
+
+            diffValue = diff.DoubleValue;
+            if (double.IsNaN(diffValue))
+            {
+                @this.value = DateTime.MinValue;
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// The setDate() method sets the day of the Date object relative to the beginning of the currently set month.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        [Prototype("setDate", Length = 1)]
+        internal static JSValue SetDate(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if(!IsValid(@this, a.Get1(),out var diffValue))
+                return JSNumber.NaN;
+
+
+            @this.value = @this.value.AddDays(-@this.value.Day + diffValue);
+
+            return new JSNumber(@this.value.ToJSDate());
+        }
     }
 }
