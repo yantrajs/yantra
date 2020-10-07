@@ -169,6 +169,65 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
+        internal virtual JSValue this[KeyString name, JSValue @this]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return @this.GetValue(prototypeChain.GetInternalProperty(name));
+            }
+            set { }
+        }
+
+        internal virtual JSValue this[uint name, JSValue @this]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return @this.GetValue(prototypeChain.GetInternalProperty(name));
+            }
+            set { }
+        }
+
+        internal virtual JSValue this[JSSymbol name, JSValue @this]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return @this.GetValue(prototypeChain.GetInternalProperty(name));
+            }
+            set { }
+        }
+
+
+        internal JSValue this[JSValue name, JSValue @this]
+        {
+            get
+            {
+                if (name is JSSymbol symbol)
+                    return this[symbol, @this];
+                var key = name.ToKey();
+                if (key.IsUInt)
+                    return this[key.Key, @this];
+                return this[key, @this];
+            }
+            set {
+                if (name is JSSymbol symbol)
+                    this[symbol, @this] = value;
+                var key = name.ToKey();
+                if (key.IsUInt)
+                {
+                    this[key.Key, @this] = value;
+                    return;
+                } 
+                this[key, @this] = value;
+            }
+        }
+
+
         public abstract JSBoolean Equals(JSValue value);
 
         internal static bool StaticEquals(JSValue left, JSValue right)

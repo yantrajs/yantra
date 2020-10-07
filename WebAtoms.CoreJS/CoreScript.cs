@@ -1132,41 +1132,45 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitMemberExpression(Esprima.Ast.MemberExpression memberExpression)
         {
+            var isSuper = memberExpression.Object is Super;
+            var target = isSuper
+                ? this.scope.Top.ThisExpression
+                : VisitExpression(memberExpression.Object);
             switch (memberExpression.Property)
             {
                 case Identifier id:
                     if (!memberExpression.Computed)
                     {
                         return ExpHelper.JSValueBuilder.Index(
-                            VisitExpression(memberExpression.Object),
+                            target,
                             KeyOfName(id.Name));
                     }
                     return ExpHelper.JSValueBuilder.Index(
-                        VisitExpression(memberExpression.Object),
+                        target,
                         VisitIdentifier(id));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.BooleanLiteral:
                     return ExpHelper.JSValueBuilder.Index(
-                        VisitExpression(memberExpression.Object),
+                        target,
                         l.BooleanValue ? (uint)0 : (uint)1);
                 case Literal l
                     when l.TokenType == Esprima.TokenType.StringLiteral:
                     return ExpHelper.JSValueBuilder.Index(
-                        VisitExpression(memberExpression.Object),
+                        target,
                         KeyOfName(l.StringValue));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.NumericLiteral 
                         && l.NumericValue >= 0 && (l.NumericValue % 1 == 0):
                     return ExpHelper.JSValueBuilder.Index(
-                        VisitExpression(memberExpression.Object),
+                        target,
                         (uint)l.NumericValue);
                 case StaticMemberExpression se:
-                    return JSValueBuilder.Index( VisitExpression(memberExpression.Object),VisitExpression(se.Property));
+                    return JSValueBuilder.Index( target,VisitExpression(se.Property));
 
             }
             if (memberExpression.Computed)
             {
-                return JSValueBuilder.Index(VisitExpression(memberExpression.Object), VisitExpression(memberExpression.Property));
+                return JSValueBuilder.Index(target, VisitExpression(memberExpression.Property));
             }
             throw new NotImplementedException();
         }
@@ -1417,8 +1421,6 @@ namespace WebAtoms.CoreJS
             {
                 // invoke method...
 
-                // get object...
-                var obj = VisitExpression(me.Object);
 
                 Exp name;
 
@@ -1438,14 +1440,24 @@ namespace WebAtoms.CoreJS
                 }
 
                 // var id = me.Property.As<Esprima.Ast.Identifier>();
-
+                var super = this.scope.Top.Super;
+                bool isSuper = me.Object is Super;
+                var target = isSuper
+                    ? this.scope.Top.ThisExpression
+                    : VisitExpression(me.Object);
 
                 // var name = KeyOfName(id.Name);
                 var paramArray = args.Any()
-                    ? ArgumentsBuilder.New(obj, args)
+                    ? ArgumentsBuilder.New(target, args)
                     : ArgumentsBuilder.Empty();
 
-                return JSValueBuilder.InvokeMethod(obj, name, paramArray);
+                if(isSuper)
+                {
+                    var superMethod = JSValueBuilder.Index(super, name);
+                    return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
+                }
+
+                return JSValueBuilder.InvokeMethod(target, name, paramArray);
 
             } else {
                 var paramArray = args.Any()
