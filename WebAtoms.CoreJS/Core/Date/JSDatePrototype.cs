@@ -96,5 +96,15 @@ namespace WebAtoms.CoreJS.Core.Date
             var result = @this.value.DayOfWeek;
             return new JSNumber((double)result);
         }
+
+        [Prototype("getFullYear", Length = 0)]
+        internal static JSValue GetFullYear(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.Year;
+            return new JSNumber(result);
+        }
     }
 }
