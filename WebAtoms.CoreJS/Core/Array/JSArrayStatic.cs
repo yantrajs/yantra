@@ -14,7 +14,7 @@ namespace WebAtoms.CoreJS.Core
     public class JSArrayStatic
     {
 
-        [Static("from")]
+        [Static("from", Length = 1)]
         public static JSValue StaticFrom(in Arguments a)
         {
             var r = new JSArray();
@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        [Static("isArray")]
+        [Static("isArray", Length = 1)]
         public static JSValue StaticIsArray(in Arguments a)
         {
             return a.Get1() is JSArray ? JSBoolean.True : JSBoolean.False;

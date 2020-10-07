@@ -169,7 +169,7 @@ namespace WebAtoms.CoreJS.Core.Generator
             }
         }
 
-        [Prototype("next")]
+        [Prototype("next", Length = 1)]
         public static JSValue Next(in Arguments a)
         {
             if(!(a.This is JSGenerator generator))
@@ -179,7 +179,7 @@ namespace WebAtoms.CoreJS.Core.Generator
             return generator.Next(a.Length == 0 ? null : a.Get1());
         }
 
-        [Prototype("return")]
+        [Prototype("return", Length = 1)]
         public static JSValue Return(in Arguments a)
         {
             if (!(a.This is JSGenerator generator))
@@ -189,7 +189,7 @@ namespace WebAtoms.CoreJS.Core.Generator
             return generator.Return(a.Get1());
         }
 
-        [Prototype("throw")]
+        [Prototype("throw", Length = 1)]
         public static JSValue Throw(in Arguments a)
         {
             if (!(a.This is JSGenerator generator))

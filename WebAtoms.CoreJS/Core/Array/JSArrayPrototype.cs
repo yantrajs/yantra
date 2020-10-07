@@ -11,7 +11,13 @@ namespace WebAtoms.CoreJS.Core
     public class JSArrayPrototype
     {
 
-        [Prototype("concat")]
+        [Constructor(Length = 1)]
+        public static JSValue Contructor(in Arguments a)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Prototype("concat", Length = 1)]
         public static JSValue Concat(in Arguments a)
         {
             var r = new JSArray();
@@ -27,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        [Prototype("every")]
+        [Prototype("every", Length = 1)]
         public static JSValue Every(in Arguments a)
         {
             var array = a.This;
@@ -46,7 +52,7 @@ namespace WebAtoms.CoreJS.Core
             return JSBoolean.True;
         }
 
-        [Prototype("copyWithIn")]
+        [Prototype("copyWithIn", Length = 2)]
         public static JSValue CopyWithIn(in Arguments a)
         {
             var array = a.This;
@@ -80,7 +86,7 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException();
         }
 
-        [Prototype("filter")]
+        [Prototype("filter", Length = 1)]
         public static JSValue Filter(in Arguments a)
         {
             var @this = a.This;
@@ -102,7 +108,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        [Prototype("find")]
+        [Prototype("find", Length = 1)]
         public static JSValue Find(in Arguments a)
         {
             var @this = a.This;
@@ -122,7 +128,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
-        [Prototype("findIndex")]
+        [Prototype("findIndex", Length = 1)]
         public static JSValue FindIndex(in Arguments a)
         {
             var @this = a.This;
@@ -141,7 +147,7 @@ namespace WebAtoms.CoreJS.Core
             return JSNumber.MinusOne;
         }
 
-        [Prototype("forEach")]
+        [Prototype("forEach", Length = 1)]
         public static JSValue ForEach(in Arguments a)
         {
             var @this = a.This;
@@ -157,7 +163,7 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
-        [Prototype("includes")]
+        [Prototype("includes", Length = 1)]
         public static JSValue Includes(in Arguments a)
         {
             var @this = a.This;
@@ -170,7 +176,7 @@ namespace WebAtoms.CoreJS.Core
             return JSBoolean.False;
         }
 
-        [Prototype("indexOf")]
+        [Prototype("indexOf", Length = 1)]
         public static JSValue IndexOf(in Arguments a)
         {
             var @this = a.This;
@@ -183,7 +189,7 @@ namespace WebAtoms.CoreJS.Core
             return JSNumber.MinusOne;
         }
 
-        [Prototype("join")]
+        [Prototype("join", Length = 1)]
         public static JSValue Join(in Arguments a)
         {
             var @this = a.This;
@@ -216,7 +222,7 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        [Prototype("lastIndexOf")]
+        [Prototype("lastIndexOf", Length = 1)]
         public static JSValue LastIndexOf(in Arguments a)
         {
             var @this = a.This;
@@ -237,7 +243,7 @@ namespace WebAtoms.CoreJS.Core
             return JSNumber.MinusOne;
         }
 
-        [Prototype("map")]
+        [Prototype("map", Length = 1)]
         public static JSValue Map(in Arguments a)
         {
             var @this = a.This;
@@ -253,7 +259,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        [Prototype("push")]
+        [Prototype("push", Length = 1)]
         public static JSValue Push(in Arguments a)
         {
             var t = a.This;
@@ -296,7 +302,7 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
-        [Prototype("reduce")]
+        [Prototype("reduce", Length = 1)]
         public static JSValue Reduce(in Arguments a)
         {
             var r = new JSArray();
@@ -320,7 +326,7 @@ namespace WebAtoms.CoreJS.Core
             return initialValue;
         }
 
-        [Prototype("reduceRight")]
+        [Prototype("reduceRight", Length = 1)]
         public static JSValue ReduceRight(in Arguments a)
         {
             var r = new JSArray();
@@ -411,7 +417,7 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        [Prototype("slice")]
+        [Prototype("slice", Length = 2)]
         public static JSArray Slice(in Arguments a)
         {
             var start = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
@@ -468,7 +474,7 @@ namespace WebAtoms.CoreJS.Core
             return r;
         }
 
-        [Prototype("some")]
+        [Prototype("some", Length = 1)]
         public static JSValue Some(in Arguments a)
         {
             var array = a.This;
@@ -484,7 +490,7 @@ namespace WebAtoms.CoreJS.Core
             return JSBoolean.False;
         }
 
-        [Prototype("sort")]
+        [Prototype("sort", Length = 1)]
         public static JSValue Sort(in Arguments a)
         {
 
@@ -523,7 +529,7 @@ namespace WebAtoms.CoreJS.Core
             return new JSArray(list);
         }
 
-        [Prototype("splice")]
+        [Prototype("splice", Length = 2)]
         public static JSValue Splice(in Arguments a)
         {
             var r = new JSArray();
@@ -586,7 +592,7 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        [Prototype("unshift")]
+        [Prototype("unshift", Length = 1)]
         public static JSValue Unshift(in Arguments a)
         {
             var @this = a.This;

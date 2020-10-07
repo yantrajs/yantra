@@ -73,20 +73,20 @@ namespace WebAtoms.CoreJS.Core
             return f(a);
         }
 
-        [Prototype("call")]
+        [Prototype("call", Length = 1)]
         public static JSValue Call(in Arguments a)
         {
             var a1 = a.CopyForCall();
             return a.This.InvokeFunction(a1);
         }
 
-        [Prototype("apply")]
+        [Prototype("apply", Length = 2)]
         public static JSValue Apply(in Arguments a){
             var ar = a.CopyForApply();
             return a.This.InvokeFunction(ar);
         }
 
-        [Prototype("bind")]
+        [Prototype("bind", Length = 1)]
         public static JSValue Bind(in Arguments a) {
             var fOriginal = a.This as JSFunction;
             var a1 = a.OverrideThis(a.This);
