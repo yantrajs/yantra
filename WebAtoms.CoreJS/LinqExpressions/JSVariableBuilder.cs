@@ -6,10 +6,12 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSVariableBuilder : TypeHelper<Core.JSVariable>
+    public class JSVariableBuilder
     {
+        private static Type type = typeof(JSVariable);
+
         private static ConstructorInfo _New
-            = Constructor<Core.JSValue, string>();
+            = type.Constructor(typeof(JSValue), typeof(string));
 
         public static Expression New(Expression value, string name)
         {
@@ -17,7 +19,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static ConstructorInfo _NewFromException
-            = Constructor<Exception, string>();
+            = type.Constructor(typeof(Exception), typeof(string));
 
         public static Expression NewFromException(Expression value, string name)
         {
@@ -25,7 +27,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _NewFromArgument
-            = InternalMethod(nameof(JSVariable.New));
+            = type.InternalMethod(nameof(JSVariable.New), typeof(Arguments).MakeByRefType(), typeof(int), typeof(string));
 
         public static Expression FromArgument(Expression args, int i, string name)
         {
