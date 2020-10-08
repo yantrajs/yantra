@@ -114,7 +114,7 @@ namespace WebAtoms.CoreJS.Extensions
                 return JSBoolean.False;
             if (c.StrictEquals(value).BooleanValue)
                 return JSBoolean.True;
-            return c.InstanceOf(value);
+            return p.InstanceOf(value);
         }
 
         public static JSBoolean IsIn(this JSValue target, JSValue value)

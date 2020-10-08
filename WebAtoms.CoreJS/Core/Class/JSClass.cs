@@ -17,7 +17,8 @@ namespace WebAtoms.CoreJS.Core
             : base(fx ?? JSFunction.empty, name, code)
         {
             this.super = super;
-            this.prototypeChain = super.prototype;
+            this.prototypeChain = super;
+            this.prototype.prototypeChain = super.prototype;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
