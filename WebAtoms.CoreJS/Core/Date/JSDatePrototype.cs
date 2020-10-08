@@ -106,5 +106,49 @@ namespace WebAtoms.CoreJS.Core.Date
             var result = @this.value.Year;
             return new JSNumber(result);
         }
+
+        [Prototype("getHours", Length = 0)]
+        internal static JSValue GetHours(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.Hour;
+            return new JSNumber(result);
+        }
+
+
+
+        [Prototype("getMilliseconds", Length = 0)]
+        internal static JSValue GetMilliSeconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.Millisecond;
+            return new JSNumber(result);
+        }
+
+
+
+        [Prototype("getMinutes", Length = 0)]
+        internal static JSValue GetMinutes(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.Minute;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getMonth", Length = 0)]
+        internal static JSValue GetMonth(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.Month - 1;
+            return new JSNumber(result);
+        }
     }
 }
