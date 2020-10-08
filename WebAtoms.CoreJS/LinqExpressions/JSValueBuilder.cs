@@ -7,19 +7,19 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSValueBuilder : TypeHelper<Core.JSValue>
+    public class JSValueBuilder
     {
         private static readonly Type type = typeof(JSValue);
 
         private static PropertyInfo _DoubleValue =
-            Property(nameof(Core.JSValue.DoubleValue));
+            type.Property(nameof(Core.JSValue.DoubleValue));
         public static Expression DoubleValue(Expression exp)
         {
             return Expression.Property(exp, _DoubleValue);
         }
 
         private static PropertyInfo _BooleanValue =
-            Property("BooleanValue");
+            type.Property(nameof(JSValue.BooleanValue));
         public static Expression BooleanValue(Expression exp)
         {
             return Expression.Property(exp, _BooleanValue);
@@ -27,7 +27,7 @@ namespace WebAtoms.CoreJS.ExpHelper
 
 
         private static MethodInfo _Add =
-            Method<Core.JSValue>(nameof(Core.JSValue.AddValue));
+            type.InternalMethod(nameof(Core.JSValue.AddValue), typeof(JSValue));
 
         public static Expression Add(Expression target, Expression value)
         {
@@ -35,7 +35,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _TypeOf =
-            Method("TypeOf");
+            type.GetMethod(nameof(JSValue.TypeOf));
 
         public static Expression TypeOf(Expression target)
         {
@@ -135,11 +135,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _DeleteKeyString
-            = Method<KeyString>(nameof(JSValue.Delete));
+            = type.InternalMethod(nameof(JSValue.Delete), typeof(KeyString));
         private static MethodInfo _DeleteUInt
-            = Method<uint>(nameof(JSValue.Delete));
+            = type.InternalMethod(nameof(JSValue.Delete), typeof(uint));
         private static MethodInfo _DeleteJSValue
-            = Method<JSValue>(nameof(JSValue.Delete));
+            = type.InternalMethod(nameof(JSValue.Delete), typeof(JSValue));
 
         public static Expression Delete(Expression target, Expression method)
         {
@@ -153,7 +153,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         internal static MethodInfo _CreateInstance
-            = Method(nameof(JSValue.CreateInstance));
+            = type.GetMethod(nameof(JSValue.CreateInstance));
 
         public static Expression CreateInstance(Expression target, Expression args)
         {
@@ -161,11 +161,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         internal static MethodInfo StaticEquals
-            = InternalStaticMethod<Core.JSValue, Core.JSValue>(nameof(Core.JSValue.StaticEquals));
+            = type.InternalMethod(nameof(Core.JSValue.StaticEquals), typeof(JSValue), typeof(JSValue));
 
 
         private static MethodInfo _Equals
-            = Method<Core.JSValue>(nameof(Core.JSValue.Equals));
+            = type.InternalMethod(nameof(Core.JSValue.Equals), typeof(JSValue));
 
         public static Expression Equals(Expression target, Expression value)
         {
@@ -183,7 +183,7 @@ namespace WebAtoms.CoreJS.ExpHelper
 
 
         private static MethodInfo _StrictEquals
-            = Method<Core.JSValue>(nameof(Core.JSValue.StrictEquals));
+            = type.InternalMethod(nameof(Core.JSValue.StrictEquals), typeof(JSValue));
 
         public static Expression StrictEquals(Expression target, Expression value)
         {
@@ -199,7 +199,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _Less
-            = InternalMethod<Core.JSValue>(nameof(Core.JSValue.Less));
+            = type.InternalMethod(nameof(Core.JSValue.Less), typeof(JSValue));
 
         public static Expression Less(Expression target, Expression value)
         {
@@ -207,7 +207,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _LessOrEqual
-            = InternalMethod<Core.JSValue>(nameof(Core.JSValue.LessOrEqual));
+            = type.InternalMethod(nameof(Core.JSValue.LessOrEqual), typeof(JSValue));
 
         public static Expression LessOrEqual(Expression target, Expression value)
         {
@@ -215,14 +215,14 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _Greater
-            = InternalMethod<Core.JSValue>(nameof(Core.JSValue.Greater));
+            = type.InternalMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
         public static Expression Greater(Expression target, Expression value)
         {
             return Expression.Call(target, _Greater, value);
         }
 
         private static MethodInfo _GreaterOrEqual
-            = InternalMethod<Core.JSValue>(nameof(Core.JSValue.GreaterOrEqual));
+            = type.InternalMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
             return Expression.Call(target, _GreaterOrEqual, value);
@@ -240,7 +240,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _GetAllKeys =
-            InternalMethod<bool, bool>(nameof(JSValue.GetAllKeys));
+            type.InternalMethod(nameof(JSValue.GetAllKeys), typeof(bool), typeof(bool));
 
         private static MethodInfo _GetEnumerator =
             typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));
