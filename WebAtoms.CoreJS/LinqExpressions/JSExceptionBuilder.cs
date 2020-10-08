@@ -2,13 +2,16 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSExceptionBuilder : TypeHelper<Core.JSException>
+    public static class JSExceptionBuilder
     {
+        private static Type type = typeof(JSException);
+
         private static MethodInfo _Throw =
-            InternalMethod<Core.JSValue>(nameof(Core.JSException.Throw));
+            type.InternalMethod(nameof(Core.JSException.Throw), typeof(Core.JSValue));
 
         public static Expression Throw(Expression value)
         {
@@ -16,14 +19,14 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _ThrowNotFunction =
-            InternalMethod<Core.JSValue>(nameof(Core.JSException.ThrowNotFunction));
+            type.InternalMethod(nameof(Core.JSException.ThrowNotFunction), typeof(Core.JSValue));
 
         public static Expression ThrowNotFunction(Expression value)
         {
             return Expression.Call(null, _ThrowNotFunction, value);
         }
         private static PropertyInfo _Error =
-            Property("Error");
+            type.Property(nameof(JSException.Error));
 
         public static Expression Error(Expression target)
         {

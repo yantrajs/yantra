@@ -6,7 +6,7 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSContextBuilder : TypeHelper<Core.JSContext>
+    public class JSContextBuilder
     {
 
         private static Type type = typeof(JSContext);
