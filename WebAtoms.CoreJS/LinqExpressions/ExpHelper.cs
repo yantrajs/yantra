@@ -287,10 +287,18 @@ namespace WebAtoms.CoreJS.ExpHelper
     }
 
     public class JSContextBuilder: TypeHelper<Core.JSContext> {
-        public static Expression Current =>
+
+        private static Type type = typeof(JSContext);
+
+
+        public static Expression Current =
             Expression.Property(null, Property("Current"));
 
-        public static Expression CurrentScope =>
+        public static Expression Object =
+            Expression.Field(Current, type.GetField(nameof(JSContext.Object)));
+
+
+        public static Expression CurrentScope =
             Expression.Field(Current, InternalField("Scope"));
 
         private static PropertyInfo _Index =
@@ -607,19 +615,60 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static PropertyInfo _IndexKeyString =
-            IndexProperty<KeyString>();
+                type.IndexProperty(typeof(KeyString));
 
         private static PropertyInfo _IndexUInt =
-            IndexProperty<uint>();
+                type.IndexProperty(typeof(uint));
 
         private static PropertyInfo _Index =
-            IndexProperty<Core.JSValue>();
+                type.IndexProperty(typeof(JSValue));
+
+        private static PropertyInfo _SuperIndexKeyString =
+                    type.IndexProperty(typeof(JSObject), typeof(KeyString));
+
+        private static PropertyInfo _SuperIndexUInt =
+                    type.IndexProperty(typeof(JSObject), typeof(uint));
+
+        private static PropertyInfo _SuperIndex =
+                    type.IndexProperty(typeof(JSObject), typeof(JSValue));
+
+        public static Expression Index(Expression target, Expression super, uint i)
+        {
+            if (super == null)
+            {
+                return Index(target, i);
+            }
+            return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Constant(i) });
+        }
+
 
         public static Expression Index(Expression target, uint i)
         {
+            
             return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Constant(i) });
         }
 
+
+        public static Expression Index(Expression target, Expression super, Expression property)
+        {
+            if (super == null)
+            {
+                return Index(target, property);
+            }
+            if (property.Type == typeof(KeyString))
+            {
+                return Expression.MakeIndex(target, _SuperIndexKeyString, new Expression[] { super,  property });
+            }
+            if (property.Type == typeof(uint))
+            {
+                return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, property });
+            }
+            if (property.Type == typeof(int))
+            {
+                return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Convert(property, typeof(uint)) });
+            }
+            return Expression.MakeIndex(target, _SuperIndex, new Expression[] { super,  property });
+        }
 
 
         public static Expression Index(Expression target, Expression property)
@@ -809,6 +858,7 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         private static MethodInfo _AddPropertyAccessors =
             type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSFunction), typeof(JSFunction) });
+
 
         public static Expression New(IList<ExpressionHolder> keyValues)
         {
@@ -1148,6 +1198,17 @@ namespace WebAtoms.CoreJS.ExpHelper
     }
     public class JSFunctionBuilder: TypeHelper<Core.JSFunction>
     {
+        static Type type = typeof(JSFunction);
+
+        private static FieldInfo _prototype =
+            type.GetField(nameof(JSFunction.prototype));
+
+        public static Expression Prototype(Expression target)
+        {
+            return Expression.Field(target, _prototype);
+        }
+
+
         private static ConstructorInfo _New =
             Constructor<JSFunctionDelegate, string, string, int>();
 

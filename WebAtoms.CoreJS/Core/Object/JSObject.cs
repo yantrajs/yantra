@@ -216,59 +216,6 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal override JSValue this[JSSymbol name, JSValue @this] {
-            get => @this.GetValue(GetInternalProperty(name));
-            set {
-                var p = GetInternalProperty(name);
-                if (p.IsProperty)
-                {
-                    if(p.set != null)
-                    {
-                        p.set.f(new Arguments(@this, value));
-                    }
-                    return;
-                }
-                var symbols = this.symbols ?? (this.symbols = new CompactUInt32Trie<JSProperty>());
-                symbols[name.Key.Key] = JSProperty.Property(name.Key, value);
-            }
-        }
-
-        internal override JSValue this[KeyString name, JSValue @this] {
-            get => @this.GetValue(GetInternalProperty(name));
-            set
-            {
-                var p = GetInternalProperty(name);
-                if (p.IsProperty)
-                {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(@this, value));
-                    }
-                    return;
-                }
-                var ownProperties = this.ownProperties = this.ownProperties ?? new PropertySequence();
-                ownProperties[name.Key] = JSProperty.Property(name, value);
-            }
-        }
-
-        internal override JSValue this[uint name, JSValue @this] {
-            get => @this.GetValue(GetInternalProperty(name));
-            set
-            {
-                var p = GetInternalProperty(name);
-                if (p.IsProperty)
-                {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(@this, value));
-                    }
-                    return;
-                }
-                var elements = this.elements = this.elements ?? new UInt32Trie<JSProperty>();
-                elements[name] = JSProperty.Property(value);
-            }
-        }
-
         public JSValue DefineProperty(JSSymbol name, JSProperty p)
         {
             var key = name.Key.Key;

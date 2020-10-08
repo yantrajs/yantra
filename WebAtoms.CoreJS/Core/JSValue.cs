@@ -180,50 +180,63 @@ namespace WebAtoms.CoreJS.Core {
             set { }
         }
 
-        internal virtual JSValue this[uint name, JSValue @this]
+        internal JSValue this[JSObject super, KeyString name]
         {
-            get
+            get => this.GetValue(super.GetInternalProperty(name));
+            set
             {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return @this.GetValue(prototypeChain.GetInternalProperty(name));
+                var p = super.GetInternalProperty(name);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(new Arguments(this, value));
+                    }
+                    return;
+                }
+                throw JSContext.Current.NewTypeError($"{name} accessor not found on super");
             }
-            set { }
         }
 
-        internal virtual JSValue this[JSSymbol name, JSValue @this]
+        internal JSValue this[JSObject super, uint index]
         {
-            get
+            get => this.GetValue(super.GetInternalProperty(index));
+            set
             {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return @this.GetValue(prototypeChain.GetInternalProperty(name));
+                var p = super.GetInternalProperty(index);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(new Arguments(this, value));
+                    }
+                    return;
+                }
+                throw JSContext.Current.NewTypeError($"{index} accessor not found on super");
             }
-            set { }
         }
 
-
-        internal JSValue this[JSValue name, JSValue @this]
+        internal JSValue this[JSObject super, JSValue name]
         {
             get
             {
                 if (name is JSSymbol symbol)
-                    return this[symbol, @this];
+                    return this[super, symbol];
                 var key = name.ToKey();
                 if (key.IsUInt)
-                    return this[key.Key, @this];
-                return this[key, @this];
+                    return this[super, key.Key];
+                return this[super, key];
             }
             set {
                 if (name is JSSymbol symbol)
-                    this[symbol, @this] = value;
+                    this[super, symbol] = value;
                 var key = name.ToKey();
                 if (key.IsUInt)
                 {
-                    this[key.Key, @this] = value;
+                    this[super, key.Key] = value;
                     return;
                 } 
-                this[key, @this] = value;
+                this[super, key] = value;
             }
         }
 

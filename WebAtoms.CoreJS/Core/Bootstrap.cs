@@ -33,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public static JSObject Create<T>(
+        public static JSFunction Create<T>(
             this JSContext context, 
             KeyString key, 
             JSObject chain = null)
@@ -83,7 +83,7 @@ namespace WebAtoms.CoreJS.Core
             }
             context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
             copy.prototypeChain = chain ?? context.ObjectPrototype;
-            return copy.prototype;
+            return copy;
         }
 
         #region Fill

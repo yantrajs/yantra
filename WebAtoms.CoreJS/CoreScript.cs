@@ -195,13 +195,25 @@ namespace WebAtoms.CoreJS
             if (super != null)
             {
                 superExp = VisitExpression(super);
+            } else
+            {
+                superExp = JSContextBuilder.Object;
             }
 
             Exp constructor = null;
             Dictionary<string, ExpressionHolder> cache = new Dictionary<string, ExpressionHolder>();
             List<ExpressionHolder> members = new List<ExpressionHolder>();
             ExpressionHolder expHolder;
-            foreach(var property in body.Body)
+
+            var superVar = Exp.Parameter(typeof(JSFunction));
+            var superPrototypeVar = Exp.Parameter(typeof(JSObject));
+
+            List<Exp> stmts = new List<Exp>();
+
+            stmts.Add(Exp.Assign(superVar, Exp.TypeAs(superExp, typeof(JSFunction))));
+            stmts.Add(Exp.Assign(superPrototypeVar, JSFunctionBuilder.Prototype(superVar)));
+
+            foreach (var property in body.Body)
             {
                 var name = property.Key.As<Identifier>()?.Name;
                 switch (property.Kind)
@@ -218,7 +230,7 @@ namespace WebAtoms.CoreJS
                             cache[name] = expHolder;
                             members.Add(expHolder);
                         }
-                        expHolder.Getter = CreateFunction(property.Value.As<IFunction>(), superExp);
+                        expHolder.Getter = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar);
                         break;
                     case PropertyKind.Set:
                         if (!cache.TryGetValue(name, out expHolder))
@@ -228,24 +240,24 @@ namespace WebAtoms.CoreJS
                             cache[name] = expHolder;
                             members.Add(expHolder);
                         }
-                        expHolder.Setter = CreateFunction(property.Value.As<IFunction>(), superExp);
+                        expHolder.Setter = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar);
                         break;
                     case PropertyKind.Init:
                         break;
                     case PropertyKind.Constructor:
-                        constructor = CreateFunction(property.Value.As<IFunction>(), superExp);
+                        constructor = CreateFunction(property.Value.As<IFunction>(), superVar);
                         break;
                     case PropertyKind.Method:
                         members.Add(new ExpressionHolder()
                         {
                             Key = KeyOfName(name),
-                            Value = CreateFunction(property.Value.As<IFunction>(), superExp)
+                            Value = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar)
                         });
                         break;
                 }
             }
 
-            Exp retValue = JSClassBuilder.New(constructor, superExp, id?.Name ?? "Unnamed");
+            Exp retValue = JSClassBuilder.New(constructor, superVar, id?.Name ?? "Unnamed");
             foreach(var exp in members)
             {
                 if(exp.Value != null)
@@ -255,7 +267,8 @@ namespace WebAtoms.CoreJS
                 }
                 retValue = JSClassBuilder.AddProperty(retValue, exp.Key, exp.Getter, exp.Setter);
             }
-            return retValue;
+            stmts.Add(retValue);
+            return Exp.Block(new ParameterExpression[] { superVar, superPrototypeVar }, stmts);
         }
 
         private Exp CreateFunction(
@@ -1136,6 +1149,7 @@ namespace WebAtoms.CoreJS
             var target = isSuper
                 ? this.scope.Top.ThisExpression
                 : VisitExpression(memberExpression.Object);
+            var super = isSuper ? this.scope.Top.Super : null;
             switch (memberExpression.Property)
             {
                 case Identifier id:
@@ -1143,34 +1157,39 @@ namespace WebAtoms.CoreJS
                     {
                         return ExpHelper.JSValueBuilder.Index(
                             target,
+                            super,
                             KeyOfName(id.Name));
                     }
                     return ExpHelper.JSValueBuilder.Index(
                         target,
+                        super,
                         VisitIdentifier(id));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.BooleanLiteral:
                     return ExpHelper.JSValueBuilder.Index(
                         target,
+                        super,
                         l.BooleanValue ? (uint)0 : (uint)1);
                 case Literal l
                     when l.TokenType == Esprima.TokenType.StringLiteral:
                     return ExpHelper.JSValueBuilder.Index(
                         target,
+                        super,
                         KeyOfName(l.StringValue));
                 case Literal l
                     when l.TokenType == Esprima.TokenType.NumericLiteral 
                         && l.NumericValue >= 0 && (l.NumericValue % 1 == 0):
                     return ExpHelper.JSValueBuilder.Index(
                         target,
+                        super,
                         (uint)l.NumericValue);
                 case StaticMemberExpression se:
-                    return JSValueBuilder.Index( target,VisitExpression(se.Property));
+                    return JSValueBuilder.Index( target,super, VisitExpression(se.Property));
 
             }
             if (memberExpression.Computed)
             {
-                return JSValueBuilder.Index(target, VisitExpression(memberExpression.Property));
+                return JSValueBuilder.Index(target, super, VisitExpression(memberExpression.Property));
             }
             throw new NotImplementedException();
         }

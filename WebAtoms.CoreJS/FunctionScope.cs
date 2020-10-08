@@ -63,7 +63,10 @@ namespace WebAtoms.CoreJS
                 }
                 else
                 {
-                    Init = Exp.Assign(Variable, exp);
+                    if (exp != null)
+                    {
+                        Init = Exp.Assign(Variable, exp);
+                    }
                 }
             }
         }
@@ -242,7 +245,8 @@ namespace WebAtoms.CoreJS
         public VariableScope CreateVariable(
             string name,
             Exp init = null,
-            bool newScope = false)
+            bool newScope = false,
+            Type type = null)
         {
             var v = this.variableScopeList.FirstOrDefault(x => x.Name == name);
             if (v != null)
@@ -261,7 +265,7 @@ namespace WebAtoms.CoreJS
                 }
             }
 
-            var pe = Expression.Parameter(typeof(JSVariable), name);
+            var pe = Expression.Parameter(type ?? typeof(JSVariable), name);
             var ve = JSVariable.ValueExpression(pe);
             v = new VariableScope
             {
