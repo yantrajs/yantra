@@ -11,15 +11,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Emit;
 using WebAtoms.CoreJS.Utils;
 namespace WebAtoms.CoreJS.Tests.Generator
 {
     public class TestFolderAttribute: TestMethodAttribute
     {
         readonly string root;
-        public TestFolderAttribute(string root)
+
+        readonly bool saveLambda;
+        public TestFolderAttribute(string root, bool saveLambda = false)
         {
             this.root = root;
+            this.saveLambda = saveLambda;
         }
 
         private Stopwatch watch = new Stopwatch();
@@ -43,7 +47,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         public IEnumerable<(FileInfo,string)> GetData()
         {
-            static IEnumerable<(FileInfo,string)> GetFiles(DirectoryInfo files)
+            IEnumerable<(FileInfo,string)> GetFiles(DirectoryInfo files)
             {
                 foreach (var file in files.EnumerateFiles())
                 {
@@ -58,13 +62,13 @@ namespace WebAtoms.CoreJS.Tests.Generator
                         yield return x;
                 }
             }
-            var dir = new DirectoryInfo("../../../Generator/Files/" + root);
-            return GetFiles(dir);
+            var dir1 = new DirectoryInfo("../../../Generator/Files/" + root);
+            return GetFiles(dir1);
         }
 
         protected virtual void Evaluate(JSTestContext context, string content, string fullName)
         {
-            CoreScript.Evaluate(content, fullName);
+            CoreScript.Evaluate(content, fullName, saveLambda ? AssemblyCodeCache.Instance : DictionaryCodeCache.Current);
         }
         protected async Task<TestResult> RunAsyncTest((FileInfo file, string name) testCase)
         {
@@ -80,10 +84,12 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 {
                     content = await fs.ReadToEndAsync();
                 }
-                using var jc = new JSTestContext();
-                jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
-                jc.Error += (_, e) => lastError = e;
-                Evaluate(jc, content, testCase.file.FullName);
+                using (var jc = new JSTestContext())
+                {
+                    jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
+                    jc.Error += (_, e) => lastError = e;
+                    Evaluate(jc, content, testCase.file.FullName);
+                }
             } catch (Exception ex)
             {
                 lastError = ex;

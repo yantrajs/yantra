@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Core.Generator;
+using WebAtoms.CoreJS.Emit;
 using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.LinqExpressions;
@@ -46,14 +47,13 @@ namespace WebAtoms.CoreJS
             return pe;
         }
 
-        static readonly ConcurrentDictionary<string, JSFunctionDelegate> scripts
-            = new ConcurrentDictionary<string, JSFunctionDelegate>();
-
-        internal static JSFunctionDelegate Compile(string code, string location = null, IList<string> args = null)
+        internal static JSFunctionDelegate Compile(string code, string location = null, IList<string> args = null, ICodeCache codeCache = null)
         {
-            return scripts.GetOrAdd(code, (k) =>
+            codeCache = codeCache ?? DictionaryCodeCache.Current;
+            var jsc = new JSCode(location, code, args);
+            return codeCache.GetOrCreate(jsc, (in JSCode a) =>
             {
-                var c = new CoreScript(code, location, args);
+                var c = new CoreScript(a.Code, a.Location, a.Arguments, codeCache);
                 return c.Method;
             });
         }
@@ -71,17 +71,16 @@ namespace WebAtoms.CoreJS
         }
 
 
-        public static JSValue Evaluate(string code, string location = null)
+        public static JSValue Evaluate(string code, string location = null, ICodeCache codeCache = null)
         {
-            var fx = Compile(code, location);
+            var fx = Compile(code, location, null, codeCache);
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
             result = fx(new Arguments(ctx));
             return result;
         }
 
-
-        public CoreScript(string code, string location = null, IList<string> argsList = null)
+        public CoreScript(string code, string location = null, IList<string> argsList = null, ICodeCache codeCache = null)
         {
             this.Code = code;
             location = location ?? "vm.js";
@@ -156,7 +155,7 @@ namespace WebAtoms.CoreJS
                 sList.AddRange(fx.InitList);
 
                 sList.Add(Exp.Return(l, script.ToJSValue()));
-                sList.Add(Exp.Label(l, Exp.Constant(JSUndefined.Value)));
+                sList.Add(Exp.Label(l, JSUndefinedBuilder.Value));
 
                 script = Exp.Block(vList,
                     Exp.TryFinally(
@@ -168,6 +167,10 @@ namespace WebAtoms.CoreJS
 
                 this.Method = lambda.Compile();
 
+                if (codeCache != null)
+                {
+                    codeCache.Save(location, lambda);
+                }
             }
         }
 
@@ -213,6 +216,8 @@ namespace WebAtoms.CoreJS
             stmts.Add(Exp.Assign(superVar, Exp.TypeAs(superExp, typeof(JSFunction))));
             stmts.Add(Exp.Assign(superPrototypeVar, JSFunctionBuilder.Prototype(superVar)));
 
+            Exp retValue = null;
+
             foreach (var property in body.Body)
             {
                 var name = property.Key.As<Identifier>()?.Name;
@@ -245,7 +250,7 @@ namespace WebAtoms.CoreJS
                     case PropertyKind.Init:
                         break;
                     case PropertyKind.Constructor:
-                        constructor = CreateFunction(property.Value.As<IFunction>(), superVar);
+                        retValue = CreateFunction(property.Value.As<IFunction>(), superVar, true, id?.Name);
                         break;
                     case PropertyKind.Method:
                         members.Add(new ExpressionHolder()
@@ -257,7 +262,7 @@ namespace WebAtoms.CoreJS
                 }
             }
 
-            Exp retValue = JSClassBuilder.New(constructor, superVar, id?.Name ?? "Unnamed");
+            retValue = retValue ?? JSClassBuilder.New(constructor, superVar, id?.Name ?? "Unnamed");
             foreach(var exp in members)
             {
                 if(exp.Value != null)
@@ -267,13 +272,25 @@ namespace WebAtoms.CoreJS
                 }
                 retValue = JSClassBuilder.AddProperty(retValue, exp.Key, exp.Getter, exp.Setter);
             }
-            stmts.Add(retValue);
+            // stmts.Add(retValue);
+
+            if (id?.Name != null)
+            {
+                var v = this.scope.Top.CreateVariable(id.Name);
+                stmts.Add(Exp.Assign(v.Expression, retValue));
+            }else
+            {
+                stmts.Add(retValue);
+            }
+
             return Exp.Block(new ParameterExpression[] { superVar, superPrototypeVar }, stmts);
         }
 
         private Exp CreateFunction(
             Esprima.Ast.IFunction functionDeclaration,
-            Exp super = null
+            Exp super = null,
+            bool createClass = false,
+            string className = null
             )
         {
             var code = Code.Substring(functionDeclaration.Range.Start, 
@@ -406,7 +423,9 @@ namespace WebAtoms.CoreJS
                 // create new JSFunction instance...
                 var jfs = functionDeclaration.Generator 
                     ? JSGeneratorFunctionBuilder.New(lambda, fxName, code)
-                    : JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count);
+                    : ( createClass 
+                        ? JSClassBuilder.New(lambda, super, className ?? "Unnamed")
+                        : JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count));
 
                 if (!(functionDeclaration is Esprima.Ast.FunctionDeclaration))
                 {
@@ -1479,6 +1498,16 @@ namespace WebAtoms.CoreJS
                 return JSValueBuilder.InvokeMethod(target, name, paramArray);
 
             } else {
+
+                bool isSuper = callExpression.Callee is Super;
+
+                if (isSuper)
+                {
+                    var paramArray1 = ArgumentsBuilder.New(this.scope.Top.ThisExpression, args);
+                    var super = this.scope.Top.Super;
+                    return JSFunctionBuilder.InvokeSuperConstructor(this.scope.Top.ThisExpression, super, paramArray1);
+                }
+
                 var paramArray = args.Any()
                     ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args)
                     : ArgumentsBuilder.Empty();

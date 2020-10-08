@@ -21,7 +21,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         static Type type = typeof(JSFunction);
 
         private static FieldInfo _prototype =
-            type.GetField(nameof(JSFunction.prototype));
+            type.InternalField(nameof(JSFunction.prototype));
 
         public static Expression Prototype(Expression target)
         {
@@ -37,6 +37,14 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         private static MethodInfo invokeFunction =
             typeof(JSValue).GetMethod(nameof(JSFunction.InvokeFunction));
+
+        private static MethodInfo _invokeSuperConstructor
+            = typeof(JSFunction).InternalMethod(nameof(JSFunction.InvokeSuperConstructor), typeof(JSValue), typeof(Arguments).MakeByRefType());
+
+        public static Expression InvokeSuperConstructor(Expression returnValue, Expression super, Expression args)
+        {
+            return Expression.Assign(returnValue, Expression.Call(null, _invokeSuperConstructor, super, args));
+        }
 
         public static Expression InvokeFunction(Expression target, Expression args)
         {

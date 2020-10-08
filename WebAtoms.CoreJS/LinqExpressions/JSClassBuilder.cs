@@ -15,10 +15,10 @@ namespace WebAtoms.CoreJS.ExpHelper
                 typeof(JSFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
 
         private static MethodInfo _AddPrototypeProperty =
-            type.InternalMethod(nameof(JSClass.AddPrototypeProperty));
+            type.InternalMethod(nameof(JSClass.AddPrototypeProperty), typeof(KeyString), typeof(JSFunction), typeof(JSFunction));
 
         private static MethodInfo _AddPrototypeMethod =
-                    type.InternalMethod(nameof(JSClass.AddPrototypeMethod));
+                    type.InternalMethod(nameof(JSClass.AddPrototypeMethod), typeof(KeyString), typeof(JSValue));
 
         public static Expression AddValue(
             Expression target,

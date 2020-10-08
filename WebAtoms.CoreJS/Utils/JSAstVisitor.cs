@@ -111,7 +111,7 @@ namespace WebAtoms.CoreJS.Utils
                     
                 case Nodes.SwitchCase:
                     return VisitSwitchCase(node.As<SwitchCase>());
-                    
+
                 case Nodes.TemplateElement:
                     return VisitTemplateElement(node.As<TemplateElement>());
                     
@@ -284,6 +284,9 @@ namespace WebAtoms.CoreJS.Utils
                     
                 case Nodes.CatchClause:
                     return VisitCatchClause(statement.As<CatchClause>());
+
+                case Nodes.ClassDeclaration:
+                    return VisitClassDeclaration(statement.As<ClassDeclaration>());
                     
                 default:
                     return VisitUnknownNode(statement);

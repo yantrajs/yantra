@@ -17,14 +17,17 @@ namespace WebAtoms.CoreJS.Core
             : base(fx ?? JSFunction.empty, name, code)
         {
             this.super = super;
+            this.prototypeChain = super.prototype;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override JSValue CreateInstance(in Arguments a)
         {
-            var @object = super?.CreateInstance(a) ?? new JSObject(this.prototype);
+            var @object = new JSObject();
             var ao = a.OverrideThis(@object);
             var @this = f(ao);
+            if (@this.IsUndefined)
+                @this = @object;
             @this.prototypeChain = this.prototype;
             return @this;
         }
@@ -37,7 +40,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddPrototypeMethod(KeyString name, JSFunction value)
+        internal JSClass AddPrototypeMethod(KeyString name, JSValue value)
         {
             this.prototype.ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;

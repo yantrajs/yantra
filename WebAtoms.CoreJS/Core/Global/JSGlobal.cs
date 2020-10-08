@@ -44,7 +44,7 @@ namespace WebAtoms.CoreJS.Core
             if (!f.IsString)
                 return f;
             var text = f.ToString();
-            return CoreScript.Evaluate(text);
+            return CoreScript.Evaluate(text, null);
         }
 
         [Static("encodeURI", Length = 1)]

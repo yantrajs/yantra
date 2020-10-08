@@ -48,9 +48,12 @@ namespace WebAtoms.CoreJS.Utils
         public static JSValue DoubleEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
-            if (!(Math.Abs(left.DoubleValue - right.DoubleValue) < 0.0001))
+            var diff = Math.Abs(left.DoubleValue - right.DoubleValue);
+            // var leftDiff = 
+            var marginalDiff = Math.Max(0.0001, Math.Max(left.DoubleValue, right.DoubleValue)/ 1000);
+            if (!(diff < marginalDiff))
             {
-                var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
+                var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same difference is {diff}";
                 throw new JSException(msg);
             }
             return JSUndefined.Value;
