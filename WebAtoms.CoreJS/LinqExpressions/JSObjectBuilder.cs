@@ -7,12 +7,12 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSObjectBuilder : TypeHelper<Core.JSObject>
+    public class JSObjectBuilder
     {
         private static Type type = typeof(JSObject);
 
         private static FieldInfo _ownProperties =
-            InternalField(nameof(Core.JSObject.ownProperties));
+            type.InternalField(nameof(Core.JSObject.ownProperties));
 
         private static PropertyInfo _Index =
             typeof(BaseMap<uint, Core.JSProperty>)

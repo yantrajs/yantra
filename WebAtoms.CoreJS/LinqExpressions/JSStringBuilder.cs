@@ -2,20 +2,23 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSStringBuilder : TypeHelper<Core.JSString>
+    public class JSStringBuilder 
     {
+
+
         private static FieldInfo _Value =
-            InternalField(nameof(Core.JSString.value));
+            typeof(JSString).InternalField(nameof(Core.JSString.value));
 
         public static Expression Value(Expression ex)
         {
             return Expression.Field(ex, _Value);
         }
 
-        private static ConstructorInfo _New = Constructor<string>();
+        private static ConstructorInfo _New = typeof(JSString).Constructor(typeof(string));
 
         public static Expression New(Expression exp)
         {

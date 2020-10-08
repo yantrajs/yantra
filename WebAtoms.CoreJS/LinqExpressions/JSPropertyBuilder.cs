@@ -6,22 +6,24 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSPropertyBuilder : TypeHelper<Core.JSProperty>
+    public class JSPropertyBuilder
     {
+        private static Type type = typeof(JSProperty);
+
         private static ConstructorInfo _New =
-            typeof(Core.JSProperty).GetConstructors().FirstOrDefault();
+            type.GetConstructors().FirstOrDefault();
 
         private static FieldInfo _Attributes =
-            Field(nameof(Core.JSProperty.Attributes));
+            type.InternalField(nameof(Core.JSProperty.Attributes));
 
         private static FieldInfo _Key =
-            Field(nameof(Core.JSProperty.key));
+            type.InternalField(nameof(Core.JSProperty.key));
 
         private static FieldInfo _Get =
-            Field(nameof(Core.JSProperty.get));
+            type.InternalField(nameof(Core.JSProperty.get));
 
         private static FieldInfo _Value =
-            Field(nameof(Core.JSProperty.value));
+            type.InternalField(nameof(Core.JSProperty.value));
 
         public static Expression Value(Expression key, Expression value)
         {
