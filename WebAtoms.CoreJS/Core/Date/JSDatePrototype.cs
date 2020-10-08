@@ -150,5 +150,37 @@ namespace WebAtoms.CoreJS.Core.Date
             var result = @this.value.Month - 1;
             return new JSNumber(result);
         }
+
+
+        [Prototype("getSeconds", Length = 0)]
+        internal static JSValue GetSeconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.Second;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getTime", Length = 0)]
+        internal static JSValue GetTime(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToJSDate();
+            return new JSNumber(result);
+        }
+
+        [Prototype("getTimezoneOffset", Length = 0)]
+        internal static JSValue GetTimezoneOffset(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = -(int)TimeZoneInfo.Local.GetUtcOffset(@this.Value).TotalMinutes;
+            return new JSNumber(result);
+        }
+
     }
 }
