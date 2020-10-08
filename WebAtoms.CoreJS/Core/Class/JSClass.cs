@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace WebAtoms.CoreJS.Core
@@ -18,6 +19,7 @@ namespace WebAtoms.CoreJS.Core
             this.super = super;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override JSValue CreateInstance(in Arguments a)
         {
             var @object = super?.CreateInstance(a) ?? new JSObject(this.prototype);
@@ -27,15 +29,17 @@ namespace WebAtoms.CoreJS.Core
             return @this;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSClass AddPrototypeProperty(KeyString name, JSFunction getter, JSFunction setter)
         {
-            this.prototype.AddProperty(name, getter, setter);
+            this.prototype.ownProperties[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSClass AddPrototypeMethod(KeyString name, JSFunction value)
         {
-            this.prototype.AddProperty(name, value);
+            this.prototype.ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;
         }
 
