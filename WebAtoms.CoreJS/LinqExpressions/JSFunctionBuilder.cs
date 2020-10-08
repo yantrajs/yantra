@@ -16,7 +16,7 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSFunctionBuilder: TypeHelper<Core.JSFunction>
+    public class JSFunctionBuilder
     {
         static Type type = typeof(JSFunction);
 
@@ -30,13 +30,13 @@ namespace WebAtoms.CoreJS.ExpHelper
 
 
         private static ConstructorInfo _New =
-            Constructor<JSFunctionDelegate, string, string, int>();
+            type.Constructor(new Type[] { typeof(JSFunctionDelegate), typeof(string), typeof(string), typeof(int) });
 
         private static FieldInfo _f =
-            InternalField(nameof(JSFunction.f));
+            type.InternalField(nameof(JSFunction.f));
 
         private static MethodInfo invokeFunction =
-            typeof(JSValue).GetMethod("InvokeFunction");
+            typeof(JSValue).GetMethod(nameof(JSFunction.InvokeFunction));
 
         public static Expression InvokeFunction(Expression target, Expression args)
         {
