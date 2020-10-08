@@ -5,10 +5,11 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSNullBuilder : TypeHelper<Core.JSNull>
+    public class JSNullBuilder
     {
+
         public static Expression Value =
             Expression.Field(null,
-                Field(nameof(JSNull.Value)));
+                typeof(JSNull).GetField(nameof(JSNull.Value)));
     }
 }

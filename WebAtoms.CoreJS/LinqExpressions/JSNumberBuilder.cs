@@ -2,18 +2,19 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSNumberBuilder : TypeHelper<Core.JSNumber>
+    public class JSNumberBuilder
     {
-
+        static Type type = typeof(JSNumber);
 
         public static Expression NaN =
-            Expression.Field(null, Field("NaN"));
+            Expression.Field(null, type.GetField(nameof(JSNumber.NaN)));
 
         private static FieldInfo _Value =
-            InternalField(nameof(Core.JSNumber.value));
+            type.InternalField(nameof(Core.JSNumber.value));
 
         public static Expression Value(Expression ex)
         {
@@ -21,7 +22,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static ConstructorInfo _NewDouble
-            = Constructor<double>();
+            = type.Constructor(typeof(double));
 
         public static Expression New(Expression exp)
         {
@@ -33,7 +34,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _AddValue =
-                        Method<Core.JSValue>(nameof(Core.JSValue.AddValue));
+                        type.InternalMethod(nameof(Core.JSValue.AddValue), typeof(Core.JSValue));
 
         public static Expression AddValue(Expression target, Expression value)
         {
