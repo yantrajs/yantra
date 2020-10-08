@@ -9,6 +9,15 @@ namespace WebAtoms.CoreJS
 {
     internal static class TypeExtensions
     {
+
+        internal static PropertyInfo Property(this Type type , string name)
+        {
+            var a = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+            if (a == null)
+                throw new NullReferenceException($"Property {name} not found on {type.FullName}");
+            return a;
+        }
+
         internal static FieldInfo InternalField(this Type type, string name)
         {
             return type.GetField(name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
