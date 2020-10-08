@@ -7,11 +7,12 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class LexicalScopeBuilder : TypeHelper<Core.LexicalScope>
+    public class LexicalScopeBuilder
     {
+        private static Type type = typeof(LexicalScope);
 
         private static PropertyInfo _Index =
-            IndexProperty<Core.KeyString>();
+            type.IndexProperty(typeof(Core.KeyString));
 
         private static PropertyInfo _Top
             = typeof(LinkedStack<LexicalScope>).GetProperty(nameof(LinkedStack<LexicalScope>.Top));
@@ -56,10 +57,10 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static PropertyInfo _Position =
-            Property(nameof(Core.LexicalScope.Position));
+            type.Property(nameof(Core.LexicalScope.Position));
 
         private static ConstructorInfo _NewPosition =
-            TypeHelper<Position>.Constructor<int, int>();
+            typeof(Position).Constructor(typeof(int), typeof(int));
 
         public static Expression SetPosition(Expression exp, int line, int column)
         {

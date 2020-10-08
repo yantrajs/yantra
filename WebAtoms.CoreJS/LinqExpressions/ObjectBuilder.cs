@@ -5,8 +5,10 @@ using System.Reflection;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class ObjectBuilder : TypeHelper<System.Object>
+    public class ObjectBuilder
     {
+        private static Type type = typeof(object);
+
         private static MethodInfo _ToString
             = typeof(System.Object).GetMethod("ToString", new Type[] { });
 
@@ -16,7 +18,7 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _ReferenceEquals
-            = Method<object, object>("ReferenceEquals");
+            = type.StaticMethod(nameof(Object.ReferenceEquals), typeof(object), typeof(object));
 
         public static Expression RefEquals(Expression left, Expression right)
         {

@@ -5,26 +5,20 @@ using System.Reflection;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class StringBuilder : TypeHelper<System.String>
+    public class StringBuilder
     {
+        private static Type type = typeof(string);
+
         private static MethodInfo _Compare =
-            StaticMethod<string, string>("Compare");
+            type.StaticMethod(nameof(String.Compare), typeof(string), typeof(string));
 
         public static Expression Compare(Expression left, Expression right)
         {
             return Expression.Call(null, _Compare, left, right);
         }
 
-        private static MethodInfo _Equals =
-            StaticMethod<string, string>("Equals");
-
-        public static Expression Equals(Expression left, Expression right)
-        {
-            return Expression.Call(null, _Equals, left, right);
-        }
-
         private static MethodInfo _Concat =
-            StaticMethod<string, string>("Concat");
+            type.StaticMethod(nameof(String.Concat), typeof(string), typeof(string));
 
         public static Expression Concat(Expression left, Expression right)
         {
