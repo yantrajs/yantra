@@ -134,7 +134,7 @@ namespace WebAtoms.CoreJS.Core
             }
 
             this.Create<JSSymbol>(KeyStrings.Symbol);
-            FunctionPrototype = this.Create<JSFunction>(KeyStrings.Function);
+            FunctionPrototype = this.Create<JSFunction>(KeyStrings.Function).prototype;
             // create object prototype...
             Object =  this.Create<JSObject>(KeyStrings.Object);
             ObjectPrototype = Object.prototype;

@@ -1459,8 +1459,8 @@ namespace WebAtoms.CoreJS
                 }
 
                 // var id = me.Property.As<Esprima.Ast.Identifier>();
-                var super = this.scope.Top.Super;
                 bool isSuper = me.Object is Super;
+                var super = isSuper ? this.scope.Top.Super : null;
                 var target = isSuper
                     ? this.scope.Top.ThisExpression
                     : VisitExpression(me.Object);
