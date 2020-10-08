@@ -6,7 +6,7 @@ using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSArgumentsBuilder
+    public static class JSArgumentsBuilder
     {
         private static Type type = typeof(JSArguments);
         private static ConstructorInfo _New

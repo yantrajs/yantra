@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class JSArrayBuilder : TypeHelper<Core.JSArray>
+    public class JSArrayBuilder
     {
+        private static Type type = typeof(JSArray);
+
         private static ConstructorInfo _New =
-            typeof(Core.JSArray).GetConstructor(new Type[] { });
+            type.GetConstructor(new Type[] { });
 
         private static MethodInfo _Add =
-            Method<Core.JSValue>(nameof(Core.JSArray.Add));
+            type.GetMethod(nameof(Core.JSArray.Add), new Type[] { typeof(JSValue) });
         public static Expression New(IEnumerable<Expression> list)
         {
             Expression start = Expression.New(_New);

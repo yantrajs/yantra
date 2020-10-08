@@ -5,10 +5,10 @@ using System.Reflection;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
-    public class IDisposableBuilder : TypeHelper<System.IDisposable>
+    public static class IDisposableBuilder
     {
         private static MethodInfo _Dispose
-            = Method("Dispose");
+            = typeof(IDisposable).GetMethod(nameof(IDisposable.Dispose));
 
         public static Expression Dispose(Expression exp)
         {

@@ -9,6 +9,10 @@ namespace WebAtoms.CoreJS
 {
     internal static class TypeExtensions
     {
+        internal static FieldInfo InternalField(this Type type, string name)
+        {
+            return type.GetField(name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        }
 
         internal static PropertyInfo IndexProperty(this Type type, params Type[] types)
         {
