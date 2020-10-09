@@ -78,7 +78,18 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("isPrototypeOf")]
         internal static JSValue IsPrototypeOf(in Arguments a)
         {
-            throw new NotImplementedException();
+            if (!a.This.TryAsObjectThrowIfNullOrUndefined(out var @this))
+                return JSBoolean.False;
+            var first = a.Get1();
+            while (true)
+            {
+                if (@this == first.prototypeChain)
+                    return JSBoolean.True;
+                if (first.prototypeChain == first || first.prototypeChain == null)
+                    break;
+                first = first.prototypeChain;
+            }
+            return JSBoolean.False;
         }
 
 

@@ -12,7 +12,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSFunctionDelegate empty = (in Arguments a) => a.This;
 
-        internal readonly JSObject prototype;
+        internal JSObject prototype;
 
         private string source;
 
@@ -45,6 +45,17 @@ namespace WebAtoms.CoreJS.Core
                 : new JSString("native");
             this[KeyStrings.length] = new JSNumber(length);
 
+        }
+
+        public override JSValue this[KeyString name] { 
+            get => base[name]; 
+            set {
+                if (name.Key == KeyStrings.prototype.Key)
+                {
+                    this.prototype = value as JSObject;
+                }
+                base[name] = value;
+            }
         }
 
         public override string ToString()
