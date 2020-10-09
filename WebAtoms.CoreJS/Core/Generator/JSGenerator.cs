@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -38,7 +39,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         }
     }
 
-    public class JSGenerator : JSObject
+    public class JSGenerator : JSObject, IDisposable
     {
 
         /**
@@ -58,12 +59,10 @@ namespace WebAtoms.CoreJS.Core.Generator
         readonly Arguments a;
         JSValue value;
         bool done;
-        JSContext context;
         public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)
         {
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
             this.@delegate = @delegate;
-            this.context = JSContext.Current;
             this.a = a;
             done = false;
         }
@@ -132,22 +131,14 @@ namespace WebAtoms.CoreJS.Core.Generator
 
             if (this.lastError != null)
             {
-                yield?.Dispose();
-                wait?.Dispose();
-                yield = null;
-                wait = null;
-                GC.SuppressFinalize(this);
+                this.Dispose();
                 throw lastError;
             }
 
             if (this.done)
             {
                 this.value = JSUndefined.Value;
-                yield?.Dispose();
-                wait?.Dispose();
-                yield = null;
-                wait = null;
-                GC.SuppressFinalize(this);
+                this.Dispose();
                 return ValueObject;
             }
 
@@ -305,5 +296,13 @@ namespace WebAtoms.CoreJS.Core.Generator
             return generator.Return(a.Get1());
         }
 
+        public void Dispose()
+        {
+            yield?.Dispose();
+            wait?.Dispose();
+            yield = null;
+            wait = null;
+            GC.SuppressFinalize(this);
+        }
     }
 }

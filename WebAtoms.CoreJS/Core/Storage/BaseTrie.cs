@@ -369,6 +369,7 @@ namespace WebAtoms.CoreJS.Core
             public void ClearValue()
             {
                 this.State &= TrieNodeState.HasIndex;
+                this._Value = default;
             }
 
         }
