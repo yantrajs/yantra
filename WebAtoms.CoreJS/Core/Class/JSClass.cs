@@ -21,12 +21,17 @@ namespace WebAtoms.CoreJS.Core
             this.prototype.prototypeChain = super.prototype;
         }
 
+        public override JSValue InvokeFunction(in Arguments a)
+        {
+            throw JSContext.Current.NewTypeError($"{this} is not a function");
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override JSValue CreateInstance(in Arguments a)
         {
             var @object = new JSObject();
             var ao = a.OverrideThis(@object);
-            var @this = f(ao);
+            var @this = (f ?? super.f)(ao);
             if (@this.IsUndefined)
                 @this = @object;
             @this.prototypeChain = this.prototype;
