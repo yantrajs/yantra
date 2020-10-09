@@ -285,14 +285,76 @@ namespace WebAtoms.CoreJS.Core.Date
 
             var (_year, _month, _day) = a.Get3();
 
-            var month = _month.IsUndefined ? date.Month : _month.IntValue;
+            var month = _month.IsUndefined ? date.Month : _month.IntValue + 1;
             var day = _day.IsUndefined ? date.Day : _day.IntValue;
 
+            var extraMonths = 0;
+            var extraDays = 0;
+
+
+            if (month > 12)
+            {
+                extraMonths = month - 12;
+                month = 12;
+            }
+
+            if (month < 1) {
+                extraMonths = month;
+                month = 1;
+            }
+
+            if (day > 28) {
+                extraDays = day - 28;
+                day = 28;
+            }
+
+            if (day < 0)
+            {
+                extraDays = day;
+                day = 1;
+            }
+
+            if (day == 0)
+            {
+                extraDays = -1;
+                day = 1;
+            }
 
             @this.value = new DateTime((int)year,month,day,date.Hour,date.Minute,date.Second,date.Millisecond,date.Kind);
+
+            if (extraDays != 0) {
+                @this.value = @this.value.AddDays(extraDays);
+            }
+
+            if (extraMonths != 0)
+            {
+                @this.value = @this.value.AddMonths(extraMonths);
+            }
+
 
             return new JSNumber(@this.value.ToJSDate());
         }
 
+        [Prototype("setHours", Length = 4)]
+        internal static JSValue SetHours(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var hours))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+
+            var (_hours, _mins, _seconds, _millis) = a.Get4();
+
+            var mins = _mins.IsUndefined ? date.Minute : _mins.IntValue;
+            var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
+            var millis = _millis.IsUndefined ? date.Minute : _millis.IntValue;
+
+
+            @this.value = new DateTime(date.Year,date.Month,date.Day,(int)hours,mins,seconds,millis,date.Kind);
+            
+            return new JSNumber(@this.value.ToJSDate());
+        }
     }
 }
