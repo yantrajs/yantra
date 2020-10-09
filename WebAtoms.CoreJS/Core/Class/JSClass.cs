@@ -52,5 +52,20 @@ namespace WebAtoms.CoreJS.Core
             return this;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSClass AddStaticProperty(KeyString name, JSFunction getter, JSFunction setter)
+        {
+            this.prototype.ownProperties[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
+            return this;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSClass AddStaticMethod(KeyString name, JSValue value)
+        {
+            this.prototype.ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
+            return this;
+        }
+
+
     }
 }

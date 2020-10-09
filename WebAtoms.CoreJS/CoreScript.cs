@@ -1634,6 +1634,7 @@ namespace WebAtoms.CoreJS
 
     public class ExpressionHolder
     {
+        public bool Static;
         public Exp Key;
         public Exp Value;
         public Exp Getter;

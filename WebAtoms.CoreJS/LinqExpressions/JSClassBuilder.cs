@@ -20,6 +20,12 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static MethodInfo _AddPrototypeMethod =
                     type.InternalMethod(nameof(JSClass.AddPrototypeMethod), typeof(KeyString), typeof(JSValue));
 
+        private static MethodInfo _AddStaticProperty =
+            type.InternalMethod(nameof(JSClass.AddStaticProperty), typeof(KeyString), typeof(JSFunction), typeof(JSFunction));
+
+        private static MethodInfo _AddStaticMethod =
+                    type.InternalMethod(nameof(JSClass.AddStaticMethod), typeof(KeyString), typeof(JSValue));
+
         public static Expression AddValue(
             Expression target,
             Expression name,
@@ -46,6 +52,34 @@ namespace WebAtoms.CoreJS.ExpHelper
                 getter ?? Expression.Constant(null, typeof(JSFunction)),
                 setter ?? Expression.Constant(null, typeof(JSFunction)));
         }
+
+        public static Expression AddStaticValue(
+            Expression target,
+            Expression name,
+            Expression value)
+        {
+            return Expression.Call(
+                target,
+                _AddStaticMethod,
+                name,
+                value);
+        }
+
+
+        public static Expression AddStaticProperty(
+            Expression target,
+            Expression name,
+            Expression getter,
+            Expression setter)
+        {
+            return Expression.Call(
+                target,
+                _AddStaticProperty,
+                name,
+                getter ?? Expression.Constant(null, typeof(JSFunction)),
+                setter ?? Expression.Constant(null, typeof(JSFunction)));
+        }
+
 
         public static Expression New(
             Expression constructor,
