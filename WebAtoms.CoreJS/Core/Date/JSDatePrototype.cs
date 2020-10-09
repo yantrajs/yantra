@@ -262,5 +262,37 @@ namespace WebAtoms.CoreJS.Core.Date
             return new JSNumber(result);
         }
 
+
+        //[Prototype("getYear", Length = 0)]
+        //internal static JSValue GetYear(in Arguments a)
+        //{
+        //    var @this = a.This.AsJSDate();
+        //    if (@this.value == DateTime.MinValue)
+        //        return JSNumber.NaN;
+        //    var result = @this.value.Year;
+        //    return new JSNumber(result);
+        //}
+
+        [Prototype("setFullYear", Length = 3)]
+        internal static JSValue SetFullYear(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var year))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+
+            var (_year, _month, _day) = a.Get3();
+
+            var month = _month.IsUndefined ? date.Month : _month.IntValue;
+            var day = _day.IsUndefined ? date.Day : _day.IntValue;
+
+
+            @this.value = new DateTime((int)year,month,day,date.Hour,date.Minute,date.Second,date.Millisecond,date.Kind);
+
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
     }
 }
