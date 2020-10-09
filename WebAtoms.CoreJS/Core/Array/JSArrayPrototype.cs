@@ -56,9 +56,12 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("copyWithIn", Length = 2)]
         public static JSValue CopyWithIn(in Arguments a)
         {
-            var array = a.This;
-            if (array.IsNullOrUndefined)
+            var @this = a.This;
+            if (@this.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            var array = @this as JSObject;
+            if (array.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError($"Cannot modify property length of {@this}");
             var len = array.Length;
 
             var (target, start, end) = a.Get3();
@@ -263,10 +266,17 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("push", Length = 1)]
         public static JSValue Push(in Arguments a)
         {
-            var t = a.This;
+            var t = a.This as JSObject;
+            if (t == null)
+                return JSNumber.Zero;
+
+            if (t.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError($"Cannot modify property length");
+
             int ai, al;
             if (t is JSArray ta)
             {
+
                 var i = ta._length;
                 al = a.Length;
                 for(ai = 0; ai < al; ai++)
@@ -278,7 +288,7 @@ namespace WebAtoms.CoreJS.Core
                 ta._length = i;
                 return new JSNumber(ta._length);
             }
-            
+
             uint ln = (uint)t.Length;
             al = a.Length;
             for(ai = 0; ai <al; ai++)
@@ -295,6 +305,8 @@ namespace WebAtoms.CoreJS.Core
         {
             if (!(a.This is JSArray ta) || ta._length == 0)
                 return JSUndefined.Value;
+            if (ta.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError($"Cannot modify property length");
             if (ta.elements.TryRemove(ta._length - 1, out JSProperty r))
             {
                 ta._length--;
@@ -373,6 +385,9 @@ namespace WebAtoms.CoreJS.Core
 
             if (@this is JSArray ary)
             {
+                if (ary.IsSealedOrFrozen())
+                    throw JSContext.Current.NewTypeError("Cannot modify property length");
+
                 var en = ary.GetArrayElements(false).GetEnumerator();
                 var elements = ary.elements;
                 if (en.MoveNext())
@@ -401,6 +416,9 @@ namespace WebAtoms.CoreJS.Core
 
             if (!(@this is JSObject @object))
                 return first;
+
+            if (@object.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError("Cannot modify property length");
 
             var n = @this.Length;
             if (n == 0)
@@ -539,7 +557,13 @@ namespace WebAtoms.CoreJS.Core
             var start = startP.IsUndefined ? 0 : startP.IntValue;
             var length = a.This.Length;
 
-            var @this = a.This;
+            var @this = a.This as JSObject;
+            if (@this == null)
+                return r;
+
+            if (@this.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError("Cannot modify property length");
+
 
             if (start <0)
             {
@@ -596,7 +620,12 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("unshift", Length = 1)]
         public static JSValue Unshift(in Arguments a)
         {
-            var @this = a.This;
+            var @this = a.This as JSObject;
+            if (@this == null)
+                return JSUndefined.Value;
+
+            if (@this.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError("Cannot modify property length");
 
             var l = a.This.Length;
             if (l > 0)
@@ -621,7 +650,11 @@ namespace WebAtoms.CoreJS.Core
         [SetProperty("length")]
         internal static JSValue SetLength(in Arguments a)
         {
-            return new JSNumber((a.This as JSArray)._length = (uint)a.Get1().IntValue);
+            var @this = a.This as JSArray;
+            if (@this.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError("Cannot modify property length");
+
+            return new JSNumber(@this._length = (uint)a.Get1().IntValue);
         }
 
         [Prototype("toString")]

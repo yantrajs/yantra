@@ -69,6 +69,8 @@ namespace WebAtoms.CoreJS.Core
                     }
                     return;
                 }
+                if (this.IsSealedOrFrozen())
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 if (this._length <= name)
                     this._length = name + 1;
                 elements = elements ?? (elements = new UInt32Trie<JSProperty>());

@@ -106,8 +106,11 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(pds is JSObject pdObject))
                 return target;
+            if (!target.IsExtensible())
+                throw JSContext.Current.NewTypeError("Object is not extensible");
 
-            foreach(var (index, key, property) in pdObject.GetOwnEntries())
+
+            foreach (var (index, key, property) in pdObject.GetOwnEntries())
             {
                 if (index != -1)
                 {
@@ -128,6 +131,8 @@ namespace WebAtoms.CoreJS.Core
             var (target, key, desc) = a.Get3();
             if (!(target is JSObject targetObject))
                 throw JSContext.Current.NewTypeError("Object.defineProperty called on non-object");
+            if (!targetObject.IsExtensible())
+                throw JSContext.Current.NewTypeError("Object is not extensible");
             if (!(desc is JSObject pd))
                 throw JSContext.Current.NewTypeError("Property Description must be an object");
             var k = key.ToKey();
@@ -195,19 +200,27 @@ namespace WebAtoms.CoreJS.Core
         [Static("isExtensible")]
         internal static JSValue IsExtensible(in Arguments a)
         {
-            throw new NotImplementedException();
+            if (a.Get1() is JSObject @object && @object.IsExtensible())
+            {
+                return JSBoolean.True;
+            }
+            return JSBoolean.False;
         }
 
         [Static("isFrozen")]
         internal static JSValue IsFrozen(in Arguments a)
         {
-            throw new NotImplementedException();
+            if ((a.Get1() is JSObject @object) && @object.IsFrozen())
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         [Static("isSealed")]
         internal static JSValue IsSealed(in Arguments a)
         {
-            throw new NotImplementedException();
+            if ((a.Get1() is JSObject @object) && @object.IsSealed())
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         [Static("keys")]
@@ -224,7 +237,11 @@ namespace WebAtoms.CoreJS.Core
         [Static("preventExtensions")]
         internal static JSValue PreventExtensions(in Arguments a)
         {
-            throw new NotImplementedException();
+            var first = a.Get1();
+            if (!(first is JSObject @object))
+                return first;
+            @object.status |= ObjectStatus.NonExtensible;
+            return @object;
         }
 
         [Static("seal")]
@@ -234,6 +251,7 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (!(first is JSObject @object))
                 return first;
+            @object.status |= ObjectStatus.Sealed;
             @object.ownProperties.Update((x, v) =>
             {
                 v.Attributes &= ~(JSPropertyAttributes.Configurable);
@@ -246,8 +264,10 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue SetPrototypeOf(in Arguments a)
         {
             var (first, second) = a.Get2();
-            if (!(first is JSObject))
+            if (!(first is JSObject @object))
                 return first;
+            if (!@object.IsExtensible())
+                throw JSContext.Current.NewTypeError("Object is not extensible");
             first.prototypeChain = second as JSObject ?? first.prototypeChain;
             return first;
         }
