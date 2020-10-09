@@ -221,6 +221,7 @@ namespace WebAtoms.CoreJS
             foreach (var property in body.Body)
             {
                 var name = property.Key.As<Identifier>()?.Name;
+                var method = property as MethodDefinition;
                 switch (property.Kind)
                 {
                     case PropertyKind.None:
@@ -234,6 +235,7 @@ namespace WebAtoms.CoreJS
                             expHolder.Key = KeyOfName(name);
                             cache[name] = expHolder;
                             members.Add(expHolder);
+                            expHolder.Static = method.Static;
                         }
                         expHolder.Getter = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar);
                         break;
@@ -244,6 +246,7 @@ namespace WebAtoms.CoreJS
                             expHolder.Key = KeyOfName(name);
                             cache[name] = expHolder;
                             members.Add(expHolder);
+                            expHolder.Static = method.Static;
                         }
                         expHolder.Setter = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar);
                         break;
@@ -256,8 +259,9 @@ namespace WebAtoms.CoreJS
                         members.Add(new ExpressionHolder()
                         {
                             Key = KeyOfName(name),
-                            Value = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar)
-                        });
+                            Value = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar),
+                            Static = method.Static
+                });
                         break;
                 }
             }
@@ -267,10 +271,14 @@ namespace WebAtoms.CoreJS
             {
                 if(exp.Value != null)
                 {
-                    retValue = JSClassBuilder.AddValue(retValue, exp.Key, exp.Value);
+                    retValue = exp.Static
+                        ? JSClassBuilder.AddStaticValue(retValue, exp.Key, exp.Value)
+                        : JSClassBuilder.AddValue(retValue, exp.Key, exp.Value);
                     continue;
                 }
-                retValue = JSClassBuilder.AddProperty(retValue, exp.Key, exp.Getter, exp.Setter);
+                retValue = exp.Static 
+                    ? JSClassBuilder.AddStaticProperty(retValue, exp.Key, exp.Getter, exp.Setter)
+                    : JSClassBuilder.AddProperty(retValue, exp.Key, exp.Getter, exp.Setter);
             }
             // stmts.Add(retValue);
 
