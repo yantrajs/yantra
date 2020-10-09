@@ -24,7 +24,8 @@ namespace WebAtoms.CoreJS.Utils
             // Formats used in DatePrototype toString methods
             "ddd MMM dd yyyy HH:mm:ss 'GMT'K",
             "ddd MMM dd yyyy",
-            "MMMM dd, yyyy HH:mm:ss ZZZZ",
+            // ES Date Format
+            "MMMM dd, yyyy HH:mm:ss \\G\\M\\TK",
             "HH:mm:ss 'GMT'K",
 
             // standard formats
