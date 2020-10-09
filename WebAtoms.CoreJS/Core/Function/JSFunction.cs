@@ -99,7 +99,7 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
         {
             var @this = a.This;
-            var r = super.InvokeFunction(a);
+            var r = (super as JSFunction).f(a);
             return r.IsUndefined ? @this : r;
         }
     }
