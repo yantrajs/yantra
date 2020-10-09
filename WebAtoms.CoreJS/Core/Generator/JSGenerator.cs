@@ -131,7 +131,14 @@ namespace WebAtoms.CoreJS.Core.Generator
             yield.WaitOne();
 
             if (this.lastError != null)
+            {
+                yield?.Dispose();
+                wait?.Dispose();
+                yield = null;
+                wait = null;
+                GC.SuppressFinalize(this);
                 throw lastError;
+            }
 
             if (this.done)
             {
@@ -140,6 +147,7 @@ namespace WebAtoms.CoreJS.Core.Generator
                 wait?.Dispose();
                 yield = null;
                 wait = null;
+                GC.SuppressFinalize(this);
                 return ValueObject;
             }
 
