@@ -9,9 +9,9 @@ namespace WebAtoms.CoreJS.ExpHelper
 {
     public class JSGeneratorBuilder
     {
-        private static Type type = typeof(JSGenerator);
-        private static MethodInfo yield = type.GetMethod(nameof(JSGenerator.Yield), new Type[] { typeof(JSValue) });
-        private static MethodInfo @delegate = type.GetMethod(nameof(JSGenerator.Delegate), new Type[] { typeof(JSValue) });
+        private static Type type = typeof(JSWeakGenerator);
+        private static MethodInfo yield = type.GetMethod(nameof(JSWeakGenerator.Yield), new Type[] { typeof(JSValue) });
+        private static MethodInfo @delegate = type.GetMethod(nameof(JSWeakGenerator.Delegate), new Type[] { typeof(JSValue) });
 
         public static Expression Yield(Expression generator, Expression value)
         {

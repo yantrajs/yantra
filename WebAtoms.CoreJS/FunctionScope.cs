@@ -157,7 +157,7 @@ namespace WebAtoms.CoreJS
             this.Function = fx;
             if (fx?.Generator ?? false)
             {
-                Generator = Expression.Parameter(typeof(JSGenerator));
+                Generator = Expression.Parameter(typeof(JSWeakGenerator).MakeByRefType());
             } else
             {
                 Generator = null;
