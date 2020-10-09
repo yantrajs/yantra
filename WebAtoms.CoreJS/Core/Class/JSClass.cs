@@ -14,7 +14,7 @@ namespace WebAtoms.CoreJS.Core
             JSFunction super ,
             string name = null,
             string code = null)
-            : base(fx ?? JSFunction.empty, name, code)
+            : base(fx ?? super?.f ?? JSFunction.empty, name, code)
         {
             this.super = super;
             this.prototypeChain = super;
@@ -31,7 +31,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var @object = new JSObject();
             var ao = a.OverrideThis(@object);
-            var @this = (f ?? super.f)(ao);
+            var @this = f(ao);
             if (@this.IsUndefined)
                 @this = @object;
             @this.prototypeChain = this.prototype;
