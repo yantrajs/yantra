@@ -5,8 +5,39 @@ using System.Threading;
 
 namespace WebAtoms.CoreJS.Core.Generator
 {
+    public struct JSWeakGenerator
+    {
+        private WeakReference<JSGenerator> generator;
+
+        public JSWeakGenerator(JSGenerator g)
+        {
+            this.generator = new WeakReference<JSGenerator>(g);
+        }
+
+        public JSValue Yield(JSValue value)
+        {
+            if (!generator.TryGetTarget(out var g))
+                throw new ObjectDisposedException("Generator has been disposed");
+            return g.Yield(value);
+        }
+    }
+
     public class JSGenerator : JSObject
     {
+
+        /**
+         * Using ManualResetEventSlim is of no use as it blocks endlessly when `Set` is applied
+         * before `Wait` and which causes singal loss leading to deadlock.
+         */
+
+
+        // wait by current thread...
+        // AutoResetEvent yield;
+        private AutoResetEvent yield;
+
+        // wait by generator thread...
+        private AutoResetEvent wait;
+
         readonly JSGeneratorDelegate @delegate;
         readonly Arguments a;
         JSValue value;
@@ -23,16 +54,12 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         ~JSGenerator()
         {
+            thread?.Abort();
             yield?.Dispose();
             wait?.Dispose();
         }
 
-        // wait by current thread...
-        // AutoResetEvent yield;
-        ManualResetEventSlim yield;
 
-        // wait by generator thread...
-        ManualResetEventSlim wait;
         Thread thread;
 
         public JSValue Return(JSValue value)
@@ -71,8 +98,8 @@ namespace WebAtoms.CoreJS.Core.Generator
             }
             if (wait == null)
             {
-                wait = new ManualResetEventSlim(false);
-                yield = new ManualResetEventSlim(false);
+                wait = new AutoResetEvent(false);
+                yield = new AutoResetEvent(false);
                 this.thread = new Thread(RunGenerator);
                 thread.Start(this);
             } else
@@ -80,9 +107,7 @@ namespace WebAtoms.CoreJS.Core.Generator
                 wait.Set();
             }
 
-            // wait.Set();
-            yield.Reset();
-            yield.Wait();
+            yield.WaitOne();
 
             if (this.lastError != null)
                 throw lastError;
@@ -102,8 +127,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         {
             yield.Set();
             this.value = value;
-            wait.Reset();
-            wait.Wait();
+            wait.WaitOne();
             return this.value;
         }
 
