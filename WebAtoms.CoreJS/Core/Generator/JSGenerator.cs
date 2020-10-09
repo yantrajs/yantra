@@ -7,7 +7,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 {
     public struct JSWeakGenerator
     {
-        private WeakReference<JSGenerator> generator;
+        internal readonly WeakReference<JSGenerator> generator;
 
         public JSWeakGenerator(JSGenerator g)
         {
@@ -28,6 +28,14 @@ namespace WebAtoms.CoreJS.Core.Generator
             return g.Delegate(value);
         }
 
+    }
+
+    internal class SafeExitException: Exception
+    {
+        public SafeExitException()
+        {
+
+        }
     }
 
     public class JSGenerator : JSObject
@@ -62,7 +70,10 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         ~JSGenerator()
         {
-            thread?.Abort();
+            yield?.Set();
+            wait?.Set();
+            yield = null;
+            wait = null;
             yield?.Dispose();
             wait?.Dispose();
         }
@@ -74,9 +85,8 @@ namespace WebAtoms.CoreJS.Core.Generator
         {
             this.done = true;
             this.value = JSUndefined.Value;
-            thread?.Abort();
-            yield?.Dispose();
-            wait?.Dispose();
+            yield?.Set();
+            wait?.Set();
             return (JSObject.NewWithProperties())
                     .AddProperty(KeyStrings.value, value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
@@ -84,7 +94,10 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Throw(JSValue value)
         {
-            thread?.Abort();
+            yield?.Dispose();
+            wait?.Dispose();
+            yield = null;
+            wait = null;
             return ValueObject;
         }
 
@@ -109,7 +122,7 @@ namespace WebAtoms.CoreJS.Core.Generator
                 wait = new AutoResetEvent(false);
                 yield = new AutoResetEvent(false);
                 this.thread = new Thread(RunGenerator);
-                thread.Start(this);
+                thread.Start(new JSWeakGenerator(this));
             } else
             {
                 wait.Set();
@@ -125,6 +138,8 @@ namespace WebAtoms.CoreJS.Core.Generator
                 this.value = JSUndefined.Value;
                 yield?.Dispose();
                 wait?.Dispose();
+                yield = null;
+                wait = null;
                 return ValueObject;
             }
 
@@ -133,9 +148,15 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Yield(JSValue value)
         {
-            yield.Set();
-            this.value = value;
-            wait.WaitOne();
+            try
+            {
+                yield.Set();
+                this.value = value;
+                wait.WaitOne();
+            } catch (ObjectDisposedException)
+            {
+                throw new SafeExitException();
+            }
             return this.value;
         }
 
@@ -195,19 +216,54 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         private static void RunGenerator(object state)
         {
-            JSGenerator generator = state as JSGenerator;
             try
             {
-                JSContext.Current = generator.context;
-                // generator.yield.Set();
-                // generator.wait.WaitOne();
-                generator.@delegate(new JSWeakGenerator(generator), generator.a);
-                generator.done = true;
-                generator.yield.Set();
-            }catch (Exception ex)
+                var weakGenerator = (JSWeakGenerator)state;
+                try
+                {
+                    JSGeneratorDelegate @delegate;
+                    Arguments a;
+                    if (weakGenerator.generator.TryGetTarget(out var generator))
+                    {
+                        @delegate = generator.@delegate;
+                        a = generator.a;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    generator = null;
+                    @delegate.Invoke(weakGenerator, a);
+                    if (weakGenerator.generator.TryGetTarget(out generator))
+                    {
+                        generator.done = true;
+                        try
+                        {
+                            generator.yield.Set();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            throw new SafeExitException();
+                        }
+                    }
+                }
+                catch (SafeExitException)
+                {
+                    // do nothing..
+                }
+                catch (Exception ex)
+                {
+                    if (weakGenerator.generator.TryGetTarget(out var g))
+                    {
+                        g.lastError = ex;
+                        g.yield.Set();
+
+                    }
+                }
+            } 
+            catch (ObjectDisposedException)
             {
-                generator.lastError = ex;
-                generator.yield.Set();
+                // do nothing...
             }
         }
 
