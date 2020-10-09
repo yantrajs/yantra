@@ -55,6 +55,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSClass AddStaticProperty(KeyString name, JSFunction getter, JSFunction setter)
         {
+            this.ownProperties = this.ownProperties ?? (this.ownProperties = new PropertySequence());
             this.ownProperties[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
@@ -62,6 +63,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSClass AddStaticMethod(KeyString name, JSValue value)
         {
+            this.ownProperties = this.ownProperties ?? (this.ownProperties = new PropertySequence());
             this.ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;
         }
