@@ -38,7 +38,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         private UInt32Trie<int> map = new CompactUInt32Trie<int>();
-        private JSProperty[] properties = null;
+        private JSProperty[] properties = new JSProperty[4];
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()
         {
@@ -112,10 +112,6 @@ namespace WebAtoms.CoreJS.Core
                 {
                     properties[pkey] = value;
                     return;
-                }
-                if (properties == null)
-                {
-                    properties = new JSProperty[4];
                 }
                 pkey = length++;
                 if (pkey >= properties.Length)
