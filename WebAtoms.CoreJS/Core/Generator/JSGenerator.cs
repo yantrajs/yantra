@@ -20,6 +20,14 @@ namespace WebAtoms.CoreJS.Core.Generator
                 throw new ObjectDisposedException("Generator has been disposed");
             return g.Yield(value);
         }
+
+        public JSValue Delegate(JSValue value)
+        {
+            if (!generator.TryGetTarget(out var g))
+                throw new ObjectDisposedException("Generator has been disposed");
+            return g.Delegate(value);
+        }
+
     }
 
     public class JSGenerator : JSObject
@@ -193,7 +201,7 @@ namespace WebAtoms.CoreJS.Core.Generator
                 JSContext.Current = generator.context;
                 // generator.yield.Set();
                 // generator.wait.WaitOne();
-                generator.@delegate(generator, generator.a);
+                generator.@delegate(new JSWeakGenerator(generator), generator.a);
                 generator.done = true;
                 generator.yield.Set();
             }catch (Exception ex)

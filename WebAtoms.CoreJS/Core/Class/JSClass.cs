@@ -14,7 +14,7 @@ namespace WebAtoms.CoreJS.Core
             JSFunction super ,
             string name = null,
             string code = null)
-            : base(fx ?? JSFunction.empty, name, code)
+            : base(fx ?? super?.f ?? JSFunction.empty, name, code)
         {
             this.super = super;
             this.prototypeChain = super;
@@ -31,7 +31,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var @object = new JSObject();
             var ao = a.OverrideThis(@object);
-            var @this = (f ?? super.f)(ao);
+            var @this = f(ao);
             if (@this.IsUndefined)
                 @this = @object;
             @this.prototypeChain = this.prototype;
@@ -55,6 +55,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSClass AddStaticProperty(KeyString name, JSFunction getter, JSFunction setter)
         {
+            this.ownProperties = this.ownProperties ?? (this.ownProperties = new PropertySequence());
             this.ownProperties[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
@@ -62,6 +63,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSClass AddStaticMethod(KeyString name, JSValue value)
         {
+            this.ownProperties = this.ownProperties ?? (this.ownProperties = new PropertySequence());
             this.ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;
         }

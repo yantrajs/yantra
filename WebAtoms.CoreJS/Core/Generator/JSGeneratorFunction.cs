@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace WebAtoms.CoreJS.Core.Generator
 {
-    public delegate void JSGeneratorDelegate(JSGenerator generator, in Arguments a);
+    public delegate void JSGeneratorDelegate(in JSWeakGenerator generator, in Arguments a);
     public class JSGeneratorFunction: JSFunction
     {
         readonly JSGeneratorDelegate @delegate;

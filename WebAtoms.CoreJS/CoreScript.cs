@@ -224,10 +224,6 @@ namespace WebAtoms.CoreJS
                 var method = property as MethodDefinition;
                 switch (property.Kind)
                 {
-                    case PropertyKind.None:
-                        break;
-                    case PropertyKind.Data:
-                        break;
                     case PropertyKind.Get:
                         if(!cache.TryGetValue(name, out expHolder))
                         {
@@ -250,8 +246,6 @@ namespace WebAtoms.CoreJS
                         }
                         expHolder.Setter = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar);
                         break;
-                    case PropertyKind.Init:
-                        break;
                     case PropertyKind.Constructor:
                         retValue = CreateFunction(property.Value.As<IFunction>(), superVar, true, id?.Name);
                         break;
@@ -261,8 +255,10 @@ namespace WebAtoms.CoreJS
                             Key = KeyOfName(name),
                             Value = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar),
                             Static = method.Static
-                });
+                        });
                         break;
+                    default:
+                        throw new NotSupportedException();
                 }
             }
 
