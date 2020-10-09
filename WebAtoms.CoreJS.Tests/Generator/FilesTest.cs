@@ -69,6 +69,10 @@ namespace WebAtoms.CoreJS.Tests.Generator
         protected virtual void Evaluate(JSTestContext context, string content, string fullName)
         {
             CoreScript.Evaluate(content, fullName, saveLambda ? AssemblyCodeCache.Instance : DictionaryCodeCache.Current);
+            if (context.waitTask != null)
+            {
+                AsyncPump.Run(() => context.waitTask);
+            }
         }
         protected async Task<TestResult> RunAsyncTest((FileInfo file, string name) testCase)
         {
@@ -118,10 +122,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
         {
             AsyncPump.Run(async () =>
             {
-                base.Evaluate(context, content, fullName);
-                //foreach (var task in context.waitTasks)
-                //    await task;
-                if(context.waitTask != null)
+                CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                if (context.waitTask != null)
                 {
                     try
                     {
@@ -143,7 +145,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
         }
 
 
-        [AsyncTestFolder("es5\\Objects\\Date")]
+        [TestFolder("es5\\Objects\\Date")]
         public void Date()
         {
 
