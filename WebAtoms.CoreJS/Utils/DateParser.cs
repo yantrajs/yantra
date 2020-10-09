@@ -26,6 +26,9 @@ namespace WebAtoms.CoreJS.Utils
             "ddd MMM dd yyyy",
             // ES Date Format
             "MMMM dd, yyyy HH:mm:ss \\G\\M\\TK",
+            "MMMM dd, yyyy, HH:mm:ss \\G\\M\\TK",
+            "d MMMM yyyy HH:mm:ss \\G\\M\\TK",
+            "MMMM dd, yyyy, HH:mm:ss \\U\\T\\CK",
             "HH:mm:ss 'GMT'K",
 
             // standard formats
