@@ -10,17 +10,23 @@ namespace WebAtoms.CoreJS.Core
 
         public struct Enumerator
         {
-            List<JSProperty>.Enumerator enumerator;
+            int index;
+            int size;
+            JSProperty[] array;
             public Enumerator(PropertySequence ps)
             {
-                this.enumerator = ps.properties.GetEnumerator();
+                index = -1;
+                array = ps.properties;
+                size = ps.length;
             }
 
             public bool MoveNext()
             {
-                while (this.enumerator.MoveNext())
+                if (array == null)
+                    return false;
+                while ((++index) < size)
                 {
-                    var current = this.enumerator.Current;
+                    var current = array[index];
                     if (current.Attributes == JSPropertyAttributes.Deleted)
                         continue;
                     return true;
@@ -28,36 +34,42 @@ namespace WebAtoms.CoreJS.Core
                 return false;
             }
 
-            public JSProperty Current => this.enumerator.Current;
+            public JSProperty Current => this.array[index];
         }
 
         private UInt32Trie<int> map = new CompactUInt32Trie<int>();
-        private List<JSProperty> properties = new List<JSProperty>();
+        private JSProperty[] properties = null;
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()
         {
-            foreach (var p in properties)
+            if (properties != null)
             {
-                if (p.Attributes != JSPropertyAttributes.Deleted)
-                    yield return (p.key.Key, p);
+                foreach (var p in properties)
+                {
+                    if (p.Attributes != JSPropertyAttributes.Deleted)
+                        yield return (p.key.Key, p);
+                }
             }
         }
         public void Update(Func<uint, JSProperty, (bool update, JSProperty v)> func)
         {
-            int i = 0;
-            foreach (var p in properties.ToList())
+            if (properties != null)
             {
-                var update = func((p.key.Key), p);
-                if (update.update)
+                int i = 0;
+                foreach (var p in properties)
                 {
-                    properties[i] = update.v;
+                    var update = func((p.key.Key), p);
+                    if (update.update)
+                    {
+                        properties[i] = update.v;
+                    }
+                    i++;
                 }
-                i++;
             }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasKey (uint key)
+        public bool HasKey(uint key)
         {
             return map.HasKey(key);
         }
@@ -82,6 +94,8 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
+        private int length = 0;
+
         public JSProperty this[uint key]
         {
             get
@@ -99,9 +113,17 @@ namespace WebAtoms.CoreJS.Core
                     properties[pkey] = value;
                     return;
                 }
-                pkey = properties.Count;
+                if (properties == null)
+                {
+                    properties = new JSProperty[4];
+                }
+                pkey = length++;
+                if (pkey >= properties.Length)
+                {
+                    Array.Resize(ref properties, properties.Length + 4);
+                }
                 map[key] = pkey;
-                properties.Add(value);
+                properties[pkey] = value;
             }
         }
 
