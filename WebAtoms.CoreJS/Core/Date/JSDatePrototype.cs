@@ -182,5 +182,85 @@ namespace WebAtoms.CoreJS.Core.Date
             return new JSNumber(result);
         }
 
+        [Prototype("getUTCDate", Length = 0)]
+        internal static JSValue GetUTCDate(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().Day;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getUTCDay", Length = 0)]
+        internal static JSValue GetUTCDay(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().DayOfWeek;
+            return new JSNumber((double)result);
+        }
+
+        [Prototype("getUTCFullYear", Length = 0)]
+        internal static JSValue GetUTCFullYear(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().Year;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getUTCHours", Length = 0)]
+        internal static JSValue GetUTCHours(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().Hour;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getUTCMilliseconds", Length = 0)]
+        internal static JSValue GetUTCMilliseconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().Millisecond;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getUTCMinutes", Length = 0)]
+        internal static JSValue GetUTCMinutes(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().Minute;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getUTCMonth", Length = 0)]
+        internal static JSValue GetUTCMonth(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().Month - 1;
+            return new JSNumber(result);
+        }
+
+        [Prototype("getUTCSeconds", Length = 0)]
+        internal static JSValue GetUTCSeconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTime.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToUniversalTime().Second;
+            return new JSNumber(result);
+        }
+
     }
 }
