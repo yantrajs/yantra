@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 
@@ -79,7 +80,35 @@ namespace WebAtoms.CoreJS.Core
 
         internal override IElementEnumerator GetElementEnumerator()
         {
-            return base.GetElementEnumerator();
+            return new Enumerator(this.arguments);
+        }
+
+        private struct Enumerator : IElementEnumerator
+        {
+            private Arguments arguments;
+            private uint i;
+
+            public Enumerator(Arguments arguments)
+            {
+                this.arguments = arguments;
+                i = uint.MaxValue;
+            }
+
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                i = (i == uint.MaxValue) ? 0 : (i + 1);
+                if(i < arguments.Length)
+                {
+                    value = arguments.GetAt((int)i);
+                    index = i;
+                    hasValue = true;
+                    return true;
+                }
+                hasValue = false;
+                index = 0;
+                value = JSUndefined.Value;
+                return false;
+            }
         }
 
     }
