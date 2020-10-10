@@ -114,6 +114,5 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("null is not a function");
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
     }
 }

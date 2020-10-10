@@ -78,8 +78,6 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("undefined is not a function");
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
-
         internal override IElementEnumerator GetElementEnumerator()
         {
             throw JSContext.Current.NewTypeError("undefined is not iterable");

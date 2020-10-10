@@ -360,24 +360,6 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements {
-            get {
-                // if this is an array, it will be handled by an Array...
-
-                // look for length property..
-
-                if (elements == null)
-                    yield break;
-                var l = this[KeyStrings.length];
-                if (l.IsNull || l.IsUndefined)
-                    yield break;
-                var n = (uint)l.IntValue;
-                for (uint i = 0; i < n; i++)
-                {
-                    yield return (i, this.GetValue(elements[i]));
-                }
-            }
-        }
         internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             var elements = this.elements;
@@ -687,11 +669,6 @@ namespace WebAtoms.CoreJS.Core
             return new ElementEnumerator(this);
         }
 
-        internal override IElementEnumerator GetElementEnumeratorWithoutHoles()
-        {
-            return new ElementEnumerator(this);
-        }
-
         private struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
@@ -706,12 +683,41 @@ namespace WebAtoms.CoreJS.Core
 
             public uint Index => en.Current.Key;
 
+            public uint Length => (uint)@object.Length;
 
             public bool MoveNext()
             {
                 return en?.MoveNext() ?? false;
             }
 
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                if(en?.MoveNext() ?? false) {
+                    var c = en.Current;
+                    value = @object.GetValue(c.Value);
+                    index = c.Key;
+                    hasValue = true;
+                    return true;
+                }
+                hasValue = false;
+                value = JSUndefined.Value;
+                index = 0;
+                return false;
+            }
+
+            public bool TryGetCurrent(out JSValue value)
+            {
+                value = @object.GetValue(en.Current.Value);
+                return true;
+            }
+
+            public bool TryGetCurrent(out JSValue value, out uint index)
+            {
+                var current = en.Current;
+                value = @object.GetValue(current.Value);
+                index = current.Key;
+                return true;
+            }
         }
 
     }

@@ -43,11 +43,9 @@ namespace WebAtoms.CoreJS.Core
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
             var en = array.GetElementEnumerator();
-            uint index = 0;
-            while(en.MoveNext())
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var item = en.Current;
-                var itemArgs = new Arguments(a.This, item, new JSNumber(index++), array);
+                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -100,10 +98,10 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
             var r = new JSArray();
             var en = @this.GetElementEnumerator();
-            while(en.MoveNext())
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var item = en.Current;
-                var itemParams = new Arguments(@this, item, new JSNumber(en.Index), @this);
+                if (!hasValue) continue;
+                var itemParams = new Arguments(@this, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);
@@ -119,12 +117,16 @@ namespace WebAtoms.CoreJS.Core
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            foreach (var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemParams = new Arguments(@this, item.value, new JSNumber(item.index), @this);
+                // ignore holes...
+                if (!hasValue)
+                    continue;
+                var itemParams = new Arguments(@this, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
-                    return item.value;
+                    return item;
                 }
             }
             return JSUndefined.Value;
@@ -139,11 +141,14 @@ namespace WebAtoms.CoreJS.Core
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            var en = @this.GetElementEnumeratorWithoutHoles();
-            foreach (var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item, out var n))
             {
-                var index = new JSNumber(item.index);
-                var itemParams = new Arguments(@this, item.value, index, @this);
+                // ignore holes...
+                if (!hasValue)
+                    continue;
+                var index = new JSNumber(n);
+                var itemParams = new Arguments(@this, item, index, @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return index;
@@ -159,10 +164,14 @@ namespace WebAtoms.CoreJS.Core
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            foreach (var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item , out var index))
             {
-                var n = new JSNumber(item.index);
-                var itemParams = new Arguments(@this, item.value, n, @this);
+                // ignore holes...
+                if (!hasValue)
+                    continue;
+                var n = new JSNumber(index);
+                var itemParams = new Arguments(@this, item, n, @this);
                 fn.f(itemParams);
             }
             return JSUndefined.Value;
@@ -173,9 +182,10 @@ namespace WebAtoms.CoreJS.Core
         {
             var @this = a.This;
             var first = a.Get1();
-            foreach (var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                if (item.value.Equals(first).BooleanValue)
+                if (hasValue && item.Equals(first).BooleanValue)
                     return JSBoolean.True;
             }
             return JSBoolean.False;
@@ -186,10 +196,13 @@ namespace WebAtoms.CoreJS.Core
         {
             var @this = a.This;
             var first = a.Get1();
-            foreach (var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                if (first.Equals(item.value).BooleanValue)
-                    return new JSNumber(item.index);
+                if (!hasValue)
+                    continue;
+                if (first.Equals(item).BooleanValue)
+                    return new JSNumber(index);
             }
             return JSNumber.MinusOne;
         }
@@ -202,14 +215,20 @@ namespace WebAtoms.CoreJS.Core
             var sep = first.IsUndefined ? "," : first.ToString();
             var sb = new StringBuilder();
             bool isFirst = true;
-            foreach (var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                if(!isFirst)
+                if (!isFirst)
                 {
                     sb.Append(sep);
                 }
-                isFirst = false;
-                sb.Append(item.value.ToString());
+                else
+                {
+                    isFirst = false;
+                }
+                if (item.IsUndefined)
+                    continue;
+                sb.Append(item.ToString());
             }
             return new JSString(sb.ToString());
         }
@@ -256,11 +275,17 @@ namespace WebAtoms.CoreJS.Core
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var r = new JSArray();
-            foreach (var item in @this.AllElements)
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(@this, item.value, new JSNumber(item.index), @this);
-                r.Add(fn.f(itemArgs));
-            }
+                if (!hasValue)
+                {
+                    r._length++;
+                    continue;
+                }
+                var itemArgs = new Arguments(@this, item, new JSNumber(index), @this);
+                r.elements[r._length++] = JSProperty.Property(fn.f(itemArgs));
+            }            
             return r;
         }
 
@@ -324,17 +349,18 @@ namespace WebAtoms.CoreJS.Core
             var (callback, initialValue) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.reduce");
-            var en = @this.AllElements.GetEnumerator();
+            var en = @this.GetElementEnumerator();
+            uint index = 0;
             if (a.Length == 1)
             {
-                if (!en.MoveNext())
+                if (!en.MoveNext(out var hasValue, out initialValue, out index))
                     throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
-                initialValue = en.Current.value;
             }
-            while (en.MoveNext())
+            while (en.MoveNext(out var hasValue, out var item, out index))
             {
-                var item = en.Current.value;
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(en.Current.index), @this);
+                if (!hasValue)
+                    continue;
+                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(index), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -389,27 +415,25 @@ namespace WebAtoms.CoreJS.Core
                 if (ary.IsSealedOrFrozen())
                     throw JSContext.Current.NewTypeError("Cannot modify property length");
 
-                var en = ary.GetArrayElements(false).GetEnumerator();
+                var en = ary.GetElementEnumerator();
                 var elements = ary.elements;
-                if (en.MoveNext())
+                if (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    var item = en.Current;
-                    if(item.index > 0)
+                    if(index > 0)
                     {
                         // shift...
-                        elements[item.index - 1] = elements[item.index];
-                        elements.RemoveAt(item.index);
+                        elements[index - 1] = elements[index];
+                        elements.RemoveAt(index);
                     } else
                     {
-                        first = item.value;
+                        first = item;
                         elements.RemoveAt(0);
                     }
                 }
-                while (en.MoveNext())
+                while (en.MoveNext(out hasValue, out item, out index))
                 {
-                    var item = en.Current;
-                    elements[item.index - 1] = elements[item.index];
-                    elements.RemoveAt(item.index);
+                    elements[index - 1] = elements[index];
+                    elements.RemoveAt(index);
                 }
                 ary._length -= 1;
                 return first;
@@ -501,9 +525,12 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
-            foreach (var item in array.AllElements)
+            var en = array.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(a.This, item.value, new JSNumber(item.index), array);
+                if (!hasValue)
+                    continue;
+                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
                 if (fn.f(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
@@ -515,10 +542,10 @@ namespace WebAtoms.CoreJS.Core
         {
 
             var fx = a.Get1();
+            var @this = a.This;
             Comparison<JSValue> cx = null;
             if (fx is JSFunction fn)
             {
-                var @this = a.This;
                 cx = (l, r) => {
                     var arg = new Arguments(@this, l, r);
                     return (int)(fn.f(arg).DoubleValue);
@@ -539,9 +566,13 @@ namespace WebAtoms.CoreJS.Core
             }
 
             var list = new List<JSValue>();
-            foreach (var item in a.This.AllElements)
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                list.Add(item.value);
+                if (hasValue)
+                {
+                    list.Add(item);
+                }
             }
 
             list.Sort(cx);

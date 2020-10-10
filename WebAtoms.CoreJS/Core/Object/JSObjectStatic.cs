@@ -75,11 +75,13 @@ namespace WebAtoms.CoreJS.Core
             if (!target.IsObject)
                 return new JSArray();
             var r = new JSArray();
-            var ownEntries = target.GetElementEnumeratorWithoutHoles();
-            while(ownEntries.MoveNext())
+            var ownEntries = target.GetElementEnumerator();
+            while(ownEntries.MoveNext(out var hasValue, out var item, out var index))
             {
+                if (!hasValue)
+                    continue;
                 r.elements[r._length++] = JSProperty.Property(
-                        new JSArray(new JSString(ownEntries.Index.ToString()), ownEntries.Current)
+                        new JSArray(new JSString(index.ToString()), item)
                     ); 
             }
             var en = new PropertySequence.Enumerator((target as JSObject).ownProperties);
@@ -112,10 +114,12 @@ namespace WebAtoms.CoreJS.Core
             if (!target.IsExtensible())
                 throw JSContext.Current.NewTypeError("Object is not extensible");
 
-            var ownElements = pdObject.GetElementEnumeratorWithoutHoles();
-            while (ownElements.MoveNext())
+            var ownElements = pdObject.GetElementEnumerator();
+            while (ownElements.MoveNext(out var hasValue, out var item, out var index))
             {
-                JSObject.InternalAddProperty(target, ownElements.Index, ownElements.Current);
+                if (!hasValue)
+                    continue;
+                JSObject.InternalAddProperty(target, index, item);
             }
 
             var properties = new PropertySequence.Enumerator(pdObject.ownProperties);
@@ -283,11 +287,15 @@ namespace WebAtoms.CoreJS.Core
             if (!(first is JSObject target))
                 return new JSArray();
             var r = new JSArray();
-            var ownEntries = target.GetElementEnumeratorWithoutHoles();
-            while (ownEntries.MoveNext())
+            var ownEntries = target.GetElementEnumerator();
+            while (ownEntries.MoveNext(out var hasValue, out var item, out var index))
             {
+                if(!hasValue)
+                {
+                    continue;
+                }
                 r.elements[r._length++] = JSProperty.Property(
-                        ownEntries.Current
+                        item
                     );
             }
             var en = new PropertySequence.Enumerator(target.ownProperties);

@@ -77,16 +77,10 @@ namespace WebAtoms.CoreJS.Core
             set => base[key] = value;
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements
+        internal override IElementEnumerator GetElementEnumerator()
         {
-            get
-            {
-                var al = arguments.Length;
-                for (uint i = 0; i < al; i++)
-                {
-                    yield return (i, arguments.GetAt(0));
-                }
-            }
+            return base.GetElementEnumerator();
         }
+
     }
 }

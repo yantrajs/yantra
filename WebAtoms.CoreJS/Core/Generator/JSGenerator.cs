@@ -224,6 +224,7 @@ namespace WebAtoms.CoreJS.Core.Generator
             public uint Index => (uint)index;
             public JSValue Current => generator.value;
 
+
             public bool MoveNext()
             {
                 if (generator.Next().BooleanValue)
@@ -234,6 +235,35 @@ namespace WebAtoms.CoreJS.Core.Generator
                 return false;
             }
 
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                if (generator.Next().BooleanValue)
+                {
+                    this.index++;
+                    index = (uint)this.index;
+                    hasValue = true;
+                    value = this.generator.value;
+                    return true;
+                }
+                index = 0;
+                value = JSUndefined.Value;
+                hasValue = false;
+                return false;
+
+            }
+
+            public bool TryGetCurrent(out JSValue value)
+            {
+                value = this.generator.value;
+                return true;
+            }
+
+            public bool TryGetCurrent(out JSValue value, out uint index)
+            {
+                value = this.generator.value;
+                index = (uint)this.index;
+                return true;
+            }
         }
 
         private static void RunGenerator(object state)

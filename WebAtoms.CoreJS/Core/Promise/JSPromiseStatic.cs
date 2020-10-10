@@ -50,9 +50,8 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
                 bool empty = true;   
 
-                while(en.MoveNext())
+                while(en.MoveNext(out var hasValue, out var e, out var index))
                 {
-                    var e = en.Current;
                     empty = false;
                     if (!(e is JSPromise p))
                         throw JSContext.Current.NewTypeError($"All parameters must be Promise");

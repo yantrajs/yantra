@@ -12,11 +12,23 @@ namespace WebAtoms.CoreJS
 {
     public interface IElementEnumerator
     {
-        bool MoveNext();
+        // bool MoveNext();
 
-        JSValue Current { get; }
+        bool MoveNext(out bool hasValue, out JSValue value, out uint index);
 
-        uint Index { get; }
+        // JSValue Current { get; }
+
+        ///// <summary>
+        ///// Returns false if it has a hole (only applicable for an Array)
+        ///// </summary>
+        ///// <param name="value"></param>
+        ///// <returns></returns>
+        //bool TryGetCurrent(out JSValue value);
+
+        //bool TryGetCurrent(out JSValue value, out uint index);
+
+        // uint Index { get; }
+
     }
 
     //public ref struct OwnElementEnumeratorWithoutHoles

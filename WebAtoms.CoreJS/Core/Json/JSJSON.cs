@@ -81,9 +81,10 @@ namespace WebAtoms.CoreJS.Core
                         if (map == null)
                         {
                             map = new StringTrie<int>();
-                            foreach (var ritem in ra.GetArrayElements(false))
+                            var en = ra.GetElementEnumerator();
+                            while(en.MoveNext(out var hasValue, out var ri, out var index))
                             {
-                                map[ritem.value.ToString()] = 1;
+                                map[ri.ToString()] = 1;
                             }
                         }
                         if (map.TryGetValue(item.key.ToString(), out var a1))
@@ -145,7 +146,8 @@ namespace WebAtoms.CoreJS.Core
                         indent.Indent++;
                     }
                     bool f = true;
-                    foreach(var item in a.GetArrayElements(true))
+                    var ae = a.GetElementEnumerator();
+                    while(ae.MoveNext(out var hasValue, out var item, out var index))
                     {
                         if (!f)
                         {
@@ -156,7 +158,7 @@ namespace WebAtoms.CoreJS.Core
                         {
                             sb.WriteLine();
                         }
-                        Stringify(sb, ToJson(item.value), replacer, indent);
+                        Stringify(sb, ToJson(item), replacer, indent);
                     }
                     if (indent != null)
                     {

@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
@@ -182,12 +184,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal override IElementEnumerator GetElementEnumerator()
         {
-            return new ElementEnumerator(this.value.GetEnumerator());
-        }
-
-        internal override IElementEnumerator GetElementEnumeratorWithoutHoles()
-        {
-            return new ElementEnumerator(this.value.GetEnumerator());
+            return new ElementEnumerator(this.value);
         }
 
         private struct ElementEnumerator : IElementEnumerator
@@ -195,9 +192,11 @@ namespace WebAtoms.CoreJS.Core
 
             readonly CharEnumerator en;
             int index;
-            public ElementEnumerator(CharEnumerator en)
+            uint length;
+            public ElementEnumerator(string value)
             {
-                this.en = en;
+                this.en = value.GetEnumerator();
+                length = (uint)value.Length;
                 index = -1;
             }
 
@@ -205,6 +204,7 @@ namespace WebAtoms.CoreJS.Core
 
             public uint Index => (uint)index;
 
+            public uint Length => length;
 
             public bool MoveNext()
             {
@@ -216,6 +216,35 @@ namespace WebAtoms.CoreJS.Core
                 return false;
             }
 
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint i)
+            {
+                if (en.MoveNext())
+                {
+                    index++;
+                    i = (uint)index;
+                    hasValue = true;
+                    value = new JSString(new string(en.Current, 1));
+                    return true;
+                }
+                i = 0;
+                value = JSUndefined.Value;
+                hasValue = false;
+                return false;
+            }
+
+
+            //public bool TryGetCurrent(out JSValue value)
+            //{
+            //    value = new JSString(new string(en.Current, 1));
+            //    return true;
+            //}
+
+            //public bool TryGetCurrent(out JSValue value, out uint index)
+            //{
+            //    value = new JSString(new string(en.Current, 1));
+            //    index = (uint)this.index;
+            //    return true;
+            //}
         }
 
     }

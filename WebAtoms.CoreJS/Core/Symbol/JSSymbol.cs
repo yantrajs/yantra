@@ -76,7 +76,6 @@ namespace WebAtoms.CoreJS.Core
             return Key.Value;
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements => throw new NotImplementedException();
 
     }
 }

@@ -28,16 +28,16 @@ namespace WebAtoms.CoreJS.Core
             if (map is JSFunction fx)
             {
                 var cb = fx.f;
-                while (en.MoveNext())
+                while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(cb(new Arguments(t, en.Current)));
+                    elements[length++] = JSProperty.Property(cb(new Arguments(t, item)));
                 }
             }
             else
             {
-                while (en.MoveNext())
+                while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(en.Current);
+                    elements[length++] = JSProperty.Property(item);
                 }
             }
             r._length = length;

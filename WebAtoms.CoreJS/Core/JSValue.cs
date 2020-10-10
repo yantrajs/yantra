@@ -369,12 +369,6 @@ namespace WebAtoms.CoreJS.Core {
             return Delete(key);
         }
 
-        /// <summary>
-        /// Returns Elements of an Array or an Iterable...
-        /// </summary>
-        internal abstract IEnumerable<(uint index,JSValue value)> AllElements { get; }
-
-
         internal JSValue InternalInvoke(object name, in Arguments a)
         {
             JSValue fx = null;
@@ -422,11 +416,6 @@ namespace WebAtoms.CoreJS.Core {
             return ElementEnumerator.Empty;
         }
 
-        internal virtual IElementEnumerator GetElementEnumeratorWithoutHoles()
-        {
-            return ElementEnumerator.Empty;
-        }
-
 
         private struct ElementEnumerator : IElementEnumerator
         {
@@ -436,11 +425,34 @@ namespace WebAtoms.CoreJS.Core {
 
             public uint Index => 0;
 
+            public uint Length => 0;
+
+            public bool TryGetCurrent(out JSValue value)
+            {
+                value = null;
+                return false;
+            }
+
+            public bool TryGetCurrent(out JSValue value, out uint index )
+            {
+                value = JSUndefined.Value;
+                index = 0;
+                return false;
+            }
+
+
             public bool MoveNext()
             {
                 return false;
             }
 
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                value = JSUndefined.Value;
+                index = 0;
+                hasValue = false;
+                return false;
+            }
         }
     }
 }

@@ -116,8 +116,6 @@ namespace WebAtoms.CoreJS.Core
             return this;
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements  => this.GetArrayElements(false);
-
         internal override bool TryRemove(uint i, out JSProperty p)
         {
             return elements.TryRemove(i, out p);
@@ -126,47 +124,6 @@ namespace WebAtoms.CoreJS.Core
         internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
-        }
-
-        internal override IElementEnumerator GetElementEnumeratorWithoutHoles()
-        {
-            return new ElementEnumeratorWithoutHoles(this);
-        }
-
-        private struct ElementEnumeratorWithoutHoles : IElementEnumerator
-        {
-            uint length;
-            uint index;
-            JSProperty property;
-            JSArray array;
-            public ElementEnumeratorWithoutHoles(JSArray array)
-            {
-                this.length = array._length;
-                this.array = array;
-                index = uint.MaxValue;
-                property = new JSProperty();
-            }
-
-            public JSValue Current => property.IsEmpty 
-                ? JSUndefined.Value 
-                : (property.IsValue 
-                    ? property.value
-                    : array.GetValue(property));
-
-            public uint Index => index;
-
-            public bool MoveNext()
-            {
-                while ((index = (index == uint.MaxValue) ? 0 : (index + 1)) < length)
-                {
-                    if(array.elements.TryGetValue(Index, out property))
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
         }
 
 
@@ -190,9 +147,67 @@ namespace WebAtoms.CoreJS.Core
 
             public uint Index => index;
 
+            public uint Length => array._length;
+
             public bool MoveNext()
             {
                 return (index = (index == uint.MaxValue) ? 0 : (index + 1)) < length;
+            }
+
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                if((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
+                {
+                    index = this.index;
+                    if(array.elements.TryGetValue(index, out var property))
+                    {
+                        value = property.IsValue
+                            ? property.value
+                            : (property.set.InvokeFunction(new Arguments(this.array)));
+                        hasValue = true;
+                    } else
+                    {
+                        hasValue = false;
+                        value = JSUndefined.Value;
+                    }
+                    return true;
+                }
+                index = 0;
+                value = JSUndefined.Value;
+                hasValue = false;
+                return false;
+            }
+
+            public bool TryGetCurrent(out JSValue value)
+            {
+                if(array.elements.TryGetValue(Index, out var property))
+                {
+                    value = property.IsEmpty
+                        ? JSUndefined.Value
+                        : (property.IsValue
+                            ? property.value
+                            : property.get.InvokeFunction(new Arguments(array)));
+                    return true;
+                }
+                value = null;
+                return false;
+            }
+
+            public bool TryGetCurrent(out JSValue value, out uint index)
+            {
+                if (array.elements.TryGetValue(Index, out var property))
+                {
+                    value = property.IsEmpty
+                        ? JSUndefined.Value
+                        : (property.IsValue
+                            ? property.value
+                            : property.get.InvokeFunction(new Arguments(array)));
+                    index = this.index;
+                    return true;
+                }
+                value = JSUndefined.Value;
+                index = this.index;
+                return false;
             }
 
         }
@@ -217,9 +232,15 @@ namespace WebAtoms.CoreJS.Core
             }
 
             var en = iterator.GetElementEnumerator();
-            while (en.MoveNext())
+            while (en.MoveNext(out var hasValue, out var item, out var  index))
             {
-                et[el++] = JSProperty.Property(en.Current);
+                if (hasValue)
+                {
+                    et[el++] = JSProperty.Property(item);
+                } else
+                {
+                    el++;
+                }
             }
             this._length = el;
         }
