@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using WebAtoms.CoreJS.Enumerators;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -41,7 +42,7 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
-            var en = array.GetElementEnumerator();
+            var en = new OwnElementEnumerator(array);
             uint index = 0;
             while(en.MoveNext())
             {
@@ -98,12 +99,11 @@ namespace WebAtoms.CoreJS.Core
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
             var r = new JSArray();
-            var en = @this.GetElementEnumerator();
-            uint i = 0;
+            var en = new OwnElementEnumerator(@this);
             while(en.MoveNext())
             {
                 var item = en.Current;
-                var itemParams = new Arguments(@this, item, new JSNumber(i++), @this);
+                var itemParams = new Arguments(@this, item, new JSNumber(en.CurrentIndex), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);

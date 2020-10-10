@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -48,6 +49,12 @@ namespace WebAtoms.CoreJS.Core
         {
             this.value = value;
         }
+
+        public JSString(char ch) : this(new string(ch,1))
+        {
+            
+        }
+
 
         public JSString(string value, KeyString keyString) : this(value)
         {
@@ -136,6 +143,41 @@ namespace WebAtoms.CoreJS.Core
                 return JSBoolean.True;
             return JSBoolean.False;
 
+        }
+
+        public struct JSCharEnumerator : IEnumerator<(uint Key, JSProperty Value)>
+        {
+
+            CharEnumerator en;
+            uint index;
+            public JSCharEnumerator(JSString value)
+            {
+                this.en = value.value.GetEnumerator();
+                index = 0;
+            }
+            public (uint Key, JSProperty Value) Current => (index - 1, JSProperty.Property(new JSString(en.Current)) );
+
+            object IEnumerator.Current => this.Current;
+
+            public void Dispose()
+            {
+                
+            }
+
+            public bool MoveNext()
+            {
+                if (en.MoveNext())
+                {
+                    index++;
+                    return true;
+                }
+                return false;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         internal override IEnumerator<JSValue> GetElementEnumerator()

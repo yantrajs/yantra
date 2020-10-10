@@ -98,32 +98,6 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static IEnumerable<(int index, KeyString key, JSValue value)> GetOwnEntries(this JSValue value)
-        {
-            if (!(value is JSObject @object))
-                yield break;
-            var elements = @object.elements;
-            if (elements != null)
-            {
-                foreach (var (Key, Value) in elements.AllValues)
-                {
-                    yield return ((int)Key, KeyString.Empty, value.GetValue(Value));
-                }
-            }
-
-            var ownProperties = @object.ownProperties;
-            if (ownProperties != null)
-            {
-                var en = new PropertySequence.Enumerator(ownProperties);
-                while(en.MoveNext())
-                {
-                    var p = en.Current;
-                    yield return (-1, p.key, value.GetValue(p));
-                }
-            }
-        }
-
         public static JSBoolean InstanceOf(this JSValue target, JSValue value)
         {
             if (value.IsUndefined)

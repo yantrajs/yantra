@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using WebAtoms.CoreJS.Enumerators;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -74,17 +75,19 @@ namespace WebAtoms.CoreJS.Core
             if (!target.IsObject)
                 return new JSArray();
             var r = new JSArray();
-            foreach(var (index, key, property) in target.GetOwnEntries())
+            var ownEntries = new OwnElementEnumeratorWithoutHoles(target);
+            while(ownEntries.MoveNext())
             {
-                if (index != -1)
-                {
-                    r.elements[r._length++] = JSProperty.Property(
-                        new JSArray(new JSNumber(index), property));
-                } else
-                {
-                    r.elements[r._length++] = JSProperty.Property(
-                        new JSArray(key.ToJSValue(), property));
-                }
+                r.elements[r._length++] = JSProperty.Property(
+                        new JSArray(new JSNumber(ownEntries.CurrentIndex), ownEntries.Current)
+                    ); 
+            }
+            var en = new PropertySequence.Enumerator((target as JSObject).ownProperties);
+            while (en.MoveNext())
+            {
+                r.elements[r._length++] = JSProperty.Property(
+                        new JSArray(en.Current.key.ToJSValue(), target.GetValue(en.Current))
+                    );
             }
             return r;
         }
@@ -109,17 +112,16 @@ namespace WebAtoms.CoreJS.Core
             if (!target.IsExtensible())
                 throw JSContext.Current.NewTypeError("Object is not extensible");
 
-
-            foreach (var (index, key, property) in pdObject.GetOwnEntries())
+            var ownElements = new OwnElementEnumeratorWithoutHoles(pdObject);
+            while (ownElements.MoveNext())
             {
-                if (index != -1)
-                {
-                    JSObject.InternalAddProperty(target, (uint)index, property);
-                }
-                else
-                {
-                    JSObject.InternalAddProperty(target, key, property);
-                }
+                JSObject.InternalAddProperty(target, (uint)ownElements.CurrentIndex, ownElements.Current);
+            }
+
+            var properties = new PropertySequence.Enumerator(pdObject.ownProperties);
+            while (properties.MoveNext())
+            {
+                JSObject.InternalAddProperty(target, properties.Current.key, target.GetValue(properties.Current));
             }
 
             return target;
@@ -278,9 +280,24 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            if (!(first is JSObject jobj))
+            if (!(first is JSObject target))
                 return new JSArray();
-            return new JSArray(jobj.GetOwnEntries().Select(x => x.value));
+            var r = new JSArray();
+            var ownEntries = new OwnElementEnumeratorWithoutHoles(target);
+            while (ownEntries.MoveNext())
+            {
+                r.elements[r._length++] = JSProperty.Property(
+                        ownEntries.Current
+                    );
+            }
+            var en = new PropertySequence.Enumerator(target.ownProperties);
+            while (en.MoveNext())
+            {
+                r.elements[r._length++] = JSProperty.Property(
+                        target.GetValue(en.Current)
+                    );
+            }
+            return r;
         }
 
         [Static("getOwnPropertyDescriptor")]

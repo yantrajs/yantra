@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using WebAtoms.CoreJS.Enumerators;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -20,7 +21,7 @@ namespace WebAtoms.CoreJS.Core
             var r = new JSArray();
             var (f, map) = a.Get2();
             var t = a.This;
-            var en = f.GetElementEnumerator();
+            var en = new OwnElementEnumerator(f);
             uint length = 0;
             var elements = r.elements;
 

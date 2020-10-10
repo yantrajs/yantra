@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using WebAtoms.CoreJS.Core.Runtime;
+using WebAtoms.CoreJS.Enumerators;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -178,7 +179,7 @@ namespace WebAtoms.CoreJS.Core
                 return;
             }
 
-            var en = iterator.GetElementEnumerator();
+            var en = new OwnElementEnumerator(iterator);
             while (en.MoveNext())
             {
                 et[el++] = JSProperty.Property(en.Current);
