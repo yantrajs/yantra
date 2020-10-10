@@ -69,12 +69,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         ~JSGenerator()
         {
-            yield?.Set();
-            wait?.Set();
-            yield = null;
-            wait = null;
-            yield?.Dispose();
-            wait?.Dispose();
+            OnDispose(false);
         }
 
 
@@ -131,14 +126,14 @@ namespace WebAtoms.CoreJS.Core.Generator
 
             if (this.lastError != null)
             {
-                this.Dispose();
+                this.OnDispose();
                 throw lastError;
             }
 
             if (this.done)
             {
                 this.value = JSUndefined.Value;
-                this.Dispose();
+                this.OnDispose();
                 return ValueObject;
             }
 
@@ -296,13 +291,21 @@ namespace WebAtoms.CoreJS.Core.Generator
             return generator.Return(a.Get1());
         }
 
-        public void Dispose()
+        private void OnDispose(bool supress = true)
         {
             yield?.Dispose();
             wait?.Dispose();
             yield = null;
             wait = null;
-            GC.SuppressFinalize(this);
+            if (supress)
+            {
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            OnDispose();
         }
     }
 }
