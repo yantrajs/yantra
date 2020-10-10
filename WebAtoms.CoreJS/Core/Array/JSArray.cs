@@ -38,9 +38,8 @@ namespace WebAtoms.CoreJS.Core
             var sb = new StringBuilder();
             bool first = true;
             var en = new ElementEnumerator(this);
-            while(en.MoveNext())
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var item = en.Current;
                 if (!first)
                     sb.Append(',');
                 if (item != null && !item.IsUndefined)
@@ -139,21 +138,6 @@ namespace WebAtoms.CoreJS.Core
                 index = uint.MaxValue;
             }
 
-            public JSValue Current => !array.elements.TryGetValue(Index, out var property)
-                ? JSUndefined.Value
-                : (property.IsValue
-                    ? property.value
-                    : array.GetValue(property));
-
-            public uint Index => index;
-
-            public uint Length => array._length;
-
-            public bool MoveNext()
-            {
-                return (index = (index == uint.MaxValue) ? 0 : (index + 1)) < length;
-            }
-
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
                 if((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
@@ -161,9 +145,11 @@ namespace WebAtoms.CoreJS.Core
                     index = this.index;
                     if(array.elements.TryGetValue(index, out var property))
                     {
-                        value = property.IsValue
+                        value = property.IsEmpty 
+                            ? null 
+                            : (property.IsValue
                             ? property.value
-                            : (property.set.InvokeFunction(new Arguments(this.array)));
+                            : (property.set.InvokeFunction(new Arguments(this.array))));
                         hasValue = true;
                     } else
                     {
@@ -175,38 +161,6 @@ namespace WebAtoms.CoreJS.Core
                 index = 0;
                 value = JSUndefined.Value;
                 hasValue = false;
-                return false;
-            }
-
-            public bool TryGetCurrent(out JSValue value)
-            {
-                if(array.elements.TryGetValue(Index, out var property))
-                {
-                    value = property.IsEmpty
-                        ? JSUndefined.Value
-                        : (property.IsValue
-                            ? property.value
-                            : property.get.InvokeFunction(new Arguments(array)));
-                    return true;
-                }
-                value = null;
-                return false;
-            }
-
-            public bool TryGetCurrent(out JSValue value, out uint index)
-            {
-                if (array.elements.TryGetValue(Index, out var property))
-                {
-                    value = property.IsEmpty
-                        ? JSUndefined.Value
-                        : (property.IsValue
-                            ? property.value
-                            : property.get.InvokeFunction(new Arguments(array)));
-                    index = this.index;
-                    return true;
-                }
-                value = JSUndefined.Value;
-                index = this.index;
                 return false;
             }
 

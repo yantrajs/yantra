@@ -147,41 +147,6 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        public struct JSCharEnumerator : IEnumerator<(uint Key, JSProperty Value)>
-        {
-
-            CharEnumerator en;
-            uint index;
-            public JSCharEnumerator(JSString value)
-            {
-                this.en = value.value.GetEnumerator();
-                index = 0;
-            }
-            public (uint Key, JSProperty Value) Current => (index - 1, JSProperty.Property(new JSString(en.Current)) );
-
-            object IEnumerator.Current => this.Current;
-
-            public void Dispose()
-            {
-                
-            }
-
-            public bool MoveNext()
-            {
-                if (en.MoveNext())
-                {
-                    index++;
-                    return true;
-                }
-                return false;
-            }
-
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this.value);
@@ -200,22 +165,6 @@ namespace WebAtoms.CoreJS.Core
                 index = -1;
             }
 
-            public JSValue Current => new JSString(new string(en.Current,1));
-
-            public uint Index => (uint)index;
-
-            public uint Length => length;
-
-            public bool MoveNext()
-            {
-                if (en.MoveNext())
-                {
-                    index++;
-                    return true;
-                }
-                return false;
-            }
-
             public bool MoveNext(out bool hasValue, out JSValue value, out uint i)
             {
                 if (en.MoveNext())
@@ -232,19 +181,6 @@ namespace WebAtoms.CoreJS.Core
                 return false;
             }
 
-
-            //public bool TryGetCurrent(out JSValue value)
-            //{
-            //    value = new JSString(new string(en.Current, 1));
-            //    return true;
-            //}
-
-            //public bool TryGetCurrent(out JSValue value, out uint index)
-            //{
-            //    value = new JSString(new string(en.Current, 1));
-            //    index = (uint)this.index;
-            //    return true;
-            //}
         }
 
     }

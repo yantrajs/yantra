@@ -679,16 +679,6 @@ namespace WebAtoms.CoreJS.Core
                 this.@object = @object;
             }
 
-            public JSValue Current => @object.GetValue(en.Current.Value);
-
-            public uint Index => en.Current.Key;
-
-            public uint Length => (uint)@object.Length;
-
-            public bool MoveNext()
-            {
-                return en?.MoveNext() ?? false;
-            }
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
@@ -703,20 +693,6 @@ namespace WebAtoms.CoreJS.Core
                 value = JSUndefined.Value;
                 index = 0;
                 return false;
-            }
-
-            public bool TryGetCurrent(out JSValue value)
-            {
-                value = @object.GetValue(en.Current.Value);
-                return true;
-            }
-
-            public bool TryGetCurrent(out JSValue value, out uint index)
-            {
-                var current = en.Current;
-                value = @object.GetValue(current.Value);
-                index = current.Key;
-                return true;
             }
         }
 
