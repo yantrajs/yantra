@@ -5,12 +5,38 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
-namespace WebAtoms.CoreJS.Extensions
+namespace WebAtoms.CoreJS.Core
 {
     public static class JSValueExtensions
     {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, KeyString name, in Arguments a)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            return fx.InvokeFunction(a.OverrideThis(@this));
+        }
+
+        public static JSValue InvokeMethod(this JSValue @this, uint name, in Arguments a)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            return fx.InvokeFunction(a.OverrideThis(@this));
+        }
+
+        public static JSValue InvokeMethod(this JSValue @this, JSValue name, in Arguments a)
+        {
+            var key = name.ToKey();
+            if (key.IsUInt)
+                return @this.InvokeMethod(key.Key, a);
+            return @this.InvokeMethod(key, a);
+        }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSValue NullIfTrue(JSValue value)
         {

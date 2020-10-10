@@ -116,24 +116,6 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.MakeIndex(target, _Index, new Expression[] { property });
         }
 
-        private static MethodInfo _InvokeMethodKeyString
-            = type.MethodStartsWith(nameof(JSValue.InvokeMethod), typeof(KeyString));
-        private static MethodInfo _InvokeMethodUInt
-            = type.MethodStartsWith(nameof(JSValue.InvokeMethod), typeof(uint));
-        private static MethodInfo _InvokeMethodJSValue
-            = type.MethodStartsWith(nameof(JSValue.InvokeMethod), typeof(JSValue));
-
-        public static Expression InvokeMethod(Expression target, Expression method, Expression args)
-        {
-            if (method.Type == typeof(KeyString))
-                return Expression.Call(target, _InvokeMethodKeyString, method, args);
-            if (method.Type == typeof(uint))
-                return Expression.Call(target, _InvokeMethodUInt, method, args);
-            if (method.Type == typeof(int))
-                return Expression.Call(target, _InvokeMethodUInt, Expression.Convert(method, typeof(uint)), args);
-            return Expression.Call(target, _InvokeMethodJSValue, method, args);
-        }
-
         private static MethodInfo _DeleteKeyString
             = type.InternalMethod(nameof(JSValue.Delete), typeof(KeyString));
         private static MethodInfo _DeleteUInt

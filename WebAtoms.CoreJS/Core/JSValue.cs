@@ -352,31 +352,6 @@ namespace WebAtoms.CoreJS.Core {
             return this.ToString();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(KeyString name, in Arguments a)
-        {
-            var fx = this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {this}");
-            return fx.InvokeFunction(a.OverrideThis(this));
-        }
-
-        public JSValue InvokeMethod(uint name, in Arguments a)
-        {
-            var fx = this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {this}");
-            return fx.InvokeFunction(a.OverrideThis(this));
-        }
-
-        public JSValue InvokeMethod(JSValue name, in Arguments a)
-        {
-            var key = name.ToKey();
-            if (key.IsUInt)
-                return InvokeMethod(key.Key, a);
-            return InvokeMethod(key, a);
-        }
-
         public virtual JSValue Delete(KeyString key)
         {
             return JSBoolean.False;

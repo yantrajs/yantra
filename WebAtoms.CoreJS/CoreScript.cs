@@ -1499,7 +1499,7 @@ namespace WebAtoms.CoreJS
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
                 }
 
-                return JSValueBuilder.InvokeMethod(target, name, paramArray);
+                return JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray);
 
             } else {
 

@@ -11,6 +11,8 @@ namespace WebAtoms.CoreJS.ExpHelper
     {
         private static readonly Type type = typeof(Arguments);
 
+        internal static readonly Type refType = type.MakeByRefType();
+
         private readonly static Expression _Empty =
             Expression.Field(null, type.GetField(nameof(Arguments.Empty)));
 
