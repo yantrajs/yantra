@@ -79,7 +79,7 @@ namespace WebAtoms.CoreJS.Core
 
             throw new NotImplementedException();
         }
-
+         
         [Prototype("filter")]
         public static JSValue Filter(in Arguments a)
         {

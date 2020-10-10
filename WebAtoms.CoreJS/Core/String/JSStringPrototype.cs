@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esprima;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -86,11 +88,11 @@ namespace WebAtoms.CoreJS.Core
             return new JSString(new string(text[at], 1));
         }
 
-        [Prototype("codePointAt")]
+        /*[Prototype("codePointAt")]
         internal static JSValue CodePointAt(in Arguments a)
         {
             return null;
-        }
+        }*/
 
         [Prototype("concat")]
         internal static JSValue Concat(in Arguments a)
@@ -108,37 +110,21 @@ namespace WebAtoms.CoreJS.Core
             return @this.EndsWith(f.ToString()) ? JSBoolean.True : JSBoolean.False;
         }
 
-        //[Prototype("startsWith")]
-        //internal static JSValue StartsWith(JSValue t, params JSValue[] a)
-        //{
-        //    var j = t as JSString;
-        //    var s = a[0] as JSString;
-        //    var n = a.TryGetAt(1, out var i) ? i.IntValue : -1;
-        //    if (j == null || s == null)
-        //        return JSUndefined.Value;
-        //    n = Math.Min(Math.Max(0, n), j.Length);
-        //    if (s.Length > n)
-        //        return JSBoolean.False;
-        //    var ar = new JSValue[2];
-        //    ar[0].AddValue(n);
-        //    ar[1].AddValue(s.Length);
-        //    if (Substring(j, ar) == s)
-        //        return JSBoolean.True;
-        //    else
-        //        return JSBoolean.False;
-        //}
+        [Prototype("startsWith")]
+        internal static JSValue StartsWith(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var text = a.Get1();
+            return @this.StartsWith(text.ToString()) ? JSBoolean.True : JSBoolean.False;
+        }
 
-        //[Prototype("includes")]
-        //internal static JSValue Includes(JSValue t, params JSValue[] a)
-        //{
-        //    var j = t as JSString;
-        //    var s = a[0] as JSString;
-        //    var n = a.TryGetAt(1, out var i) ? i.IntValue : -1;
-        //    if (j == null || s == null)
-        //        return JSUndefined.Value;
-        //    else
-        //        return ()
-        //}
+        [Prototype("includes")]
+        internal static JSValue Includes(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var (text, param) = a.Get2();
+            return @this.IndexOf(text.ToString(), param.IntValue) >= 0 ? JSBoolean.True : JSBoolean.False;
+        }
 
         [Prototype("indexOf")]
         internal static JSValue IndexOf(in Arguments a)
@@ -150,124 +136,181 @@ namespace WebAtoms.CoreJS.Core
             return new JSNumber(index);
         }
 
-        //[Prototype("lastIndexOf")]
-        //internal static JSValue LastIndexOF(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("lastIndexOf")]
+        internal static JSValue LastIndexOF(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var (text, param) = a.Get2();
+            if (param.IsUndefined)
+                return new JSNumber(@this.LastIndexOf(text.ToString()));
+            else
+                return new JSNumber(@this.LastIndexOf(text.ToString(),param.IntValue));
+        }
 
-        //[Prototype("match")]
-        //internal static JSValue Match(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("match")]
+        internal static JSValue Match(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var reg = a.Get1();
+            var r = Regex.Match(@this, reg.ToString()).Value;
+            return new JSString(r);
+        }
 
-        //[Prototype("matchAll")]
-        //internal static JSValue MatchAll(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        /*[Prototype("matchAll")]
+        internal static JSValue MatchAll(in Arguments a)
+        {
+            return
+        }*/
 
-        //[Prototype("normalize")]
-        //internal static JSValue Normalize(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("normalize")]
+        internal static JSValue Normalize(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var form = a.Get1().ToString();
+            switch (form) 
+            {
+                case "NFC":
+                    return new JSString(@this.Normalize(NormalizationForm.FormC));
+                case "NFD":
+                    return new JSString(@this.Normalize(NormalizationForm.FormD));
+                case "NFKC":
+                    return new JSString(@this.Normalize(NormalizationForm.FormKC));
+                case "NFKD":
+                    return new JSString(@this.Normalize(NormalizationForm.FormKD));
+                default:
+                    return new JSString(@this.Normalize(NormalizationForm.FormC));
 
-        //[Prototype("padEnd")]
-        //internal static JSValue PadEnd(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+            }
+        }
 
-        //[Prototype("padStart")]
-        //internal static JSValue PadStart(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("padEnd")]
+        internal static JSValue PadEnd(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var (s, c) = a.Get2();
+            var size = s.IntValue;
+            var ch = c.ToString().ToCharArray()[0];
+            return new JSString(@this.PadRight(s.IntValue, ch));
+        }
 
-        //[Prototype("repeat")]
-        //internal static JSValue Repeat(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("padStart")]
+        internal static JSValue PadStart(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var (s, c) = a.Get2();
+            var ch = c.ToString().ToCharArray()[0];
+            return new JSString(@this.PadLeft(s.IntValue, ch));
+        }
 
-        //[Prototype("replace")]
-        //internal static JSValue Replace(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("repeat")]
+        internal static JSValue Repeat(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var c = a.Get1();
+            var count = c.IsUndefined || !c.IsNumber ? 0 : c.IntValue;
+            for (var i = 0; i < count; i++)
+            {
+                @this += @this;
+            }
+            return new JSString(@this);
+        }
 
-        //[Prototype("replaceAll")]
-        //internal static JSValue ReplaceAll(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("replace")]
+        internal static JSValue Replace(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var (f, s) = a.Get2();
+            return new JSString(@this.Replace(f.ToString(), s.ToString()));
+        }
 
-        //[Prototype("search")]
-        //internal static JSValue Search(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        /*[Prototype("replaceAll")]
+        internal static JSValue ReplaceAll(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var (f, s) = a.Get2();
+            return new JSString(@this.ReplaceAll(f.ToString(), s.ToString()));
+        }*/
 
-        //[Prototype("slice")]
-        //internal static JSValue Slice(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("search")]
+        internal static JSValue Search(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var search = a.Get1();
+            var reg = Regex.Match(@this, search.ToString());
+            var index = @this.IndexOf(reg.ToString().ToCharArray()[0]);
+            return new JSNumber(index);
+        }
 
-        //[Prototype("split")]
-        //internal static JSValue Split(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("slice")]
+        internal static JSValue Slice(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var (f, s) = a.Get2();
+            return new JSString(@this.Slice(f.IntValue ,s.IntValue));
+        }
 
-        //[Prototype("toLocaleLowerCase")]
-        //internal static JSValue ToLocaleLowerCase(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        /*[Prototype("split")]
+        internal static JSValue Split(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            var ch = a.Get1();
+            return new JSArray(@this.Split(ch.ToString().ToCharArray()));
+        }*/
 
-        //[Prototype("toLocaleUpperCase")]
-        //internal static JSValue ToLocaleUpperCase(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("toLocaleLowerCase")]
+        internal static JSValue ToLocaleLowerCase(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this.ToLower());
+        }
 
-        //[Prototype("toLowerCase")]
-        //internal static JSValue ToLowerCase(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("toLocaleUpperCase")]
+        internal static JSValue ToLocaleUpperCase(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this.ToUpper());
+        }
 
-        //[Prototype("toUpperCase")]
-        //internal static JSValue ToUpperCase(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("toLowerCase")]
+        internal static JSValue ToLowerCase(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this.ToLowerInvariant());
+        }
 
-        //[Prototype("trim")]
-        //internal static JSValue Trim(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("toUpperCase")]
+        internal static JSValue ToUpperCase(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this.ToUpperInvariant());
+        }
 
-        //[Prototype("trimEnd")]
-        //internal static JSValue TrimEnd(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("trim")]
+        internal static JSValue Trim(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this.Trim());
+        }
 
-        //[Prototype("trimstart")]
-        //internal static JSValue TrimStart(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("trimEnd")]
+        internal static JSValue TrimEnd(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this.TrimEnd());
+        }
 
-        //[Prototype("valueOf")]
-        //internal static JSValue ValueOf(JSValue t, params JSValue[] a)
-        //{
-        //    return
-        //}
+        [Prototype("trimstart")]
+        internal static JSValue TrimStart(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this.TrimStart());
+        }
+
+        [Prototype("valueOf")]
+        internal static JSValue ValueOf(in Arguments a)
+        {
+            var @this = a.This.AsString();
+            return new JSString(@this);
+        }
     }
 }
