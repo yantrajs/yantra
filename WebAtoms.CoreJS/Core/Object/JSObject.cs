@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -681,12 +682,17 @@ namespace WebAtoms.CoreJS.Core
             return elements.TryRemove(i, out p);
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
 
-        private struct ElementEnumerator : IEnumerator<JSValue>
+        internal override IElementEnumerator GetElementEnumeratorWithoutHoles()
+        {
+            return new ElementEnumerator(this);
+        }
+
+        private struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
             IEnumerator<(uint Key, JSProperty Value)> en;
@@ -698,22 +704,14 @@ namespace WebAtoms.CoreJS.Core
 
             public JSValue Current => @object.GetValue(en.Current.Value);
 
-            object System.Collections.IEnumerator.Current => this.Current;
+            public uint Index => en.Current.Key;
 
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
 
             public bool MoveNext()
             {
                 return en?.MoveNext() ?? false;
             }
 
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
         }
 
     }

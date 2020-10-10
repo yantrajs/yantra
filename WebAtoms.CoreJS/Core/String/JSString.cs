@@ -180,38 +180,42 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this.value.GetEnumerator());
         }
 
-        private struct ElementEnumerator : IEnumerator<JSValue>
+        internal override IElementEnumerator GetElementEnumeratorWithoutHoles()
+        {
+            return new ElementEnumerator(this.value.GetEnumerator());
+        }
+
+        private struct ElementEnumerator : IElementEnumerator
         {
 
             readonly CharEnumerator en;
+            int index;
             public ElementEnumerator(CharEnumerator en)
             {
                 this.en = en;
+                index = -1;
             }
 
             public JSValue Current => new JSString(new string(en.Current,1));
 
-            object IEnumerator.Current => new JSString(new string(en.Current, 1));
+            public uint Index => (uint)index;
 
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
 
             public bool MoveNext()
             {
-                return en.MoveNext();
+                if (en.MoveNext())
+                {
+                    index++;
+                    return true;
+                }
+                return false;
             }
 
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
         }
 
     }

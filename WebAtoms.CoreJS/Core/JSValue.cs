@@ -417,31 +417,30 @@ namespace WebAtoms.CoreJS.Core {
             return false;
         }
 
-        internal virtual IEnumerator<JSValue> GetElementEnumerator()
+        internal virtual IElementEnumerator GetElementEnumerator()
         {
-            return new ElementEnumerator();
+            return ElementEnumerator.Empty;
         }
 
-        private struct ElementEnumerator : IEnumerator<JSValue>
+        internal virtual IElementEnumerator GetElementEnumeratorWithoutHoles()
         {
+            return ElementEnumerator.Empty;
+        }
+
+
+        private struct ElementEnumerator : IElementEnumerator
+        {
+            public static IElementEnumerator Empty = new ElementEnumerator();
+
             public JSValue Current => throw new NotImplementedException();
 
-            object IEnumerator.Current => throw new NotImplementedException();
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
+            public uint Index => 0;
 
             public bool MoveNext()
             {
                 return false;
             }
 
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

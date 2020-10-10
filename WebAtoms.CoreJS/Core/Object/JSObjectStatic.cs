@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using WebAtoms.CoreJS.Enumerators;
+using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -75,11 +75,11 @@ namespace WebAtoms.CoreJS.Core
             if (!target.IsObject)
                 return new JSArray();
             var r = new JSArray();
-            var ownEntries = new OwnElementEnumeratorWithoutHoles(target);
+            var ownEntries = target.GetElementEnumeratorWithoutHoles();
             while(ownEntries.MoveNext())
             {
                 r.elements[r._length++] = JSProperty.Property(
-                        new JSArray(new JSNumber(ownEntries.CurrentIndex), ownEntries.Current)
+                        new JSArray(new JSString(ownEntries.Index.ToString()), ownEntries.Current)
                     ); 
             }
             var en = new PropertySequence.Enumerator((target as JSObject).ownProperties);
@@ -112,10 +112,10 @@ namespace WebAtoms.CoreJS.Core
             if (!target.IsExtensible())
                 throw JSContext.Current.NewTypeError("Object is not extensible");
 
-            var ownElements = new OwnElementEnumeratorWithoutHoles(pdObject);
+            var ownElements = pdObject.GetElementEnumeratorWithoutHoles();
             while (ownElements.MoveNext())
             {
-                JSObject.InternalAddProperty(target, (uint)ownElements.CurrentIndex, ownElements.Current);
+                JSObject.InternalAddProperty(target, ownElements.Index, ownElements.Current);
             }
 
             var properties = new PropertySequence.Enumerator(pdObject.ownProperties);
@@ -283,7 +283,7 @@ namespace WebAtoms.CoreJS.Core
             if (!(first is JSObject target))
                 return new JSArray();
             var r = new JSArray();
-            var ownEntries = new OwnElementEnumeratorWithoutHoles(target);
+            var ownEntries = target.GetElementEnumeratorWithoutHoles();
             while (ownEntries.MoveNext())
             {
                 r.elements[r._length++] = JSProperty.Property(

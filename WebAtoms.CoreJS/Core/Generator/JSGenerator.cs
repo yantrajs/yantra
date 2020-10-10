@@ -206,37 +206,34 @@ namespace WebAtoms.CoreJS.Core.Generator
             return this.value;
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
 
-        private struct ElementEnumerator: IEnumerator<JSValue>
+        private struct ElementEnumerator: IElementEnumerator
         {
             readonly JSGenerator generator;
+            int index;
             public ElementEnumerator(JSGenerator generator)
             {
                 this.generator = generator;
+                index = -1;
             }
 
+            public uint Index => (uint)index;
             public JSValue Current => generator.value;
-
-            object IEnumerator.Current => generator.value;
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
 
             public bool MoveNext()
             {
-                return generator.Next().BooleanValue;
+                if (generator.Next().BooleanValue)
+                {
+                    index++;
+                    return true;
+                }
+                return false;
             }
 
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         private static void RunGenerator(object state)

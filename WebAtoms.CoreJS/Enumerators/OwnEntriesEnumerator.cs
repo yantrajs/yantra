@@ -8,137 +8,70 @@ using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Extensions;
 
-namespace WebAtoms.CoreJS.Enumerators
+namespace WebAtoms.CoreJS
 {
-    public ref struct OwnElementEnumerator
+    public interface IElementEnumerator
     {
-        JSObject value;
-        int length;
-        IEnumerator<(uint Key, JSProperty Value)> en;
-        UInt32Trie<JSProperty> elements;
+        bool MoveNext();
 
-        public int CurrentIndex;
-        public JSValue Current => CurrentProperty.IsValue
-            ? CurrentProperty.value
-            : CurrentProperty.get.InvokeFunction(new Arguments(this.value));
-        public JSProperty CurrentProperty;
+        JSValue Current { get; }
 
-        public OwnElementEnumerator(JSValue value)
-        {
-            CurrentIndex = -1;
-            CurrentProperty = new JSProperty();
-            switch (value)
-            {
-                case JSArray array:
-                    this.value = array;
-                    this.elements = this.value.elements;
-                    this.en = null;
-                    this.length = (int)array._length;
-                    break;
-                case JSString @string:
-                    this.value = null;
-                    this.elements = null;
-                    this.en = new JSString.JSCharEnumerator(@string);
-                    this.length = -1;
-                    break;
-                case JSGenerator generator:
-                    this.value = null;
-                    this.elements = null;
-                    this.en = new JSGeneratorEnumerator(generator);
-                    this.length = -1;
-                    break;
-                case JSObject @object:
-                    this.value = @object;
-                    this.elements = this.value.elements;
-                    this.en = this.elements?.AllValues?.GetEnumerator();
-                    this.length = -1;
-                    break;
-                default:
-                    if (value.IsNullOrUndefined)
-                        throw JSContext.Current.NewTypeError("null or undefined are not iterable");
-                    this.value = null;
-                    this.elements = null;
-                    this.en = null;
-                    this.length = 0;
-                    break;
-            }
-        }
-
-        public bool MoveNext()
-        {
-            if (en != null)
-            {
-                if (en.MoveNext())
-                {
-                    var c = en.Current;
-                    this.CurrentIndex = (int)c.Key;
-                    this.CurrentProperty = c.Value;
-                    return true;
-                }
-                return false;
-            }
-            CurrentIndex++;
-            if (CurrentIndex < length)
-            {
-                return this.elements.TryGetValue((uint)CurrentIndex, out CurrentProperty);
-            }
-            return false;
-        }
+        uint Index { get; }
     }
 
-    public ref struct OwnElementEnumeratorWithoutHoles
-    {
-        JSObject value;
-        int length;
-        IEnumerator<(uint Key, JSProperty Value)> en;
-        UInt32Trie<JSProperty> elements;
+    //public ref struct OwnElementEnumeratorWithoutHoles
+    //{
+    //    JSObject value;
+    //    int length;
+    //    IEnumerator<(uint Key, JSProperty Value)> en;
+    //    UInt32Trie<JSProperty> elements;
 
-        public int CurrentIndex;
-        public JSValue Current => CurrentProperty.IsValue 
-            ? CurrentProperty.value 
-            : CurrentProperty.get.InvokeFunction(new Arguments(this.value));
-        public JSProperty CurrentProperty;
+    //    public int CurrentIndex;
+    //    public JSValue Current => CurrentProperty.IsValue 
+    //        ? CurrentProperty.value 
+    //        : CurrentProperty.get.InvokeFunction(new Arguments(this.value));
+    //    public JSProperty CurrentProperty;
 
-        public OwnElementEnumeratorWithoutHoles(JSValue value)
-        {
-            this.value = value as JSObject;
-            this.elements = this.value.elements;
-            CurrentIndex = -1;
-            CurrentProperty = new JSProperty();
-            if (value is JSArray a)
-            {
-                this.en = null;
-                this.length = (int)a._length;
-            } else
-            {
-                this.en = this.elements?.AllValues?.GetEnumerator();
-                this.length = -1;
-            }
-        }
+    //    public OwnElementEnumeratorWithoutHoles(JSValue value)
+    //    {
+    //        this.value = value as JSObject;
+    //        this.elements = this.value.elements;
+    //        CurrentIndex = -1;
+    //        CurrentProperty = new JSProperty();
+    //        if (value is JSArray a)
+    //        {
+    //            this.en = null;
+    //            this.length = (int)a._length;
+    //        } else
+    //        {
+    //            this.en = this.elements?.AllValues?.GetEnumerator();
+    //            this.length = -1;
+    //        }
+    //    }
 
-        public bool MoveNext()
-        {
-            if(en != null)
-            {
-                if (en.MoveNext())
-                {
-                    var c = en.Current;
-                    this.CurrentIndex = (int)c.Key;
-                    this.CurrentProperty = c.Value;
-                    return true;
-                }
-                return false;
-            }
-            CurrentIndex++;
-            while(CurrentIndex < length)
-            {
-                if(this.elements.TryGetValue((uint)CurrentIndex, out CurrentProperty)){
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+    //    public bool MoveNext()
+    //    {
+    //        if(en != null)
+    //        {
+    //            if (en.MoveNext())
+    //            {
+    //                var c = en.Current;
+    //                this.CurrentIndex = (int)c.Key;
+    //                this.CurrentProperty = c.Value;
+    //                return true;
+    //            }
+    //            return false;
+    //        }
+    //        CurrentIndex++;
+    //        while(CurrentIndex < length)
+    //        {
+    //            if(this.elements.TryGetValue((uint)CurrentIndex, out CurrentProperty)){
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    }
+    //}
 
     //public ref struct OwnEntriesEnumerator
     //{

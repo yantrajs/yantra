@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using WebAtoms.CoreJS.Core.Runtime;
-using WebAtoms.CoreJS.Enumerators;
+using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -123,41 +123,78 @@ namespace WebAtoms.CoreJS.Core
             return elements.TryRemove(i, out p);
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
 
-        private struct ElementEnumerator: IEnumerator<JSValue>
+        internal override IElementEnumerator GetElementEnumeratorWithoutHoles()
+        {
+            return new ElementEnumeratorWithoutHoles(this);
+        }
+
+        private struct ElementEnumeratorWithoutHoles : IElementEnumerator
         {
             uint length;
             uint index;
-            UInt32Trie<JSProperty> elements;
+            JSProperty property;
+            JSArray array;
+            public ElementEnumeratorWithoutHoles(JSArray array)
+            {
+                this.length = array._length;
+                this.array = array;
+                index = uint.MaxValue;
+                property = new JSProperty();
+            }
+
+            public JSValue Current => property.IsEmpty 
+                ? JSUndefined.Value 
+                : (property.IsValue 
+                    ? property.value
+                    : array.GetValue(property));
+
+            public uint Index => index;
+
+            public bool MoveNext()
+            {
+                while ((index = (index == uint.MaxValue) ? 0 : (index + 1)) < length)
+                {
+                    if(array.elements.TryGetValue(Index, out property))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        }
+
+
+        private struct ElementEnumerator: IElementEnumerator
+        {
+            uint length;
+            uint index;
+            JSArray array;
             public ElementEnumerator(JSArray array)
             {
                 this.length = array._length;
-                this.elements = array.elements;
+                this.array = array;
                 index = uint.MaxValue;
             }
 
-            public JSValue Current => elements[index].value;
+            public JSValue Current => !array.elements.TryGetValue(Index, out var property)
+                ? JSUndefined.Value
+                : (property.IsValue
+                    ? property.value
+                    : array.GetValue(property));
 
-            object IEnumerator.Current => elements[index].value;
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
+            public uint Index => index;
 
             public bool MoveNext()
             {
                 return (index = (index == uint.MaxValue) ? 0 : (index + 1)) < length;
             }
 
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         internal void AddRange(JSValue iterator)
@@ -179,7 +216,7 @@ namespace WebAtoms.CoreJS.Core
                 return;
             }
 
-            var en = new OwnElementEnumerator(iterator);
+            var en = iterator.GetElementEnumerator();
             while (en.MoveNext())
             {
                 et[el++] = JSProperty.Property(en.Current);

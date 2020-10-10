@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using WebAtoms.CoreJS.Enumerators;
+using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Core
     {
 
         [Constructor(Length = 1)]
-        public static JSValue Contructor(in Arguments a)
+        public static JSValue Constructor(in Arguments a)
         {
             // throw JSContext.Current.NewTypeError("Not supported");
             return new JSArray();
@@ -42,7 +42,7 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
-            var en = new OwnElementEnumerator(array);
+            var en = array.GetElementEnumerator();
             uint index = 0;
             while(en.MoveNext())
             {
@@ -99,11 +99,11 @@ namespace WebAtoms.CoreJS.Core
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
             var r = new JSArray();
-            var en = new OwnElementEnumerator(@this);
+            var en = @this.GetElementEnumerator();
             while(en.MoveNext())
             {
                 var item = en.Current;
-                var itemParams = new Arguments(@this, item, new JSNumber(en.CurrentIndex), @this);
+                var itemParams = new Arguments(@this, item, new JSNumber(en.Index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);
@@ -139,6 +139,7 @@ namespace WebAtoms.CoreJS.Core
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var en = @this.GetElementEnumeratorWithoutHoles();
             foreach (var item in @this.AllElements)
             {
                 var index = new JSNumber(item.index);
