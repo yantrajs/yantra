@@ -319,7 +319,8 @@ namespace WebAtoms.CoreJS.Core
                 return new JSNumber(ta._length);
             }
 
-            uint ln = ((uint)t.Length) >> 0;
+            int ln1 = t.Length;
+            uint ln = ln1 == -1 ? 0 : (uint)ln1;
             al = a.Length;
             for(ai = 0; ai <al; ai++)
             {

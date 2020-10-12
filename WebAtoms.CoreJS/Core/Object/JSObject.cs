@@ -350,7 +350,7 @@ namespace WebAtoms.CoreJS.Core
                     var nvalue = ((uint)n.DoubleValue) >> 0;
                     return (int)nvalue;
                 }
-                return 0;
+                return -1;
             }
             set {
                 if (this.IsSealedOrFrozenOrNonExtensible())
