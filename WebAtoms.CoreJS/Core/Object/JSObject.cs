@@ -341,7 +341,7 @@ namespace WebAtoms.CoreJS.Core
                 var ownp = this.ownProperties;
                 if (ownp == null)
                 {
-                    return 0;
+                    return -1;
                 }
                 var l = ownp[KeyStrings.length.Key];
                 if (!l.IsEmpty)
