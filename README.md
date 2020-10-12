@@ -1,4 +1,4 @@
-# core-js
+﻿# core-js
 JavaScript Engine for .NET Standard
 
 # Design
@@ -70,3 +70,12 @@ https://github.com/agileobjects/ReadableExpressions
 4. `assert.throws(fn [, error] [, message])` executes given function and expects an error.
 5. `assert.matches(left, regex, [, error])` checks if left matches right regex, displays error if it does not match.
 6. `assert.doesNotMatch(left, regex, [, error])` checks if left matches right regex, displays error if it does not match.
+
+
+# Pending
+
+|   |CREATE|READ|UPDATE|DELETE|
+|---|:---:|:---:|:---:|:---:|
+|`Object.freeze`| ✗ | ✓ | ✗ | ✗ |
+|`Object.seal`| ✗ | ✓ | ✓ | ✗ |
+|`Object.preventExtensions`| ✗ | ✓ | ✓ | ✓ |

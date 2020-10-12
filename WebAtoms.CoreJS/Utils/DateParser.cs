@@ -24,6 +24,11 @@ namespace WebAtoms.CoreJS.Utils
             // Formats used in DatePrototype toString methods
             "ddd MMM dd yyyy HH:mm:ss 'GMT'K",
             "ddd MMM dd yyyy",
+            // ES Date Format
+            "MMMM dd, yyyy HH:mm:ss \\G\\M\\TK",
+            "MMMM dd, yyyy, HH:mm:ss \\G\\M\\TK",
+            "d MMMM yyyy HH:mm:ss \\G\\M\\TK",
+            "MMMM dd, yyyy, HH:mm:ss \\U\\T\\CK",
             "HH:mm:ss 'GMT'K",
 
             // standard formats
@@ -54,6 +59,25 @@ namespace WebAtoms.CoreJS.Utils
             "yyyyTH:m"
 
         };
+
+        internal static DateTime Parse(string text) {
+            // DateTime result;
+            if (!DateTime.TryParseExact(text, DateParser.DefaultFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
+            {
+                if (!DateTime.TryParseExact(text, DateParser.SecondaryFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                {
+                    if (!DateTime.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out result))
+                    {
+                        if (!DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                        {
+                            // unrecognized dates should return NaN (15.9.4.2)
+                            return DateTime.MinValue;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
 
     }
 }

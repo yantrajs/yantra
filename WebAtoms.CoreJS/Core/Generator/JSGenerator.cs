@@ -1,38 +1,117 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace WebAtoms.CoreJS.Core.Generator
 {
-    public class JSGenerator : JSObject
+    public struct JSWeakGenerator
     {
+        internal readonly WeakReference<JSGenerator> generator;
+
+        public JSWeakGenerator(JSGenerator g)
+        {
+            this.generator = new WeakReference<JSGenerator>(g);
+        }
+
+        public JSValue Yield(JSValue value)
+        {
+            if (!generator.TryGetTarget(out var g))
+                throw new ObjectDisposedException("Generator has been disposed");
+            return g.Yield(value);
+        }
+
+        public JSValue Delegate(JSValue value)
+        {
+            if (!generator.TryGetTarget(out var g))
+                throw new ObjectDisposedException("Generator has been disposed");
+            return g.Delegate(value);
+        }
+
+    }
+
+    internal class SafeExitException: Exception
+    {
+        public SafeExitException()
+        {
+
+        }
+    }
+
+    public struct JSGeneratorEnumerator: IEnumerator<(uint Key, JSProperty Value)>
+    {
+        JSGenerator g;
+        uint index;
+        public JSGeneratorEnumerator(JSGenerator g)
+        {
+            this.g = g;
+            index = 0;
+        }
+
+        public (uint Key, JSProperty Value) Current => (index-1, JSProperty.Property(g.value) );
+
+        object IEnumerator.Current => this.Current;
+
+        public void Dispose()
+        {
+            
+        }
+
+        public bool MoveNext()
+        {
+            this.g.Next();
+            return !g.done;
+        }
+
+        public void Reset()
+        {
+            
+        }
+    }
+
+    public class JSGenerator : JSObject, IDisposable
+    {
+
+        /**
+         * Using ManualResetEventSlim is of no use as it blocks endlessly when `Set` is applied
+         * before `Wait` and which causes singal loss leading to deadlock.
+         */
+
+
+        // wait by current thread...
+        // AutoResetEvent yield;
+        private AutoResetEvent yield;
+
+        // wait by generator thread...
+        private AutoResetEvent wait;
+
         readonly JSGeneratorDelegate @delegate;
         readonly Arguments a;
-        JSValue value;
-        bool done;
-        JSContext context;
+        internal JSValue value;
+        internal bool done;
         public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)
         {
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
             this.@delegate = @delegate;
-            this.context = JSContext.Current;
             this.a = a;
             done = false;
         }
 
-        // wait by current thread...
-        AutoResetEvent yield;
+        ~JSGenerator()
+        {
+            OnDispose(false);
+        }
 
-        // wait by generator thread...
-        AutoResetEvent wait;
+
         Thread thread;
 
         public JSValue Return(JSValue value)
         {
             this.done = true;
             this.value = JSUndefined.Value;
-            thread?.Abort();
+            yield?.Set();
+            wait?.Set();
             return (JSObject.NewWithProperties())
                     .AddProperty(KeyStrings.value, value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
@@ -40,7 +119,10 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Throw(JSValue value)
         {
-            thread?.Abort();
+            yield?.Dispose();
+            wait?.Dispose();
+            yield = null;
+            wait = null;
             return ValueObject;
         }
 
@@ -60,28 +142,29 @@ namespace WebAtoms.CoreJS.Core.Generator
                 this.value = JSUndefined.Value;
                 return ValueObject;
             }
-            if (yield == null)
+            if (wait == null)
             {
-                yield = new AutoResetEvent(false);
                 wait = new AutoResetEvent(false);
-                // using ThreadPool could be dangerous as it might run on somebody
-                // else's thread creating conflicts...
-                // ThreadPool.QueueUserWorkItem(RunGenerator, this);
+                yield = new AutoResetEvent(false);
                 this.thread = new Thread(RunGenerator);
-                thread.Start(this);
-
-                while (!thread.IsAlive) ;
+                thread.Start(new JSWeakGenerator(this));
+            } else
+            {
+                wait.Set();
             }
 
-            wait.Set();
             yield.WaitOne();
 
             if (this.lastError != null)
+            {
+                this.OnDispose();
                 throw lastError;
+            }
 
             if (this.done)
             {
                 this.value = JSUndefined.Value;
+                this.OnDispose();
                 return ValueObject;
             }
 
@@ -90,9 +173,15 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Yield(JSValue value)
         {
-            yield.Set();
-            this.value = value;
-            wait.WaitOne();
+            try
+            {
+                yield.Set();
+                this.value = value;
+                wait.WaitOne();
+            } catch (ObjectDisposedException)
+            {
+                throw new SafeExitException();
+            }
             return this.value;
         }
 
@@ -117,58 +206,94 @@ namespace WebAtoms.CoreJS.Core.Generator
             return this.value;
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
 
-        private struct ElementEnumerator: IEnumerator<JSValue>
+        private struct ElementEnumerator: IElementEnumerator
         {
             readonly JSGenerator generator;
+            int index;
             public ElementEnumerator(JSGenerator generator)
             {
                 this.generator = generator;
+                index = -1;
             }
 
-            public JSValue Current => generator.value;
 
-            object IEnumerator.Current => generator.value;
-
-            public void Dispose()
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                throw new NotImplementedException();
-            }
+                if (generator.Next().BooleanValue)
+                {
+                    this.index++;
+                    index = (uint)this.index;
+                    hasValue = true;
+                    value = this.generator.value;
+                    return true;
+                }
+                index = 0;
+                value = JSUndefined.Value;
+                hasValue = false;
+                return false;
 
-            public bool MoveNext()
-            {
-                return generator.Next().BooleanValue;
-            }
-
-            public void Reset()
-            {
-                throw new NotImplementedException();
             }
         }
 
         private static void RunGenerator(object state)
         {
-            JSGenerator generator = state as JSGenerator;
             try
             {
-                JSContext.Current = generator.context;
-                // generator.yield.Set();
-                generator.wait.WaitOne();
-                generator.@delegate(generator, generator.a);
-                generator.done = true;
-                generator.yield.Set();
-            }catch (Exception ex)
+                var weakGenerator = (JSWeakGenerator)state;
+                try
+                {
+                    JSGeneratorDelegate @delegate;
+                    Arguments a;
+                    if (weakGenerator.generator.TryGetTarget(out var generator))
+                    {
+                        @delegate = generator.@delegate;
+                        a = generator.a;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    generator = null;
+                    @delegate.Invoke(weakGenerator, a);
+                    if (weakGenerator.generator.TryGetTarget(out generator))
+                    {
+                        generator.done = true;
+                        try
+                        {
+                            generator.yield.Set();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            throw new SafeExitException();
+                        }
+                    }
+                }
+                catch (SafeExitException)
+                {
+                    // do nothing..
+                }
+                catch (Exception ex)
+                {
+                    if (weakGenerator.generator.TryGetTarget(out var g))
+                    {
+                        g.lastError = ex;
+                        g.yield.Set();
+
+                    }
+                }
+            } 
+            catch (ObjectDisposedException)
             {
-                generator.lastError = ex;
-                generator.yield.Set();
+                // do nothing...
             }
         }
 
-        [Prototype("next")]
+        [Prototype("next", Length = 1)]
         public static JSValue Next(in Arguments a)
         {
             if(!(a.This is JSGenerator generator))
@@ -178,7 +303,7 @@ namespace WebAtoms.CoreJS.Core.Generator
             return generator.Next(a.Length == 0 ? null : a.Get1());
         }
 
-        [Prototype("return")]
+        [Prototype("return", Length = 1)]
         public static JSValue Return(in Arguments a)
         {
             if (!(a.This is JSGenerator generator))
@@ -188,7 +313,7 @@ namespace WebAtoms.CoreJS.Core.Generator
             return generator.Return(a.Get1());
         }
 
-        [Prototype("throw")]
+        [Prototype("throw", Length = 1)]
         public static JSValue Throw(in Arguments a)
         {
             if (!(a.This is JSGenerator generator))
@@ -198,5 +323,21 @@ namespace WebAtoms.CoreJS.Core.Generator
             return generator.Return(a.Get1());
         }
 
+        private void OnDispose(bool supress = true)
+        {
+            yield?.Dispose();
+            wait?.Dispose();
+            yield = null;
+            wait = null;
+            if (supress)
+            {
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            OnDispose();
+        }
     }
 }

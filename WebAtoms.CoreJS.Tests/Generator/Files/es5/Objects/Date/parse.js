@@ -38,3 +38,5 @@ assert.strictEqual(Date.parse('1970-01-01T12:34:56'), 25496000);
 assert.strictEqual(Date.parse('2010-02-05T12:34:56.1234567890123456789Z'), 1265373296123);
 assert.strictEqual(Date.parse('1970-01-01T12:34:56.123'), 25496123);
 assert.strictEqual(Date.parse('2010T12:34'), 1262329440000);
+
+assert.strictEqual(Date.parse('August 19, 1975 23:15:30 GMT+07:00'), 177696930000);

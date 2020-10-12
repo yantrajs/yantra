@@ -17,11 +17,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Folder Include="Core\Array\Typed\" />
-    <Folder Include="Emit\" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <Reference Include="Microsoft.Build.Tasks.v4.0">
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Microsoft.Build.Tasks.v4.0.dll</HintPath>
     </Reference>

@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using WebAtoms.CoreJS.Extensions;
@@ -48,6 +51,12 @@ namespace WebAtoms.CoreJS.Core
         {
             this.value = value;
         }
+
+        public JSString(char ch) : this(new string(ch,1))
+        {
+            
+        }
+
 
         public JSString(string value, KeyString keyString) : this(value)
         {
@@ -138,38 +147,40 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
-            return new ElementEnumerator(this.value.GetEnumerator());
+            return new ElementEnumerator(this.value);
         }
 
-        private struct ElementEnumerator : IEnumerator<JSValue>
+        private struct ElementEnumerator : IElementEnumerator
         {
 
             readonly CharEnumerator en;
-            public ElementEnumerator(CharEnumerator en)
+            int index;
+            uint length;
+            public ElementEnumerator(string value)
             {
-                this.en = en;
+                this.en = value.GetEnumerator();
+                length = (uint)value.Length;
+                index = -1;
             }
 
-            public JSValue Current => new JSString(new string(en.Current,1));
-
-            object IEnumerator.Current => new JSString(new string(en.Current, 1));
-
-            public void Dispose()
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint i)
             {
-                throw new NotImplementedException();
+                if (en.MoveNext())
+                {
+                    index++;
+                    i = (uint)index;
+                    hasValue = true;
+                    value = new JSString(new string(en.Current, 1));
+                    return true;
+                }
+                i = 0;
+                value = JSUndefined.Value;
+                hasValue = false;
+                return false;
             }
 
-            public bool MoveNext()
-            {
-                return en.MoveNext();
-            }
-
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
         }
 
     }

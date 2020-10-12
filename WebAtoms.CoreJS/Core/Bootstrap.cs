@@ -33,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        public static JSObject Create<T>(
+        public static JSFunction Create<T>(
             this JSContext context, 
             KeyString key, 
             JSObject chain = null)
@@ -52,6 +52,7 @@ namespace WebAtoms.CoreJS.Core
                     if (cx != null && r.f == JSFunction.empty)
                     {
                         r.f = cx;
+                        
                     }
 
                     cx = Fill(rt.Prototype, r.prototype);
@@ -82,7 +83,7 @@ namespace WebAtoms.CoreJS.Core
             }
             context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
             copy.prototypeChain = chain ?? context.ObjectPrototype;
-            return copy.prototype;
+            return copy;
         }
 
         #region Fill
@@ -125,9 +126,8 @@ namespace WebAtoms.CoreJS.Core
 
                 if (pr.IsMethod)
                 {
-
                     ownProperties[pr.Name.Key] = JSProperty.Function(pr.Name,
-                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue);
+                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue, pr.Length);
                     continue;
                 }
 
@@ -222,7 +222,7 @@ namespace WebAtoms.CoreJS.Core
                 {
 
                     target.DefineProperty(pr.Name, JSProperty.Function(pr.Name,
-                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue));
+                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue, pr.Length));
                     continue;
                 }
                 

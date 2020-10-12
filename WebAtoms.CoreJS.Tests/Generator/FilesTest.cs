@@ -8,42 +8,46 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Emit;
 using WebAtoms.CoreJS.Utils;
 namespace WebAtoms.CoreJS.Tests.Generator
 {
     public class TestFolderAttribute: TestMethodAttribute
     {
         readonly string root;
-        public TestFolderAttribute(string root)
+
+        readonly bool saveLambda;
+        public TestFolderAttribute(string root, bool saveLambda = false)
         {
             this.root = root;
+            this.saveLambda = saveLambda;
         }
+
+        private Stopwatch watch = new Stopwatch();
+
 
         public override TestResult[] Execute(ITestMethod testMethod)
         {
             var files = GetData();
             TestResult[] result = null;
             var taskList = files.ToList();
-            //result = new TestResult[taskList.Count];
-            //Parallel.ForEach(taskList, (x, c,i) => {
-            //    AsyncPump.Run(async () => {
-            //        var r = await RunTest(x);
-            //        result[i] = r;
-            //    });
-            //});
+            result = new TestResult[taskList.Count];
+            watch.Start();
             AsyncPump.Run(async () =>
             {
-                var tasks = taskList.Select(x => Task.Run(() => RunTest(x))).ToList();
+                var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
                 result = await Task.WhenAll(tasks);
             });
+            watch.Stop();
             return result;
         }
 
         public IEnumerable<(FileInfo,string)> GetData()
         {
-            static IEnumerable<(FileInfo,string)> GetFiles(DirectoryInfo files)
+            IEnumerable<(FileInfo,string)> GetFiles(DirectoryInfo files)
             {
                 foreach (var file in files.EnumerateFiles())
                 {
@@ -58,14 +62,23 @@ namespace WebAtoms.CoreJS.Tests.Generator
                         yield return x;
                 }
             }
-            var dir = new DirectoryInfo("../../../Generator/Files/" + root);
-            return GetFiles(dir);
+            var dir1 = new DirectoryInfo("../../../Generator/Files/" + root);
+            return GetFiles(dir1);
         }
 
-        protected async Task<TestResult> RunTest((FileInfo file, string name) testCase)
+        protected virtual void Evaluate(JSTestContext context, string content, string fullName)
         {
-            var watch = new Stopwatch();
-            watch.Start();
+            CoreScript.Evaluate(content, fullName, saveLambda ? AssemblyCodeCache.Instance : DictionaryCodeCache.Current);
+            if (context.waitTask != null)
+            {
+                AsyncPump.Run(() => context.waitTask);
+            }
+        }
+        protected async Task<TestResult> RunAsyncTest((FileInfo file, string name) testCase)
+        {
+            // var watch = new Stopwatch();
+            // watch.Start();
+            var start = watch.ElapsedMilliseconds;
             Exception lastError = null;
             StringBuilder sb = new StringBuilder();
             try
@@ -75,19 +88,21 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 {
                     content = await fs.ReadToEndAsync();
                 }
-                using var jc = new JSTestContext();
-                jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
-                jc.Error += (_, e) => lastError = e;
-                CoreScript.Evaluate(content, testCase.file.FullName);
+                using (var jc = new JSTestContext())
+                {
+                    jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
+                    jc.Error += (_, e) => lastError = e;
+                    Evaluate(jc, content, testCase.file.FullName);
+                }
             } catch (Exception ex)
             {
                 lastError = ex;
             }
-            watch.Stop();
+            var time = watch.ElapsedMilliseconds - start;
             return new TestResult {
                 Outcome = lastError  == null ? UnitTestOutcome.Passed : UnitTestOutcome.Failed,
                 DisplayName = testCase.name,
-                Duration = watch.Elapsed,
+                Duration = TimeSpan.FromMilliseconds(time),
                 TestFailureException = lastError,
                 LogOutput = sb.ToString()
             };
@@ -95,66 +110,28 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
     }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class FolderAttribute: Attribute, ITestDataSource
+    [AttributeUsage(AttributeTargets.Method)]
+    public class AsyncTestFolderAttribute: TestFolderAttribute
     {
-        readonly string root;
-        public FolderAttribute(string root)
+        public AsyncTestFolderAttribute(string root) : base(root)
         {
-            this.root = root;
+
         }
 
-        public IEnumerable<object[]> GetData(MethodInfo method)
+        protected override void Evaluate(JSTestContext context, string content, string fullName)
         {
-            static IEnumerable<(FileInfo, string)> GetFiles(DirectoryInfo files, DirectoryInfo root)
+            AsyncPump.Run(async () =>
             {
-                foreach (var file in files.EnumerateFiles())
+                CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                if (context.waitTask != null)
                 {
-                    var name = file.FullName;
-                    if (!name.EndsWith(".js"))
-                        continue;
-                    name = name.Substring(root.FullName.Length + 1);
-                    yield return (file, name);
-                }
-                foreach (var dir in files.EnumerateDirectories())
-                {
-                    foreach (var file in GetFiles(dir, root))
+                    try
                     {
-                        yield return file;
-                    }
+                        await context.waitTask;
+                    }catch (TaskCanceledException) { }
                 }
-            }
-            var dir = new DirectoryInfo("../../../Generator/Files/" + root +  "/" + method.DeclaringType.Name);
-            var list = GetFiles(dir, dir).Select(x => new object[] { x }).ToList();
-            return list;
+            });
         }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Sent by Test Engine")]
-        public string GetDisplayName(MethodInfo methodInfo, object[] data)
-        {
-            var p = ((FileInfo, string))data[0];
-            return p.Item2;
-        }
-    }
-
-    public abstract class FileTest
-    {
-        public abstract Task Run((FileInfo, string) test);
-
-        protected async Task RunTest((FileInfo, string) test)
-        {
-            var (x, y) = test;
-            if (y == null)
-                return;
-            string content;
-            using (var fs = x.OpenText())
-            {
-                content = await fs.ReadToEndAsync();
-            }
-            using var jc = new JSTestContext();
-            CoreScript.Evaluate(content, x.FullName);
-        }
-
     }
 
 
@@ -167,23 +144,6 @@ namespace WebAtoms.CoreJS.Tests.Generator
             
         }
 
-        [TestFolder("es5\\Statements")]
-        public void Statements()
-        {
-
-        }
-
-        [TestFolder("es5\\Syntax")]
-        public void Syntax()
-        {
-
-        }
-
-        [TestFolder("es5\\Function")]
-        public void Function()
-        {
-
-        }
 
         [TestFolder("es5\\Objects\\Date")]
         public void Date()
@@ -191,6 +151,39 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         }
 
+    }
+
+    [TestClass]
+    public class Statements
+    {
+        [TestFolder("es5\\Statements")]
+        public void Run()
+        {
+
+        }
+
+    }
+
+    [TestClass]
+    public class Syntax
+    {
+        [TestFolder("es5\\Syntax")]
+        public void Run()
+        {
+
+        }
+
+    }
+
+
+    [TestClass]
+    public class Function
+    {
+        [TestFolder("es5\\Function")]
+        public void Run()
+        {
+
+        }
     }
 
     [TestClass]
@@ -205,23 +198,52 @@ namespace WebAtoms.CoreJS.Tests.Generator
     }
 
     [TestClass]
-    public class String : FileTest
+    public class String
     {
-        [TestMethod]
-        [Folder("es5")]
-        public override Task Run((FileInfo, string) test)
+        [TestFolder("es5\\String")]
+        public void Run()
         {
-            return RunTest(test);
+            
         }
     }
 
-    // [TestClass]
-    public class Index : FileTest
+    [TestClass]
+    public class Array
     {
-        [Folder("es5")]
-        public override Task Run((FileInfo, string) test)
+        [TestFolder("es5\\Array")]
+        public void Run()
         {
-            return RunTest(test);
+
+        }
+    }
+
+    [TestClass]
+    public class Number
+    {
+        [TestFolder("es5\\Number")]
+        public void Run()
+        {
+
+        }
+    }
+
+    [TestClass]
+    public class Math
+    {
+        [TestFolder("es5\\Math")]
+        public void Run()
+        {
+
+        }
+    }
+
+    [TestClass]
+    public class Promise
+    {
+        [AsyncTestFolder("es5\\Promise")]
+        public void Run()
+        {
+
         }
     }
 

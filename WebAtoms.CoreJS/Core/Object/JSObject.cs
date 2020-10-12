@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -9,9 +10,22 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
+    public enum ObjectStatus
+    {
+        None = 0,
+        Frozen = 1,
+        Sealed = 2,
+        NonExtensible = 4,
+        SealedOrFrozen = 3,
+        SaledForzenNonExtensible = 7
+    }
+
     [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
     public partial class JSObject : JSValue
     {
+
+        internal ObjectStatus status = ObjectStatus.None;
+
         internal UInt32Trie<JSProperty> elements;
         internal PropertySequence ownProperties;
         internal CompactUInt32Trie<JSProperty> symbols;
@@ -19,6 +33,22 @@ namespace WebAtoms.CoreJS.Core
         public override bool BooleanValue => true;
 
         public override bool IsObject => true;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsSealed() => (this.status & ObjectStatus.Sealed) > 0;
+
+        internal bool IsSealedOrFrozen() => (this.status & (ObjectStatus.SealedOrFrozen)) > 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsExtensible() => !((this.status & ObjectStatus.NonExtensible) > 0);
+
+
+        internal bool IsSealedOrFrozenOrNonExtensible() => ((this.status & ObjectStatus.SaledForzenNonExtensible) > 0);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsFrozen() => (this.status & ObjectStatus.Frozen) > 0;
+
+
 
         public override JSValue TypeOf()
         {
@@ -171,6 +201,8 @@ namespace WebAtoms.CoreJS.Core
                     }
                     return;
                 }
+                if (this.IsFrozen())
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 ownProperties = ownProperties ?? (ownProperties = new PropertySequence());
                 ownProperties[name.Key] = JSProperty.Property(name, value);
             }
@@ -191,6 +223,8 @@ namespace WebAtoms.CoreJS.Core
                     }
                     return;
                 }
+                if (this.IsFrozen())
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 elements = elements ?? (elements = new UInt32Trie<JSProperty>());
                 elements[name] = JSProperty.Property(value);
             }
@@ -211,11 +245,12 @@ namespace WebAtoms.CoreJS.Core
                     }
                     return;
                 }
+                if (this.IsFrozen())
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 this.symbols = this.symbols ?? new CompactUInt32Trie<JSProperty>();
                 symbols[name.Key.Key] = JSProperty.Property(value);
             }
         }
-
 
         public JSValue DefineProperty(JSSymbol name, JSProperty p)
         {
@@ -318,29 +353,13 @@ namespace WebAtoms.CoreJS.Core
                 return 0;
             }
             set {
+                if (this.IsSealedOrFrozenOrNonExtensible())
+                    throw JSContext.Current.NewTypeError($"Cannot modify property length of {this}");
                 var ownp = this.ownProperties ?? (this.ownProperties = new PropertySequence());
                 ownp[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length,new JSNumber(value));
             }
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements {
-            get {
-                // if this is an array, it will be handled by an Array...
-
-                // look for length property..
-
-                if (elements == null)
-                    yield break;
-                var l = this[KeyStrings.length];
-                if (l.IsNull || l.IsUndefined)
-                    yield break;
-                var n = (uint)l.IntValue;
-                for (uint i = 0; i < n; i++)
-                {
-                    yield return (i, this.GetValue(elements[i]));
-                }
-            }
-        }
         internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             var elements = this.elements;
@@ -500,6 +519,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue Delete(KeyString key)
         {
+            if (this.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
             if (ownProperties?.RemoveAt(key.Key) ?? false)
                 return JSBoolean.True;
             return JSBoolean.False;
@@ -507,6 +528,8 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue Delete(uint key)
         {
+            if (this.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
             if (elements?.RemoveAt(key) ?? false)
                 return JSBoolean.True;
             return JSBoolean.False;
@@ -641,12 +664,12 @@ namespace WebAtoms.CoreJS.Core
             return elements.TryRemove(i, out p);
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
 
-        private struct ElementEnumerator : IEnumerator<JSValue>
+        private struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
             IEnumerator<(uint Key, JSProperty Value)> en;
@@ -656,23 +679,20 @@ namespace WebAtoms.CoreJS.Core
                 this.@object = @object;
             }
 
-            public JSValue Current => @object.GetValue(en.Current.Value);
 
-            object System.Collections.IEnumerator.Current => this.Current;
-
-            public void Dispose()
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                throw new NotImplementedException();
-            }
-
-            public bool MoveNext()
-            {
-                return en?.MoveNext() ?? false;
-            }
-
-            public void Reset()
-            {
-                throw new NotImplementedException();
+                if(en?.MoveNext() ?? false) {
+                    var c = en.Current;
+                    value = @object.GetValue(c.Value);
+                    index = c.Key;
+                    hasValue = true;
+                    return true;
+                }
+                hasValue = false;
+                value = JSUndefined.Value;
+                index = 0;
+                return false;
             }
         }
 

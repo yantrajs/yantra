@@ -10,6 +10,33 @@ namespace WebAtoms.CoreJS
     internal static class TypeExtensions
     {
 
+        internal static PropertyInfo Property(this Type type , string name)
+        {
+            var a = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
+            if (a == null)
+                throw new NullReferenceException($"Property {name} not found on {type.FullName}");
+            return a;
+        }
+
+        internal static FieldInfo InternalField(this Type type, string name)
+        {
+            return type.GetField(name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        }
+
+        internal static PropertyInfo IndexProperty(this Type type, params Type[] types)
+        {
+            var px = type
+                .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                .FirstOrDefault(x => x.GetIndexParameters().Length > 0 &&
+                x.GetIndexParameters().Select(p => p.ParameterType).SequenceEqual(types));
+            if(px == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Property this({tl}) not found on {type.FullName}");
+            }
+            return px;
+        }
+
         public static MethodInfo InternalMethod(this Type type, string name, params Type[] types)
         {
             var m = type.GetMethod(name,

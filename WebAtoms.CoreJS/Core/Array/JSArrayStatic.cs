@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -14,7 +15,7 @@ namespace WebAtoms.CoreJS.Core
     public class JSArrayStatic
     {
 
-        [Static("from")]
+        [Static("from", Length = 1)]
         public static JSValue StaticFrom(in Arguments a)
         {
             var r = new JSArray();
@@ -27,23 +28,23 @@ namespace WebAtoms.CoreJS.Core
             if (map is JSFunction fx)
             {
                 var cb = fx.f;
-                while (en.MoveNext())
+                while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(cb(new Arguments(t, en.Current)));
+                    elements[length++] = JSProperty.Property(cb(new Arguments(t, item)));
                 }
             }
             else
             {
-                while (en.MoveNext())
+                while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(en.Current);
+                    elements[length++] = JSProperty.Property(item);
                 }
             }
             r._length = length;
             return r;
         }
 
-        [Static("isArray")]
+        [Static("isArray", Length = 1)]
         public static JSValue StaticIsArray(in Arguments a)
         {
             return a.Get1() is JSArray ? JSBoolean.True : JSBoolean.False;

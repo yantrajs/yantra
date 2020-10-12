@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -74,17 +75,21 @@ namespace WebAtoms.CoreJS.Core
             if (!target.IsObject)
                 return new JSArray();
             var r = new JSArray();
-            foreach(var (index, key, property) in target.GetOwnEntries())
+            var ownEntries = target.GetElementEnumerator();
+            while(ownEntries.MoveNext(out var hasValue, out var item, out var index))
             {
-                if (index != -1)
-                {
-                    r.elements[r._length++] = JSProperty.Property(
-                        new JSArray(new JSNumber(index), property));
-                } else
-                {
-                    r.elements[r._length++] = JSProperty.Property(
-                        new JSArray(key.ToJSValue(), property));
-                }
+                if (!hasValue)
+                    continue;
+                r.elements[r._length++] = JSProperty.Property(
+                        new JSArray(new JSString(index.ToString()), item)
+                    ); 
+            }
+            var en = new PropertySequence.Enumerator((target as JSObject).ownProperties);
+            while (en.MoveNext())
+            {
+                r.elements[r._length++] = JSProperty.Property(
+                        new JSArray(en.Current.key.ToJSValue(), target.GetValue(en.Current))
+                    );
             }
             return r;
         }
@@ -106,17 +111,21 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(pds is JSObject pdObject))
                 return target;
+            if (!target.IsExtensible())
+                throw JSContext.Current.NewTypeError("Object is not extensible");
 
-            foreach(var (index, key, property) in pdObject.GetOwnEntries())
+            var ownElements = pdObject.GetElementEnumerator();
+            while (ownElements.MoveNext(out var hasValue, out var item, out var index))
             {
-                if (index != -1)
-                {
-                    JSObject.InternalAddProperty(target, (uint)index, property);
-                }
-                else
-                {
-                    JSObject.InternalAddProperty(target, key, property);
-                }
+                if (!hasValue)
+                    continue;
+                JSObject.InternalAddProperty(target, index, item);
+            }
+
+            var properties = new PropertySequence.Enumerator(pdObject.ownProperties);
+            while (properties.MoveNext())
+            {
+                JSObject.InternalAddProperty(target, properties.Current.key, target.GetValue(properties.Current));
             }
 
             return target;
@@ -128,6 +137,8 @@ namespace WebAtoms.CoreJS.Core
             var (target, key, desc) = a.Get3();
             if (!(target is JSObject targetObject))
                 throw JSContext.Current.NewTypeError("Object.defineProperty called on non-object");
+            if (!targetObject.IsExtensible())
+                throw JSContext.Current.NewTypeError("Object is not extensible");
             if (!(desc is JSObject pd))
                 throw JSContext.Current.NewTypeError("Property Description must be an object");
             var k = key.ToKey();
@@ -195,19 +206,27 @@ namespace WebAtoms.CoreJS.Core
         [Static("isExtensible")]
         internal static JSValue IsExtensible(in Arguments a)
         {
-            throw new NotImplementedException();
+            if (a.Get1() is JSObject @object && @object.IsExtensible())
+            {
+                return JSBoolean.True;
+            }
+            return JSBoolean.False;
         }
 
         [Static("isFrozen")]
         internal static JSValue IsFrozen(in Arguments a)
         {
-            throw new NotImplementedException();
+            if ((a.Get1() is JSObject @object) && @object.IsFrozen())
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         [Static("isSealed")]
         internal static JSValue IsSealed(in Arguments a)
         {
-            throw new NotImplementedException();
+            if ((a.Get1() is JSObject @object) && @object.IsSealed())
+                return JSBoolean.True;
+            return JSBoolean.False;
         }
 
         [Static("keys")]
@@ -224,7 +243,11 @@ namespace WebAtoms.CoreJS.Core
         [Static("preventExtensions")]
         internal static JSValue PreventExtensions(in Arguments a)
         {
-            throw new NotImplementedException();
+            var first = a.Get1();
+            if (!(first is JSObject @object))
+                return first;
+            @object.status |= ObjectStatus.NonExtensible;
+            return @object;
         }
 
         [Static("seal")]
@@ -234,6 +257,7 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (!(first is JSObject @object))
                 return first;
+            @object.status |= ObjectStatus.Sealed;
             @object.ownProperties.Update((x, v) =>
             {
                 v.Attributes &= ~(JSPropertyAttributes.Configurable);
@@ -246,8 +270,10 @@ namespace WebAtoms.CoreJS.Core
         internal static JSValue SetPrototypeOf(in Arguments a)
         {
             var (first, second) = a.Get2();
-            if (!(first is JSObject))
+            if (!(first is JSObject @object))
                 return first;
+            if (!@object.IsExtensible())
+                throw JSContext.Current.NewTypeError("Object is not extensible");
             first.prototypeChain = second as JSObject ?? first.prototypeChain;
             return first;
         }
@@ -258,9 +284,28 @@ namespace WebAtoms.CoreJS.Core
             var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            if (!(first is JSObject jobj))
+            if (!(first is JSObject target))
                 return new JSArray();
-            return new JSArray(jobj.GetOwnEntries().Select(x => x.value));
+            var r = new JSArray();
+            var ownEntries = target.GetElementEnumerator();
+            while (ownEntries.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if(!hasValue)
+                {
+                    continue;
+                }
+                r.elements[r._length++] = JSProperty.Property(
+                        item
+                    );
+            }
+            var en = new PropertySequence.Enumerator(target.ownProperties);
+            while (en.MoveNext())
+            {
+                r.elements[r._length++] = JSProperty.Property(
+                        target.GetValue(en.Current)
+                    );
+            }
+            return r;
         }
 
         [Static("getOwnPropertyDescriptor")]

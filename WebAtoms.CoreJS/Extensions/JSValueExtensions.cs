@@ -5,12 +5,38 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
-namespace WebAtoms.CoreJS.Extensions
+namespace WebAtoms.CoreJS.Core
 {
     public static class JSValueExtensions
     {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, KeyString name, in Arguments a)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            return fx.InvokeFunction(a.OverrideThis(@this));
+        }
+
+        public static JSValue InvokeMethod(this JSValue @this, uint name, in Arguments a)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            return fx.InvokeFunction(a.OverrideThis(@this));
+        }
+
+        public static JSValue InvokeMethod(this JSValue @this, JSValue name, in Arguments a)
+        {
+            var key = name.ToKey();
+            if (key.IsUInt)
+                return @this.InvokeMethod(key.Key, a);
+            return @this.InvokeMethod(key, a);
+        }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSValue NullIfTrue(JSValue value)
         {
@@ -72,32 +98,6 @@ namespace WebAtoms.CoreJS.Extensions
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static IEnumerable<(int index, KeyString key, JSValue value)> GetOwnEntries(this JSValue value)
-        {
-            if (!(value is JSObject @object))
-                yield break;
-            var elements = @object.elements;
-            if (elements != null)
-            {
-                foreach (var (Key, Value) in elements.AllValues)
-                {
-                    yield return ((int)Key, KeyString.Empty, value.GetValue(Value));
-                }
-            }
-
-            var ownProperties = @object.ownProperties;
-            if (ownProperties != null)
-            {
-                var en = new PropertySequence.Enumerator(ownProperties);
-                while(en.MoveNext())
-                {
-                    var p = en.Current;
-                    yield return (-1, p.key, value.GetValue(p));
-                }
-            }
-        }
-
         public static JSBoolean InstanceOf(this JSValue target, JSValue value)
         {
             if (value.IsUndefined)
@@ -114,7 +114,7 @@ namespace WebAtoms.CoreJS.Extensions
                 return JSBoolean.False;
             if (c.StrictEquals(value).BooleanValue)
                 return JSBoolean.True;
-            return c.InstanceOf(value);
+            return p.InstanceOf(value);
         }
 
         public static JSBoolean IsIn(this JSValue target, JSValue value)

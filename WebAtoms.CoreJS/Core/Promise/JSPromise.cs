@@ -37,12 +37,20 @@ namespace WebAtoms.CoreJS.Core
         JSFunction rejectFunction;
         private JSValue result = JSUndefined.Value;
 
+        internal JSPromise(JSValue value, PromiseState state) :
+            base(JSContext.Current.PromisePrototype)
+        {
+            this.result = value;
+            this.state = state;
+        }
+
+
         public JSPromise(JSValue @delegate) :
             base(JSContext.Current.PromisePrototype)
         {
 
             // to improve speed of promise, we will add then/catch here...
-            var sc = JSContext.Current.synchronizationContext;
+            var sc = SynchronizationContext.Current;
             if (sc == null)
                 throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 
@@ -186,13 +194,14 @@ namespace WebAtoms.CoreJS.Core
             });
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Post(Action action)
         {
-            // SynchronizationContext.Current.Post((_) => action(), this);
-            AsyncPump.Run(() => {
-                action();
-                return Task.CompletedTask;
-            });
+            SynchronizationContext.Current.Post((_) => action(), null);
+            //AsyncPump.Run(() => {
+            //    action();
+            //    return Task.CompletedTask;
+            //});
         }
 
     }

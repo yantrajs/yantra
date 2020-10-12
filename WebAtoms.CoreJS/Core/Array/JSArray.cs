@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using WebAtoms.CoreJS.Core.Runtime;
+using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -37,9 +38,8 @@ namespace WebAtoms.CoreJS.Core
             var sb = new StringBuilder();
             bool first = true;
             var en = new ElementEnumerator(this);
-            while(en.MoveNext())
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var item = en.Current;
                 if (!first)
                     sb.Append(',');
                 if (item != null && !item.IsUndefined)
@@ -69,6 +69,8 @@ namespace WebAtoms.CoreJS.Core
                     }
                     return;
                 }
+                if (this.IsSealedOrFrozen())
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 if (this._length <= name)
                     this._length = name + 1;
                 elements = elements ?? (elements = new UInt32Trie<JSProperty>());
@@ -113,48 +115,55 @@ namespace WebAtoms.CoreJS.Core
             return this;
         }
 
-        internal override IEnumerable<(uint index, JSValue value)> AllElements  => this.GetArrayElements(false);
-
         internal override bool TryRemove(uint i, out JSProperty p)
         {
             return elements.TryRemove(i, out p);
         }
 
-        internal override IEnumerator<JSValue> GetElementEnumerator()
+        internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
 
-        private struct ElementEnumerator: IEnumerator<JSValue>
+
+        private struct ElementEnumerator: IElementEnumerator
         {
             uint length;
             uint index;
-            UInt32Trie<JSProperty> elements;
+            JSArray array;
             public ElementEnumerator(JSArray array)
             {
                 this.length = array._length;
-                this.elements = array.elements;
+                this.array = array;
                 index = uint.MaxValue;
             }
 
-            public JSValue Current => elements[index].value;
-
-            object IEnumerator.Current => elements[index].value;
-
-            public void Dispose()
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                throw new NotImplementedException();
+                if((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
+                {
+                    index = this.index;
+                    if(array.elements.TryGetValue(index, out var property))
+                    {
+                        value = property.IsEmpty 
+                            ? null 
+                            : (property.IsValue
+                            ? property.value
+                            : (property.set.InvokeFunction(new Arguments(this.array))));
+                        hasValue = true;
+                    } else
+                    {
+                        hasValue = false;
+                        value = JSUndefined.Value;
+                    }
+                    return true;
+                }
+                index = 0;
+                value = JSUndefined.Value;
+                hasValue = false;
+                return false;
             }
 
-            public bool MoveNext()
-            {
-                return (index = (index == uint.MaxValue) ? 0 : (index + 1)) < length;
-            }
-
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
         }
 
         internal void AddRange(JSValue iterator)
@@ -177,9 +186,15 @@ namespace WebAtoms.CoreJS.Core
             }
 
             var en = iterator.GetElementEnumerator();
-            while (en.MoveNext())
+            while (en.MoveNext(out var hasValue, out var item, out var  index))
             {
-                et[el++] = JSProperty.Property(en.Current);
+                if (hasValue)
+                {
+                    et[el++] = JSProperty.Property(item);
+                } else
+                {
+                    el++;
+                }
             }
             this._length = el;
         }

@@ -169,6 +169,78 @@ namespace WebAtoms.CoreJS.Core {
             }
         }
 
+        internal virtual JSValue this[KeyString name, JSValue @this]
+        {
+            get
+            {
+                if (prototypeChain == null)
+                    return JSUndefined.Value;
+                return @this.GetValue(prototypeChain.GetInternalProperty(name));
+            }
+            set { }
+        }
+
+        internal JSValue this[JSObject super, KeyString name]
+        {
+            get => this.GetValue(super.GetInternalProperty(name));
+            set
+            {
+                var p = super.GetInternalProperty(name);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(new Arguments(this, value));
+                    }
+                    return;
+                }
+                throw JSContext.Current.NewTypeError($"{name} accessor not found on super");
+            }
+        }
+
+        internal JSValue this[JSObject super, uint index]
+        {
+            get => this.GetValue(super.GetInternalProperty(index));
+            set
+            {
+                var p = super.GetInternalProperty(index);
+                if (p.IsProperty)
+                {
+                    if (p.set != null)
+                    {
+                        p.set.f(new Arguments(this, value));
+                    }
+                    return;
+                }
+                throw JSContext.Current.NewTypeError($"{index} accessor not found on super");
+            }
+        }
+
+        internal JSValue this[JSObject super, JSValue name]
+        {
+            get
+            {
+                if (name is JSSymbol symbol)
+                    return this[super, symbol];
+                var key = name.ToKey();
+                if (key.IsUInt)
+                    return this[super, key.Key];
+                return this[super, key];
+            }
+            set {
+                if (name is JSSymbol symbol)
+                    this[super, symbol] = value;
+                var key = name.ToKey();
+                if (key.IsUInt)
+                {
+                    this[super, key.Key] = value;
+                    return;
+                } 
+                this[super, key] = value;
+            }
+        }
+
+
         public abstract JSBoolean Equals(JSValue value);
 
         internal static bool StaticEquals(JSValue left, JSValue right)
@@ -280,31 +352,6 @@ namespace WebAtoms.CoreJS.Core {
             return this.ToString();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual JSValue InvokeMethod(KeyString name, in Arguments a)
-        {
-            var fx = this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {this}");
-            return fx.InvokeFunction(a.OverrideThis(this));
-        }
-
-        public JSValue InvokeMethod(uint name, in Arguments a)
-        {
-            var fx = this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {this}");
-            return fx.InvokeFunction(a.OverrideThis(this));
-        }
-
-        public JSValue InvokeMethod(JSValue name, in Arguments a)
-        {
-            var key = name.ToKey();
-            if (key.IsUInt)
-                return InvokeMethod(key.Key, a);
-            return InvokeMethod(key, a);
-        }
-
         public virtual JSValue Delete(KeyString key)
         {
             return JSBoolean.False;
@@ -321,12 +368,6 @@ namespace WebAtoms.CoreJS.Core {
                 return this.Delete(key.Key);
             return Delete(key);
         }
-
-        /// <summary>
-        /// Returns Elements of an Array or an Iterable...
-        /// </summary>
-        internal abstract IEnumerable<(uint index,JSValue value)> AllElements { get; }
-
 
         internal JSValue InternalInvoke(object name, in Arguments a)
         {
@@ -370,30 +411,47 @@ namespace WebAtoms.CoreJS.Core {
             return false;
         }
 
-        internal virtual IEnumerator<JSValue> GetElementEnumerator()
+        internal virtual IElementEnumerator GetElementEnumerator()
         {
-            return new ElementEnumerator();
+            return ElementEnumerator.Empty;
         }
 
-        private struct ElementEnumerator : IEnumerator<JSValue>
+
+        private struct ElementEnumerator : IElementEnumerator
         {
+            public static IElementEnumerator Empty = new ElementEnumerator();
+
             public JSValue Current => throw new NotImplementedException();
 
-            object IEnumerator.Current => throw new NotImplementedException();
+            public uint Index => 0;
 
-            public void Dispose()
+            public uint Length => 0;
+
+            public bool TryGetCurrent(out JSValue value)
             {
-                throw new NotImplementedException();
+                value = null;
+                return false;
             }
+
+            public bool TryGetCurrent(out JSValue value, out uint index )
+            {
+                value = JSUndefined.Value;
+                index = 0;
+                return false;
+            }
+
 
             public bool MoveNext()
             {
                 return false;
             }
 
-            public void Reset()
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                throw new NotImplementedException();
+                value = JSUndefined.Value;
+                index = 0;
+                hasValue = false;
+                return false;
             }
         }
     }

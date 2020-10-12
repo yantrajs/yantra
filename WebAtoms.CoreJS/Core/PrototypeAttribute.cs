@@ -55,6 +55,8 @@ namespace WebAtoms.CoreJS.Core
 
         public readonly JSPropertyAttributes Attributes;
 
+        public int Length { get; set; }
+
         public bool IsStatic => ((int)this.MemberType & 0xF0) > 0;
 
         public bool IsMethod => ((int)this.MemberType & 0x1) > 0;

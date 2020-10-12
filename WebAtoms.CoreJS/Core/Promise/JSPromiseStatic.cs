@@ -4,12 +4,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core.Runtime
 {
     public static class JSPromiseStatic
     {
+        [Static("resolve")]
+        public static JSValue Resolve(in Arguments a)
+        {
+            return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
+        }
+
+        [Static("reject")]
+        public static JSValue Reject(in Arguments a)
+        {
+            var reason = a.Get1();
+            if(reason.IsNullOrUndefined)
+            {
+                throw JSContext.Current.NewTypeError($"Failure reason must be provided for rejected promise");
+            }
+            return new JSPromise(reason, JSPromise.PromiseState.Rejected);
+        }
+
+
         [Static("all")]
         public static JSValue All(in Arguments a)
         {
@@ -23,7 +42,7 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
             return new JSPromise((resolve, reject) =>
             {
-                var sc = JSContext.Current.synchronizationContext;
+                var sc = SynchronizationContext.Current;
                 if (sc == null)
                     throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 
@@ -31,9 +50,8 @@ namespace WebAtoms.CoreJS.Core.Runtime
 
                 bool empty = true;   
 
-                while(en.MoveNext())
+                while(en.MoveNext(out var hasValue, out var e, out var index))
                 {
-                    var e = en.Current;
                     empty = false;
                     if (!(e is JSPromise p))
                         throw JSContext.Current.NewTypeError($"All parameters must be Promise");

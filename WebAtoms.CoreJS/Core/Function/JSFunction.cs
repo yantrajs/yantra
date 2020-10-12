@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esprima.Ast;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,7 +12,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal static JSFunctionDelegate empty = (in Arguments a) => a.This;
 
-        internal readonly JSObject prototype;
+        internal JSObject prototype;
 
         private string source;
 
@@ -28,7 +29,8 @@ namespace WebAtoms.CoreJS.Core
         public JSFunction(
             JSFunctionDelegate f,
             string name = null,
-            string source = null): base(JSContext.Current?.FunctionPrototype)
+            string source = null,
+            int length = 0): base(JSContext.Current?.FunctionPrototype)
         {
             this.f = f;
             this.name = name ?? "native";
@@ -41,7 +43,19 @@ namespace WebAtoms.CoreJS.Core
             this[KeyStrings.name] = name != null
                 ? new JSString(name)
                 : new JSString("native");
+            this[KeyStrings.length] = new JSNumber(length);
 
+        }
+
+        public override JSValue this[KeyString name] { 
+            get => base[name]; 
+            set {
+                if (name.Key == KeyStrings.prototype.Key)
+                {
+                    this.prototype = value as JSObject;
+                }
+                base[name] = value;
+            }
         }
 
         public override string ToString()
@@ -70,25 +84,34 @@ namespace WebAtoms.CoreJS.Core
             return f(a);
         }
 
-        [Prototype("call")]
+        [Prototype("call", Length = 1)]
         public static JSValue Call(in Arguments a)
         {
             var a1 = a.CopyForCall();
             return a.This.InvokeFunction(a1);
         }
 
-        [Prototype("apply")]
+        [Prototype("apply", Length = 2)]
         public static JSValue Apply(in Arguments a){
             var ar = a.CopyForApply();
             return a.This.InvokeFunction(ar);
         }
 
-        [Prototype("bind")]
+        [Prototype("bind", Length = 1)]
         public static JSValue Bind(in Arguments a) {
             var fOriginal = a.This as JSFunction;
             var a1 = a.OverrideThis(a.This);
             var fx = new JSFunction((in Arguments a2) => fOriginal.f(a2));
+            // need to set prototypeChain...
+            fx.prototypeChain = fOriginal;
             return fx;
+        }
+
+        internal static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
+        {
+            var @this = a.This;
+            var r = (super as JSFunction).f(a);
+            return r.IsUndefined ? @this : r;
         }
     }
 }

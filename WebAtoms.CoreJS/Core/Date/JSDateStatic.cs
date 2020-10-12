@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Utils;
 
@@ -8,6 +9,16 @@ namespace WebAtoms.CoreJS.Core.Date
 {
     public static class JSDateStatic
     {
+
+
+        internal static JSDate AsJSDate(this JSValue v,
+                [CallerMemberName] string helper = null)
+        {
+            if (!(v is JSDate date))
+                throw JSContext.Current.NewTypeError($"Date.prototype.{helper} called on non date");
+            return date;
+        }
+
 
         public static long epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
 
@@ -45,21 +56,8 @@ namespace WebAtoms.CoreJS.Core.Date
             //result = DateParser.Parse(text);
             //val = ToJSDate(result);
             //return new JSNumber(val);
-            if (!DateTime.TryParseExact(text, DateParser.DefaultFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
-            {
-                if (!DateTime.TryParseExact(text, DateParser.SecondaryFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
-                {
-                    if (!DateTime.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out result))
-                    {
-                        if (!DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
-                        {
-                            // unrecognized dates should return NaN (15.9.4.2)
-                            return JSNumber.NaN;
-                        }
-                    }
-                }
-            }
-            val = ToJSDate(result);
+
+            val = ToJSDate(DateParser.Parse(text));
             return new JSNumber(val);
         }
 
@@ -77,7 +75,7 @@ namespace WebAtoms.CoreJS.Core.Date
         /// </summary>
         /// <param name="dateTime"> The .NET date. </param>
         /// <returns> The number of milliseconds since January 1, 1970, 00:00:00 UTC </returns>
-        internal static double ToJSDate(DateTime dateTime)
+        internal static double ToJSDate(this DateTime dateTime)
         {
             if (dateTime == JSDate.InvalidDate)
                 return double.NaN;
