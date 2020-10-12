@@ -27,13 +27,13 @@ namespace WebAtoms.CoreJS.Core
             for (int i = 0; i < a.Length; i++)
             {
                 var f = a.GetAt(i);
-                if (f.IsString)
+                if (f.IsArray)
                 {
-                    r.Add(f);
+                    r.AddRange(f);
                 }
                 else
                 {
-                    r.AddRange(f);
+                    r.Add(f);
                 }
             }
             return r;
