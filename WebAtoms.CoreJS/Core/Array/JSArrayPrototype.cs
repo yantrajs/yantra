@@ -23,14 +23,18 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Concat(in Arguments a)
         {
             var r = new JSArray();
-            var f = a.Get1();
             r.AddRange(a.This);
-            if (f.IsString) {
-                r.Add(f);
-            }
-            else
+            for (int i = 0; i < a.Length; i++)
             {
-                r.AddRange(f);
+                var f = a.GetAt(i);
+                if (f.IsString)
+                {
+                    r.Add(f);
+                }
+                else
+                {
+                    r.AddRange(f);
+                }
             }
             return r;
         }
