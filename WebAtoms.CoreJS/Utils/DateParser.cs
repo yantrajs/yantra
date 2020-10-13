@@ -60,18 +60,18 @@ namespace WebAtoms.CoreJS.Utils
 
         };
 
-        internal static DateTime Parse(string text) {
-            // DateTime result;
-            if (!DateTime.TryParseExact(text, DateParser.DefaultFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
+        internal static DateTimeOffset Parse(string text) {
+            // DateTimeOffset result;
+            if (!DateTimeOffset.TryParseExact(text, DateParser.DefaultFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
             {
-                if (!DateTime.TryParseExact(text, DateParser.SecondaryFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                if (!DateTimeOffset.TryParseExact(text, DateParser.SecondaryFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
                 {
-                    if (!DateTime.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out result))
+                    if (!DateTimeOffset.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out result))
                     {
-                        if (!DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                        if (!DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
                         {
                             // unrecognized dates should return NaN (15.9.4.2)
-                            return DateTime.MinValue;
+                            return DateTimeOffset.MinValue;
                         }
                     }
                 }

@@ -10,17 +10,18 @@ namespace WebAtoms.CoreJS.Core.Date
 
         [Constructor( Length = 7 )]
         internal static JSValue Constructor(in Arguments a) {
-            DateTime date;
+            DateTimeOffset date;
             if (a.Length == 1) {
                 var dateString = a.Get1();
                 if (dateString.IsNumber) {
-                    var utc = dateString.BigIntValue * 10000;
-                    utc += JSDateStatic.epoch;
-                    date = new DateTime(utc, DateTimeKind.Utc);
+                    date = DateTimeOffset.FromUnixTimeMilliseconds(dateString.BigIntValue);
+                    //var utc = dateString.BigIntValue * 10000;
+                    //utc += JSDateStatic.epoch;
+                    //date = new DateTime(utc, DateTimeKind.Utc);
                     return new JSDate(date.ToLocalTime());
                 }
                 date = DateParser.Parse(dateString.ToString());
-                if (date == DateTime.MinValue)
+                if (date == DateTimeOffset.MinValue)
                     return JSDate.invalidDate;
                 return new JSDate(date.ToLocalTime());
             }
@@ -33,7 +34,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetDate(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.Day;
             return new JSNumber(result);
@@ -51,19 +52,19 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static bool IsValid(JSDate @this, JSValue diff, out double diffValue)
         {
             diffValue = 0;
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return false;
 
             if (diff.IsUndefined)
             {
-                @this.value = DateTime.MinValue;
+                @this.value = DateTimeOffset.MinValue;
                 return false;
             }
 
             diffValue = diff.DoubleValue;
             if (double.IsNaN(diffValue))
             {
-                @this.value = DateTime.MinValue;
+                @this.value = DateTimeOffset.MinValue;
                 return false;
             }
             return true;
@@ -91,7 +92,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetDay(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.DayOfWeek;
             return new JSNumber((double)result);
@@ -101,7 +102,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetFullYear(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.Year;
             return new JSNumber(result);
@@ -111,7 +112,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetHours(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.Hour;
             return new JSNumber(result);
@@ -123,7 +124,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetMilliSeconds(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.Millisecond;
             return new JSNumber(result);
@@ -135,7 +136,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetMinutes(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.Minute;
             return new JSNumber(result);
@@ -145,7 +146,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetMonth(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.Month - 1;
             return new JSNumber(result);
@@ -156,7 +157,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetSeconds(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.Second;
             return new JSNumber(result);
@@ -166,7 +167,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetTime(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToJSDate();
             return new JSNumber(result);
@@ -176,7 +177,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetTimezoneOffset(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = -(int)TimeZoneInfo.Local.GetUtcOffset(@this.Value).TotalMinutes;
             return new JSNumber(result);
@@ -186,7 +187,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCDate(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().Day;
             return new JSNumber(result);
@@ -196,7 +197,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCDay(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().DayOfWeek;
             return new JSNumber((double)result);
@@ -206,7 +207,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCFullYear(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().Year;
             return new JSNumber(result);
@@ -216,7 +217,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCHours(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().Hour;
             return new JSNumber(result);
@@ -226,7 +227,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCMilliseconds(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().Millisecond;
             return new JSNumber(result);
@@ -236,7 +237,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCMinutes(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().Minute;
             return new JSNumber(result);
@@ -246,7 +247,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCMonth(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().Month - 1;
             return new JSNumber(result);
@@ -256,7 +257,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue GetUTCSeconds(in Arguments a)
         {
             var @this = a.This.AsJSDate();
-            if (@this.value == DateTime.MinValue)
+            if (@this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = @this.value.ToUniversalTime().Second;
             return new JSNumber(result);
@@ -267,7 +268,7 @@ namespace WebAtoms.CoreJS.Core.Date
         //internal static JSValue GetYear(in Arguments a)
         //{
         //    var @this = a.This.AsJSDate();
-        //    if (@this.value == DateTime.MinValue)
+        //    if (@this.value == DateTimeOffset.MinValue)
         //        return JSNumber.NaN;
         //    var result = @this.value.Year;
         //    return new JSNumber(result);
@@ -280,6 +281,12 @@ namespace WebAtoms.CoreJS.Core.Date
             if (!IsValid(@this, a.Get1(), out var year))
 
                 return JSNumber.NaN;
+
+            if (year <= 0) {
+                @this.value = DateTimeOffset.MinValue;
+                return JSNumber.NaN;
+            }
+
 
             var date = @this.value;
 
@@ -299,7 +306,7 @@ namespace WebAtoms.CoreJS.Core.Date
             }
 
             if (month < 1) {
-                extraMonths = month;
+                extraMonths = month - 1;
                 month = 1;
             }
 
@@ -310,7 +317,7 @@ namespace WebAtoms.CoreJS.Core.Date
 
             if (day < 0)
             {
-                extraDays = day;
+                extraDays = day - 1;
                 day = 1;
             }
 
@@ -320,7 +327,7 @@ namespace WebAtoms.CoreJS.Core.Date
                 day = 1;
             }
 
-            @this.value = new DateTime((int)year,month,day,date.Hour,date.Minute,date.Second,date.Millisecond,date.Kind);
+            @this.value = new DateTimeOffset((int)year,month,day,date.Hour,date.Minute,date.Second,date.Millisecond,@this.value.Offset);
 
             if (extraDays != 0) {
                 @this.value = @this.value.AddDays(extraDays);
@@ -349,10 +356,10 @@ namespace WebAtoms.CoreJS.Core.Date
 
             var mins = _mins.IsUndefined ? date.Minute : _mins.IntValue;
             var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
-            var millis = _millis.IsUndefined ? date.Minute : _millis.IntValue;
+            var millis = _millis.IsUndefined ? date.Millisecond : _millis.IntValue;
 
 
-            @this.value = new DateTime(date.Year,date.Month,date.Day,(int)hours,mins,seconds,millis,date.Kind);
+            @this.value = new DateTimeOffset(date.Year,date.Month,date.Day,(int)hours,mins,seconds,millis,@this.value.Offset);
             
             return new JSNumber(@this.value.ToJSDate());
         }

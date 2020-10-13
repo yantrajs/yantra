@@ -9,24 +9,39 @@ namespace WebAtoms.CoreJS.Core
     public class JSDate: JSObject
     {
 
-        internal static readonly DateTime InvalidDate = DateTime.MinValue;
+        internal static readonly DateTimeOffset InvalidDate = DateTimeOffset.MinValue;
 
-        internal static readonly JSDate invalidDate = new JSDate(DateTime.MinValue);
+        internal static readonly JSDate invalidDate = new JSDate(DateTimeOffset.MinValue);
 
-        internal DateTime value;
+        internal static TimeSpan Local => TimeZoneInfo.Local.BaseUtcOffset;
+        //internal static TimeSpan Local {
+        //    get {
+        //        return TimeZoneInfo.Local.BaseUtcOffset;
+        //    }
+        //}
 
-        public DateTime Value
+        internal DateTimeOffset value;
+
+        public DateTimeOffset Value
         {
             get => value;
             set => this.value = value;
         }
 
-        public JSDate(DateTime time): base(JSContext.Current.DatePrototype)
+        public JSDate(DateTimeOffset time): base(JSContext.Current.DatePrototype)
         {
             this.value = time;
         }
 
-       
+        public override string ToString()
+        {
+            return this.value.ToString();
+        }
+
+        public override string ToDetailString()
+        {
+            return this.value.ToString();
+        }
 
 
     }
