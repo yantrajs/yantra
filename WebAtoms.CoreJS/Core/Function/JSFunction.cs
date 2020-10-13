@@ -100,8 +100,16 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("bind", Length = 1)]
         public static JSValue Bind(in Arguments a) {
             var fOriginal = a.This as JSFunction;
-            var a1 = a.OverrideThis(a.This);
-            var fx = new JSFunction((in Arguments a2) => fOriginal.f(a2));
+            var original = a;
+            var fx = new JSFunction((in Arguments a2) =>
+            {
+                if (a2.Length == 0)
+                {
+                    // for constructor...
+                    return fOriginal.f(original.CopyForCall());
+                }
+                return fOriginal.f(a2.OverrideThis(original.Get1()));
+            });
             // need to set prototypeChain...
             fx.prototypeChain = fOriginal;
             return fx;
