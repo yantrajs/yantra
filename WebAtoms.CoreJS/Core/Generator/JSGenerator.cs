@@ -66,9 +66,10 @@ namespace WebAtoms.CoreJS.Core.Generator
                     .AddProperty(KeyStrings.value, this.value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
         private Exception lastError;
-
+        private LexicalScope threadTop;
         public JSValue Next(JSValue replaceOld = null)
         {
+            var current = JSContext.Current.Scope.Top;
             if (replaceOld != null)
             {
                 this.value = replaceOld;
@@ -86,10 +87,13 @@ namespace WebAtoms.CoreJS.Core.Generator
                 thread.Start(new JSWeakGenerator(this));
             } else
             {
+                JSContext.Current.Scope.Switch(threadTop);
                 wait.Set();
             }
 
             yield.WaitOne(Timeout.Infinite);
+
+            threadTop = JSContext.Current.Scope.Switch(current);
 
             if (this.lastError != null)
             {
@@ -261,6 +265,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         private void OnDispose(bool supress = true)
         {
+            threadTop = null;
             yield?.Dispose();
             wait?.Dispose();
             yield = null;

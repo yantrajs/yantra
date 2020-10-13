@@ -38,5 +38,12 @@ namespace WebAtoms.CoreJS.Core
 
         public T Top => _Top;
 
+        public T Switch(T top)
+        {
+            var current = this._Top;
+            this._Top = top;
+            return current;
+        }
+
     }
 }
