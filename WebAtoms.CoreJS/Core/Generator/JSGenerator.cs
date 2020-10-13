@@ -175,8 +175,8 @@ namespace WebAtoms.CoreJS.Core.Generator
         {
             try
             {
-                yield.Set();
                 this.value = value;
+                yield.Set();
                 wait.WaitOne(Timeout.Infinite);
             } catch (ObjectDisposedException)
             {
