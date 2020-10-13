@@ -106,7 +106,7 @@ namespace WebAtoms.CoreJS.Core
                 if (a2.Length == 0)
                 {
                     // for constructor...
-                    return fOriginal.f(original);
+                    return fOriginal.f(original.CopyForCall());
                 }
                 return fOriginal.f(a2.OverrideThis(original.Get1()));
             });
