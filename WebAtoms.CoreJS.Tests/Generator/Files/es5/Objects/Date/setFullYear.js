@@ -23,5 +23,5 @@ event = new Date('August 19, 1975 23:15:30');
 assert.strictEqual(240342330000, event.setFullYear(1975, 30, 44)); 
 event = new Date('August 19, 1975 23:15:30');
 event.setFullYear(2020, -20, -50);
-console.log(event);
+//console.log(event);
 assert.strictEqual(1520790330000, event.getTime()); 
