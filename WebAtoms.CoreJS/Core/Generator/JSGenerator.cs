@@ -153,7 +153,7 @@ namespace WebAtoms.CoreJS.Core.Generator
                 wait.Set();
             }
 
-            yield.WaitOne();
+            yield.WaitOne(Timeout.Infinite);
 
             if (this.lastError != null)
             {
@@ -177,7 +177,7 @@ namespace WebAtoms.CoreJS.Core.Generator
             {
                 yield.Set();
                 this.value = value;
-                wait.WaitOne();
+                wait.WaitOne(Timeout.Infinite);
             } catch (ObjectDisposedException)
             {
                 throw new SafeExitException();
