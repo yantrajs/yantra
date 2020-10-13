@@ -391,23 +391,25 @@ namespace WebAtoms.CoreJS.Core.Date
             }
 
             if (seconds > 59) {
+                extraSeconds = seconds;
+                seconds = 0;
+            }
+
+            if (seconds < 0) {
+                
                 extraSeconds = seconds - 59;
                 seconds = 59;
             }
 
-            if (seconds < 0) {
-                extraSeconds = seconds - 59;
-                seconds = 0;
-            }
-
             if (millis > 999) {
-                extraMillis = millis - 999;
-                millis = 999;
+                extraMillis = millis;
+                millis = 0;
             }
 
             if (millis < 0) {
+                
                 extraMillis = millis - 999;
-                millis = 0;
+                millis = 999;
             }
 
             @this.value = new DateTimeOffset(date.Year,date.Month,date.Day,hrs,mins,seconds,millis,@this.value.Offset);
