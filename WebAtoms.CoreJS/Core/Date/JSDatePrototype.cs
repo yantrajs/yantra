@@ -11,6 +11,10 @@ namespace WebAtoms.CoreJS.Core.Date
         [Constructor( Length = 7 )]
         internal static JSValue Constructor(in Arguments a) {
             DateTimeOffset date;
+            if (a.Length == 0)
+            {
+                return new JSDate(DateTimeOffset.Now);
+            }
             if (a.Length == 1) {
                 var dateString = a.Get1();
                 if (dateString.IsNumber) {
@@ -354,13 +358,87 @@ namespace WebAtoms.CoreJS.Core.Date
 
             var (_hours, _mins, _seconds, _millis) = a.Get4();
 
+            var hrs = _hours.IsUndefined ? date.Hour : _hours.IntValue;
             var mins = _mins.IsUndefined ? date.Minute : _mins.IntValue;
             var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
             var millis = _millis.IsUndefined ? date.Millisecond : _millis.IntValue;
 
+            var extraHours = 0;
+            var extraMins = 0;
+            var extraSeconds = 0;
+            var extraMillis = 0;
 
-            @this.value = new DateTimeOffset(date.Year,date.Month,date.Day,(int)hours,mins,seconds,millis,@this.value.Offset);
-            
+            if (hrs > 23) {
+                extraHours = hrs;
+                hrs = 0;
+            }
+
+            if (hrs < 0) {
+                extraHours = hrs - 23;
+                hrs = 23;
+
+            }
+
+            if (mins > 59) {
+                extraMins = mins;
+                mins = 0;
+            }
+
+            if (mins < 0) {
+
+                extraMins = mins - 59;
+                mins = 59;
+            }
+
+            if (seconds > 59) {
+                extraSeconds = seconds - 59;
+                seconds = 59;
+            }
+
+            if (seconds < 0) {
+                extraSeconds = seconds - 59;
+                seconds = 0;
+            }
+
+            if (millis > 999) {
+                extraMillis = millis - 999;
+                millis = 999;
+            }
+
+            if (millis < 0) {
+                extraMillis = millis - 999;
+                millis = 0;
+            }
+
+            @this.value = new DateTimeOffset(date.Year,date.Month,date.Day,hrs,mins,seconds,millis,@this.value.Offset);
+
+            if (extraMillis != 0)
+            {
+                @this.value = @this.value.AddMilliseconds(extraMillis);
+            }
+
+            if (extraSeconds != 0)
+            {
+                @this.value = @this.value.AddSeconds(extraSeconds);
+            }
+
+
+            if (extraMins != 0)
+            {
+                @this.value = @this.value.AddMinutes(extraMins);
+            }
+
+
+            if (extraHours != 0)
+            {
+                @this.value = @this.value.AddHours(extraHours);
+            }
+
+
+
+          
+
+
             return new JSNumber(@this.value.ToJSDate());
         }
     }
