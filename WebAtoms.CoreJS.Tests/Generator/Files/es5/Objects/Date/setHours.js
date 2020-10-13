@@ -35,3 +35,11 @@ assert.strictEqual(1602639080669, event.getTime());
 event = new Date(1602584900669);
 event.setHours(-30, -70);
 assert.strictEqual(1602415220669, event.getTime());
+
+event = new Date(1602584900669);
+event.setHours(30, 70, 1000,10000);
+assert.strictEqual(1602640610000, event.getTime());
+
+event = new Date(1602584900669);
+event.setHours(-35, -80, -999, -11100);
+assert.strictEqual(1602395589900, event.getTime());
