@@ -157,11 +157,9 @@ namespace WebAtoms.CoreJS.Core
 
             readonly CharEnumerator en;
             int index;
-            uint length;
             public ElementEnumerator(string value)
             {
                 this.en = value.GetEnumerator();
-                length = (uint)value.Length;
                 index = -1;
             }
 
