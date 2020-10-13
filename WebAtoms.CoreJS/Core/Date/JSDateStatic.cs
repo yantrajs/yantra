@@ -26,7 +26,7 @@ namespace WebAtoms.CoreJS.Core.Date
         internal static JSValue UTC(in Arguments a)
         {
             var (year, month, day, hour, minute, second, millisecond) = a.Get7Int();
-            var val =  ToJSDate(ToDateTime(year, month, day, hour, minute, second, millisecond, DateTimeKind.Utc));
+            var val =  ToJSDate(ToDateTime(year, month, day, hour, minute, second, millisecond, TimeSpan.Zero));
             return new JSNumber(val);
 
         }
@@ -75,23 +75,24 @@ namespace WebAtoms.CoreJS.Core.Date
         /// </summary>
         /// <param name="dateTime"> The .NET date. </param>
         /// <returns> The number of milliseconds since January 1, 1970, 00:00:00 UTC </returns>
-        internal static double ToJSDate(this DateTime dateTime)
+        internal static double ToJSDate(this DateTimeOffset dateTime)
         {
             if (dateTime == JSDate.InvalidDate)
                 return double.NaN;
             // The spec requires that the time value is an integer.
             // We could round to nearest, but then date.toUTCString() would be different from Date(date.getTime()).toUTCString().
-            switch(dateTime.Kind)
-            {
-                case DateTimeKind.Local:
-                    dateTime = dateTime.ToUniversalTime();
-                    break;
-                case DateTimeKind.Unspecified:
-                    dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-                    break;
-            }
-            var diff = dateTime.Ticks - epoch;
-            return Math.Floor((double)(diff / 10000));
+            //switch(dateTime.Kind)
+            //{
+            //    case DateTimeKind.Local:
+            //        dateTime = dateTime.ToUniversalTime();
+            //        break;
+            //    case DateTimeKind.Unspecified:
+            //        dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+            //        break;
+            //}
+            //var diff = dateTime.Ticks - epoch;
+            return dateTime.ToUniversalTime().ToUnixTimeMilliseconds();
+            //return Math.Floor((double)(diff / 10000));
         }
 
         /// <summary>
@@ -106,7 +107,10 @@ namespace WebAtoms.CoreJS.Core.Date
         /// <param name="millisecond"> The number of milliseconds, from 0 to 999.  Defaults to 0. </param>
         /// <param name="kind"> Indicates whether the components are in UTC or local time. </param>
         /// <returns> The equivalent .NET date. </returns>
-        internal static DateTime ToDateTime(int year, int month, int day, int hour, int minute, int second, int millisecond, DateTimeKind kind)
+        internal static DateTimeOffset ToDateTime(
+            int year, int month, int day, 
+            int hour, int minute, int second, int millisecond,
+            TimeSpan offset)
         {
             // DateTime doesn't support years below year 1.
             if (year < 0)
@@ -118,6 +122,8 @@ namespace WebAtoms.CoreJS.Core.Date
                 year += 1900;
             }
 
+            // var offset = TimeZoneInfo.Local.BaseUtcOffset;
+
             if (month >= 0 && month < 12 &&
                 day >= 1 && day <= DateTime.DaysInMonth(year, month + 1) &&
                 hour >= 0 && hour < 24 &&
@@ -126,14 +132,14 @@ namespace WebAtoms.CoreJS.Core.Date
                 millisecond >= 0 && millisecond < 1000)
             {
                 // All parameters are in range.
-                return new DateTime(year, month + 1, day, hour, minute, second, millisecond, kind);
+                return new DateTimeOffset(year, month + 1, day, hour, minute, second, millisecond,offset);
             }
             else
             {
                 // One or more parameters are out of range.
                 try
                 {
-                    DateTime value = new DateTime(year, 1, 1, 0, 0, 0, kind);
+                    DateTimeOffset value = new DateTimeOffset(year, 1, 1, 0, 0, 0, offset);
                     value = value.AddMonths(month);
                     if (day != 1)
                         value = value.AddDays(day - 1);
