@@ -296,51 +296,14 @@ namespace WebAtoms.CoreJS.Core.Date
 
             var (_year, _month, _day) = a.Get3();
 
-            var month = _month.IsUndefined ? date.Month : _month.IntValue + 1;
-            var day = _day.IsUndefined ? date.Day : _day.IntValue;
+            var month = _month.IsUndefined ? date.Month : _month.IntValue;
+            var day = _day.IsUndefined ? date.Day : _day.IntValue - 1;
+            @this.value = new DateTimeOffset((int)year,1,1,date.Hour,date.Minute,date.Second,date.Millisecond,@this.value.Offset);
 
-            var extraMonths = 0;
-            var extraDays = 0;
+            @this.value = @this.value.AddDays(day);
 
+            @this.value = @this.value.AddMonths(month);
 
-            if (month > 12)
-            {
-                extraMonths = month - 12;
-                month = 12;
-            }
-
-            if (month < 1) {
-                extraMonths = month - 1;
-                month = 1;
-            }
-
-            if (day > 28) {
-                extraDays = day - 28;
-                day = 28;
-            }
-
-            if (day < 0)
-            {
-                extraDays = day - 1;
-                day = 1;
-            }
-
-            if (day == 0)
-            {
-                extraDays = -1;
-                day = 1;
-            }
-
-            @this.value = new DateTimeOffset((int)year,month,day,date.Hour,date.Minute,date.Second,date.Millisecond,@this.value.Offset);
-
-            if (extraDays != 0) {
-                @this.value = @this.value.AddDays(extraDays);
-            }
-
-            if (extraMonths != 0)
-            {
-                @this.value = @this.value.AddMonths(extraMonths);
-            }
 
 
             return new JSNumber(@this.value.ToJSDate());
@@ -363,84 +326,31 @@ namespace WebAtoms.CoreJS.Core.Date
             var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
             var millis = _millis.IsUndefined ? date.Millisecond : _millis.IntValue;
 
-            var extraHours = 0;
-            var extraMins = 0;
-            var extraSeconds = 0;
-            var extraMillis = 0;
-
-            if (hrs > 23) {
-                extraHours = hrs;
-                hrs = 0;
-            }
-
-            if (hrs < 0) {
-                extraHours = hrs - 23;
-                hrs = 23;
-
-            }
-
-            if (mins > 59) {
-                extraMins = mins;
-                mins = 0;
-            }
-
-            if (mins < 0) {
-
-                extraMins = mins - 59;
-                mins = 59;
-            }
-
-            if (seconds > 59) {
-                extraSeconds = seconds;
-                seconds = 0;
-            }
-
-            if (seconds < 0) {
-                
-                extraSeconds = seconds - 59;
-                seconds = 59;
-            }
-
-            if (millis > 999) {
-                extraMillis = millis;
-                millis = 0;
-            }
-
-            if (millis < 0) {
-                
-                extraMillis = millis - 999;
-                millis = 999;
-            }
-
-            @this.value = new DateTimeOffset(date.Year,date.Month,date.Day,hrs,mins,seconds,millis,@this.value.Offset);
-
-            if (extraMillis != 0)
-            {
-                @this.value = @this.value.AddMilliseconds(extraMillis);
-            }
-
-            if (extraSeconds != 0)
-            {
-                @this.value = @this.value.AddSeconds(extraSeconds);
-            }
-
-
-            if (extraMins != 0)
-            {
-                @this.value = @this.value.AddMinutes(extraMins);
-            }
-
-
-            if (extraHours != 0)
-            {
-                @this.value = @this.value.AddHours(extraHours);
-            }
+            @this.value = new DateTimeOffset(date.Year,date.Month,date.Day,0,0,0,0,@this.value.Offset);
+            @this.value = @this.value.AddMilliseconds(millis);
+            @this.value = @this.value.AddSeconds(seconds);
+            @this.value = @this.value.AddMinutes(mins);
+            @this.value = @this.value.AddHours(hrs);
+            return new JSNumber(@this.value.ToJSDate());
+        }
 
 
 
+        [Prototype("setMilliseconds", Length = 1)]
+        internal static JSValue SetMilliseconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var _millis))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+
+            @this.value = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, 0, @this.value.Offset);
+
+            @this.value = @this.value.AddMilliseconds(_millis);
           
-
-
+          
             return new JSNumber(@this.value.ToJSDate());
         }
     }
