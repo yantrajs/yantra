@@ -75,7 +75,7 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            throw new NotImplementedException("undefined is not a function");
+            throw JSContext.Current.NewTypeError("undefined is not a function");
         }
 
         internal override IElementEnumerator GetElementEnumerator()
