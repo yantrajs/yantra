@@ -32,40 +32,38 @@ namespace WebAtoms.CoreJS.Tests.Generator
         public override TestResult[] Execute(ITestMethod testMethod)
         {
             var files = GetData();
-            var taskList = files.OfType<FileInfo>().ToList();
+            var taskList = files.ToList();
             var result = new TestResult[taskList.Count];
-            var success = new TestResult[taskList.Count];
 
             watch.Start();
             AsyncPump.Run(async () =>
             {
                 var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
                 var r = await Task.WhenAll(tasks);
-                int successIndex = 0;
                 int resultIndex = 0;
                 foreach(var ri in r)
                 {
-                    if(ri.Outcome == UnitTestOutcome.Passed)
-                    {
-                        success[successIndex++] = ri;
-                    } else
+                    if(ri.Outcome != UnitTestOutcome.Passed)
                     {
                         result[resultIndex++] = ri;
                     }
                 }
-                for (int i = 0; i < successIndex; i++)
+                foreach (var ri in r)
                 {
-                    result[resultIndex++] = success[i];
+                    if (ri.Outcome == UnitTestOutcome.Passed)
+                    {
+                        result[resultIndex++] = ri;
+                    }
                 }
             });
             watch.Stop();
             return result;
         }
 
-        public IEnumerable<FileSystemInfo> GetData()
+        public IEnumerable<FileInfo> GetData()
         {
             var dir1 = new DirectoryInfo("../../../Generator/Files/" + root);
-            return dir1.EnumerateFileSystemInfos("*.js", new EnumerationOptions { RecurseSubdirectories = true });
+            return dir1.EnumerateFiles("*.js", new EnumerationOptions { RecurseSubdirectories = true });
         }
 
         protected virtual void Evaluate(JSTestContext context, string content, string fullName)
@@ -80,7 +78,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
         {
             // var watch = new Stopwatch();
             // watch.Start();
-            var start = watch.ElapsedMilliseconds;
+            var start = watch.ElapsedTicks;
             Exception lastError = null;
             StringBuilder sb = new StringBuilder();
             try
@@ -100,11 +98,11 @@ namespace WebAtoms.CoreJS.Tests.Generator
             {
                 lastError = ex;
             }
-            var time = watch.ElapsedMilliseconds - start;
+            var time = watch.ElapsedTicks - start;
             return new TestResult {
                 Outcome = lastError  == null ? UnitTestOutcome.Passed : UnitTestOutcome.Failed,
                 DisplayName = file.Directory.Name + "\\" + file.Name,
-                Duration = TimeSpan.FromMilliseconds(time),
+                Duration = TimeSpan.FromTicks(time),
                 TestFailureException = lastError,
                 LogOutput = sb.ToString()
             };
@@ -124,6 +122,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
         {
             AsyncPump.Run(async () =>
             {
+                // this needs to run inside AsyncPump 
+                // as Promise expects SynchronizationContext to be present
                 CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
                 if (context.waitTask != null)
                 {
