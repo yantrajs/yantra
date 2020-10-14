@@ -31,7 +31,7 @@ namespace WebAtoms.CoreJS
     public class FunctionScope: LinkedStackItem<FunctionScope>
     {        
 
-        public class VariableScope
+        public class VariableScope: IDisposable
         {
             public ParameterExpression Variable { get; internal set; }
             public Exp Expression { get; internal set; }
@@ -40,6 +40,13 @@ namespace WebAtoms.CoreJS
             public bool Create { get; internal set; }
 
             public Exp Init { get; private set; }
+
+            public bool InUse { get; internal set; }
+
+            public void Dispose()
+            {
+                InUse = false;
+            }
 
             public void SetInit(Expression exp)
             {
@@ -180,6 +187,7 @@ namespace WebAtoms.CoreJS
 
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Loop = new LinkedStack<LoopScope>();
+            TempVariables = new List<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
         }
 
@@ -192,6 +200,7 @@ namespace WebAtoms.CoreJS
             this.ArgumentsExpression = p.ArgumentsExpression;
             this.Generator = p.Generator;
             this.Super = p.Super;
+            this.TempVariables = p.TempVariables;
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
@@ -222,24 +231,26 @@ namespace WebAtoms.CoreJS
             return v;
         }
 
-        private VariableScope tempVariable;
+        private List<VariableScope> TempVariables;
 
-        public VariableScope GetTempVariable()
+        public VariableScope GetTempVariable(Type type = null)
         {
-            var ts = TopScope;
-            if(ts.tempVariable == null)
-            {
-                var t = Expression.Variable(typeof(JSValue));
-                ts.tempVariable = new VariableScope
+            type = type ?? typeof(JSValue);
+            var ts = TempVariables.FirstOrDefault(x => x.Variable.Type == type && x.InUse == false);
+            if(ts == null) { 
+                var t = Expression.Variable(type);
+                ts = new VariableScope
                 {
                     Name = "#temp",
                     Variable = t,
                     Expression = t,
                     Create = true
                 };
-                ts.variableScopeList.Add(ts.tempVariable);
+                TempVariables.Add(ts);
+                TopScope.variableScopeList.Add(ts);
             }
-            return ts.tempVariable;
+            ts.InUse = true;
+            return ts;
         }
 
         public VariableScope CreateVariable(

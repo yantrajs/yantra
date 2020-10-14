@@ -617,16 +617,19 @@ namespace WebAtoms.CoreJS
                 case ArrayPattern arrayPattern:
                     inits = new List<Exp>();
                     int index = -1;
-                    foreach(var element in arrayPattern.Elements)
+                    using (var temp = this.scope.Top.GetTempVariable())
                     {
-                        index++;
-                        Exp start = null;
-                        switch (element)
+                        foreach (var element in arrayPattern.Elements)
                         {
-                            case Identifier id:
-                                start = JSValueBuilder.Index(init, (uint)index);
-                                inits.Add(CreateAssignment(id, start));
-                                break;
+                            index++;
+                            Exp start = null;
+                            switch (element)
+                            {
+                                case Identifier id:
+                                    start = JSValueBuilder.Index(init, (uint)index);
+                                    inits.Add(CreateAssignment(id, start));
+                                    break;
+                            }
                         }
                     }
                     return Exp.Block(inits);
@@ -643,7 +646,6 @@ namespace WebAtoms.CoreJS
             var inits = new List<Exp>();
             bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
                 || variableDeclaration.Kind == VariableDeclarationKind.Const;
-            VariableScope temp;
 
             foreach (var declarator in variableDeclaration.Declarations)
             {
@@ -665,16 +667,20 @@ namespace WebAtoms.CoreJS
                     case Esprima.Ast.ObjectPattern objectPattern:
                         // it will always have an init...
                         // put init in temp...
-                        temp = this.scope.Top.GetTempVariable();
-                        inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
-                        inits.Add(CreateAssignment(objectPattern, temp.Expression, true));
+                        using (var temp = this.scope.Top.GetTempVariable())
+                        {
+                            inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                            inits.Add(CreateAssignment(objectPattern, temp.Expression, true));
+                        }
                         break;
                     case Esprima.Ast.ArrayPattern arrayPattern:
                         // it will always have an init...
                         // put init in temp...
-                        temp = this.scope.Top.GetTempVariable();
-                        inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
-                        inits.Add(CreateAssignment(arrayPattern, temp.Expression, true));
+                        using (var temp = this.scope.Top.GetTempVariable())
+                        {
+                            inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                            inits.Add(CreateAssignment(arrayPattern, temp.Expression, true));
+                        }
                         break;
                     default:
                         throw new NotSupportedException();
