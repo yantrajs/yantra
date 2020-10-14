@@ -32,38 +32,40 @@ namespace WebAtoms.CoreJS.Tests.Generator
         public override TestResult[] Execute(ITestMethod testMethod)
         {
             var files = GetData();
-            TestResult[] result = null;
-            var taskList = files.ToList();
-            result = new TestResult[taskList.Count];
+            var taskList = files.OfType<FileInfo>().ToList();
+            var result = new TestResult[taskList.Count];
+            var success = new TestResult[taskList.Count];
+
             watch.Start();
             AsyncPump.Run(async () =>
             {
                 var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
-                result = await Task.WhenAll(tasks);
+                var r = await Task.WhenAll(tasks);
+                int successIndex = 0;
+                int resultIndex = 0;
+                foreach(var ri in r)
+                {
+                    if(ri.Outcome == UnitTestOutcome.Passed)
+                    {
+                        success[successIndex++] = ri;
+                    } else
+                    {
+                        result[resultIndex++] = ri;
+                    }
+                }
+                for (int i = 0; i < successIndex; i++)
+                {
+                    result[resultIndex++] = success[i];
+                }
             });
             watch.Stop();
             return result;
         }
 
-        public IEnumerable<(FileInfo,string)> GetData()
+        public IEnumerable<FileSystemInfo> GetData()
         {
-            IEnumerable<(FileInfo,string)> GetFiles(DirectoryInfo files)
-            {
-                foreach (var file in files.EnumerateFiles())
-                {
-                    var name = file.FullName;
-                    if (!name.EndsWith(".js"))
-                        continue;
-                    yield return (file, files.Name + "\\" + file.Name);
-                }
-                foreach (var dir in files.EnumerateDirectories())
-                {
-                    foreach (var x in GetFiles(dir))
-                        yield return x;
-                }
-            }
             var dir1 = new DirectoryInfo("../../../Generator/Files/" + root);
-            return GetFiles(dir1);
+            return dir1.EnumerateFileSystemInfos("*.js", new EnumerationOptions { RecurseSubdirectories = true });
         }
 
         protected virtual void Evaluate(JSTestContext context, string content, string fullName)
@@ -74,7 +76,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 AsyncPump.Run(() => context.waitTask);
             }
         }
-        protected async Task<TestResult> RunAsyncTest((FileInfo file, string name) testCase)
+        protected async Task<TestResult> RunAsyncTest(FileInfo file)
         {
             // var watch = new Stopwatch();
             // watch.Start();
@@ -84,7 +86,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             try
             {
                 string content;
-                using (var fs = testCase.file.OpenText())
+                using (var fs = file.OpenText())
                 {
                     content = await fs.ReadToEndAsync();
                 }
@@ -92,7 +94,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 {
                     jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
                     jc.Error += (_, e) => lastError = e;
-                    Evaluate(jc, content, testCase.file.FullName);
+                    Evaluate(jc, content, file.FullName);
                 }
             } catch (Exception ex)
             {
@@ -101,7 +103,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             var time = watch.ElapsedMilliseconds - start;
             return new TestResult {
                 Outcome = lastError  == null ? UnitTestOutcome.Passed : UnitTestOutcome.Failed,
-                DisplayName = testCase.name,
+                DisplayName = file.Directory.Name + "\\" + file.Name,
                 Duration = TimeSpan.FromMilliseconds(time),
                 TestFailureException = lastError,
                 LogOutput = sb.ToString()
