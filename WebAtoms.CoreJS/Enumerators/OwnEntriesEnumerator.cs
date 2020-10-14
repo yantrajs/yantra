@@ -10,6 +10,10 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS
 {
+    /// <summary>
+    /// Struct implementing interface is marginally faster than ElementEnumerator being a class.
+    /// https://dotnetfiddle.net/EbegMo
+    /// </summary>
     public interface IElementEnumerator
     {
         // bool MoveNext();
