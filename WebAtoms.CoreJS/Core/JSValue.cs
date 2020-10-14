@@ -421,36 +421,18 @@ namespace WebAtoms.CoreJS.Core {
         {
             public static IElementEnumerator Empty = new ElementEnumerator();
 
-            public JSValue Current => throw new NotImplementedException();
-
-            public uint Index => 0;
-
-            public uint Length => 0;
-
-            public bool TryGetCurrent(out JSValue value)
-            {
-                value = null;
-                return false;
-            }
-
-            public bool TryGetCurrent(out JSValue value, out uint index )
-            {
-                value = JSUndefined.Value;
-                index = 0;
-                return false;
-            }
-
-
-            public bool MoveNext()
-            {
-                return false;
-            }
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
                 value = JSUndefined.Value;
                 index = 0;
                 hasValue = false;
+                return false;
+            }
+
+            public bool MoveNext(out JSValue value)
+            {
+                value = JSUndefined.Value;
                 return false;
             }
         }

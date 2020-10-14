@@ -161,6 +161,19 @@ namespace WebAtoms.CoreJS.Core.Generator
                 index = -1;
             }
 
+            public bool MoveNext(out JSValue value)
+            {
+                if (generator.Next().BooleanValue)
+                {
+                    this.index++;
+                    value = this.generator.value;
+                    return true;
+                }
+                value = JSUndefined.Value;
+                return false;
+
+            }
+
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {

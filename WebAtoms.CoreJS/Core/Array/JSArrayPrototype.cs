@@ -220,7 +220,7 @@ namespace WebAtoms.CoreJS.Core
             var sb = new StringBuilder();
             bool isFirst = true;
             var en = @this.GetElementEnumerator();
-            while(en.MoveNext(out var hasValue, out var item, out var index))
+            while(en.MoveNext(out var item))
             {
                 if (!isFirst)
                 {
@@ -358,7 +358,7 @@ namespace WebAtoms.CoreJS.Core
             uint index = 0;
             if (a.Length == 1)
             {
-                if (!en.MoveNext(out var hasValue, out initialValue, out index))
+                if (!en.MoveNext(out initialValue))
                     throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
             }
             while (en.MoveNext(out var hasValue, out var item, out index))
