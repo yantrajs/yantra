@@ -109,6 +109,19 @@ namespace WebAtoms.CoreJS.Core
                 value = JSUndefined.Value;
                 return false;
             }
+
+            public bool MoveNext(out JSValue value)
+            {
+                i = (i == uint.MaxValue) ? 0 : (i + 1);
+                if (i < arguments.Length)
+                {
+                    value = arguments.GetAt((int)i);
+                    return true;
+                }
+                value = JSUndefined.Value;
+                return false;
+            }
+
         }
 
     }

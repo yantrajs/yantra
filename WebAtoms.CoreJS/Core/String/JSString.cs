@@ -179,6 +179,19 @@ namespace WebAtoms.CoreJS.Core
                 return false;
             }
 
+            public bool MoveNext(out JSValue value)
+            {
+                if (en.MoveNext())
+                {
+                    index++;
+                    value = new JSString(new string(en.Current, 1));
+                    return true;
+                }
+                value = JSUndefined.Value;
+                return false;
+            }
+
+
         }
 
     }

@@ -138,6 +138,28 @@ namespace WebAtoms.CoreJS.Core
                 index = uint.MaxValue;
             }
 
+            public bool MoveNext(out JSValue value)
+            {
+                if ((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
+                {
+                    if (array.elements.TryGetValue(index, out var property))
+                    {
+                        value = property.IsEmpty
+                            ? null
+                            : (property.IsValue
+                            ? property.value
+                            : (property.set.InvokeFunction(new Arguments(this.array))));
+                    }
+                    else
+                    {
+                        value = JSUndefined.Value;
+                    }
+                    return true;
+                }
+                value = JSUndefined.Value;
+                return false;
+            }
+
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
                 if((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)

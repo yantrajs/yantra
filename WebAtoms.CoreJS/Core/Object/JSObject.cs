@@ -694,6 +694,19 @@ namespace WebAtoms.CoreJS.Core
                 index = 0;
                 return false;
             }
+
+            public bool MoveNext(out JSValue value)
+            {
+                if (en?.MoveNext() ?? false)
+                {
+                    var c = en.Current;
+                    value = @object.GetValue(c.Value);
+                    return true;
+                }
+                value = JSUndefined.Value;
+                return false;
+            }
+
         }
 
     }

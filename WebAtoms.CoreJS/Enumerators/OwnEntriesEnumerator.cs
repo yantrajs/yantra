@@ -20,6 +20,9 @@ namespace WebAtoms.CoreJS
 
         bool MoveNext(out bool hasValue, out JSValue value, out uint index);
 
+        
+        bool MoveNext(out JSValue value);
+
         // JSValue Current { get; }
 
         ///// <summary>
