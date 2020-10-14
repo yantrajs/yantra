@@ -466,5 +466,44 @@ namespace WebAtoms.CoreJS.Core.Date
             }
             return new JSNumber(@this.value.ToJSDate());
         }
+
+
+        [Prototype("setUTCDate", Length = 1)]
+        internal static JSValue setUTCDate(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var _date))
+
+                return JSNumber.NaN;
+            try
+            {
+                var date = @this.value;
+                var offset = date.Offset;
+                var utc = date.ToUniversalTime();
+                utc = utc.AddDays(-utc.Day + _date);
+                @this.value = utc.ToOffset(offset);                
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
+
+
+
+
+        [Prototype("valueOf", Length = 0)]
+        internal static JSValue ValueOf(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == DateTimeOffset.MinValue)
+                return JSNumber.NaN;
+            var result = @this.value.ToJSDate();
+            return new JSNumber(result);
+        }
+
+
     }
 }
