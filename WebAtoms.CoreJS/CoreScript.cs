@@ -660,7 +660,9 @@ namespace WebAtoms.CoreJS
                                             case IArrayPatternElement ape:
                                                 // nested array ...
                                                 // nested object ...
-                                                inits.Add(CreateAssignment(ape, init, true));
+                                                var check = IElementEnumeratorBuilder.MoveNext(en, hasValue.Expression, item.Expression, indexVar.Expression);
+                                                inits.Add(check);
+                                                inits.Add(CreateAssignment(ape, item.Expression, true));
                                                 break;
                                             default:
                                                 inits.Add(IElementEnumeratorBuilder.MoveNext(en, hasValue.Expression, item.Expression , indexVar.Expression));
