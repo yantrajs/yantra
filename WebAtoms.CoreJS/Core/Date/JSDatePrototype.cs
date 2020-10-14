@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using WebAtoms.CoreJS.Utils;
 
@@ -19,10 +20,7 @@ namespace WebAtoms.CoreJS.Core.Date
                 var dateString = a.Get1();
                 if (dateString.IsNumber) {
                     date = DateTimeOffset.FromUnixTimeMilliseconds(dateString.BigIntValue);
-                    //var utc = dateString.BigIntValue * 10000;
-                    //utc += JSDateStatic.epoch;
-                    //date = new DateTime(utc, DateTimeKind.Utc);
-                    return new JSDate(date.ToLocalTime());
+                    return new JSDate(date.ToOffset(JSDate.Local));
                 }
                 date = DateParser.Parse(dateString.ToString());
                 if (date == DateTimeOffset.MinValue)
@@ -293,20 +291,24 @@ namespace WebAtoms.CoreJS.Core.Date
 
 
             var date = @this.value;
-
             var (_year, _month, _day) = a.Get3();
 
             var month = _month.IsUndefined ? date.Month : _month.IntValue;
-            var day = _day.IsUndefined ? date.Day : _day.IntValue - 1;
-            @this.value = new DateTimeOffset((int)year,1,1,date.Hour,date.Minute,date.Second,date.Millisecond,@this.value.Offset);
+            var day = (_day.IsUndefined ? date.Day : _day.IntValue) - 1;
 
-            @this.value = @this.value.AddDays(day);
-
-            @this.value = @this.value.AddMonths(month);
-
-
-
-            return new JSNumber(@this.value.ToJSDate());
+            try
+            {
+                date = new DateTimeOffset((int)year, 1, 1, 
+                    date.Hour, date.Minute, date.Second, 
+                    date.Millisecond, @this.value.Offset);
+                date = date.AddDays(day);
+                date = date.AddMonths(month);
+                @this.value = date;
+            } catch (ArgumentOutOfRangeException)
+            {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate()); 
         }
 
         [Prototype("setHours", Length = 4)]
@@ -325,12 +327,19 @@ namespace WebAtoms.CoreJS.Core.Date
             var mins = _mins.IsUndefined ? date.Minute : _mins.IntValue;
             var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
             var millis = _millis.IsUndefined ? date.Millisecond : _millis.IntValue;
-
-            @this.value = new DateTimeOffset(date.Year,date.Month,date.Day,0,0,0,0,@this.value.Offset);
-            @this.value = @this.value.AddMilliseconds(millis);
-            @this.value = @this.value.AddSeconds(seconds);
-            @this.value = @this.value.AddMinutes(mins);
-            @this.value = @this.value.AddHours(hrs);
+            try
+            {
+                date = new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, 0, 
+                    date.Offset);
+                date = date.AddMilliseconds(millis);
+                date = date.AddSeconds(seconds);
+                date = date.AddMinutes(mins);
+                date = date.AddHours(hrs);
+                @this.value = date;
+            }
+            catch (ArgumentOutOfRangeException) {
+                @this.value = DateTimeOffset.MinValue;
+            }
             return new JSNumber(@this.value.ToJSDate());
         }
 
@@ -345,12 +354,116 @@ namespace WebAtoms.CoreJS.Core.Date
                 return JSNumber.NaN;
 
             var date = @this.value;
+            try
+            {
+                date = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, 
+                                                date.Minute, date.Second, 0, date.Offset);
+                date = @this.value.AddMilliseconds(_millis);
+                @this.value = date;
+            }
+            catch (ArgumentOutOfRangeException) {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
 
-            @this.value = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, 0, @this.value.Offset);
+        [Prototype("setMinutes", Length =3)]
+        internal static JSValue SetMinutes(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var minutes))
 
-            @this.value = @this.value.AddMilliseconds(_millis);
-          
-          
+                return JSNumber.NaN;
+
+            var date = @this.value;
+            var (_mins, _seconds, _millis) = a.Get3();
+            var mins = _mins.IsUndefined ? date.Minute : _mins.IntValue;
+            var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
+            var millis = _millis.IsUndefined ? date.Millisecond : _millis.IntValue;
+
+            try
+            {
+                date = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, 0, 0, 0, date.Offset);
+                date = date.AddMilliseconds(millis);
+                date = date.AddSeconds(seconds);
+                date = date.AddMinutes(mins);
+                @this.value = date;
+            }
+            catch (ArgumentOutOfRangeException) {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
+        [Prototype("setMonth", Length = 2)]
+        internal static JSValue SetMonth(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var mnth))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+            var (_month, _days) = a.Get2();
+            var month = _month.IsUndefined ? date.Month : _month.IntValue;
+            var days = (_days.IsUndefined ? date.Day : _days.IntValue) - 1;
+
+            try
+            {
+                date = new DateTimeOffset(date.Year, 1, 1, date.Hour, date.Minute, date.Second, date.Millisecond, date.Offset);
+                date = date.AddDays(days);
+                date = date.AddMonths(month);
+                @this.value = date;
+
+            }
+            catch (ArgumentOutOfRangeException) {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
+
+        [Prototype("setSeconds", Length = 2)]
+        internal static JSValue SetSeconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var secs))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+            var (_seconds, _millis) = a.Get2();
+            var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
+            var millis = _millis.IsUndefined ? date.Millisecond : _millis.IntValue;
+
+            try
+            {
+                date = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0, 0, date.Offset);
+                date = date.AddMilliseconds(millis);
+                date = date.AddSeconds(seconds);
+                @this.value = date;
+            }
+            catch (ArgumentOutOfRangeException) {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
+
+        [Prototype("setTime", Length = 1)]
+        internal static JSValue SetTime(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var _time))
+
+                return JSNumber.NaN;
+            try
+            {
+                @this.value = DateTimeOffset.FromUnixTimeMilliseconds((long)_time).ToOffset(JSDate.Local);
+            }
+            catch (ArgumentOutOfRangeException) {
+                @this.value = DateTimeOffset.MinValue;
+            }
             return new JSNumber(@this.value.ToJSDate());
         }
     }
