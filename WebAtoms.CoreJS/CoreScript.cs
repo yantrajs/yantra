@@ -616,19 +616,58 @@ namespace WebAtoms.CoreJS
                     return Exp.Block(inits);
                 case ArrayPattern arrayPattern:
                     inits = new List<Exp>();
-                    int index = -1;
-                    using (var temp = this.scope.Top.GetTempVariable())
+                    using (var enVar = this.scope.Top.GetTempVariable(typeof(IElementEnumerator)))
                     {
-                        foreach (var element in arrayPattern.Elements)
+                        var en = enVar.Expression;
+                        using (var item = this.scope.Top.GetTempVariable())
                         {
-                            index++;
-                            Exp start = null;
-                            switch (element)
+                            using (var indexVar = this.scope.Top.GetTempVariable(typeof(uint)))
                             {
-                                case Identifier id:
-                                    start = JSValueBuilder.Index(init, (uint)index);
-                                    inits.Add(CreateAssignment(id, start));
-                                    break;
+                                using (var hasValue = this.scope.Top.GetTempVariable(typeof(bool)))
+                                {
+                                    inits.Add(Exp.Assign(en, IElementEnumeratorBuilder.Get(init)));
+                                    foreach (var element in arrayPattern.Elements)
+                                    {
+                                        switch (element)
+                                        {
+                                            case Identifier id:
+                                                // inits.Add(CreateAssignment(id, start));
+                                                var assignee = VisitIdentifier(id);
+                                                inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en, 
+                                                    hasValue.Expression, 
+                                                    item.Expression, 
+                                                    indexVar.Expression));
+                                                break;
+                                            case RestElement spe:
+                                                // loop...
+                                                var spid = VisitExpression(spe.Argument as Expression);
+                                                using (var arrayVar = this.scope.Top.GetTempVariable(typeof(JSArray)))
+                                                {
+                                                    inits.Add(Exp.Assign(arrayVar.Expression, JSArrayBuilder.New()));
+                                                    var @break = Exp.Label();
+                                                    var add = JSArrayBuilder.Add(arrayVar.Expression, item.Expression);
+                                                    var @breakStmt = Exp.Goto(@break);
+                                                    var loop = Exp.Loop(Exp.Block(
+                                                        Exp.IfThenElse(
+                                                            IElementEnumeratorBuilder.MoveNext(en, hasValue.Expression, item.Expression, indexVar.Expression),
+                                                            add,
+                                                            breakStmt)
+                                                        ), @break);
+                                                    inits.Add(loop);
+                                                    inits.Add(Exp.Assign(spid, arrayVar.Expression));
+                                                }
+                                                break;
+                                            case IArrayPatternElement ape:
+                                                // nested array ...
+                                                // nested object ...
+                                                inits.Add(CreateAssignment(ape, init, true));
+                                                break;
+                                            default:
+                                                inits.Add(IElementEnumeratorBuilder.MoveNext(en, hasValue.Expression, item.Expression , indexVar.Expression));
+                                                break;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

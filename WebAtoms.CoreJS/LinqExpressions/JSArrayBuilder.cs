@@ -16,6 +16,18 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         private static MethodInfo _Add =
             type.GetMethod(nameof(Core.JSArray.Add), new Type[] { typeof(JSValue) });
+
+        public static Expression New()
+        {
+            Expression start = Expression.New(_New);
+            return start;
+        }
+
+        public static Expression Add(Expression target, Expression p)
+        {
+            return Expression.Call(target, _Add, p);
+        }
+
         public static Expression New(IEnumerable<Expression> list)
         {
             Expression start = Expression.New(_New);
