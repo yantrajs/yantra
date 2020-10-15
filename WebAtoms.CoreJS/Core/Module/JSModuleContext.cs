@@ -80,7 +80,7 @@ namespace WebAtoms.CoreJS.Core
             using (var m = new JSModuleContext())
             {
                 m.CurrentPath = folder;
-                m.UpdatePaths();
+                m.UpdatePaths(paths);
                 var filePath = m.Resolve(folder, 
                     relativeFile.StartsWith(".") ? 
                     relativeFile : ( "./" + relativeFile));
@@ -97,7 +97,14 @@ namespace WebAtoms.CoreJS.Core
                 var exported = main.Exports[exportedFunctionName];
                 if (exported.IsUndefined)
                     throw new KeyNotFoundException($"{exportedFunctionName} not found on the module");
-                return exported.InvokeFunction(a);
+                var rv = exported.InvokeFunction(a);
+                if (rv is JSPromise promise)
+                {
+                    return await promise.Task;
+                }
+                if (m.waitTask != null)
+                    await m.waitTask;
+                return rv;
             }
             
         }
