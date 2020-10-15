@@ -30,3 +30,15 @@ assert.strictEqual(1520790330000, event.getTime());
 event = new Date('August 19, 1975 23:15:30');
 event.setFullYear(2020, 2, 1);
 assert.strictEqual(1583084730000, event.getTime()); 
+
+
+event = new Date('December 31, 1975 23:15:30 GMT-3:00');
+
+assert.strictEqual(1976, event.getFullYear());
+// expected output: 1976
+
+// console.log(event.toUTCString());
+// expected output: Thu, 01 Jan 1976 02:15:30 GMT
+let n = event.setFullYear(1975);
+//console.log(event);
+assert.strictEqual(157774530000, n);
