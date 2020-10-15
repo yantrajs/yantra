@@ -10,8 +10,6 @@ namespace WebAtoms.CoreJS.Core
     /// </summary>
     public class JSModuleContext : JSContext
     {
-        public new static JSModuleContext Current => JSContext.Current as JSModuleContext;
-
         internal readonly JSObject ModulePrototype;
 
         public JSModuleContext()
