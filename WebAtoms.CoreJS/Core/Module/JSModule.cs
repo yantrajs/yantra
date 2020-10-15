@@ -13,6 +13,7 @@ namespace WebAtoms.CoreJS.Core
 
         internal readonly string filePath;
         internal readonly string dirPath;
+        private JSFunctionDelegate factory;
         internal JSModule(
             JSModuleContext context, 
             string filePath, 
@@ -24,7 +25,7 @@ namespace WebAtoms.CoreJS.Core
             this.filePath = filePath;
             this.dirPath = System.IO.Path.GetDirectoryName(filePath);
 
-            var fx = CoreScript.Compile(code, filePath, new List<string> { 
+            this.factory = CoreScript.Compile(code, filePath, new List<string> { 
                 "exports",
                 "require",
                 "module",
@@ -43,19 +44,28 @@ namespace WebAtoms.CoreJS.Core
             });
             require[KeyStrings.resolve] = resolve;
 
-            var a = new Arguments(this, new JSValue[] {
-                exports, require, this, new JSString(filePath), new JSString(dirPath) 
-            });
-
-            fx(a);
-
         }
 
         [Prototype("id")]
         public JSValue Id => new JSString(filePath);
 
+        JSValue exports;
         [Prototype("exports")]
-        public JSValue Exports { get; set; }
+        public JSValue Exports {
+            get {
+                if (factory != null) {
+                    var a = new Arguments(this, new JSValue[] {
+                        exports, Require, this, new JSString(filePath), new JSString(dirPath)
+                    });
+
+                    this.factory(a);
+                    this.factory = null;
+                }
+                return exports;
+
+            }
+            set => exports = value;
+        }
 
         [Prototype("require")]
         public JSValue Require { get; set; }
