@@ -603,6 +603,102 @@ namespace WebAtoms.CoreJS.Core.Date
         }
 
 
+        [Prototype("setUTCMinutes", Length = 3)]
+        internal static JSValue SetUTCMinutes(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var minutes))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+            var offset = date.Offset;
+            var utc = date.ToUniversalTime();
+            var (_mins, _seconds, _millis) = a.Get3();
+            var mins = _mins.IsUndefined ? utc.Minute : _mins.IntValue;
+            var seconds = _seconds.IsUndefined ? utc.Second : _seconds.IntValue;
+            var millis = _millis.IsUndefined ? utc.Millisecond : _millis.IntValue;
+
+            try
+            {
+                utc = new DateTimeOffset(utc.Year, utc.Month, utc.Day, utc.Hour, 0, 0, 0, utc.Offset);
+                utc = utc.AddMilliseconds(millis);
+                utc = utc.AddSeconds(seconds);
+                utc = utc.AddMinutes(mins);
+                @this.value = utc.ToOffset(offset);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
+
+        [Prototype("setUTCMonth", Length = 2)]
+        internal static JSValue SetUTCMonth(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var mnth))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+            var offset = date.Offset;
+            var utc = date.ToUniversalTime();
+            var (_month, _days) = a.Get2();
+            var month = _month.IsUndefined ? utc.Month : _month.IntValue;
+            var days = (_days.IsUndefined ? utc.Day : _days.IntValue) - 1;
+
+            try
+            {
+                utc = new DateTimeOffset(utc.Year, 1, 1, utc.Hour, utc.Minute, utc.Second, utc.Millisecond, utc.Offset);
+                utc = utc.AddDays(days);
+                utc = utc.AddMonths(month);
+                @this.value = utc.ToOffset(offset);
+
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
+
+
+        [Prototype("setUTCSeconds", Length = 2)]
+        internal static JSValue SetUTCSeconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var secs))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+            var offset = date.Offset;
+            var utc = date.ToUniversalTime();
+            var (_seconds, _millis) = a.Get2();
+            var seconds = _seconds.IsUndefined ? utc.Second : _seconds.IntValue;
+            var millis = _millis.IsUndefined ? utc.Millisecond : _millis.IntValue;
+
+            try
+            {
+                utc = new DateTimeOffset(utc.Year, utc.Month, utc.Day, utc.Hour, utc.Minute, 0, 0, utc.Offset);
+                utc = utc.AddMilliseconds(millis);
+                utc = utc.AddSeconds(seconds);
+                @this.value = utc.ToOffset(offset);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
+
+
+
+
 
 
 
