@@ -6,7 +6,7 @@ assert.strictEqual(1976, event.getUTCFullYear());
 // console.log(event.toUTCString());
 // expected output: Thu, 01 Jan 1976 02:15:30 GMT
 let n = event.setUTCFullYear(1975);
-console.log(event);
+//console.log(event);
 assert.strictEqual(157774530000,n );
 
 // console.log(event.toUTCString());

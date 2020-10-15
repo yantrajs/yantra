@@ -537,11 +537,70 @@ namespace WebAtoms.CoreJS.Core.Date
         }
 
 
+        [Prototype("setUTCHours", Length = 4)]
+        internal static JSValue SetUTCHours(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var hours))
+
+                return JSNumber.NaN;
+
+            var date = @this.value;
+
+            var (_hours, _mins, _seconds, _millis) = a.Get4();
+
+            var offset = date.Offset;
+            var utc = date.ToUniversalTime();
+
+            var hrs = _hours.IsUndefined ? utc.Hour : _hours.IntValue;
+            var mins = _mins.IsUndefined ? utc.Minute : _mins.IntValue;
+            var seconds = _seconds.IsUndefined ? utc.Second : _seconds.IntValue;
+            var millis = _millis.IsUndefined ? utc.Millisecond : _millis.IntValue;
+            try
+            {
+                utc = new DateTimeOffset(utc.Year, utc.Month, utc.Day, 0, 0, 0, 0,
+                    utc.Offset);
+                utc = utc.AddMilliseconds(millis);
+                utc = utc.AddSeconds(seconds);
+                utc = utc.AddMinutes(mins);
+                utc = utc.AddHours(hrs);
+                @this.value = utc.ToOffset(offset);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
 
 
 
+        [Prototype("setUTCMilliseconds", Length = 1)]
+        internal static JSValue SetUTCMilliseconds(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (!IsValid(@this, a.Get1(), out var _millis))
 
+                return JSNumber.NaN;
 
+            var date = @this.value;
+            var offset = date.Offset;
+            var utc = date.ToUniversalTime();
+           
+            try
+            {
+                utc = new DateTimeOffset(utc.Year, utc.Month, utc.Day, utc.Hour,
+                                                utc.Minute, utc.Second, 0, utc.Offset);
+                utc = utc.AddMilliseconds(_millis);
+                
+                @this.value = utc.ToOffset(offset);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                @this.value = DateTimeOffset.MinValue;
+            }
+            return new JSNumber(@this.value.ToJSDate());
+        }
 
 
 
