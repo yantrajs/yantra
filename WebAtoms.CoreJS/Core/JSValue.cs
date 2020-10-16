@@ -12,6 +12,7 @@ using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core {
+
     public abstract class JSValue : IDynamicMetaObjectProvider {
 
         public virtual bool IsUndefined => false;
@@ -31,6 +32,8 @@ namespace WebAtoms.CoreJS.Core {
         public virtual bool IsBoolean => false;
 
         public virtual bool IsFunction => false;
+
+        public virtual bool ConvertTo(Type type, out object value) => throw new NotImplementedException();
 
         public bool CanBeNumber
         {
@@ -104,6 +107,7 @@ namespace WebAtoms.CoreJS.Core {
         }
 
         internal abstract KeyString ToKey(bool create = true);
+        
 
         public virtual JSValue this[KeyString name]
         {

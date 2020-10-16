@@ -22,6 +22,12 @@ namespace WebAtoms.CoreJS.Core
             this.exports = exports;
         }
 
+        protected JSModule(string name)
+        {
+            this.filePath = name;
+            this.dirPath = "./";
+        }
+
         internal JSModule(
             JSModuleContext context, 
             string filePath, 

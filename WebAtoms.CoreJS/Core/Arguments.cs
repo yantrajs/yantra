@@ -335,6 +335,26 @@ namespace WebAtoms.CoreJS.Core
             return Args;
         }
 
+        private static JSValue[] _Empty = new JSValue[] { };
+
+        public JSValue[] ToArray()
+        {
+            switch(Length)
+            {
+                case 0:
+                    return _Empty;
+                case 1:
+                    return new JSValue[] { Arg0 };
+                case 2:
+                    return new JSValue[] { Arg0, Arg1 };
+                case 3:
+                    return new JSValue[] { Arg0, Arg1, Arg2 };
+                case 4:
+                    return new JSValue[] { Arg0, Arg1, Arg2, Arg3 };
+            }
+            return Args;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetAt(int index, out JSValue a)
         {

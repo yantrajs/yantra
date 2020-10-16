@@ -53,6 +53,17 @@ namespace WebAtoms.CoreJS.Core
             return JSConstants.Boolean;
         }
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (type == typeof(bool))
+            {
+                value = this._value;
+                return true;
+            }
+            value = null;
+            return false;
+        }
+
         public override string ToString()
         {
             return _value ? "true" : "false";

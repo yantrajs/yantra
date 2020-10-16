@@ -92,6 +92,66 @@ namespace WebAtoms.CoreJS.Core
 
         public override long BigIntValue => (long)this.value;
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if(type == typeof(double))
+            {
+                value = this.value;
+                return true;
+            }
+            if (type == typeof(float))
+            {
+                value = this.value;
+                return true;
+            }
+            if (type == typeof(int)) {
+                value = (int)this.value;
+                return true;
+            }
+            if (type == typeof(long))
+            {
+                value = (long)this.value;
+                return true;
+            }
+            if (type == typeof(ulong))
+            {
+                value = (ulong)this.value;
+                return true;
+            }
+            if (type == typeof(bool))
+            {
+                value = this.value != 0;
+                return true;
+            }
+            if (type == typeof(short))
+            {
+                value = (short)this.value;
+                return true;
+            }
+            if (type == typeof(uint))
+            {
+                value = (uint)this.value;
+                return true;
+            }
+            if (type == typeof(ushort))
+            {
+                value = (ushort)this.value;
+                return true;
+            }
+            if (type == typeof(byte))
+            {
+                value = (byte)this.value;
+                return true;
+            }
+            if (type == typeof(sbyte))
+            {
+                value = (sbyte)this.value;
+                return true;
+            }
+            value = null;
+            return false;
+        }
+
         public override string ToString()
         {
             return value.ToString();

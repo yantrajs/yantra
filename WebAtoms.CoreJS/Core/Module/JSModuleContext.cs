@@ -2,9 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using WebAtoms.CoreJS.Core.Clr;
+using WebAtoms.CoreJS.Core.Storage;
 
 namespace WebAtoms.CoreJS.Core
 {
+
+    internal class ModuleCache: ConcurrentSharedStringTrie<JSModule>
+    {
+        internal static Key module = "module";
+        internal static Key clr = "clr";
+    }
+
     /// <summary>
     /// Enables Modules, both CommonJS and ES Modules
     /// </summary>
@@ -18,9 +27,9 @@ namespace WebAtoms.CoreJS.Core
             Module = this.Create<JSModule>(KeyStrings.Module, null, false);
             ModulePrototype = Module.prototype;
 
-            ModuleName name = "module";
+            moduleCache[ModuleCache.module] = new JSModule(Module, "module");
 
-            moduleCache[name.Id] = new JSModule(this, "module");
+            moduleCache[ModuleCache.clr] = new JSModule(new ClrModule(), "clr");
         }
 
         /// <summary>
@@ -29,8 +38,8 @@ namespace WebAtoms.CoreJS.Core
         /// Specially in server environment with multiple context, module names
         /// are identified by unique id present in ModuleName.
         /// </summary>
-        private ConcurrentUInt32Trie<JSModule> moduleCache
-            = new ConcurrentUInt32Trie<JSModule>();
+        private ModuleCache moduleCache
+            = new ModuleCache();
         
         private string[] paths;
 

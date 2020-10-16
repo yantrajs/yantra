@@ -29,6 +29,17 @@ namespace WebAtoms.CoreJS.Core
 
         public override bool IsString => true;
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (type == typeof(string))
+            {
+                value = this.value;
+                return true;
+            }
+            value = null;
+            return false;
+        }
+
         internal override KeyString ToKey(bool create = true)
         {
             if (!create)
