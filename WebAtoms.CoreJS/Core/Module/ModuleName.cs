@@ -24,6 +24,10 @@ namespace WebAtoms.CoreJS.Core
             return names.GetOrCreate(value, () => new ModuleName(value, (uint)Interlocked.Increment(ref uid)));
         }
 
+        public static bool TryGetValue(string name, out ModuleName moduleName)
+        {
+            return names.TryGetValue(name, out moduleName);
+        }
 
     }
 }

@@ -14,6 +14,14 @@ namespace WebAtoms.CoreJS.Core
         internal readonly string filePath;
         internal readonly string dirPath;
         private JSFunctionDelegate factory;
+
+        public JSModule(JSObject exports, string name)
+        {
+            this.filePath = name;
+            this.dirPath = "./";
+            this.exports = exports;
+        }
+
         internal JSModule(
             JSModuleContext context, 
             string filePath, 

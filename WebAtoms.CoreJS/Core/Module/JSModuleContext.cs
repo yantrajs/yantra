@@ -11,10 +11,16 @@ namespace WebAtoms.CoreJS.Core
     public class JSModuleContext : JSContext
     {
         internal readonly JSObject ModulePrototype;
+        internal readonly JSFunction Module;
 
         public JSModuleContext()
         {
-            ModulePrototype = this.Create<JSModule>(KeyStrings.Module, null, false).prototype;
+            Module = this.Create<JSModule>(KeyStrings.Module, null, false);
+            ModulePrototype = Module.prototype;
+
+            ModuleName name = "module";
+
+            moduleCache[name.Id] = new JSModule(this, "module");
         }
 
         /// <summary>
@@ -30,14 +36,14 @@ namespace WebAtoms.CoreJS.Core
 
 
 
-        internal string Resolve(string dirPath, string relativePath)
+        internal ModuleName Resolve(string dirPath, string relativePath)
         {
-            string Combine(string cFolder, string cR, string ext = ".js")
+            ModuleName Combine(string cFolder, string cR, string ext = ".js")
             {
                 string cP = Path.Combine(cFolder, cR) + ext;
                 if (File.Exists(cP))
                     return cP;
-                return null;
+                return new ModuleName();
             }
 
             if (relativePath.StartsWith("."))
@@ -47,14 +53,14 @@ namespace WebAtoms.CoreJS.Core
 
             foreach(var folder in paths)
             {
-                string path = Combine(folder, relativePath);
-                if (path != null)
+                var path = Combine(folder, relativePath);
+                if (path.Name != null)
                     return path;
                 path = Combine(folder, relativePath + "/index");
-                if (path != null)
+                if (path.Name != null)
                     return path;
             }
-            return null;
+            return new ModuleName();
         }
 
         void UpdatePaths(string[] paths = null)
@@ -82,15 +88,15 @@ namespace WebAtoms.CoreJS.Core
                 var filePath = m.Resolve(folder, 
                     relativeFile.StartsWith(".") ? 
                     relativeFile : ( "./" + relativeFile));
-                if (filePath == null)
+                if (filePath.Name == null)
                     throw new FileNotFoundException($"{filePath} not found");
                 string text;
-                using(var fs = File.OpenText(filePath))
+                using(var fs = File.OpenText(filePath.Name))
                 {
                     text = await fs.ReadToEndAsync();
                 }
 
-                var main = m.Main = new JSModule(m, filePath, text, true);
+                var main = m.Main = new JSModule(m, filePath.Name, text, true);
 
                 var exported = main.Exports[exportedFunctionName];
                 if (exported.IsUndefined)
