@@ -27,7 +27,26 @@ namespace WebAtoms.CoreJS.Core.Date
                     return JSDate.invalidDate;
                 return new JSDate(date.ToLocalTime());
             }
-            throw new NotImplementedException();
+            var (year, month, day, hours, minutes, seconds, millis ) = a.Get7Int();
+
+            day = day - 1;
+            try
+            {
+                year = year >= 0 && year < 100 ? year + 1900 : year;
+                date = new DateTimeOffset(year, 1, 1, 0, 0, 0, 0, JSDate.Local);
+                date = date.AddMilliseconds(millis);
+                date = date.AddSeconds(seconds);
+                date = date.AddMinutes(minutes);
+                date = date.AddHours(hours);
+                date = date.AddDays(day);
+                date = date.AddMonths(month);
+
+                return new JSDate(date);
+            }
+            catch (ArgumentOutOfRangeException) {
+                return JSDate.invalidDate;
+            }
+
         }
 
 
@@ -697,6 +716,17 @@ namespace WebAtoms.CoreJS.Core.Date
         }
 
 
+        [Prototype("toDateString", Length = 0)]
+        internal static JSValue ToDateString(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return new JSString("Invalid Date");
+            var date =  @this.value.ToLocalTime().ToString("ddd MMM dd yyyy", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+
+            return new JSString(date);
+            
+        }
 
 
 
@@ -707,13 +737,7 @@ namespace WebAtoms.CoreJS.Core.Date
 
 
 
-
-
-
-
-
-
-        [Prototype("valueOf", Length = 0)]
+            [Prototype("valueOf", Length = 0)]
         internal static JSValue ValueOf(in Arguments a)
         {
             var @this = a.This.AsJSDate();
