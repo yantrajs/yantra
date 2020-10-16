@@ -16,8 +16,12 @@ namespace WebAtoms.CoreJS.Core.Date
             {
                 return new JSDate(DateTimeOffset.Now);
             }
+            var dateString = a.Get1();
+            if (dateString.IsNumber && double.IsNaN(dateString.DoubleValue))
+            {
+                return JSDate.invalidDate;
+            }
             if (a.Length == 1) {
-                var dateString = a.Get1();
                 if (dateString.IsNumber) {
                     date = DateTimeOffset.FromUnixTimeMilliseconds(dateString.BigIntValue);
                     return new JSDate(date.ToOffset(JSDate.Local));
@@ -740,6 +744,18 @@ namespace WebAtoms.CoreJS.Core.Date
 
         }
 
+
+        [Prototype("toJSON", Length = 1)]
+        internal static JSValue ToJSON(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return JSNull.Value;
+            var date = @this.value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+
+            return new JSString(date);
+
+        }
 
 
 
