@@ -23,6 +23,7 @@ namespace WebAtoms.CoreJS.Utils
         internal static readonly string[] SecondaryFormatsUTC = {
             "d MMMM yyyy HH:mm \\U\\T\\CK",
             "MMMM dd, yyyy, HH:mm:ss \\U\\T\\CK",
+            "MMMM dd, yyyy HH:mm:ss \\U\\T\\CK",
         };
 
         internal static readonly string[] SecondaryFormats = {
