@@ -46,7 +46,7 @@ namespace WebAtoms.CoreJS.Core
     /// on instance method will require one more method call and which will slow down if inlining is not supported
     /// on AOT platforms
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     public class PrototypeAttribute: Attribute
     {
         public readonly KeyString Name;

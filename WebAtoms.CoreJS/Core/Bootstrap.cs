@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using WebAtoms.CoreJS.ExpHelper;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -36,7 +38,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSFunction Create<T>(
             this JSContext context, 
             KeyString key, 
-            JSObject chain = null)
+            JSObject chain = null, bool addToContext = true)
         {
             var jsf = cache.GetOrCreate(key.Key, () =>
             {
@@ -81,12 +83,41 @@ namespace WebAtoms.CoreJS.Core
                     ro[p.Key] = p.Value;
                 }
             }
-            context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
+            if (addToContext)
+            {
+                context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
+            }
             copy.prototypeChain = chain ?? context.ObjectPrototype;
             return copy;
         }
 
         #region Fill
+
+        private static JSFunctionDelegate CreateJSFunctionDelegate(this (MethodInfo method, PrototypeAttribute attribute) m)
+        {
+            var (method, p) = m;
+            if (method.IsStatic)
+                return (JSFunctionDelegate)method.CreateDelegate(typeof(JSFunctionDelegate));
+
+            var name = method.DeclaringType.Name;
+            if(name.StartsWith("JS"))
+            {
+                name = name.Substring(2);
+            }
+
+            var toType = m.method.DeclaringType;
+
+            // wrap...
+            var pe = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            var peThis = ArgumentsBuilder.This(pe);
+            var coalesce = Expression.Coalesce(
+                Expression.TypeAs(peThis, toType), 
+                Expression.Throw(
+                    JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
+            var body = Expression.Call(coalesce, method, pe);
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, pe);
+            return lambda.Compile();
+        }
 
         public static JSFunctionDelegate Fill(Type type, JSObject target)
         {
@@ -110,8 +141,8 @@ namespace WebAtoms.CoreJS.Core
 
                 var f = mg.First();
 
-                if (mg.Any((x => !x.method.IsStatic)))
-                    throw new NotSupportedException($"{f.method.Name} should be static method");
+                //if (mg.Any((x => !x.method.IsStatic)))
+                //    throw new NotSupportedException($"{f.method.Name} should be static method");
 
                 if (ownProperties.TryGetValue(f.attribute.Name.Key, out var _))
                     continue;
@@ -120,22 +151,22 @@ namespace WebAtoms.CoreJS.Core
 
                 if (pr is ConstructorAttribute)
                 {
-                    r = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                    r = f.CreateJSFunctionDelegate();
                     continue;
                 }
 
                 if (pr.IsMethod)
                 {
                     ownProperties[pr.Name.Key] = JSProperty.Function(pr.Name,
-                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue, pr.Length);
+                        f.CreateJSFunctionDelegate(), pr.ConfigurableValue, pr.Length);
                     continue;
                 }
 
                 if (mg.Count() == 2)
                 {
                     var l = mg.Last();
-                    var fdel = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
-                    var ldel = (JSFunctionDelegate)l.method.CreateDelegate(typeof(JSFunctionDelegate));
+                    var fdel = f.CreateJSFunctionDelegate();
+                    var ldel = l.CreateJSFunctionDelegate();
                     ownProperties[pr.Name.Key] = JSProperty.Property(
                         mg.Key,
                         f.attribute.IsGetProperty ? fdel : ldel,
@@ -145,7 +176,7 @@ namespace WebAtoms.CoreJS.Core
                     continue;
                 }
 
-                var fx = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                var fx = f.CreateJSFunctionDelegate();
                 ownProperties[pr.Name.Key] = JSProperty.Property(
                     mg.Key,
                     f.attribute.IsGetProperty ? fx : null,
@@ -185,13 +216,59 @@ namespace WebAtoms.CoreJS.Core
         }
         #endregion
 
-
+        public static JSObject CreateSharedObject(this JSContext context, KeyString key, Type type, bool addToContext)
+        {
+            var c = cache.GetOrCreate(key.Key, () => {
+                return Create(key, type);
+            });
+            if(addToContext)
+            {
+                context[key] = c;
+            }
+            return c;
+        }
 
         public static JSFunction Create(KeyString key, Type type)
         {
-            JSFunction r = new JSFunction(JSFunction.empty, key.ToString());
+            JSFunction r = typeof(JSFunction).IsAssignableFrom(type) && type != typeof(JSFunction)
+                ? (JSFunction)Activator.CreateInstance(type, key.ToString())
+                : new JSFunction(JSFunction.empty, key.ToString());
 
             var p = r.prototype;
+
+            // Properties can only be defined on the type...
+            var properties = type
+                .GetProperties(BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
+                .Select(x => (property: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
+                .Where(x => x.attribute != null && x.property.DeclaringType == type)
+                .ToList();
+
+            foreach(var property in properties)
+            {
+                if (
+                    (property.property.CanRead && property.property.GetMethod.IsStatic) ||
+                    (property.property.CanWrite && property.property.SetMethod.IsStatic)) {
+                    // this is static property...
+                    throw new NotImplementedException();
+                } else
+                {
+                    var a = property.attribute;
+                    var name = a.Name;
+                    JSFunctionDelegate getter = null;
+                    JSFunctionDelegate setter = null;
+                    // instance property...
+                    if (property.property.CanRead)
+                    {
+                        getter = (property.property.GetMethod, a).CreateJSFunctionDelegate();
+                    }
+                    if(property.property.CanWrite)
+                    {
+                        setter = (property.property.SetMethod, a).CreateJSFunctionDelegate();
+                    }
+                    p.DefineProperty(name, JSProperty.Property(name, getter, setter, a.ConfigurableProperty));
+                }
+            }
+
             var all = type
                 .GetMethods(BindingFlags.NonPublic 
                     | BindingFlags.DeclaredOnly 
@@ -199,21 +276,21 @@ namespace WebAtoms.CoreJS.Core
                     | BindingFlags.Static
                     | BindingFlags.Instance)
                 .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
-                .Where(x => x.attribute != null)
+                .Where(x => x.attribute != null && x.method.DeclaringType == type)
                 .GroupBy(x => x.attribute.Name).ToList();
             foreach (var mg in all)
             {
                 
                 var f = mg.First();
 
-                if (mg.Any((x => !x.method.IsStatic)))
-                    throw new NotSupportedException($"{f.method.Name} should be static method");
+                //if (mg.Any((x => !x.method.IsStatic)))
+                //    throw new NotSupportedException($"{f.method.Name} should be static method");
 
                 var (m, pr) = f;
 
                 if (pr is ConstructorAttribute)
                 {
-                    r.f = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                    r.f = f.CreateJSFunctionDelegate();
                     continue;
                 }
 
@@ -222,15 +299,15 @@ namespace WebAtoms.CoreJS.Core
                 {
 
                     target.DefineProperty(pr.Name, JSProperty.Function(pr.Name,
-                        (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate)), pr.ConfigurableValue, pr.Length));
+                        f.CreateJSFunctionDelegate(), pr.ConfigurableValue, pr.Length));
                     continue;
                 }
                 
                 if(mg.Count () == 2)
                 {
                     var l = mg.Last();
-                    var fdel = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
-                    var ldel = (JSFunctionDelegate)l.method.CreateDelegate(typeof(JSFunctionDelegate));
+                    var fdel = f.CreateJSFunctionDelegate();
+                    var ldel = l.CreateJSFunctionDelegate();
                     target = pr.IsStatic ? r : p;
                     target.DefineProperty(mg.Key, JSProperty.Property(
                         mg.Key,
@@ -241,7 +318,7 @@ namespace WebAtoms.CoreJS.Core
                     continue;
                 }
 
-                var fx = (JSFunctionDelegate)m.CreateDelegate(typeof(JSFunctionDelegate));
+                var fx = f.CreateJSFunctionDelegate();
                 target = pr.IsStatic ? r : p;
                 target.DefineProperty(mg.Key, JSProperty.Property(
                     mg.Key,

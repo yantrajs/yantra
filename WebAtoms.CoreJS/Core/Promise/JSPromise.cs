@@ -136,6 +136,31 @@ namespace WebAtoms.CoreJS.Core
             return JSUndefined.Value;
         }
 
+        private TaskCompletionSource<JSValue> taskCompletion = null;
+        public Task<JSValue> Task
+        {
+            get
+            {
+                if(taskCompletion == null)
+                {
+                    taskCompletion = new TaskCompletionSource<JSValue>();
+                    this.thenList = this.thenList ?? new List<Action>();
+                    thenList.Add(() => {
+                        Post(() => {
+                            taskCompletion.TrySetResult(this.result);
+                        });
+                    });
+                    rejectList = rejectList ?? new List<Action>();
+                    rejectList.Add(() => {
+                        Post(() => {
+                            taskCompletion.TrySetException(new JSException(this.result));
+                        });
+                    });
+                }
+                return taskCompletion.Task;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSValue Then(JSFunctionDelegate resolved, JSFunctionDelegate failed)
         {
