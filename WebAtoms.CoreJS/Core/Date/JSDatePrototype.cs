@@ -728,6 +728,17 @@ namespace WebAtoms.CoreJS.Core.Date
             
         }
 
+        [Prototype("toISOString", Length = 0)]
+        internal static JSValue ToISOString(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return new JSString("Invalid Date");
+            var date = @this.value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+
+            return new JSString(date);
+
+        }
 
 
 
@@ -736,8 +747,7 @@ namespace WebAtoms.CoreJS.Core.Date
 
 
 
-
-            [Prototype("valueOf", Length = 0)]
+        [Prototype("valueOf", Length = 0)]
         internal static JSValue ValueOf(in Arguments a)
         {
             var @this = a.This.AsJSDate();
