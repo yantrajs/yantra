@@ -36,14 +36,14 @@ namespace WebAtoms.CoreJS.Core
 
 
 
-        internal ModuleName Resolve(string dirPath, string relativePath)
+        internal string Resolve(string dirPath, string relativePath)
         {
-            ModuleName Combine(string cFolder, string cR, string ext = ".js")
+            string Combine(string cFolder, string cR, string ext = ".js")
             {
                 string cP = Path.Combine(cFolder, cR) + ext;
                 if (File.Exists(cP))
                     return cP;
-                return new ModuleName();
+                return null;
             }
 
             if (relativePath.StartsWith("."))
@@ -54,13 +54,13 @@ namespace WebAtoms.CoreJS.Core
             foreach(var folder in paths)
             {
                 var path = Combine(folder, relativePath);
-                if (path.Name != null)
+                if (path != null)
                     return path;
                 path = Combine(folder, relativePath + "/index");
-                if (path.Name != null)
+                if (path != null)
                     return path;
             }
-            return new ModuleName();
+            return null;
         }
 
         void UpdatePaths(string[] paths = null)
@@ -88,15 +88,15 @@ namespace WebAtoms.CoreJS.Core
                 var filePath = m.Resolve(folder, 
                     relativeFile.StartsWith(".") ? 
                     relativeFile : ( "./" + relativeFile));
-                if (filePath.Name == null)
+                if (filePath == null)
                     throw new FileNotFoundException($"{filePath} not found");
                 string text;
-                using(var fs = File.OpenText(filePath.Name))
+                using(var fs = File.OpenText(filePath))
                 {
                     text = await fs.ReadToEndAsync();
                 }
 
-                var main = m.Main = new JSModule(m, filePath.Name, text, true);
+                var main = m.Main = new JSModule(m, filePath, text, true);
 
                 var exported = main.Exports[exportedFunctionName];
                 if (exported.IsUndefined)
@@ -124,11 +124,17 @@ namespace WebAtoms.CoreJS.Core
                 throw NewTypeError("require method's parameter must be a string");
             var relativePath = name.ToString();
 
+            // fetch system modules 
+            if (ModuleName.TryGetValue(relativePath, out var moduleName))
+            {
+                if (moduleCache.TryGetValue(moduleName.Id, out var m))
+                    return m;
+            }
             // resolve full name..
             var fullPath = Resolve(callee.dirPath, relativePath);
             if (fullPath == null)
                 throw new FileNotFoundException($"{relativePath} module not found");
-            ModuleName moduleName = fullPath;
+            moduleName = fullPath;
             var code = System.IO.File.ReadAllText(fullPath);
             JSModule module = moduleCache.GetOrCreate(moduleName.Id, () => new JSModule(this, fullPath, code));
             return module.Exports;
