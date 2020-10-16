@@ -20,6 +20,11 @@ namespace WebAtoms.CoreJS.Utils
             "yyyy"
         };
 
+        internal static readonly string[] SecondaryFormatsUTC = {
+            "d MMMM yyyy HH:mm \\U\\T\\CK",
+            "MMMM dd, yyyy, HH:mm:ss \\U\\T\\CK",
+        };
+
         internal static readonly string[] SecondaryFormats = {
             // Formats used in DatePrototype toString methods
             "ddd MMM dd yyyy HH:mm:ss 'GMT'K",
@@ -28,7 +33,6 @@ namespace WebAtoms.CoreJS.Utils
             "MMMM dd, yyyy HH:mm:ss \\G\\M\\TK",
             "MMMM dd, yyyy, HH:mm:ss \\G\\M\\TK",
             "d MMMM yyyy HH:mm:ss \\G\\M\\TK",
-            "MMMM dd, yyyy, HH:mm:ss \\U\\T\\CK",
             "HH:mm:ss 'GMT'K",
 
             // standard formats
@@ -64,14 +68,17 @@ namespace WebAtoms.CoreJS.Utils
             // DateTimeOffset result;
             if (!DateTimeOffset.TryParseExact(text, DateParser.DefaultFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
             {
-                if (!DateTimeOffset.TryParseExact(text, DateParser.SecondaryFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                if (!DateTimeOffset.TryParseExact(text, DateParser.SecondaryFormatsUTC, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out result))
                 {
-                    if (!DateTimeOffset.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out result))
+                    if (!DateTimeOffset.TryParseExact(text, DateParser.SecondaryFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
                     {
-                        if (!DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                        if (!DateTimeOffset.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal, out result))
                         {
-                            // unrecognized dates should return NaN (15.9.4.2)
-                            return DateTimeOffset.MinValue;
+                            if (!DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+                            {
+                                // unrecognized dates should return NaN (15.9.4.2)
+                                return DateTimeOffset.MinValue;
+                            }
                         }
                     }
                 }
