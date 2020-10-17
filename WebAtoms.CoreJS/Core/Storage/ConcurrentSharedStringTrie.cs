@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
@@ -22,6 +23,8 @@ namespace WebAtoms.CoreJS.Core.Storage
             {
                 return cache.GetOrCreate(name, () => new Key(name, (uint)Interlocked.Increment(ref nextId)));
             }
+
+            internal static bool TryGetValue(string name, out Key key) => cache.TryGetValue(name, out key);
         }
 
         private static int nextId = 0;
@@ -43,6 +46,14 @@ namespace WebAtoms.CoreJS.Core.Storage
         {
             Key k = key;
             return GetOrCreate(k.Id, factory);
+        }
+
+        public bool TryGetValue(string key, out T value)
+        {
+            if (Key.TryGetValue(key, out var k))
+                return TryGetValue(k.Id, out value);
+            value = default;
+            return false;
         }
 
     }

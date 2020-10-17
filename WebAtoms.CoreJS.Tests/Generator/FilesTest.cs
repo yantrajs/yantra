@@ -159,18 +159,21 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         protected override void Evaluate(JSContext context, string content, string fullName)
         {
+            // do not run if there is no package.json in same folder...
+
             AsyncPump.Run(async () =>
             {
                 // this needs to run inside AsyncPump 
                 // as Promise expects SynchronizationContext to be present
-                CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
-                if (context.waitTask != null)
+                // CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                var m = context as JSModuleContext;
+                var fileInfo = new System.IO.FileInfo(fullName);
+                try
                 {
-                    try
-                    {
-                        await context.waitTask;
-                    }
-                    catch (TaskCanceledException) { }
+                    await m.RunAsync(fileInfo.DirectoryName, "./" + fileInfo.Name);
+                }catch (TaskCanceledException)
+                {
+
                 }
             });
         }
@@ -242,7 +245,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
     [TestClass]
     public class Modules
     {
-        // [ModuleFolder("es6\\Modules\\clr")]
+        [ModuleFolder("es6\\Modules\\clr")]
         public void Clr()
         {
 

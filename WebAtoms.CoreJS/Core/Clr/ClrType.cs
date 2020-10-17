@@ -23,7 +23,14 @@ namespace WebAtoms.CoreJS.Core.Clr
 
         public static ClrType From(Type type)
         {
-            return cachedTypes.GetOrCreate(type.FullName, () => new ClrType(type));
+            // need to create base type first...
+            ClrType baseType = null;
+            if(type.BaseType != null && type.BaseType != typeof(object))
+            {
+                baseType = From(type.BaseType);
+            }
+
+            return cachedTypes.GetOrCreate(type.FullName, () => new ClrType(type, baseType));
         }
 
 
@@ -180,7 +187,7 @@ namespace WebAtoms.CoreJS.Core.Clr
 
 
 
-        public ClrType(Type type) : base(null, type.Name)
+        private ClrType(Type type, ClrType baseType = null) : base(null, type.Name)
         {
             this.f = Create;
             this.type = type;
@@ -203,9 +210,9 @@ namespace WebAtoms.CoreJS.Core.Clr
                 }
             }
 
-            if (type.BaseType != null && type.BaseType != typeof(object))
+            if(baseType != null)
             {
-                this.prototypeChain = From(type.BaseType).prototype;
+                prototypeChain = baseType.prototype;
             }
         }
 

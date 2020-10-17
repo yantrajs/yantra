@@ -52,7 +52,9 @@ namespace WebAtoms.CoreJS.Core
         {
             string Combine(string cFolder, string cR, string ext = ".js")
             {
-                string cP = Path.Combine(cFolder, cR) + ext;
+                string cP = Path.Combine(cFolder, cR);
+                if (!cP.EndsWith(ext))
+                    cP += ext;
                 if (File.Exists(cP))
                     return cP;
                 return null;
@@ -84,6 +86,35 @@ namespace WebAtoms.CoreJS.Core
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/yantra/node_modules"
             };
         }
+
+
+        public async Task<JSValue> RunAsync(string folder, string relativeFile, string[] paths = null) {
+            CurrentPath = folder;
+            UpdatePaths(paths);
+            var filePath = Resolve(folder,
+                relativeFile.StartsWith(".") ?
+                relativeFile : ("./" + relativeFile));
+            if (filePath == null)
+                throw new FileNotFoundException($"{filePath} not found");
+            string text;
+            using (var fs = File.OpenText(filePath))
+            {
+                text = await fs.ReadToEndAsync();
+            }
+            Main = new JSModule(this, filePath, text, true);
+            var r = Main.Exports;
+            if (waitTask != null)
+                await waitTask;
+            if (r is JSPromise promise)
+            {
+                return await promise.Task;
+            }
+            if (waitTask != null)
+                await waitTask;
+            return r;
+
+        }
+
 
         public async static Task<JSValue> RunExportsAsync(
             string folder, 
@@ -137,18 +168,15 @@ namespace WebAtoms.CoreJS.Core
             var relativePath = name.ToString();
 
             // fetch system modules 
-            if (ModuleName.TryGetValue(relativePath, out var moduleName))
-            {
-                if (moduleCache.TryGetValue(moduleName.Id, out var m))
-                    return m;
-            }
+            if (moduleCache.TryGetValue(relativePath, out var m))
+                return m.Exports;
+
             // resolve full name..
             var fullPath = Resolve(callee.dirPath, relativePath);
             if (fullPath == null)
                 throw new FileNotFoundException($"{relativePath} module not found");
-            moduleName = fullPath;
             var code = System.IO.File.ReadAllText(fullPath);
-            JSModule module = moduleCache.GetOrCreate(moduleName.Id, () => new JSModule(this, fullPath, code));
+            JSModule module = moduleCache.GetOrCreate(fullPath, () => new JSModule(this, fullPath, code));
             return module.Exports;
         }
 
