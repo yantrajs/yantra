@@ -29,7 +29,7 @@ namespace WebAtoms.CoreJS.Core
 
             moduleCache[ModuleCache.module] = new JSModule(Module, "module");
 
-            moduleCache[ModuleCache.clr] = new JSModule(new ClrModule(), "clr");
+            moduleCache[ModuleCache.clr] = new JSModule(ClrModule.Default, "clr");
         }
 
         /// <summary>

@@ -99,6 +99,7 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString module;
         public readonly static KeyString resolve;
         public readonly static KeyString require;
+        public readonly static KeyString @default;
 
         public readonly static KeyString exports;
 

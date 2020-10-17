@@ -2,13 +2,20 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
+using WebAtoms.CoreJS.Core.Storage;
 using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.LinqExpressions;
 
 namespace WebAtoms.CoreJS.Core.Clr
 {
+    internal class CachedTypes : ConcurrentSharedStringTrie<ClrType>
+    {
 
+    }
+
+    /// <summary>
+    /// We might improve statup time by moving reflection code (setting up methods/properties) to proxy.
+    /// </summary>
     public class ClrType : JSFunction
     {
 
@@ -21,11 +28,20 @@ namespace WebAtoms.CoreJS.Core.Clr
 
 
         private Type type;
-        (MethodBase method, ParameterInfo[] parameters)[] constructorCache;
+        (ConstructorInfo method, ParameterInfo[] parameters)[] constructorCache;
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if(type == typeof(Type))
+            {
+                value = this.type;
+                return true;
+            }
+            value = null;
+            return false;
+        }
 
-
-        internal static void Generate(JSObject target, Type type, bool isStatic, JSFunctionDelegate factory = null)
+        internal static void Generate(JSObject target, Type type, bool isStatic)
         {
             
             var flags = isStatic
@@ -84,120 +100,19 @@ namespace WebAtoms.CoreJS.Core.Clr
 
         }
 
-
-
         private static JSValue Invoke(in KeyString name, Type type, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
         {
-            var jsValues = a.ToArray();
             if (!a.This.ConvertTo(type, out var target))
                 throw JSContext.Current.NewTypeError($"{type.Name}.prototype.{name} called with object not of type {type.Name}");
-            foreach (var (method, parameters) in methods)
-            {
-                if (parameters.Length >= a.Length)
-                {
-                    var values = new object[parameters.Length];
-                    // first try the match...
-                    int match = 0;
-                    for (int i = 0; i < parameters.Length; i++)
-                    {
-                        var pt = parameters[i];
-                        var p = pt.ParameterType;
-                        if (pt.HasDefaultValue)
-                        {
-                            if (i < a.Length)
-                            {
-                                if (jsValues[i].ConvertTo(p, out var value))
-                                {
-                                    values[i] = value;
-                                }
-                                else
-                                {
-                                    values[i] = pt.DefaultValue;
-                                }
-                            }
-                            else
-                            {
-                                values[i] = pt.DefaultValue;
-                            }
-                        }
-                        else
-                        {
-                            if (jsValues[i].ConvertTo(p, out var value))
-                            {
-                                values[i] = value;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        match++;
-                    }
 
-                    if (match == parameters.Length)
-                    {
-                        return ClrProxy.Marshal(method.Invoke(target, values));
-                    }
-                }
-
-            }
-            throw JSContext.Current.NewTypeError($"No suitable method {name} found for given values");
+            var (method, args) = methods.Match(a, name);
+            return ClrProxy.Marshal(method.Invoke(target, args));
         }
 
         private static JSValue StaticInvoke(in KeyString name, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
         {
-            var jsValues = a.ToArray();
-            foreach (var (method, parameters) in methods)
-            {
-                if (parameters.Length >= a.Length)
-                {
-                    var values = new object[parameters.Length];
-                    // first try the match...
-                    int match = 0;
-                    for (int i = 0; i < parameters.Length; i++)
-                    {
-                        var pt = parameters[i];
-                        var p = pt.ParameterType;
-                        if (pt.HasDefaultValue)
-                        {
-                            if (i < a.Length)
-                            {
-                                if (jsValues[i].ConvertTo(p, out var value))
-                                {
-                                    values[i] = value;
-                                }
-                                else
-                                {
-                                    values[i] = pt.DefaultValue;
-                                }
-                            }
-                            else
-                            {
-                                values[i] = pt.DefaultValue;
-                            }
-                        }
-                        else
-                        {
-                            if (jsValues[i].ConvertTo(p, out var value))
-                            {
-                                values[i] = value;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        match++;
-                    }
-
-                    if (match == parameters.Length)
-                    {
-                        return ClrProxy.Marshal(method.Invoke(null, values));
-                    }
-                }
-
-            }
-            throw JSContext.Current.NewTypeError($"No suitable method {name} found for given values");
+            var (method, args) = methods.Match(a, name);
+            return ClrProxy.Marshal(method.Invoke(null, args));
         }
 
 
@@ -250,15 +165,15 @@ namespace WebAtoms.CoreJS.Core.Clr
             Generate(this.prototype, type, false);
 
             this.constructorCache = type.GetConstructors()
-                .Select(c => (method: (MethodBase)c, parameters: c.GetParameters()))
+                .Select(c => (method: c, parameters: c.GetParameters()))
                 .OrderByDescending(x => x.parameters.RequiredCount())
                 .ToArray();
 
-            foreach (var c in constructorCache)
+            foreach (var (method, parameters) in constructorCache)
             {
-                if (c.parameters.Length == 1 && c.parameters[0].ParameterType == typeof(Arguments).MakeByRefType())
+                if (parameters.Length == 1 && parameters[0].ParameterType == typeof(Arguments).MakeByRefType())
                 {
-                    var cx = c.method as ConstructorInfo;
+                    var cx = method as ConstructorInfo;
                     f = (in Arguments a) => Create2(cx, a);
                 }
             }
@@ -267,11 +182,6 @@ namespace WebAtoms.CoreJS.Core.Clr
             {
                 this.prototypeChain = From(type.BaseType).prototype;
             }
-        }
-
-        public override JSValue CreateInstance(in Arguments a)
-        {
-            return base.CreateInstance(a);
         }
 
         private JSValue Create2(ConstructorInfo c, in Arguments a)
@@ -283,60 +193,8 @@ namespace WebAtoms.CoreJS.Core.Clr
 
         public JSValue Create(in Arguments a)
         {
-            var jsValues = a.ToArray();
-            foreach (var c in constructorCache)
-            {
-
-                if (c.parameters.Length >= a.Length)
-                {
-                    var values = new object[c.parameters.Length];
-                    // first try the match...
-                    int match = 0;
-                    for (int i = 0; i < c.parameters.Length; i++)
-                    {
-                        var pt = c.parameters[i];
-                        var p = pt.ParameterType;
-                        if (pt.HasDefaultValue)
-                        {
-                            if (i < a.Length)
-                            {
-                                if (jsValues[i].ConvertTo(p, out var value))
-                                {
-                                    values[i] = value;
-                                }
-                                else
-                                {
-                                    values[i] = pt.DefaultValue;
-                                }
-                            }
-                            else
-                            {
-                                values[i] = pt.DefaultValue;
-                            }
-                        }
-                        else
-                        {
-                            if (jsValues[i].ConvertTo(p, out var value))
-                            {
-                                values[i] = value;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        match++;
-                    }
-
-                    if (match == c.parameters.Length)
-                    {
-                        return ClrProxy.Marshal((c.method as ConstructorInfo).Invoke(values));
-                    }
-                }
-
-            }
-            throw JSContext.Current.NewTypeError("No suitable constructor found for given values");
-
+            var (c, values) = constructorCache.Match(a, KeyStrings.constructor);
+            return ClrProxy.Marshal(c.Invoke(values));
         }
 
     }
