@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.LinqExpressions
         private static Type type = typeof(ClrProxy);
 
         private static MethodInfo _marshal =
-            type.InternalMethod(nameof(ClrProxy.Marshal));
+            type.InternalMethod(nameof(ClrProxy.Marshal), typeof(object));
         public static Expression Marshal(Expression target)
         {
             return Expression.Call(null, _marshal, target);

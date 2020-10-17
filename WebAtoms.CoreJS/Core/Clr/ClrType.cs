@@ -85,8 +85,19 @@ namespace WebAtoms.CoreJS.Core.Clr
                 {
                     // call directly...
                     // do not worry about @this... 
-                    target.DefineProperty(name, 
-                        JSProperty.Function((JSFunctionDelegate)jsMethod.method.CreateDelegate(typeof(JSFunctionDelegate))));
+
+                    if (isStatic)
+                    {
+
+                        target.DefineProperty(name,
+                            JSProperty.Function((JSFunctionDelegate)jsMethod.method.CreateDelegate(typeof(JSFunctionDelegate))));
+                        continue;
+                    }
+
+                    target.DefineProperty(name,
+                        JSProperty.Function(ToInstanceDelegate(jsMethod.method)));
+
+
                     continue;
                 }
                 target.DefineProperty(name, isStatic
@@ -98,6 +109,20 @@ namespace WebAtoms.CoreJS.Core.Clr
                     }));
             }
 
+        }
+
+        private static JSFunctionDelegate ToInstanceDelegate(MethodInfo method)
+        {
+            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            var target = Expression.Parameter(method.DeclaringType);
+            var convert = JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), method.DeclaringType, target, method.Name);
+
+            var body = Expression.Block(new ParameterExpression[] { target },
+                ClrProxyBuilder.Marshal(
+                    Expression.Call(
+                        convert, method, args)));
+
+            return Expression.Lambda<JSFunctionDelegate>(body, args).Compile();
         }
 
         private static JSValue Invoke(in KeyString name, Type type, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)

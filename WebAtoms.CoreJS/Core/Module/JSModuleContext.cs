@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core.Clr;
 using WebAtoms.CoreJS.Core.Storage;
+using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -24,6 +25,8 @@ namespace WebAtoms.CoreJS.Core
 
         public JSModuleContext()
         {
+            this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
+
             Module = this.Create<JSModule>(KeyStrings.Module, null, false);
             ModulePrototype = Module.prototype;
 

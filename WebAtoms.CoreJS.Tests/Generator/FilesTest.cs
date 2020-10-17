@@ -20,6 +20,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
         readonly string root;
 
         readonly bool saveLambda;
+
         public TestFolderAttribute(string root, bool saveLambda = false)
         {
             this.root = root;
@@ -66,7 +67,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             return dir1.EnumerateFiles("*.js", new EnumerationOptions { RecurseSubdirectories = true });
         }
 
-        protected virtual void Evaluate(JSTestContext context, string content, string fullName)
+        protected virtual void Evaluate(JSContext context, string content, string fullName)
         {
             CoreScript.Evaluate(content, fullName, saveLambda ? AssemblyCodeCache.Instance : DictionaryCodeCache.Current);
             if (context.waitTask != null)
@@ -74,6 +75,12 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 AsyncPump.Run(() => context.waitTask);
             }
         }
+
+        protected virtual JSContext CreateContext()
+        {
+            return new JSTestContext();
+        }
+
         protected async Task<TestResult> RunAsyncTest(FileInfo file)
         {
             // var watch = new Stopwatch();
@@ -88,7 +95,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 {
                     content = await fs.ReadToEndAsync();
                 }
-                using (var jc = new JSTestContext())
+                using (var jc = CreateContext())
                 {
                     jc.Log += (_, s) => sb.AppendLine(s.ToDetailString());
                     jc.Error += (_, e) => lastError = e;
@@ -118,7 +125,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         }
 
-        protected override void Evaluate(JSTestContext context, string content, string fullName)
+        protected override void Evaluate(JSContext context, string content, string fullName)
         {
             AsyncPump.Run(async () =>
             {
@@ -131,6 +138,39 @@ namespace WebAtoms.CoreJS.Tests.Generator
                     {
                         await context.waitTask;
                     }catch (TaskCanceledException) { }
+                }
+            });
+        }
+    }
+
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class ModuleFolderAttribute : TestFolderAttribute
+    {
+        public ModuleFolderAttribute(string root) : base(root)
+        {
+
+        }
+
+        protected override JSContext CreateContext()
+        {
+            return new JSModuleContext();
+        }
+
+        protected override void Evaluate(JSContext context, string content, string fullName)
+        {
+            AsyncPump.Run(async () =>
+            {
+                // this needs to run inside AsyncPump 
+                // as Promise expects SynchronizationContext to be present
+                CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                if (context.waitTask != null)
+                {
+                    try
+                    {
+                        await context.waitTask;
+                    }
+                    catch (TaskCanceledException) { }
                 }
             });
         }
@@ -198,6 +238,19 @@ namespace WebAtoms.CoreJS.Tests.Generator
         }
 
     }
+
+    [TestClass]
+    public class Modules
+    {
+        // [ModuleFolder("es6\\Modules\\clr")]
+        public void Clr()
+        {
+
+        }
+
+    }
+
+
 
     [TestClass]
     public class String

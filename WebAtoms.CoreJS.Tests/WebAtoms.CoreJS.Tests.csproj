@@ -22,8 +22,4 @@
     <ProjectReference Include="..\WebAtoms.CoreJS\WebAtoms.CoreJS.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Generator\Files\es6\Modules\" />
-  </ItemGroup>
-
 </Project>

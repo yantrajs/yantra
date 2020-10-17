@@ -114,7 +114,10 @@ namespace WebAtoms.CoreJS.Core
                 Expression.TypeAs(peThis, toType), 
                 Expression.Throw(
                     JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
-            var body = Expression.Call(coalesce, method, pe);
+            var body = Expression.Block( method.GetParameters()?.Length == 0
+                ? Expression.Call(coalesce, method)
+                : Expression.Call(coalesce, method, peThis),
+                peThis);
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, pe);
             return lambda.Compile();
         }

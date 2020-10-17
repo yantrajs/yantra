@@ -16,11 +16,11 @@ namespace WebAtoms.CoreJS.Core.Clr
         }
     }
 
-    public class ClrModule : JSClrObject<ClrModule>
+    public static class ClrModule
     {
 
         public static JSObject Default = JSObject.NewWithProperties()
-            .AddProperty(KeyStrings.@default, new ClrModule());
+            .AddProperty(KeyStrings.@default, ClrType.From(typeof(ClrModule)));
 
         /// <summary>
         /// Returns JavaScript native class for C# Type Equivalent, which you can use
@@ -34,7 +34,7 @@ namespace WebAtoms.CoreJS.Core.Clr
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
-        public JSValue GetClass(in Arguments a)
+        public static JSValue GetClass(in Arguments a)
         {
             var a1 = a.Get1();
             if (!a1.BooleanValue)
@@ -43,17 +43,17 @@ namespace WebAtoms.CoreJS.Core.Clr
             return ClrType.From(Type.GetType(name));
         }
 
-        public JSValue ToInt32(in Arguments a)
+        public static JSValue ToInt32(in Arguments a)
         {
             return new ClrProxy(a.Get1().IntValue);
         }
 
-        public JSValue ToString(in Arguments a)
+        public static JSValue ToString(in Arguments a)
         {
             return new ClrProxy(a.Get1().ToString());
         }
 
-        public JSValue ToBool(in Arguments a)
+        public static JSValue ToBool(in Arguments a)
         {
             return new ClrProxy(a.Get1().BooleanValue);
         }
