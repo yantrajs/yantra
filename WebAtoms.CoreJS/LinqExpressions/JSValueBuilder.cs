@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using WebAtoms.CoreJS.Core;
 
 namespace WebAtoms.CoreJS.ExpHelper
@@ -233,6 +234,41 @@ namespace WebAtoms.CoreJS.ExpHelper
                 Expression.Call(
                     Expression.Call(target, _GetAllKeys, Expression.Constant(false), Expression.Constant(true)),
                     _GetEnumerator);
+        }
+
+        private static MethodInfo _ConvertTo =
+            type.InternalMethod(nameof(JSValue.ConvertTo), typeof(Type), typeof(object).MakeByRefType());
+
+        public static Expression ConvertTo(Expression jsValue, Expression type, Expression value)
+        {
+            return Expression.Call(jsValue, _ConvertTo, type, value);
+        }
+
+        public static Expression ConvertTo(Expression jsValue, Type type, Expression value)
+        {
+            return ConvertTo(jsValue, Expression.Constant(type), value);
+        }
+
+        public static Expression Coalesce(
+            Expression jsValue, 
+            Type type, 
+            Expression value,
+            string memberName,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
+        {
+            return Expression.Condition(
+                ConvertTo(jsValue, Expression.Constant(type), value), 
+                // true
+                value,
+                // false
+                JSExceptionBuilder.Throw(
+                    $"{type.Name}.prototype.{memberName} called with object not of type {type}", 
+                    type,
+                    function,
+                    filePath,
+                    line));
         }
 
     }

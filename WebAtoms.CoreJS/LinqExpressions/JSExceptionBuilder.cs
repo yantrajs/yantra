@@ -37,6 +37,20 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Property(target, _Error);
         }
 
+        public static Expression Throw(string message,
+            Type type = null,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0)
+            {
+                return Expression.Throw(Expression.New(_new,
+                    Expression.Constant(message),
+                    Expression.Constant(function),
+                    Expression.Constant(filePath),
+                    Expression.Constant(line)), type ?? typeof(JSValue));
+            }
+
+
         public static Expression New(string message, 
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,

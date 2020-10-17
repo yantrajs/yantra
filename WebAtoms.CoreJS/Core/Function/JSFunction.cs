@@ -32,13 +32,14 @@ namespace WebAtoms.CoreJS.Core
             string source = null,
             int length = 0): base(JSContext.Current?.FunctionPrototype)
         {
+            ownProperties = new PropertySequence();
             this.f = f;
             this.name = name ?? "native";
             this.source = source 
                 ?? $"function {name ?? "native"}() {{ [native] }}";
             prototype = new JSObject();
             prototype[KeyStrings.constructor] = this;
-            this[KeyStrings.prototype] = prototype;
+            ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(prototype);
 
             this[KeyStrings.name] = name != null
                 ? new JSString(name)

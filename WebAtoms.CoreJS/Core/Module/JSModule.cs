@@ -67,16 +67,12 @@ namespace WebAtoms.CoreJS.Core
         [Prototype("exports")]
         public JSValue Exports {
             get {
-                if (factory != null) {
-                    var a = new Arguments(this, new JSValue[] {
-                        exports, Require, this, new JSString(filePath), new JSString(dirPath)
-                    });
-
-                    this.factory(a);
-                    this.factory = null;
-                }
+                var factory = this.factory;
+                this.factory = null;
+                factory?.Invoke(new Arguments(this, new JSValue[] {
+                    exports, Require, this, new JSString(filePath), new JSString(dirPath)
+                }));
                 return exports;
-
             }
             set => exports = value;
         }
