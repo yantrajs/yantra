@@ -83,6 +83,17 @@ namespace WebAtoms.CoreJS.Core
             throw JSContext.Current.NewTypeError("undefined is not iterable");
         }
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (type.IsAssignableFrom(typeof(JSUndefined)))
+            {
+                value = this;
+                return true;
+            }
+            value = null;
+            return !type.IsValueType;
+        }
+
 
     }
 }

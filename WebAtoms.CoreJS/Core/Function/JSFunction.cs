@@ -1,9 +1,14 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
+using WebAtoms.CoreJS.LinqExpressions;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -121,6 +126,59 @@ namespace WebAtoms.CoreJS.Core
             var @this = a.This;
             var r = (super as JSFunction).f(a);
             return r.IsUndefined ? @this : r;
+        }
+
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (typeof(Delegate).IsAssignableFrom(type))
+            {
+                // create delegate....
+                value = CreateClrDelegate(type, this);
+                return true;
+            }
+            if(type.IsAssignableFrom(typeof(JSFunction)))
+            {
+                value = this;
+                return true;
+            }
+            if(type == typeof(object))
+            {
+                value = this;
+                return true;
+            }
+            return base.ConvertTo(type, out value);
+        }
+        static object CreateClrDelegate(Type type, JSFunction function)
+        {
+            var method = type.GetMethod("Invoke");
+            var rt = method.ReturnType;
+            var rtt = rt == typeof(void) ? typeof(object) : rt;
+            var pa = method.GetParameters();
+            var veList = new List<ParameterExpression>(pa.Length + 1);
+            var peList = new List<ParameterExpression>(pa.Length);
+            var stmts = new List<Expression>();
+            foreach (var p in method.GetParameters())
+            {
+                var inP = Expression.Parameter(p.ParameterType, p.Name);
+                peList.Add(inP);
+
+                var jsV = Expression.Parameter(typeof(JSValue), "js" + p.Name);
+                veList.Add(jsV);
+
+                stmts.Add(Expression.Assign(jsV, ClrProxyBuilder.Marshal(inP)));
+            }
+            var retVar = Expression.Parameter(method.ReturnType == typeof(void) ? typeof(object) : method.ReturnType);
+            veList.Add(retVar);
+            var @delegate = function.f;
+            var d = Expression.Constant(@delegate);
+            var @this = Expression.Constant(function);
+            var nargs = ArgumentsBuilder.New(@this, veList.ToList<Expression>());
+
+
+            stmts.Add(JSValueBuilder.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));
+            stmts.Add(retVar);
+
+            return Expression.Lambda(Expression.Block(veList, stmts), peList).Compile();
         }
     }
 }

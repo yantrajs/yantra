@@ -114,5 +114,15 @@ namespace WebAtoms.CoreJS.Core
             throw new NotImplementedException("null is not a function");
         }
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (type.IsAssignableFrom(typeof(JSNull)))
+            {
+                value = this;
+                return true;
+            }
+            value = null;
+            return !type.IsValueType;
+        }
     }
 }

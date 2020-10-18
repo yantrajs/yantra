@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -15,18 +16,25 @@ namespace WebAtoms.CoreJS
             return Activator.CreateInstance(type, target);
         }
 
-        public static object GetClrEnumerator(this JSValue value, Type type)
+        public static bool TryGetClrEnumerator(this JSValue value, Type type, out object clrObject)
         {
             if (type.IsConstructedGenericType)
             {
                 var gt = type.GetGenericTypeDefinition();
                 if (gt == typeof(IEnumerator<>))
                 {
-                    return CreateClrEnumerator(value, type.GetGenericArguments()[0]);
+                    clrObject = CreateClrEnumerator(value, type.GetGenericArguments()[0]);
+                    return true;
                 }
             }
 
-            throw new NotSupportedException();
+            if (type == typeof(System.Collections.IEnumerable))
+            {
+                clrObject = CreateClrEnumerator(value, typeof(object));
+                return true;
+            }
+            clrObject = null;
+            return false;
         }
 
     }

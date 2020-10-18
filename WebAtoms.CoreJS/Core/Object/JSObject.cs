@@ -664,6 +664,23 @@ namespace WebAtoms.CoreJS.Core
             return elements.TryRemove(i, out p);
         }
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (this.TryGetClrEnumerator(type, out value))
+                return true;
+            if (type.IsAssignableFrom(typeof(JSObject)))
+            {
+                value = this;
+                return true;
+            }
+            if (type == typeof(object))
+            {
+                value = this;
+                return true;
+            }
+            return base.ConvertTo(type, out value);
+        }
+
         internal override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);

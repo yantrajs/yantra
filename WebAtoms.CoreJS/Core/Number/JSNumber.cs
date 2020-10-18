@@ -148,6 +148,16 @@ namespace WebAtoms.CoreJS.Core
                 value = (sbyte)this.value;
                 return true;
             }
+            if (type == typeof(object))
+            {
+                value = this.value;
+                return true;
+            }
+            if (type.IsAssignableFrom(typeof(JSNumber)))
+            {
+                value = this;
+                return true;
+            }
             value = null;
             return false;
         }

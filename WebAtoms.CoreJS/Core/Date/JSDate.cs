@@ -43,6 +43,30 @@ namespace WebAtoms.CoreJS.Core
             return this.value.ToString();
         }
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (type == typeof(DateTime))
+            {
+                value = this.value.LocalDateTime;
+                return true;
+            }
+            if (type == typeof(DateTimeOffset))
+            {
+                value = this.value;
+                return true;
+            }
+            if (type.IsAssignableFrom(typeof(JSDate)))
+            {
+                value = this;
+                return true;
+            }
+            if (type == typeof(object))
+            {
+                value = this.value;
+                return true;
+            }
+            return base.ConvertTo(type, out value);
+        }
 
     }
 }

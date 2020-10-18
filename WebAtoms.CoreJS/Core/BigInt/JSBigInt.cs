@@ -57,5 +57,30 @@ namespace WebAtoms.CoreJS.Core.BigInt
         {
             return new KeyString(null, (uint)this.value);
         }
+
+        public override bool ConvertTo(Type type, out object value)
+        {            
+            if (type == typeof(long))
+            {
+                value = this.value;
+                return true;
+            }
+            if (type == typeof(ulong))
+            {
+                value = (ulong)this.value;
+                return true;
+            }
+            if (type.IsAssignableFrom(typeof(JSBigInt)))
+            {
+                value = this;
+                return true;
+            }
+            if (type  == typeof(object))
+            {
+                value = this.value;
+                return true;
+            }
+            return base.ConvertTo(type, out value);
+        }
     }
 }

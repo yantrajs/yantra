@@ -36,6 +36,16 @@ namespace WebAtoms.CoreJS.Core
                 value = this.value;
                 return true;
             }
+            if (type == typeof(object))
+            {
+                value = this.value;
+                return true;
+            }
+            if (type.IsAssignableFrom(typeof(JSString)))
+            {
+                value = this;
+                return true;
+            }
             value = null;
             return false;
         }
