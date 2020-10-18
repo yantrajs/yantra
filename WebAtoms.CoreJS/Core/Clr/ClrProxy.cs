@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace WebAtoms.CoreJS.Core.Clr
@@ -59,9 +61,20 @@ namespace WebAtoms.CoreJS.Core.Clr
                     return new JSNumber(@byte);
                 case sbyte @sbyte:
                     return new JSNumber(@sbyte);
-
+                case DateTime dateTime:
+                    return new JSDate(dateTime.ToLocalTime());
+                case DateTimeOffset dateTimeOffset:
+                    return new JSDate(dateTimeOffset);
             }
             return new ClrProxy(value);
+        }
+
+        internal override IElementEnumerator GetElementEnumerator()
+        {
+            if (value is IEnumerable en) {
+                return new EnumerableElementEnumerable(en.GetEnumerator());
+            }
+            throw JSContext.Current.NewTypeError($"{this} is not an iterable");
         }
 
     }

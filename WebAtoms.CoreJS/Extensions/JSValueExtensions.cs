@@ -13,6 +13,7 @@ namespace WebAtoms.CoreJS.Core
     public static class JSValueExtensions
     {
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, KeyString name, in Arguments a)
         {

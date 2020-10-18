@@ -26,6 +26,14 @@ namespace WebAtoms.CoreJS.Core
             return JSContext.Current.BooleanPrototype;
         }
 
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+            var first = a.Get1();
+            return first.BooleanValue ? JSBoolean.True : JSBoolean.False;
+        }
+
+
         //public static bool IsTrue(JSValue value)
         //{
         //    switch (value)

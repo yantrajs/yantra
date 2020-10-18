@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Core
         Sealed = 2,
         NonExtensible = 4,
         SealedOrFrozen = 3,
-        SaledForzenNonExtensible = 7
+        SealedFrozenNonExtensible = 7
     }
 
     [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
@@ -43,7 +43,7 @@ namespace WebAtoms.CoreJS.Core
         internal bool IsExtensible() => !((this.status & ObjectStatus.NonExtensible) > 0);
 
 
-        internal bool IsSealedOrFrozenOrNonExtensible() => ((this.status & ObjectStatus.SaledForzenNonExtensible) > 0);
+        internal bool IsSealedOrFrozenOrNonExtensible() => ((this.status & ObjectStatus.SealedFrozenNonExtensible) > 0);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsFrozen() => (this.status & ObjectStatus.Frozen) > 0;

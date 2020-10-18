@@ -3,4 +3,19 @@
 assert(clr.getClass);
 
 var clrType = clr.getClass("System.Int32");
-assert(clrType.toString);
+assert(clrType.prototype.getTypeCode);
+assert(clrType.tryParse);
+
+var Random = clr.getClass("System.Random");
+
+var r = new Random();
+var n = r.next();
+
+assert(typeof n === "number");
+
+var TimeZoneInfo = clr.getClass("System.TimeZoneInfo");
+
+var local = TimeZoneInfo.local;
+
+assert(local instanceof TimeZoneInfo);
+assert(!(local instanceof Random));

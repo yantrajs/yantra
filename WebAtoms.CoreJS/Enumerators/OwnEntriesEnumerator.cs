@@ -1,15 +1,117 @@
 ﻿using Esprima.Ast;
 using Microsoft.Build.Tasks.Deployment.Bootstrapper;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Clr;
 using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS
 {
+
+    public struct ClrObjectEnumerator<T> : IEnumerator<T>
+    {
+        private IElementEnumerator en;
+
+        public ClrObjectEnumerator(IElementEnumerator en)
+        {
+            this.en = en;
+            Current = default;
+        }
+
+        public T Current { get; private set; }
+
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool MoveNext()
+        {
+            if (en.MoveNext(out var c)) { 
+                if(c.ConvertTo(typeof(T), out var v))
+                {
+                    Current = (T)v;
+                }
+                throw JSContext.Current.NewTypeError($"Failed to convert {c} to type {typeof(T).Name}");
+            }
+            return false;
+        }
+
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public struct ClrObjectEnumerable<T> : IEnumerable<T>
+    {
+
+        readonly JSValue value;
+        public ClrObjectEnumerable(JSValue value)
+        {
+            this.value = value;
+        }
+
+
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return new ClrObjectEnumerator<T>(this.value.GetElementEnumerator());
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    public struct EnumerableElementEnumerable : IElementEnumerator
+    {
+
+        private readonly IEnumerator en;
+        uint index;
+        public EnumerableElementEnumerable(IEnumerator en)
+        {
+            this.en = en;
+            index = uint.MaxValue;
+        }
+
+        public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+        {
+            if (en.MoveNext())
+            {
+                value = ClrProxy.Marshal(en.Current);
+                this.index = this.index == uint.MaxValue ? 0 : this.index + 1;
+                index = this.index;
+                hasValue = true;
+                return true;
+            }
+            value = JSUndefined.Value;
+            index = this.index;
+            hasValue = false;
+            return false;
+        }
+
+        public bool MoveNext(out JSValue value)
+        {
+            if (en.MoveNext())
+            {
+                value = ClrProxy.Marshal(en.Current);
+                this.index = this.index == uint.MaxValue ? 0 : this.index + 1;
+                return true;
+            }
+            value = JSUndefined.Value;
+            return false;
+        }
+    }
+
     /// <summary>
     /// Struct implementing interface is marginally faster than ElementEnumerator being a class.
     /// https://dotnetfiddle.net/EbegMo

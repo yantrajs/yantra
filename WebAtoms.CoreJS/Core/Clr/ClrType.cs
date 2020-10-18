@@ -109,11 +109,12 @@ namespace WebAtoms.CoreJS.Core.Clr
                 }
                 target.DefineProperty(name, isStatic
                     ? JSProperty.Function((in Arguments a) => {
+                        return StaticInvoke(name, all, a);
+                    })
+                    : JSProperty.Function((in Arguments a) => {
                         return Invoke(name, type, all, a);
                         })
-                    : JSProperty.Function((in Arguments a) => {
-                        return StaticInvoke(name, all, a);
-                    }));
+                    );
             }
 
         }
