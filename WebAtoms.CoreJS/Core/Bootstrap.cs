@@ -219,7 +219,11 @@ namespace WebAtoms.CoreJS.Core
         }
         #endregion
 
-        public static JSObject CreateSharedObject(this JSContext context, KeyString key, Type type, bool addToContext)
+        public static JSObject CreateSharedObject(
+            this JSContext context, 
+            KeyString key, 
+            Type type, 
+            bool addToContext)
         {
             var c = cache.GetOrCreate(key.Key, () => {
                 return Create(key, type);
@@ -231,7 +235,7 @@ namespace WebAtoms.CoreJS.Core
             return c;
         }
 
-        public static JSFunction Create(KeyString key, Type type)
+        public static JSFunction Create(in KeyString key, Type type)
         {
             JSFunction r = typeof(JSFunction).IsAssignableFrom(type) && type != typeof(JSFunction)
                 ? (JSFunction)Activator.CreateInstance(type, key.ToString())

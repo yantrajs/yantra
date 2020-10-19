@@ -154,7 +154,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSProperty GetInternalProperty(KeyString key, bool inherited = true)
+        internal JSProperty GetInternalProperty(in KeyString key, bool inherited = true)
         {
             if (ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
             {
@@ -443,7 +443,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InternalAddProperty(JSObject target, KeyString key, JSValue pd)
+        internal static void InternalAddProperty(JSObject target, in KeyString key, JSValue pd)
         {
             var p = new JSProperty
             {
