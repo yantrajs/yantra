@@ -4,6 +4,7 @@ using Microsoft.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
@@ -670,8 +671,13 @@ namespace WebAtoms.CoreJS
             throw new NotImplementedException();
         }
 
+        protected override Exp VisitVariableDeclaration(VariableDeclaration variableDeclaration)
+        {
+            var list = VisitVariableDeclaration(variableDeclaration, null);
+            return Exp.Block(list);
+        }
 
-        protected override Exp VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
+        protected List<Exp> VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration, Exp initExp)
         {
             // lets add variable...
             // forget about const... compiler like typescript should take care of it...
@@ -682,15 +688,24 @@ namespace WebAtoms.CoreJS
 
             foreach (var declarator in variableDeclaration.Declarations)
             {
+                var decInit = declarator.Init;
+                Exp dInit = null;
+                if (decInit != null)
+                {
+                    dInit = VisitExpression(decInit);
+                } else
+                {
+                    dInit = initExp;
+                }
                 switch(declarator.Id)
                 {
                     case Esprima.Ast.Identifier id:
                         // variable might exist in current scope
                         // do not create and just set a value here...
                         var ve = this.scope.Top.CreateVariable(id.Name, null, newScope);
-                        if (declarator.Init != null)
+                        if (dInit != null)
                         {
-                            var init = ExpHelper.JSVariableBuilder.New(VisitExpression(declarator.Init), id.Name);
+                            var init = ExpHelper.JSVariableBuilder.New(dInit, id.Name);
                             inits.Add(Exp.Assign(ve.Variable, init));
                         } else
                         {
@@ -702,7 +717,7 @@ namespace WebAtoms.CoreJS
                         // put init in temp...
                         using (var temp = this.scope.Top.GetTempVariable())
                         {
-                            inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                            inits.Add(Exp.Assign(temp.Variable, dInit));
                             inits.Add(CreateAssignment(objectPattern, temp.Expression, true));
                         }
                         break;
@@ -711,7 +726,7 @@ namespace WebAtoms.CoreJS
                         // put init in temp...
                         using (var temp = this.scope.Top.GetTempVariable())
                         {
-                            inits.Add(Exp.Assign(temp.Variable, VisitExpression(declarator.Init)));
+                            inits.Add(Exp.Assign(temp.Variable, dInit));
                             inits.Add(CreateAssignment(arrayPattern, temp.Expression, true));
                         }
                         break;
@@ -719,11 +734,7 @@ namespace WebAtoms.CoreJS
                         throw new NotSupportedException();
                 }
             }
-            if (inits.Any())
-            {
-                return Exp.Block(inits);
-            }
-            return Exp.Block();
+            return inits;
         }
 
         protected override Exp VisitTryStatement(Esprima.Ast.TryStatement tryStatement)
@@ -941,36 +952,42 @@ namespace WebAtoms.CoreJS
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
+            ParameterExpression iterator = null;
+            Exp identifier = null;
+            AstPair<VariableDeclaration, Exp> varDec = null;
+            switch (forInStatement.Left)
+            {
+                case Identifier id:
+                    identifier = VisitIdentifier(id);
+                    break;
+                case VariableDeclaration vd:
+                    iterator = Exp.Parameter(typeof(JSValue));
+                    varDec = new AstPair<VariableDeclaration, Exp>(vd, iterator);
+                    this.scope.Top.PushToNewScope = varDec;
+                    break;
+            }
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
                 return NewLexicalScope(new FunctionScope(this.scope.Top), forInStatement, () => {
 
                     var en = Exp.Variable(typeof(IElementEnumerator));
 
-
                     var pList = new List<ParameterExpression>() {
                         en
                     };
 
-                    var body = VisitStatement(forInStatement.Body);
+                if (iterator != null)
+                {
+                    pList.Add(iterator);
+                }
 
-                    Exp identifier = null;
+                varDec.Init = iterator;
 
-                    var list = new List<Exp>();
-                    switch (forInStatement.Left)
-                    {
-                        case Identifier i:
-                            identifier = VisitIdentifier(i);
-                            break;
-                        case VariableDeclaration vd:
-                            var vdList = CreateVariableDeclaration(vd);
-                            identifier = vdList.First().Expression;
-                            break;
-                    }
+                var body = VisitStatement(forInStatement.Body);
 
                     var sList = new List<Exp>
                     {
-                        Exp.IfThen(Exp.Not(IElementEnumeratorBuilder.MoveNext(en, identifier)), Exp.Goto(s.Break)),
+                        Exp.IfThen(Exp.Not(IElementEnumeratorBuilder.MoveNext(en, iterator ?? identifier)), Exp.Goto(s.Break)),
                         // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
                         body
                     };
@@ -1377,7 +1394,58 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitForOfStatement(Esprima.Ast.ForOfStatement forOfStatement)
         {
-            throw new NotImplementedException();
+            var breakTarget = Exp.Label();
+            var continueTarget = Exp.Label();
+            ParameterExpression iterator = null;
+            Exp identifier = null;
+            AstPair<VariableDeclaration, Exp> varDec = null;
+            switch (forOfStatement.Left)
+            {
+                case Identifier id:
+                    identifier = VisitIdentifier(id);
+                    break;
+                case VariableDeclaration vd:
+                    iterator = Exp.Parameter(typeof(JSValue));
+                    varDec = new AstPair<VariableDeclaration, Exp>(vd, iterator);
+                    this.scope.Top.PushToNewScope = varDec;
+                    break;
+            }
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            {                
+
+                var en = Exp.Variable(typeof(IElementEnumerator));
+
+                var pList = new List<ParameterExpression>() {
+                    en
+                };
+
+                if (iterator != null)
+                {
+                    pList.Add(iterator);
+                }
+
+                varDec.Init = iterator;
+
+                var body = VisitStatement(forOfStatement.Body);
+
+                var sList = new List<Exp>
+                {
+                    Exp.IfThen(
+                        Exp.Not(
+                            IElementEnumeratorBuilder.MoveNext(en, iterator ?? identifier)), 
+                        Exp.Goto(s.Break)),
+                    body
+                };
+
+                var bodyList = Exp.Block(sList);
+
+                var right = VisitExpression(forOfStatement.Right);
+                return Exp.Block(
+                    pList,
+                    Exp.Assign(en, IElementEnumeratorBuilder.Get(right)),
+                    Exp.Loop(bodyList, s.Break, s.Continue)
+                    );
+            }
         }
 
         protected override Exp VisitClassDeclaration(Esprima.Ast.ClassDeclaration classDeclaration)
@@ -1617,8 +1685,13 @@ namespace WebAtoms.CoreJS
             return Exp.Break(ls.Break);
         }
 
-        private Exp NewLexicalScope(FunctionScope fnScope, Node exp, Func<Exp> factory)
+        private Exp NewLexicalScope(
+            FunctionScope fnScope, 
+            Node exp, 
+            Func<Exp> factory)
         {
+            var top = this.scope.Top;
+            var varToPush = top.PushToNewScope;
             using(var scope = this.scope.Push(fnScope))
             {
                 var position = exp.Location.Start;
@@ -1626,17 +1699,26 @@ namespace WebAtoms.CoreJS
                 // collect variables...
                 var vList = new List<ParameterExpression>() { scope.Scope };
 
+                var stmtList = new List<Exp>() {
+                    Exp.Assign(scope.Scope,
+                            ExpHelper.LexicalScopeBuilder.NewScope(
+                                FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column))
+                };
+
+                if (varToPush != null)
+                {
+                    var list = VisitVariableDeclaration(varToPush.Ast, varToPush.Init);
+                    stmtList.AddRange(list);
+                }
+
                 var visited = factory();
 
                 vList.AddRange(scope.VariableParameters);
 
+                stmtList.Add(visited);
+
                 return Exp.Block(vList, Exp.TryFinally(
-                    Exp.Block(
-                        Exp.Assign(scope.Scope, 
-                            ExpHelper.LexicalScopeBuilder.NewScope(
-                                FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column)),
-                        visited
-                        ).ToJSValue()
+                    Exp.Block(stmtList).ToJSValue()
                     , IDisposableBuilder.Dispose(scope.Scope)));
             }
         }
