@@ -698,6 +698,8 @@ namespace WebAtoms.CoreJS
 
         // for loop will require pulling variables on the top
         // for updae and test...
+
+        // Run variable declaration twice !!? Try it..
         protected List<Exp> VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration, AstPair<VariableDeclaration> initExp)
         {
             // lets add variable...
