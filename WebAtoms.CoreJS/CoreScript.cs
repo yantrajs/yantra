@@ -578,15 +578,18 @@ namespace WebAtoms.CoreJS
             switch (pattern)
             {
                 case Identifier id:
+                    inits = new List<Exp>();
                     if (createVariable)
                     {
                         var v = this.scope.Top.CreateVariable(id.Name, null, newScope);
+                        inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name)));
                         target = v.Expression;
                     } else
                     {
                         target = this.VisitIdentifier(id);
                     }
-                    return Exp.Assign(target, init);
+                    inits.Add(Exp.Assign(target, init));
+                    return Exp.Block(inits);
                 case ObjectPattern objectPattern:
                     inits = new List<Exp>();
                     foreach(var prop in objectPattern.Properties)
@@ -636,7 +639,8 @@ namespace WebAtoms.CoreJS
                                         // inits.Add(CreateAssignment(id, start));
                                         if (createVariable)
                                         {
-                                            this.scope.Top.CreateVariable(id.Name, null, newScope);
+                                            var v = this.scope.Top.CreateVariable(id.Name, null, newScope);
+                                            inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name)));
                                         }
                                         var assignee = VisitIdentifier(id);
                                         inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en, 
@@ -644,7 +648,13 @@ namespace WebAtoms.CoreJS
                                         break;
                                     case RestElement spe:
                                         // loop...
+                                        if (createVariable && spe.Argument is Identifier id2) {
+                                            var v = this.scope.Top.CreateVariable(id2.Name, null, newScope);
+                                            inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id2.Name)));
+                                        } 
+                                        
                                         var spid = VisitExpression(spe.Argument as Expression);
+                                        
                                         using (var arrayVar = this.scope.Top.GetTempVariable(typeof(JSArray)))
                                         {
                                             inits.Add(Exp.Assign(arrayVar.Expression, JSArrayBuilder.New()));
@@ -686,6 +696,8 @@ namespace WebAtoms.CoreJS
             return Exp.Block(list);
         }
 
+        // for loop will require pulling variables on the top
+        // for updae and test...
         protected List<Exp> VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration, AstPair<VariableDeclaration> initExp)
         {
             // lets add variable...
@@ -730,7 +742,7 @@ namespace WebAtoms.CoreJS
                         using (var temp = this.scope.Top.GetTempVariable())
                         {
                             inits.Add(Exp.Assign(temp.Variable, dInit));
-                            inits.Add(CreateAssignment(objectPattern, temp.Expression, true));
+                            inits.Add(CreateAssignment(objectPattern, temp.Expression, true, newScope));
                         }
                         break;
                     case Esprima.Ast.ArrayPattern arrayPattern:
@@ -739,7 +751,7 @@ namespace WebAtoms.CoreJS
                         using (var temp = this.scope.Top.GetTempVariable())
                         {
                             inits.Add(Exp.Assign(temp.Variable, dInit));
-                            inits.Add(CreateAssignment(arrayPattern, temp.Expression, true));
+                            inits.Add(CreateAssignment(arrayPattern, temp.Expression, true, newScope));
                         }
                         break;
                     default:

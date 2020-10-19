@@ -37,8 +37,9 @@ namespace WebAtoms.CoreJS
             this.Ast = ast;
         }
 
-        public readonly List<(ParameterExpression Variable, Exp Init)> Variables 
+        public readonly List<(ParameterExpression Variable, Exp Init)> Variables
             = new List<(ParameterExpression, Exp)>();
+
 
     }
 
