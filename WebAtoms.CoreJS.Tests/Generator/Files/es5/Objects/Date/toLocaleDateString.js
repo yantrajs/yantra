@@ -2,8 +2,12 @@
 
 let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
-//assert.strictEqual("Donnerstag, 20. Dezember 2012", event.toLocaleDateString('de-DE', options));
+assert.strictEqual("Donnerstag, 20. Dezember 2012", event.toLocaleDateString('de-DE'));
 // expected output: Donnerstag, 20. Dezember 2012
+
+assert.throws(() => {
+    assert.strictEqual("Donnerstag, 20. Dezember 2012", event.toLocaleDateString('de-DE', options));
+});
 
 //assert.strictEqual("الخميس، ٢٠ ديسمبر، ", event.toLocaleDateString('ar-EG', options));
 // expected output: الخميس، ٢٠ ديسمبر، ٢٠١٢
