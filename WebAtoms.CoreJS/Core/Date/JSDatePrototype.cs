@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Text;
 using WebAtoms.CoreJS.Utils;
@@ -764,9 +765,27 @@ namespace WebAtoms.CoreJS.Core.Date
             var @this = a.This.AsJSDate();
             if (@this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
-            var date = @this.value.ToLocalTime().
-                       ToString("D", System.Globalization.DateTimeFormatInfo.CurrentInfo);
-
+            var (locale, format) = a.Get2();
+            string date = null;
+            if (locale.IsNullOrUndefined)
+            {
+                date = @this.value.ToString("D", System.Globalization.DateTimeFormatInfo.CurrentInfo);
+            }
+            else {
+                var culture = CultureInfo.GetCultureInfo(locale.ToString());
+                if (format.IsNullOrUndefined) {
+                    date = @this.value.ToString("D", culture);
+                } else
+                {
+                    if (format.IsString)
+                    {
+                        date = @this.value.ToString(format.ToString(), culture);
+                    }
+                    else {
+                        throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats");
+                    }
+                }
+            }
             return new JSString(date);
 
         }
@@ -779,7 +798,7 @@ namespace WebAtoms.CoreJS.Core.Date
             var @this = a.This.AsJSDate();
             if (@this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
-            var date = @this.value.ToLocalTime().
+            var date = @this.value.
                        ToString("ddd MMM dd yyyy HH:mm:ss ", System.Globalization.DateTimeFormatInfo.InvariantInfo) +
                        ToTimeZoneString(@this);
 
@@ -795,7 +814,8 @@ namespace WebAtoms.CoreJS.Core.Date
             var @this = a.This.AsJSDate();
             if (@this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
-            var date = @this.value.ToLocalTime().
+            // DateTimeFormatInfo.CurrentInfo.LongTimePattern
+            var date = @this.value.
                        ToString("HH:mm:ss ", System.Globalization.DateTimeFormatInfo.InvariantInfo) +
                        ToTimeZoneString(@this);
 
