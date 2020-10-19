@@ -10,7 +10,7 @@ namespace WebAtoms.CoreJS.Extensions
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSValue GetValue(this JSValue target, JSProperty p)
+        internal static JSValue GetValue(this JSValue target, in JSProperty p)
         {
             if (p.IsEmpty)
                 return JSUndefined.Value;

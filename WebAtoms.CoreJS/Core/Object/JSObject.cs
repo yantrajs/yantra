@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using WebAtoms.CoreJS.Core.Enumerators;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.Utils;
 
@@ -360,47 +361,48 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
-        internal override IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
-            var elements = this.elements;
-            if (elements != null)
-            {
-                foreach (var (Key, Value) in elements.AllValues)
-                {
-                    if (showEnumerableOnly)
-                    {
-                        if (!Value.IsEnumerable)
-                            continue;
-                    }
-                    yield return new JSNumber(Key);
-                }
-            }
+            return new KeyEnumerator(this, showEnumerableOnly, inherited);
+            //var elements = this.elements;
+            //if (elements != null)
+            //{
+            //    foreach (var (Key, Value) in elements.AllValues)
+            //    {
+            //        if (showEnumerableOnly)
+            //        {
+            //            if (!Value.IsEnumerable)
+            //                continue;
+            //        }
+            //        yield return new JSNumber(Key);
+            //    }
+            //}
 
-            var ownProperties = this.ownProperties;
-            if (ownProperties != null)
-            {
-                var en = new PropertySequence.Enumerator(ownProperties);
-                while(en.MoveNext())
-                {
-                    var p = en.Current;
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                            continue;
-                    }
-                    yield return p.ToJSValue();
-                }
-            }
+            //var ownProperties = this.ownProperties;
+            //if (ownProperties != null)
+            //{
+            //    var en = new PropertySequence.Enumerator(ownProperties);
+            //    while(en.MoveNext())
+            //    {
+            //        var p = en.Current;
+            //        if (showEnumerableOnly)
+            //        {
+            //            if (!p.IsEnumerable)
+            //                continue;
+            //        }
+            //        yield return p.ToJSValue();
+            //    }
+            //}
 
-            if (inherited)
-            {
-                var @base = this.prototypeChain;
-                if (@base != this && @base != null)
-                {
-                    foreach (var i in @base.GetAllKeys(showEnumerableOnly))
-                        yield return i;
-                }
-            }
+            //if (inherited)
+            //{
+            //    var @base = this.prototypeChain;
+            //    if (@base != this && @base != null)
+            //    {
+            //        foreach (var i in @base.GetAllKeys(showEnumerableOnly))
+            //            yield return i;
+            //    }
+            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

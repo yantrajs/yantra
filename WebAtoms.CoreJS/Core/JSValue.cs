@@ -314,9 +314,13 @@ namespace WebAtoms.CoreJS.Core {
             return JSBoolean.False;
         }
 
-        internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
-        {
-            yield break;
+        //internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        //{
+        //    yield break;
+        //}
+
+        internal virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
+            return new ElementEnumerator();
         }
 
         internal virtual JSBoolean Is(JSValue value)

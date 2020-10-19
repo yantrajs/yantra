@@ -2,11 +2,76 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
     public class PropertySequence
     {
+
+        public struct ValueEnumerator {
+            JSObject target;
+            int index;
+            JSProperty[] array;
+            int size;
+            readonly bool enumerableOnly;
+            public ValueEnumerator(JSObject target, bool showEnumerableOnly)
+            {
+                enumerableOnly = showEnumerableOnly;
+                index = -1;
+                this.target = target;
+                var array = target.ownProperties?.properties;
+                this.array = array;
+                this.size = array?.Length ?? 0;
+            }
+
+            public bool MoveNext(out KeyString key)
+            {
+                if (this.array != null)
+                {
+                    while ((++index) < size)
+                    {
+                        ref var current = ref array[index];
+                        if (current.Attributes == JSPropertyAttributes.Deleted)
+                            continue;
+                        if (enumerableOnly)
+                        {
+                            if (!current.IsEnumerable)
+                                continue;
+                        }
+                        key = current.key;
+                        return true;
+                    }
+
+                }
+                key = KeyString.Empty;
+                return false;
+            }
+
+
+            public bool MoveNext(out JSValue value, out KeyString key) {
+                if (this.array != null) {
+                    while ((++index) < size)
+                    {
+                        ref var current = ref array[index];
+                        if (current.Attributes == JSPropertyAttributes.Deleted)
+                            continue;
+                        if (enumerableOnly)
+                        {
+                            if (!current.IsEnumerable)
+                                continue;
+                        }
+                        value = target.GetValue(current);
+                        key = current.key;
+                        return true;
+                    }
+
+                }
+                value = null;
+                key = KeyString.Empty;
+                return false;
+            }
+        }
 
         public struct Enumerator
         {
