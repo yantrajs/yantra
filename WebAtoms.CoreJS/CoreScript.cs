@@ -568,7 +568,11 @@ namespace WebAtoms.CoreJS
             throw new NotImplementedException();
         }
 
-        private Exp CreateAssignment(IArrayPatternElement pattern, Exp init, bool createVariable = false) {
+        private Exp CreateAssignment(
+            IArrayPatternElement pattern, 
+            Exp init, 
+            bool createVariable = false,
+            bool newScope = false) {
             Exp target;
             List<Exp> inits;
             switch (pattern)
@@ -576,7 +580,7 @@ namespace WebAtoms.CoreJS
                 case Identifier id:
                     if (createVariable)
                     {
-                        var v = this.scope.Top.CreateVariable(id.Name);
+                        var v = this.scope.Top.CreateVariable(id.Name, null, newScope);
                         target = v.Expression;
                     } else
                     {
@@ -602,10 +606,10 @@ namespace WebAtoms.CoreJS
                                 switch(property.Value)
                                 {
                                     case Identifier vid:
-                                        inits.Add(CreateAssignment(vid, start, true));
+                                        inits.Add(CreateAssignment(vid, start, true, newScope));
                                         break;
                                     case IArrayPatternElement vp:
-                                        inits.Add(CreateAssignment(vp, start, true));
+                                        inits.Add(CreateAssignment(vp, start, true, newScope));
                                         break;
                                     default:
                                         throw new NotImplementedException();
@@ -630,6 +634,10 @@ namespace WebAtoms.CoreJS
                                 {
                                     case Identifier id:
                                         // inits.Add(CreateAssignment(id, start));
+                                        if (createVariable)
+                                        {
+                                            this.scope.Top.CreateVariable(id.Name, null, newScope);
+                                        }
                                         var assignee = VisitIdentifier(id);
                                         inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en, 
                                             item.Expression));
@@ -658,7 +666,7 @@ namespace WebAtoms.CoreJS
                                         // nested object ...
                                         var check = IElementEnumeratorBuilder.MoveNext(en, item.Expression);
                                         inits.Add(check);
-                                        inits.Add(CreateAssignment(ape, item.Expression, true));
+                                        inits.Add(CreateAssignment(ape, item.Expression, true, newScope));
                                         break;
                                     default:
                                         inits.Add(IElementEnumeratorBuilder.MoveNext(en, item.Expression));
