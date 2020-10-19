@@ -827,6 +827,44 @@ namespace WebAtoms.CoreJS.Core.Date
         }
 
 
+
+        [Prototype("toLocaleTimeString", Length = 0)]
+        internal static JSValue ToLocaleTimeString(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return new JSString("Invalid Date");
+            var (locale, format) = a.Get2();
+            string date = null;
+            if (locale.IsNullOrUndefined)
+            {
+                date = @this.value.ToString("T", System.Globalization.DateTimeFormatInfo.CurrentInfo);
+            }
+            else
+            {
+                var culture = CultureInfo.GetCultureInfo(locale.ToString());
+                if (format.IsNullOrUndefined)
+                {
+                    date = @this.value.ToString("T", culture);
+                }
+                else
+                {
+                    if (format.IsString)
+                    {
+                        date = @this.value.ToString(format.ToString(), culture);
+                    }
+                    else
+                    {
+                        throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats");
+                    }
+                }
+            }
+            return new JSString(date);
+
+        }
+
+
+
         [Prototype("toString", Length = 0)]
         internal static JSValue ToString(in Arguments a)
         {
