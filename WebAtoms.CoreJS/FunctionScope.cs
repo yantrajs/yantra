@@ -28,29 +28,24 @@ namespace WebAtoms.CoreJS
         }
     }
 
-    public class AstPair<TAst, TExp> 
+    public class AstPair<TAst> 
         where TAst: Esprima.Ast.INode
-        where TExp: Exp
     {
         public TAst Ast;
-        public TExp Init;
-        public AstPair(TAst ast, TExp init)
-        {
-            this.Ast = ast;
-            this.Init = init;
-        }
-
         public AstPair(TAst ast)
         {
             this.Ast = ast;
         }
+
+        public readonly List<(ParameterExpression Variable, Exp Init)> Variables 
+            = new List<(ParameterExpression, Exp)>();
 
     }
 
     public class FunctionScope: LinkedStackItem<FunctionScope>
     {
 
-        public AstPair<Esprima.Ast.VariableDeclaration, Exp> PushToNewScope { get; set; }
+        public AstPair<Esprima.Ast.VariableDeclaration> PushToNewScope { get; set; }
 
         public class VariableScope: IDisposable
         {
