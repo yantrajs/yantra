@@ -13,7 +13,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         private void RunTest(string file)
         {
-            var fileObj = new System.IO.FileInfo("../../../Generator/Files/es5/" + file);
+            var fileObj = new System.IO.FileInfo("../../../Generator/Files/" + file);
             var text = System.IO.File.ReadAllText(fileObj.FullName);
             CoreScript.Evaluate(text, fileObj.FullName);
         }
@@ -25,9 +25,9 @@ namespace WebAtoms.CoreJS.Tests.Generator
             // pending new object initialization
 
             // RunTest("Objects\\Array\\slice.js");
-            RunTest("Objects\\Object\\entries.js");
+            // RunTest("Objects\\Object\\entries.js");
 
-            // RunTest("Syntax\\TryCatch\\try.js");
+            RunTest("es6/Syntax/for-of/array.js");
 
         }
 
