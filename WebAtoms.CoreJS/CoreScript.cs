@@ -907,6 +907,8 @@ namespace WebAtoms.CoreJS
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
+            var localVars = new List<Exp>();
+
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
                 return NewLexicalScope(new FunctionScope(this.scope.Top), forStatement, () =>
@@ -961,20 +963,18 @@ namespace WebAtoms.CoreJS
                     identifier = VisitIdentifier(id);
                     break;
                 case VariableDeclaration vd:
-                    iterator = Exp.Parameter(typeof(JSValue));
+                    iterator = Exp.Variable(typeof(JSValue));
                     varDec = new AstPair<VariableDeclaration, Exp>(vd, iterator);
                     this.scope.Top.PushToNewScope = varDec;
                     break;
             }
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
-                return NewLexicalScope(new FunctionScope(this.scope.Top), forInStatement, () => {
+                var en = Exp.Variable(typeof(IElementEnumerator));
 
-                    var en = Exp.Variable(typeof(IElementEnumerator));
-
-                    var pList = new List<ParameterExpression>() {
-                        en
-                    };
+                var pList = new List<ParameterExpression>() {
+                    en
+                };
 
                 if (iterator != null)
                 {
@@ -985,22 +985,21 @@ namespace WebAtoms.CoreJS
 
                 var body = VisitStatement(forInStatement.Body);
 
-                    var sList = new List<Exp>
-                    {
-                        Exp.IfThen(Exp.Not(IElementEnumeratorBuilder.MoveNext(en, iterator ?? identifier)), Exp.Goto(s.Break)),
-                        // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
-                        body
-                    };
+                var sList = new List<Exp>
+                {
+                    Exp.IfThen(Exp.Not(IElementEnumeratorBuilder.MoveNext(en, iterator ?? identifier)), Exp.Goto(s.Break)),
+                    // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
+                    body
+                };
 
-                    var bodyList = Exp.Block(sList);
+                var bodyList = Exp.Block(sList);
 
-                    var right = VisitExpression(forInStatement.Right);
-                    return Exp.Block(
-                        pList,
-                        Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
-                        Exp.Loop(bodyList, s.Break, s.Continue)
-                        );
-                });
+                var right = VisitExpression(forInStatement.Right);
+                return Exp.Block(
+                    pList,
+                    Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
+                    Exp.Loop(bodyList, s.Break, s.Continue)
+                    );
             }
         }
 
