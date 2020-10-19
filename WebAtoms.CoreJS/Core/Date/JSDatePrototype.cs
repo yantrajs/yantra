@@ -758,6 +758,69 @@ namespace WebAtoms.CoreJS.Core.Date
         }
 
 
+        [Prototype("toLocaleDateString", Length = 0)]
+        internal static JSValue ToLocaleDateString(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return new JSString("Invalid Date");
+            var date = @this.value.ToLocalTime().
+                       ToString("D", System.Globalization.DateTimeFormatInfo.CurrentInfo);
+
+            return new JSString(date);
+
+        }
+
+
+
+        [Prototype("toString", Length = 0)]
+        internal static JSValue ToString(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return new JSString("Invalid Date");
+            var date = @this.value.ToLocalTime().
+                       ToString("ddd MMM dd yyyy HH:mm:ss ", System.Globalization.DateTimeFormatInfo.InvariantInfo) +
+                       ToTimeZoneString(@this);
+
+            return new JSString(date);
+
+        }
+
+
+
+        [Prototype("toTimeString", Length = 0)]
+        internal static JSValue ToTimeString(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return new JSString("Invalid Date");
+            var date = @this.value.ToLocalTime().
+                       ToString("HH:mm:ss ", System.Globalization.DateTimeFormatInfo.InvariantInfo) +
+                       ToTimeZoneString(@this);
+
+            return new JSString(date);
+
+        }
+
+
+
+
+        [Prototype("toUTCString", Length = 0)]
+        internal static JSValue ToUTCString(in Arguments a)
+        {
+            var @this = a.This.AsJSDate();
+            if (@this.value == JSDate.InvalidDate)
+                return new JSString("Invalid Date");
+            var date = @this.value.ToUniversalTime().
+                       ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'", 
+                       System.Globalization.DateTimeFormatInfo.InvariantInfo);
+
+            return new JSString(date);
+
+        }
+
+
 
 
 
@@ -773,6 +836,25 @@ namespace WebAtoms.CoreJS.Core.Date
             return new JSNumber(result);
         }
 
+
+        internal static string ToTimeZoneString(JSDate @this) {
+            var timeZone = TimeZoneInfo.Local;
+            // Compute the time zone offset in hours-minutes.
+            int offsetInMinutes = (int)timeZone.GetUtcOffset(@this.value).TotalMinutes;
+            int hhmm = offsetInMinutes / 60 * 100 + offsetInMinutes % 60;
+
+            // Get the time zone name.
+            string zoneName;
+            if (timeZone.IsDaylightSavingTime(@this.value))
+                zoneName = timeZone.DaylightName;
+            else
+                zoneName = timeZone.StandardName;
+
+            if (hhmm < 0)
+                return $"GMT{hhmm:d4} ({zoneName})";
+            else
+                return $"GMT+{hhmm:d4} ({zoneName})";
+        }
 
     }
 }
