@@ -945,7 +945,7 @@ namespace WebAtoms.CoreJS
             {
                 return NewLexicalScope(new FunctionScope(this.scope.Top), forInStatement, () => {
 
-                    var en = Exp.Variable(typeof(IEnumerator<JSValue>));
+                    var en = Exp.Variable(typeof(IElementEnumerator));
 
 
                     var pList = new List<ParameterExpression>() {
@@ -970,8 +970,7 @@ namespace WebAtoms.CoreJS
 
                     var sList = new List<Exp>
                     {
-                        Exp.IfThen(Exp.Not(EnumerableBuilder.MoveNext(en)), Exp.Goto(s.Break)),
-                        Exp.Assign(identifier, EnumerableBuilder.Current(en)),
+                        Exp.IfThen(Exp.Not(IElementEnumeratorBuilder.MoveNext(en, identifier)), Exp.Goto(s.Break)),
                         // sList.Add(Exp.Assign(identifier, EnumerableBuilder.Current(en)));
                         body
                     };

@@ -237,7 +237,16 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            return new JSArray(jobj.GetAllKeys(true, false));
+            var en = jobj.GetAllKeys(true, false);
+            var r = new JSArray();
+            var e = r.elements;
+            while (en.MoveNext(out var hasValue, out var value, out var index)) {
+                if (hasValue)
+                {
+                    e[r._length++] = JSProperty.Property(value);
+                }
+            }
+            return r;
         }
 
         [Static("preventExtensions")]

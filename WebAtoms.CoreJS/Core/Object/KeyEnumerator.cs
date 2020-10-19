@@ -4,12 +4,12 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core.Enumerators
 {
-    public struct KeyEnumerator : IElementEnumerator
+    public class KeyEnumerator : IElementEnumerator
     {
         private JSObject target;
         private bool showEnumerableOnly;
         private bool inherited;
-        private KeyEnumerator? parent;
+        private KeyEnumerator parent;
         IElementEnumerator elements;
         PropertySequence.ValueEnumerator? properties;
 
@@ -31,7 +31,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
             {
                 if (this.elements.MoveNext(out var hasValueout, out var _, out var ui)) {
                     value = new JSNumber(ui);
-                    hasValue = true;
+                    hasValue = hasValueout;
                     index = ui;
                     return true;
                 }
@@ -56,7 +56,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
             }
             if (parent != null)
             {
-                if(parent.Value.MoveNext(out hasValue, out value, out index))
+                if(parent.MoveNext(out hasValue, out value, out index))
                 {
                     return true;
                 }
@@ -70,7 +70,41 @@ namespace WebAtoms.CoreJS.Core.Enumerators
 
         public bool MoveNext(out JSValue value)
         {
-            throw new NotImplementedException();
+            if (this.elements != null)
+            {
+                if (this.elements.MoveNext(out var hasValueout, out var _, out var ui))
+                {
+                    value = new JSNumber(ui);
+                    return true;
+                }
+                this.elements = null;
+            }
+            if (this.properties != null)
+            {
+                if (this.properties.Value.MoveNext(out var key))
+                {
+                    value = key.ToJSValue();
+                    return true;
+                }
+                this.properties = null;
+                if (this.inherited)
+                {
+                    if (target.prototypeChain != null && target.prototypeChain != target)
+                    {
+                        parent = new KeyEnumerator(target.prototypeChain, showEnumerableOnly, inherited);
+                    }
+                }
+            }
+            if (parent != null)
+            {
+                if (parent.MoveNext(out value))
+                {
+                    return true;
+                }
+                parent = null;
+            }
+            value = JSUndefined.Value;
+            return false;
         }
     }
 }
