@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
@@ -696,9 +697,9 @@ namespace WebAtoms.CoreJS
                 }
                 if (initExp != null)
                 {
-                    var ip = Exp.Variable(typeof(JSValue));
-                    dInit = ip;
+                    var ip = Exp.Variable(typeof(JSValue), "#temp");
                     initExp.Variables.Add((ip, dInit));
+                    dInit = ip;
                 }
                 switch(declarator.Id)
                 {
@@ -910,32 +911,49 @@ namespace WebAtoms.CoreJS
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
-            var localVars = new List<Exp>();
+            AstPair<VariableDeclaration> varDec = null;
+            var paramList = new List<ParameterExpression>();
+            var blockList = new List<Exp>();
+            var init = JSUndefinedBuilder.Value;
+
+            if (forStatement.Init != null)
+            {
+                switch (forStatement.Init)
+                {
+                    case Expression exp:
+                        init = VisitExpression(exp);
+                        blockList.Add(init);
+                        break;
+                    case VariableDeclaration dec:
+                        varDec = new AstPair<VariableDeclaration>(dec);
+                        this.scope.Top.PushToNewScope = varDec;
+                        break;
+                    case Statement stmt:
+                        init = VisitStatement(stmt);
+                        blockList.Add(init);
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+
 
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
-                return NewLexicalScope(new FunctionScope(this.scope.Top), forStatement, () =>
-                {
-                    var init = JSUndefinedBuilder.Value;
-                    if (forStatement.Init != null)
-                    {
-                        switch (forStatement.Init)
-                        {
-                            case Expression exp:
-                                init = VisitExpression(exp);
-                                break;
-                            case VariableDeclaration dec:
-
-                                break;
-                            case Statement stmt:
-                                init = VisitStatement(stmt);
-                                break;
-                            default:
-                                throw new NotSupportedException();
-                        }
-                    }
+                // return NewLexicalScope(new FunctionScope(this.scope.Top), forStatement, () =>
+                //{
                     var list = new List<Exp>();
                     var body = VisitStatement(forStatement.Body);
+
+                    if (varDec != null)
+                    {
+                        foreach (var v in varDec.Variables)
+                        {
+                            paramList.Add(v.Variable);
+                            blockList.Add(Exp.Assign(v.Variable, v.Init));
+                        }
+                    }
+
                     var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
                     if (forStatement.Test != null)
                     {
@@ -948,11 +966,9 @@ namespace WebAtoms.CoreJS
                     {
                         list.Add(update);
                     }
-                    return Exp.Block(init, Exp.Loop(
-                        Exp.Block(list),
-                        breakTarget,
-                        continueTarget));
-                });
+                    blockList.Add(Exp.Loop(Exp.Block(list), breakTarget, continueTarget));
+                    return Exp.Block(paramList, blockList);
+                // });
             }
         }
 
@@ -1716,6 +1732,7 @@ namespace WebAtoms.CoreJS
                 {
                     var list = VisitVariableDeclaration(varToPush.Ast, varToPush);
                     stmtList.AddRange(list);
+                    top.PushToNewScope = null;
                 }
 
                 var visited = factory();
