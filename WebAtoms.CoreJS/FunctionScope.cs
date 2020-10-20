@@ -28,25 +28,46 @@ namespace WebAtoms.CoreJS
         }
     }
 
-    public class AstPair<TAst> 
-        where TAst: Esprima.Ast.INode
+    public class ScopedVariableDeclarator {
+        public Esprima.Ast.VariableDeclarator Declarator { get; set; }
+
+        public Exp Init { get; set; }
+    }
+
+    public class ScopedVariableDeclaration
     {
-        public TAst Ast;
-        public AstPair(TAst ast)
+        public bool NewScope { get; private set; }
+
+        public bool Copy { get; set; }
+        public List<ScopedVariableDeclarator> Declarators { get; }
+            = new List<ScopedVariableDeclarator>();
+
+        public ScopedVariableDeclaration(
+            Esprima.Ast.VariableDeclaration declaration,
+            Exp init = null)
         {
-            this.Ast = ast;
+            NewScope = 
+                declaration.Kind == Esprima.Ast.VariableDeclarationKind.Const 
+                || declaration.Kind == Esprima.Ast.VariableDeclarationKind.Let;
+            foreach(var d in declaration.Declarations)
+            {
+                var sd = new ScopedVariableDeclarator
+                {
+                    Declarator = d
+                };
+                Declarators.Add(sd);
+                if (init != null)
+                {
+                    sd.Init = init;
+                }
+            }
         }
-
-        public readonly List<(ParameterExpression Variable, Exp Init)> Variables
-            = new List<(ParameterExpression, Exp)>();
-
-
     }
 
     public class FunctionScope: LinkedStackItem<FunctionScope>
     {
 
-        public AstPair<Esprima.Ast.VariableDeclaration> PushToNewScope { get; set; }
+        public ScopedVariableDeclaration PushToNewScope { get; set; }
 
         public class VariableScope: IDisposable
         {

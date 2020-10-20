@@ -4,6 +4,7 @@ using Microsoft.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -692,7 +693,15 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitVariableDeclaration(VariableDeclaration variableDeclaration)
         {
-            var list = VisitVariableDeclaration(variableDeclaration, null);
+            var v = new ScopedVariableDeclaration(variableDeclaration);
+            foreach (var vd in v.Declarators)
+            {
+                if (vd.Declarator.Init != null)
+                {
+                    vd.Init = VisitExpression(vd.Declarator.Init);
+                }
+            }
+            var list = VisitVariableDeclaration(v);
             return Exp.Block(list);
         }
 
@@ -700,28 +709,22 @@ namespace WebAtoms.CoreJS
         // for updae and test...
 
         // Run variable declaration twice !!? Try it..
-        protected List<Exp> VisitVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration, AstPair<VariableDeclaration> initExp)
+        protected List<Exp> VisitVariableDeclaration(
+            ScopedVariableDeclaration variableDeclaration)
         {
             // lets add variable...
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
             var inits = new List<Exp>();
-            bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
-                || variableDeclaration.Kind == VariableDeclarationKind.Const;
+            bool newScope = variableDeclaration.NewScope;
 
-            foreach (var declarator in variableDeclaration.Declarations)
+            foreach (var sDeclarator in variableDeclaration.Declarators)
             {
-                var decInit = declarator.Init;
+                var declarator = sDeclarator.Declarator;
                 Exp dInit = null;
-                if (decInit != null)
+                if (sDeclarator.Init != null)
                 {
-                    dInit = VisitExpression(decInit);
-                }
-                if (initExp != null)
-                {
-                    var ip = Exp.Variable(typeof(JSValue), "#temp");
-                    initExp.Variables.Add((ip, dInit));
-                    dInit = ip;
+                    dInit = sDeclarator.Init;
                 }
                 switch(declarator.Id)
                 {
@@ -933,10 +936,12 @@ namespace WebAtoms.CoreJS
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
-            AstPair<VariableDeclaration> varDec = null;
+            ScopedVariableDeclaration varDec = null;
             var paramList = new List<ParameterExpression>();
             var blockList = new List<Exp>();
             var init = JSUndefinedBuilder.Value;
+
+            List<IDisposable> tempVariables = new List<IDisposable>();
 
             if (forStatement.Init != null)
             {
@@ -947,7 +952,8 @@ namespace WebAtoms.CoreJS
                         blockList.Add(init);
                         break;
                     case VariableDeclaration dec:
-                        varDec = new AstPair<VariableDeclaration>(dec);
+                        varDec = new ScopedVariableDeclaration(dec);
+                        varDec.Copy = true;
                         this.scope.Top.PushToNewScope = varDec;
                         break;
                     case Statement stmt:
@@ -967,14 +973,14 @@ namespace WebAtoms.CoreJS
                     var list = new List<Exp>();
                     var body = VisitStatement(forStatement.Body);
 
-                    if (varDec != null)
-                    {
-                        foreach (var v in varDec.Variables)
-                        {
-                            paramList.Add(v.Variable);
-                            blockList.Add(Exp.Assign(v.Variable, v.Init));
-                        }
-                    }
+                    //if (varDec != null)
+                    //{
+                    //    foreach (var v in varDec.Variables)
+                    //    {
+                    //        paramList.Add(v.Variable);
+                    //        blockList.Add(Exp.Assign(v.Variable, v.Init));
+                    //    }
+                    //}
 
                     var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
                     if (forStatement.Test != null)
@@ -999,14 +1005,16 @@ namespace WebAtoms.CoreJS
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
             Exp identifier = null;
-            AstPair<VariableDeclaration> varDec = null;
+            ScopedVariableDeclaration varDec = null;
             switch (forInStatement.Left)
             {
                 case Identifier id:
                     identifier = VisitIdentifier(id);
                     break;
                 case VariableDeclaration vd:
-                    varDec = new AstPair<VariableDeclaration>(vd);
+                    // should only be one initializer...
+                    identifier = Exp.Variable(typeof(JSValue));
+                    varDec = new ScopedVariableDeclaration(vd, identifier);
                     this.scope.Top.PushToNewScope = varDec;
                     break;
             }
@@ -1015,19 +1023,11 @@ namespace WebAtoms.CoreJS
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
                 var pList = new List<ParameterExpression>() {
-                    en
+                    en,
+                    identifier as ParameterExpression
                 };
 
                 var body = VisitStatement(forInStatement.Body);
-
-                if (varDec != null)
-                {
-                    foreach (var v in varDec.Variables)
-                    {
-                        pList.Add(v.Variable);
-                        identifier = v.Variable;
-                    }
-                }
 
                 var sList = new List<Exp>
                 {
@@ -1441,14 +1441,15 @@ namespace WebAtoms.CoreJS
             var continueTarget = Exp.Label();
             // ParameterExpression iterator = null;
             Exp identifier = null;
-            AstPair<VariableDeclaration> varDec = null;
+            ScopedVariableDeclaration varDec = null;
             switch (forOfStatement.Left)
             {
                 case Identifier id:
                     identifier = VisitIdentifier(id);
                     break;
                 case VariableDeclaration vd:
-                    varDec = new AstPair<VariableDeclaration>(vd);
+                    identifier = Exp.Variable(typeof(JSValue));
+                    varDec = new ScopedVariableDeclaration(vd, identifier);
                     this.scope.Top.PushToNewScope = varDec;
                     break;
             }
@@ -1458,20 +1459,11 @@ namespace WebAtoms.CoreJS
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
                 var pList = new List<ParameterExpression>() {
-                    en
+                    en,
+                    identifier as ParameterExpression
                 };
 
                 var body = VisitStatement(forOfStatement.Body);
-
-                if (varDec != null)
-                {
-                    foreach (var v in varDec.Variables)
-                    {
-                        pList.Add(v.Variable);
-                        identifier = v.Variable;
-                    }
-                }
-
 
                 var sList = new List<Exp>
                 {
@@ -1737,6 +1729,11 @@ namespace WebAtoms.CoreJS
         {
             var top = this.scope.Top;
             var varToPush = top.PushToNewScope;
+
+            if (varToPush != null) { 
+
+            }
+
             using(var scope = this.scope.Push(fnScope))
             {
                 var position = exp.Location.Start;
@@ -1752,7 +1749,7 @@ namespace WebAtoms.CoreJS
 
                 if (varToPush != null)
                 {
-                    var list = VisitVariableDeclaration(varToPush.Ast, varToPush);
+                    var list = VisitVariableDeclaration(varToPush);
                     stmtList.AddRange(list);
                     top.PushToNewScope = null;
                 }
