@@ -452,8 +452,11 @@ namespace WebAtoms.CoreJS
             where T: INode
             where TR: Exp
         {
-            // return exp();
-            var s = this.scope.Top.Scope;
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                return exp();
+            }
+            var s = this.scope.Top.TopStackScope.Scope;
             var p = ast.Location.Start;
             try
             {
@@ -941,46 +944,65 @@ namespace WebAtoms.CoreJS
             var blockList = new List<Exp>();
             var init = JSUndefinedBuilder.Value;
 
-            List<IDisposable> tempVariables = new List<IDisposable>();
-
-            if (forStatement.Init != null)
-            {
-                switch (forStatement.Init)
-                {
-                    case Expression exp:
-                        init = VisitExpression(exp);
-                        blockList.Add(init);
-                        break;
-                    case VariableDeclaration dec:
-                        varDec = new ScopedVariableDeclaration(dec);
-                        varDec.Copy = true;
-                        this.scope.Top.PushToNewScope = varDec;
-                        break;
-                    case Statement stmt:
-                        init = VisitStatement(stmt);
-                        blockList.Add(init);
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-
-
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
             {
-                // return NewLexicalScope(new FunctionScope(this.scope.Top), forStatement, () =>
-                //{
+                if (forStatement.Init != null)
+                {
+                    switch (forStatement.Init)
+                    {
+                        case Expression exp:
+                            init = VisitExpression(exp);
+                            blockList.Add(init);
+                            break;
+                        case VariableDeclaration dec:
+                            varDec = new ScopedVariableDeclaration(dec);
+                            varDec.Copy = true;
+                            this.scope.Top.PushToNewScope = varDec;
+
+                            foreach(var vd in varDec.Declarators)
+                            {
+                                if(vd.Declarator.Init != null)
+                                {
+                                    vd.Init = VisitExpression(vd.Declarator.Init);
+                                }
+                            }
+                            break;
+                        case Statement stmt:
+                            init = VisitStatement(stmt);
+                            blockList.Add(init);
+                            break;
+                        default:
+                            throw new NotSupportedException();
+                    }
+                }
+
+                return NewLexicalScope(new FunctionScope(this.scope.Top), forStatement, () =>
+                {
+
+
+                    // we need one more copy of same variables if they were declared with "let"
+                    if (varDec.NewScope)
+                    {
+
+                        
+
+                        var scopedDeclarator = new List<ScopedVariableDeclarator>();
+                        foreach (var v in this.scope.Top.Variables) {
+                            scopedDeclarator.Add(new ScopedVariableDeclarator() {
+                                Declarator = new VariableDeclarator(new Identifier(v.Name), null),
+                                Init = v.Expression
+                            });
+                        }
+                        if (scopedDeclarator.Count > 0)
+                        {
+                            varDec = new ScopedVariableDeclaration(scopedDeclarator);
+                            this.scope.Top.PushToNewScope = varDec;
+                        }
+                    }
+
                     var list = new List<Exp>();
                     var body = VisitStatement(forStatement.Body);
 
-                    //if (varDec != null)
-                    //{
-                    //    foreach (var v in varDec.Variables)
-                    //    {
-                    //        paramList.Add(v.Variable);
-                    //        blockList.Add(Exp.Assign(v.Variable, v.Init));
-                    //    }
-                    //}
 
                     var update = forStatement.Update == null ? null : VisitExpression(forStatement.Update);
                     if (forStatement.Test != null)
@@ -996,7 +1018,7 @@ namespace WebAtoms.CoreJS
                     }
                     blockList.Add(Exp.Loop(Exp.Block(list), breakTarget, continueTarget));
                     return Exp.Block(paramList, blockList);
-                // });
+                });
             }
         }
 
@@ -1730,10 +1752,6 @@ namespace WebAtoms.CoreJS
             var top = this.scope.Top;
             var varToPush = top.PushToNewScope;
 
-            if (varToPush != null) { 
-
-            }
-
             using(var scope = this.scope.Push(fnScope))
             {
                 var position = exp.Location.Start;
@@ -1755,6 +1773,11 @@ namespace WebAtoms.CoreJS
                 }
 
                 var visited = factory();
+
+                if (!scope.IsFunctionScope && !scope.VariableParameters.Any())
+                {
+                    return visited;
+                }
 
                 vList.AddRange(scope.VariableParameters);
 

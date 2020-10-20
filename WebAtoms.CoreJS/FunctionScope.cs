@@ -42,6 +42,12 @@ namespace WebAtoms.CoreJS
         public List<ScopedVariableDeclarator> Declarators { get; }
             = new List<ScopedVariableDeclarator>();
 
+        public ScopedVariableDeclaration(IEnumerable<ScopedVariableDeclarator> list)
+        {
+            NewScope = true;
+            Declarators.AddRange(list);
+        }
+
         public ScopedVariableDeclaration(
             Esprima.Ast.VariableDeclaration declaration,
             Exp init = null)
@@ -190,6 +196,23 @@ namespace WebAtoms.CoreJS
             }
         }
 
+        public FunctionScope TopStackScope
+        {
+            get
+            {
+                var p = this;
+                if (p.variableScopeList.Any())
+                    return p;
+                while (p.Parent != null && p.Function == p.Parent.Function)
+                {
+                    p = p.Parent;
+                    if (p.variableScopeList.Any())
+                        return p;
+                }
+                return p;
+            }
+        }
+
         public ParameterExpression Generator
         {
             get;set;
@@ -290,6 +313,8 @@ namespace WebAtoms.CoreJS
             ts.InUse = true;
             return ts;
         }
+
+        public bool IsFunctionScope => this.Parent?.Function != this.Function;
 
         public VariableScope CreateVariable(
             string name,
