@@ -19,3 +19,8 @@ var local = TimeZoneInfo.local;
 
 assert(local instanceof TimeZoneInfo);
 assert(!(local instanceof Random));
+
+assert.strictEqual(1, clr.temp1);
+
+clr.temp1 = 3;
+assert.strictEqual(3, clr.temp1);

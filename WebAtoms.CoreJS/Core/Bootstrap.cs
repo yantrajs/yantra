@@ -112,8 +112,9 @@ namespace WebAtoms.CoreJS.Core
             var peList = new List<ParameterExpression>();
             ParameterExpression targetExp = null;
             var toType = m.method.DeclaringType;
-            targetExp = Expression.Parameter(typeof(JSVariable));
-            var target = JSVariable.ValueExpression(targetExp);
+            targetExp = Expression.Parameter(typeof(JSValue));
+            // var target = JSVariable.ValueExpression(targetExp);
+            var target = targetExp;
             // this is a set method...
             peList.Add(targetExp);
             var rType = property.PropertyType;
@@ -138,10 +139,10 @@ namespace WebAtoms.CoreJS.Core
             }
             if (property.CanWrite)
             {
-                var setterBody = Expression.Assign(Expression.Property(coalesce, property), 
-                    JSValueBuilder.Coalesce(arg1, rType, target, p.Name.ToString()));
+                var setterBody = Expression.Assign(
+                    Expression.Property(coalesce, property),
+                    JSValueBuilder.ForceConvert(arg1, rType));
                 var setterLambda = Expression.Lambda<JSFunctionDelegate>(Expression.Block(peList,
-                    Expression.Assign(targetExp, JSVariableBuilder.New("a")),
                     setterBody), pe);
                 setter = setterLambda.Compile();
             }

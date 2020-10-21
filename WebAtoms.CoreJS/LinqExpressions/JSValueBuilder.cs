@@ -237,7 +237,15 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
         private static MethodInfo _ConvertTo =
-            type.InternalMethod(nameof(JSValue.ConvertTo), typeof(Type), typeof(object).MakeByRefType());
+            type.InternalMethod(nameof(JSValue.TryConvertTo), typeof(Type), typeof(object).MakeByRefType());
+
+        private static MethodInfo _ForceConvert =
+            type.InternalMethod(nameof(JSValue.ForceConvert), typeof(Type));
+
+        public static Expression ForceConvert(Expression jsValue, Type type)
+        {
+            return Expression.Convert( Expression.Call(jsValue, _ForceConvert, Expression.Constant(type)), type);
+        }
 
         public static Expression ConvertTo(Expression jsValue, Expression type, Expression outVar)
         {

@@ -202,7 +202,8 @@ namespace WebAtoms.CoreJS.Core
                 throw new FileNotFoundException($"{relativePath} module not found");
             var code = System.IO.File.ReadAllText(fullPath);
             JSModule module = moduleCache.GetOrCreate(fullPath, () => new JSModule(this, fullPath, code));
-            return module.Exports;
+            var exports = module.Exports;
+            return exports;
         }
         internal protected virtual JSFunctionDelegate Compile(string code, string filePath, List<string> args)
         {
