@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebAtoms.CoreJS\WebAtoms.CoreJS.csproj" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.7.0" />
   </ItemGroup>
 
 </Project>

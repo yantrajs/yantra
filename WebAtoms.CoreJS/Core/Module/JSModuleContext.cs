@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core.Clr;
 using WebAtoms.CoreJS.Core.Storage;
@@ -46,17 +48,23 @@ namespace WebAtoms.CoreJS.Core
         
         private string[] paths;
 
-
+        protected string[] extensions = new string[] { ".js" };
 
         internal string Resolve(string dirPath, string relativePath)
         {
-            string Combine(string cFolder, string cR, string ext = ".js")
+            string Combine(string cFolder, string cR, bool checkExtensions = true)
             {
                 string cP = Path.Combine(cFolder, cR);
-                if (!cP.EndsWith(ext))
-                    cP += ext;
                 if (File.Exists(cP))
                     return cP;
+                if (!checkExtensions)
+                    return null;
+                foreach (var e in extensions)
+                {
+                    var cpE = Combine(cFolder, cR, false);
+                    if (cpE != null)
+                        return cpE;
+                }
                 return null;
             }
 
@@ -178,6 +186,10 @@ namespace WebAtoms.CoreJS.Core
             var code = System.IO.File.ReadAllText(fullPath);
             JSModule module = moduleCache.GetOrCreate(fullPath, () => new JSModule(this, fullPath, code));
             return module.Exports;
+        }
+        internal protected virtual JSFunctionDelegate Compile(string code, string filePath, List<string> args)
+        {
+            return CoreScript.Compile(code, filePath, args);
         }
 
 

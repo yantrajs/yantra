@@ -39,7 +39,7 @@ namespace WebAtoms.CoreJS.Core
             this.filePath = filePath;
             this.dirPath = System.IO.Path.GetDirectoryName(filePath);
 
-            this.factory = CoreScript.Compile(code, filePath, new List<string> { 
+            this.factory = context.Compile(code, filePath, new List<string> {
                 "exports",
                 "require",
                 "module",
