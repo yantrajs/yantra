@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebAtoms.CoreJS.Core.Array.Typed
+namespace WebAtoms.CoreJS.Core.Typed
 {
     //public abstract class TypedArray<T> : JSValue
     //{
