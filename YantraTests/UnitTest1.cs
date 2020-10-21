@@ -19,10 +19,15 @@ namespace YantraTests
 
         }
 
+        private static DirectoryInfo rootModules;
+
         public override IEnumerable<System.IO.FileInfo> GetData()
         {
+            if(rootModules == null) {
+                rootModules = new DirectoryInfo("../../../../modules/inbuilt");
+            }
             var dir1 = new DirectoryInfo("../../../Modules/" + root);
-            foreach (var dir in dir1.EnumerateDirectories("*.js")) {
+            foreach (var dir in dir1.EnumerateDirectories()) {
                 var indexFile = new FileInfo(dir.FullName + "/index.js");
                 if (indexFile.Exists)
                 {
@@ -49,7 +54,7 @@ namespace YantraTests
                 var fileInfo = new System.IO.FileInfo(fullName);
                 try
                 {
-                    await m.RunAsync(fileInfo.DirectoryName, "./" + fileInfo.Name);
+                    await m.RunAsync(fileInfo.DirectoryName, "./" + fileInfo.Name, new string[] { rootModules.FullName });
                 }
                 catch (TaskCanceledException)
                 {
@@ -60,9 +65,9 @@ namespace YantraTests
     }
 
     [TestClass]
-    public class UnitTest1
+    public class Modules
     {
-        [TestMethod]
+        [ModuleFolder("in-built")]
         public void TestMethod1()
         {
         }

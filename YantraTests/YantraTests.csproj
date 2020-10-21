@@ -22,16 +22,4 @@
     <ProjectReference Include="..\WebAtoms.CoreJS.Tests\WebAtoms.CoreJS.Tests.csproj" />
     <ProjectReference Include="..\Yantra\Yantra.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Modules\" />
-    <Content Include="..\module\inbuilt\**\*.*">
-      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    
-  </ItemGroup>
-
 </Project>

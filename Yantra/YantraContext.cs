@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.Threading;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,21 +30,35 @@ namespace Yantra
         {
             if (filePath.EndsWith(".csx"))
             {
-                var script = CSharpScript.Create<ModuleDelegate>(code,
-                    ScriptOptions.Default
+                var options = ScriptOptions.Default
                         .WithFilePath(filePath)
                         .AddReferences(typeof(JSValue).Assembly, typeof(YantraContext).Assembly)
-                        .WithOptimizationLevel(OptimizationLevel.Release)).CreateDelegate();
+                        .WithOptimizationLevel(OptimizationLevel.Debug);
 
+                JSModuleDelegate @delegate = null;
+
+                AsyncPump.Run(async () => {
+
+                    @delegate = await CSharpScript.EvaluateAsync<JSModuleDelegate>(code, options);
+                    
+                });
                 return (in Arguments a) => {
                     var alist = a.GetArgs();
-                    var clrList = new object[] { alist[0], alist[1], alist[2], alist[3].ToString(), alist[4].ToString() };
-                    script.Method.Invoke(null, clrList);
+                    @delegate(alist[0], alist[1], alist[2], alist[3].ToString(), alist[4].ToString());
                     return JSUndefined.Value;
                 };
             }
             return base.Compile(code, filePath, args);
         }
 
+    }
+
+    public class ModuleGlobals
+    {
+        public JSValue exports;
+        public JSValue require;
+        public JSValue module;
+        public string __filename;
+        public string __dirname;
     }
 }

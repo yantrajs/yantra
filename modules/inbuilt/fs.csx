@@ -1,5 +1,7 @@
+#r "..\..\WebAtoms.CoreJS\bin\Debug\netstandard2.0\WebAtoms.CoreJS.dll"
 using System;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Clr;
 
 public static class FSDir {
 
@@ -11,6 +13,7 @@ public static class FSModule {
 
     public static JSValue Stat(in Arguments a) {
         var (path, options) = a.Get2();
+        return JSUndefined.Value;
     }
 
 }

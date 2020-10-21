@@ -34,7 +34,7 @@ namespace WebAtoms.CoreJS.Core
             string code,
             bool main = false): base(context.ModulePrototype)
         {
-            this.ownProperties = new PropertySequence();
+            // this.ownProperties = new PropertySequence();
 
             this.filePath = filePath;
             this.dirPath = System.IO.Path.GetDirectoryName(filePath);
@@ -74,7 +74,10 @@ namespace WebAtoms.CoreJS.Core
                 }));
                 return exports;
             }
-            set => exports = value;
+            set
+            {
+                exports = value;
+            }
         }
 
         [Prototype("require")]

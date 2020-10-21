@@ -239,29 +239,29 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static MethodInfo _ConvertTo =
             type.InternalMethod(nameof(JSValue.ConvertTo), typeof(Type), typeof(object).MakeByRefType());
 
-        public static Expression ConvertTo(Expression jsValue, Expression type, Expression value)
+        public static Expression ConvertTo(Expression jsValue, Expression type, Expression outVar)
         {
-            return Expression.Call(jsValue, _ConvertTo, type, value);
+            return Expression.Call(jsValue, _ConvertTo, type, outVar);
         }
 
-        public static Expression ConvertTo(Expression jsValue, Type type, Expression value)
+        public static Expression ConvertTo(Expression jsValue, Type type, Expression outVar)
         {
-            return ConvertTo(jsValue, Expression.Constant(type), value);
+            return ConvertTo(jsValue, Expression.Constant(type), outVar);
         }
 
         public static Expression Coalesce(
             Expression jsValue, 
             Type type, 
-            Expression value,
+            Expression outVar,
             string memberName,
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
             return Expression.Condition(
-                ConvertTo(jsValue, Expression.Constant(type), value), 
+                ConvertTo(jsValue, Expression.Constant(type), outVar), 
                 // true
-                value,
+                outVar,
                 // false
                 JSExceptionBuilder.Throw(
                     $"{type.Name}.prototype.{memberName} called with object not of type {type}", 

@@ -93,6 +93,62 @@ namespace WebAtoms.CoreJS.Core
 
         #region Fill
 
+        private static (JSFunctionDelegate getter, JSFunctionDelegate setter) 
+            CreateProperty(this (PropertyInfo method, PrototypeAttribute attribute) m)
+        {
+            
+            var (property, p) = m;
+            if (property.GetAccessors().FirstOrDefault().IsStatic)
+            {
+                throw new NotSupportedException();
+            }
+
+            var name = property.DeclaringType.Name;
+            if (name.StartsWith("JS"))
+            {
+                name = name.Substring(2);
+            }
+
+            var peList = new List<ParameterExpression>();
+            ParameterExpression targetExp = null;
+            var toType = m.method.DeclaringType;
+            targetExp = Expression.Parameter(typeof(JSVariable));
+            var target = JSVariable.ValueExpression(targetExp);
+            // this is a set method...
+            peList.Add(targetExp);
+            var rType = property.PropertyType;
+
+            // wrap...
+            var pe = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            var peThis = ArgumentsBuilder.This(pe);
+            var arg1 = ArgumentsBuilder.Get1(pe);
+            var coalesce = Expression.Coalesce(
+                Expression.TypeAs(peThis, toType),
+                Expression.Throw(
+                    JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
+
+            JSFunctionDelegate getter = null;
+            JSFunctionDelegate setter = null;
+
+            if (property.CanRead)
+            {
+                var getterBody = Expression.Property(coalesce, property);
+                var getterLambda = Expression.Lambda<JSFunctionDelegate>(getterBody, pe);
+                getter = getterLambda.Compile();
+            }
+            if (property.CanWrite)
+            {
+                var setterBody = Expression.Assign(Expression.Property(coalesce, property), 
+                    JSValueBuilder.Coalesce(arg1, rType, target, p.Name.ToString()));
+                var setterLambda = Expression.Lambda<JSFunctionDelegate>(Expression.Block(peList,
+                    Expression.Assign(targetExp, JSVariableBuilder.New("a")),
+                    setterBody), pe);
+                setter = setterLambda.Compile();
+            }
+            return (getter, setter);
+        }
+
+
         private static JSFunctionDelegate CreateJSFunctionDelegate(this (MethodInfo method, PrototypeAttribute attribute) m)
         {
             var (method, p) = m;
@@ -105,18 +161,29 @@ namespace WebAtoms.CoreJS.Core
                 name = name.Substring(2);
             }
 
+            var peList = new List<ParameterExpression>();
+            ParameterExpression targetExp = null;
             var toType = m.method.DeclaringType;
+            var paramList = m.method.GetParameters();
+            if (paramList?.Length > 0)
+            {
+                targetExp = Expression.Parameter(typeof(JSValue));
+                // this is a set method...
+                peList.Add(targetExp);
+            }
+            var rType = m.method.GetParameters()?.FirstOrDefault()?.ParameterType;
 
             // wrap...
             var pe = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var peThis = ArgumentsBuilder.This(pe);
+            var arg1 = ArgumentsBuilder.Get1(pe);
             var coalesce = Expression.Coalesce(
                 Expression.TypeAs(peThis, toType), 
                 Expression.Throw(
                     JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
-            var body = Expression.Block( method.GetParameters()?.Length == 0
+            var body = Expression.Block( peList, targetExp == null
                 ? Expression.Call(coalesce, method)
-                : Expression.Call(coalesce, method, peThis),
+                : Expression.Call(coalesce, method, JSValueBuilder.Coalesce(arg1, rType, targetExp, p.Name.ToString())),
                 peThis);
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, pe);
             return lambda.Compile();
@@ -261,17 +328,7 @@ namespace WebAtoms.CoreJS.Core
                 {
                     var a = property.attribute;
                     var name = a.Name;
-                    JSFunctionDelegate getter = null;
-                    JSFunctionDelegate setter = null;
-                    // instance property...
-                    if (property.property.CanRead)
-                    {
-                        getter = (property.property.GetMethod, a).CreateJSFunctionDelegate();
-                    }
-                    if(property.property.CanWrite)
-                    {
-                        setter = (property.property.SetMethod, a).CreateJSFunctionDelegate();
-                    }
+                    var (getter, setter) = (property.property, a).CreateProperty();
                     p.DefineProperty(name, JSProperty.Property(name, getter, setter, a.ConfigurableProperty));
                 }
             }

@@ -44,8 +44,7 @@ namespace WebAtoms.CoreJS.Core.Clr
                 value = this.type;
                 return true;
             }
-            value = null;
-            return false;
+            return base.ConvertTo(type, out value);
         }
 
         internal static void Generate(JSObject target, Type type, bool isStatic)
@@ -162,7 +161,8 @@ namespace WebAtoms.CoreJS.Core.Clr
                     Expression.Property(
                         convert, property) ));
 
-            return Expression.Lambda<JSFunctionDelegate>(body, args).Compile();
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
 
         }
 
@@ -183,7 +183,8 @@ namespace WebAtoms.CoreJS.Core.Clr
                         convert, property), 
                     clrArg1), a1);
 
-            return Expression.Lambda<JSFunctionDelegate>(body, args).Compile();
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
         }
 
 

@@ -33,7 +33,14 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual bool IsFunction => false;
 
-        public virtual bool ConvertTo(Type type, out object value) => throw new NotImplementedException();
+        public virtual bool ConvertTo(Type type, out object value) {
+            if (type == typeof(JSValue)) {
+                value = this;
+                return true;
+            }
+            value = null;
+            return false;
+        }
 
         public bool CanBeNumber
         {

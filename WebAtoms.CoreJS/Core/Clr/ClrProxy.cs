@@ -27,8 +27,7 @@ namespace WebAtoms.CoreJS.Core.Clr
                 value = this.value;
                 return true;
             }
-            value = null;
-            return false;
+            return base.ConvertTo(type, out value);
         }
 
         public static JSValue Marshal(object value)

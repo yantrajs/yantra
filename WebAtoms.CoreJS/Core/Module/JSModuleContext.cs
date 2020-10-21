@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -10,6 +11,14 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
+
+    public delegate void JSModuleDelegate(
+    JSValue exports,
+    JSValue require,
+    JSValue module,
+    string __filename,
+    string __dirname
+    );
 
     internal class ModuleCache: ConcurrentSharedStringTrie<JSModule>
     {
@@ -61,7 +70,7 @@ namespace WebAtoms.CoreJS.Core
                     return null;
                 foreach (var e in extensions)
                 {
-                    var cpE = Combine(cFolder, cR, false);
+                    var cpE = Combine(cFolder, cR + e, false);
                     if (cpE != null)
                         return cpE;
                 }
@@ -87,6 +96,14 @@ namespace WebAtoms.CoreJS.Core
 
         void UpdatePaths(string[] paths = null)
         {
+            if (paths != null)
+            {
+                var np = new string[paths.Length + 2];
+                np[0] = this.CurrentPath;
+                np[1] = this.CurrentPath + "/node_modules";
+                Array.Copy(paths, 0, np, 2, paths.Length);
+                paths = np;
+            }
             this.paths = paths ?? new string[] { 
                 this.CurrentPath,
                 this.CurrentPath + "/node_modules",
