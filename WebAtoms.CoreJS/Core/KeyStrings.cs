@@ -67,6 +67,8 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString TypeError;
         public readonly static KeyString URIError;
 
+        public readonly static KeyString ArrayBuffer;
+
         public readonly static KeyString Map;
         public readonly static KeyString Set;
         public readonly static KeyString WeakRef;

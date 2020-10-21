@@ -7,8 +7,11 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core.Runtime
 {
-    public class JSNumberStatic
+    public static class JSNumberStatic
+
     {
+
+
         [Static("isFinite")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsFinite(in Arguments a)

@@ -128,21 +128,29 @@ namespace WebAtoms.CoreJS.Core.Runtime
         public static JSString ToLocaleString(in Arguments a)
         {
             var n = a.This.ToNumber();
-            if (a.Length > 0)
+            var (locale, format) = a.Get2();
+            if (!locale.IsNullOrUndefined)
             {
-                var p1 = a.Get1();
-                switch (p1)
+                string number;
+                var culture = CultureInfo.GetCultureInfo(locale.ToString());
+                if (format.IsNullOrUndefined)
                 {
-                    case JSNull _:
-                    case JSUndefined _:
-                        throw JSContext.Current.NewTypeError($"Cannot convert undefined or null to object");
+                    number = n.value.ToString("N2", culture);
                 }
-                var text = p1.ToString();
-                var ci = CultureInfo.GetCultureInfo(text);
-                if (ci == null)
-                    throw JSContext.Current.NewRangeError("Incorrect locale information provided");
-                return new JSString(n.value.ToString(ci.NumberFormat));
+                else
+                {
+                    if (format.IsString)
+                    {
+                        number = n.value.ToString(format.ToString(), culture);
+                    }
+                    else
+                    {
+                        throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats");
+                    }
+                }
+
             }
+
             return new JSString(n.value.ToString("N2"));
         }
     }
