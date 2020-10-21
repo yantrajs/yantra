@@ -6,35 +6,35 @@ using System.Threading;
 
 namespace WebAtoms.CoreJS
 {
-    public class CallStack
-    {
+    //public class CallStack
+    //{
 
-        static AsyncLocal<CallStack> _current = new AsyncLocal<CallStack>();
+    //    static AsyncLocal<CallStack> _current = new AsyncLocal<CallStack>();
 
-        public static CallStack Current => (_current.Value ?? (_current.Value = new CallStack()));
+    //    public static CallStack Current => (_current.Value ?? (_current.Value = new CallStack()));
 
-        Stack<INode> stack = new Stack<INode>();
+    //    Stack<INode> stack = new Stack<INode>();
 
-        public IDisposable Push(INode node)
-        {
-            stack.Push(node);
-            return new DisposableAction(() => stack.Pop());
-        }
+    //    public IDisposable Push(INode node)
+    //    {
+    //        stack.Push(node);
+    //        return new DisposableAction(() => stack.Pop());
+    //    }
 
 
-        public struct DisposableAction : IDisposable
-        {
+    //    public struct DisposableAction : IDisposable
+    //    {
 
-            readonly Action action;
-            public DisposableAction(Action action)
-            {
-                this.action = action;
-            }
+    //        readonly Action action;
+    //        public DisposableAction(Action action)
+    //        {
+    //            this.action = action;
+    //        }
 
-            public void Dispose()
-            {
-                action();
-            }
-        }
-    }
+    //        public void Dispose()
+    //        {
+    //            action();
+    //        }
+    //    }
+    //}
 }

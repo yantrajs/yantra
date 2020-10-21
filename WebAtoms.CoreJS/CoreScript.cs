@@ -95,12 +95,12 @@ namespace WebAtoms.CoreJS
                 new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
                     Range = true,
                     Loc = true,
-                    SourceType = SourceType.Script
+                    // SourceType = SourceType.Script
                 });
 
             // add top level...
 
-            using (var fx = this.scope.Push(new FunctionScope((IFunctionDeclaration)null)))
+            using (var fx = this.scope.Push(new FunctionScope((IFunction)null)))
             {
                 var jScript = parser.ParseScript();
 
@@ -236,7 +236,7 @@ namespace WebAtoms.CoreJS
                             members.Add(expHolder);
                             expHolder.Static = method.Static;
                         }
-                        expHolder.Getter = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar);
+                        expHolder.Getter = CreateFunction(property.Value as IFunction, superPrototypeVar);
                         break;
                     case PropertyKind.Set:
                         if (!cache.TryGetValue(name, out expHolder))
@@ -247,16 +247,16 @@ namespace WebAtoms.CoreJS
                             members.Add(expHolder);
                             expHolder.Static = method.Static;
                         }
-                        expHolder.Setter = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar);
+                        expHolder.Setter = CreateFunction(property.Value as IFunction, superPrototypeVar);
                         break;
                     case PropertyKind.Constructor:
-                        retValue = CreateFunction(property.Value.As<IFunction>(), superVar, true, id?.Name);
+                        retValue = CreateFunction(property.Value as IFunction, superVar, true, id?.Name);
                         break;
                     case PropertyKind.Method:
                         members.Add(new ExpressionHolder()
                         {
                             Key = KeyOfName(name),
-                            Value = CreateFunction(property.Value.As<IFunction>(), superPrototypeVar),
+                            Value = CreateFunction(property.Value as IFunction, superPrototypeVar),
                             Static = method.Static
                         });
                         break;
@@ -300,8 +300,9 @@ namespace WebAtoms.CoreJS
             string className = null
             )
         {
-            var code = Code.Substring(functionDeclaration.Range.Start, 
-                functionDeclaration.Range.End - functionDeclaration.Range.Start);
+            var node = functionDeclaration as Node;
+            var code = Code.Substring(node.Range.Start, 
+                node.Range.End - node.Range.Start);
 
             // get text...
 
@@ -355,10 +356,10 @@ namespace WebAtoms.CoreJS
                         ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, v.Name));
                     i++;
                 }
-
-                if(functionDeclaration.HoistingScope != null)
+                var functionStatement = functionDeclaration as Statement;
+                if(functionStatement.HoistingScope != null)
                 {
-                    foreach(var fh in functionDeclaration.HoistingScope.FunctionDeclarations)
+                    foreach(var fh in functionStatement.HoistingScope.FunctionDeclarations)
                     {
                         var name = fh.Id.Name;
                         if (string.IsNullOrEmpty(name))
@@ -367,7 +368,7 @@ namespace WebAtoms.CoreJS
                         }
                         s.CreateVariable(name, JSVariableBuilder.New(name));
                     }
-                    foreach(var vh in functionDeclaration.HoistingScope.VariableDeclarations)
+                    foreach(var vh in functionStatement.HoistingScope.VariableDeclarations)
                     {
                         foreach(var vd in vh.Declarations)
                         {
@@ -407,7 +408,7 @@ namespace WebAtoms.CoreJS
 
                 var fxName = functionDeclaration.Id?.Name ?? "inline";
 
-                var point = functionDeclaration.Location.Start; // this.Code.Position(functionDeclaration.Range);
+                var point = functionStatement.Location.Start; // this.Code.Position(functionDeclaration.Range);
 
                 var lexicalScope =
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar },
@@ -449,7 +450,7 @@ namespace WebAtoms.CoreJS
         }
 
         private Exp DebugExpression<T, TR>(T ast, Func<TR> exp)
-            where T: INode
+            where T: Node
             where TR: Exp
         {
             if (System.Diagnostics.Debugger.IsAttached)
@@ -573,7 +574,7 @@ namespace WebAtoms.CoreJS
         }
 
         private Exp CreateAssignment(
-            IArrayPatternElement pattern, 
+            Expression pattern, 
             Exp init, 
             bool createVariable = false,
             bool newScope = false) {
@@ -615,7 +616,7 @@ namespace WebAtoms.CoreJS
                                     case Identifier vid:
                                         inits.Add(CreateAssignment(vid, start, true, newScope));
                                         break;
-                                    case IArrayPatternElement vp:
+                                    case BindingPattern vp:
                                         inits.Add(CreateAssignment(vp, start, true, newScope));
                                         break;
                                     default:
@@ -675,7 +676,7 @@ namespace WebAtoms.CoreJS
                                             inits.Add(Exp.Assign(spid, arrayVar.Expression));
                                         }
                                         break;
-                                    case IArrayPatternElement ape:
+                                    case BindingPattern ape:
                                         // nested array ...
                                         // nested object ...
                                         var check = IElementEnumeratorBuilder.MoveNext(en, item.Expression);
@@ -833,9 +834,9 @@ namespace WebAtoms.CoreJS
                             case Esprima.Ast.Statement stmt:
                                 body.Add(VisitStatement(stmt));
                                 break;
-                            case Esprima.Ast.Expression exp:
-                                body.Add(VisitExpression(exp));
-                                break;
+                            //case Esprima.Ast.Expression exp:
+                            //    body.Add(VisitExpression(exp));
+                            //    break;
                             default:
                                 throw new InvalidOperationException();
                         }
@@ -1789,7 +1790,7 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        private Exp VisitStatements(in NodeList<IStatementListItem> body)
+        private Exp VisitStatements(in NodeList<Statement> body)
         {
             return Exp.Block(body.Select(x => VisitStatement((Statement)x)));
         }
@@ -1800,8 +1801,8 @@ namespace WebAtoms.CoreJS
                 blockStatement , () => VisitStatements(blockStatement.Body));
         }
 
-        private Exp CreateBlock(in NodeList<IStatementListItem> body) {
-            var items = new List<IStatementListItem>();
+        private Exp CreateBlock(in NodeList<Statement> body) {
+            var items = new List<Statement>();
             foreach (var stmt in body.ToList())
             {
                 if (stmt is FunctionDeclaration fx && !string.IsNullOrEmpty(fx.Id?.Name))
