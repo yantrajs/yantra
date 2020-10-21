@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 {
     public class TestFolderAttribute: TestMethodAttribute
     {
-        readonly string root;
+        protected readonly string root;
 
         readonly bool saveLambda;
 
@@ -61,7 +61,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             return result;
         }
 
-        public IEnumerable<FileInfo> GetData()
+        public virtual IEnumerable<FileInfo> GetData()
         {
             var dir1 = new DirectoryInfo("../../../Generator/Files/" + root);
             return dir1.EnumerateFiles("*.js", new EnumerationOptions { RecurseSubdirectories = true });
