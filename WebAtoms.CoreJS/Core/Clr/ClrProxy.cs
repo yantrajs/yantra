@@ -71,6 +71,11 @@ namespace WebAtoms.CoreJS.Core.Clr
             return base.ConvertTo(type, out value);
         }
 
+        /// <summary>
+        /// Can be improved in future !!
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static JSValue Marshal(object value)
         {
             switch (value)

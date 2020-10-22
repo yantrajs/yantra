@@ -67,7 +67,6 @@ namespace WebAtoms.CoreJS.Core
         JSValue exports;
         [Prototype("exports")]
         public JSValue Exports {
-            [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
             get {
                 var factory = this.factory;
                 this.factory = null;
@@ -76,7 +75,6 @@ namespace WebAtoms.CoreJS.Core
                 }));
                 return exports;
             }
-            [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
             set
             {
                 if (value == null || value.IsNullOrUndefined)
