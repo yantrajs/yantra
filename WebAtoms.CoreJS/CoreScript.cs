@@ -1754,18 +1754,22 @@ namespace WebAtoms.CoreJS
 
                 bool hasVarDeclarations = scope.IsFunctionScope || scope.Variables.Any();
 
+
+                List<Exp> pushedInits = new List<Exp>();
+
                 if (varToPush != null)
                 {
                     var list = VisitVariableDeclaration(varToPush);
-                    stmtList.AddRange(list);
+                    pushedInits.AddRange(list);
                     top.PushToNewScope = null;
                     hasVarDeclarations = true;
                 }
 
                 var visited = factory();
 
-                vList.AddRange(scope.VariableParameters);
                 stmtList.AddRange(scope.InitList);
+                vList.AddRange(scope.VariableParameters);
+                stmtList.AddRange(pushedInits);
                 stmtList.Add(visited);
 
                 return Exp.Block(vList, Exp.TryFinally(
