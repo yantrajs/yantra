@@ -17,6 +17,7 @@ using WebAtoms.CoreJS.Core.Objects;
 using WebAtoms.CoreJS.Core.Set;
 using WebAtoms.CoreJS.Core.Weak;
 
+
 namespace WebAtoms.CoreJS.Core
 {
 
@@ -83,6 +84,8 @@ namespace WebAtoms.CoreJS.Core
         internal readonly JSObject BigIntPrototype;
 
         public readonly JSObject ArrayBufferPrototype;
+
+        public readonly JSObject Int8ArrayPrototype;
 
         public readonly JSObject JSON;
 
@@ -161,6 +164,7 @@ namespace WebAtoms.CoreJS.Core
             GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
             BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
             ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
+            Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 

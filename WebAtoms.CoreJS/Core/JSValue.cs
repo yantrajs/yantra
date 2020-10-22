@@ -81,9 +81,9 @@ namespace WebAtoms.CoreJS.Core {
 
         public abstract JSValue TypeOf();
 
-        public virtual int IntValue => (int)this.DoubleValue;
+        public virtual int IntValue => (int)(uint)this.DoubleValue;
 
-        public virtual long BigIntValue => (long)this.DoubleValue;
+        public virtual long BigIntValue => (long)(ulong)this.DoubleValue;
 
         internal JSObject prototypeChain;
 

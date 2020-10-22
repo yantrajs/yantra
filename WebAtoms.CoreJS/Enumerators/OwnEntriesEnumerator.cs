@@ -13,6 +13,40 @@ using WebAtoms.CoreJS.Extensions;
 namespace WebAtoms.CoreJS
 {
 
+    public struct ListElementEnumerator : IElementEnumerator
+    {
+        private List<JSValue>.Enumerator en;
+
+        public ListElementEnumerator(in List<JSValue>.Enumerator en)
+        {
+            this.en = en;
+        }
+        public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+        {
+            if (en.MoveNext()) {
+                hasValue = true;
+                index = 0;
+                value = en.Current;
+                return true;
+            }
+            hasValue = false;
+            index = 0;
+            value = null;
+            return false;
+        }
+
+        public bool MoveNext(out JSValue value)
+        {
+            if (en.MoveNext())
+            {
+                value = en.Current;
+                return true;
+            }
+            value = null;
+            return false;
+        }
+    }
+
     public struct ClrObjectEnumerator<T> : IEnumerator<T>
     {
         private IElementEnumerator en;

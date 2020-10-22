@@ -100,17 +100,23 @@ namespace WebAtoms.CoreJS.Core.Typed
                     bytesPerElement = 8;
                     break;
             }
-            if (length == -1)
-            {
-                length = buffer.buffer.Length - byteOffset;
-                this.length = length;
-            } else
-            {
+            if (buffer == null) {
+                buffer = new JSArrayBuffer(length * bytesPerElement);
                 this.length = length;
             }
-            if (((length - byteOffset) % bytesPerElement) != 0)
-            {
-                throw JSContext.Current.NewRangeError($"byte length of {this.GetType().Name} should be multiple of {bytesPerElement}");
+            else { 
+                if (length == -1)
+                {
+                    length = buffer.buffer.Length - byteOffset;
+                    this.length = length / bytesPerElement;
+                } else
+                {
+                    this.length = length;
+                }
+                if (((length - byteOffset) % bytesPerElement) != 0)
+                {
+                    throw JSContext.Current.NewRangeError($"byte length of {this.GetType().Name} should be multiple of {bytesPerElement}");
+                }
             }
 
             this.buffer = buffer;
@@ -233,6 +239,26 @@ namespace WebAtoms.CoreJS.Core.Typed
             if (Object.ReferenceEquals(this, value))
                 return JSBoolean.True;
             return JSBoolean.False;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < length; i++)
+            {
+                if (i != 0)
+                {
+                    sb.Append(',');
+                }
+
+                sb.Append(this[(uint)i].ToString());
+            }
+            return sb.ToString();
+        }
+
+        public override string ToDetailString()
+        {
+            return this.ToString();
         }
 
     }
