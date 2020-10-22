@@ -13,9 +13,12 @@ public class YProcess {
     public static JSValue Arch
         => new JSString(System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"));
 
+    public static JSValue Platform
+        => new JSString(System.Environment.OSVersion.Platform.ToString());
+
 }
 
-void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
+static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
 
     module["exports"] = ClrType.From(typeof(YProcess));
 

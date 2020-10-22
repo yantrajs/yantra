@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Threading;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
@@ -38,7 +39,9 @@ namespace Yantra
                 JSModuleDelegate @delegate = null;
                 AsyncPump.Run(async () =>
                 {
-                    if (System.IO.File.Exists(filePath + ".dll"))
+                    var originalFile = new FileInfo(filePath);
+                    var dllFile = new FileInfo(filePath + ".dll");
+                    if (dllFile.Exists && dllFile.LastWriteTimeUtc >= originalFile.LastWriteTimeUtc)
                     {
                         var returnType = typeof(Task<JSModuleDelegate>);
                         var a = Assembly.LoadFile(filePath + ".dll");

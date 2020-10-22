@@ -152,14 +152,10 @@ namespace WebAtoms.CoreJS.Core.Clr
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var target = Expression.Parameter(property.DeclaringType);
-            var convert = isStatic 
-                ? null 
-                : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), property.DeclaringType, target, property.Name);
-
             var body = Expression.Block(new ParameterExpression[] { target }, 
                 ClrProxyBuilder.Marshal( 
                     Expression.Property(
-                        convert, property) ));
+                        isStatic ? null : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType), property) ));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
             return lambda.Compile();
@@ -173,7 +169,7 @@ namespace WebAtoms.CoreJS.Core.Clr
             var target = Expression.Parameter(property.PropertyType);
             var convert = isStatic
                 ? null
-                : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), property.DeclaringType, target, property.Name);
+                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
 
             var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
 

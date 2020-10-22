@@ -18,8 +18,10 @@ public static class FSModule {
 
 }
 
-void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
+static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
 
     module["exports"] = ClrType.From(typeof(FSModule));
 
 }
+
+return (JSModuleDelegate)Module;
