@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core.Clr
 {
@@ -13,6 +14,46 @@ namespace WebAtoms.CoreJS.Core.Clr
         {
             this.value = value;
             this.prototypeChain = ClrType.From(value.GetType()).prototype;
+        }
+
+        public override bool BooleanValue => this.value is bool bv 
+            ? bv
+            : this.DoubleValue != 0;
+
+        /// <summary>
+        /// Todo improvise...
+        /// </summary>
+        public override double DoubleValue { 
+            get
+            {
+                switch(value)
+                {
+                    case double @double:
+                        return @double;
+                    case decimal @decimal:
+                        return (double)@decimal;
+                    case float @float:
+                        return @float;
+                    case int @int:
+                        return @int;
+                    case uint @int:
+                        return @int;
+                    case long @long:
+                        return @long;
+                    case ulong @ulong:
+                        return @ulong;
+                    case short @short:
+                        return @short;
+                    case ushort @ushort:
+                        return @ushort;
+                    case byte @byte:
+                        return @byte;
+                    case sbyte @sbyte:
+                        return @sbyte;
+                }
+                // coerce to double...
+                return NumberParser.CoerceToNumber(value.ToString());
+            }
         }
 
         public override string ToString()
@@ -27,10 +68,14 @@ namespace WebAtoms.CoreJS.Core.Clr
                 value = this.value;
                 return true;
             }
-            value = null;
-            return false;
+            return base.ConvertTo(type, out value);
         }
 
+        /// <summary>
+        /// Can be improved in future !!
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static JSValue Marshal(object value)
         {
             switch (value)
@@ -68,6 +113,67 @@ namespace WebAtoms.CoreJS.Core.Clr
             }
             return new ClrProxy(value);
         }
+
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (Object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            if (value is  ClrProxy proxy)
+            {
+                if (this.value == proxy.value)
+                    return JSBoolean.True;
+                if (this.value.Equals(proxy.value))
+                    return JSBoolean.True;
+                // convert to string to compare...
+                if (this.value.ToString() == proxy.value.ToString())
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
+
+        public override JSBoolean StrictEquals(JSValue value)
+        {
+            if (Object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            switch(value)
+            {
+                case ClrProxy proxy:
+                    if (this.value == proxy.value)
+                        return JSBoolean.True;
+                    if (this.value.Equals(proxy.value))
+                        return JSBoolean.True;
+                    // convert to string to compare...
+                    if (this.value.ToString() == proxy.value.ToString())
+                        return JSBoolean.True;
+                    break;
+                case JSString @string when this.value.ToString() == @string.value:
+                    return JSBoolean.True;
+                case JSNumber number:
+                    switch (this.value)
+                    {
+                        case int @int when @int == (int)number.value:
+                            return JSBoolean.True;
+                        case uint @uint when @uint == (uint)number.value:
+                            return JSBoolean.True;
+                        case long @long when @long == (long)number.value:
+                            return JSBoolean.True;
+                        case ulong @ulong when @ulong == (ulong)number.value:
+                            return JSBoolean.True;
+                        case double @double when @double == number.value:
+                            return JSBoolean.True;
+                        case float @float when @float == (float)number.value:
+                            return JSBoolean.True;
+                    }
+                    break;
+            }
+
+            // in case left side is not ClrProxy but maybe a string/number/bool/bigint
+
+
+            return JSBoolean.False;
+        }
+
+
 
         internal override IElementEnumerator GetElementEnumerator()
         {

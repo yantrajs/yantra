@@ -141,6 +141,8 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0)
         {
+            if (a0 == null)
+                throw new ArgumentNullException(nameof(a0));
             This = @this;
             Length = 1;
             Arg0 = a0;

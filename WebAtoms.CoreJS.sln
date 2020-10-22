@@ -14,7 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Yantra.md = Yantra.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScriptRunner", "ScriptRunner\ScriptRunner.csproj", "{832F4813-F69E-49EF-8F84-65073D4B3188}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yantra", "Yantra\Yantra.csproj", "{0492DB0B-F6B2-4531-B419-C3108912B9EB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraTests", "YantraTests\YantraTests.csproj", "{EF228D02-9625-4C50-B0ED-E0812394E1DA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Esprima", "esprima-dotnet\src\Esprima\Esprima.csproj", "{1EECA7E5-1AB3-4B9F-BF76-303050FE884D}"
 EndProject

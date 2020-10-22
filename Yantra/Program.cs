@@ -5,7 +5,7 @@ using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
 
-namespace ScriptRunner
+namespace Yantra
 {
     public class Program
     {

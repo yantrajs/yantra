@@ -44,8 +44,7 @@ namespace WebAtoms.CoreJS.Core.Clr
                 value = this.type;
                 return true;
             }
-            value = null;
-            return false;
+            return base.ConvertTo(type, out value);
         }
 
         internal static void Generate(JSObject target, Type type, bool isStatic)
@@ -153,16 +152,13 @@ namespace WebAtoms.CoreJS.Core.Clr
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var target = Expression.Parameter(property.DeclaringType);
-            var convert = isStatic 
-                ? null 
-                : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), property.DeclaringType, target, property.Name);
-
             var body = Expression.Block(new ParameterExpression[] { target }, 
                 ClrProxyBuilder.Marshal( 
                     Expression.Property(
-                        convert, property) ));
+                        isStatic ? null : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType), property) ));
 
-            return Expression.Lambda<JSFunctionDelegate>(body, args).Compile();
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
 
         }
 
@@ -173,9 +169,9 @@ namespace WebAtoms.CoreJS.Core.Clr
             var target = Expression.Parameter(property.PropertyType);
             var convert = isStatic
                 ? null
-                : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), property.DeclaringType, target, property.Name);
+                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
 
-            var clrArg1 = JSValueBuilder.Coalesce(a1, property.PropertyType, target, property.Name);
+            var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
 
             var body = Expression.Block(new ParameterExpression[] { target },
                 Expression.Assign(
@@ -183,7 +179,8 @@ namespace WebAtoms.CoreJS.Core.Clr
                         convert, property), 
                     clrArg1), a1);
 
-            return Expression.Lambda<JSFunctionDelegate>(body, args).Compile();
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
         }
 
 

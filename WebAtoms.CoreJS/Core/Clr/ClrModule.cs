@@ -22,6 +22,8 @@ namespace WebAtoms.CoreJS.Core.Clr
         public static JSObject Default = JSObject.NewWithProperties()
             .AddProperty(KeyStrings.@default, ClrType.From(typeof(ClrModule)));
 
+        public static JSValue Temp1 { get; set; } = new JSNumber(1);
+
         /// <summary>
         /// Returns JavaScript native class for C# Type Equivalent, which you can use
         /// to create the object of given type and access methods/properties.

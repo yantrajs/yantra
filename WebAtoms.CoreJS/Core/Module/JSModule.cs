@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
@@ -34,12 +35,12 @@ namespace WebAtoms.CoreJS.Core
             string code,
             bool main = false): base(context.ModulePrototype)
         {
-            this.ownProperties = new PropertySequence();
+            // this.ownProperties = new PropertySequence();
 
             this.filePath = filePath;
             this.dirPath = System.IO.Path.GetDirectoryName(filePath);
 
-            this.factory = CoreScript.Compile(code, filePath, new List<string> { 
+            this.factory = context.Compile(code, filePath, new List<string> {
                 "exports",
                 "require",
                 "module",
@@ -74,7 +75,14 @@ namespace WebAtoms.CoreJS.Core
                 }));
                 return exports;
             }
-            set => exports = value;
+            set
+            {
+                if (value == null || value.IsNullOrUndefined)
+                {
+                    throw JSContext.Current.NewTypeError("Exports cannot be set to null or undefined");
+                }
+                exports = value;
+            }
         }
 
         [Prototype("require")]
