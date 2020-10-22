@@ -4,7 +4,11 @@ using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Threading;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
 
 namespace Yantra
@@ -30,17 +34,33 @@ namespace Yantra
         {
             if (filePath.EndsWith(".csx"))
             {
-                var options = ScriptOptions.Default
-                        .WithFilePath(filePath)
-                        .AddReferences(typeof(JSValue).Assembly, typeof(YantraContext).Assembly)
-                        .WithOptimizationLevel(OptimizationLevel.Debug);
 
                 JSModuleDelegate @delegate = null;
+                AsyncPump.Run(async () =>
+                {
+                    if (System.IO.File.Exists(filePath + ".dll"))
+                    {
+                        var returnType = typeof(Task<JSModuleDelegate>);
+                        var a = Assembly.LoadFile(filePath + ".dll");
+                        var p = a.GetTypes()
+                            .SelectMany(x => x.GetMethods())
+                            .FirstOrDefault(x => x.IsStatic && x.ReturnType == returnType);
+                        var sa = new object[2];
+                        var r = p.Invoke(null, new object[] { sa });
+                        @delegate =  await (Task<JSModuleDelegate>)r;
+                    } else { 
+                        var options = ScriptOptions.Default
+                                .WithFilePath(filePath)
+                                .AddReferences(typeof(JSValue).Assembly, typeof(YantraContext).Assembly)
+                                .WithOptimizationLevel(OptimizationLevel.Debug);
 
-                AsyncPump.Run(async () => {
 
-                    @delegate = await CSharpScript.EvaluateAsync<JSModuleDelegate>(code, options);
-                    
+
+                            var r = await CSharpScript.RunAsync<JSModuleDelegate>(code, options);
+                            @delegate = r.ReturnValue;
+                            r.Script.GetCompilation().Emit(filePath + ".dll");
+
+                    }
                 });
                 return (in Arguments a) => {
                     var alist = a.GetArgs();

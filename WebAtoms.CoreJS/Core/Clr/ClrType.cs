@@ -175,7 +175,7 @@ namespace WebAtoms.CoreJS.Core.Clr
                 ? null
                 : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), property.DeclaringType, target, property.Name);
 
-            var clrArg1 = JSValueBuilder.Coalesce(a1, property.PropertyType, target, property.Name);
+            var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
 
             var body = Expression.Block(new ParameterExpression[] { target },
                 Expression.Assign(

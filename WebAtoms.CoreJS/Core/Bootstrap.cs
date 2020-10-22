@@ -146,6 +146,13 @@ namespace WebAtoms.CoreJS.Core
                     setterBody), pe);
                 setter = setterLambda.Compile();
             }
+            setter = (in Arguments a) =>
+            {
+                var f = a.Get1();
+                var tx = f.ForceConvert(property.PropertyType);
+                property.SetValue(a.This, tx);
+                return f;
+            };
             return (getter, setter);
         }
 
