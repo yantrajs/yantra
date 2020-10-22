@@ -106,6 +106,9 @@ namespace WebAtoms.CoreJS
 
                 var lScope = fx.Scope;
 
+                ScopeAnalyzer scopeAnalyzer = new ScopeAnalyzer();
+                scopeAnalyzer.Visit(jScript);
+
 
                 var te = fx.ThisExpression;
 
@@ -179,6 +182,13 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitProgram(Esprima.Ast.Program program)
         {
+            if (program.HoistingScope != null)
+            {
+                foreach(var v in program.HoistingScope)
+                {
+                    this.scope.Top.CreateVariable(v, JSVariableBuilder.New(v));
+                }
+            }
             return CreateBlock(program.Body);
         }
 
@@ -346,8 +356,6 @@ namespace WebAtoms.CoreJS
                 var pList = functionDeclaration.Params.OfType<Identifier>();
                 int i = 0;
 
-                
-
                 var argumentElements = args;
 
                 foreach (var v in pList)
@@ -356,29 +364,7 @@ namespace WebAtoms.CoreJS
                         ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, v.Name));
                     i++;
                 }
-                var functionStatement = functionDeclaration as Statement;
-                if(functionStatement.HoistingScope != null)
-                {
-                    foreach(var fh in functionStatement.HoistingScope.FunctionDeclarations)
-                    {
-                        var name = fh.Id.Name;
-                        if (string.IsNullOrEmpty(name))
-                        {
-                            continue;
-                        }
-                        s.CreateVariable(name, JSVariableBuilder.New(name));
-                    }
-                    foreach(var vh in functionStatement.HoistingScope.VariableDeclarations)
-                    {
-                        foreach(var vd in vh.Declarations)
-                        {
-                            s.CreateVariable(vd.Id.As<Identifier>().Name,
-                                vd.Init == null
-                                ? null
-                                : VisitExpression(vd.Init), vh.Kind != VariableDeclarationKind.Var);
-                        }
-                    }
-                }
+                var functionStatement = functionDeclaration as Node;
 
                 Exp lambdaBody = null;
                 switch (functionDeclaration.Body)
@@ -1766,28 +1752,27 @@ namespace WebAtoms.CoreJS
                                 FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column))
                 };
 
+                bool hasVarDeclarations = scope.IsFunctionScope || scope.Variables.Any();
+
                 if (varToPush != null)
                 {
                     var list = VisitVariableDeclaration(varToPush);
                     stmtList.AddRange(list);
                     top.PushToNewScope = null;
+                    hasVarDeclarations = true;
                 }
 
                 var visited = factory();
 
-                if (!scope.IsFunctionScope && !scope.VariableParameters.Any())
-                {
-                    return visited;
-                }
-
                 vList.AddRange(scope.VariableParameters);
-
+                stmtList.AddRange(scope.InitList);
                 stmtList.Add(visited);
 
                 return Exp.Block(vList, Exp.TryFinally(
                     Exp.Block(stmtList).ToJSValue()
                     , IDisposableBuilder.Dispose(scope.Scope)));
             }
+
         }
 
         private Exp VisitStatements(in NodeList<Statement> body)
@@ -1798,21 +1783,22 @@ namespace WebAtoms.CoreJS
         protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
         {
             return this.NewLexicalScope(new FunctionScope(this.scope.Top), 
-                blockStatement , () => VisitStatements(blockStatement.Body));
+                blockStatement , () =>
+                {
+
+                    if (blockStatement.HoistingScope != null)
+                    {
+                        foreach (var v in blockStatement.HoistingScope)
+                        {
+                            this.scope.Top.CreateVariable(v, JSVariableBuilder.New(v));
+                        }
+                    }
+
+                    return VisitStatements(blockStatement.Body);
+                });
         }
 
         private Exp CreateBlock(in NodeList<Statement> body) {
-            var items = new List<Statement>();
-            foreach (var stmt in body.ToList())
-            {
-                if (stmt is FunctionDeclaration fx && !string.IsNullOrEmpty(fx.Id?.Name))
-                {
-                    var name = fx.Id.Name;
-                    this.scope.Top.CreateVariable(name);
-                }
-                items.Add(stmt);
-            }
-
             var visitedList = body.Select(a => VisitStatement((Statement)a)).ToList();
 
             if (visitedList.Any())

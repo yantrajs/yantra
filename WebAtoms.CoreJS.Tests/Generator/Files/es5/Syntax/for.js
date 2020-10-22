@@ -24,7 +24,7 @@ assert.strictEqual("012", a(3));
     b = b.map((n) => n());
     assert.strictEqual("0,1,2", b.toString());
 })();
-//var b = [];
-//for (let i = 0; i < 3; i++) {
-//    b.push(() => i);
-//}
+var b = [];
+for (let i = 0; i < 3; i++) {
+    b.push(() => i);
+}
