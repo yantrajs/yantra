@@ -6,7 +6,7 @@
         "declaration": true,
         "declarationMap": true,
         "moduleResolution": "node",
-        "outDir": "./",
+        "outDir": "bin",
         "downlevelIteration": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,

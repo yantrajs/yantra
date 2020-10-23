@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>YantraJS.Core</AssemblyName>
+    <PackageId>YantraJS.Core</PackageId>
+    <PackageTags>yantra,yantrajs,javascript</PackageTags>
+    <Version>1.0.0-beta-$(BuildNumber)</Version>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
