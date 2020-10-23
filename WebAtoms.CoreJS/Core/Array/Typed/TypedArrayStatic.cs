@@ -1,6 +1,7 @@
 ﻿using Microsoft.Build.Tasks.Deployment.ManifestUtilities;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Core.Typed;
 
@@ -35,6 +36,14 @@ namespace WebAtoms.CoreJS.Core.Typed
 
     internal static class TypedArrayStatic
     {
+        internal static TypedArray AsTypedArray(this JSValue v,
+        [CallerMemberName] string helper = null)
+        {
+            if (!(v is TypedArray array))
+                throw JSContext.Current.NewTypeError($"TypedArray.prototype.{helper} called on non TypedArray");
+            return array;
+        }
+
         // [Static("from", Length = 1)]
         public static JSValue From(JSObject prototype, TypedArrayType type, in Arguments a) {
             var (f, map, mapThis) = a.Get3();
