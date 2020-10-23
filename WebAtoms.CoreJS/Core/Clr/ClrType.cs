@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -47,8 +48,10 @@ namespace WebAtoms.CoreJS.Core.Clr
             return base.ConvertTo(type, out value);
         }
 
-        internal static void Generate(JSObject target, Type type, bool isStatic)
+        internal static JSProperty Generate(JSObject target, Type type, bool isStatic)
         {
+
+            JSProperty indexProperty = new JSProperty();
             
             var flags = isStatic
                 ? BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Static
@@ -62,19 +65,31 @@ namespace WebAtoms.CoreJS.Core.Clr
                 var list = property.ToList();
                 if (list.Count > 1)
                 {
-                    // indexer properties...
-                    // indexer is only supported for uint/int type...
-                    // pending...
+
                 } else
                 {
                     var f = property.First();
+
+                    if (f.GetIndexParameters()?.Length > 0)
+                    {
+                        // it is an index property...
+                        name = "index";
+                    }
+
                     JSFunctionDelegate getter = f.CanRead
                         ? PreparePropertyGetter(isStatic, f)
                         : null;
                     JSFunctionDelegate setter = f.CanWrite
                         ? PreparePropertySetter(isStatic, f)
                         : null;
-                    target.DefineProperty(name, JSProperty.Property(name, getter, setter));
+
+                    var jsProperty = JSProperty.Property(name, getter, setter);
+                    target.DefineProperty(name, jsProperty );
+                    if (f.GetIndexParameters()?.Length > 0)
+                    {
+                        indexProperty = jsProperty;
+                    }
+
                 }
             }
 
@@ -116,6 +131,8 @@ namespace WebAtoms.CoreJS.Core.Clr
                     );
             }
 
+            return indexProperty;
+
         }
 
         private static JSFunctionDelegate ToInstanceDelegate(MethodInfo method)
@@ -150,6 +167,11 @@ namespace WebAtoms.CoreJS.Core.Clr
 
         private static JSFunctionDelegate PreparePropertyGetter(bool isStatic, PropertyInfo property)
         {
+            if (property.GetIndexParameters()?.Length > 0)
+            {
+                return PrepareIndexedPropertyGetter(property);
+            }
+
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var target = Expression.Parameter(property.DeclaringType);
             var body = Expression.Block(new ParameterExpression[] { target }, 
@@ -164,6 +186,10 @@ namespace WebAtoms.CoreJS.Core.Clr
 
         private static JSFunctionDelegate PreparePropertySetter(bool isStatic, PropertyInfo property)
         {
+            if (property.GetIndexParameters()?.Length > 0)
+            {
+                return PrepareIndexedPropertySetter(property);
+            }
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var a1 = ArgumentsBuilder.Get1(args);
             var target = Expression.Parameter(property.PropertyType);
@@ -182,6 +208,49 @@ namespace WebAtoms.CoreJS.Core.Clr
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
             return lambda.Compile();
         }
+
+        private static JSFunctionDelegate PrepareIndexedPropertyGetter(PropertyInfo property)
+        {
+            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            var target = Expression.Parameter(property.DeclaringType);
+
+            var varList = new List<ParameterExpression>();
+            var initList = new List<Expression>();
+
+            foreach(var i in property.GetIndexParameters())
+            {
+                // var v = Expression.Parameter();
+            }
+
+
+            var body = Expression.Block(new ParameterExpression[] { target },
+                ClrProxyBuilder.Marshal(
+                    Expression.Property(JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType), property)));
+
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
+
+        }
+
+        private static JSFunctionDelegate PrepareIndexedPropertySetter(PropertyInfo property)
+        {
+            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            var a1 = ArgumentsBuilder.Get1(args);
+            var target = Expression.Parameter(property.PropertyType);
+            var convert = JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
+
+            var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
+
+            var body = Expression.Block(new ParameterExpression[] { target },
+                Expression.Assign(
+                    Expression.Property(
+                        convert, property),
+                    clrArg1), a1);
+
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
+        }
+
 
 
 
