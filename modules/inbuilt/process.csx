@@ -1,4 +1,4 @@
-#r "nuget: YantraJS.Core, 1.0.1-CI-20201023-094851"
+#r "nuget: YantraJS.Core, 1.0.1-CI-20201023-114123"
 using System;
 using System.Linq;
 using WebAtoms.CoreJS.Core;
