@@ -6,6 +6,7 @@ using WebAtoms.CoreJS.Core.Typed;
 
 namespace WebAtoms.CoreJS.Core.Typed
 {
+    [JSRuntime(typeof(TypedArrayStatic),typeof(TypedArrayPrototype))]
     internal class Int8Array : TypedArray
     {
         public Int8Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length) 
@@ -18,7 +19,19 @@ namespace WebAtoms.CoreJS.Core.Typed
 
             return TypedArrayStatic.From(JSContext.Current.Int8ArrayPrototype, TypedArrayType.Int8Array, a);
         }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Int8ArrayPrototype, TypedArrayType.Int8Array, a);
+        }
+
     }
+
+   
+
 
     internal static class TypedArrayStatic
     {
@@ -80,6 +93,20 @@ namespace WebAtoms.CoreJS.Core.Typed
 
 
 
+        }
+
+
+
+
+        public static JSValue Of(JSObject prototype, TypedArrayType type, in Arguments a)
+        {
+            var length = a.Length;
+            var r = new TypedArray(null,type,0,length,prototype);
+            for (uint ai = 0; ai < length; ai++)
+            {
+                r[ai] = a.GetAt((int)ai);
+            }
+            return r;
         }
     }
 
