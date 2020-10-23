@@ -13,6 +13,39 @@ namespace WebAtoms.CoreJS.Core
     public static class JSValueExtensions
     {
 
+        /// <summary>
+        /// Returns .net string if it is not undefined
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        public static string AsStringOrDefault(this JSValue target, string def = null)
+        {
+            return target.IsUndefined ? def : target.ToString();
+        }
+
+        /// <summary>
+        /// Returns .net int if it is not undefined
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        public static int AsInt32OrDefault(this JSValue target, int def = 0)
+        {
+            return target.IsUndefined ? def : target.IntValue;
+        }
+
+        /// <summary>
+        /// Returns .net double if it is not undefined
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        public static double AsDoubleOrDefault(this JSValue target, double def = 0)
+        {
+            return target.IsUndefined ? def : target.DoubleValue;
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, KeyString name, in Arguments a)
