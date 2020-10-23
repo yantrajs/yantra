@@ -26,12 +26,20 @@ namespace WebAtoms.CoreJS.Core.Generator
         readonly Arguments a;
         internal JSValue value;
         internal bool done;
+        private Exception lastError;
+        private LexicalScope threadTop;
+        private IElementEnumerator en;
+
         public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)
         {
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
             this.@delegate = @delegate;
             this.a = a;
             done = false;
+        }
+
+        public JSGenerator(IElementEnumerator en) {
+            this.en = en;
         }
 
         ~JSGenerator()
@@ -65,10 +73,19 @@ namespace WebAtoms.CoreJS.Core.Generator
         public JSValue ValueObject => (JSObject.NewWithProperties())
                     .AddProperty(KeyStrings.value, this.value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
-        private Exception lastError;
-        private LexicalScope threadTop;
+
         public JSValue Next(JSValue replaceOld = null)
         {
+            if (en != null) {
+                if (en.MoveNext(out var item)) {
+                    this.value = item;
+                    return ValueObject;
+                }
+                this.done = true;
+                this.value = JSUndefined.Value;
+                return ValueObject;
+            }
+
             var current = JSContext.Current.Scope.Top;
             if (replaceOld != null)
             {

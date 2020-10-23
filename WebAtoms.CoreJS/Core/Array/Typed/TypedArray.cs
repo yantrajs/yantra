@@ -261,5 +261,49 @@ namespace WebAtoms.CoreJS.Core.Typed
             return this.ToString();
         }
 
+        internal override IElementEnumerator GetElementEnumerator()
+        {
+            return new ElementEnumerator(this);
+        }
+
+        struct ElementEnumerator : IElementEnumerator
+        {
+            private TypedArray typedArray;
+            private int index;
+
+            public ElementEnumerator(TypedArray typedArray)
+            {
+                this.typedArray = typedArray;
+                this.index = -1;
+            }
+
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                if (++this.index < typedArray.length) {
+                    hasValue = true;
+                    index = (uint)this.index;
+                    value = typedArray[index];
+                    return true;
+                }
+
+                hasValue = false;
+                index = 0;
+                value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNext(out JSValue value)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    value = typedArray[(uint)index];
+                    return true;
+                }
+
+                value = JSUndefined.Value;
+                return false;
+            }
+        }
+
     }
 }
