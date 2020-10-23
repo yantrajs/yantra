@@ -1,4 +1,4 @@
-#r "..\..\WebAtoms.CoreJS\bin\Debug\netstandard2.0\WebAtoms.CoreJS.dll"
+#r "nuget: YantraJS.Core, 1.0.1-CI-20201023-094851"
 using System;
 using System.Linq;
 using WebAtoms.CoreJS.Core;

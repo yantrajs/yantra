@@ -54,7 +54,10 @@ namespace YantraTests
                 var fileInfo = new System.IO.FileInfo(fullName);
                 try
                 {
-                    await m.RunAsync(fileInfo.DirectoryName, "./" + fileInfo.Name, new string[] { rootModules.FullName });
+                    await m.RunAsync(fileInfo.DirectoryName, "./" + fileInfo.Name, new string[] {
+                        rootModules.FullName,
+                        rootModules.FullName + "/bin"
+                    });
                 }
                 catch (TaskCanceledException)
                 {
