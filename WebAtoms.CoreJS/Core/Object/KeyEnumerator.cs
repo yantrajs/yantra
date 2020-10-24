@@ -4,6 +4,56 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core.Enumerators
 {
+    public class PropertyEnumerator
+    {
+        private JSObject target;
+        private bool showEnumerableOnly;
+        private bool inherited;
+        private PropertyEnumerator parent;
+        PropertySequence.ValueEnumerator? properties;
+
+        public PropertyEnumerator(JSObject jSObject, bool showEnumerableOnly, bool inherited)
+        {
+            this.target = jSObject;
+            this.properties = jSObject.ownProperties != null
+                ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
+                : (PropertySequence.ValueEnumerator?)null;
+            this.showEnumerableOnly = showEnumerableOnly;
+            this.inherited = inherited;
+            parent = null;
+        }
+
+        public bool MoveNext(out KeyString key, out JSValue value)
+        {
+            if (this.properties != null)
+            {
+                if (this.properties.Value.MoveNext(out value, out key))
+                {
+                    return true;
+                }
+                this.properties = null;
+                if (this.inherited)
+                {
+                    if (target.prototypeChain != null && target.prototypeChain != target)
+                    {
+                        parent = new PropertyEnumerator(target.prototypeChain, showEnumerableOnly, inherited);
+                    }
+                }
+            }
+            if (parent != null)
+            {
+                if (parent.MoveNext(out key, out value))
+                {
+                    return true;
+                }
+                parent = null;
+            }
+            key = new KeyString();
+            value = null;
+            return false;
+        }
+    }
+
     public class KeyEnumerator : IElementEnumerator
     {
         private JSObject target;

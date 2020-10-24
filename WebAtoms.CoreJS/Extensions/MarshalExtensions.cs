@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Enumerators;
 using WebAtoms.CoreJS.Core.Storage;
 
 namespace WebAtoms.CoreJS.Core
@@ -62,17 +63,18 @@ namespace WebAtoms.CoreJS.Core
 
                     if (gt == typeof(Dictionary<,>)) {
                         var keys = gt.GetGenericArguments();
-                        var key = keys[0];
-                        var value = keys[1];
+                        var keyType = keys[0];
+                        var valueType = keys[1];
 
                         bool UnmarshalList(JSObject @object, out object result)
                         {
                             var list = (result = c.Invoke(new object[] { })) as System.Collections.IDictionary;
-                            var en = @object.GetAllEntries().GetEnumerator();
-                            while (en.MoveNext())
+                            var en = new PropertyEnumerator(@object, true, true);
+                            while (en.MoveNext(out var key, out var value))
                             {
-                                var item = en.Current;
-                                list.Add(item.Key.ForceConvert(key), item.Value.ForceConvert(value));
+                                list.Add(
+                                    Convert.ChangeType(key.ToString(), keyType),
+                                    value.ForceConvert(valueType));
                             }
                             return true;
                         }
@@ -83,6 +85,8 @@ namespace WebAtoms.CoreJS.Core
                 }
                 
 
+
+                // change this logic to support case insensitive property match
                 var properties = type.GetProperties().Where(x => x.CanWrite).ToArray();
                 bool Unmarshal(JSObject @object, out object result)
                 {
