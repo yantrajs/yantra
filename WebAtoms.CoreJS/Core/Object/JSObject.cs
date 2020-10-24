@@ -671,6 +671,9 @@ namespace WebAtoms.CoreJS.Core
                 value = this;
                 return true;
             }
+            // if type has default constructor...
+            if (this.TryUnmarshal(type, out value))
+                return true;
             return base.ConvertTo(type, out value);
         }
 
