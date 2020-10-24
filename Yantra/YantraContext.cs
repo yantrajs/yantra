@@ -28,7 +28,8 @@ namespace Yantra
 
         public YantraContext()
         {
-            this.extensions = new string[] { ".js", ".csx" };
+            // reverse priority, select csx before js.
+            this.extensions = new string[] { ".csx", ".js"  };
         }
 
         protected override JSFunctionDelegate Compile(string code, string filePath, List<string> args)
