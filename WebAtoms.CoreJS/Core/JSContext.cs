@@ -180,7 +180,7 @@ namespace WebAtoms.CoreJS.Core
         internal readonly SynchronizationContext synchronizationContext;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewTypeError(string message, 
+        public JSException NewTypeError(string message, 
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
@@ -189,7 +189,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewSyntaxError(string message,
+        public JSException NewSyntaxError(string message,
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
@@ -198,7 +198,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewURIError(string message,
+        public JSException NewURIError(string message,
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
@@ -207,7 +207,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewRangeError(string message,
+        public JSException NewRangeError(string message,
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
@@ -216,7 +216,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSException NewError(string message,
+        public JSException NewError(string message,
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)

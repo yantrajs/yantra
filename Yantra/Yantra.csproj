@@ -7,7 +7,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebAtoms.CoreJS\WebAtoms.CoreJS.csproj" />
+    <PackageReference Include="NuGet.Client" Version="4.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.7.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.7.0" />
   </ItemGroup>
 
 </Project>

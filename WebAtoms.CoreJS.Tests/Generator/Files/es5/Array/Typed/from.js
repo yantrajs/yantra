@@ -6,4 +6,4 @@ assert.strictEqual(2, uint16[1]);
 assert.strictEqual(3, uint16[2]);
 assert.strictEqual(4, uint16[3]);
 assert.strictEqual(5, uint16[4]);
-// assert.strictEqual("1,2,3,4,5", uint16.toString());
+assert.strictEqual("1,2,3,4,5", uint16.toString());

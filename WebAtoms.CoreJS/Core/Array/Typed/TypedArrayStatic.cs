@@ -1,11 +1,13 @@
 ﻿using Microsoft.Build.Tasks.Deployment.ManifestUtilities;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using WebAtoms.CoreJS.Core.Typed;
 
 namespace WebAtoms.CoreJS.Core.Typed
 {
+    [JSRuntime(typeof(TypedArrayStatic),typeof(TypedArrayPrototype))]
     internal class Int8Array : TypedArray
     {
         public Int8Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length) 
@@ -18,10 +20,30 @@ namespace WebAtoms.CoreJS.Core.Typed
 
             return TypedArrayStatic.From(JSContext.Current.Int8ArrayPrototype, TypedArrayType.Int8Array, a);
         }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Int8ArrayPrototype, TypedArrayType.Int8Array, a);
+        }
+
     }
+
+   
+
 
     internal static class TypedArrayStatic
     {
+        internal static TypedArray AsTypedArray(this JSValue v,
+        [CallerMemberName] string helper = null)
+        {
+            if (!(v is TypedArray array))
+                throw JSContext.Current.NewTypeError($"TypedArray.prototype.{helper} called on non TypedArray");
+            return array;
+        }
+
         // [Static("from", Length = 1)]
         public static JSValue From(JSObject prototype, TypedArrayType type, in Arguments a) {
             var (f, map, mapThis) = a.Get3();
@@ -80,6 +102,20 @@ namespace WebAtoms.CoreJS.Core.Typed
 
 
 
+        }
+
+
+
+
+        public static JSValue Of(JSObject prototype, TypedArrayType type, in Arguments a)
+        {
+            var length = a.Length;
+            var r = new TypedArray(null,type,0,length,prototype);
+            for (uint ai = 0; ai < length; ai++)
+            {
+                r[ai] = a.GetAt((int)ai);
+            }
+            return r;
         }
     }
 

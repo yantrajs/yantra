@@ -28,7 +28,8 @@ namespace Yantra
 
         public YantraContext()
         {
-            this.extensions = new string[] { ".js", ".csx" };
+            // reverse priority, select csx before js.
+            this.extensions = new string[] { ".csx", ".js"  };
         }
 
         protected override JSFunctionDelegate Compile(string code, string filePath, List<string> args)
@@ -55,13 +56,15 @@ namespace Yantra
                         var options = ScriptOptions.Default
                                 .WithFilePath(filePath)
                                 .AddReferences(typeof(JSValue).Assembly, typeof(YantraContext).Assembly)
+                                .WithMetadataResolver(new NuGetMetadataReferenceResolver(ScriptMetadataResolver.Default.WithBaseDirectory(originalFile.DirectoryName)))
                                 .WithOptimizationLevel(OptimizationLevel.Debug);
 
+                        // remove yantra code 
+                        code = RemoveReference(code);
 
-
-                            var r = await CSharpScript.RunAsync<JSModuleDelegate>(code, options);
-                            @delegate = r.ReturnValue;
-                            r.Script.GetCompilation().Emit(filePath + ".dll");
+                        var r = await CSharpScript.RunAsync<JSModuleDelegate>(code, options);
+                        @delegate = r.ReturnValue;
+                        r.Script.GetCompilation().Emit(filePath + ".dll");
 
                     }
                 });
@@ -72,6 +75,24 @@ namespace Yantra
                 };
             }
             return base.Compile(code, filePath, args);
+        }
+        static string RemoveReference(string code)
+        {
+            StringBuilder sb = new StringBuilder();
+            StringReader sr = new StringReader(code);
+            string line = null;
+            while((line = sr.ReadLine() ) != null)
+            {
+                var l = line.TrimStart();
+                if(l.StartsWith("nuget:"))
+                {
+                    l = l.Substring(6).Trim();
+                    if (l.StartsWith("YantraJS.Core,"))
+                        continue;
+                }
+                sb.AppendLine(line);
+            }
+            return sb.ToString();
         }
 
     }

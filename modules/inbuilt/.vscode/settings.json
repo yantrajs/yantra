@@ -1,0 +1,9 @@
+{
+    "terminal.integrated.shellArgs.windows": ["-ExecutionPolicy", "Bypass"],
+    "cSpell.words": [
+        "NSMOD",
+        "Signup",
+        "downlevel",
+        "profileeditor"
+    ]
+}
