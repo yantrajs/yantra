@@ -11,6 +11,33 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class DefaultExportAttribute: ExportAttribute
+    {
+        public DefaultExportAttribute(): base(KeyStrings.@default)
+        {
+
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class ExportAttribute : Attribute
+    {
+        public KeyString Name { get; }
+
+        protected ExportAttribute(KeyString n) {
+            Name = n;
+        }
+
+        /// <summary>
+        /// Exports given Type as class
+        /// </summary>
+        /// <param name="name">Asterix '*' if null</param>
+        public ExportAttribute(string name = null)
+        {
+
+        }
+    }
 
     public delegate void JSModuleDelegate(
     JSValue exports,
