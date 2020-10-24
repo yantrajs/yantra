@@ -11,15 +11,6 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public enum ObjectStatus
-    {
-        None = 0,
-        Frozen = 1,
-        Sealed = 2,
-        NonExtensible = 4,
-        SealedOrFrozen = 3,
-        SealedFrozenNonExtensible = 7
-    }
 
     [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
     public partial class JSObject : JSValue
