@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core.Clr
@@ -110,7 +111,14 @@ namespace WebAtoms.CoreJS.Core.Clr
                     return new JSDate(dateTime.ToLocalTime());
                 case DateTimeOffset dateTimeOffset:
                     return new JSDate(dateTimeOffset);
+                case Type type:
+                    return ClrType.From(type);
+                case Task<JSValue> task:
+                    return task.ToPromise();
+                case Task task:
+                    return task.ToPromise();
             }
+
             return new ClrProxy(value);
         }
 

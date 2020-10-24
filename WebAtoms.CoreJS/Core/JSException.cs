@@ -98,6 +98,15 @@ namespace WebAtoms.CoreJS.Core
         {
             throw JSContext.Current.NewTypeError($"{value} is not a function");
         }
+        public static JSValue From(AggregateException exception)
+        {
+            if (exception.InnerException is JSException jse)
+            {
+                return jse.Error;
+            }
+            var error = new JSString(exception.InnerException?.Message ?? exception.Message);
+            return (new JSException(error)).Error;
+        }
 
         public override string StackTrace
         {

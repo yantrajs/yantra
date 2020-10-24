@@ -9,10 +9,6 @@ using WebAtoms.CoreJS.LinqExpressions;
 
 namespace WebAtoms.CoreJS.Core.Clr
 {
-    internal class CachedTypes : ConcurrentSharedStringTrie<ClrType>
-    {
-
-    }
 
     /// <summary>
     /// We might improve statup time by moving reflection code (setting up methods/properties) to proxy.
@@ -20,7 +16,7 @@ namespace WebAtoms.CoreJS.Core.Clr
     public class ClrType : JSFunction
     {
 
-        private static CachedTypes cachedTypes = new CachedTypes();
+        private static ConcurrentUInt32Trie<ClrType> cachedTypes = new ConcurrentUInt32Trie<ClrType>();
 
         public static ClrType From(Type type)
         {
@@ -30,8 +26,8 @@ namespace WebAtoms.CoreJS.Core.Clr
             {
                 baseType = From(type.BaseType);
             }
-
-            return cachedTypes.GetOrCreate(type.FullName, () => new ClrType(type, baseType));
+            var key = ConcurrentTypeCache.GetOrCreate(type);
+            return cachedTypes.GetOrCreate(key, () => new ClrType(type, baseType));
         }
 
 
