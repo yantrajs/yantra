@@ -91,7 +91,11 @@ namespace WebAtoms.CoreJS.Core
                     {
                         var v = @object[p.Name];
                         if (v.IsNullOrUndefined)
-                            continue;
+                        {
+                            v = @object[p.Name.ToCamelCase()];
+                            if (v.IsNullOrUndefined)
+                                continue;
+                        }
                         p.SetValue(result, v.ForceConvert(p.PropertyType));
                     }
                     return true;

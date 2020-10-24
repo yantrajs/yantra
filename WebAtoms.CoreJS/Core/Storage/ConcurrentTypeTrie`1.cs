@@ -6,7 +6,7 @@ namespace WebAtoms.CoreJS.Core.Storage
     {
 
         readonly Func<Type, T> factory;
-        readonly ConcurrentUInt32Trie<T> cache;
+        readonly ConcurrentUInt32Trie<T> cache = new ConcurrentUInt32Trie<T>();
 
         public ConcurrentTypeTrie(Func<Type, T> factory)
         {
