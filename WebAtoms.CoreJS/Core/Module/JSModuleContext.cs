@@ -14,7 +14,7 @@ namespace WebAtoms.CoreJS.Core
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class DefaultExportAttribute: ExportAttribute
     {
-        public DefaultExportAttribute(): base(KeyStrings.@default)
+        public DefaultExportAttribute(): base("default")
         {
 
         }
@@ -23,11 +23,7 @@ namespace WebAtoms.CoreJS.Core
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class ExportAttribute : Attribute
     {
-        public KeyString Name { get; }
-
-        protected ExportAttribute(KeyString n) {
-            Name = n;
-        }
+        public string Name { get; }
 
         /// <summary>
         /// Exports given Type as class

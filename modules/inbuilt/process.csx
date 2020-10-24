@@ -1,9 +1,8 @@
-#r "nuget: YantraJS.Core, 1.0.1-CI-20201023-114123"
+#r "nuget: YantraJS.Core, 1.0.1-CI-20201024-043043"
 using System;
 using System.Linq;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Core.Clr;
-
 
 public class YProcess {
 
