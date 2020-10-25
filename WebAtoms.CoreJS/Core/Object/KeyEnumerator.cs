@@ -10,14 +10,14 @@ namespace WebAtoms.CoreJS.Core.Enumerators
         private bool showEnumerableOnly;
         private bool inherited;
         private PropertyEnumerator parent;
-        PropertySequence.ValueEnumerator? properties;
+        PropertySequence.ValueEnumerator properties;
 
         public PropertyEnumerator(JSObject jSObject, bool showEnumerableOnly, bool inherited)
         {
             this.target = jSObject;
             this.properties = jSObject.ownProperties != null
                 ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
-                : (PropertySequence.ValueEnumerator?)null;
+                : null;
             this.showEnumerableOnly = showEnumerableOnly;
             this.inherited = inherited;
             parent = null;
@@ -27,7 +27,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
         {
             if (this.properties != null)
             {
-                if (this.properties.Value.MoveNext(out value, out key))
+                if (this.properties.MoveNext(out value, out key))
                 {
                     return true;
                 }
@@ -61,7 +61,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
         private bool inherited;
         private KeyEnumerator parent;
         IElementEnumerator elements;
-        PropertySequence.ValueEnumerator? properties;
+        PropertySequence.ValueEnumerator properties;
 
         public KeyEnumerator(JSObject jSObject, bool showEnumerableOnly, bool inherited)
         {
@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
             this.elements = jSObject.GetElementEnumerator();
             this.properties = jSObject.ownProperties != null
                 ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
-                : (PropertySequence.ValueEnumerator?)null;
+                : null;
             this.showEnumerableOnly = showEnumerableOnly;
             this.inherited = inherited;
             parent = null;
@@ -89,7 +89,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
             }
             if(this.properties != null)
             {
-                if (this.properties.Value.MoveNext(out var key)) {
+                if (this.properties.MoveNext(out var key)) {
                     value = key.ToJSValue();
                     hasValue = true;
                     index = 0;
@@ -131,7 +131,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
             }
             if (this.properties != null)
             {
-                if (this.properties.Value.MoveNext(out var key))
+                if (this.properties.MoveNext(out var key))
                 {
                     value = key.ToJSValue();
                     return true;
