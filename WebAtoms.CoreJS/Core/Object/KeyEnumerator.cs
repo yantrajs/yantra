@@ -17,7 +17,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
             this.target = jSObject;
             this.properties = jSObject.ownProperties != null
                 ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
-                : null;
+                : new PropertySequence.ValueEnumerator();
             this.showEnumerableOnly = showEnumerableOnly;
             this.inherited = inherited;
             parent = null;
@@ -25,13 +25,13 @@ namespace WebAtoms.CoreJS.Core.Enumerators
 
         public bool MoveNext(out KeyString key, out JSValue value)
         {
-            if (this.properties != null)
+            if (this.properties.target != null)
             {
                 if (this.properties.MoveNext(out value, out key))
                 {
                     return true;
                 }
-                this.properties = null;
+                this.properties.target = null;
                 if (this.inherited)
                 {
                     if (target.prototypeChain != null && target.prototypeChain != target)
@@ -69,7 +69,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
             this.elements = jSObject.GetElementEnumerator();
             this.properties = jSObject.ownProperties != null
                 ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
-                : null;
+                : new PropertySequence.ValueEnumerator();
             this.showEnumerableOnly = showEnumerableOnly;
             this.inherited = inherited;
             parent = null;
@@ -87,7 +87,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
                 }
                 this.elements = null;
             }
-            if(this.properties != null)
+            if(this.properties.target != null)
             {
                 if (this.properties.MoveNext(out var key)) {
                     value = key.ToJSValue();
@@ -95,7 +95,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
                     index = 0;
                     return true;
                 }
-                this.properties = null;
+                this.properties.target = null;
                 if (this.inherited)
                 {
                     if(target.prototypeChain != null && target.prototypeChain != target)
@@ -129,14 +129,14 @@ namespace WebAtoms.CoreJS.Core.Enumerators
                 }
                 this.elements = null;
             }
-            if (this.properties != null)
+            if (this.properties.target != null)
             {
                 if (this.properties.MoveNext(out var key))
                 {
                     value = key.ToJSValue();
                     return true;
                 }
-                this.properties = null;
+                this.properties.target = null;
                 if (this.inherited)
                 {
                     if (target.prototypeChain != null && target.prototypeChain != target)

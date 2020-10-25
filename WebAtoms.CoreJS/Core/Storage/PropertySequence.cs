@@ -9,8 +9,8 @@ namespace WebAtoms.CoreJS.Core
     public class PropertySequence
     {
 
-        public class ValueEnumerator {
-            JSObject target;
+        public struct ValueEnumerator {
+            public JSObject target;
             int index;
             JSProperty[] array;
             int size;
