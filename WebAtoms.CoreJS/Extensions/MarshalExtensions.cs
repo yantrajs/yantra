@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Core.Enumerators;
@@ -87,20 +88,19 @@ namespace WebAtoms.CoreJS.Core
 
 
                 // change this logic to support case insensitive property match
-                var properties = type.GetProperties().Where(x => x.CanWrite).ToArray();
+                var properties = type.GetProperties()
+                    .Where(x => x.CanWrite)
+                    .ToDictionary(x => x.Name.ToLower(), x => x);
                 bool Unmarshal(JSObject @object, out object result)
                 {
                     result = c.Invoke(new object[] { });
-                    foreach(var p in properties)
+                    var en = new PropertyEnumerator(@object, true, true);
+                    while(en.MoveNext(out var key, out var value))
                     {
-                        var v = @object[p.Name];
-                        if (v.IsNullOrUndefined)
+                        if (properties.TryGetValue(key.ToString().ToLower(), out var p))
                         {
-                            v = @object[p.Name.ToCamelCase()];
-                            if (v.IsNullOrUndefined)
-                                continue;
+                            p.SetValue(result, value.ForceConvert(p.PropertyType));
                         }
-                        p.SetValue(result, v.ForceConvert(p.PropertyType));
                     }
                     return true;
                 }
