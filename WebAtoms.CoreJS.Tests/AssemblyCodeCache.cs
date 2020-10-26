@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastExpressionCompiler;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -10,54 +11,63 @@ using WebAtoms.CoreJS.Emit;
 
 namespace WebAtoms.CoreJS.Tests
 {
-    public class AssemblyCodeCache
+    public class AssemblyCodeCache: ICodeCache
     {
 
-        public static ICodeCache Instance = DictionaryCodeCache.Current;
+        // public static ICodeCache Instance = DictionaryCodeCache.Current;
 
-        //private static ConcurrentDictionary<string, JSFunctionDelegate> cache = new ConcurrentDictionary<string, JSFunctionDelegate>();
+        public static ICodeCache Instance = new AssemblyCodeCache();
 
-        //public JSFunctionDelegate GetOrCreate(in JSCode code, JSCodeCompiler compiler)
-        //{
-        //    var cc = code.Clone();
-        //    return cache.GetOrAdd(code.Key, (_) => {
-        //        return compiler(cc);
-        //    });
-        //}
+        private static ConcurrentDictionary<string, JSFunctionDelegate> cache = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        //public void Save(string location, Expression<JSFunctionDelegate> expression)
-        //{
-        //    if (System.IO.File.Exists(location))
-        //    {
+        public JSFunctionDelegate GetOrCreate(in JSCode code, JSCodeCompiler compiler)
+        {
+            var cc = code.Clone();
+            return cache.GetOrAdd(code.Key, (_) =>
+            {
+                return compiler(cc);
+            });
+        }
 
-        //        var filePath = location + ".dll";
+        public void Save(string location, Expression<JSFunctionDelegate> expression)
+        {
+            if (System.IO.File.Exists(location))
+            {
 
-        //        var fileName = System.IO.Path.GetFileName(filePath) + DateTime.UtcNow.Ticks.ToString();
-        //        AssemblyName name = new AssemblyName(fileName);
+                var filePath = location + ".dll";
 
-        //        // lets generate and save...
-        //        AssemblyBuilder ab = AssemblyBuilder.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndSave);
-        //        // string fileName = System.IO.Path.GetFileNameWithoutExtension(location);
-        //        name.CodeBase = filePath;
-        //        var mm = ab.DefineDynamicModule("JSModule", fileName);
+                // expression.CompileFastToIL()
 
-        //        var type = mm.DefineType("JSCodeClass", 
-        //            TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed);
+                var fileName = System.IO.Path.GetFileName(filePath) + DateTime.UtcNow.Ticks.ToString();
+                AssemblyName name = new AssemblyName(fileName);
 
-        //        type.DefineDefaultConstructor(MethodAttributes.Public);
+                // lets generate and save...
+                AssemblyBuilder ab = AssemblyBuilder.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndCollect);
+                // string fileName = System.IO.Path.GetFileNameWithoutExtension(location);
+                name.CodeBase = filePath;
+                var mm = ab.DefineDynamicModule("JSModule");
 
-        //        var method = type.DefineMethod("Run", MethodAttributes.Public | MethodAttributes.Static, 
-        //            typeof(JSValue), 
-        //            new Type[] { typeof(Arguments).MakeByRefType() });
+                var type = mm.DefineType("JSCodeClass",
+                    TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed);
 
-        //        expression.CompileToMethod(method);
-        //        type.CreateType();
+                type.DefineDefaultConstructor(MethodAttributes.Public);
 
-        //        ab.Save(name.Name);
+                var method = type.DefineMethod("Run", MethodAttributes.Public | MethodAttributes.Static,
+                    typeof(JSValue),
+                    new Type[] { typeof(Arguments).MakeByRefType() });
 
-        //        System.IO.File.Move(name.Name, filePath);
-                
-        //    }
-        //}
+                // expression.CompileToMethod(method);
+                expression.CompileFastToIL(method.GetILGenerator());
+
+                var t = type.CreateType();
+
+                //ab.Save(name.Name);
+
+                //System.IO.File.Move(name.Name, filePath);
+                var generator = new Lokad.ILPack.AssemblyGenerator();
+                generator.GenerateAssembly(t.Assembly, filePath);
+
+            }
+        }
     }
 }
