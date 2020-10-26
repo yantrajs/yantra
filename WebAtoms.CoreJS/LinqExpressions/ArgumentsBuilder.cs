@@ -16,8 +16,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         private readonly static Expression _Empty =
             Expression.Field(null, type.GetField(nameof(Arguments.Empty)));
 
-        private static MethodInfo _Get1 =
+        private readonly static MethodInfo _Get1 =
             type.InternalMethod(nameof(Arguments.Get1));
+
+        private readonly static MethodInfo _GetAt =
+            type.InternalMethod(nameof(Arguments.GetAt), typeof(int));
 
         public static Expression Empty()
         {
@@ -79,6 +82,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression Get1(Expression arguments)
         {
             return Expression.Call(arguments, _Get1);
+        }
+
+        public static Expression GetAt(Expression arguments, int index)
+        {
+            return Expression.Call(arguments, _GetAt, Expression.Constant(index));
         }
 
     }

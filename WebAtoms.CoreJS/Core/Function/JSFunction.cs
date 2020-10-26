@@ -31,6 +31,24 @@ namespace WebAtoms.CoreJS.Core
         {
             return JSConstants.Function;
         }
+
+        protected JSFunction(string name, string source, JSObject _prototype)
+        {
+            ref var ownProperties = ref this.GetOwnProperties();
+            this.f = empty;
+            this.name = name ?? "native";
+            this.source = source
+                ?? $"function {name ?? "native"}() {{ [native] }}";
+            prototype = _prototype;
+            prototype[KeyStrings.constructor] = this;
+            ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(prototype);
+
+            this[KeyStrings.name] = name != null
+                ? new JSString(name)
+                : new JSString("native");
+            this[KeyStrings.length] = new JSNumber(0);
+        }
+
         public JSFunction(
             JSFunctionDelegate f,
             string name = null,
@@ -130,6 +148,39 @@ namespace WebAtoms.CoreJS.Core
             var @this = a.This;
             var r = (super as JSFunction).f(a);
             return r.IsUndefined ? @this : r;
+        }
+
+        [Constructor]
+        internal static JSValue Constructor(in Arguments args)
+        {
+            var len = args.Length;
+            if (len == 0)
+                throw JSContext.Current.NewTypeError("No arguments were supplied to Function constructor");
+            JSValue body = null;
+            var al = args.Length;
+            var last = al - 1;
+            var sargs = new List<string>();
+            for (var ai = 0; ai < al; ai++)
+            {
+                var item = args.GetAt(ai);
+                if (ai == last)
+                {
+                    body = item;
+                }
+                else
+                {
+                    sargs.Add(item.ToString());
+                }
+            }
+
+            var bodyText = body is JSString @string ? @string.value : body.ToString();
+            var fx = new JSFunction(JSFunction.empty, "internal", bodyText);
+
+
+            // parse and create method...
+            var fx1 = CoreScript.Compile(bodyText, "internal", sargs);
+            fx.f = fx1;
+            return fx;
         }
 
         public override bool ConvertTo(Type type, out object value)
