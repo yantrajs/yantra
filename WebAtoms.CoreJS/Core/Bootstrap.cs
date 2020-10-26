@@ -13,9 +13,9 @@ namespace WebAtoms.CoreJS.Core
     internal static class Bootstrap
     {
 
-        private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
+        static readonly ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
 
-        private static ConcurrentStringTrie<PropertySequence> propertyCache
+        static readonly ConcurrentStringTrie<PropertySequence> propertyCache
             = new ConcurrentStringTrie<PropertySequence>(64);
 
         public static void Fill<T>(this JSContext context)
@@ -31,9 +31,9 @@ namespace WebAtoms.CoreJS.Core
 
             ref var co = ref context.GetOwnProperties();
 
-            foreach (var pk in cached.AllValues())
+            foreach (var (Key, Value) in cached.AllValues())
             {
-                co[pk.Key] = pk.Value;
+                co[Key] = Value;
             }
         }
 
@@ -71,18 +71,18 @@ namespace WebAtoms.CoreJS.Core
 
             var copy = new JSFunction(jsf.f, key.ToString());
             ref var target = ref copy.prototype.GetOwnProperties();
-            foreach (var p in jsf.prototype.GetOwnProperties(false).AllValues())
+            foreach (var (Key, Value) in jsf.prototype.GetOwnProperties(false).AllValues())
             {
-                target[p.Key] = p.Value;
+                target[Key] = Value;
             }
             ref var ro = ref copy.GetOwnProperties();
-            foreach (var p in jsf.GetOwnProperties().AllValues())
+            foreach (var (Key, Value) in jsf.GetOwnProperties().AllValues())
             {
                 /// this is the case when we do not
                 /// want to overwrite Function.prototype
-                if (p.Key != KeyStrings.prototype.Key)
+                if (Key != KeyStrings.prototype.Key)
                 {
-                    ro[p.Key] = p.Value;
+                    ro[Key] = Value;
                 }
             }
             if (addToContext)
@@ -274,8 +274,7 @@ namespace WebAtoms.CoreJS.Core
             foreach (var (f, pr) in fields)
             {
                 var v = f.GetValue(null);
-                JSValue jv = v as JSValue;
-                if (jv == null)
+                if (!(v is JSValue jv))
                 {
                     if (f.FieldType == typeof(double))
                     {
@@ -412,8 +411,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 var target = pr.IsStatic ? r : p;
                 var v = f.GetValue(null);
-                JSValue jv = v as JSValue;
-                if (jv == null)
+                if (!(v is JSValue jv))
                 {
                     if (f.FieldType == typeof(double))
                     {

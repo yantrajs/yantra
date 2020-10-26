@@ -30,7 +30,7 @@ namespace WebAtoms.CoreJS.Core
     public class JSContext: JSObject, IDisposable
     {
 
-        static AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
+        static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
 
         internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
 
@@ -133,9 +133,9 @@ namespace WebAtoms.CoreJS.Core
 
                 op[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
 
-                foreach(var p in cached.GetOwnProperties().AllValues())
+                foreach(var (Key, Value) in cached.GetOwnProperties().AllValues())
                 {
-                    rop[p.Key] = p.Value;
+                    rop[Key] = Value;
                 }
 
                 return r;
@@ -172,13 +172,15 @@ namespace WebAtoms.CoreJS.Core
 
             this.Fill<JSGlobalStatic>();
 
-            var c = new JSObject();
-            c.prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype;
+            var c = new JSObject
+            {
+                prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype
+            };
             this[KeyStrings.console] = c;
 
         }
 
-        private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
+        static readonly ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
         internal readonly SynchronizationContext synchronizationContext;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -14,8 +14,8 @@ namespace WebAtoms.CoreJS.Core
         {
             public JSObject target;
             int index;
-            JSProperty[] array;
-            int size;
+            readonly JSProperty[] array;
+            readonly int size;
             readonly bool enumerableOnly;
             public ValueEnumerator(JSObject target, bool showEnumerableOnly)
             {
@@ -83,8 +83,8 @@ namespace WebAtoms.CoreJS.Core
         public struct Enumerator
         {
             int index;
-            int size;
-            JSProperty[] array;
+            readonly int size;
+            readonly JSProperty[] array;
             public Enumerator(PropertySequence ps)
             {
                 index = -1;
@@ -112,7 +112,7 @@ namespace WebAtoms.CoreJS.Core
 
 
 
-        private UInt32Trie<int> map;
+        readonly UInt32Trie<int> map;
         private JSProperty[] properties;
         private int length;
 

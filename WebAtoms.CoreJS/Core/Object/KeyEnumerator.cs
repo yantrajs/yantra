@@ -6,9 +6,9 @@ namespace WebAtoms.CoreJS.Core.Enumerators
 {
     public class PropertyEnumerator
     {
-        private JSObject target;
-        private bool showEnumerableOnly;
-        private bool inherited;
+        readonly JSObject target;
+        readonly bool showEnumerableOnly;
+        readonly bool inherited;
         private PropertyEnumerator parent;
         PropertySequence.ValueEnumerator properties;
 
@@ -57,9 +57,9 @@ namespace WebAtoms.CoreJS.Core.Enumerators
 
     public class KeyEnumerator : IElementEnumerator
     {
-        private JSObject target;
-        private bool showEnumerableOnly;
-        private bool inherited;
+        readonly JSObject target;
+        readonly bool showEnumerableOnly;
+        readonly bool inherited;
         private KeyEnumerator parent;
         IElementEnumerator elements;
         PropertySequence.ValueEnumerator properties;

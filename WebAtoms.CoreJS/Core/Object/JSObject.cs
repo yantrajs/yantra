@@ -44,7 +44,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref PropertySequence GetOwnProperties(bool create = true)
         {
-            if (ownProperties.IsEmpty)
+            if (ownProperties.IsEmpty && create)
                 ownProperties = new PropertySequence(4);
             return ref ownProperties;
         }
@@ -692,7 +692,7 @@ namespace WebAtoms.CoreJS.Core
         private struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
-            IEnumerator<(uint Key, JSProperty Value)> en;
+            readonly IEnumerator<(uint Key, JSProperty Value)> en;
             public ElementEnumerator(JSObject @object)
             {
                 this.en = @object.elements?.AllValues.GetEnumerator();
@@ -703,9 +703,9 @@ namespace WebAtoms.CoreJS.Core
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
                 if(en?.MoveNext() ?? false) {
-                    var c = en.Current;
-                    value = @object.GetValue(c.Value);
-                    index = c.Key;
+                    var (Key, Value) = en.Current;
+                    value = @object.GetValue(Value);
+                    index = Key;
                     hasValue = true;
                     return true;
                 }
@@ -719,8 +719,8 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (en?.MoveNext() ?? false)
                 {
-                    var c = en.Current;
-                    value = @object.GetValue(c.Value);
+                    var (Key, Value) = en.Current;
+                    value = @object.GetValue(Value);
                     return true;
                 }
                 value = JSUndefined.Value;

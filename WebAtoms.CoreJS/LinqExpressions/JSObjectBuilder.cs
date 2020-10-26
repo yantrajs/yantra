@@ -9,35 +9,35 @@ namespace WebAtoms.CoreJS.ExpHelper
 {
     public class JSObjectBuilder
     {
-        private static Type type = typeof(JSObject);
+        readonly static Type type = typeof(JSObject);
 
         //private static FieldInfo _ownProperties =
         //    type.InternalField(nameof(Core.JSObject.ownProperties));
 
-        private static PropertyInfo _Index =
+        readonly static PropertyInfo _Index =
             typeof(BaseMap<uint, Core.JSProperty>)
                 .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
                 .FirstOrDefault(x => x.GetIndexParameters().Length > 0);
 
-        private static MethodInfo _NewWithProperties =
+        readonly static MethodInfo _NewWithProperties =
             type.StaticMethod(nameof(JSObject.NewWithProperties));
 
-        private static MethodInfo _NewWithElements =
+        readonly static MethodInfo _NewWithElements =
             type.StaticMethod(nameof(JSObject.NewWithElements));
 
-        private static MethodInfo _NewWithPropertiesAndElements =
+        readonly static MethodInfo _NewWithPropertiesAndElements =
             type.StaticMethod(nameof(JSObject.NewWithPropertiesAndElements));
 
-        private static MethodInfo _AddElement =
+        readonly static MethodInfo _AddElement =
             type.InternalMethod(nameof(JSObject.AddElement), new Type[] { typeof(uint), typeof(JSValue) });
 
-        private static MethodInfo _AddProperty =
+        readonly static MethodInfo _AddProperty =
             type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSValue) });
 
-        private static MethodInfo _AddExpressionProperty =
+        readonly static MethodInfo _AddExpressionProperty =
             type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSValue) });
 
-        private static MethodInfo _AddPropertyAccessors =
+        readonly static MethodInfo _AddPropertyAccessors =
             type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSFunction), typeof(JSFunction) });
 
 
@@ -61,7 +61,7 @@ namespace WebAtoms.CoreJS.ExpHelper
                 }
             }
 
-            MethodInfo _new = null;
+            MethodInfo _new;
             if (addProperties && addElements)
             {
                 _new = _NewWithPropertiesAndElements;
