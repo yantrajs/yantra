@@ -39,6 +39,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         }
 
         public JSGenerator(IElementEnumerator en) {
+            this.prototypeChain = JSContext.Current.GeneratorPrototype;
             this.en = en;
         }
 

@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Core.Typed
         public static JSValue Entries(in Arguments a)
         {
             var array = a.This.AsTypedArray();
-            return new JSGenerator(array.GetElementEnumerator());
+            return new JSGenerator(array.GetEntries());
         }
 
     }

@@ -266,6 +266,10 @@ namespace WebAtoms.CoreJS.Core.Typed
             return new ElementEnumerator(this);
         }
 
+        internal IElementEnumerator GetEntries() {
+            return new EntryEnumerator(this);
+        }
+
         struct ElementEnumerator : IElementEnumerator
         {
             private TypedArray typedArray;
@@ -297,6 +301,46 @@ namespace WebAtoms.CoreJS.Core.Typed
                 if (++this.index < typedArray.length)
                 {
                     value = typedArray[(uint)index];
+                    return true;
+                }
+
+                value = JSUndefined.Value;
+                return false;
+            }
+        }
+
+        struct EntryEnumerator : IElementEnumerator
+        {
+            private TypedArray typedArray;
+            private int index;
+
+            public EntryEnumerator(TypedArray typedArray)
+            {
+                this.typedArray = typedArray;
+                this.index = -1;
+            }
+
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    hasValue = true;
+                    index = (uint)this.index;
+                    value = new JSArray(new JSNumber(index), typedArray[index]);
+                    return true;
+                }
+
+                hasValue = false;
+                index = 0;
+                value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNext(out JSValue value)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    value = new JSArray(new JSNumber(index),typedArray[(uint)index]);
                     return true;
                 }
 
