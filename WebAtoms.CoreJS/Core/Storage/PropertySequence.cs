@@ -6,10 +6,12 @@ using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public class PropertySequence
+    public struct PropertySequence
     {
 
-        public struct ValueEnumerator {
+        #region ValueEnumerator
+        public struct ValueEnumerator
+        {
             public JSObject target;
             int index;
             JSProperty[] array;
@@ -20,7 +22,8 @@ namespace WebAtoms.CoreJS.Core
                 enumerableOnly = showEnumerableOnly;
                 index = -1;
                 this.target = target;
-                var array = target.ownProperties?.properties;
+                ref var op = ref target.GetOwnProperties(false);
+                var array = op.properties;
                 this.array = array;
                 this.size = array?.Length ?? 0;
             }
@@ -49,8 +52,10 @@ namespace WebAtoms.CoreJS.Core
             }
 
 
-            public bool MoveNext(out JSValue value, out KeyString key) {
-                if (this.array != null) {
+            public bool MoveNext(out JSValue value, out KeyString key)
+            {
+                if (this.array != null)
+                {
                     while ((++index) < size)
                     {
                         ref var current = ref array[index];
@@ -72,7 +77,9 @@ namespace WebAtoms.CoreJS.Core
                 return false;
             }
         }
+        #endregion
 
+        #region Enumerator
         public struct Enumerator
         {
             int index;
@@ -101,9 +108,22 @@ namespace WebAtoms.CoreJS.Core
 
             public JSProperty Current => this.array[index];
         }
+        #endregion
 
-        private UInt32Trie<int> map = new CompactUInt32Trie<int>();
-        private JSProperty[] properties = new JSProperty[4];
+
+
+        private UInt32Trie<int> map;
+        private JSProperty[] properties;
+        private int length;
+
+        public PropertySequence(int size)
+        {
+            this.length = 0;
+            map = new CompactUInt32Trie<int>();
+            properties = new JSProperty[size];
+        }
+
+        public bool IsEmpty => map == null;
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()
         {
@@ -136,12 +156,12 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasKey(uint key)
         {
-            return map.HasKey(key);
+            return map != null && map.HasKey(key);
         }
 
         public bool RemoveAt(uint key)
         {
-            if (map.TryRemove(key, out var pkey))
+            if (map != null && map.TryRemove(key, out var pkey))
             {
                 // move all properties up...
                 properties[pkey] = new JSProperty { Attributes = JSPropertyAttributes.Deleted };
@@ -150,7 +170,7 @@ namespace WebAtoms.CoreJS.Core
         }
         public bool TryGetValue(uint key, out JSProperty obj)
         {
-            if (map.TryGetValue(key, out var pkey))
+            if (map != null && map.TryGetValue(key, out var pkey))
             {
                 obj = properties[pkey];
                 return obj.Attributes != JSPropertyAttributes.Deleted;
@@ -159,13 +179,11 @@ namespace WebAtoms.CoreJS.Core
             return false;
         }
 
-        private int length = 0;
-
         public JSProperty this[uint key]
         {
             get
             {
-                if (map.TryGetValue(key, out var pkey))
+                if (map != null && map.TryGetValue(key, out var pkey))
                 {
                     return properties[pkey];
                 }

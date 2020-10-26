@@ -107,20 +107,16 @@ namespace WebAtoms.CoreJS.Core
                 }
             }
 
-            var ownProperties = @object.ownProperties;
-            if (ownProperties != null)
+            var en = new PropertySequence.Enumerator(@object.GetOwnProperties(false));
+            while(en.MoveNext())
             {
-                var en = new PropertySequence.Enumerator(ownProperties);
-                while(en.MoveNext())
+                var p = en.Current;
+                if (showEnumerableOnly)
                 {
-                    var p = en.Current;
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                            continue;
-                    }
-                    yield return (p.ToJSValue(), value.GetValue(p));
+                    if (!p.IsEnumerable)
+                        continue;
                 }
+                yield return (p.ToJSValue(), value.GetValue(p));
             }
 
             var @base = value.prototypeChain;

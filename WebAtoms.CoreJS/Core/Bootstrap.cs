@@ -26,12 +26,14 @@ namespace WebAtoms.CoreJS.Core
             {
                 var ps = new JSObject();
                 Fill(type, ps);
-                return ps.ownProperties;
+                return ps.GetOwnProperties(false);
             });
+
+            ref var co = ref context.GetOwnProperties();
 
             foreach (var pk in cached.AllValues())
             {
-                context.ownProperties[pk.Key] = pk.Value;
+                co[pk.Key] = pk.Value;
             }
         }
 
@@ -68,13 +70,13 @@ namespace WebAtoms.CoreJS.Core
             });
 
             var copy = new JSFunction(jsf.f, key.ToString());
-            var target = copy.prototype.ownProperties;
-            foreach (var p in jsf.prototype.ownProperties.AllValues())
+            ref var target = ref copy.prototype.GetOwnProperties();
+            foreach (var p in jsf.prototype.GetOwnProperties(false).AllValues())
             {
                 target[p.Key] = p.Value;
             }
-            var ro = copy.ownProperties;
-            foreach (var p in jsf.ownProperties.AllValues())
+            ref var ro = ref copy.GetOwnProperties();
+            foreach (var p in jsf.GetOwnProperties().AllValues())
             {
                 /// this is the case when we do not
                 /// want to overwrite Function.prototype
@@ -85,7 +87,7 @@ namespace WebAtoms.CoreJS.Core
             }
             if (addToContext)
             {
-                context.ownProperties[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
+                context.GetOwnProperties()[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
             }
             copy.prototypeChain = chain ?? context.ObjectPrototype;
             return copy;
@@ -202,7 +204,7 @@ namespace WebAtoms.CoreJS.Core
 
             JSFunctionDelegate r = null;
 
-            var ownProperties = target.ownProperties ?? (target.ownProperties = new PropertySequence());
+            ref var ownProperties = ref target.GetOwnProperties();
 
             var p = target;
             var all = type

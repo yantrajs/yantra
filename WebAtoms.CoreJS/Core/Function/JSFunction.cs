@@ -37,7 +37,7 @@ namespace WebAtoms.CoreJS.Core
             string source = null,
             int length = 0): base(JSContext.Current?.FunctionPrototype)
         {
-            ownProperties = new PropertySequence();
+            ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
             this.name = name ?? "native";
             this.source = source 

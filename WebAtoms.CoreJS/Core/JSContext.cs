@@ -118,22 +118,24 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            ownProperties = new PropertySequence();
+            ref var ownProperties = ref this.GetOwnProperties();
 
             T CreateInternalObject<T>(KeyString name)
                 where T: JSObject
             {
                 var r = Activator.CreateInstance<T>();
-                r.ownProperties = new PropertySequence();
+                ref var rop = ref r.GetOwnProperties();
                 var cached = cache.GetOrCreate(name.Key, () => { 
                     return Bootstrap.Create(name, typeof(T));
                 });
 
-                ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+                ref var op = ref this.GetOwnProperties();
 
-                foreach(var p in cached.ownProperties.AllValues())
+                op[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+
+                foreach(var p in cached.GetOwnProperties().AllValues())
                 {
-                    r.ownProperties[p.Key] = p.Value;
+                    rop[p.Key] = p.Value;
                 }
 
                 return r;

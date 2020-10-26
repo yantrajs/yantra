@@ -11,8 +11,8 @@ namespace WebAtoms.CoreJS.ExpHelper
     {
         private static Type type = typeof(JSObject);
 
-        private static FieldInfo _ownProperties =
-            type.InternalField(nameof(Core.JSObject.ownProperties));
+        //private static FieldInfo _ownProperties =
+        //    type.InternalField(nameof(Core.JSObject.ownProperties));
 
         private static PropertyInfo _Index =
             typeof(BaseMap<uint, Core.JSProperty>)

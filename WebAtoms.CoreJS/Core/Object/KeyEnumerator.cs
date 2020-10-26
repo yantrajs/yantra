@@ -15,7 +15,8 @@ namespace WebAtoms.CoreJS.Core.Enumerators
         public PropertyEnumerator(JSObject jSObject, bool showEnumerableOnly, bool inherited)
         {
             this.target = jSObject;
-            this.properties = jSObject.ownProperties != null
+            ref var op = ref jSObject.GetOwnProperties(false);
+            this.properties = !op.IsEmpty
                 ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
                 : new PropertySequence.ValueEnumerator();
             this.showEnumerableOnly = showEnumerableOnly;
@@ -67,9 +68,7 @@ namespace WebAtoms.CoreJS.Core.Enumerators
         {
             this.target = jSObject;
             this.elements = jSObject.GetElementEnumerator();
-            this.properties = jSObject.ownProperties != null
-                ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
-                : new PropertySequence.ValueEnumerator();
+            this.properties = new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly);
             this.showEnumerableOnly = showEnumerableOnly;
             this.inherited = inherited;
             parent = null;
