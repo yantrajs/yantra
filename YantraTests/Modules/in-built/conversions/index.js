@@ -20,3 +20,12 @@ a2.add("kava");
 
 assert.strictEqual("akash", a2[0]);
 assert.strictEqual("kava", a2[1]);
+
+ListOfString = clr.getClass("System.Collections.Generic.List`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+
+a2 = new ListOfString(2);
+a2.add("akash");
+a2.add("kava");
+
+assert.strictEqual("akash", a2[0]);
+assert.strictEqual("kava", a2[1]);
