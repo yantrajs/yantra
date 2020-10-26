@@ -27,5 +27,21 @@ namespace WebAtoms.CoreJS.Core.Typed
             return new JSGenerator(array.GetEntries());
         }
 
+        [Prototype("every", Length = 0)]
+        public static JSValue Every(in Arguments a) {
+
+            var array = a.This.AsTypedArray();
+            var first = a.Get1();
+            if (!(first is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"First argument is not function");
+            var en = array.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
+                if (!fn.f(itemArgs).BooleanValue)
+                    return JSBoolean.False;
+            }
+            return JSBoolean.True;
+        }
     }
 }
