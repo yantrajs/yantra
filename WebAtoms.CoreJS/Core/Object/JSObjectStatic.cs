@@ -54,14 +54,12 @@ namespace WebAtoms.CoreJS.Core
                 return first;
             if (!(second is JSObject @object))
                 return first;
-            if (@object.ownProperties != null)
+            var en = new PropertySequence.Enumerator(@object.GetOwnProperties(false));
+            ref var firstOwnProperties = ref firstObject.GetOwnProperties();
+            while(en.MoveNext())
             {
-                var en = new PropertySequence.Enumerator(@object.ownProperties);
-                while(en.MoveNext())
-                {
-                    var item = en.Current;
-                    firstObject.ownProperties[item.key.Key] = item;
-                }
+                var item = en.Current;
+                firstOwnProperties[item.key.Key] = item;
             }
             return first;
         }
@@ -84,7 +82,7 @@ namespace WebAtoms.CoreJS.Core
                         new JSArray(new JSString(index.ToString()), item)
                     ); 
             }
-            var en = new PropertySequence.Enumerator((target as JSObject).ownProperties);
+            var en = new PropertySequence.Enumerator((target as JSObject).GetOwnProperties(false));
             while (en.MoveNext())
             {
                 r.elements[r._length++] = JSProperty.Property(
@@ -122,7 +120,7 @@ namespace WebAtoms.CoreJS.Core
                 JSObject.InternalAddProperty(target, index, item);
             }
 
-            var properties = new PropertySequence.Enumerator(pdObject.ownProperties);
+            var properties = new PropertySequence.Enumerator(pdObject.GetOwnProperties(false));
             while (properties.MoveNext())
             {
                 JSObject.InternalAddProperty(target, properties.Current.key, target.GetValue(properties.Current));
@@ -267,7 +265,7 @@ namespace WebAtoms.CoreJS.Core
             if (!(first is JSObject @object))
                 return first;
             @object.status |= ObjectStatus.Sealed;
-            @object.ownProperties.Update((x, v) =>
+            @object.GetOwnProperties().Update((x, v) =>
             {
                 v.Attributes &= ~(JSPropertyAttributes.Configurable);
                 return (true, v);
@@ -307,7 +305,7 @@ namespace WebAtoms.CoreJS.Core
                         item
                     );
             }
-            var en = new PropertySequence.Enumerator(target.ownProperties);
+            var en = new PropertySequence.Enumerator(target.GetOwnProperties(false));
             while (en.MoveNext())
             {
                 r.elements[r._length++] = JSProperty.Property(
@@ -335,7 +333,7 @@ namespace WebAtoms.CoreJS.Core
             if (!(first is JSObject jobj))
                 return new JSArray();
             var r = new JSObject();
-            var en = new PropertySequence.Enumerator(jobj.ownProperties);
+            var en = new PropertySequence.Enumerator(jobj.GetOwnProperties(false));
             while(en.MoveNext())
             {
                 var x = en.Current;
@@ -353,7 +351,7 @@ namespace WebAtoms.CoreJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            var en = new PropertySequence.Enumerator(jobj.ownProperties);
+            var en = new PropertySequence.Enumerator(jobj.GetOwnProperties(false));
             var r = new JSArray();
             while (en.MoveNext())
             {

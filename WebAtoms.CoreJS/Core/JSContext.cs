@@ -30,7 +30,7 @@ namespace WebAtoms.CoreJS.Core
     public class JSContext: JSObject, IDisposable
     {
 
-        static AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
+        static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
 
         internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
 
@@ -118,22 +118,24 @@ namespace WebAtoms.CoreJS.Core
 
             _current.Value = this;
 
-            ownProperties = new PropertySequence();
+            ref var ownProperties = ref this.GetOwnProperties();
 
             T CreateInternalObject<T>(KeyString name)
                 where T: JSObject
             {
                 var r = Activator.CreateInstance<T>();
-                r.ownProperties = new PropertySequence();
+                ref var rop = ref r.GetOwnProperties();
                 var cached = cache.GetOrCreate(name.Key, () => { 
                     return Bootstrap.Create(name, typeof(T));
                 });
 
-                ownProperties[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+                ref var op = ref this.GetOwnProperties();
 
-                foreach(var p in cached.ownProperties.AllValues())
+                op[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+
+                foreach(var (Key, Value) in cached.GetOwnProperties().AllValues())
                 {
-                    r.ownProperties[p.Key] = p.Value;
+                    rop[Key] = Value;
                 }
 
                 return r;
@@ -170,13 +172,15 @@ namespace WebAtoms.CoreJS.Core
 
             this.Fill<JSGlobalStatic>();
 
-            var c = new JSObject();
-            c.prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype;
+            var c = new JSObject
+            {
+                prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype
+            };
             this[KeyStrings.console] = c;
 
         }
 
-        private static ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
+        static readonly ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
         internal readonly SynchronizationContext synchronizationContext;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

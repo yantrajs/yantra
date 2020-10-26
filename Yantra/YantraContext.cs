@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Clr;
 
 namespace Yantra
 {
@@ -32,6 +33,47 @@ namespace Yantra
             this.extensions = new string[] { ".csx", ".js"  };
         }
 
+        private async Task<JSModuleDelegate> LoadDelegate(string assemblyPath)
+        {
+            var returnType = typeof(Task<JSModuleDelegate>);
+            var a = Assembly.LoadFile(assemblyPath);
+            var methods = a.GetTypes().SelectMany(x => x.GetMethods());
+            var p = methods.FirstOrDefault(x => x.IsStatic && x.ReturnType == returnType);
+            if (p != null)
+            {
+                var sa = new object[2];
+                var r = p.Invoke(null, new object[] { sa });
+                var rr = await (Task<JSModuleDelegate>)r;
+                if (rr != null)
+                    return rr;
+            }
+
+            var exportedTypes = new List<(string name, Type type)>();
+            foreach(var type in a.GetTypes())
+            {
+                var export = type.GetCustomAttribute<ExportAttribute>();
+                if (export == null)
+                    continue;
+                if (export.Name == null) {
+                    void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname)
+                    {
+                        module["exports"] = ClrType.From(type);
+                    }
+                    return Module;
+                }
+                exportedTypes.Add((export.Name, type));
+            }
+            var et = exportedTypes.ToArray();
+            void CaptureTypes(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) { 
+                foreach(var e in et)
+                {
+                    exports[e.name] = ClrType.From(e.type);
+                }
+            }
+            return CaptureTypes;
+
+        }
+
         protected override JSFunctionDelegate Compile(string code, string filePath, List<string> args)
         {
             if (filePath.EndsWith(".csx"))
@@ -44,14 +86,7 @@ namespace Yantra
                     var dllFile = new FileInfo(filePath + ".dll");
                     if (dllFile.Exists && dllFile.LastWriteTimeUtc >= originalFile.LastWriteTimeUtc)
                     {
-                        var returnType = typeof(Task<JSModuleDelegate>);
-                        var a = Assembly.LoadFile(filePath + ".dll");
-                        var p = a.GetTypes()
-                            .SelectMany(x => x.GetMethods())
-                            .FirstOrDefault(x => x.IsStatic && x.ReturnType == returnType);
-                        var sa = new object[2];
-                        var r = p.Invoke(null, new object[] { sa });
-                        @delegate =  await (Task<JSModuleDelegate>)r;
+                        @delegate = await LoadDelegate(dllFile.FullName);
                     } else { 
                         var options = ScriptOptions.Default
                                 .WithFilePath(filePath)
@@ -59,12 +94,28 @@ namespace Yantra
                                 .WithMetadataResolver(new NuGetMetadataReferenceResolver(ScriptMetadataResolver.Default.WithBaseDirectory(originalFile.DirectoryName)))
                                 .WithOptimizationLevel(OptimizationLevel.Debug);
 
+                        var oldCode = code;
                         // remove yantra code 
                         code = RemoveReference(code);
 
-                        var r = await CSharpScript.RunAsync<JSModuleDelegate>(code, options);
-                        @delegate = r.ReturnValue;
-                        r.Script.GetCompilation().Emit(filePath + ".dll");
+                        var csCode = await CSharpScript.RunAsync<JSModuleDelegate>(code, options);
+
+                        var r = csCode.ReturnValue;
+                        @delegate = r;
+                        var er = csCode.Script.GetCompilation().Emit(dllFile.FullName);
+                        if(!er.Success)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            foreach(var d in er.Diagnostics)
+                            {
+                                sb.AppendLine(d.ToString());
+                            }
+                            throw new Exception(sb.ToString());
+                        }
+                        if (@delegate == null)
+                        {
+                            @delegate = await LoadDelegate(dllFile.FullName);
+                        }
 
                     }
                 });

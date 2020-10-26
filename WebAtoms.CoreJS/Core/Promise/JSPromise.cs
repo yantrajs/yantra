@@ -2,11 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WebAtoms.CoreJS.Core.Clr;
 using WebAtoms.CoreJS.Core.Runtime;
+using WebAtoms.CoreJS.Core.Storage;
 using WebAtoms.CoreJS.Extensions;
 
 namespace WebAtoms.CoreJS.Core
@@ -18,7 +21,7 @@ namespace WebAtoms.CoreJS.Core
         Action<JSValue> reject);
 
     [JSRuntime(typeof(JSPromiseStatic), typeof(JSPromisePrototype))]
-    public class JSPromise: JSObject
+    public class JSPromise : JSObject
     {
 
 
@@ -36,6 +39,20 @@ namespace WebAtoms.CoreJS.Core
         JSFunction resolveFunction;
         JSFunction rejectFunction;
         private JSValue result = JSUndefined.Value;
+
+        public JSPromise(Task<JSValue> value)
+            : base(JSContext.Current.PromisePrototype)
+        {
+            value.ContinueWith((t) => {
+                if (t.IsCompleted)
+                {
+                    Resolve(t.Result);
+                } else
+                {
+                    Reject(JSException.From(t.Exception));
+                }
+            });
+        }
 
         internal JSPromise(JSValue value, PromiseState state) :
             base(JSContext.Current.PromisePrototype)
@@ -65,7 +82,7 @@ namespace WebAtoms.CoreJS.Core
         public JSPromise(JSPromiseDelegate @delegate) :
             base(JSContext.Current.PromisePrototype)
         {
-            @delegate(p => Resolve(p), p => Reject(p) );
+            @delegate(p => Resolve(p), p => Reject(p));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,7 +95,7 @@ namespace WebAtoms.CoreJS.Core
             }
 
             // get then...
-            if(value.IsObject)
+            if (value.IsObject)
             {
                 var then = value["then"];
                 if (then.IsFunction)
@@ -141,7 +158,7 @@ namespace WebAtoms.CoreJS.Core
         {
             get
             {
-                if(taskCompletion == null)
+                if (taskCompletion == null)
                 {
                     taskCompletion = new TaskCompletionSource<JSValue>();
                     this.thenList = this.thenList ?? new List<Action>();
@@ -161,6 +178,24 @@ namespace WebAtoms.CoreJS.Core
             }
         }
 
+        public override bool ConvertTo(Type type, out object value)
+        {
+            if (type == typeof(Task<JSValue>) || type == typeof(Task))
+            {
+                value = Task;
+                return true;
+            }
+            if (type.IsConstructedGenericType)
+            {
+                if (type.GetGenericTypeDefinition() == typeof(Task<>))
+                {
+                    value = JSPromiseExtensions.ToTaskInternal(this, type);
+                    return true;
+                }
+            }
+            return base.ConvertTo(type, out value);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSValue Then(JSFunctionDelegate resolved, JSFunctionDelegate failed)
         {
@@ -178,7 +213,7 @@ namespace WebAtoms.CoreJS.Core
                 Post(resolveAction);
                 return this;
             }
-            if(this.state == PromiseState.Rejected)
+            if (this.state == PromiseState.Rejected)
             {
                 Post(failAction);
                 return this;
@@ -200,10 +235,10 @@ namespace WebAtoms.CoreJS.Core
                         }
                     });
                 }
-                if(failed != null)
+                if (failed != null)
                 {
                     var catchList = this.rejectList ?? (this.rejectList = new List<Action>());
-                    catchList.Add(() => { 
+                    catchList.Add(() => {
                         try
                         {
                             failAction();
@@ -228,6 +263,58 @@ namespace WebAtoms.CoreJS.Core
             //    return Task.CompletedTask;
             //});
         }
+    }
+    public static class JSPromiseExtensions {
 
+        private static MethodInfo __convert =
+            typeof(JSPromise).GetMethod(nameof(Convert), 
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
+
+        private static MethodInfo __toTask =
+            typeof(JSPromise).GetMethod(nameof(ToTask),
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
+
+        public static JSPromise ToPromise(this Task task)
+        {
+            var type = task.GetType();
+            if (type.IsConstructedGenericType)
+            {
+                var factory = __convert.MakeGenericMethod(type.GetGenericArguments());
+                return new JSPromise( factory.Invoke(null, new object[] { task }) as Task<JSValue>);
+            }
+            return new JSPromise(ConvertToUndefined(task));
+        }
+
+        public static JSPromise ToPromise<T>(this Task<T> task)
+        {
+            return new JSPromise(Convert<T>(task));
+        }
+
+
+        internal static async Task<JSValue> ConvertToUndefined(Task task)
+        {
+            await task;
+            return JSUndefined.Value;
+        }
+
+        public static async Task<JSValue> Convert<T>(Task<T> task)
+        {
+            object result = await task;
+            if (typeof(T) == typeof(JSValue))
+                return (JSValue)result;
+            return ClrProxy.Marshal(result);
+        }
+
+        internal static object ToTaskInternal(this JSPromise promise, Type taskResultType)
+        {
+            return __toTask.MakeGenericMethod(taskResultType.GetGenericArguments()).Invoke(null, new object[] { promise });
+        }
+
+        public static async Task<T> ToTask<T>(this JSPromise promise)
+        {
+            var task = promise.Task;
+            var result = await task;
+            return (T)result.ForceConvert(typeof(T));
+        }
     }
 }

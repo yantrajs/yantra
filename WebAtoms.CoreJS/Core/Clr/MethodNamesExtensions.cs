@@ -10,7 +10,7 @@ namespace WebAtoms.CoreJS.Core.Clr
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T method, JSValue[] values) Match<T>(
+        public static (T method, object[] values) Match<T>(
             this (T method, ParameterInfo[] parameters)[] methods, 
             in Arguments a, 
             in KeyString name)
@@ -54,7 +54,7 @@ namespace WebAtoms.CoreJS.Core.Clr
 
                     if (match == parameters.Length)
                     {
-                        return (method, jsValues);
+                        return (method, values);
                     }
                 }
             }

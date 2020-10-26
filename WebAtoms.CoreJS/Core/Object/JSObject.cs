@@ -11,15 +11,6 @@ using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core
 {
-    public enum ObjectStatus
-    {
-        None = 0,
-        Frozen = 1,
-        Sealed = 2,
-        NonExtensible = 4,
-        SealedOrFrozen = 3,
-        SealedFrozenNonExtensible = 7
-    }
 
     [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
     public partial class JSObject : JSValue
@@ -28,7 +19,7 @@ namespace WebAtoms.CoreJS.Core
         internal ObjectStatus status = ObjectStatus.None;
 
         internal UInt32Trie<JSProperty> elements;
-        internal PropertySequence ownProperties;
+        private PropertySequence ownProperties;
         internal CompactUInt32Trie<JSProperty> symbols;
 
         public override bool BooleanValue => true;
@@ -50,6 +41,13 @@ namespace WebAtoms.CoreJS.Core
         internal bool IsFrozen() => (this.status & ObjectStatus.Frozen) > 0;
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref PropertySequence GetOwnProperties(bool create = true)
+        {
+            if (ownProperties.IsEmpty && create)
+                ownProperties = new PropertySequence(4);
+            return ref ownProperties;
+        }
 
         public override JSValue TypeOf()
         {
@@ -67,7 +65,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
         {
-            ownProperties = new PropertySequence();
+            ownProperties = new PropertySequence(4);
             foreach (var p in entries)
             {
                 ownProperties[p.key.Key] = p;
@@ -76,7 +74,7 @@ namespace WebAtoms.CoreJS.Core
 
         public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.Current?.ObjectPrototype)
         {
-            ownProperties = new PropertySequence();
+            ownProperties = new PropertySequence(4);
             foreach (var p in entries)
             {
                 ownProperties[p.key.Key] = p;
@@ -87,7 +85,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var o = new JSObject
             {
-                ownProperties = new PropertySequence()
+                ownProperties = new PropertySequence(4)
             };
             return o;
         }
@@ -105,7 +103,7 @@ namespace WebAtoms.CoreJS.Core
         {
             var o = new JSObject
             {
-                ownProperties = new PropertySequence(),
+                ownProperties = new PropertySequence(4),
                 elements = new UInt32Trie<JSProperty>()
             };
             return o;
@@ -157,7 +155,7 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSProperty GetInternalProperty(in KeyString key, bool inherited = true)
         {
-            if (ownProperties != null && ownProperties.TryGetValue(key.Key, out var r))
+            if (ownProperties.TryGetValue(key.Key, out var r))
             {
                 return r;
             }
@@ -204,7 +202,7 @@ namespace WebAtoms.CoreJS.Core
                 }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                ownProperties = ownProperties ?? (ownProperties = new PropertySequence());
+                ref var ownProperties = ref this.GetOwnProperties();
                 ownProperties[name.Key] = JSProperty.Property(name, value);
             }
         }
@@ -273,7 +271,7 @@ namespace WebAtoms.CoreJS.Core
         public JSValue DefineProperty(KeyString name, JSProperty p)
         {
             var key = name.Key;
-            var ownProperties = this.ownProperties ?? (this.ownProperties = new PropertySequence());
+            ref var ownProperties = ref GetOwnProperties();
             var old = ownProperties[key];
             if (!old.IsEmpty)
             {
@@ -289,7 +287,7 @@ namespace WebAtoms.CoreJS.Core
 
         public void DefineProperties(params JSProperty[] list)
         {
-            var ownProperties = this.ownProperties ?? (this.ownProperties = new PropertySequence());
+            ref var ownProperties = ref GetOwnProperties();
             foreach (var p in list)
             {
                 var key = p.key.Key;
@@ -340,7 +338,7 @@ namespace WebAtoms.CoreJS.Core
             get
             {
                 var ownp = this.ownProperties;
-                if (ownp == null)
+                if (ownp.IsEmpty)
                 {
                     return -1;
                 }
@@ -356,7 +354,7 @@ namespace WebAtoms.CoreJS.Core
             set {
                 if (this.IsSealedOrFrozenOrNonExtensible())
                     throw JSContext.Current.NewTypeError($"Cannot modify property length of {this}");
-                var ownp = this.ownProperties ?? (this.ownProperties = new PropertySequence());
+                ref var ownp = ref GetOwnProperties();
                 ownp[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length,new JSNumber(value));
             }
         }
@@ -477,7 +475,7 @@ namespace WebAtoms.CoreJS.Core
                 p.value = value;
             }
             p.Attributes = pt;
-            var ownProperties = target.ownProperties ?? (target.ownProperties = new PropertySequence());
+            ref var ownProperties = ref target.GetOwnProperties();
             ownProperties[p.key.Key] = p;
         }
 
@@ -523,7 +521,7 @@ namespace WebAtoms.CoreJS.Core
         {
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
-            if (ownProperties?.RemoveAt(key.Key) ?? false)
+            if (ownProperties.RemoveAt(key.Key))
                 return JSBoolean.True;
             return JSBoolean.False;
         }
@@ -680,6 +678,9 @@ namespace WebAtoms.CoreJS.Core
                 value = this;
                 return true;
             }
+            // if type has default constructor...
+            if (this.TryUnmarshal(type, out value))
+                return true;
             return base.ConvertTo(type, out value);
         }
 
@@ -691,7 +692,7 @@ namespace WebAtoms.CoreJS.Core
         private struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
-            IEnumerator<(uint Key, JSProperty Value)> en;
+            readonly IEnumerator<(uint Key, JSProperty Value)> en;
             public ElementEnumerator(JSObject @object)
             {
                 this.en = @object.elements?.AllValues.GetEnumerator();
@@ -702,9 +703,9 @@ namespace WebAtoms.CoreJS.Core
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
                 if(en?.MoveNext() ?? false) {
-                    var c = en.Current;
-                    value = @object.GetValue(c.Value);
-                    index = c.Key;
+                    var (Key, Value) = en.Current;
+                    value = @object.GetValue(Value);
+                    index = Key;
                     hasValue = true;
                     return true;
                 }
@@ -718,8 +719,8 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (en?.MoveNext() ?? false)
                 {
-                    var c = en.Current;
-                    value = @object.GetValue(c.Value);
+                    var (Key, Value) = en.Current;
+                    value = @object.GetValue(Value);
                     return true;
                 }
                 value = JSUndefined.Value;

@@ -177,7 +177,7 @@ namespace WebAtoms.CoreJS.Core
             bool first = true;
             // the only left type is JSObject...
             var obj = target as JSObject;
-            var pen = new PropertySequence.Enumerator(obj.ownProperties);
+            var pen = new PropertySequence.Enumerator(obj.GetOwnProperties());
             while(pen.MoveNext())
             {
                 var p = pen.Current;

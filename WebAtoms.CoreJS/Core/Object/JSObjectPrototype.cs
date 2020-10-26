@@ -70,7 +70,8 @@ namespace WebAtoms.CoreJS.Core
                 if (@object.elements?.HasKey(key.Key) ?? false)
                     return JSBoolean.True;
             }
-            if (@object.ownProperties?.HasKey(key.Key) ?? false)
+            ref var op = ref @object.GetOwnProperties(false);
+            if (op.HasKey(key.Key))
                 return JSBoolean.True;
             return JSBoolean.False;
         }

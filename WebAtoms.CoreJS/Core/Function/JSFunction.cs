@@ -19,9 +19,9 @@ namespace WebAtoms.CoreJS.Core
 
         internal JSObject prototype;
 
-        private string source;
+        readonly string source;
 
-        private string name;
+        readonly string name;
 
         internal JSFunctionDelegate f;
 
@@ -37,7 +37,7 @@ namespace WebAtoms.CoreJS.Core
             string source = null,
             int length = 0): base(JSContext.Current?.FunctionPrototype)
         {
-            ownProperties = new PropertySequence();
+            ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
             this.name = name ?? "native";
             this.source = source 
@@ -76,8 +76,10 @@ namespace WebAtoms.CoreJS.Core
 
         public override JSValue CreateInstance(in Arguments a)
         {
-            JSValue obj = new JSObject();
-            obj.prototypeChain = prototype;
+            JSValue obj = new JSObject
+            {
+                prototypeChain = prototype
+            };
             var a1 = a.OverrideThis(obj);
             var r = f(a1);
             if (!r.IsUndefined)
@@ -115,9 +117,11 @@ namespace WebAtoms.CoreJS.Core
                     return fOriginal.f(original.CopyForCall());
                 }
                 return fOriginal.f(a2.OverrideThis(original.Get1()));
-            });
-            // need to set prototypeChain...
-            fx.prototypeChain = fOriginal;
+            })
+            {
+                // need to set prototypeChain...
+                prototypeChain = fOriginal
+            };
             return fx;
         }
 

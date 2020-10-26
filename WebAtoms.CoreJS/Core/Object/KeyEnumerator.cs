@@ -4,22 +4,71 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core.Enumerators
 {
+    public class PropertyEnumerator
+    {
+        readonly JSObject target;
+        readonly bool showEnumerableOnly;
+        readonly bool inherited;
+        private PropertyEnumerator parent;
+        PropertySequence.ValueEnumerator properties;
+
+        public PropertyEnumerator(JSObject jSObject, bool showEnumerableOnly, bool inherited)
+        {
+            this.target = jSObject;
+            ref var op = ref jSObject.GetOwnProperties(false);
+            this.properties = !op.IsEmpty
+                ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
+                : new PropertySequence.ValueEnumerator();
+            this.showEnumerableOnly = showEnumerableOnly;
+            this.inherited = inherited;
+            parent = null;
+        }
+
+        public bool MoveNext(out KeyString key, out JSValue value)
+        {
+            if (this.properties.target != null)
+            {
+                if (this.properties.MoveNext(out value, out key))
+                {
+                    return true;
+                }
+                this.properties.target = null;
+                if (this.inherited)
+                {
+                    if (target.prototypeChain != null && target.prototypeChain != target)
+                    {
+                        parent = new PropertyEnumerator(target.prototypeChain, showEnumerableOnly, inherited);
+                    }
+                }
+            }
+            if (parent != null)
+            {
+                if (parent.MoveNext(out key, out value))
+                {
+                    return true;
+                }
+                parent = null;
+            }
+            key = new KeyString();
+            value = null;
+            return false;
+        }
+    }
+
     public class KeyEnumerator : IElementEnumerator
     {
-        private JSObject target;
-        private bool showEnumerableOnly;
-        private bool inherited;
+        readonly JSObject target;
+        readonly bool showEnumerableOnly;
+        readonly bool inherited;
         private KeyEnumerator parent;
         IElementEnumerator elements;
-        PropertySequence.ValueEnumerator? properties;
+        PropertySequence.ValueEnumerator properties;
 
         public KeyEnumerator(JSObject jSObject, bool showEnumerableOnly, bool inherited)
         {
             this.target = jSObject;
             this.elements = jSObject.GetElementEnumerator();
-            this.properties = jSObject.ownProperties != null
-                ? new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly)
-                : (PropertySequence.ValueEnumerator?)null;
+            this.properties = new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly);
             this.showEnumerableOnly = showEnumerableOnly;
             this.inherited = inherited;
             parent = null;
@@ -37,15 +86,15 @@ namespace WebAtoms.CoreJS.Core.Enumerators
                 }
                 this.elements = null;
             }
-            if(this.properties != null)
+            if(this.properties.target != null)
             {
-                if (this.properties.Value.MoveNext(out var key)) {
+                if (this.properties.MoveNext(out var key)) {
                     value = key.ToJSValue();
                     hasValue = true;
                     index = 0;
                     return true;
                 }
-                this.properties = null;
+                this.properties.target = null;
                 if (this.inherited)
                 {
                     if(target.prototypeChain != null && target.prototypeChain != target)
@@ -79,14 +128,14 @@ namespace WebAtoms.CoreJS.Core.Enumerators
                 }
                 this.elements = null;
             }
-            if (this.properties != null)
+            if (this.properties.target != null)
             {
-                if (this.properties.Value.MoveNext(out var key))
+                if (this.properties.MoveNext(out var key))
                 {
                     value = key.ToJSValue();
                     return true;
                 }
-                this.properties = null;
+                this.properties.target = null;
                 if (this.inherited)
                 {
                     if (target.prototypeChain != null && target.prototypeChain != target)
