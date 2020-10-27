@@ -56,20 +56,29 @@ namespace WebAtoms.CoreJS.Tests
                     typeof(JSValue),
                     new Type[] { typeof(Arguments).MakeByRefType() });
 
+                
+
                 // expression.CompileToMethod(method);
                 var d = expression.Compile();
                 var m = d.Method;
+                var m1 = d.GetMethodInfo();
+                // var data = m.GetMethodBody().GetILAsByteArray();
 
-                expression.CompileFastToIL(method.GetILGenerator());
 
-                var t = type.CreateType();
+                
+
+                // expression.CompileFastToIL(method.GetILGenerator());
+
+                // var t = type.CreateType();
 
                 //ab.Save(name.Name);
 
                 //System.IO.File.Move(name.Name, filePath);
                 var generator = new Lokad.ILPack.AssemblyGenerator();
-                generator.GenerateAssembly(t.Assembly, filePath);
+                // generator.GenerateAssembly(d.GetMethodInfo().Module.Assembly, filePath);
 
+
+                
             }
         }
     }

@@ -212,9 +212,10 @@ namespace WebAtoms.CoreJS.Core.Clr
                 ? null
                 : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
             var body = Expression.Block( 
+                JSExceptionBuilder.Wrap(
                 ClrProxyBuilder.Marshal( 
                     Expression.Property(
-                        convertedThis, property) ));
+                        convertedThis, property))));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
             return lambda.Compile();
@@ -237,10 +238,11 @@ namespace WebAtoms.CoreJS.Core.Clr
             var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
 
             var body = Expression.Block(new ParameterExpression[] { target },
+                JSExceptionBuilder.Wrap(
                 Expression.Assign(
                     Expression.Property(
                         convert, property),
-                    clrArg1), a1);
+                    clrArg1).ToJSValue()));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
             return lambda.Compile();
@@ -264,7 +266,7 @@ namespace WebAtoms.CoreJS.Core.Clr
             {
                 indexExpression = Expression.MakeIndex(convertThis, property, new Expression[] { indexAccess });
             }
-            Expression body = ClrProxyBuilder.Marshal(indexExpression);
+            Expression body = JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(indexExpression));
             var lambda = Expression.Lambda<Func<object,uint,JSValue>>(body, @this, index);
             return lambda.Compile();
         }
@@ -297,7 +299,9 @@ namespace WebAtoms.CoreJS.Core.Clr
             }
 
 
-            Expression body = Expression.Block( Expression.Assign(indexExpression , Expression.TypeAs(value, elementType)), JSUndefinedBuilder.Value);
+            Expression body = Expression.Block( 
+                JSExceptionBuilder.Wrap( 
+                    Expression.Assign(indexExpression , Expression.TypeAs(value, elementType)).ToJSValue()));
             var lambda = Expression.Lambda<Func<object, uint, object, JSValue>>(body, @this, index, value);
             return lambda.Compile();
         }
