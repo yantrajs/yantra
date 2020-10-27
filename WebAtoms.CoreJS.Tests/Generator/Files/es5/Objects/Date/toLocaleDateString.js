@@ -12,5 +12,5 @@ assert.throws(() => {
 //assert.strictEqual("الخميس، ٢٠ ديسمبر، ", event.toLocaleDateString('ar-EG', options));
 // expected output: الخميس، ٢٠ ديسمبر، ٢٠١٢
 
-assert.strictEqual("Thursday, December 20, 2012", event.toLocaleDateString(undefined, options));
+// assert.strictEqual("Thursday, December 20, 2012", event.toLocaleDateString(undefined, options));
 // expected output: Thursday, December 20, 2012 (varies according to default locale)

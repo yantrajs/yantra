@@ -169,7 +169,7 @@ namespace WebAtoms.CoreJS
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
-                this.Method = lambda.CompileSys();
+                this.Method = lambda.Compile();
 
                 if (codeCache != null)
                 {
