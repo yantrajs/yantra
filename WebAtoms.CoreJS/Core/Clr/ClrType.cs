@@ -331,14 +331,20 @@ namespace WebAtoms.CoreJS.Core.Clr
                 }
             }
 
-            if (type.IsGenericTypeDefinition) {
+            if (type.IsGenericTypeDefinition)
+            {
                 // make generic type..
 
                 this.DefineProperty(
-                    "makeGenericType", 
+                    "makeGenericType",
                     JSProperty.Function(MakeGenericType));
             }
-
+            else
+            {
+                // getMethod... name and types...
+                this.DefineProperty("getMethod",
+                    JSProperty.Function(GetMethod));
+            }
 
             if(baseType != null)
             {
@@ -410,6 +416,66 @@ namespace WebAtoms.CoreJS.Core.Clr
         {
             var (c, values) = constructorCache.Match(a, KeyStrings.constructor);
             return ClrProxy.Marshal(c.Invoke(values));
+        }
+
+        public JSValue GetMethod(in Arguments a)
+        {
+            var a1 = a.Get1();
+            if (a1.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError($"Name is required");
+            var name = a1.ToString();
+            MethodInfo method;
+            Type[] types = null;
+            var flags = BindingFlags.IgnoreCase 
+                | BindingFlags.Default 
+                | BindingFlags.Public 
+                | BindingFlags.FlattenHierarchy
+                | BindingFlags.Instance
+                | BindingFlags.Static;
+            if (a.Length == 1)
+            {
+                method = type.GetMethod(name, flags);
+            } else {
+                types = new Type[a.Length - 1];
+                for (int i = 1; i < a.Length; i++)
+                {
+                    var v = a.GetAt(i);
+                    types[i-1] = (Type)v.ForceConvert(typeof(Type));
+                }
+                method = type.GetMethod(name, flags, null, types, null);
+            }
+            if (method == null)
+                throw new JSException($"Method {name} not found on {type.Name}");
+            return new JSFunction(GenerateMethod(method), name, "native");
+        }
+
+        private JSFunctionDelegate GenerateMethod(MethodInfo m)
+        {
+            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            var @this = ArgumentsBuilder.This(args);
+
+            var convertedThis = m.IsStatic
+                ? null
+                : JSValueBuilder.ForceConvert(@this, m.DeclaringType);
+            var parameters = new List<Expression>();
+            var pList = m.GetParameters();
+            for (int i = 0; i < pList.Length; i++)
+            {
+                var ai = ArgumentsBuilder.GetAt(args, i);
+                var pi = pList[i];
+                var defValue = pi.HasDefaultValue
+                    ? Expression.Constant(pi.DefaultValue)
+                    : (pi.ParameterType.IsValueType
+                        ? Expression.Constant(Activator.CreateInstance(pi.ParameterType))
+                        : Expression.Constant(null, pi.ParameterType));
+                parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
+            }
+            var call = Expression.Call(convertedThis, m, parameters);
+            var marshal = ClrProxyBuilder.Marshal(call);
+            var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
+
+            var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
+            return lambda.Compile();
         }
 
         public JSValue MakeGenericType(in Arguments a)

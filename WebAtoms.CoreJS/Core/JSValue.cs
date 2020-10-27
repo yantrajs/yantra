@@ -33,6 +33,15 @@ namespace WebAtoms.CoreJS.Core {
 
         public virtual bool IsFunction => false;
 
+        internal object Convert(Type type, object def)
+        {
+            if (type.IsAssignableFrom(typeof(JSValue)))
+                return this;
+            if (ConvertTo(type, out var v))
+                return v;
+            return def;
+        }
+
         internal object ForceConvert(Type type) { 
             if (type.IsAssignableFrom(typeof(JSValue)))
             {

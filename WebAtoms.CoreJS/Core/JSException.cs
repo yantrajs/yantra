@@ -98,7 +98,7 @@ namespace WebAtoms.CoreJS.Core
         {
             throw JSContext.Current.NewTypeError($"{value} is not a function");
         }
-        public static JSValue From(AggregateException exception)
+        public static JSValue From(Exception exception)
         {
             if (exception.InnerException is JSException jse)
             {

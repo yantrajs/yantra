@@ -19,5 +19,12 @@ public class Demo {
         return $"Name is {product.Name} and age is {product.Age}";
     }
 
+    public static string Add(string a, string b) {
+        return $"{a} {b}";
+    }
+
+    public static string Add(string a, string b, string c) {
+        return $"{a} {b} {c}";
+    }
 
 }
