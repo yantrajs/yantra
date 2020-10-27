@@ -16,6 +16,7 @@
   
   <ItemGroup>
     <PackageReference Include="esprima" Version="1.0.1270" />
+    <PackageReference Include="FastExpressionCompiler" Version="3.0.0-preview-02" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

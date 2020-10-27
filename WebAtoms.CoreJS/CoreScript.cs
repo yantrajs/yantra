@@ -1,5 +1,6 @@
 ﻿using Esprima;
 using Esprima.Ast;
+using FastExpressionCompiler;
 using Microsoft.Threading;
 using System;
 using System.Collections.Concurrent;
@@ -168,7 +169,7 @@ namespace WebAtoms.CoreJS
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
-                this.Method = lambda.Compile();
+                this.Method = lambda.CompileSys();
 
                 if (codeCache != null)
                 {
