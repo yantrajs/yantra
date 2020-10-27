@@ -16,3 +16,11 @@ eArr.next();
 
 assert.strictEqual("2,30",eArr.next().value.toString());
 // expected output: Array [2, 30]
+
+eArr.next();
+eArr.next();
+eArr.next();
+var result = eArr.next();
+assert.strictEqual(undefined, eArr.next().value);
+assert.strictEqual(true, result.done);
+assert.strictEqual("[object Array Iterator]", eArr.toString());
