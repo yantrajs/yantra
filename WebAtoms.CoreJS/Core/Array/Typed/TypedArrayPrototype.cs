@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Core.Typed
         public static JSValue Entries(in Arguments a)
         {
             var array = a.This.AsTypedArray();
-            return new JSGenerator(array.GetEntries());
+            return new JSGenerator(array.GetEntries(), "Array Iterator");
         }
 
         [Prototype("every", Length = 0)]
@@ -51,8 +51,8 @@ namespace WebAtoms.CoreJS.Core.Typed
             var (value,start,end) = a.Get3();
            // JSArray r = new JSArray();
             var len = @this.Length;
-            var relativeStart = start.IntValue;
-            var relativeEnd = end.IntValue;
+            var relativeStart = start.AsInt32OrDefault();
+            var relativeEnd = end.AsInt32OrDefault(len);
             // Negative values represent offsets from the end of the array.
             relativeStart = relativeStart < 0 ? Math.Max(len + relativeStart, 0) : Math.Min(relativeStart, len);
             relativeEnd = relativeEnd < 0 ? Math.Max(len + relativeEnd, 0) : Math.Min(relativeEnd, len);
