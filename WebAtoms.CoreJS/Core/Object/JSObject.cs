@@ -668,19 +668,17 @@ namespace WebAtoms.CoreJS.Core
         {
             if (this.TryGetClrEnumerator(type, out value))
                 return true;
-            if (type.IsAssignableFrom(typeof(JSObject)))
-            {
-                value = this;
-                return true;
-            }
             if (type == typeof(object))
             {
                 value = this;
                 return true;
             }
-            // if type has default constructor...
-            if (this.TryUnmarshal(type, out value))
-                return true;
+            if (type != typeof(Type))
+            {
+                // if type has default constructor...
+                if (this.TryUnmarshal(type, out value))
+                    return true;
+            }
             return base.ConvertTo(type, out value);
         }
 

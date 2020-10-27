@@ -49,7 +49,7 @@ namespace WebAtoms.CoreJS.Core
                     Resolve(t.Result);
                 } else
                 {
-                    Reject(JSException.From(t.Exception));
+                    Reject(JSException.ErrorFrom(t.Exception));
                 }
             });
         }

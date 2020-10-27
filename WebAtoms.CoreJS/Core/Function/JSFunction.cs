@@ -33,6 +33,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         protected JSFunction(string name, string source, JSObject _prototype)
+            : base(JSContext.Current?.FunctionPrototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = empty;
@@ -41,7 +42,7 @@ namespace WebAtoms.CoreJS.Core
                 ?? $"function {name ?? "native"}() {{ [native] }}";
             prototype = _prototype;
             prototype[KeyStrings.constructor] = this;
-            ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(prototype);
+            ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
 
             this[KeyStrings.name] = name != null
                 ? new JSString(name)
@@ -62,7 +63,7 @@ namespace WebAtoms.CoreJS.Core
                 ?? $"function {name ?? "native"}() {{ [native] }}";
             prototype = new JSObject();
             prototype[KeyStrings.constructor] = this;
-            ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(prototype);
+            ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
 
             this[KeyStrings.name] = name != null
                 ? new JSString(name)

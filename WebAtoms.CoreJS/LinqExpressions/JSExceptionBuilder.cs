@@ -73,9 +73,10 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         public static Expression Wrap(Expression body)
         {
+            return body;
             var b = Expression.Variable(typeof(Exception));
             var cb = Expression.Catch(b, 
-                Expression.Throw(From(b)).ToJSValue(), 
+                Expression.Throw(From(b),typeof(JSValue)), 
                 Expression.Not(Expression.TypeIs(b, typeof(JSException))));
             return Expression.Block(new ParameterExpression[] { b }, 
                 Expression.TryCatch(body, cb )).ToJSValue();
