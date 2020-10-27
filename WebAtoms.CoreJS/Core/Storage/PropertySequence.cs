@@ -37,6 +37,8 @@ namespace WebAtoms.CoreJS.Core
                         ref var current = ref array[index];
                         if (current.Attributes == JSPropertyAttributes.Deleted)
                             continue;
+                        if (current.IsEmpty)
+                            continue;
                         if (enumerableOnly)
                         {
                             if (!current.IsEnumerable)
@@ -60,6 +62,8 @@ namespace WebAtoms.CoreJS.Core
                     {
                         ref var current = ref array[index];
                         if (current.Attributes == JSPropertyAttributes.Deleted)
+                            continue;
+                        if (current.IsEmpty)
                             continue;
                         if (enumerableOnly)
                         {
