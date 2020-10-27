@@ -312,7 +312,7 @@ namespace WebAtoms.CoreJS.Core
                 if (v.IsFunction)
                     v = v.InvokeFunction(new Arguments(this));
                 if (v == this)
-                    throw new StackOverflowException();
+                    return "Stack overflow ...";
                 return v.ToString();
             }
             return "[object Object]";

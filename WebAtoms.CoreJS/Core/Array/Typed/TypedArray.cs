@@ -63,6 +63,8 @@ namespace WebAtoms.CoreJS.Core.Typed
         private readonly int bytesPerElement;
         private readonly int length;
 
+        public override int Length { get => length; set => base.Length = value; }
+
         public TypedArray(
             JSArrayBuffer buffer,
             TypedArrayType type,
