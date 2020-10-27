@@ -85,5 +85,30 @@ namespace WebAtoms.CoreJS.Core.Typed
             return r;
         }
 
+
+        [Prototype("find", Length = 0)]
+        public static JSValue Find(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            var (callback, thisArg) = a.Get2();
+
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
+
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                // ignore holes...
+                if (!hasValue)
+                    continue;
+                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
+                if (fn.f(itemParams).BooleanValue)
+                {
+                    return item;
+                }
+            }
+            return JSUndefined.Value;
+        }
+
     }
 }
