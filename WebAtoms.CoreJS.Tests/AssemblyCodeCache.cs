@@ -57,6 +57,9 @@ namespace WebAtoms.CoreJS.Tests
                     new Type[] { typeof(Arguments).MakeByRefType() });
 
                 // expression.CompileToMethod(method);
+                var d = expression.Compile();
+                var m = d.Method;
+
                 expression.CompileFastToIL(method.GetILGenerator());
 
                 var t = type.CreateType();
