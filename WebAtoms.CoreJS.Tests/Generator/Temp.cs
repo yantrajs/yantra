@@ -29,7 +29,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // RunTest("es6/Syntax/for-of/array.js");
 
-            RunTest("es5/Syntax/for.js");
+            // RunTest("es5/Syntax/for.js");
+            RunTest("es5/Array/Typed/fill.js");
 
         }
 

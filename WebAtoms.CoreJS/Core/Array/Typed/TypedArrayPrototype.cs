@@ -9,8 +9,8 @@ namespace WebAtoms.CoreJS.Core.Typed
     {
         [Prototype("toString")]
         public static JSValue ToString(in Arguments a) {
-
-            return new JSString(a.This.ToString());
+            var @this = a.This.AsTypedArray();
+            return new JSString(@this.ToString());
         }
 
         [Prototype("copyWithin", Length = 2)]
@@ -42,6 +42,25 @@ namespace WebAtoms.CoreJS.Core.Typed
                     return JSBoolean.False;
             }
             return JSBoolean.True;
+        }
+
+        [Prototype("fill", Length = 0)]
+        public static JSValue Fill(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            var (value,start,end) = a.Get3();
+           // JSArray r = new JSArray();
+            var len = @this.Length;
+            var relativeStart = start.IntValue;
+            var relativeEnd = end.IntValue;
+            // Negative values represent offsets from the end of the array.
+            relativeStart = relativeStart < 0 ? Math.Max(len + relativeStart, 0) : Math.Min(relativeStart, len);
+            relativeEnd = relativeEnd < 0 ? Math.Max(len + relativeEnd, 0) : Math.Min(relativeEnd, len);
+            for (; relativeStart < relativeEnd; relativeStart++)
+            {
+                @this[(uint)relativeStart] = value;
+            }
+            return @this;
         }
     }
 }
