@@ -268,6 +268,11 @@ namespace WebAtoms.CoreJS.Core.Typed
             return new ElementEnumerator(this);
         }
 
+        internal IElementEnumerator GetElementEnumerator(int startIndex)
+        {
+            return new ElementEnumerator(this, startIndex);
+        }
+
         internal IElementEnumerator GetEntries() {
             return new EntryEnumerator(this);
         }
@@ -277,10 +282,11 @@ namespace WebAtoms.CoreJS.Core.Typed
             private TypedArray typedArray;
             private int index;
 
-            public ElementEnumerator(TypedArray typedArray)
+            public ElementEnumerator(TypedArray typedArray, int startIndex = 0)
             {
                 this.typedArray = typedArray;
-                this.index = -1;
+                this.index = startIndex - 1;
+                
             }
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)

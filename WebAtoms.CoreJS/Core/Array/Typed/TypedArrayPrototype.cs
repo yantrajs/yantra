@@ -152,7 +152,42 @@ namespace WebAtoms.CoreJS.Core.Typed
             return JSUndefined.Value;
         }
 
+        [Prototype("includes", Length = 0)]
+        public static JSValue Includes(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (searchElement, fromIndex) = a.Get2();
+            var startIndex = fromIndex.AsInt32OrDefault();
+            if (startIndex < 0) {
+                startIndex = 0;
+            }
+            var en = @this.GetElementEnumerator(startIndex);
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if (hasValue && item.Equals(searchElement).BooleanValue)
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
 
+        [Prototype("indexOf", Length = 1)]
+        public static JSValue IndexOf(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (searchElement, fromIndex) = a.Get2();
+            var startIndex = fromIndex.AsInt32OrDefault();
+            if (startIndex < 0)
+            {
+                startIndex = 0;
+            }
+            var en = @this.GetElementEnumerator(startIndex);
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if (!hasValue)
+                    continue;
+                if (searchElement.Equals(item).BooleanValue)
+                    return new JSNumber(index);
+            }
+            return JSNumber.MinusOne;
+        }
 
     }
 }
