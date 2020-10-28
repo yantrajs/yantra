@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Utils;
 
 namespace WebAtoms.CoreJS.Core.Clr
@@ -117,6 +118,8 @@ namespace WebAtoms.CoreJS.Core.Clr
                     return task.ToPromise();
                 case Task task:
                     return task.ToPromise();
+                case IEnumerable<JSValue> en:
+                    return new JSGenerator(new ClrEnumerableElementEnumerator(en), "Clr Iterator");
             }
 
             return new ClrProxy(value);
