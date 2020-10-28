@@ -20,6 +20,54 @@ namespace WebAtoms.CoreJS.Core
             return ClrProxy.Marshal(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this string value)
+        {
+            return new JSString(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this bool value)
+        {
+            return value ? JSBoolean.True : JSBoolean.False;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this int value)
+        {
+            return new JSNumber(value);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this uint value)
+        {
+            return new JSNumber(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this double value)
+        {
+            return new JSNumber(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this float value)
+        {
+            return new JSNumber(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this short value)
+        {
+            return new JSNumber(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this byte value)
+        {
+            return new JSNumber(value);
+        }
+
+
 
         internal static bool TryUnmarshal(this JSObject @object, Type type, out object result)
         {
