@@ -73,11 +73,11 @@ namespace WebAtoms.CoreJS.Core.Clr
                 var name = field.Name.ToCamelCase();
                 JSFunctionDelegate getter = GenerateFieldGetter(field);
                 JSFunctionDelegate setter = null;
-                //if (!field.)
-                //{
-                //    // you can only read...
-                //    setter = GenerateFieldSetter(field);
-                //}
+                if (!(field.IsInitOnly || field.IsLiteral))
+                {
+                    // you can only read...
+                    setter = GenerateFieldSetter(field);
+                }
                 target.DefineProperty(name, JSProperty.Property(name, getter, setter));
             }
 
@@ -116,22 +116,22 @@ namespace WebAtoms.CoreJS.Core.Clr
                         var ip = fgm.GetParameters()[0];
                         if (ip.ParameterType == typeof(int))
                         {
-                            indexGetter = PrepareIndexedGetter(f);
-                            indexSetter = PrepareIndexedSetter(f);
+                            indexGetter = GenerateIndexedGetter(f);
+                            indexSetter = GenerateIndexedSetter(f);
                         } else
                         {
                             if (indexGetter != null)
                                 continue;
-                            indexGetter = PrepareIndexedGetter(f);
-                            indexSetter = PrepareIndexedSetter(f);
+                            indexGetter = GenerateIndexedGetter(f);
+                            indexSetter = GenerateIndexedSetter(f);
                         }
                     } else
                     {
                         JSFunctionDelegate getter = f.CanRead
-                            ? PreparePropertyGetter(isStatic, f)
+                            ? GeneratePropertyGetter(isStatic, f)
                             : null;
                         JSFunctionDelegate setter = f.CanWrite
-                            ? PreparePropertySetter(isStatic, f)
+                            ? GeneratePropertySetter(isStatic, f)
                             : null;
 
                         var jsProperty = JSProperty.Property(name, getter, setter);
@@ -258,7 +258,7 @@ namespace WebAtoms.CoreJS.Core.Clr
             return lambda.Compile();
         }
 
-        private static JSFunctionDelegate PreparePropertyGetter(bool isStatic, PropertyInfo property)
+        private static JSFunctionDelegate GeneratePropertyGetter(bool isStatic, PropertyInfo property)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             Expression convertedThis = isStatic
@@ -275,7 +275,7 @@ namespace WebAtoms.CoreJS.Core.Clr
 
         }
 
-        private static JSFunctionDelegate PreparePropertySetter(bool isStatic, PropertyInfo property)
+        private static JSFunctionDelegate GeneratePropertySetter(bool isStatic, PropertyInfo property)
         {
             //if (property.GetIndexParameters()?.Length > 0)
             //{
@@ -301,7 +301,7 @@ namespace WebAtoms.CoreJS.Core.Clr
             return lambda.Compile();
         }
 
-        private static Func<object,uint,JSValue> PrepareIndexedGetter(PropertyInfo property)
+        private static Func<object,uint,JSValue> GenerateIndexedGetter(PropertyInfo property)
         {
             var @this = Expression.Parameter(typeof(object));
             var index = Expression.Parameter(typeof(uint));
@@ -324,7 +324,7 @@ namespace WebAtoms.CoreJS.Core.Clr
             return lambda.Compile();
         }
 
-        private static Func<object, uint, object, JSValue> PrepareIndexedSetter(PropertyInfo property)
+        private static Func<object, uint, object, JSValue> GenerateIndexedSetter(PropertyInfo property)
         {
             if (!property.CanWrite)
                 return null;
