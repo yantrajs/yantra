@@ -86,6 +86,8 @@ namespace WebAtoms.CoreJS.Core.Clr
                     return JSNull.Value;
                 case JSValue jsValue:
                     return jsValue;
+                case bool bv:
+                    return bv ? JSBoolean.True : JSBoolean.False;
                 case string @string:
                     return new JSString(@string);
                 case int @int:
