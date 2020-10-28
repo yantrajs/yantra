@@ -20,14 +20,14 @@ namespace WebAtoms.CoreJS.Core.Typed
         }
 
 
-        [Prototype("entries", Length = 0)]
+        [Prototype("entries")]
         public static JSValue Entries(in Arguments a)
         {
             var array = a.This.AsTypedArray();
             return new JSGenerator(array.GetEntries(), "Array Iterator");
         }
 
-        [Prototype("every", Length = 0)]
+        [Prototype("every", Length = 1)]
         public static JSValue Every(in Arguments a) {
 
             var array = a.This.AsTypedArray();
@@ -44,7 +44,7 @@ namespace WebAtoms.CoreJS.Core.Typed
             return JSBoolean.True;
         }
 
-        [Prototype("fill", Length = 0)]
+        [Prototype("fill", Length = 1)]
         public static JSValue Fill(in Arguments a)
         {
             var @this = a.This.AsTypedArray();
@@ -63,7 +63,7 @@ namespace WebAtoms.CoreJS.Core.Typed
             return @this;
         }
 
-        [Prototype("filter", Length = 0)]
+        [Prototype("filter", Length = 1)]
         public static JSValue Filter(in Arguments a)
         {
             var @this = a.This.AsTypedArray();
@@ -86,7 +86,7 @@ namespace WebAtoms.CoreJS.Core.Typed
         }
 
 
-        [Prototype("find", Length = 0)]
+        [Prototype("find", Length = 1)]
         public static JSValue Find(in Arguments a)
         {
             var @this = a.This.AsTypedArray();
@@ -110,7 +110,7 @@ namespace WebAtoms.CoreJS.Core.Typed
             return JSUndefined.Value;
         }
 
-        [Prototype("findIndex", Length = 0)]
+        [Prototype("findIndex", Length = 1)]
         public static JSValue FindIndex(in Arguments a) {
             var @this = a.This.AsTypedArray();
             var (callback, thisArg) = a.Get2();
@@ -133,7 +133,7 @@ namespace WebAtoms.CoreJS.Core.Typed
 
         }
 
-        [Prototype("forEach", Length = 0)]
+        [Prototype("forEach", Length = 1)]
         public static JSValue ForEach(in Arguments a) {
             var @this = a.This.AsTypedArray();
             var (callback, thisArg) = a.Get2();
@@ -152,7 +152,7 @@ namespace WebAtoms.CoreJS.Core.Typed
             return JSUndefined.Value;
         }
 
-        [Prototype("includes", Length = 0)]
+        [Prototype("includes", Length = 1)]
         public static JSValue Includes(in Arguments a) {
             var @this = a.This.AsTypedArray();
             var (searchElement, fromIndex) = a.Get2();
@@ -187,6 +187,31 @@ namespace WebAtoms.CoreJS.Core.Typed
                     return new JSNumber(index);
             }
             return JSNumber.MinusOne;
+        }
+
+        [Prototype("join", Length = 1)]
+        public static JSValue Join(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var first = a.Get1();
+            var sep = first.IsUndefined ? "," : first.ToString();
+            var sb = new StringBuilder();
+            bool isFirst = true;
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var item))
+            {
+                if (!isFirst)
+                {
+                    sb.Append(sep);
+                }
+                else
+                {
+                    isFirst = false;
+                }
+                if (item.IsUndefined)
+                    continue;
+                sb.Append(item.ToString());
+            }
+            return new JSString(sb.ToString());
         }
 
     }
