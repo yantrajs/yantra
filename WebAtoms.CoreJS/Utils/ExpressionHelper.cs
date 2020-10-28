@@ -16,9 +16,9 @@ namespace WebAtoms.CoreJS
                 return exp;
             if (typeof(JSVariable) == exp.Type)
                 return JSVariable.ValueExpression(exp);
-            if (!typeof(JSValue).IsAssignableFrom(exp.Type))
+            if (typeof(JSValue) != exp.Type)
                 return Expression.Block(exp, JSUndefinedBuilder.Value);
-            return exp;
+            return Expression.TypeAs(exp,typeof(JSValue));
         }
 
     }

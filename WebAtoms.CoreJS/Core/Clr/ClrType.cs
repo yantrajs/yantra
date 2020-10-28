@@ -66,6 +66,21 @@ namespace WebAtoms.CoreJS.Core.Clr
                 ? BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Static
                 : BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance;
 
+            var declaredFields = type.GetTypeInfo().DeclaredFields.Where(x => x.IsStatic == isStatic && x.IsPublic);
+
+            foreach(var field in declaredFields)
+            {
+                var name = field.Name.ToCamelCase();
+                JSFunctionDelegate getter = GenerateFieldGetter(field);
+                JSFunctionDelegate setter = null;
+                //if (!field.)
+                //{
+                //    // you can only read...
+                //    setter = GenerateFieldSetter(field);
+                //}
+                target.DefineProperty(name, JSProperty.Property(name, getter, setter));
+            }
+
             var declaredProperties = isStatic
                 ? type.GetProperties(flags)
                 : type.GetTypeInfo()
@@ -204,6 +219,44 @@ namespace WebAtoms.CoreJS.Core.Clr
             return ClrProxy.Marshal(method.Invoke(null, args));
         }
 
+        private static JSFunctionDelegate GenerateFieldGetter(FieldInfo field)
+        {
+            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            Expression convertedThis = field.IsStatic
+                ? null
+                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), field.DeclaringType);
+            var body = Expression.Block(
+                JSExceptionBuilder.Wrap(
+                ClrProxyBuilder.Marshal(
+                    Expression.Field(
+                        convertedThis, field))));
+
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
+
+        }
+
+        private static JSFunctionDelegate GenerateFieldSetter(FieldInfo field)
+        {
+            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            var a1 = ArgumentsBuilder.Get1(args);
+            var convert = field.IsStatic
+                ? null
+                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), field.DeclaringType);
+
+            var clrArg1 = JSValueBuilder.ForceConvert(a1, field.FieldType);
+
+
+            var fieldExp = Expression.Field(convert, field);
+
+            var assign = Expression.Assign(fieldExp, clrArg1).ToJSValue();
+
+            var body = 
+                JSExceptionBuilder.Wrap(assign);
+
+            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            return lambda.Compile();
+        }
 
         private static JSFunctionDelegate PreparePropertyGetter(bool isStatic, PropertyInfo property)
         {
