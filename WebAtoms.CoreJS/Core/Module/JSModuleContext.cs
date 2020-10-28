@@ -84,35 +84,36 @@ namespace WebAtoms.CoreJS.Core
 
         internal string Resolve(string dirPath, string relativePath)
         {
-            string Combine(string cFolder, string cR, bool checkExtensions = true)
+            foreach (var ext in extensions)
             {
-                string cP = Path.Combine(cFolder, cR);
-                if (File.Exists(cP))
-                    return cP;
-                if (!checkExtensions)
-                    return null;
-                foreach (var e in extensions)
+                string Combine(string cFolder, string cR, bool checkExtensions = true)
                 {
-                    var cpE = Combine(cFolder, cR + e, false);
-                    if (cpE != null)
-                        return cpE;
+                    string cP = Path.Combine(cFolder, cR + ext);
+                    if (File.Exists(cP))
+                        return cP;
+                    return null;
                 }
-                return null;
-            }
 
-            if (relativePath.StartsWith("."))
-            {
-                return Combine(dirPath, relativePath);
-            }
+                if (relativePath.StartsWith("."))
+                {
+                    var path = Combine(dirPath, relativePath);
+                    if (path != null)
+                        return path;
 
-            foreach(var folder in paths)
-            {
-                var path = Combine(folder, relativePath);
-                if (path != null)
-                    return path;
-                path = Combine(folder, relativePath + "/index");
-                if (path != null)
-                    return path;
+                    // relative path cannot be checked with other module
+                    // installation paths
+                    continue;
+                }
+
+                foreach (var folder in paths)
+                {
+                    var path = Combine(folder, relativePath);
+                    if (path != null)
+                        return path;
+                    path = Combine(folder, relativePath + "/index");
+                    if (path != null)
+                        return path;
+                }
             }
             return null;
         }
