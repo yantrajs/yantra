@@ -191,7 +191,8 @@ namespace WebAtoms.CoreJS.Core.Clr
             {
                 try
                 {
-                    (prototypeChain as ClrType.ClrPrototype).SetElementAt(this.value, name, value);
+                    var cp = prototypeChain as ClrType.ClrPrototype;
+                    cp.SetElementAt(this.value, name, value);
                 } catch (Exception ex)
                 {
                     throw new JSException(ex.Message);

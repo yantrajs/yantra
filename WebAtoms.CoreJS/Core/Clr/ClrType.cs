@@ -134,8 +134,11 @@ namespace WebAtoms.CoreJS.Core.Clr
                             ? GeneratePropertySetter(isStatic, f)
                             : null;
 
-                        var jsProperty = JSProperty.Property(name, getter, setter);
-                        target.DefineProperty(name, jsProperty);
+                        if (getter != null || setter != null)
+                        {
+                            var jsProperty = JSProperty.Property(name, getter, setter);
+                            target.DefineProperty(name, jsProperty);
+                        }
                     }
 
                 }
@@ -406,13 +409,14 @@ namespace WebAtoms.CoreJS.Core.Clr
 
             if(baseType != null)
             {
-                prototypeChain = baseType.prototype;
+                prototypeChain = baseType;
+                prototype.prototypeChain = baseType.prototype;
 
                 // set indexer... for int/uint
                 
                 if (prototype is ClrPrototype p)
                 {
-                    if (prototypeChain is ClrPrototype bp)
+                    if (baseType.prototype is ClrPrototype bp)
                     {
                         if (p.GetElementAt == null)
                         {
