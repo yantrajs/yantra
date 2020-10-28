@@ -348,6 +348,8 @@ namespace WebAtoms.CoreJS.Core.Clr
                 // getMethod... name and types...
                 this.DefineProperty("getMethod",
                     JSProperty.Function(GetMethod));
+                this.DefineProperty("getConstructor", 
+                    JSProperty.Function(GetConstructor));
             }
 
             if(baseType != null)
@@ -468,9 +470,9 @@ namespace WebAtoms.CoreJS.Core.Clr
                 var ai = ArgumentsBuilder.GetAt(args, i);
                 var pi = pList[i];
                 var defValue = pi.HasDefaultValue
-                    ? Expression.Constant(pi.DefaultValue)
+                    ? Expression.Constant((object)pi.DefaultValue, typeof(object))
                     : (pi.ParameterType.IsValueType
-                        ? Expression.Constant(Activator.CreateInstance(pi.ParameterType))
+                        ? Expression.Constant((object)Activator.CreateInstance(pi.ParameterType),typeof(object))
                         : Expression.Constant(null, pi.ParameterType));
                 parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
             }
@@ -481,6 +483,55 @@ namespace WebAtoms.CoreJS.Core.Clr
             var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
             return lambda.Compile();
         }
+
+        public JSValue GetConstructor(in Arguments a)
+        {
+            ConstructorInfo method;
+            Type[] types = null;
+            if (a.Length == 0)
+            {
+                method = type.GetConstructor(new Type[] { });
+            }
+            else
+            {
+                types = new Type[a.Length];
+                for (int i = 0; i < a.Length; i++)
+                {
+                    var v = a.GetAt(i);
+                    types[i] = (Type)v.ForceConvert(typeof(Type));
+                }
+                method = type.GetConstructor(types);
+            }
+            if (method == null) 
+                throw new JSException($"Constructor({string.Join(",", types.Select(x => x.Name))}) not found on {type.Name}");
+            return new JSFunction(GenerateConstructor(method), this);
+        }
+
+        private JSFunctionDelegate GenerateConstructor(ConstructorInfo m)
+        {
+            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+
+            var parameters = new List<Expression>();
+            var pList = m.GetParameters();
+            for (int i = 0; i < pList.Length; i++)
+            {
+                var ai = ArgumentsBuilder.GetAt(args, i);
+                var pi = pList[i];
+                var defValue = pi.HasDefaultValue
+                    ? Expression.Constant(pi.DefaultValue,typeof(object))
+                    : (pi.ParameterType.IsValueType
+                        ? Expression.Constant(Activator.CreateInstance(pi.ParameterType),typeof(object))
+                        : Expression.Constant(null, pi.ParameterType));
+                parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
+            }
+            var call = Expression.New(m, parameters);
+            var marshal = ClrProxyBuilder.Marshal(call);
+            var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
+
+            var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
+            return lambda.Compile();
+        }
+
 
         public JSValue MakeGenericType(in Arguments a)
         {

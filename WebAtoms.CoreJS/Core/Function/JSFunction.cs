@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using WebAtoms.CoreJS.Core.Clr;
 using WebAtoms.CoreJS.ExpHelper;
 using WebAtoms.CoreJS.Extensions;
 using WebAtoms.CoreJS.LinqExpressions;
@@ -30,6 +31,28 @@ namespace WebAtoms.CoreJS.Core
         public override JSValue TypeOf()
         {
             return JSConstants.Function;
+        }
+
+        /// <summary>
+        /// Used as specific type constructor
+        /// </summary>
+        /// <param name="clrDelegate"></param>
+        /// <param name="type"></param>
+        internal JSFunction(JSFunctionDelegate clrDelegate, ClrType type)
+        {
+            ref var ownProperties = ref this.GetOwnProperties();
+            this.f = clrDelegate;
+            this.name = "clr-native";
+            this.source = source
+                ?? $"function {type.name}() {{ [clr-native] }}";
+            prototype = type.prototype;
+            prototype[KeyStrings.constructor] = type;
+            ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
+
+            this[KeyStrings.name] = name != null
+                ? new JSString(name)
+                : new JSString("native");
+            this[KeyStrings.length] = new JSNumber(0);
         }
 
         protected JSFunction(string name, string source, JSObject _prototype)

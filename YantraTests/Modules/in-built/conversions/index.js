@@ -29,3 +29,12 @@ a2.add("kava");
 
 assert.strictEqual("akash", a2[0]);
 assert.strictEqual("kava", a2[1]);
+
+const Int32 = clr.getClass("System.Int32");
+
+ListOfStringCapacity = ListOfString.getConstructor(Int32);
+
+a2 = new ListOfStringCapacity(2);
+assert.strictEqual(2, a2.capacity);
+
+assert(a2 instanceof ListOfString);
