@@ -187,7 +187,6 @@ namespace WebAtoms.CoreJS.Core.Clr
                 clrPrototype.GetElementAt = indexGetter;
             if (indexSetter != null)
                 clrPrototype.SetElementAt = indexSetter;
-
         }
 
         private static JSFunctionDelegate ToInstanceDelegate(MethodInfo method)

@@ -10,6 +10,7 @@ a[1] = 2;
 assert.strictEqual(1, a[0]);
 assert.strictEqual(2, a[1]);
 
+// length should be 10...
 // assert.strictEqual(10, a.length);
 
 var List = clr.getClass("System.Collections.Generic.List`1, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
