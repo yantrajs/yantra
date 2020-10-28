@@ -57,7 +57,7 @@ namespace WebAtoms.CoreJS.Emit
         private static ConcurrentDictionary<string, JSFunctionDelegate> cache
             = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        public readonly static ICodeCache Current = new DictionaryCodeCache();
+        public static ICodeCache Current = new DictionaryCodeCache();
 
         public JSFunctionDelegate GetOrCreate(in JSCode code, JSCodeCompiler compiler)
         {

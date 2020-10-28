@@ -312,7 +312,7 @@ namespace WebAtoms.CoreJS.Core
                 if (v.IsFunction)
                     v = v.InvokeFunction(new Arguments(this));
                 if (v == this)
-                    throw new StackOverflowException();
+                    return "Stack overflow ...";
                 return v.ToString();
             }
             return "[object Object]";
@@ -668,19 +668,17 @@ namespace WebAtoms.CoreJS.Core
         {
             if (this.TryGetClrEnumerator(type, out value))
                 return true;
-            if (type.IsAssignableFrom(typeof(JSObject)))
-            {
-                value = this;
-                return true;
-            }
             if (type == typeof(object))
             {
                 value = this;
                 return true;
             }
-            // if type has default constructor...
-            if (this.TryUnmarshal(type, out value))
-                return true;
+            if (type != typeof(Type))
+            {
+                // if type has default constructor...
+                if (this.TryUnmarshal(type, out value))
+                    return true;
+            }
             return base.ConvertTo(type, out value);
         }
 

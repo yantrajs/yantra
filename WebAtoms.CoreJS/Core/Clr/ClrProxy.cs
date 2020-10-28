@@ -181,6 +181,23 @@ namespace WebAtoms.CoreJS.Core.Clr
             return JSBoolean.False;
         }
 
+        public override JSValue this[uint name]
+        {
+            get
+            {
+                return (prototypeChain as ClrType.ClrPrototype).GetElementAt(this.value, name);
+            }
+            set
+            {
+                try
+                {
+                    (prototypeChain as ClrType.ClrPrototype).SetElementAt(this.value, name, value);
+                } catch (Exception ex)
+                {
+                    throw new JSException(ex.Message);
+                }
+            }
+        }
 
 
         internal override IElementEnumerator GetElementEnumerator()

@@ -10,6 +10,18 @@ namespace WebAtoms.CoreJS
     internal static class TypeExtensions
     {
 
+        internal static Type GetElementTypeOrGeneric(this Type type)
+        {
+            if (type.IsArray && type.HasElementType)
+            {
+                var et = type.GetElementType();
+                return et != typeof(object) ? et : null;
+            }
+            if (type.IsConstructedGenericType)
+                return type.GetGenericArguments()[0];
+            return null;
+        }
+
         internal static PropertyInfo Property(this Type type , string name)
         {
             var a = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);

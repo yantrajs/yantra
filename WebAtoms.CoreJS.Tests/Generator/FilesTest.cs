@@ -23,6 +23,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         public TestFolderAttribute(string root, bool saveLambda = false)
         {
+            // DictionaryCodeCache.Current = AssemblyCodeCache.Instance;
             this.root = root;
             this.saveLambda = saveLambda;
         }

@@ -29,6 +29,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         private Exception lastError;
         private LexicalScope threadTop;
         private IElementEnumerator en;
+        private readonly string name;
 
         public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)
         {
@@ -36,10 +37,25 @@ namespace WebAtoms.CoreJS.Core.Generator
             this.@delegate = @delegate;
             this.a = a;
             done = false;
+            name = "generator";
         }
 
-        public JSGenerator(IElementEnumerator en) {
+        public JSGenerator(IElementEnumerator en, string name) {
+            this.prototypeChain = JSContext.Current.GeneratorPrototype;
             this.en = en;
+            this.name = name;
+        }
+
+        public override string ToString()
+        {
+            return $"[object {name}]";
+        }
+
+        [Prototype("toString")]
+        public static JSValue ToString(in Arguments a)
+        {
+            var a1 = a.This as JSGenerator;
+            return new JSString(a1.ToString());
         }
 
         ~JSGenerator()

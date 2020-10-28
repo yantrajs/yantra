@@ -17,6 +17,9 @@ namespace WebAtoms.CoreJS.ExpHelper
         private static MethodInfo _Throw =
             type.InternalMethod(nameof(Core.JSException.Throw), typeof(Core.JSValue));
 
+        private static MethodInfo _From =
+            type.InternalMethod(nameof(JSException.From), typeof(Exception));
+
         public static Expression Throw(Expression value)
         {
             return Expression.Call(null, _Throw, value);
@@ -35,6 +38,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression Error(Expression target)
         {
             return Expression.Property(target, _Error);
+        }
+
+        public static Expression From(Expression ex)
+        {
+            return Expression.Call(null, _From, ex);
         }
 
         public static Expression Throw(string message,
@@ -61,6 +69,17 @@ namespace WebAtoms.CoreJS.ExpHelper
                 Expression.Constant(function),
                 Expression.Constant(filePath),
                 Expression.Constant(line));
+        }
+
+        public static Expression Wrap(Expression body)
+        {
+            // return body;
+            var b = Expression.Variable(typeof(Exception));
+            var cb = Expression.Catch(b, 
+                Expression.Throw(From(b),typeof(JSValue)), 
+                Expression.Not(Expression.TypeIs(b, typeof(JSException))));
+            return Expression.Block(new ParameterExpression[] { b }, 
+                Expression.TryCatch(body, cb )).ToJSValue();
         }
     }
 }

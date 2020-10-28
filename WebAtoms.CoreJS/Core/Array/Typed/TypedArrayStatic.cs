@@ -15,6 +15,13 @@ namespace WebAtoms.CoreJS.Core.Typed
         {
         }
 
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Int8ArrayPrototype, TypedArrayType.Int8Array, a);
+        }
+
         [Static("from", Length = 1)]
         public static JSValue From(in Arguments a) {
 
@@ -44,19 +51,49 @@ namespace WebAtoms.CoreJS.Core.Typed
             return array;
         }
 
+        public static JSValue Constructor(JSObject prototype, TypedArrayType type, in Arguments a) {
+
+            if (a.Length == 0) {
+                return new TypedArray(null, type, 0, 0, prototype);
+            }
+            var (a1, a2, a3) = a.Get3();
+            if (a1.IsNumber) {
+                return new TypedArray(null, type, 0, a1.IntValue, prototype);
+            }
+            if (a1 is JSArrayBuffer arrayBuffer) {
+                int byteOffset = a2.AsInt32OrDefault();
+                int bufferLength = a3.AsInt32OrDefault(arrayBuffer.Length);
+                return new TypedArray(arrayBuffer, type, byteOffset,bufferLength, prototype);
+            }
+            return CopyArray(prototype, type, a1, JSUndefined.Value, null);
+
+            
+        }
+
+
         // [Static("from", Length = 1)]
-        public static JSValue From(JSObject prototype, TypedArrayType type, in Arguments a) {
+        public static JSValue From(JSObject prototype, TypedArrayType type, in Arguments a)
+        {
             var (f, map, mapThis) = a.Get3();
             var t = a.This;
+            return CopyArray(prototype, type, f, map, mapThis);
 
+        }
+
+        private static JSValue CopyArray(JSObject prototype, TypedArrayType type, JSValue f, JSValue map, JSValue mapThis)
+        {
             int length = -1;
 
-            switch (f) {
+            switch (f)
+            {
                 case JSArray array:
                     length = array.Length;
                     break;
                 case JSString @string:
                     length = @string.value.Length;
+                    break;
+                case TypedArray typed:
+                    length = typed.Length;
                     break;
             }
 
@@ -76,7 +113,8 @@ namespace WebAtoms.CoreJS.Core.Typed
                 length = elements.Count;
                 en2 = new ListElementEnumerator(elements.GetEnumerator());
             }
-            else {
+            else
+            {
                 en2 = f.GetElementEnumerator();
             }
 
@@ -98,14 +136,7 @@ namespace WebAtoms.CoreJS.Core.Typed
                 }
             }
             return typedArray;
-
-
-
-
         }
-
-
-
 
         public static JSValue Of(JSObject prototype, TypedArrayType type, in Arguments a)
         {
