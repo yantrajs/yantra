@@ -86,7 +86,7 @@ namespace WebAtoms.CoreJS.Core
         {
             foreach (var ext in extensions)
             {
-                string Combine(string cFolder, string cR, bool checkExtensions = true)
+                string Combine(string cFolder, string cR)
                 {
                     string cP = Path.Combine(cFolder, cR + ext);
                     if (File.Exists(cP))
@@ -144,7 +144,7 @@ namespace WebAtoms.CoreJS.Core
                 relativeFile.StartsWith(".") ?
                 relativeFile : ("./" + relativeFile));
             if (filePath == null)
-                throw new FileNotFoundException($"{filePath} not found");
+                throw new FileNotFoundException($"{relativeFile} not found");
             string text;
             using (var fs = File.OpenText(filePath))
             {
