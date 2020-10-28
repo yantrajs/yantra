@@ -20,31 +20,31 @@ namespace WebAtoms.CoreJS.Core.Typed
         }
 
 
-        [Prototype("entries", Length = 0)]
+        [Prototype("entries")]
         public static JSValue Entries(in Arguments a)
         {
             var array = a.This.AsTypedArray();
             return new JSGenerator(array.GetEntries(), "Array Iterator");
         }
 
-        [Prototype("every", Length = 0)]
+        [Prototype("every", Length = 1)]
         public static JSValue Every(in Arguments a) {
 
             var array = a.This.AsTypedArray();
-            var first = a.Get1();
+            var (first, thisArg) = a.Get2();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
             var en = array.GetElementEnumerator();
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
             return JSBoolean.True;
         }
 
-        [Prototype("fill", Length = 0)]
+        [Prototype("fill", Length = 1)]
         public static JSValue Fill(in Arguments a)
         {
             var @this = a.This.AsTypedArray();
@@ -63,7 +63,7 @@ namespace WebAtoms.CoreJS.Core.Typed
             return @this;
         }
 
-        [Prototype("filter", Length = 0)]
+        [Prototype("filter", Length = 1)]
         public static JSValue Filter(in Arguments a)
         {
             var @this = a.This.AsTypedArray();
@@ -86,7 +86,7 @@ namespace WebAtoms.CoreJS.Core.Typed
         }
 
 
-        [Prototype("find", Length = 0)]
+        [Prototype("find", Length = 1)]
         public static JSValue Find(in Arguments a)
         {
             var @this = a.This.AsTypedArray();
@@ -108,6 +108,110 @@ namespace WebAtoms.CoreJS.Core.Typed
                 }
             }
             return JSUndefined.Value;
+        }
+
+        [Prototype("findIndex", Length = 1)]
+        public static JSValue FindIndex(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (callback, thisArg) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var n))
+            {
+                // ignore holes...
+                if (!hasValue)
+                    continue;
+                var index = new JSNumber(n);
+                var itemParams = new Arguments(thisArg, item, index, @this);
+                if (fn.f(itemParams).BooleanValue)
+                {
+                    return index;
+                }
+            }
+            return JSNumber.MinusOne;
+
+        }
+
+        [Prototype("forEach", Length = 1)]
+        public static JSValue ForEach(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (callback, thisArg) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                // ignore holes...
+                if (!hasValue)
+                    continue;
+                var n = new JSNumber(index);
+                var itemParams = new Arguments(thisArg, item, n, @this);
+                fn.f(itemParams);
+            }
+            return JSUndefined.Value;
+        }
+
+        [Prototype("includes", Length = 1)]
+        public static JSValue Includes(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (searchElement, fromIndex) = a.Get2();
+            var startIndex = fromIndex.AsInt32OrDefault();
+            if (startIndex < 0) {
+                startIndex = 0;
+            }
+            var en = @this.GetElementEnumerator(startIndex);
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if (hasValue && item.Equals(searchElement).BooleanValue)
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
+
+        [Prototype("indexOf", Length = 1)]
+        public static JSValue IndexOf(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (searchElement, fromIndex) = a.Get2();
+            var startIndex = fromIndex.AsInt32OrDefault();
+            if (startIndex < 0)
+            {
+                startIndex = 0;
+            }
+            var en = @this.GetElementEnumerator(startIndex);
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if (!hasValue)
+                    continue;
+                if (searchElement.Equals(item).BooleanValue)
+                    return new JSNumber(index);
+            }
+            return JSNumber.MinusOne;
+        }
+
+        [Prototype("join", Length = 1)]
+        public static JSValue Join(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var first = a.Get1();
+            var sep = first.IsUndefined ? "," : first.ToString();
+            var sb = new StringBuilder();
+            bool isFirst = true;
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var item))
+            {
+                if (!isFirst)
+                {
+                    sb.Append(sep);
+                }
+                else
+                {
+                    isFirst = false;
+                }
+                if (item.IsUndefined)
+                    continue;
+                sb.Append(item.ToString());
+            }
+            return new JSString(sb.ToString());
         }
 
     }
