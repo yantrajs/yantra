@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WebAtoms.CoreJS.Core;
+using WebAtoms.CoreJS.Core.Clr;
 using WebAtoms.CoreJS.Core.Enumerators;
 using WebAtoms.CoreJS.Core.Storage;
 
@@ -12,6 +13,13 @@ namespace WebAtoms.CoreJS.Core
 {
     public static class MarshalExtensions
     {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this object value)
+        {
+            return ClrProxy.Marshal(value);
+        }
+
 
         internal static bool TryUnmarshal(this JSObject @object, Type type, out object result)
         {
