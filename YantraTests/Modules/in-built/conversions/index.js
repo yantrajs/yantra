@@ -12,8 +12,8 @@ a[1] = 2;
 assert.strictEqual(1, a[0]);
 assert.strictEqual(2, a[1]);
 
-console.log(Object.keys(IntArray.prototype));
-console.log(Object.keys(SystemArray.prototype));
+//console.log(Object.keys(IntArray.prototype));
+//console.log(Object.keys(SystemArray.prototype));
 assert(a instanceof SystemArray);
 // assert(IntArray.prototype.length);
 
