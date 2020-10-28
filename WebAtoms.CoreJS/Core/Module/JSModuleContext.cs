@@ -84,34 +84,35 @@ namespace WebAtoms.CoreJS.Core
 
         internal string Resolve(string dirPath, string relativePath)
         {
+            bool Exists(string folder, string file, out string path)
+            {
+                string fullName = Path.Combine(folder, file);
+                if(System.IO.File.Exists(fullName))
+                {
+                    path = fullName;
+                    return true;
+                }
+                path = null;
+                return false;
+            }
             foreach (var ext in extensions)
             {
-                string Combine(string cFolder, string cR)
-                {
-                    string cP = Path.Combine(cFolder, cR + ext);
-                    if (File.Exists(cP))
-                        return cP;
-                    return null;
-                }
-
                 if (relativePath.StartsWith("."))
                 {
-                    var path = Combine(dirPath, relativePath);
-                    if (path != null)
+                    if (Exists(dirPath, relativePath, out var path))
                         return path;
-
-                    // relative path cannot be checked with other module
-                    // installation paths
+                    if (Exists(dirPath, relativePath + ext, out path))
+                        return path;
                     continue;
                 }
 
                 foreach (var folder in paths)
                 {
-                    var path = Combine(folder, relativePath);
-                    if (path != null)
+                    if (Exists(folder, relativePath, out var path))
                         return path;
-                    path = Combine(folder, relativePath + "/index");
-                    if (path != null)
+                    if (Exists(folder, relativePath + ext, out path))
+                        return path;
+                    if (Exists(folder, relativePath + "/index" + ext, out path))
                         return path;
                 }
             }
