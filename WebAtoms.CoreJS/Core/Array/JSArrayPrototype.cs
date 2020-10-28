@@ -43,13 +43,13 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Every(in Arguments a)
         {
             var array = a.This;
-            var first = a.Get1();
+            var (first, thisArg) = a.Get2();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
             var en = array.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -97,7 +97,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Filter(in Arguments a)
         {
             var @this = a.This;
-            var callback = a.Get1();
+            var (callback, thisArg) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
             var r = new JSArray();
@@ -105,7 +105,7 @@ namespace WebAtoms.CoreJS.Core
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue) continue;
-                var itemParams = new Arguments(@this, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);
@@ -118,7 +118,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue Find(in Arguments a)
         {
             var @this = a.This;
-            var callback = a.Get1();
+            var (callback, thisArg) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var en = @this.GetElementEnumerator();
@@ -127,7 +127,7 @@ namespace WebAtoms.CoreJS.Core
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var itemParams = new Arguments(@this, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return item;
@@ -142,7 +142,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue FindIndex(in Arguments a)
         {
             var @this = a.This;
-            var callback = a.Get1();
+            var (callback, thisArg) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var en = @this.GetElementEnumerator();
@@ -152,7 +152,7 @@ namespace WebAtoms.CoreJS.Core
                 if (!hasValue)
                     continue;
                 var index = new JSNumber(n);
-                var itemParams = new Arguments(@this, item, index, @this);
+                var itemParams = new Arguments(thisArg, item, index, @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return index;
@@ -165,7 +165,7 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue ForEach(in Arguments a)
         {
             var @this = a.This;
-            var callback = a.Get1();
+            var (callback,thisArg) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var en = @this.GetElementEnumerator();
@@ -175,7 +175,7 @@ namespace WebAtoms.CoreJS.Core
                 if (!hasValue)
                     continue;
                 var n = new JSNumber(index);
-                var itemParams = new Arguments(@this, item, n, @this);
+                var itemParams = new Arguments(thisArg, item, n, @this);
                 fn.f(itemParams);
             }
             return JSUndefined.Value;

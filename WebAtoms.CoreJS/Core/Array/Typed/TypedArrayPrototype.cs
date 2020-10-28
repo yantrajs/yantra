@@ -31,13 +31,13 @@ namespace WebAtoms.CoreJS.Core.Typed
         public static JSValue Every(in Arguments a) {
 
             var array = a.This.AsTypedArray();
-            var first = a.Get1();
+            var (first, thisArg) = a.Get2();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
             var en = array.GetElementEnumerator();
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -132,6 +132,26 @@ namespace WebAtoms.CoreJS.Core.Typed
             return JSNumber.MinusOne;
 
         }
+
+        [Prototype("forEach", Length = 0)]
+        public static JSValue ForEach(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (callback, thisArg) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                // ignore holes...
+                if (!hasValue)
+                    continue;
+                var n = new JSNumber(index);
+                var itemParams = new Arguments(thisArg, item, n, @this);
+                fn.f(itemParams);
+            }
+            return JSUndefined.Value;
+        }
+
 
 
     }
