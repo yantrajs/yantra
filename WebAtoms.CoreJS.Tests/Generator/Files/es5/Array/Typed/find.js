@@ -22,13 +22,13 @@ assert.throws(() => {
     int8.find({});
 });
 //(function () {
-var output = 5;
+// var output = 5;
     function isPresent(element, index, array) {
         output = this;
         return false;
 
     }
-  //  var output = 5; -> If we give it here its and issue, var output is declared above 
+  var output = 5; //-> If we give it here its and issue, var output is declared above 
     let int8 = new Int8Array([1, 2, 3]);
     int8.find(isPresent, 10);
     assert.strictEqual(output, 10);
