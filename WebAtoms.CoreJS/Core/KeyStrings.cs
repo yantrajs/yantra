@@ -131,6 +131,7 @@ namespace WebAtoms.CoreJS.Core
         public readonly static KeyString console;
         public readonly static KeyString log;
 
+        public readonly static KeyString clr;
 
         static KeyStrings()
         {

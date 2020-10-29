@@ -7,6 +7,21 @@ using WebAtoms.CoreJS.Core.Generator;
 
 namespace WebAtoms.CoreJS.ExpHelper
 {
+
+    public class JSAwaiterBuilder
+    {
+        private static Type type = typeof(JSWeakAwaiter);
+        private static MethodInfo await = 
+            type.GetMethod(nameof(JSWeakAwaiter.Await), new Type[] { typeof(JSValue) });
+
+        public static Expression Await(Expression generator, Expression value)
+        {
+            return Expression.Call(generator, await, value);
+        }
+
+
+    }
+
     public class JSGeneratorBuilder
     {
         private static Type type = typeof(JSWeakGenerator);

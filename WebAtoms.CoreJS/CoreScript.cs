@@ -410,28 +410,45 @@ namespace WebAtoms.CoreJS
                         block,
                         ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
 
-                var lambda = functionDeclaration.Generator 
-                    ? Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.Generator, cs.Arguments)
-                    : Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
+                System.Linq.Expressions.LambdaExpression lambda = null;
+                Exp jsf;
+                if (functionDeclaration.Generator)
+                {
+                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.Generator, cs.Arguments);
+                    jsf = JSGeneratorFunctionBuilder.New(lambda, fxName, code);
+                } else if (functionDeclaration.Async)
+                {
+                    lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, cs.Awaiter, cs.Arguments);
+                    jsf = JSAsyncFunctionBuilder.New(lambda, fxName, code);
+                } else
+                {
+                    lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
+                    if (createClass)
+                    {
+                        jsf = JSClassBuilder.New(lambda, super, className ?? "Unnamed");
+                    } else
+                    {
+                        jsf = JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count);
+                    }
+                }
 
-
-                // create new JSFunction instance...
-                var jfs = functionDeclaration.Generator 
-                    ? JSGeneratorFunctionBuilder.New(lambda, fxName, code)
-                    : ( createClass 
-                        ? JSClassBuilder.New(lambda, super, className ?? "Unnamed")
-                        : JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count));
+                //// create new JSFunction instance...
+                //var jfs = functionDeclaration.Generator 
+                //    ? JSGeneratorFunctionBuilder.New(lambda, fxName, code)
+                //    : ( createClass 
+                //        ? JSClassBuilder.New(lambda, super, className ?? "Unnamed")
+                //        : JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count));
 
                 if (!(functionDeclaration is Esprima.Ast.FunctionDeclaration))
                 {
                     if (jsFVarScope != null)
                     {
-                        jsFVarScope.SetInit(jfs);
+                        jsFVarScope.SetInit(jsf);
                         return jsFVarScope.Expression;
                     }
-                    return jfs;
+                    return jsf;
                 }
-                jsFVarScope.SetInit(jfs);
+                jsFVarScope.SetInit(jsf);
                 return jsFVarScope.Expression;
             }
         }
@@ -1593,7 +1610,7 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitAwaitExpression(Esprima.Ast.AwaitExpression awaitExpression)
         {
-            throw new NotImplementedException();
+            return JSAwaiterBuilder.Await(this.scope.Top.Awaiter, VisitExpression(awaitExpression.Argument));
         }
 
         protected override Exp VisitConditionalExpression(Esprima.Ast.ConditionalExpression conditionalExpression)
@@ -1643,7 +1660,7 @@ namespace WebAtoms.CoreJS
 
                 // var name = KeyOfName(id.Name);
                 var paramArray = args.Any()
-                    ? ArgumentsBuilder.New(target, args)
+                    ? ArgumentsBuilder.New(isSuper ? target : JSUndefinedBuilder.Value , args)
                     : ArgumentsBuilder.Empty();
 
                 if(isSuper)

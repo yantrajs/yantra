@@ -218,6 +218,8 @@ namespace WebAtoms.CoreJS
             get;set;
         }
 
+        public ParameterExpression Awaiter { get; set; }
+
         public Expression Super { get; private set; }
 
         public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null, Expression super = null)
@@ -229,6 +231,10 @@ namespace WebAtoms.CoreJS
             } else
             {
                 Generator = null;
+            }
+            if(fx?.Async ?? false)
+            {
+                Awaiter = Expression.Parameter(typeof(JSWeakAwaiter).MakeByRefType());
             }
             this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
@@ -260,6 +266,7 @@ namespace WebAtoms.CoreJS
             this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
             this.Generator = p.Generator;
+            this.Awaiter = p.Awaiter;
             this.Super = p.Super;
             this.TempVariables = p.TempVariables;
             this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");

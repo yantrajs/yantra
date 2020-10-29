@@ -60,6 +60,15 @@ namespace WebAtoms.CoreJS.Core.Clr
             return new ClrProxy(a.Get1().BooleanValue);
         }
 
+        public static JSValue ToDateTime(in Arguments a)
+        {
+            var a1 = a.Get1();
+            if (a1 is JSDate date)
+            {
+                return new ClrProxy(date.value);
+            }
+            throw JSContext.Current.NewTypeError($"Not a Date");
+        }
 
     }
 
