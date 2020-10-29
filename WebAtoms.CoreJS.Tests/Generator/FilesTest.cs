@@ -142,7 +142,13 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 }
                 if (r is JSPromise jp)
                 {
-                    await jp.Task;
+                    try
+                    {
+                        await jp.Task;
+                    } catch(Exception ex)
+                    {
+                        throw JSException.From(ex);
+                    }
                 }
             });
         }

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace WebAtoms.CoreJS.Core
 {
+
     public class JSError : JSObject
     {
 
@@ -11,6 +12,7 @@ namespace WebAtoms.CoreJS.Core
 
         public const string Parameter_is_not_an_object = "Parameter is not an object";
 
+        public JSException Exception { get; }
 
         protected JSError( JSValue message, JSValue stack,  JSObject prototype) : base(prototype)
         {

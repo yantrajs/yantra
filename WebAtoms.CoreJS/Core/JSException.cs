@@ -9,9 +9,7 @@ namespace WebAtoms.CoreJS.Core
     public class JSException: Exception
     {
 
-        public JSValue Error { get; }
-
-        public JSValue Stack { get; }
+        public JSError Error { get; }
 
         private List<(string target, string file, int line, int column)> trace
             = new List<(string target, string file, int line, int column)>();
@@ -26,8 +24,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 this.trace.Add((function, filePath ?? "Unknown", line, 1));
             }
-            Stack = Capture();
-            Error = new JSError(new JSString(message), Stack);
+            Error = new JSError(new JSString(message), Capture());
         }
 
         public JSException(
@@ -41,21 +38,19 @@ namespace WebAtoms.CoreJS.Core
             {
                 this.trace.Add((function, filePath ?? "Unknown", line, 1));
             }
-            Stack = Capture();
-            Error = new JSError(new JSString(message), Stack);
+            Error = new JSError(new JSString(message), Capture());
             Error.prototypeChain = prototype;
         }
 
         public JSException(
             JSValue message) : base(message.ToString())
         {
-            Stack = Capture();
             if (message is JSError error) {
-                error[KeyStrings.stack] = Stack;
+                Error = error;
             }
             else
             {
-                Error = new JSError(message, Stack);
+                Error = new JSError(message, Capture());
             }
         }
 
