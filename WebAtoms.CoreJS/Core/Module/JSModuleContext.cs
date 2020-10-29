@@ -153,14 +153,14 @@ namespace WebAtoms.CoreJS.Core
             }
             Main = new JSModule(this, filePath, text, true);
             var r = Main.Exports;
-            if (waitTask != null)
-                await waitTask;
+            if (WaitTask != null)
+                await WaitTask;
             if (r is JSPromise promise)
             {
                 return await promise.Task;
             }
-            if (waitTask != null)
-                await waitTask;
+            if (WaitTask != null)
+                await WaitTask;
             return r;
 
         }
@@ -199,8 +199,8 @@ namespace WebAtoms.CoreJS.Core
                 {
                     return await promise.Task;
                 }
-                if (m.waitTask != null)
-                    await m.waitTask;
+                if (m.WaitTask != null)
+                    await m.WaitTask;
                 return rv;
             }
             

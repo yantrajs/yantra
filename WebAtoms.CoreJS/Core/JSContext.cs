@@ -16,7 +16,7 @@ using WebAtoms.CoreJS.Core.Generator;
 using WebAtoms.CoreJS.Core.Objects;
 using WebAtoms.CoreJS.Core.Set;
 using WebAtoms.CoreJS.Core.Weak;
-
+using System.Collections.Concurrent;
 
 namespace WebAtoms.CoreJS.Core
 {
@@ -35,7 +35,14 @@ namespace WebAtoms.CoreJS.Core
         internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
 
         // internal LinkedList<Task> waitTasks = new LinkedList<Task>();
-        internal Task waitTask;
+        private TaskCompletionSource<int> _waitTask;
+        internal Task WaitTask
+        {
+            get
+            {
+                return _waitTask?.Task;
+            }
+        }
 
         public void Dispose()
         {
@@ -180,6 +187,34 @@ namespace WebAtoms.CoreJS.Core
 
         }
 
+        internal readonly ConcurrentDictionary<long, Timer> timeouts = new ConcurrentDictionary<long, Timer>();
+        internal readonly ConcurrentDictionary<long, Timer> timers = new ConcurrentDictionary<long, Timer>();
+
+        internal void ClearTimeout(long n)
+        {
+            if(timeouts.TryRemove(n, out var timer))
+            {
+                try { timer.Dispose(); } catch { }
+            }
+            if (timers.Count == 0 && timeouts.Count == 0)
+            {
+                _waitTask.TrySetResult(1);
+            }
+        }
+
+        internal void ClearInterval(long n)
+        {
+            if (timers.TryRemove(n, out var timer))
+            {
+                try { timer.Dispose(); } catch { }
+            }
+            if (timers.Count == 0 && timeouts.Count == 0)
+            {
+                _waitTask.TrySetResult(1);
+            }
+        }
+
+
         static readonly ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
         internal readonly SynchronizationContext synchronizationContext;
 
@@ -249,6 +284,99 @@ namespace WebAtoms.CoreJS.Core
         public void ReportLog(JSValue f)
         {
             Log?.Invoke(this, f);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+        private void RunAction(Action action)
+        {
+            try
+            {
+                action();
+            } catch (Exception ex)
+            {
+                this.ReportError(ex);
+            }
+        }
+
+        public void Post(SynchronizationContext ctx, Action action)
+        {
+            if (ctx != null)
+            {
+                ctx.Post((_) => RunAction(action), null);
+                return;
+            }
+            RunAction(action);
+        }
+
+        public void Post(Action action)
+        {
+            var ctx = SynchronizationContext.Current;
+            if (ctx != null)
+            {
+                ctx.Post((_) => RunAction(action), null);
+                return;
+            }
+            RunAction(action);
+        }
+
+        private static long nextTimeout = 1;
+        private static long nextInterval = 1;
+
+        public long PostTimeout(int delay, JSFunction f, in Arguments a)
+        {
+            var key = Interlocked.Increment(ref nextTimeout);
+            JSValue[] args = JSArguments.Empty;
+            if (a.Length > 2)
+            {
+                args = new JSValue[a.Length - 2];
+                for (int i = 2; i < a.Length; i++)
+                {
+                    args[i - 2] = a.GetAt(i);
+                }
+            }
+            var ctx = SynchronizationContext.Current;
+            var timer = new Timer((_) => {
+                Post(ctx, () => {
+                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    ClearTimeout(key);
+                });
+            }, f, delay, Timeout.Infinite);
+
+            timeouts.AddOrUpdate(key, timer, (a1, a2) => a2);
+            lock(this)
+            {
+                _waitTask = _waitTask ?? new TaskCompletionSource<int>();
+            }
+            return key;
+        }
+        public long SetInterval(int delay, JSFunction f, Arguments a)
+        {
+            var key = Interlocked.Increment(ref nextInterval);
+            JSValue[] args = JSArguments.Empty;
+            if (a.Length > 2)
+            {
+                args = new JSValue[a.Length - 2];
+                for (int i = 2; i < a.Length; i++)
+                {
+                    args[i - 2] = a.GetAt(i);
+                }
+            }
+            var ctx = SynchronizationContext.Current;
+            var timer = new Timer((_) => {
+                Post(ctx, () => {
+                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    ClearInterval(key);
+                });
+            }, f, delay, Timeout.Infinite);
+
+            timers.AddOrUpdate(key, timer, (a1, a2) => a2);
+            lock (this)
+            {
+                _waitTask = _waitTask ?? new TaskCompletionSource<int>();
+            }
+            return key;
+
         }
 
 

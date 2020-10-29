@@ -102,54 +102,17 @@ namespace WebAtoms.CoreJS.Core
 
         private static long timeouts = 1;
 
-        private static ConcurrentDictionary<long, CancellationTokenSource> intervalTokens
-            = new ConcurrentDictionary<long, CancellationTokenSource>();
-
         private static long intervals = 1;
 
         [Static("setInterval", Length = 2)]
         public static JSValue SetInterval(in Arguments a)
         {
-            var cancel = new CancellationTokenSource();
             var @this = a.This;
             var (fx, timeout) = a.Get2();
             if (!(fx is JSFunction f))
                 throw JSContext.Current.NewTypeError("Argument is not a function");
             var delay = timeout.IsUndefined ? 0 : timeout.IntValue;
-            var key = Interlocked.Increment(ref intervals);
-            intervalTokens.AddOrUpdate(key, cancel, (a1, a2) => cancel);
-            JSContext current = JSContext.Current;
-
-            Func<Task> task = async () => {
-                try
-                {
-                    while (!cancel.IsCancellationRequested)
-                    {
-                        try
-                        {
-                            await Task.Delay(delay, cancel.Token);
-                            f.f(new Arguments(@this));
-                        }
-                        catch (Exception ex)
-                        {
-                            current.ReportError(ex);
-                        }
-                    }
-                } catch (TaskCanceledException)
-                {
-
-                } catch (Exception ex)
-                {
-                    current.ReportError(ex);
-                }
-                if(current.waitTask != null)
-                {
-                    await current.waitTask;
-                }
-            };
-
-            current.waitTask = task();
-
+            var key = JSContext.Current.SetInterval(delay, f, a);
             return new JSBigInt(key);
         }
 
@@ -157,57 +120,20 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue ClearInterval(in Arguments a)
         {
             var n = a.Get1().BigIntValue;
-            if (intervalTokens.TryRemove(n, out var token))
-            {
-                token.Cancel();
-            }
+            JSContext.Current.ClearInterval(n);
             return JSUndefined.Value;
         }
-
-
-        private static ConcurrentDictionary<long, CancellationTokenSource> tokens
-            = new ConcurrentDictionary<long, CancellationTokenSource>();
 
         [Static("setTimeout", Length = 2)]
         public static JSValue SetTimeout(in Arguments a)
         {
-            var cancel = new CancellationTokenSource();
-            var @this = a.This;
+            var context = JSContext.Current;
             var (fx, timeout) = a.Get2();
             var current = JSContext.Current;
             if (!(fx is JSFunction f))
                 throw current.NewTypeError("Argument is not a function");
             var delay = timeout.IsUndefined ? 0 : timeout.IntValue;
-            var key = Interlocked.Increment(ref timeouts);
-
-            // LinkedListNode<Task> node = current.waitTasks.AddLast((Task)null);
-            tokens.AddOrUpdate(key, cancel, (a1, a2) => a2);
-
-            var oldWait = current.waitTask;
-
-            async Task RunTask()
-            {
-                try
-                {
-                    await Task.Delay(delay, cancel.Token);
-                    f.f(new Arguments(@this));
-                }
-                catch (TaskCanceledException)
-                {
-
-                } catch (Exception ex)
-                {
-                    current.ReportError(ex);
-                }
-                tokens.TryRemove(key, out var aa);
-                if(oldWait != null)
-                {
-                    await oldWait;
-                }
-            }
-
-            current.waitTask = RunTask();
-
+            var key = context.PostTimeout(delay, f, a);
             return new JSBigInt(key);
         }
 
@@ -215,11 +141,8 @@ namespace WebAtoms.CoreJS.Core
         public static JSValue ClearTimeout(in Arguments a)
         {
             var n = a.Get1().BigIntValue;
-            if(tokens.TryRemove(n, out var token))
-            {
-                token.Cancel();
-                // JSContext.Current.waitTasks.Remove(token.node);
-            }
+            var context = JSContext.Current;
+            context.ClearTimeout(n);
             return JSUndefined.Value;
         }
 

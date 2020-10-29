@@ -69,9 +69,9 @@ namespace WebAtoms.CoreJS.Tests.Generator
         protected virtual void Evaluate(JSContext context, string content, string fullName)
         {
             CoreScript.Evaluate(content, fullName, saveLambda ? AssemblyCodeCache.Instance : DictionaryCodeCache.Current);
-            if (context.waitTask != null)
+            if (context.WaitTask != null)
             {
-                AsyncPump.Run(() => context.waitTask);
+                AsyncPump.Run(() => context.WaitTask);
             }
         }
 
