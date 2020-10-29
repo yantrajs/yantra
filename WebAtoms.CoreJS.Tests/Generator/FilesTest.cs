@@ -132,13 +132,17 @@ namespace WebAtoms.CoreJS.Tests.Generator
             {
                 // this needs to run inside AsyncPump 
                 // as Promise expects SynchronizationContext to be present
-                CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                var r = CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
                 if (context.waitTask != null)
                 {
                     try
                     {
                         await context.waitTask;
                     }catch (TaskCanceledException) { }
+                }
+                if (r is JSPromise jp)
+                {
+                    await jp.Task;
                 }
             });
         }

@@ -14,8 +14,8 @@ namespace WebAtoms.CoreJS.Core
 
         protected JSError( JSValue message, JSValue stack,  JSObject prototype) : base(prototype)
         {
-            this.DefineProperty(KeyStrings.message, JSProperty.Property(message, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
-            this.DefineProperty(KeyStrings.stack, JSProperty.Property(stack, JSPropertyAttributes.Property | JSPropertyAttributes.Readonly));
+            this.DefineProperty(KeyStrings.message, JSProperty.Property(message, JSPropertyAttributes.ConfigurableValue));
+            this.DefineProperty(KeyStrings.stack, JSProperty.Property(stack, JSPropertyAttributes.ConfigurableValue));
         }
 
         internal JSError(JSValue message, JSValue stack) : this(message, stack, JSContext.Current.ErrorPrototype)
