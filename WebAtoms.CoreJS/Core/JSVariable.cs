@@ -28,7 +28,7 @@ namespace WebAtoms.CoreJS.Core
         public JSVariable(Exception e, string name)
             : this(e is JSException je 
                   ? je.Error
-                  : new JSString(e.ToString()) , name)
+                  : (new JSException(e.ToString())).Error , name)
         {
 
         }

@@ -15,6 +15,19 @@ namespace WebAtoms.CoreJS.Core
             = new List<(string target, string file, int line, int column)>();
 
         public JSException(
+                    JSValue message,
+                    [CallerMemberName] string function = null,
+                    [CallerFilePath] string filePath = null,
+                    [CallerLineNumber] int line = 0) : base(message.ToString())
+        {
+            if (function != null)
+            {
+                this.trace.Add((function, filePath ?? "Unknown", line, 1));
+            }
+            Error = new JSError(this);
+        }
+
+        public JSException(
             string message, 
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
@@ -24,7 +37,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 this.trace.Add((function, filePath ?? "Unknown", line, 1));
             }
-            Error = new JSError(new JSString(message), Capture());
+            Error = new JSError(this);
         }
 
         public JSException(
@@ -38,54 +51,46 @@ namespace WebAtoms.CoreJS.Core
             {
                 this.trace.Add((function, filePath ?? "Unknown", line, 1));
             }
-            Error = new JSError(new JSString(message), Capture());
-            Error.prototypeChain = prototype;
+
+            Error = new JSError(this);
         }
 
-        public JSException(
-            JSValue message) : base(message.ToString())
-        {
-            if (message is JSError error) {
-                Error = error;
-            }
-            else
-            {
-                Error = new JSError(message, Capture());
-            }
-        }
 
-        private JSValue Capture()
+        public JSValue JSStackTrace
         {
-            var sb = new StringBuilder();
-            var top = JSContext.Current.Scope.Top;
-            if (trace.Count > 0)
+            get
             {
-                var f = trace[0];
-                sb.AppendLine($"    at {f.target}:{f.file}:{f.line},{f.column}");
-            }
-            while (top != null)
-            {
-                var fx = top.Function;
-                var file = top.FileName;
-                if (string.IsNullOrWhiteSpace(fx))
+                var sb = new StringBuilder();
+                var top = JSContext.Current.Scope.Top;
+                if (trace.Count > 0)
                 {
-                    fx = "native";
+                    var f = trace[0];
+                    sb.AppendLine($"    at {f.target}:{f.file}:{f.line},{f.column}");
                 }
-                if (string.IsNullOrWhiteSpace(file))
+                while (top != null)
                 {
-                    file = "file";
+                    var fx = top.Function;
+                    var file = top.FileName;
+                    if (string.IsNullOrWhiteSpace(fx))
+                    {
+                        fx = "native";
+                    }
+                    if (string.IsNullOrWhiteSpace(file))
+                    {
+                        file = "file";
+                    }
+                    sb.AppendLine($"    at {fx}:{file}:{top.Position.Line},{top.Position.Column}");
+                    trace.Add((fx, file, top.Position.Line, top.Position.Column));
+                    top = top.Parent;
                 }
-                sb.AppendLine($"    at {fx}:{file}:{top.Position.Line},{top.Position.Column}");
-                trace.Add((fx, file, top.Position.Line, top.Position.Column));
-                top = top.Parent;
+                return new JSString(sb.ToString());
             }
-            return new JSString(sb.ToString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Throw(JSValue value)
         {
-            throw new JSException(value);
+            throw value is JSError jse ? jse.Exception : new JSException(value.ToString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,14 +99,27 @@ namespace WebAtoms.CoreJS.Core
             throw JSContext.Current.NewTypeError($"{value} is not a function");
         }
 
+        public static JSException FromValue(JSValue value)
+        {
+            if (value is  JSError error)
+            {
+                return error.Exception;
+            }
+            var ex = new JSException(value.ToString());
+            return ex;
+        }
+
+
         public static JSException From(Exception exception)
         {
             if (exception.InnerException is JSException jse)
             {
                 return jse;
             }
-            var error = new JSString(exception.InnerException?.Message ?? exception.Message);
-            return (new JSException(error));
+            if (exception is JSException jse2)
+                return jse2;
+            var error = new JSException(exception.InnerException?.Message ?? exception.Message);
+            return error;
         }
 
         public static JSValue ErrorFrom(Exception exception)
@@ -110,8 +128,8 @@ namespace WebAtoms.CoreJS.Core
             {
                 return jse.Error;
             }
-            var error = new JSString(exception.InnerException?.Message ?? exception.Message);
-            return (new JSException(error)).Error;
+            var error = new JSException(exception.InnerException?.Message ?? exception.Message);
+            return error.Error;
         }
 
         public override string StackTrace

@@ -14,15 +14,17 @@ namespace WebAtoms.CoreJS.Core
 
         public JSException Exception { get; }
 
-        protected JSError( JSValue message, JSValue stack,  JSObject prototype) : base(prototype)
-        {
-            this.DefineProperty(KeyStrings.message, JSProperty.Property(message, JSPropertyAttributes.ConfigurableValue));
-            this.DefineProperty(KeyStrings.stack, JSProperty.Property(stack, JSPropertyAttributes.ConfigurableValue));
-        }
+        //protected JSError( JSValue message, JSValue stack,  JSObject prototype) : base(prototype)
+        //{
+        //    this.DefineProperty(KeyStrings.message, JSProperty.Property(message, JSPropertyAttributes.ConfigurableValue));
+        //    this.DefineProperty(KeyStrings.stack, JSProperty.Property(stack, JSPropertyAttributes.ConfigurableValue));
+        //}
 
-        internal JSError(JSValue message, JSValue stack) : this(message, stack, JSContext.Current.ErrorPrototype)
+        internal JSError(JSException ex) : base(JSContext.Current.ErrorPrototype)
         {
-
+            this.Exception = ex;
+            this.DefineProperty(KeyStrings.message, JSProperty.Property(ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue));
+            this.DefineProperty(KeyStrings.stack, JSProperty.Property(ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue));
         }
 
         public static JSValue From(Exception ex)
@@ -31,7 +33,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 return jse.Error;
             }
-            return new JSError(new JSString(ex.Message), new JSString(""));
+            return new JSError(new JSException(ex.Message));
         }
     }
 }

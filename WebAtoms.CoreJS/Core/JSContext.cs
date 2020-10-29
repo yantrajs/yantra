@@ -151,10 +151,10 @@ namespace WebAtoms.CoreJS.Core
             NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
             BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
             ErrorPrototype = this.Create<JSError>(KeyStrings.Error).prototype;
-            TypeErrorPrototype = this.Create<JSTypeError>(KeyStrings.TypeError, ErrorPrototype).prototype;
-            RangeErrorPrototype = this.Create<JSTypeError>(KeyStrings.RangeError, ErrorPrototype).prototype;
-            SyntaxErrorPrototype = this.Create<JSTypeError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
-            URIErrorPrototype = this.Create<JSTypeError>(KeyStrings.URIError, ErrorPrototype).prototype;
+            TypeErrorPrototype = this.Create<JSError>(KeyStrings.TypeError, ErrorPrototype).prototype;
+            RangeErrorPrototype = this.Create<JSError>(KeyStrings.RangeError, ErrorPrototype).prototype;
+            SyntaxErrorPrototype = this.Create<JSError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
+            URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
             DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
             MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
             PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;

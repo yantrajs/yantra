@@ -170,7 +170,7 @@ namespace WebAtoms.CoreJS.Core
                     rejectList = rejectList ?? new List<Action>();
                     rejectList.Add(() => {
                         Post(() => {
-                            taskCompletion.TrySetException(new JSException(this.result));
+                            taskCompletion.TrySetException(JSException.FromValue(this.result));
                         });
                     });
                 }
