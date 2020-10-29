@@ -86,7 +86,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JSValue Resolve(JSValue value)
+        protected JSValue Resolve(JSValue value)
         {
             if (value == this)
             {
@@ -136,7 +136,7 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private JSValue Reject(JSValue value)
+        protected JSValue Reject(JSValue value)
         {
             this.state = PromiseState.Rejected;
             this.result = value;
