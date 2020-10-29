@@ -214,5 +214,44 @@ namespace WebAtoms.CoreJS.Core.Typed
             return new JSString(sb.ToString());
         }
 
+        [Prototype("keys", Length = 0)]
+        public static JSValue Keys(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            return @this.GetKeys();
+        }
+
+        [Prototype("lastIndexOf", Length = 1)]
+        public static JSValue LastIndexOf(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            var (element, fromIndex) = a.Get2();
+            var n = @this.Length;
+            if (n == 0)
+            {
+                return JSNumber.MinusOne;
+            }
+            var startIndex = fromIndex.AsInt32OrDefault(n - 1);
+            if (startIndex >= n)
+            {
+                startIndex = n - 1;
+            }
+            if (startIndex < 0) {
+                startIndex = n + startIndex;
+            }
+
+         
+            var i = (uint)startIndex;
+            
+            while (i >= 0)
+            {
+                var item = @this[i];
+                if (item.Equals(element).BooleanValue)
+                    return new JSNumber(i);
+                if (i == 0)
+                    break;
+                i--;
+            }
+            return JSNumber.MinusOne;
+        }
     }
 }

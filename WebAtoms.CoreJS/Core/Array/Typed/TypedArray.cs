@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using WebAtoms.CoreJS.Core.Generator;
 
 namespace WebAtoms.CoreJS.Core.Typed
 {
@@ -55,6 +56,8 @@ namespace WebAtoms.CoreJS.Core.Typed
         /// </summary>
         Float64Array,
     }
+
+
     public class TypedArray : JSObject
     {
         private readonly JSArrayBuffer buffer;
@@ -275,6 +278,48 @@ namespace WebAtoms.CoreJS.Core.Typed
 
         internal IElementEnumerator GetEntries() {
             return new EntryEnumerator(this);
+        }
+
+        internal JSGenerator GetKeys() {
+            return new JSGenerator(new KeyEnumerator(this.length), "Array Iterator");
+        }
+
+        internal struct KeyEnumerator : IElementEnumerator
+        {
+            private int length;
+            private int index;
+
+            public KeyEnumerator(int length)
+            {
+                this.length = length;
+                this.index = -1;
+            }
+
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                if (++this.index < this.length)
+                {
+                    hasValue = true;
+                    index = (uint)this.index;
+                    value = new JSNumber(index);
+                    return true;
+                }
+                hasValue = false;
+                index = 0;
+                value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNext(out JSValue value)
+            {
+                if (++this.index < this.length)
+                {
+                    value = new JSNumber(index);
+                    return true;
+                }
+                value = JSUndefined.Value;
+                return false;
+            }
         }
 
         struct ElementEnumerator : IElementEnumerator
