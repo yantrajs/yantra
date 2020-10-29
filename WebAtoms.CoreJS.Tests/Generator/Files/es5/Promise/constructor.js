@@ -7,5 +7,5 @@
 });
 
 p.then((r) => {
-    assert.strictEqual(2, r);
+    assert.strictEqual(1, r);
 });
