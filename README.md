@@ -11,6 +11,7 @@ JavaScript Engine for .NET Standard
 6. AOT platforms will not perform JIT Inlining, due to this, every method is implemented as simple Static method to avoid unnecessary one more method call after casting.
 7. Generators are implemented as Suspended Threads, as generating complex state machine at runtime would be very time consuming and would require too much of code analysis.
 8. Async/Await will be generated over generators.
+9. We will support Switch based generator in future, however, it is very unlikely to give higher performance, but it may save number of threads.
 
 # No support for primitive types
 This decision was taken based on following observation
