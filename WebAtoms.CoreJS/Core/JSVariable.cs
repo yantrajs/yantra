@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.Core
             this.Value = v;
             var c = JSContext.Current.Scope.Top;
             c[name] = this;
-            if (c.IsRoot)
+            if (c.IsRoot || c.Parent.IsRoot)
             {
                 JSContext.Current[name] = v;
             }

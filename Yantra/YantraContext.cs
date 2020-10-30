@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Core.Clr;
+using Yantra.Utils;
 
 namespace Yantra
 {
@@ -31,6 +32,8 @@ namespace Yantra
         {
             // reverse priority, select csx before js.
             this.extensions = new string[] { ".csx", ".js"  };
+
+            this["console"] = (typeof(YantraConsole)).Marshal();
         }
 
         private async Task<JSModuleDelegate> LoadDelegate(string assemblyPath)

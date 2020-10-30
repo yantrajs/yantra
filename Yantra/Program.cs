@@ -1,33 +1,53 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Utils;
+using Yantra.REPL;
 
 namespace Yantra
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            var script = System.IO.File.ReadAllText(args[0]);
-            using var jc = new JSTestContext();
-            jc["global"] = jc;
-            var a = new Stopwatch();
-            try
+
+            if (args.Length == 0)
             {
-                a.Start();
-                CoreScript.Evaluate(script, args[1]);
+                // no parameter....
+
+                // start REPL
+                var c = new YantraRepl();
+                c.Run();
+                return;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-            a.Stop();
-            Console.WriteLine($"Total time: {a.Elapsed}");
-            var (size, total, next) = KeyString.Total;
-            Console.WriteLine($"Total: {total} Size: {size} Last Index: {next}");
+
+            var file = new FileInfo(args[0]);
+            if (!file.Exists)
+                throw new FileNotFoundException(file.FullName);
+            
+            var yc = new YantraContext();
+            var r = await yc.RunAsync(file.DirectoryName, "./" + file.Name);
+            if (!r.IsUndefined)
+                Console.WriteLine(r);
+            //using var jc = new JSTestContext();
+            //jc["global"] = jc;
+            //var a = new Stopwatch();
+            //try
+            //{
+            //    a.Start();
+            //    CoreScript.Evaluate(script, args[1]);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex);
+            //}
+            //a.Stop();
+            //Console.WriteLine($"Total time: {a.Elapsed}");
+            //var (size, total, next) = KeyString.Total;
+            //Console.WriteLine($"Total: {total} Size: {size} Last Index: {next}");
         }
     }
 
