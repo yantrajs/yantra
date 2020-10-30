@@ -20,6 +20,9 @@ namespace WebAtoms.CoreJS.Core
         Action<JSValue> resolve, 
         Action<JSValue> reject);
 
+    /// <summary>
+    /// 
+    /// </summary>
     [JSRuntime(typeof(JSPromiseStatic), typeof(JSPromisePrototype))]
     public class JSPromise : JSObject
     {
@@ -38,11 +41,46 @@ namespace WebAtoms.CoreJS.Core
         private List<Action> rejectList;
         JSFunction resolveFunction;
         JSFunction rejectFunction;
-        private JSValue result = JSUndefined.Value;
+        internal JSValue result = JSUndefined.Value;
 
+        static long nextPromiseID = 1;
+
+        long promiseID;
+
+        /// <summary>
+        /// .Net removes promises aggressively via
+        /// garbage collection... so all promises
+        /// till resolved/failed are stored in 
+        /// global list
+        /// </summary>
+        private void  RegisterPromise()
+        {
+            //if (promiseID == 0)
+            //{
+            //    promiseID = Interlocked.Increment(ref nextPromiseID);
+
+            //    var pending = JSContext.Current.PendingPromises;
+            //    if (pending.TryAdd(promiseID, this))
+            //    {
+            //        JSFunctionDelegate done = (in Arguments a) =>
+            //        {
+            //            pending.TryRemove(promiseID, out var _);
+            //            return JSUndefined.Value;
+            //        };
+            //        this.Then(done, done);
+            //    }
+            //}
+        }
+
+
+        /// <summary>
+        /// Promise must stay alive till resolved...
+        /// </summary>
+        /// <param name="value"></param>
         public JSPromise(Task<JSValue> value)
             : base(JSContext.Current.PromisePrototype)
         {
+            RegisterPromise();
             value.ContinueWith((t) => {
                 if (t.IsCompleted)
                 {
@@ -57,6 +95,10 @@ namespace WebAtoms.CoreJS.Core
         internal JSPromise(JSValue value, PromiseState state) :
             base(JSContext.Current.PromisePrototype)
         {
+            if (state == PromiseState.Pending)
+            {
+                RegisterPromise();
+            }
             this.result = value;
             this.state = state;
         }
@@ -65,13 +107,12 @@ namespace WebAtoms.CoreJS.Core
         public JSPromise(JSValue @delegate) :
             base(JSContext.Current.PromisePrototype)
         {
-
             // to improve speed of promise, we will add then/catch here...
             var sc = SynchronizationContext.Current;
             if (sc == null)
                 throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 
-
+            RegisterPromise();
 
             resolveFunction = new JSFunction((in Arguments a) => Resolve(a.Get1()));
             rejectFunction = new JSFunction((in Arguments a) => Reject(a.Get1()));
@@ -82,6 +123,7 @@ namespace WebAtoms.CoreJS.Core
         public JSPromise(JSPromiseDelegate @delegate) :
             base(JSContext.Current.PromisePrototype)
         {
+            RegisterPromise();
             @delegate(p => Resolve(p), p => Reject(p));
         }
 
@@ -262,59 +304,6 @@ namespace WebAtoms.CoreJS.Core
             //    action();
             //    return Task.CompletedTask;
             //});
-        }
-    }
-    public static class JSPromiseExtensions {
-
-        private static MethodInfo __convert =
-            typeof(JSPromise).GetMethod(nameof(Convert), 
-                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
-
-        private static MethodInfo __toTask =
-            typeof(JSPromise).GetMethod(nameof(ToTask),
-                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
-
-        public static JSPromise ToPromise(this Task task)
-        {
-            var type = task.GetType();
-            if (type.IsConstructedGenericType)
-            {
-                var factory = __convert.MakeGenericMethod(type.GetGenericArguments());
-                return new JSPromise( factory.Invoke(null, new object[] { task }) as Task<JSValue>);
-            }
-            return new JSPromise(ConvertToUndefined(task));
-        }
-
-        public static JSPromise ToPromise<T>(this Task<T> task)
-        {
-            return new JSPromise(Convert<T>(task));
-        }
-
-
-        internal static async Task<JSValue> ConvertToUndefined(Task task)
-        {
-            await task;
-            return JSUndefined.Value;
-        }
-
-        public static async Task<JSValue> Convert<T>(Task<T> task)
-        {
-            object result = await task;
-            if (typeof(T) == typeof(JSValue))
-                return (JSValue)result;
-            return ClrProxy.Marshal(result);
-        }
-
-        internal static object ToTaskInternal(this JSPromise promise, Type taskResultType)
-        {
-            return __toTask.MakeGenericMethod(taskResultType.GetGenericArguments()).Invoke(null, new object[] { promise });
-        }
-
-        public static async Task<T> ToTask<T>(this JSPromise promise)
-        {
-            var task = promise.Task;
-            var result = await task;
-            return (T)result.ForceConvert(typeof(T));
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
+using Trace = System.Diagnostics.Debug;
 
 namespace WebAtoms.CoreJS.Core.Generator
 {
@@ -32,6 +34,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public JSValue Await(JSValue value)
         {
+            // Trace.WriteLine($"Entering await.. !!");
             if (value.IsNullOrUndefined)
             {
                 throw JSContext.Current.NewTypeError($"await cannot be called on undefined/null");
@@ -41,15 +44,18 @@ namespace WebAtoms.CoreJS.Core.Generator
             if (!method.IsFunction)
             {
                 // what to do here.. just return...
+                // Trace.WriteLine($"Not a promise !!");
                 this.result = value;
                 return value;
             }
 
-            if (value is JSPromise p)
-            {
-                if (p.state != JSPromise.PromiseState.Pending)
-                    return p;
-            }
+            //if (value is JSPromise p)
+            //{
+            //    if (p.state == JSPromise.PromiseState.Resolved)
+            //        return p.result;
+            //    if (p.state == JSPromise.PromiseState.Rejected)
+            //        throw JSException.FromValue(p.result);
+            //}
 
             var finished = false;
 
@@ -75,12 +81,13 @@ namespace WebAtoms.CoreJS.Core.Generator
             {
                 while (!finished)
                 {
-                    if(main.WaitOne(TimeSpan.FromSeconds(100)))
-                        break;
+                    // Trace.WriteLine($"Entering wait.. !!");
+                    main.WaitOne(TimeSpan.FromSeconds(5));
                 }
             }
             catch (ObjectDisposedException)
             {
+                // Trace.WriteLine($"Awaiter is disposed !!");
                 // do nothing...
                 throw new SafeExitException();
             }

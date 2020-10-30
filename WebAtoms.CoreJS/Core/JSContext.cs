@@ -380,5 +380,9 @@ namespace WebAtoms.CoreJS.Core
         }
 
 
+        internal ConcurrentDictionary<long, JSPromise> PendingPromises
+            = new ConcurrentDictionary<long, JSPromise>();
+
+
     }
 }

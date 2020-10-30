@@ -132,9 +132,41 @@ namespace WebAtoms.CoreJS.Tests.Generator
         }
     }
 
+    public class TestContextTraceListener : TraceListener
+    {
+        private TestContext value;
+
+        public TestContextTraceListener(TestContext value)
+        {
+            this.value = value;
+        }
+
+        public override void Write(string message)
+        {
+            value.Write(message);
+        }
+
+        public override void WriteLine(string message)
+        {
+            value.WriteLine(message);
+        }
+    }
+
     [TestClass]
     public class Promise
     {
+
+        //public TestContext _testContext;
+
+        //public TestContext TestContext {
+        //    get => _testContext;
+        //    set {
+        //        _testContext = value;
+        //        Trace.Listeners.Add(new TestContextTraceListener(value));
+        //        value.WriteLine("Test context set");
+        //    }
+        //}
+
         [AsyncTestFolder("es5\\Promise")]
         public void Run()
         {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,19 +19,13 @@ namespace WebAtoms.CoreJS.Tests.Generator
         {
             try
             {
+                
+
                 AsyncPump.Run(async () =>
                 {
                     // this needs to run inside AsyncPump 
                     // as Promise expects SynchronizationContext to be present
                     var r = CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
-                    if (context.WaitTask != null)
-                    {
-                        try
-                        {
-                            await context.WaitTask;
-                        }
-                        catch (TaskCanceledException) { }
-                    }
                     if (r is JSPromise jp)
                     {
                         try
@@ -41,6 +36,14 @@ namespace WebAtoms.CoreJS.Tests.Generator
                         {
                             throw JSException.From(ex);
                         }
+                    }
+                    if (context.WaitTask != null)
+                    {
+                        try
+                        {
+                            await context.WaitTask;
+                        }
+                        catch (TaskCanceledException) { }
                     }
                 });
             }
