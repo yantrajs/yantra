@@ -354,15 +354,42 @@ namespace WebAtoms.CoreJS
 
                 var vList = new List<ParameterExpression>();
 
-                var pList = functionDeclaration.Params.OfType<Identifier>();
+                // var pList = functionDeclaration.Params.OfType<Identifier>();
                 int i = 0;
 
                 var argumentElements = args;
 
-                foreach (var v in pList)
+                List<Exp> bodyInits = new List<Exp>();
+
+                foreach (var v in functionDeclaration.Params)
                 {
-                    var v1 = s.CreateVariable(v.Name, 
-                        ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, v.Name));
+                    switch (v)
+                    {
+                        case Identifier id:
+                            s.CreateVariable(id.Name,
+                                ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, id.Name));
+                            break;
+                        case AssignmentPattern ap:
+                            var inits = CreateAssignment(
+                                ap.Left,
+                                ExpHelper.JSVariableBuilder.FromArgumentOptional(argumentElements, i, VisitExpression(ap.Right)), 
+                                true, 
+                                true);
+                            bodyInits.Add(inits);
+                            break;
+                        //case ArrayPattern aap:
+                        //    bodyInits.Add(CreateAssignment(v, argumentElements, true, true));
+                        //    break;
+                        default:
+                            bodyInits.Add(CreateAssignment(v, ArgumentsBuilder.GetAt(argumentElements, i), true, true));
+                            break;
+                        //case AssignmentPattern asp:
+                        //    break;
+                        //case ObjectPattern op:
+                        //    break;
+                        //case ArrayPattern ap:
+                        //    break;
+                    }
                     i++;
                 }
                 var functionStatement = functionDeclaration as Node;
@@ -382,6 +409,8 @@ namespace WebAtoms.CoreJS
 
                 vList.AddRange(s.VariableParameters);
                 sList.AddRange(s.InitList);
+
+                sList.AddRange(bodyInits);
 
                 sList.Add(lambdaBody);
 

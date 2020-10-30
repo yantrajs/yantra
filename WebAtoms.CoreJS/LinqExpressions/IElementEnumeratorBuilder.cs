@@ -19,7 +19,13 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         public static Expression Get(Expression target)
         {
-            return Expression.Call(target, getMethod);
+            if (typeof(JSValue).IsAssignableFrom(target.Type))
+            {
+                return Expression.Call(target, getMethod);
+            }
+            if (ArgumentsBuilder.refType == target.Type || target.Type == typeof(Arguments))
+                return ArgumentsBuilder.GetElementEnumerator(target);
+            throw new NotImplementedException();
         }
 
         public static Expression MoveNext(Expression target, Expression item)

@@ -41,10 +41,18 @@ namespace WebAtoms.CoreJS.ExpHelper
         private readonly static MethodInfo _NullIfFalse =
             type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfFalse));
 
+        private readonly static MethodInfo _NullIfUndefined =
+            type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfUndefined));
+
         public static Expression NullIfFalse(Expression exp)
         {
             return Expression.Call(null, _NullIfFalse, exp);
         }
+        public static Expression NullIfUndefined(Expression exp)
+        {
+            return Expression.Call(null, _NullIfUndefined, exp);
+        }
+
 
         private static MethodInfo _InvokeMethodKeyString
             = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(KeyString), ArgumentsBuilder.refType);

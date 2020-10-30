@@ -27,7 +27,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
             // RunTest("Objects\\Array\\slice.js");
             // RunTest("Objects\\Object\\entries.js");
 
-            RunTest("es6/Syntax/for-of/array.js");
+            // RunTest("es6/Syntax/for-of/array.js");
+            RunTest("es6/Syntax/destructuring/parameter.js");
 
             // RunTest("es5/Function/fib.js");
 
@@ -35,6 +36,8 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // RunTest("es5/Syntax/Variables/let.js");
             // RunTest("es5/Function/hoisting.js");
+
+
         }
 
     }

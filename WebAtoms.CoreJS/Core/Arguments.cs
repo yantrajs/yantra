@@ -432,5 +432,49 @@ namespace WebAtoms.CoreJS.Core
                     return index >= Length ? JSUndefined.Value : Args[index];
             }
         }
+
+
+        internal IElementEnumerator GetElementEnumerator()
+        {
+            return new ArgumentsElementEnumerator(this);
+        }
+
+        struct ArgumentsElementEnumerator: IElementEnumerator
+        {
+            private Arguments arguments;
+            private int index;
+
+            public ArgumentsElementEnumerator(Arguments arguments)
+            {
+                this.arguments = arguments;
+                this.index = -1;
+            }
+
+            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+            {
+                if((++this.index ) > arguments.Length)
+                {
+                    index = (uint)this.index;
+                    value = arguments.GetAt(this.index);
+                    hasValue = true;
+                    return true;
+                }
+                index = 0;
+                value = JSUndefined.Value;
+                hasValue = false;
+                return false;
+            }
+
+            public bool MoveNext(out JSValue value)
+            {
+                if ((++this.index) > arguments.Length)
+                {
+                    value = arguments.GetAt(this.index);
+                    return true;
+                }
+                value = JSUndefined.Value;
+                return false;
+            }
+        }
     }
 }

@@ -71,6 +71,15 @@ namespace WebAtoms.CoreJS.Core
                 return @this.InvokeMethod(key.Key, a);
             return @this.InvokeMethod(key, a);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue NullIfUndefined(JSValue value)
+        {
+            if (value.IsUndefined)
+                return null;
+            return value;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSValue NullIfTrue(JSValue value)
         {

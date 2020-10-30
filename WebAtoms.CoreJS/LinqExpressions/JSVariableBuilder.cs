@@ -34,6 +34,12 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Call(null, _NewFromArgument, args, Expression.Constant(i), Expression.Constant(name));
         }
 
+        public static Expression FromArgumentOptional(Expression args, int i, Expression optional)
+        {
+            // check if is undefined...
+            var argAt = ArgumentsBuilder.GetAt(args, i);
+            return Expression.Coalesce(JSValueExtensionsBuilder.NullIfUndefined(argAt), optional);
+        }
 
         public static Expression New(string name)
         {
