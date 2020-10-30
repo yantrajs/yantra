@@ -7,7 +7,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 {
     public class JSWeakAwaiter
     {
-        private AutoResetEvent main;
+        readonly AutoResetEvent main;
         public WeakReference<JSAwaiter> awaiter;
         public JSAsyncDelegate @delegate;
         public readonly Arguments a;

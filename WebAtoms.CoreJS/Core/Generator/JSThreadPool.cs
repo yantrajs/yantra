@@ -22,8 +22,9 @@ namespace WebAtoms.CoreJS.Core.Generator
                 thread.Resume();
                 return;
             }
-            thread = new JSThread(action);
-            thread.Parameter = p;
+            thread = new JSThread(action) {
+                Parameter = p
+            };
             thread.Resume();
         }
 

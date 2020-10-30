@@ -9,9 +9,10 @@ namespace WebAtoms.CoreJS.Core.Generator
         readonly JSAsyncDelegate @delegate;
 
         public JSAsyncFunction(JSAsyncDelegate @delegate, string name, string code) :
-            base(JSFunction.empty, name, code)
+            base(null, name, code)
         {
             this.@delegate = @delegate;
+            this.f = InvokeFunction;
         }
 
 

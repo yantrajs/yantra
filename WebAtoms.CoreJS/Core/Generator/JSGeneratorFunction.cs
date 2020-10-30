@@ -13,9 +13,10 @@ namespace WebAtoms.CoreJS.Core.Generator
         readonly JSGeneratorDelegate @delegate;
 
         public JSGeneratorFunction(JSGeneratorDelegate @delegate, string name, string code): 
-            base(JSFunction.empty, name, code)
+            base(null, name, code)
         {
             this.@delegate = @delegate;
+            this.f = InvokeFunction;
         }
 
 

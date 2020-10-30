@@ -28,7 +28,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         internal bool done;
         private Exception lastError;
         private LexicalScope threadTop;
-        private IElementEnumerator en;
+        readonly IElementEnumerator en;
         private readonly string name;
 
         public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)

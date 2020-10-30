@@ -12,15 +12,12 @@ namespace WebAtoms.CoreJS.Core.Generator
     public class JSAwaiter : JSPromise, IDisposable
     {
 
-        Thread thread;
         private AutoResetEvent main;
 
         public JSAwaiter(JSAsyncDelegate @delegate, in Arguments a)
             : base(JSUndefined.Value, PromiseState.Pending)
         {
             main = new AutoResetEvent(false);
-            // this.thread = new Thread(RunAwaiter);
-            // thread.Start(new JSWeakAwaiter(this, @delegate, a, main));
             JSThreadPool.Queue(RunAwaiter, new JSWeakAwaiter(this, @delegate, a, main));
         }
 

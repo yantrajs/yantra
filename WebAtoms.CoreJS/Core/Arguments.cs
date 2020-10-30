@@ -11,58 +11,7 @@ namespace WebAtoms.CoreJS.Core
     public readonly struct Arguments
     {
 
-        //public unsafe ref struct ArgumentsEnumerator
-        //{
-
-        //    Arguments* Args;
-        //    JSValue current;
-        //    int index;
-        //    public ArgumentsEnumerator(Arguments* a)
-        //    {
-        //        Args = &a;
-        //        index = -1;
-        //        current = null;
-        //    }
-
-        //    public bool MoveNext()
-        //    {
-        //        index++;
-        //        if (index < Args.Length)
-        //        {
-        //            switch (index)
-        //            {
-        //                case 0:
-        //                    current = Args.Arg0;
-        //                    break;
-        //                case 1:
-        //                    current = Args.Arg1;
-        //                    break;
-        //                case 2:
-        //                    current = Args.Arg2;
-        //                    break;
-        //                case 3:
-        //                    current = Args.Arg3;
-        //                    break;
-        //                default:
-        //                    current = Args.Args[index];
-        //                    break;
-
-        //            }
-        //            return true;
-        //        }
-        //        return false;
-        //    }
-
-        //    public bool IsFirst => index == 0;
-
-        //    public bool IsLast => index == Args.Length - 1;
-
-        //    public JSValue Current => current ?? JSUndefined.Value;
-        //}
-
         public static Arguments Empty = new Arguments { };
-
-        // public JSContext Context;
 
         private const int MinArray = 5;
 
@@ -141,8 +90,6 @@ namespace WebAtoms.CoreJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0)
         {
-            if (a0 == null)
-                throw new ArgumentNullException(nameof(a0));
             This = @this;
             Length = 1;
             Arg0 = a0;
@@ -337,7 +284,7 @@ namespace WebAtoms.CoreJS.Core
             return Args;
         }
 
-        private static JSValue[] _Empty = new JSValue[] { };
+        static readonly JSValue[] _Empty = new JSValue[] { };
 
         public JSValue[] ToArray()
         {
@@ -441,7 +388,7 @@ namespace WebAtoms.CoreJS.Core
 
         struct ArgumentsElementEnumerator: IElementEnumerator
         {
-            private Arguments arguments;
+            readonly Arguments arguments;
             private int index;
 
             public ArgumentsElementEnumerator(Arguments arguments)

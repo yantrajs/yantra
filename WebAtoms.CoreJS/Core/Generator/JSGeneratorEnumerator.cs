@@ -6,7 +6,7 @@ namespace WebAtoms.CoreJS.Core.Generator
 {
     public struct JSGeneratorEnumerator : IEnumerator<(uint Key, JSProperty Value)>
     {
-        JSGenerator g;
+        readonly JSGenerator g;
         uint index;
         public JSGeneratorEnumerator(JSGenerator g)
         {
@@ -26,6 +26,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         public bool MoveNext()
         {
             this.g.Next();
+            index++;
             return !g.done;
         }
 
