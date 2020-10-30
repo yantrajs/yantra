@@ -12,9 +12,10 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         internal static ConcurrentQueue<JSThread> Pool = new ConcurrentQueue<JSThread>();
 
-        public static void Queue(Action<object> action, object p)
+        public static void Queue(WaitCallback action, object p)
         {
-            if(Pool.TryDequeue(out var thread))
+            // ThreadPool.QueueUserWorkItem(action, p);
+            if (Pool.TryDequeue(out var thread))
             {
                 thread.Action = action;
                 thread.Parameter = p;
@@ -28,13 +29,13 @@ namespace WebAtoms.CoreJS.Core.Generator
 
         public class JSThread
         {
-            public Action<object> Action;
+            public WaitCallback Action;
             public object Parameter;
             public Thread thread;
 
             public AutoResetEvent waiter = new AutoResetEvent(false);
 
-            public JSThread(Action<object> action)
+            public JSThread(WaitCallback action)
             {
                 Action = action;
                 thread = new Thread(Start);
@@ -49,15 +50,17 @@ namespace WebAtoms.CoreJS.Core.Generator
             private static void Start(object p)
             {
                 JSThread t = p as JSThread;
-                while(true)
+                while (true)
                 {
                     t.waiter.WaitOne();
-                    try {
+                    try
+                    {
                         var p1 = t.Parameter;
                         t.Parameter = null;
                         t.Action?.Invoke(p1);
                         t.Action = null;
-                    } catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine(ex);
                     }
@@ -71,7 +74,7 @@ namespace WebAtoms.CoreJS.Core.Generator
                 }
             }
 
-            
+
         }
     }
 
