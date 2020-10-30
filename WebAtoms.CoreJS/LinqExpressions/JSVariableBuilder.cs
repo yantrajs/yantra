@@ -8,9 +8,9 @@ namespace WebAtoms.CoreJS.ExpHelper
 {
     public class JSVariableBuilder
     {
-        private static Type type = typeof(JSVariable);
+        static readonly Type type = typeof(JSVariable);
 
-        private static ConstructorInfo _New
+        static readonly ConstructorInfo _New
             = type.Constructor(typeof(JSValue), typeof(string));
 
         public static Expression New(Expression value, string name)
@@ -18,7 +18,7 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.New(_New, value, Expression.Constant(name, typeof(string)));
         }
 
-        private static ConstructorInfo _NewFromException
+        static readonly ConstructorInfo _NewFromException
             = type.Constructor(typeof(Exception), typeof(string));
 
         public static Expression NewFromException(Expression value, string name)
@@ -26,7 +26,7 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.New(_NewFromException, value, Expression.Constant(name, typeof(string)));
         }
 
-        private static MethodInfo _NewFromArgument
+        static readonly MethodInfo _NewFromArgument
             = type.InternalMethod(nameof(JSVariable.New), typeof(Arguments).MakeByRefType(), typeof(int), typeof(string));
 
         public static Expression FromArgument(Expression args, int i, string name)
@@ -34,6 +34,12 @@ namespace WebAtoms.CoreJS.ExpHelper
             return Expression.Call(null, _NewFromArgument, args, Expression.Constant(i), Expression.Constant(name));
         }
 
+        public static Expression FromArgumentOptional(Expression args, int i, Expression optional)
+        {
+            // check if is undefined...
+            var argAt = ArgumentsBuilder.GetAt(args, i);
+            return Expression.Coalesce(JSValueExtensionsBuilder.NullIfUndefined(argAt), optional);
+        }
 
         public static Expression New(string name)
         {

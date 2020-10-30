@@ -44,6 +44,10 @@ namespace WebAtoms.CoreJS.ExpHelper
 
         private readonly static ConstructorInfo _New
             = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[]) });
+
+        private readonly static MethodInfo _GetElementEnumerator
+            = type.InternalMethod(nameof(Arguments.GetElementEnumerator));
+
         public static Expression New(Expression @this, List<Expression> args)
         {
             var newList = new List<Expression>() { @this };
@@ -87,6 +91,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         public static Expression GetAt(Expression arguments, int index)
         {
             return Expression.Call(arguments, _GetAt, Expression.Constant(index));
+        }
+
+        public static Expression GetElementEnumerator(Expression target)
+        {
+            return Expression.Call(target, _GetElementEnumerator);
         }
 
     }
