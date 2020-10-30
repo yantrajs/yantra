@@ -340,6 +340,22 @@ namespace WebAtoms.CoreJS.Core.Typed
         }
 
 
+        [Prototype("reverse", Length = 1)]
+        public static JSValue Reverse(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+
+            var src = @this.buffer.buffer;
+            var temp = new byte[src.Length];
+            int bytesPerElement = @this.bytesPerElement;
+            int length = @this.Length;
+            for (int i = 0; i < length; i++)
+            {
+                var y = length - i - 1;
+                Array.Copy(src, i * bytesPerElement, temp, y * bytesPerElement, bytesPerElement);
+            }
+            Array.Copy(temp, src,src.Length);
+            return @this;
+        }
 
 
     }

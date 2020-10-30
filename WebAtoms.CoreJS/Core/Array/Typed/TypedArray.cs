@@ -60,10 +60,10 @@ namespace WebAtoms.CoreJS.Core.Typed
 
     public class TypedArray : JSObject
     {
-        private readonly JSArrayBuffer buffer;
+        internal readonly JSArrayBuffer buffer;
         private readonly TypedArrayType type;
         private readonly int byteOffset;
-        private readonly int bytesPerElement;
+        internal readonly int bytesPerElement;
         private readonly int length;
 
         public override int Length { get => length; set => base.Length = value; }
