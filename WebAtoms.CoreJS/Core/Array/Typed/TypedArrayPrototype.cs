@@ -173,17 +173,29 @@ namespace WebAtoms.CoreJS.Core.Typed
         public static JSValue IndexOf(in Arguments a) {
             var @this = a.This.AsTypedArray();
             var (searchElement, fromIndex) = a.Get2();
+            var n = @this.Length;
+            if (n == 0)
+            {
+                return JSNumber.MinusOne;
+            }
             var startIndex = fromIndex.AsInt32OrDefault();
+            if (startIndex >= n)
+            {
+                return JSNumber.MinusOne;
+            }
             if (startIndex < 0)
             {
-                startIndex = 0;
+                startIndex = n + startIndex;
+                if (startIndex < 0) {
+                    startIndex = 0;
+                }
             }
             var en = @this.GetElementEnumerator(startIndex);
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue)
                     continue;
-                if (searchElement.Equals(item).BooleanValue)
+                if (searchElement.StrictEquals(item).BooleanValue)
                     return new JSNumber(index);
             }
             return JSNumber.MinusOne;
@@ -245,7 +257,7 @@ namespace WebAtoms.CoreJS.Core.Typed
             while (i >= 0)
             {
                 var item = @this[i];
-                if (item.Equals(element).BooleanValue)
+                if (item.StrictEquals(element).BooleanValue)
                     return new JSNumber(i);
                 if (i == 0)
                     break;
