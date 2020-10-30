@@ -205,7 +205,7 @@ namespace WebAtoms.CoreJS.Core
             {
                 if (!hasValue)
                     continue;
-                if (first.Equals(item).BooleanValue)
+                if (first.StrictEquals(item).BooleanValue)
                     return new JSNumber(index);
             }
             return JSNumber.MinusOne;
@@ -262,7 +262,7 @@ namespace WebAtoms.CoreJS.Core
             while(i >= 0)
             {
                 var item = @this[i];
-                if (item.Equals(first).BooleanValue)
+                if (item.StrictEquals(first).BooleanValue)
                     return new JSNumber(i);
                 if (i == 0)
                     break;

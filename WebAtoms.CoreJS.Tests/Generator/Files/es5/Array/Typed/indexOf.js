@@ -19,3 +19,26 @@ assert.strictEqual(2, arr.indexOf(1, undefined));
 assert.strictEqual(-1, arr.indexOf(4, 1));
 
 assert.strictEqual(2, arr.indexOf(1, 1));
+assert.strictEqual(1, arr.indexOf(2, 1));
+assert.strictEqual(-1, arr.indexOf(3, 1));
+assert.strictEqual(-1, arr.indexOf(2, -1));
+assert.strictEqual(1, arr.indexOf(2, -2));
+assert.strictEqual(2, arr.indexOf(1, undefined));
+
+assert.strictEqual(2, arr.indexOf(1));
+assert.strictEqual(1, arr.indexOf(2));
+assert.strictEqual(0, arr.indexOf(3));
+assert.strictEqual(-1, arr.indexOf(4));
+
+arr = new Int8Array([3, 2, 1, 0]);
+assert.strictEqual(-1, arr.indexOf(true));
+
+arr = new Int8Array([3, 1, 2, 1]);
+assert.strictEqual(1, arr.indexOf(1));
+
+arr = new Int8Array([3, 0, 1]);
+assert.strictEqual(-1, arr.indexOf(undefined));
+
+arr = new Int8Array([3, undefined, 1]);
+assert.strictEqual(-1, arr.indexOf(undefined));
+assert.strictEqual(-1, arr.indexOf(null));
