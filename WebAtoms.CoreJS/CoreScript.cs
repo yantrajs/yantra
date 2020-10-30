@@ -208,7 +208,7 @@ namespace WebAtoms.CoreJS
 
             // need to save super..
             // create a super variable...
-            Exp superExp = null;
+            Exp superExp;
             if (super != null)
             {
                 superExp = VisitExpression(super);
@@ -225,10 +225,11 @@ namespace WebAtoms.CoreJS
             var superVar = Exp.Parameter(typeof(JSFunction));
             var superPrototypeVar = Exp.Parameter(typeof(JSObject));
 
-            List<Exp> stmts = new List<Exp>();
-
-            stmts.Add(Exp.Assign(superVar, Exp.TypeAs(superExp, typeof(JSFunction))));
-            stmts.Add(Exp.Assign(superPrototypeVar, JSFunctionBuilder.Prototype(superVar)));
+            List<Exp> stmts = new List<Exp>
+            {
+                Exp.Assign(superVar, Exp.TypeAs(superExp, typeof(JSFunction))),
+                Exp.Assign(superPrototypeVar, JSFunctionBuilder.Prototype(superVar))
+            };
 
             Exp retValue = null;
 
@@ -241,8 +242,9 @@ namespace WebAtoms.CoreJS
                     case PropertyKind.Get:
                         if(!cache.TryGetValue(name, out expHolder))
                         {
-                            expHolder = new ExpressionHolder();
-                            expHolder.Key = KeyOfName(name);
+                            expHolder = new ExpressionHolder() { 
+                                Key = KeyOfName(name)
+                            };
                             cache[name] = expHolder;
                             members.Add(expHolder);
                             expHolder.Static = method.Static;
@@ -252,8 +254,9 @@ namespace WebAtoms.CoreJS
                     case PropertyKind.Set:
                         if (!cache.TryGetValue(name, out expHolder))
                         {
-                            expHolder = new ExpressionHolder();
-                            expHolder.Key = KeyOfName(name);
+                            expHolder = new ExpressionHolder() {
+                                Key = KeyOfName(name)
+                            };
                             cache[name] = expHolder;
                             members.Add(expHolder);
                             expHolder.Static = method.Static;
@@ -439,7 +442,7 @@ namespace WebAtoms.CoreJS
                         block,
                         ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
 
-                System.Linq.Expressions.LambdaExpression lambda = null;
+                System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
                 if (functionDeclaration.Generator)
                 {
@@ -538,31 +541,33 @@ namespace WebAtoms.CoreJS
             }
         }
 
-        private List<VariableScope> CreateVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
-        {
-            // lets add variable...
-            // forget about const... compiler like typescript should take care of it...
-            // let will be implemented in future...
-            var inits = new List<VariableScope>();
-            bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
-                || variableDeclaration.Kind == VariableDeclarationKind.Const;
-            foreach (var declarator in variableDeclaration.Declarations)
-            {
-                
-                switch (declarator.Id)
-                {
-                    case Esprima.Ast.Identifier id:
-                        var ve = this.scope.Top.CreateVariable(id.Name, declarator.Init != null
-                            ? ExpHelper.JSVariableBuilder.New(VisitExpression(declarator.Init), id.Name)
-                            : null, newScope);
-                        inits.Add(ve);
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-            return inits;
-        }
+        #region Not Used
+        //private List<VariableScope> CreateVariableDeclaration(Esprima.Ast.VariableDeclaration variableDeclaration)
+        //{
+        //    // lets add variable...
+        //    // forget about const... compiler like typescript should take care of it...
+        //    // let will be implemented in future...
+        //    var inits = new List<VariableScope>();
+        //    bool newScope = variableDeclaration.Kind == VariableDeclarationKind.Let
+        //        || variableDeclaration.Kind == VariableDeclarationKind.Const;
+        //    foreach (var declarator in variableDeclaration.Declarations)
+        //    {
+
+        //        switch (declarator.Id)
+        //        {
+        //            case Esprima.Ast.Identifier id:
+        //                var ve = this.scope.Top.CreateVariable(id.Name, declarator.Init != null
+        //                    ? ExpHelper.JSVariableBuilder.New(VisitExpression(declarator.Init), id.Name)
+        //                    : null, newScope);
+        //                inits.Add(ve);
+        //                break;
+        //            default:
+        //                throw new NotSupportedException();
+        //        }
+        //    }
+        //    return inits;
+        //}
+        #endregion
 
         private Exp CreateMemberExpression(Exp target, Expression property, bool computed)
         {
@@ -989,8 +994,9 @@ namespace WebAtoms.CoreJS
                             blockList.Add(init);
                             break;
                         case VariableDeclaration dec:
-                            varDec = new ScopedVariableDeclaration(dec);
-                            varDec.Copy = true;
+                            varDec = new ScopedVariableDeclaration(dec) {
+                                Copy = true
+                            };
                             this.scope.Top.PushToNewScope = varDec;
 
                             foreach(var vd in varDec.Declarators)
@@ -1061,7 +1067,7 @@ namespace WebAtoms.CoreJS
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
             Exp identifier = null;
-            ScopedVariableDeclaration varDec = null;
+            ScopedVariableDeclaration varDec;
             switch (forInStatement.Left)
             {
                 case Identifier id:
@@ -1497,7 +1503,7 @@ namespace WebAtoms.CoreJS
             var continueTarget = Exp.Label();
             // ParameterExpression iterator = null;
             Exp identifier = null;
-            ScopedVariableDeclaration varDec = null;
+            ScopedVariableDeclaration varDec;
             switch (forOfStatement.Left)
             {
                 case Identifier id:
@@ -1799,7 +1805,7 @@ namespace WebAtoms.CoreJS
                                 FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column))
                 };
 
-                bool hasVarDeclarations = scope.IsFunctionScope || scope.Variables.Any();
+                // bool hasVarDeclarations = scope.IsFunctionScope || scope.Variables.Any();
 
 
                 List<Exp> pushedInits = new List<Exp>();
@@ -1809,7 +1815,7 @@ namespace WebAtoms.CoreJS
                     var list = VisitVariableDeclaration(varToPush);
                     pushedInits.AddRange(list);
                     top.PushToNewScope = null;
-                    hasVarDeclarations = true;
+                    // hasVarDeclarations = true;
                 }
 
                 var visited = factory();

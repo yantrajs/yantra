@@ -11,14 +11,14 @@ namespace WebAtoms.CoreJS.ExpHelper
     {
         private readonly static Type type = typeof(JSValueExtensions);
 
-        private static MethodInfo _InstanceOf =
+        private static readonly MethodInfo _InstanceOf =
             type.GetMethod(nameof(JSValueExtensions.InstanceOf));
         public static Expression InstanceOf(Expression target, Expression value)
         {
             return Expression.Call(null, _InstanceOf, target, value);
         }
 
-        private static MethodInfo _IsIn =
+        static readonly MethodInfo _IsIn =
             type.GetMethod(nameof(JSValueExtensions.IsIn));
         public static Expression IsIn(Expression target, Expression value)
         {
@@ -54,11 +54,11 @@ namespace WebAtoms.CoreJS.ExpHelper
         }
 
 
-        private static MethodInfo _InvokeMethodKeyString
+        static readonly MethodInfo _InvokeMethodKeyString
             = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(KeyString), ArgumentsBuilder.refType);
-        private static MethodInfo _InvokeMethodUInt
+        static readonly MethodInfo _InvokeMethodUInt
             = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), ArgumentsBuilder.refType);
-        private static MethodInfo _InvokeMethodJSValue
+        static readonly MethodInfo _InvokeMethodJSValue
             = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), ArgumentsBuilder.refType);
 
         public static Expression InvokeMethod(Expression target, Expression method, Expression args)
