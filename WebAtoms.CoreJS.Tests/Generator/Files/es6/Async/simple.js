@@ -23,8 +23,7 @@ async function fill(m) {
 
 console.log("invoking fill");
 
-var px = fill(4);
-px.then((r) => {
+fill(4).then((r) => {
     console.log("done");
     assert.strictEqual(4, r.length);
     let s = start;

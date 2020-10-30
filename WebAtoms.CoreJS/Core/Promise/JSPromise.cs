@@ -1,5 +1,6 @@
 ﻿using Microsoft.Threading;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
@@ -46,6 +47,7 @@ namespace WebAtoms.CoreJS.Core
         static long nextPromiseID = 1;
 
         long promiseID;
+        ConcurrentDictionary<long, JSPromise> pending;
 
         /// <summary>
         /// .Net removes promises aggressively via
@@ -55,21 +57,10 @@ namespace WebAtoms.CoreJS.Core
         /// </summary>
         private void  RegisterPromise()
         {
-            //if (promiseID == 0)
-            //{
-            //    promiseID = Interlocked.Increment(ref nextPromiseID);
+            promiseID = Interlocked.Increment(ref nextPromiseID);
 
-            //    var pending = JSContext.Current.PendingPromises;
-            //    if (pending.TryAdd(promiseID, this))
-            //    {
-            //        JSFunctionDelegate done = (in Arguments a) =>
-            //        {
-            //            pending.TryRemove(promiseID, out var _);
-            //            return JSUndefined.Value;
-            //        };
-            //        this.Then(done, done);
-            //    }
-            //}
+            pending = JSContext.Current.PendingPromises;
+            pending.TryAdd(promiseID, this);
         }
 
 
@@ -136,6 +127,8 @@ namespace WebAtoms.CoreJS.Core
                 return JSUndefined.Value;
             }
 
+            pending.TryRemove(promiseID, out var __);
+
             // get then...
             if (value.IsObject)
             {
@@ -182,6 +175,8 @@ namespace WebAtoms.CoreJS.Core
         {
             this.state = PromiseState.Rejected;
             this.result = value;
+
+            pending.TryRemove(promiseID, out var __);
 
             var rejectList = this.rejectList;
             if (rejectList != null)
