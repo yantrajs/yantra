@@ -64,7 +64,7 @@ namespace WebAtoms.CoreJS.Core.Generator
         }
 
 
-        Thread thread;
+        // Thread thread;
 
         public JSValue Return(JSValue value)
         {
@@ -116,8 +116,9 @@ namespace WebAtoms.CoreJS.Core.Generator
             {
                 wait = new AutoResetEvent(false);
                 yield = new AutoResetEvent(false);
-                this.thread = new Thread(RunGenerator);
-                thread.Start(new JSWeakGenerator(this));
+                // this.thread = new Thread(RunGenerator);
+                // thread.Start(new JSWeakGenerator(this));
+                JSThreadPool.Queue(RunGenerator, new JSWeakGenerator(this));
             } else
             {
                 JSContext.Current.Scope.Switch(threadTop);

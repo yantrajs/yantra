@@ -19,8 +19,9 @@ namespace WebAtoms.CoreJS.Core.Generator
             : base(JSUndefined.Value, PromiseState.Pending)
         {
             main = new AutoResetEvent(false);
-            this.thread = new Thread(RunAwaiter);
-            thread.Start(new JSWeakAwaiter(this, @delegate, a, main));
+            // this.thread = new Thread(RunAwaiter);
+            // thread.Start(new JSWeakAwaiter(this, @delegate, a, main));
+            JSThreadPool.Queue(RunAwaiter, new JSWeakAwaiter(this, @delegate, a, main));
         }
 
         private static void RunAwaiter(object p)
