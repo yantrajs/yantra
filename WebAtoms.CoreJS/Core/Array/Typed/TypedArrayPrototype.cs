@@ -357,6 +357,11 @@ namespace WebAtoms.CoreJS.Core.Typed
             return @this;
         }
 
+        [Prototype("set", Length = 1)]
+        public static JSValue Set(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            throw new NotImplementedException();
+        }
 
     }
 }
