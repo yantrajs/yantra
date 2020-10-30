@@ -9,7 +9,7 @@ namespace WebAtoms.CoreJS.Core
     {
         public JSValue Value;
 
-        private static FieldInfo _ValueField =
+        static readonly FieldInfo _ValueField =
             typeof(JSVariable).GetField("Value");
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

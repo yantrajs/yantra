@@ -31,7 +31,7 @@ namespace WebAtoms.CoreJS.Core
         /// <param name="name">Asterix '*' if null</param>
         public ExportAttribute(string name = null)
         {
-
+            this.Name = name;
         }
     }
 
@@ -75,9 +75,9 @@ namespace WebAtoms.CoreJS.Core
         /// Specially in server environment with multiple context, module names
         /// are identified by unique id present in ModuleName.
         /// </summary>
-        private ModuleCache moduleCache
+        readonly ModuleCache moduleCache
             = new ModuleCache();
-        
+
         private string[] paths;
 
         protected string[] extensions = new string[] { ".js" };

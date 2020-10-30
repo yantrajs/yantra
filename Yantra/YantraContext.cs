@@ -68,9 +68,9 @@ namespace Yantra
             }
             var et = exportedTypes.ToArray();
             void CaptureTypes(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) { 
-                foreach(var e in et)
+                foreach(var (name, type) in et)
                 {
-                    exports[e.name] = ClrType.From(e.type);
+                    exports[name] = ClrType.From(type);
                 }
             }
             return CaptureTypes;
@@ -134,8 +134,8 @@ namespace Yantra
         {
             StringBuilder sb = new StringBuilder();
             StringReader sr = new StringReader(code);
-            string line = null;
-            while((line = sr.ReadLine() ) != null)
+            string line;
+            while ((line = sr.ReadLine() ) != null)
             {
                 var l = line.TrimStart();
                 if(l.StartsWith("nuget:"))
