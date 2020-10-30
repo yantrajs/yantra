@@ -265,5 +265,82 @@ namespace WebAtoms.CoreJS.Core.Typed
             }
             return JSNumber.MinusOne;
         }
+
+
+
+        [Prototype("map", Length = 1)]
+        public static JSValue Map(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            var (callback, thisArg) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var r = new JSArray();
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if (!hasValue)
+                {
+                    r._length++;
+                    continue;
+                }
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), @this);
+                r.elements[r._length++] = JSProperty.Property(fn.f(itemArgs));
+            }
+            return r;
+        }
+
+        [Prototype("reduce", Length = 1)]
+        public static JSValue Reduce(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            var (callback, initialValue) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.reduce");
+            var en = @this.GetElementEnumerator();
+            uint index = 0;
+            if (a.Length == 1)
+            {
+                if (!en.MoveNext(out initialValue))
+                    throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
+            }
+            while (en.MoveNext(out var hasValue, out var item, out index))
+            {
+                if (!hasValue)
+                    continue;
+                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(index), @this);
+                initialValue = fn.f(itemArgs);
+            }
+            return initialValue;
+        }
+
+
+        [Prototype("reduceRight", Length = 1)]
+        public static JSValue ReduceRight(in Arguments a)
+        {
+            var r = new JSArray();
+            var @this = a.This.AsTypedArray();
+            var (callback, initialValue) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.reduce");
+            var start = @this.Length - 1;
+            if (a.Length == 1)
+            {
+                if (@this.Length == 0)
+                    throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
+                initialValue = @this[(uint)start];
+                start--;
+            }
+            for (int i = start; i >= 0; i--)
+            {
+                var item = @this[(uint)i];
+                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(i), @this);
+                initialValue = fn.f(itemArgs);
+            }
+            return initialValue;
+        }
+
+
+
+
     }
 }
