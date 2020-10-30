@@ -158,13 +158,13 @@ namespace WebAtoms.CoreJS.Core.Clr
                     // call directly...
                     // do not worry about @this... 
 
-                    if (isStatic)
-                    {
-
-                        target.DefineProperty(name,
-                            JSProperty.Function((JSFunctionDelegate)jsMethod.method.CreateDelegate(typeof(JSFunctionDelegate))));
-                        continue;
-                    }
+                    //if (isStatic)
+                    //{
+                    //    var methodDelegate = (JSFunctionDelegate)jsMethod.method.CreateDelegate(typeof(JSFunctionDelegate));
+                    //    target.DefineProperty(name,
+                    //        JSProperty.Function(ToStaticDelegate(methodDelegate));
+                    //    continue;
+                    //}
 
                     target.DefineProperty(name,
                         JSProperty.Function(ToInstanceDelegate(jsMethod.method)));
@@ -196,12 +196,14 @@ namespace WebAtoms.CoreJS.Core.Clr
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var target = Expression.Parameter(method.DeclaringType);
-            var convert = JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), method.DeclaringType, target, method.Name);
+            var convert = method.IsStatic
+                ? null
+                : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), method.DeclaringType, target, method.Name);
 
             var body = Expression.Block(new ParameterExpression[] { target },
-                ClrProxyBuilder.Marshal(
+                JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(
                     Expression.Call(
-                        convert, method, args)));
+                        convert, method, args))));
 
             return Expression.Lambda<JSFunctionDelegate>(body, args).Compile();
         }
@@ -210,15 +212,26 @@ namespace WebAtoms.CoreJS.Core.Clr
         {
             if (!a.This.ConvertTo(type, out var target))
                 throw JSContext.Current.NewTypeError($"{type.Name}.prototype.{name} called with object not of type {type.Name}");
-
-            var (method, args) = methods.Match(a, name);
-            return ClrProxy.Marshal(method.Invoke(target, args));
+            try
+            {
+                var (method, args) = methods.Match(a, name);
+                return ClrProxy.Marshal(method.Invoke(target, args));
+            } catch (Exception ex)
+            {
+                throw JSException.From(ex);
+            }
         }
 
         private static JSValue StaticInvoke(in KeyString name, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
         {
-            var (method, args) = methods.Match(a, name);
-            return ClrProxy.Marshal(method.Invoke(null, args));
+            try
+            {
+                var (method, args) = methods.Match(a, name);
+                return ClrProxy.Marshal(method.Invoke(null, args));
+            }catch (Exception ex)
+            {
+                throw JSException.From(ex);
+            }
         }
 
         private static JSFunctionDelegate GenerateFieldGetter(FieldInfo field)
