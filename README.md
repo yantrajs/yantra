@@ -80,3 +80,11 @@ https://github.com/agileobjects/ReadableExpressions
 |`Object.freeze`| ✗ | ✓ | ✗ | ✗ |
 |`Object.seal`| ✗ | ✓ | ✓ | ✗ |
 |`Object.preventExtensions`| ✗ | ✓ | ✓ | ✓ |
+
+
+# Package Installer
+
+https://gist.github.com/alistairjevans/4de1dccfb7288e0460b7b04f9a700a04
+
+https://gist.github.com/mholo65/ad5776c36559410f45d5dcd0181a5c64
+
