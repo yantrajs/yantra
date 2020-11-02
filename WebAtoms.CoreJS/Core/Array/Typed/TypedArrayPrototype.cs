@@ -506,5 +506,11 @@ namespace WebAtoms.CoreJS.Core.Typed
 
         }
 
+        [Prototype("values", Length = 2)]
+        public static JSValue Values(in Arguments a) {
+            var array = a.This.AsTypedArray();
+            return new JSGenerator(array.GetElementEnumerator(), "Array Iterator");
+        }
+
     }
 }
