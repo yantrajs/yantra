@@ -21,6 +21,13 @@ namespace WebAtoms.CoreJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue Marshal(this Type type)
+        {
+            return ClrType.From(type);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Marshal(this string value)
         {
             return new JSString(value);
