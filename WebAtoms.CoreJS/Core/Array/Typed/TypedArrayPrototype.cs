@@ -433,5 +433,23 @@ namespace WebAtoms.CoreJS.Core.Typed
             
         }
 
+        [Prototype("some", Length = 1)]
+        public static JSValue Some(in Arguments a) {
+            var array = a.This.AsTypedArray();
+            var (callback,thisArg) = a.Get2();
+            if (!(callback is JSFunction fn))
+                throw JSContext.Current.NewTypeError($"First argument is not function");
+            var en = array.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if (!hasValue)
+                    continue;
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
+                if (fn.f(itemArgs).BooleanValue)
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
+
     }
 }
