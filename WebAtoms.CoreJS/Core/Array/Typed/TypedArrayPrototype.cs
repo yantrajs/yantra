@@ -451,5 +451,41 @@ namespace WebAtoms.CoreJS.Core.Typed
             return JSBoolean.False;
         }
 
+
+        [Prototype("sort", Length = 1)]
+        public static JSValue Sort(in Arguments a) {
+            var fx = a.Get1();
+            var @this = a.This.AsTypedArray();
+            Comparison<JSValue> cx = null;
+            if (fx is JSFunction fn)
+            {
+                cx = (l, r) => {
+                    var arg = new Arguments(@this, l, r);
+                    return (int)(fn.f(arg).DoubleValue);
+                };
+            }
+            else
+            {
+                if (!fx.IsUndefined)
+                    throw JSContext.Current.NewTypeError($"Argument is not a function");
+                cx = (l, r) => l.DoubleValue < r.DoubleValue ? -1 : 
+                (l.DoubleValue == r.DoubleValue ? 0 : 1);
+            }
+
+            var list = new List<JSValue>();
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var item, out var index))
+            {
+                if (hasValue)
+                {
+                    list.Add(item);
+                }
+            }
+
+            list.Sort(cx);
+
+            return new JSArray(list);
+        }
+
     }
 }
