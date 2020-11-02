@@ -115,12 +115,12 @@ namespace Yantra.Utils
             // look for folder 
             foreach(var package in packages)
             {
-                var dir = new DirectoryInfo(Path.Combine(package, "netstandard2.1"));
+                var dir = new DirectoryInfo(Path.Combine(package, "lib/netstandard2.1"));
                 if (dir.Exists) {
                     files.AddRange(dir.EnumerateFiles("*.dll").Select(x => x.FullName));
                     continue;
                 }
-                dir = new DirectoryInfo(Path.Combine(package, "netstandard2.0"));
+                dir = new DirectoryInfo(Path.Combine(package, "lib/netstandard2.0"));
                 if (dir.Exists)
                 {
                     files.AddRange(dir.EnumerateFiles("*.dll").Select(x => x.FullName));

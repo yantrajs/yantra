@@ -1,8 +1,12 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Esprima.Ast;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Threading;
+using Newtonsoft.Json;
+using NuGet.Versioning;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,6 +32,30 @@ namespace Yantra
     public class YantraContext: JSModuleContext
     {
 
+        private static ConcurrentDictionary<string, string> assemblyCache = new ConcurrentDictionary<string, string>();
+
+        static YantraContext()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+        }
+
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var name = args.Name;
+            if(assemblyCache.TryGetValue(name, out var v))
+            {
+                if (System.IO.File.Exists(v))
+                    return AppDomain.CurrentDomain.Load(System.IO.File.ReadAllBytes(v));
+            }
+            name = name.Split(",")[0].Trim();
+            if (assemblyCache.TryGetValue(name, out v))
+            {
+                if (System.IO.File.Exists(v))
+                    return AppDomain.CurrentDomain.Load(System.IO.File.ReadAllBytes(v));
+            }
+            return null;
+        }
+
         readonly string folder;
         public YantraContext(string folder)
         {
@@ -41,7 +69,8 @@ namespace Yantra
         private async Task<JSModuleDelegate> LoadDelegate(string assemblyPath)
         {
             var returnType = typeof(Task<JSModuleDelegate>);
-            var a = Assembly.LoadFile(assemblyPath);
+            var data = await System.IO.File.ReadAllBytesAsync(assemblyPath);
+            var a = AppDomain.CurrentDomain.Load(data);
             var methods = a.GetTypes().SelectMany(x => x.GetMethods());
             var p = methods.FirstOrDefault(x => x.IsStatic && x.ReturnType == returnType);
             if (p != null)
@@ -79,59 +108,100 @@ namespace Yantra
 
         }
 
+        async Task<JSModuleDelegate> LoadDelegate(FileInfo dllFile, FileInfo depsFile)
+        {
+            if (depsFile.Exists)
+            {
+                var text = await System.IO.File.ReadAllTextAsync(depsFile.FullName);
+                var files = JsonConvert.DeserializeObject<DependentAssemblyName[]>(text);
+                foreach(var file in files)
+                {
+                    // var name = System.IO.Path.GetFileNameWithoutExtension(file);
+                    assemblyCache.TryAdd(file.Name, file.Path);
+                    assemblyCache.TryAdd(file.FullName, file.Path);
+                }
+            }
+            return await LoadDelegate(dllFile.FullName);
+        }
         protected override JSFunctionDelegate Compile(string code, string filePath, List<string> args)
         {
-            if (filePath.EndsWith(".csx"))
+            if (!filePath.EndsWith(".csx"))
+                return base.Compile(code, filePath, args);
+
+
+            JSModuleDelegate @delegate = null;
+            AsyncPump.Run(async () =>
             {
+                var originalFile = new FileInfo(filePath);
+                var dllFile = new FileInfo(filePath + ".dll");
+                var depsFile = new FileInfo(filePath + ".dll.deps");
 
-                JSModuleDelegate @delegate = null;
-                AsyncPump.Run(async () =>
+
+                if (dllFile.Exists && dllFile.LastWriteTimeUtc >= originalFile.LastWriteTimeUtc)
                 {
-                    var originalFile = new FileInfo(filePath);
-                    var dllFile = new FileInfo(filePath + ".dll");
-                    if (dllFile.Exists && dllFile.LastWriteTimeUtc >= originalFile.LastWriteTimeUtc)
+                    @delegate = await LoadDelegate(dllFile, depsFile);
+                } else {
+
+                    var nugetResolver = new NuGetMetadataReferenceResolver(
+                        ScriptMetadataResolver.Default.WithBaseDirectory(originalFile.DirectoryName), folder);
+
+                    var options = ScriptOptions.Default
+                            .WithFilePath(filePath)
+                            .AddReferences(typeof(JSValue).Assembly, typeof(YantraContext).Assembly)
+                            .WithMetadataResolver(nugetResolver)
+                            .WithOptimizationLevel(OptimizationLevel.Debug);
+
+                    var oldCode = code;
+                    // remove yantra code 
+                    code = RemoveReference(code);
+
+                    var csCode = await CSharpScript.RunAsync<JSModuleDelegate>(code, options);
+
+                    var r = csCode.ReturnValue;
+                    @delegate = r;
+
+                    var c = csCode.Script.GetCompilation();
+
+                    var er = c.Emit(dllFile.FullName);
+
+                    var ers = c.DirectiveReferences;
+                    var deps = ers.Select(d => (name: AssemblyName.GetAssemblyName(d.Display), path: d.Display))
+                        .Select((name) => new DependentAssemblyName { 
+                            Name = name.name.Name,
+                            FullName = name.name.FullName,
+                            Path = name.path
+                        })
+                        .ToArray();
+                    // emit .deps.json
+                    System.IO.File.WriteAllText(depsFile.FullName, JsonConvert.SerializeObject(deps));
+
+
+                    if(!er.Success)
                     {
-                        @delegate = await LoadDelegate(dllFile.FullName);
-                    } else { 
-                        var options = ScriptOptions.Default
-                                .WithFilePath(filePath)
-                                .AddReferences(typeof(JSValue).Assembly, typeof(YantraContext).Assembly)
-                                .WithMetadataResolver(new NuGetMetadataReferenceResolver(ScriptMetadataResolver.Default.WithBaseDirectory(originalFile.DirectoryName), folder))
-                                .WithOptimizationLevel(OptimizationLevel.Debug);
-
-                        var oldCode = code;
-                        // remove yantra code 
-                        code = RemoveReference(code);
-
-                        var csCode = await CSharpScript.RunAsync<JSModuleDelegate>(code, options);
-
-                        var r = csCode.ReturnValue;
-                        @delegate = r;
-                        var er = csCode.Script.GetCompilation().Emit(dllFile.FullName);
-                        if(!er.Success)
+                        StringBuilder sb = new StringBuilder();
+                        foreach(var d in er.Diagnostics)
                         {
-                            StringBuilder sb = new StringBuilder();
-                            foreach(var d in er.Diagnostics)
-                            {
-                                sb.AppendLine(d.ToString());
-                            }
-                            throw new Exception(sb.ToString());
+                            sb.AppendLine(d.ToString());
                         }
-                        if (@delegate == null)
-                        {
-                            @delegate = await LoadDelegate(dllFile.FullName);
-                        }
-
+                        throw new Exception(sb.ToString());
                     }
-                });
-                return (in Arguments a) => {
-                    var alist = a.GetArgs();
-                    @delegate(alist[0], alist[1], alist[2], alist[3].ToString(), alist[4].ToString());
-                    return JSUndefined.Value;
-                };
-            }
-            return base.Compile(code, filePath, args);
+                    if (@delegate == null)
+                    {
+                        @delegate = await LoadDelegate(dllFile, depsFile);
+                    }
+
+                }
+
+            });
+            return (in Arguments a) => {
+                var alist = a.GetArgs();
+                @delegate(alist[0], alist[1], alist[2], alist[3].ToString(), alist[4].ToString());
+                return JSUndefined.Value;
+            };
         }
+
+        
+
         static string RemoveReference(string code)
         {
             StringBuilder sb = new StringBuilder();
@@ -160,5 +230,14 @@ namespace Yantra
         public JSValue module;
         public string __filename;
         public string __dirname;
+    }
+
+    public class DependentAssemblyName
+    {
+        public string Name { get; set; }
+
+        public string FullName { get; set; }
+
+        public string Path { get; set; }
     }
 }

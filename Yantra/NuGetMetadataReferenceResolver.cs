@@ -3,6 +3,7 @@ using Microsoft.Threading;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Yantra.Utils;
@@ -15,6 +16,9 @@ namespace Yantra
     /// </summary>
     public class NuGetMetadataReferenceResolver : MetadataReferenceResolver
     {
+
+        public List<string> DependentAssemblies = new List<string>();
+
         private readonly MetadataReferenceResolver _metadataReferenceResolver;
         readonly string folder;
 
@@ -46,6 +50,7 @@ namespace Yantra
         }
 
 
+
         public override ImmutableArray<PortableExecutableReference> ResolveReference(string reference, string baseFilePath, MetadataReferenceProperties properties)
         {
             if (reference.StartsWith("nuget", StringComparison.OrdinalIgnoreCase))
@@ -58,8 +63,12 @@ namespace Yantra
                     files = await loader.LoadExtensions(new Loader.ExtensionConfiguration(reference), folder);
                 });
 
-                return ImmutableArray<PortableExecutableReference>.Empty.Add(
-                    MetadataReference.CreateFromFile(typeof(NuGetMetadataReferenceResolver).GetTypeInfo().Assembly.Location));
+                // we need to add it in deps.json
+                DependentAssemblies.AddRange(files);
+
+                var r = ImmutableArray<PortableExecutableReference>.Empty.AddRange(
+                    files.Select(y => MetadataReference.CreateFromFile(y)));
+                return r;
             }
             var resolvedReference = _metadataReferenceResolver.ResolveReference(reference, baseFilePath, properties);
             return resolvedReference;

@@ -1,3 +1,3 @@
-﻿var test = require("./test");
+﻿var test = require("./test").default;
 
-assert.strictEqual("", test.base32(5454));
+assert.strictEqual("5AE", test.base32(5454));
