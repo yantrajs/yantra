@@ -15,11 +15,11 @@ namespace Yantra.REPL
 
         public void Run()
         {
-            Console.WriteLine("// Write .exit() to stop..");
+            Console.WriteLine("// Write .exit to stop..");
             while (true)
             {
                 string line = Console.ReadLine();
-                if (line == ".exit()")
+                if (line == ".exit")
                     break;
 
                 var v = CoreScript.Evaluate(line);
