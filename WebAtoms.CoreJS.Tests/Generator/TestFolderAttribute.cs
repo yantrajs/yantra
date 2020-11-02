@@ -75,7 +75,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
             }
         }
 
-        protected virtual JSContext CreateContext()
+        protected virtual JSContext CreateContext(FileInfo file)
         {
             return new JSTestContext();
         }
@@ -94,7 +94,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
                 {
                     content = await fs.ReadToEndAsync();
                 }
-                using (var jc = CreateContext())
+                using (var jc = CreateContext(file))
                 {
                     jc.Log += (_, s) =>
                     {

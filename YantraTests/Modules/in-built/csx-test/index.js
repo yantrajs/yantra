@@ -1,3 +1,3 @@
-﻿//var test = require("./test");
+﻿var test = require("./test");
 
-//assert.strictEqual("", test.base32(5454));
+assert.strictEqual("", test.base32(5454));

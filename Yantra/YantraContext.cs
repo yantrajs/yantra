@@ -28,8 +28,10 @@ namespace Yantra
     public class YantraContext: JSModuleContext
     {
 
-        public YantraContext()
+        readonly string folder;
+        public YantraContext(string folder)
         {
+            this.folder = folder;
             // reverse priority, select csx before js.
             this.extensions = new string[] { ".csx", ".js"  };
 
@@ -94,7 +96,7 @@ namespace Yantra
                         var options = ScriptOptions.Default
                                 .WithFilePath(filePath)
                                 .AddReferences(typeof(JSValue).Assembly, typeof(YantraContext).Assembly)
-                                .WithMetadataResolver(new NuGetMetadataReferenceResolver(ScriptMetadataResolver.Default.WithBaseDirectory(originalFile.DirectoryName)))
+                                .WithMetadataResolver(new NuGetMetadataReferenceResolver(ScriptMetadataResolver.Default.WithBaseDirectory(originalFile.DirectoryName), folder))
                                 .WithOptimizationLevel(OptimizationLevel.Debug);
 
                         var oldCode = code;
