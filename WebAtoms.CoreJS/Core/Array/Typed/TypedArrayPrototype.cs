@@ -7,6 +7,13 @@ namespace WebAtoms.CoreJS.Core.Typed
 {
     public static class TypedArrayPrototype
     {
+        [GetProperty("length")]
+        public static JSValue Length(in Arguments a) {
+            var @this = a.This.AsTypedArray();
+            return new JSNumber(@this.Length);
+        }
+
+
         [Prototype("toString")]
         public static JSValue ToString(in Arguments a) {
             var @this = a.This.AsTypedArray();
@@ -378,9 +385,9 @@ namespace WebAtoms.CoreJS.Core.Typed
                 int sourceBytesPerElement = typedArray.bytesPerElement;
                 int targetBytesPerElement = @this.bytesPerElement;
 
-                for (int i = relativeStart; i < length; i++)
+                for (int i = 0; i < length; i++)
                 {
-                    var y = length - i - 1;
+                    var y = relativeStart + i;
                     Array.Copy(src, i * sourceBytesPerElement, target, y * targetBytesPerElement, targetBytesPerElement);
                 }
            
@@ -395,6 +402,35 @@ namespace WebAtoms.CoreJS.Core.Typed
 
             return @this;
          
+        }
+
+        [Prototype("slice", Length = 2)]
+        public static JSValue Slice(in Arguments a) {
+            var begin = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
+            var end = a.TryGetAt(1, out var a2) ? a2.IntValue : int.MaxValue;
+            
+            int newLength;
+            var @this = a.This.AsTypedArray();
+
+            begin = begin < 0 ? Math.Max(@this.Length + begin, 0) : Math.Min(begin, @this.Length);
+            end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
+            newLength = Math.Max(end - begin, 0);
+
+
+            var src = @this.buffer.buffer;
+            var r = new TypedArray(null, @this.type, 0, newLength, @this.prototypeChain);
+            var target = r.buffer.buffer;
+            int bytesPerElement = @this.bytesPerElement;
+
+            for (int i = begin; i < end; i++)
+            {
+                var y = i - begin;
+                Array.Copy(src, i * bytesPerElement, target, y * bytesPerElement, bytesPerElement);
+            }
+
+            
+            return r;
+            
         }
 
     }

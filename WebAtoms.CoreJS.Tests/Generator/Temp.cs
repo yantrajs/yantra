@@ -24,7 +24,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // pending new object initialization
 
-            RunTest("es5\\Array\\Typed\\set.js");
+            RunTest("es5\\Array\\Typed\\slice.js");
             // RunTest("Objects\\Object\\entries.js");
 
             // RunTest("es6/Syntax/for-of/array.js");

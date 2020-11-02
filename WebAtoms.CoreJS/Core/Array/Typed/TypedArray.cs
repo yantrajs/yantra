@@ -61,7 +61,7 @@ namespace WebAtoms.CoreJS.Core.Typed
     public class TypedArray : JSObject
     {
         internal readonly JSArrayBuffer buffer;
-        private readonly TypedArrayType type;
+        internal readonly TypedArrayType type;
         private readonly int byteOffset;
         internal readonly int bytesPerElement;
         private readonly int length;
