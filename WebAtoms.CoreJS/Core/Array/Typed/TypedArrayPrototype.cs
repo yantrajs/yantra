@@ -360,7 +360,41 @@ namespace WebAtoms.CoreJS.Core.Typed
         [Prototype("set", Length = 1)]
         public static JSValue Set(in Arguments a) {
             var @this = a.This.AsTypedArray();
-            throw new NotImplementedException();
+            var (source, offset) = a.Get2();
+            int length = @this.Length;
+            if (length == 0)
+            {
+                return JSNumber.MinusOne;
+            }
+            
+            var relativeStart = offset.AsInt32OrDefault();
+
+            var targetArrayLength = source.Length + relativeStart;
+            if (targetArrayLength > length)
+                throw JSContext.Current.NewRangeError("Length exceeds target array length");
+            if (source is TypedArray typedArray) {
+                var src = typedArray.buffer.buffer;
+                var target = @this.buffer.buffer;
+                int sourceBytesPerElement = typedArray.bytesPerElement;
+                int targetBytesPerElement = @this.bytesPerElement;
+
+                for (int i = relativeStart; i < length; i++)
+                {
+                    var y = length - i - 1;
+                    Array.Copy(src, i * sourceBytesPerElement, target, y * targetBytesPerElement, targetBytesPerElement);
+                }
+           
+                return @this;
+            }
+
+            var rs = (uint)relativeStart;
+            var en = source.GetElementEnumerator();
+            while (en.MoveNext(out var hasValue, out var value, out var index)) {
+                @this[index + rs] = value;
+            }
+
+            return @this;
+         
         }
 
     }

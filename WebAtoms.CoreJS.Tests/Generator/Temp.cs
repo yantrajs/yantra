@@ -24,11 +24,11 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
             // pending new object initialization
 
-            // RunTest("Objects\\Array\\slice.js");
+            RunTest("es5\\Array\\Typed\\set.js");
             // RunTest("Objects\\Object\\entries.js");
 
             // RunTest("es6/Syntax/for-of/array.js");
-            RunTest("es6/Syntax/destructuring/parameter.js");
+            // RunTest("es6/Syntax/destructuring/parameter.js");
 
             // RunTest("es5/Function/fib.js");
 

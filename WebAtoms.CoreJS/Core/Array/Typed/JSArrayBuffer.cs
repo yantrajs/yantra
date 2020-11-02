@@ -51,6 +51,15 @@ namespace WebAtoms.CoreJS.Core.Typed
             return JSBoolean.False;
         }
 
+        [Constructor]
+        public static JSValue Constructor(in Arguments a) {
+            int length = a.Get1().AsInt32OrDefault();
+            if (length < 0 || length > JSNumber.MaxSafeInteger)
+            {
+                throw JSContext.Current.NewRangeError("Buffer length out of range");
+            }
+            return new JSArrayBuffer(length);
+        }
 
     }
 }
