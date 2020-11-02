@@ -3,13 +3,14 @@
 using System;
 using WebAtoms.CoreJS.Core;
 using WebAtoms.CoreJS.Core.Clr;
+using CrockfordBase32;
 
 [DefaultExport]
 public class Test
 {
     public static JSValue Base32(in Arguments a)
     {
-        CrockfordBase32.CrockfordBase32Encoding en = new CrockfordBase32.CrockfordBase32Encoding();
+        CrockfordBase32Encoding en = new CrockfordBase32Encoding();
         return en.Encode((ulong)a.Get1().BigIntValue, false).Marshal();
     }
 }
