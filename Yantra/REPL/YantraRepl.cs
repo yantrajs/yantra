@@ -7,6 +7,12 @@ namespace Yantra.REPL
 {
     public class YantraRepl: YantraContext
     {
+
+        public YantraRepl(): base(Environment.CurrentDirectory)
+        {
+
+        }
+
         public void Run()
         {
             Console.WriteLine("// Write .exit() to stop..");

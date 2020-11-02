@@ -1,5 +1,6 @@
 ﻿using Microsoft.Threading;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WebAtoms.CoreJS.Core;
@@ -13,7 +14,7 @@ namespace WebAtoms.CoreJS.Tests.Generator
 
         }
 
-        protected override JSContext CreateContext()
+        protected override JSContext CreateContext(FileInfo file)
         {
             return new JSModuleContext();
         }

@@ -28,7 +28,7 @@ namespace Yantra
             if (!file.Exists)
                 throw new FileNotFoundException(file.FullName);
             
-            var yc = new YantraContext();
+            var yc = new YantraContext(file.DirectoryName);
             var r = await yc.RunAsync(file.DirectoryName, "./" + file.Name);
             if (!r.IsUndefined)
                 Console.WriteLine(r);

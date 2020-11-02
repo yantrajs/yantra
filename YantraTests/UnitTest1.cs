@@ -36,9 +36,9 @@ namespace YantraTests
             }
         }
 
-        protected override JSContext CreateContext()
+        protected override JSContext CreateContext(FileInfo file)
         {
-            return new YantraContext();
+            return new YantraContext(file.DirectoryName);
         }
 
         protected override void Evaluate(JSContext context, string content, string fullName)
