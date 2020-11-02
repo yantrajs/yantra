@@ -487,5 +487,24 @@ namespace WebAtoms.CoreJS.Core.Typed
             return new JSArray(list);
         }
 
+
+
+        [Prototype("subarray", Length = 2)]
+        public static JSValue SubArray(in Arguments a) {
+            var begin = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
+            var end = a.TryGetAt(1, out var a2) ? a2.IntValue : int.MaxValue;
+
+            int newLength;
+            var @this = a.This.AsTypedArray();
+
+            begin = begin < 0 ? Math.Max(@this.Length + begin, 0) : Math.Min(begin, @this.Length);
+            end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
+            newLength = Math.Max(end - begin, 0);
+
+            var r = new TypedArray(@this.buffer, @this.type, @this.byteOffset + begin, newLength, @this.prototypeChain);
+            return r;
+
+        }
+
     }
 }
