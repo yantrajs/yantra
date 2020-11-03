@@ -197,7 +197,8 @@ namespace WebAtoms.CoreJS.Core.Generator
 
             public bool MoveNext(out JSValue value)
             {
-                if (generator.Next().BooleanValue)
+                generator.Next();
+                if (!generator.done)
                 {
                     this.index++;
                     value = this.generator.value;
@@ -211,7 +212,8 @@ namespace WebAtoms.CoreJS.Core.Generator
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                if (generator.Next().BooleanValue)
+                generator.Next();
+                if (!generator.done)
                 {
                     this.index++;
                     index = (uint)this.index;
