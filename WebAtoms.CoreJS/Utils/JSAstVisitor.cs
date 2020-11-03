@@ -287,7 +287,15 @@ namespace WebAtoms.CoreJS.Utils
 
                 case Nodes.ClassDeclaration:
                     return VisitClassDeclaration(statement.As<ClassDeclaration>());
-                    
+                case Nodes.ExportSpecifier:
+                    return VisitExportSpecifier(statement.As<ExportSpecifier>());
+                case Nodes.ExportNamedDeclaration:
+                    return VisitExportNamedDeclaration(statement.As<ExportNamedDeclaration>());
+                case Nodes.ExportAllDeclaration:
+                    return VisitExportAllDeclaration(statement.As<ExportAllDeclaration>());
+                case Nodes.ExportDefaultDeclaration:
+                    return VisitExportDefaultDeclaration(statement.As<ExportDefaultDeclaration>());
+
                 default:
                     return VisitUnknownNode(statement);
                     

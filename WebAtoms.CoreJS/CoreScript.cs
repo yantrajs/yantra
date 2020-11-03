@@ -1449,7 +1449,9 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitExportDefaultDeclaration(Esprima.Ast.ExportDefaultDeclaration exportDefaultDeclaration)
         {
-            throw new NotImplementedException();
+            var exports = this.scope.Top.GetVariable("exports");
+            var defExports = JSValueBuilder.Index(exports.Expression, KeyOfName("default"));
+            return Exp.Assign(defExports, VisitStatement(exportDefaultDeclaration.Declaration as Statement));
         }
 
         protected override Exp VisitExportAllDeclaration(Esprima.Ast.ExportAllDeclaration exportAllDeclaration)
