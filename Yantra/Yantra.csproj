@@ -3,6 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>YantraJS</AssemblyName>
+    <PackageId>YantraJS</PackageId>
+    <PackageTags>yantra,yantrajs,javascript</PackageTags>
+    <Version>1.0.0-beta-$(BuildNumber)</Version>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
