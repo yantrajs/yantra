@@ -353,14 +353,18 @@ namespace WebAtoms.CoreJS.Core.Typed
 
             var src = @this.buffer.buffer;
             var temp = new byte[src.Length];
+            Array.Copy(src, temp, src.Length);
             int bytesPerElement = @this.bytesPerElement;
             int length = @this.Length;
             for (int i = 0; i < length; i++)
             {
                 var y = length - i - 1;
-                Array.Copy(src, i * bytesPerElement, temp, y * bytesPerElement, bytesPerElement);
+                Array.Copy(temp, @this.byteOffset + (i * bytesPerElement), 
+                    src, 
+                    @this.byteOffset + (y * bytesPerElement), 
+                    bytesPerElement);
             }
-            Array.Copy(temp, src,src.Length);
+            // Array.Copy(temp, src,src.Length);
             return @this;
         }
 
@@ -378,7 +382,7 @@ namespace WebAtoms.CoreJS.Core.Typed
 
             var targetArrayLength = source.Length + relativeStart;
             if (targetArrayLength > length)
-                throw JSContext.Current.NewRangeError("Length exceeds target array length");
+                throw JSContext.Current.NewRangeError("Offset is out of bounds");
             if (source is TypedArray typedArray) {
                 var src = typedArray.buffer.buffer;
                 var target = @this.buffer.buffer;
@@ -388,7 +392,10 @@ namespace WebAtoms.CoreJS.Core.Typed
                 for (int i = 0; i < length; i++)
                 {
                     var y = relativeStart + i;
-                    Array.Copy(src, i * sourceBytesPerElement, target, y * targetBytesPerElement, targetBytesPerElement);
+                    Array.Copy(src, typedArray.byteOffset + (i * sourceBytesPerElement), 
+                        target, 
+                        @this.byteOffset + (y * targetBytesPerElement), 
+                        targetBytesPerElement);
                 }
            
                 return @this;
@@ -425,7 +432,7 @@ namespace WebAtoms.CoreJS.Core.Typed
             for (int i = begin; i < end; i++)
             {
                 var y = i - begin;
-                Array.Copy(src, i * bytesPerElement, target, y * bytesPerElement, bytesPerElement);
+                Array.Copy(src,@this.byteOffset + (i * bytesPerElement), target, y * bytesPerElement, bytesPerElement);
             }
 
             

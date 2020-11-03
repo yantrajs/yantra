@@ -10,6 +10,12 @@ uint8 = new Int8Array([1, 21, 49, 4, 11]);
 assert.strictEqual("4,11", uint8.subarray(3).toString());
 assert.strictEqual("49,4", uint8.subarray(2, 4).toString());
 
+assert.strictEqual("4", uint8.subarray(-2, 4).toString());
+
+assert.strictEqual("", uint8.subarray(-2, -4).toString());
+
+assert.strictEqual("21,49", uint8.subarray(-4, -2).toString());
+
 uint8 = new Int8Array([1, 21, 49, 15, 4, 11]);
 assert.strictEqual("49,15",
     uint8.subarray(1, 5)
