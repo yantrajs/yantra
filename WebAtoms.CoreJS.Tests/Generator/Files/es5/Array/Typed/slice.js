@@ -22,6 +22,9 @@ assert.strictEqual(2, y.length);
 
 y = x.slice(2, 3);
 
+assert.strictEqual(true, x instanceof Int8Array);
+assert.strictEqual(true, y instanceof Int8Array);
+
 y[0] = 5;
 
 assert.strictEqual(1, x[0]);

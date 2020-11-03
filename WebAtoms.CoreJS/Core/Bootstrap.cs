@@ -73,7 +73,10 @@ namespace WebAtoms.CoreJS.Core
             ref var target = ref copy.prototype.GetOwnProperties();
             foreach (var (Key, Value) in jsf.prototype.GetOwnProperties(false).AllValues())
             {
-                target[Key] = Value;
+                if (Key != KeyStrings.constructor.Key)
+                {
+                    target[Key] = Value;
+                }
             }
             ref var ro = ref copy.GetOwnProperties();
             foreach (var (Key, Value) in jsf.GetOwnProperties().AllValues())
