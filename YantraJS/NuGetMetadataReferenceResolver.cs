@@ -6,15 +6,15 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Yantra.Utils;
+using YantraJS.Utils;
 
-namespace Yantra
+namespace YantraJS
 {
     /// <summary>
     /// A <see cref="MetadataReferenceResolver"/> decorator that handles
     /// references to NuGet packages in scripts.  
     /// </summary>
-    public class NuGetMetadataReferenceResolver : MetadataReferenceResolver
+    internal class NuGetMetadataReferenceResolver : MetadataReferenceResolver
     {
 
         public List<string> DependentAssemblies = new List<string>();

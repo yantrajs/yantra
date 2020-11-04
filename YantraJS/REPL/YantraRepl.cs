@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using YantraJS;
 
-namespace Yantra.REPL
+namespace YantraJS.REPL
 {
-    public class YantraRepl: YantraContext
+    internal class YantraRepl: YantraContext
     {
 
         public YantraRepl(): base(Environment.CurrentDirectory)

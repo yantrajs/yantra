@@ -11,14 +11,14 @@ namespace YantraJS.Core
     /// KeyStrings is a collection of frequently used string, KeyString is created with
     /// a unique numeric ID, which can be used as a key to store key value pair in Object.
     /// 
-    /// UInt32 has only 4 bytes, and using it as key will reduce storage in binary map. 
+    /// UInt32 has only 4 bytes, and using it as key will reduce storage in K map. 
     /// 
     /// Compiler will create KeyStrings of all referenced keys in the script if they are not part of
     /// this class.
     /// 
     /// KeyString created with same string will always save.
     /// </summary>
-    internal static class KeyStrings
+    public static class KeyStrings
     {
         public readonly static KeyString __proto__;
         public readonly static KeyString length;
@@ -159,11 +159,11 @@ namespace YantraJS.Core
 
         private static int NextID = 1;
 
-        public static (int size, int total, int next) Total => (map.Size, map.Total, NextID);
+        internal static (int size, int total, int next) Total => (map.Size, map.Total, NextID);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static KeyString GetOrCreate(string key)
+        internal static KeyString GetOrCreate(string key)
         {
             return map.GetOrCreate(key, () =>
             {
@@ -173,7 +173,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet(string key, out KeyString ks)
+        internal static bool TryGet(string key, out KeyString ks)
         {
             return map.TryGetValue(key, out ks);
         }

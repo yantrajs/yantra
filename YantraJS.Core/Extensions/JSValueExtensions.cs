@@ -56,6 +56,93 @@ namespace YantraJS.Core
             return fx.InvokeFunction(a.OverrideThis(@this));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeFunction(this JSValue @this, JSValue arg0)
+        {
+            var a = new Arguments(@this, arg0);
+            return @this.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeFunction(this JSValue fx, JSValue @this, JSValue arg0, JSValue arg1)
+        {
+            var a = new Arguments(@this, arg0, arg1);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeFunction(this JSValue fx, JSValue @this, JSValue arg0, JSValue arg1, JSValue arg2)
+        {
+            var a = new Arguments(@this, arg0, arg1, arg2);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeFunction(this JSValue fx, JSValue @this, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
+        {
+            var a = new Arguments(@this, arg0, arg1, arg2, arg3);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeFunction(this JSValue fx, JSValue @this, JSValue[] args)
+        {
+            var a = new Arguments(@this, args);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            var a = new Arguments(@this, arg0);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0, JSValue arg1)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            var a = new Arguments(@this, arg0, arg1);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0, JSValue arg1, JSValue arg2)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            var a = new Arguments(@this, arg0, arg1, arg2);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            var a = new Arguments(@this, arg0, arg1, arg2, arg3);
+            return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue[] args)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            var a = new Arguments(@this, args);
+            return fx.InvokeFunction(a);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, uint name, in Arguments a)
         {
             var fx = @this[name];
@@ -64,6 +151,7 @@ namespace YantraJS.Core
             return fx.InvokeFunction(a.OverrideThis(@this));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, JSValue name, in Arguments a)
         {
             var key = name.ToKey();

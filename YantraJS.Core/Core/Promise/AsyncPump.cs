@@ -11,6 +11,31 @@ namespace Microsoft.Threading
     {
         /// <summary>Runs the specified asynchronous function.</summary>
         /// <param name="func">The asynchronous function to execute.</param>
+        public static T Run<T>(Func<Task<T>> func)
+        {
+            if (func == null) throw new ArgumentNullException("func");
+
+            var prevCtx = SynchronizationContext.Current;
+            try
+            {
+                // Establish the new context
+                var syncCtx = new SingleThreadSynchronizationContext();
+                SynchronizationContext.SetSynchronizationContext(syncCtx);
+
+                // Invoke the function and alert the context to when it completes
+                var t = func();
+                if (t == null) throw new InvalidOperationException("No task provided.");
+                t.ContinueWith(delegate { syncCtx.Complete(); }, TaskScheduler.Default);
+
+                // Pump continuations and propagate any exceptions
+                syncCtx.RunOnCurrentThread();
+                return t.GetAwaiter().GetResult();
+            }
+            finally { SynchronizationContext.SetSynchronizationContext(prevCtx); }
+        }
+
+        /// <summary>Runs the specified asynchronous function.</summary>
+        /// <param name="func">The asynchronous function to execute.</param>
         public static void Run(Func<Task> func)
         {
             if (func == null) throw new ArgumentNullException("func");

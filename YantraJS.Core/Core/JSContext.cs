@@ -17,6 +17,7 @@ using YantraJS.Core.Objects;
 using YantraJS.Core.Set;
 using YantraJS.Core.Weak;
 using System.Collections.Concurrent;
+using Microsoft.Threading;
 
 namespace YantraJS.Core
 {
@@ -102,6 +103,7 @@ namespace YantraJS.Core
 
         public static JSContext Current
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 return _current.Value;
@@ -299,7 +301,7 @@ namespace YantraJS.Core
             }
         }
 
-        public void Post(SynchronizationContext ctx, Action action)
+        internal void Post(SynchronizationContext ctx, Action action)
         {
             if (ctx != null)
             {
@@ -323,7 +325,7 @@ namespace YantraJS.Core
         private static long nextTimeout = 1;
         private static long nextInterval = 1;
 
-        public long PostTimeout(int delay, JSFunction f, in Arguments a)
+        internal long PostTimeout(int delay, JSFunction f, in Arguments a)
         {
             var key = Interlocked.Increment(ref nextTimeout);
             JSValue[] args = JSArguments.Empty;
@@ -350,7 +352,7 @@ namespace YantraJS.Core
             }
             return key;
         }
-        public long SetInterval(int delay, JSFunction f, Arguments a)
+        internal long SetInterval(int delay, JSFunction f, Arguments a)
         {
             var key = Interlocked.Increment(ref nextInterval);
             JSValue[] args = JSArguments.Empty;
@@ -382,6 +384,60 @@ namespace YantraJS.Core
 
         internal ConcurrentDictionary<long, JSPromise> PendingPromises
             = new ConcurrentDictionary<long, JSPromise>();
+
+        /// <summary>
+        /// Quickly evaluate the code, does not wait for promises and timeouts/intervals
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="codeFilePath"></param>
+        /// <returns></returns>
+        public JSValue FastEval(string code, string codeFilePath = null)
+        {
+            return CoreScript.Evaluate(code, codeFilePath);
+        }
+
+
+        /// <summary>
+        /// Evaluates the given code, waits for the promise and also 
+        /// waits for timeouts/intervals to finish
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="codeFilePath"></param>
+        /// <returns></returns>
+        public JSValue Eval(string code, string codeFilePath = null)
+        {
+            return AsyncPump.Run<JSValue>(async () => {
+                var r = CoreScript.Evaluate(code, codeFilePath);
+                await this.WaitTask;
+                if (r is JSPromise promise)
+                {
+                    return await promise.Task;
+                }
+                if (r is JSObject @object)
+                {
+                    var then = @object[KeyStrings.then];
+                    if (then.IsFunction)
+                    {
+                        promise = new JSPromise((resolve, reject) => {
+                            var resolveF = new JSFunction((in Arguments a) => {
+                                var a1 = a.Get1();
+                                resolve(a1);
+                                return a1;
+                            });
+                            var rejectF = new JSFunction((in Arguments a) => {
+                                var a1 = a.Get1();
+                                reject(a1);
+                                return a1;
+                            });
+                            var a = new Arguments(@object, resolveF, rejectF);
+                            then.InvokeFunction(a);
+                        });
+                        return await promise.Task;
+                    }
+                }
+                return r;
+            });
+        }
 
 
     }

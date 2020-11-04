@@ -16,9 +16,9 @@ using System.Text;
 using System.Threading.Tasks;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
-using Yantra.Utils;
+using YantraJS.Utils;
 
-namespace Yantra
+namespace YantraJS
 {
 
     public delegate void ModuleDelegate(

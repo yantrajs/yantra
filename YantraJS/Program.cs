@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using YantraJS;
 using YantraJS.Core;
 using YantraJS.Utils;
-using Yantra.REPL;
+using YantraJS.REPL;
 
 namespace Yantra
 {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using YantraJS.Core;
 using Yantra;
 using YantraJS.Tests.Generator;
+using YantraJS;
 
 namespace YantraTests
 {

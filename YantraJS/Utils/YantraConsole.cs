@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core;
 
-namespace Yantra.Utils
+namespace YantraJS.Utils
 {
     public class YantraConsole
     {

@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yantra.Utils
+namespace YantraJS.Utils
 {
     public class Loader
     {
@@ -59,8 +59,7 @@ namespace Yantra.Utils
             // Define a source provider, with nuget, plus my own feed.
             var sourceProvider = new PackageSourceProvider(NullSettings.Instance, new[]
             {
-                new PackageSource("https://api.nuget.org/v3/index.json"),
-                new PackageSource("https://proget-2018-10-29-ns.800casting.com/nuget/NS-NUGET/")
+                new PackageSource("https://api.nuget.org/v3/index.json")
             });
 
             // Establish the source repository provider; the available providers come from our custom settings.
