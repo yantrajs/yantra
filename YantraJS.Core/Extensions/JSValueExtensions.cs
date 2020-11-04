@@ -57,10 +57,10 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeFunction(this JSValue @this, JSValue arg0)
+        public static JSValue InvokeFunction(this JSValue fx, JSValue @this, JSValue arg0)
         {
             var a = new Arguments(@this, arg0);
-            return @this.InvokeFunction(a);
+            return fx.InvokeFunction(a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -89,6 +89,41 @@ namespace YantraJS.Core
         {
             var a = new Arguments(@this, args);
             return fx.InvokeFunction(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue CreateInstance(this JSValue @fx, JSValue arg0)
+        {
+            var a = new Arguments(JSUndefined.Value, arg0);
+            return fx.CreateInstance(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue CreateInstance(this JSValue fx, JSValue arg0, JSValue arg1)
+        {
+            var a = new Arguments(JSUndefined.Value, arg0, arg1);
+            return fx.CreateInstance(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue CreateInstance(this JSValue fx, JSValue arg0, JSValue arg1, JSValue arg2)
+        {
+            var a = new Arguments(JSUndefined.Value, arg0, arg1, arg2);
+            return fx.CreateInstance(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue CreateInstance(this JSValue fx, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
+        {
+            var a = new Arguments(JSUndefined.Value, arg0, arg1, arg2, arg3);
+            return fx.CreateInstance(a);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue CreateInstance(this JSValue fx, JSValue[] args)
+        {
+            var a = new Arguments(JSUndefined.Value, args);
+            return fx.CreateInstance(a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
