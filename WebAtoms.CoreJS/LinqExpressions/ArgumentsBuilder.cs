@@ -48,6 +48,17 @@ namespace WebAtoms.CoreJS.ExpHelper
         private readonly static MethodInfo _GetElementEnumerator
             = type.InternalMethod(nameof(Arguments.GetElementEnumerator));
 
+        public static Expression New(Expression @this, Expression arg0)
+        {
+            return Expression.New(_New1, @this, arg0);
+        }
+
+        public static Expression New(Expression @this, Expression arg0, Expression arg2)
+        {
+            return Expression.New(_New1, @this, arg0, arg2);
+        }
+
+
         public static Expression New(Expression @this, List<Expression> args)
         {
             var newList = new List<Expression>() { @this };

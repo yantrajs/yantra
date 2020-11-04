@@ -229,6 +229,31 @@ namespace WebAtoms.CoreJS.Utils
             }
         }
 
+        protected override void VisitImportDeclaration(ImportDeclaration importDeclaration)
+        {
+            foreach(var d in importDeclaration.Specifiers)
+            {
+
+                VisitStatement(d);
+            }
+            base.VisitImportDeclaration(importDeclaration);
+        }
+
+        protected override void VisitImportDefaultSpecifier(ImportDefaultSpecifier importDefaultSpecifier)
+        {
+            stack.Top.AddVariable(importDefaultSpecifier.Local.Name);
+        }
+
+        protected override void VisitImportSpecifier(ImportSpecifier importSpecifier)
+        {
+            stack.Top.AddVariable(importSpecifier.Imported.Name);
+        }
+
+        protected override void VisitImportNamespaceSpecifier(ImportNamespaceSpecifier importNamespaceSpecifier)
+        {
+            stack.Top.AddVariable(importNamespaceSpecifier.Local.Name);
+        }
+
         protected override void VisitStatement(Statement statement)
         {
             switch(statement.Type)
@@ -248,40 +273,64 @@ namespace WebAtoms.CoreJS.Utils
                 case Nodes.ExportDefaultDeclaration:
                     VisitExportDefaultDeclaration(statement.As<ExportDefaultDeclaration>());
                     return;
+                case Nodes.ImportDeclaration:
+                    VisitImportDeclaration(statement.As<ImportDeclaration>());
+                    return;
+                case Nodes.ImportDefaultSpecifier:
+                    VisitImportDefaultSpecifier(statement.As<ImportDefaultSpecifier>());
+                    return;
+                case Nodes.ImportSpecifier:
+                    VisitImportSpecifier(statement.As<ImportSpecifier>());
+                    return;
+                case Nodes.ImportNamespaceSpecifier:
+                    VisitImportNamespaceSpecifier(statement.As<ImportNamespaceSpecifier>());
+                    return;
 
             }
             base.VisitStatement(statement);
         }
 
-        protected override void VisitExpression(Expression expression)
+        protected override void VisitExpression(Expression node)
         {
-            if (expression == null)
+            if (node == null)
                 return;
-            switch (expression.Type)
+            switch (node.Type)
             {
                 case Nodes.YieldExpression:
-                    VisitYieldExpression(expression.As<YieldExpression>());
+                    VisitYieldExpression(node.As<YieldExpression>());
                     return;
                 case Nodes.AwaitExpression:
-                    VisitAwaitExpression(expression.As<AwaitExpression>());
+                    VisitAwaitExpression(node.As<AwaitExpression>());
                     return;
                 case Nodes.ExportSpecifier:
-                    VisitExportSpecifier(expression.As<ExportSpecifier>());
+                    VisitExportSpecifier(node.As<ExportSpecifier>());
                     return;
                 case Nodes.ExportNamedDeclaration:
-                    VisitExportNamedDeclaration(expression.As<ExportNamedDeclaration>());
+                    VisitExportNamedDeclaration(node.As<ExportNamedDeclaration>());
                     return;
                 case Nodes.ExportAllDeclaration:
-                    VisitExportAllDeclaration(expression.As<ExportAllDeclaration>());
+                    VisitExportAllDeclaration(node.As<ExportAllDeclaration>());
                     return;
                 case Nodes.ExportDefaultDeclaration:
-                    VisitExportDefaultDeclaration(expression.As<ExportDefaultDeclaration>());
+                    VisitExportDefaultDeclaration(node.As<ExportDefaultDeclaration>());
                     return;
                 case Nodes.TemplateLiteral:
-                    VisitTemplateLiteral(expression.As<TemplateLiteral>());
+                    VisitTemplateLiteral(node.As<TemplateLiteral>());
+                    return;
+                case Nodes.Import:
+                    VisitImport(node.As<Import>());
+                    return;
+                case Nodes.ImportDeclaration:
+                    VisitImportDeclaration(node.As<ImportDeclaration>());
+                    return;
+                case Nodes.ImportDefaultSpecifier:
+                    VisitImportDefaultSpecifier(node.As<ImportDefaultSpecifier>());
+                    return;
+                case Nodes.ImportNamespaceSpecifier:
+                    VisitImportNamespaceSpecifier(node.As<ImportNamespaceSpecifier>());
                     return;
             }
-            base.VisitExpression(expression);
+            base.VisitExpression(node);
         }
 
     }

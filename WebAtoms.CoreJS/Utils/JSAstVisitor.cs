@@ -295,7 +295,14 @@ namespace WebAtoms.CoreJS.Utils
                     return VisitExportAllDeclaration(statement.As<ExportAllDeclaration>());
                 case Nodes.ExportDefaultDeclaration:
                     return VisitExportDefaultDeclaration(statement.As<ExportDefaultDeclaration>());
-
+                case Nodes.ImportDeclaration:
+                    return VisitImportDeclaration(statement.As<ImportDeclaration>());
+                case Nodes.ImportDefaultSpecifier:
+                    return VisitImportDefaultSpecifier(statement.As<ImportDefaultSpecifier>());
+                case Nodes.ImportSpecifier:
+                    return VisitImportSpecifier(statement.As<ImportSpecifier>());
+                case Nodes.ImportNamespaceSpecifier:
+                    return VisitImportNamespaceSpecifier(statement.As<ImportNamespaceSpecifier>());
                 default:
                     return VisitUnknownNode(statement);
                     

@@ -1504,7 +1504,39 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitImportDeclaration(Esprima.Ast.ImportDeclaration importDeclaration)
         {
-            throw new NotImplementedException();
+            // get require... on temp variable...
+            var tempRequire = Exp.Parameter(typeof(JSValue));
+            var require = this.scope.Top.GetVariable("require");
+            var source = VisitExpression(importDeclaration.Source);
+            var args = ArgumentsBuilder.New(JSUndefinedBuilder.Value, source);
+            Exp prop;
+            VariableScope imported;
+            List<Exp> stmts = new List<Exp>() {
+                Exp.Assign(tempRequire, JSFunctionBuilder.InvokeFunction(require.Expression, args) )
+            };
+
+            foreach (var d in importDeclaration.Specifiers)
+            {
+                switch (d) {
+                    case ImportDefaultSpecifier ids:
+                        imported = this.scope.Top.CreateVariable(ids.Local.Name);
+                        prop = JSValueBuilder.Index(tempRequire, KeyOfName("default"));
+                        stmts.Add(Exp.Assign(imported.Expression, prop));
+                        break;
+                    case ImportNamespaceSpecifier ins:
+                        imported = this.scope.Top.CreateVariable(ins.Local.Name);
+                        stmts.Add(Exp.Assign(imported.Expression, tempRequire ));
+                        break;
+                    case ImportSpecifier iss:
+                        imported = this.scope.Top.CreateVariable(iss.Local.Name);
+                        prop = JSValueBuilder.Index(tempRequire, KeyOfName(iss.Imported.Name));
+                        stmts.Add(Exp.Assign(imported.Expression, prop));
+                        break;
+                }            
+            }
+            return Exp.Block(
+                new ParameterExpression[] { tempRequire }, 
+                stmts);
         }
 
         protected override Exp VisitImportNamespaceSpecifier(Esprima.Ast.ImportNamespaceSpecifier importNamespaceSpecifier)
