@@ -480,8 +480,12 @@ namespace WebAtoms.CoreJS
                     }
                     return jsf;
                 }
-                jsFVarScope.SetInit(jsf);
-                return jsFVarScope.Expression;
+                if (jsFVarScope != null)
+                {
+                    jsFVarScope.SetInit(jsf);
+                    return jsFVarScope.Expression;
+                }
+                return jsf;
             }
         }
 
@@ -1461,7 +1465,31 @@ namespace WebAtoms.CoreJS
 
         protected override Exp VisitExportNamedDeclaration(Esprima.Ast.ExportNamedDeclaration exportNamedDeclaration)
         {
-            throw new NotImplementedException();
+            var exports = this.scope.Top.GetVariable("exports");
+            Exp left;
+            var top = this.scope.Top;
+
+            switch (exportNamedDeclaration.Declaration)
+            {
+                case VariableDeclaration vd:
+                    var sdd = new ScopedVariableDeclaration(vd);
+                    var list = this.VisitVariableDeclaration(sdd);
+                    foreach(var id in IdentifierExtractor.Names(vd))
+                    {
+                        left = JSValueBuilder.Index(exports.Expression, KeyOfName(id));
+                        var right = top.GetVariable(id);
+                        list.Add(Exp.Assign(left, right.Expression));
+                    }
+                    return Exp.Block(list);
+                case ClassDeclaration cd when cd.Id != null:
+                    left = JSValueBuilder.Index(exports.Expression, KeyOfName(cd.Id.Name));
+                    return Exp.Assign(left, VisitClassDeclaration(cd));
+                case FunctionDeclaration fd when fd.Id != null:
+                    left = JSValueBuilder.Index(exports.Expression, KeyOfName(fd.Id.Name));
+                    return Exp.Assign(left, VisitFunctionDeclaration(fd));
+
+            }
+            throw new NotSupportedException();
         }
 
         protected override Exp VisitExportSpecifier(Esprima.Ast.ExportSpecifier exportSpecifier)

@@ -201,6 +201,26 @@ namespace WebAtoms.CoreJS.Utils
             }
         }
 
+        protected override void VisitExportAllDeclaration(ExportAllDeclaration exportAllDeclaration)
+        {
+            // foreach(var e in exportAllDeclaration.)
+        }
+
+        protected override void VisitExportDefaultDeclaration(ExportDefaultDeclaration exportDefaultDeclaration)
+        {
+            this.Visit(exportDefaultDeclaration.Declaration);
+        }
+
+        protected override void VisitExportNamedDeclaration(ExportNamedDeclaration exportNamedDeclaration)
+        {
+            this.Visit(exportNamedDeclaration.Declaration);
+        }
+
+        protected override void VisitExportSpecifier(ExportSpecifier exportSpecifier)
+        {
+            base.VisitExportSpecifier(exportSpecifier);
+        }
+
         protected override void VisitProgram(Program program)
         {
             using (stack.Push(new ScopeAnaylzerNode(program)))
@@ -216,6 +236,19 @@ namespace WebAtoms.CoreJS.Utils
                 case Nodes.ClassDeclaration:
                     VisitClassDeclaration(statement.As<ClassDeclaration>());
                     return;
+                case Nodes.ExportSpecifier:
+                    VisitExportSpecifier(statement.As<ExportSpecifier>());
+                    return;
+                case Nodes.ExportNamedDeclaration:
+                    VisitExportNamedDeclaration(statement.As<ExportNamedDeclaration>());
+                    return;
+                case Nodes.ExportAllDeclaration:
+                    VisitExportAllDeclaration(statement.As<ExportAllDeclaration>());
+                    return;
+                case Nodes.ExportDefaultDeclaration:
+                    VisitExportDefaultDeclaration(statement.As<ExportDefaultDeclaration>());
+                    return;
+
             }
             base.VisitStatement(statement);
         }
@@ -231,6 +264,21 @@ namespace WebAtoms.CoreJS.Utils
                     return;
                 case Nodes.AwaitExpression:
                     VisitAwaitExpression(expression.As<AwaitExpression>());
+                    return;
+                case Nodes.ExportSpecifier:
+                    VisitExportSpecifier(expression.As<ExportSpecifier>());
+                    return;
+                case Nodes.ExportNamedDeclaration:
+                    VisitExportNamedDeclaration(expression.As<ExportNamedDeclaration>());
+                    return;
+                case Nodes.ExportAllDeclaration:
+                    VisitExportAllDeclaration(expression.As<ExportAllDeclaration>());
+                    return;
+                case Nodes.ExportDefaultDeclaration:
+                    VisitExportDefaultDeclaration(expression.As<ExportDefaultDeclaration>());
+                    return;
+                case Nodes.TemplateLiteral:
+                    VisitTemplateLiteral(expression.As<TemplateLiteral>());
                     return;
             }
             base.VisitExpression(expression);
