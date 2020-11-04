@@ -1,7 +1,7 @@
-#r "nuget: YantraJS.Core, 1.0.1-CI-20201024-043043"
-
+#r "nuget: YantraJS.Core,1.0.5"
 using System;
-using WebAtoms.CoreJS.Core;
+using YantraJS.Core;
+using YantraJS.Core.Clr;
 
 public class Product {
 
