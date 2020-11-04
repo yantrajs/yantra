@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using WebAtoms.CoreJS.Core;
-using WebAtoms.CoreJS.Tests.Generator;
+using YantraJS.Core;
 using Yantra;
+using YantraJS.Tests.Generator;
 
 namespace YantraTests
 {
