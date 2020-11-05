@@ -18,6 +18,13 @@ namespace YantraJS.Core.Clr
             this.prototypeChain = ClrType.From(value.GetType()).prototype;
         }
 
+        internal ClrProxy(object value, JSObject prototypeChain)
+        {
+            this.value = value;
+            this.prototypeChain = prototypeChain;
+        }
+
+
         public override bool BooleanValue => this.value is bool bv 
             ? bv
             : this.DoubleValue != 0;

@@ -483,14 +483,14 @@ namespace YantraJS.Core.Clr
         private JSValue Create2(ConstructorInfo c, in Arguments a)
         {
             // improve later...
-            return ClrProxy.Marshal(c.Invoke(new object[] { a }));
+            return new ClrProxy(c.Invoke(new object[] { a }), prototype);
         }
 
 
         public JSValue Create(in Arguments a)
         {
             var (c, values) = constructorCache.Match(a, KeyStrings.constructor);
-            return ClrProxy.Marshal(c.Invoke(values));
+            return new ClrProxy(c.Invoke(values), prototype);
         }
 
         public JSValue GetMethod(in Arguments a)
@@ -573,10 +573,10 @@ namespace YantraJS.Core.Clr
             }
             if (method == null) 
                 throw new JSException($"Constructor({string.Join(",", types.Select(x => x.Name))}) not found on {type.Name}");
-            return new JSFunction(GenerateConstructor(method), this);
+            return new JSFunction(GenerateConstructor(method, this.prototype), this);
         }
 
-        private JSFunctionDelegate GenerateConstructor(ConstructorInfo m)
+        private JSFunctionDelegate GenerateConstructor(ConstructorInfo m, JSObject prototype)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
 
@@ -594,7 +594,7 @@ namespace YantraJS.Core.Clr
                 parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
             }
             var call = Expression.New(m, parameters);
-            var marshal = ClrProxyBuilder.Marshal(call);
+            var marshal = ClrProxyBuilder.New(call, Expression.Constant(prototype));
             var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);

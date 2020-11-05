@@ -120,7 +120,12 @@ namespace YantraJS
 
         public static ConstructorInfo Constructor(this Type type, params Type[] types)
         {
-            var c = type.GetConstructor(types);
+            var c = type.GetConstructor(
+                BindingFlags.DeclaredOnly |
+                BindingFlags.Instance |
+                BindingFlags.NonPublic |
+                BindingFlags.Public, null,
+                types, null);
             if (c == null)
             {
                 var tl = string.Join(",", types.Select(x => x.Name));
