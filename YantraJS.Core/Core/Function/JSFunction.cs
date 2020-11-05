@@ -22,7 +22,7 @@ namespace YantraJS.Core
 
         readonly string source;
 
-        readonly string name;
+        public readonly string name;
 
         internal JSFunctionDelegate f;
 

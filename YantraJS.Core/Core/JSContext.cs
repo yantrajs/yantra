@@ -95,6 +95,20 @@ namespace YantraJS.Core
 
         public readonly JSObject Int8ArrayPrototype;
 
+        public readonly JSObject Uint8ArrayPrototype;
+
+        public readonly JSObject Int16ArrayPrototype;
+
+        public readonly JSObject Uint16ArrayPrototype;
+
+        public readonly JSObject Int32ArrayPrototype;
+
+        public readonly JSObject Uint32ArrayPrototype;
+
+        public readonly JSObject Float32ArrayPrototype;
+
+        public readonly JSObject Float64ArrayPrototype;
+
         public readonly JSObject JSON;
 
         public readonly JSMath Math;
@@ -176,6 +190,13 @@ namespace YantraJS.Core
             BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
             ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
             Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
+            Uint8ArrayPrototype = this.Create<Uint8Array>(KeyStrings.Uint8Array).prototype;
+            Int16ArrayPrototype = this.Create<Int16Array>(KeyStrings.Int16Array).prototype;
+            Uint16ArrayPrototype = this.Create<Uint16Array>(KeyStrings.Uint16Array).prototype;
+            Int32ArrayPrototype = this.Create<Int32Array>(KeyStrings.Int32Array).prototype;
+            Uint32ArrayPrototype = this.Create<Uint32Array>(KeyStrings.Uint32Array).prototype;
+            Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
+            Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
 
