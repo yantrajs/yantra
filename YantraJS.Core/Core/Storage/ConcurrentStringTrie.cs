@@ -112,7 +112,12 @@ namespace YantraJS.Core
                 }
             }
 
-            if (node.Key.CompareTo(keyString) > 0)
+            //if (node.Key == null)
+            //{
+            //    throw new InvalidOperationException($"Failed to get node for {keyString}");
+            //}
+
+            if (node.HasValue && node.Key.CompareTo(keyString) > 0)
             {
                 var dirty = node.Value;
                 var old = node.Key;

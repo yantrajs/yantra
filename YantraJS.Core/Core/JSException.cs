@@ -118,7 +118,7 @@ namespace YantraJS.Core
             }
             if (exception is JSException jse2)
                 return jse2;
-            var error = new JSException(exception.InnerException?.Message ?? exception.Message);
+            var error = new JSException(exception.InnerException?.ToString() ?? exception.ToString());
             return error;
         }
 

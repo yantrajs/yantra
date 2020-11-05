@@ -15,7 +15,7 @@ namespace YantraJS.Tests.Maps
         public void CharMap()
         {
             var a = new StringTrie<int>();
-
+            // a["<"] = 0;
             a["a"] = 1;
             a["b"] = 2;
             a["aa"] = 3;

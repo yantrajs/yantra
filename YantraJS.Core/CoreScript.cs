@@ -44,6 +44,8 @@ namespace YantraJS
 
         public Exp KeyOfName(string name)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
             if (keyStrings.TryGetValue(name, out ParameterExpression pe))
                 return pe;
             pe = Exp.Variable(typeof(KeyString), name);
@@ -164,10 +166,24 @@ namespace YantraJS
                 sList.Add(Exp.Return(l, script.ToJSValue()));
                 sList.Add(Exp.Label(l, JSUndefinedBuilder.Value));
 
+                //script = Exp.Block(vList,
+                //    Exp.TryFinally(
+                //        Exp.Block(sList),
+                //        ExpHelper.IDisposableBuilder.Dispose(lScope))
+                //);
+                var catchExp = Exp.Parameter(typeof(Exception));
+                vList.Add(catchExp);
+
+                var catchWithFilter = Exp.Catch(
+                    catchExp,
+                    Exp.Throw(JSExceptionBuilder.From(catchExp), typeof(JSValue)),
+                    Exp.Not(Exp.TypeIs(catchExp, typeof(JSException))));
+
                 script = Exp.Block(vList,
-                    Exp.TryFinally(
+                    Exp.TryCatchFinally(
                         Exp.Block(sList),
-                        ExpHelper.IDisposableBuilder.Dispose(lScope))
+                        ExpHelper.IDisposableBuilder.Dispose(lScope),
+                        catchWithFilter)
                 );
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
@@ -784,7 +800,7 @@ namespace YantraJS
                             inits.Add(Exp.Assign(ve.Variable, init));
                         } else
                         {
-                            inits.Add(Exp.Assign(ve.Variable, JSVariableBuilder.New(id.Name)));
+                            inits.Add(Exp.Assign(ve.Variable, Exp.Coalesce(ve.Variable, JSVariableBuilder.New(id.Name))));
                         }
                         break;
                     case Esprima.Ast.ObjectPattern objectPattern:
@@ -1751,7 +1767,8 @@ namespace YantraJS
                 switch(me.Property)
                 {
                     case Identifier id:
-                        name = KeyOfName(id.Name);
+                        name = me.Computed ? VisitExpression(id) : KeyOfName(id.Name);
+                        // name = KeyOfName(id.Name);
                         break;
                     case Literal l when l.TokenType == TokenType.StringLiteral:
                         name = KeyOfName(l.StringValue);

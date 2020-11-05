@@ -13,7 +13,10 @@ namespace YantraJS.Utils
             for (int i = 0; i < a.Length; i++)
             {
                 if (a.TryGetAt(i, out var ai))
+                {
                     Console.Write(ai);
+                    JSContext.Current.ReportLog(ai);
+                }
             }
             Console.WriteLine();
             return JSUndefined.Value;

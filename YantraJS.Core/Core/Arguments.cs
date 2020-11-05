@@ -364,7 +364,7 @@ namespace YantraJS.Core
         internal JSValue GetAt(int index)
         {
             if (Length >= MinArray)
-                return Args[index];
+                return index < Length ? Args[index] : JSUndefined.Value;
             switch (index)
             {
                 case 0:

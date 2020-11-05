@@ -133,7 +133,7 @@ namespace YantraJS.Core {
                 }
             }
 
-            if (node.Key.CompareTo(keyString) > 0)
+            if ((node.HasValue | node.HasDefaultValue) && node.Key.CompareTo(keyString) > 0)
             {
                 var dirty = node.Value;
                 var old = node.Key;

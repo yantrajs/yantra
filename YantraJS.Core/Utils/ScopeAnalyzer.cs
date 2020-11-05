@@ -144,6 +144,8 @@ namespace YantraJS.Utils
             foreach(var d in variableDeclaration.Declarations)
             {
                 stack.Top.CreateVariable(d.Id, variableDeclaration.Kind);
+                if (d.Init != null)
+                    VisitExpression(d.Init);
             }
         }
 
