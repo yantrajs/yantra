@@ -60,6 +60,13 @@ namespace YantraJS.Core
             throw new NotImplementedException();
         }
 
+        public override JSValue this[KeyString name] { 
+            get => name.Key == KeyStrings.length.Key 
+                ? new JSNumber(arguments.Length)
+                : base[name]; 
+            set => base[name] = value; 
+        }
+
         internal Arguments arguments = Arguments.Empty;
 
         public JSArguments(in Arguments args)
@@ -76,6 +83,11 @@ namespace YantraJS.Core
         {
             get => arguments.GetAt((int)key);
             set => base[key] = value;
+        }
+
+        public override string ToString()
+        {
+            return "[object Arguments]";
         }
 
         internal override IElementEnumerator GetElementEnumerator()

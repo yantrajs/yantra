@@ -378,7 +378,7 @@ namespace YantraJS.Core {
         public override string ToString()
         {
             // use inherited version..
-            throw new NotSupportedException($"Use inherited version ... ");
+            throw new NotSupportedException($"Use inherited version ... {this.GetType().Name} ");
             //var fx = this[KeyStrings.toString];
             //if (fx.IsUndefined)
             //    return "undefined";
