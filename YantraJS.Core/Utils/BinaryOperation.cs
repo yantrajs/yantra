@@ -270,7 +270,7 @@ namespace YantraJS.Utils
                 case Esprima.Ast.BinaryOperator.UnsignedRightShift:
                     return ExpHelper.JSNumberBuilder.New(
                         Expression.RightShift(
-                            Expression.Convert(leftInt, typeof(uint)), rightUInt));
+                            Expression.Convert(leftInt, typeof(uint)), rightInt));
                 case Esprima.Ast.BinaryOperator.LogicalAnd:
                     return ExpHelper.JSValueBuilder.LogicalAnd(left, right);
                 case Esprima.Ast.BinaryOperator.LogicalOr:

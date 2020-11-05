@@ -522,11 +522,11 @@ namespace YantraJS
             throw new NotSupportedException("With statement is not supported");
         }
 
-        protected override Exp VisitWhileStatement(Esprima.Ast.WhileStatement whileStatement)
+        protected override Exp VisitWhileStatement(Esprima.Ast.WhileStatement whileStatement, string label = null)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
-            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {
 
                 var body = VisitStatement(whileStatement.Body);
@@ -927,6 +927,21 @@ namespace YantraJS
 
         protected override Exp VisitLabeledStatement(Esprima.Ast.LabeledStatement labeledStatement)
         {
+            switch(labeledStatement.Body)
+            {
+                case ForStatement forStatement:
+                    return VisitForStatement(forStatement, labeledStatement.Label.Name);
+                case ForOfStatement forOfStatement:
+                    return VisitForOfStatement(forOfStatement, labeledStatement.Label.Name);
+                case ForInStatement forInStatement:
+                    return VisitForInStatement(forInStatement, labeledStatement.Label.Name);
+                case WhileStatement whileStatement:
+                    return VisitWhileStatement(whileStatement, labeledStatement.Label.Name);
+                case DoWhileStatement doWhileStatement:
+                    return VisitDoWhileStatement(doWhileStatement, labeledStatement.Label.Name);
+                default:
+                    throw JSContext.Current.NewSyntaxError($"Label can only be used for loops");
+            }
             throw new NotImplementedException();
         }
 
@@ -978,7 +993,7 @@ namespace YantraJS
             }
         }
 
-        protected override Exp VisitForStatement(Esprima.Ast.ForStatement forStatement)
+        protected override Exp VisitForStatement(Esprima.Ast.ForStatement forStatement, string label)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
@@ -987,7 +1002,7 @@ namespace YantraJS
             var blockList = new List<Exp>();
             var init = JSUndefinedBuilder.Value;
 
-            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {
                 if (forStatement.Init != null)
                 {
@@ -1066,7 +1081,7 @@ namespace YantraJS
             }
         }
 
-        protected override Exp VisitForInStatement(Esprima.Ast.ForInStatement forInStatement)
+        protected override Exp VisitForInStatement(Esprima.Ast.ForInStatement forInStatement, string label = null)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
@@ -1084,7 +1099,7 @@ namespace YantraJS
                     this.scope.Top.PushToNewScope = varDec;
                     break;
             }
-            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
@@ -1113,11 +1128,11 @@ namespace YantraJS
             }
         }
 
-        protected override Exp VisitDoWhileStatement(Esprima.Ast.DoWhileStatement doWhileStatement)
+        protected override Exp VisitDoWhileStatement(Esprima.Ast.DoWhileStatement doWhileStatement, string label = null)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
-            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {
 
                 var body = VisitStatement(doWhileStatement.Body);
@@ -1559,7 +1574,7 @@ namespace YantraJS
             throw new NotImplementedException();
         }
 
-        protected override Exp VisitForOfStatement(Esprima.Ast.ForOfStatement forOfStatement)
+        protected override Exp VisitForOfStatement(Esprima.Ast.ForOfStatement forOfStatement, string label = null)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
@@ -1577,7 +1592,7 @@ namespace YantraJS
                     this.scope.Top.PushToNewScope = varDec;
                     break;
             }
-            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget)))
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {                
 
                 var en = Exp.Variable(typeof(IElementEnumerator));
@@ -1744,8 +1759,11 @@ namespace YantraJS
                     case Literal l1 when l1.TokenType == TokenType.NumericLiteral:
                         name = Exp.Constant((uint)l1.NumericValue);
                         break;
+                    case StaticMemberExpression sme:
+                        name = VisitMemberExpression(sme);
+                        break;
                     default:
-                        throw new NotImplementedException();
+                        throw new NotImplementedException($"{me.Property}");
                 }
 
                 // var id = me.Property.As<Esprima.Ast.Identifier>();
@@ -1835,6 +1853,14 @@ namespace YantraJS
 
         protected override Exp VisitContinueStatement(Esprima.Ast.ContinueStatement continueStatement)
         {
+            string name = continueStatement.Label?.Name;
+            if (name != null)
+            {
+                var target = this.LoopScope.Get(name);
+                if (target == null)
+                    throw JSContext.Current.NewSyntaxError($"No label found for {name}");
+                return Exp.Continue(target.Break);
+            }
             return Exp.Continue(this.scope.Top.Loop.Top.Continue);
         }
 
@@ -1843,6 +1869,16 @@ namespace YantraJS
             var ls = this.LoopScope;
             if (ls.IsSwitch)
                 return Exp.Goto(ls.Break);
+
+            string name = breakStatement.Label?.Name;
+            if(name != null)
+            {
+                var target = this.LoopScope.Get(name);
+                if (target == null)
+                    throw JSContext.Current.NewSyntaxError($"No label found for {name}");
+                return Exp.Break(target.Break);
+            }
+
             return Exp.Break(ls.Break);
         }
 

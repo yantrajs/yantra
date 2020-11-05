@@ -322,7 +322,7 @@ namespace YantraJS.Utils
 
         protected abstract T VisitWithStatement(WithStatement withStatement);
 
-        protected abstract T VisitWhileStatement(WhileStatement whileStatement);
+        protected abstract T VisitWhileStatement(WhileStatement whileStatement, string label = null);
 
         protected abstract T VisitVariableDeclaration(VariableDeclaration variableDeclaration);
 
@@ -346,11 +346,11 @@ namespace YantraJS.Utils
 
         protected abstract T VisitExpressionStatement(ExpressionStatement expressionStatement);
 
-        protected abstract T VisitForStatement(ForStatement forStatement);
+        protected abstract T VisitForStatement(ForStatement forStatement, string label = null);
 
-        protected abstract T VisitForInStatement(ForInStatement forInStatement);
+        protected abstract T VisitForInStatement(ForInStatement forInStatement, string label = null);
 
-        protected abstract T VisitDoWhileStatement(DoWhileStatement doWhileStatement);
+        protected abstract T VisitDoWhileStatement(DoWhileStatement doWhileStatement, string label = null);
 
         protected virtual T VisitExpression(Expression expression)
         {
@@ -460,7 +460,7 @@ namespace YantraJS.Utils
 
         protected abstract T VisitMethodDefinition(MethodDefinition methodDefinitions);
 
-        protected abstract T VisitForOfStatement(ForOfStatement forOfStatement);
+        protected abstract T VisitForOfStatement(ForOfStatement forOfStatement, string  label = null);
 
         protected abstract T VisitClassDeclaration(ClassDeclaration classDeclaration);
 
