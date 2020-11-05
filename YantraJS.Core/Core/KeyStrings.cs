@@ -70,6 +70,13 @@ namespace YantraJS.Core
         public readonly static KeyString ArrayBuffer;
 
         public readonly static KeyString Int8Array;
+        public readonly static KeyString Uint8Array;
+        public readonly static KeyString Int16Array;
+        public readonly static KeyString Uint16Array;
+        public readonly static KeyString Int32Array;
+        public readonly static KeyString Uint32Array;
+        public readonly static KeyString Float32Array;
+        public readonly static KeyString Float64Array;
 
         public readonly static KeyString Map;
         public readonly static KeyString Set;

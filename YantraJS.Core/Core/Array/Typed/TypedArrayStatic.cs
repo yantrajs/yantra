@@ -38,7 +38,225 @@ namespace YantraJS.Core.Typed
 
     }
 
-   
+
+
+    internal class Uint8Array : TypedArray
+    {
+        public Uint8Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Uint8ArrayPrototype)
+        {
+        }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Uint8ArrayPrototype, TypedArrayType.Uint8Array, a);
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Uint8ArrayPrototype, TypedArrayType.Uint8Array, a);
+        }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Uint8ArrayPrototype, TypedArrayType.Uint8Array, a);
+        }
+
+    }
+
+
+    internal class Int16Array : TypedArray
+    {
+        public Int16Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Int16ArrayPrototype)
+        {
+        }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Int16ArrayPrototype, TypedArrayType.Int16Array, a);
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Int16ArrayPrototype, TypedArrayType.Int16Array, a);
+        }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Int16ArrayPrototype, TypedArrayType.Int16Array, a);
+        }
+
+    }
+
+    internal class Uint16Array : TypedArray
+    {
+        public Uint16Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Uint16ArrayPrototype)
+        {
+        }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Uint16ArrayPrototype, TypedArrayType.Uint16Array, a);
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Uint16ArrayPrototype, TypedArrayType.Uint16Array, a);
+        }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Uint16ArrayPrototype, TypedArrayType.Uint16Array, a);
+        }
+
+    }
+
+    internal class Int32Array : TypedArray
+    {
+        public Int32Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Int32ArrayPrototype)
+        {
+        }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Int32ArrayPrototype, TypedArrayType.Int32Array, a);
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Int32ArrayPrototype, TypedArrayType.Int32Array, a);
+        }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Int32ArrayPrototype, TypedArrayType.Int32Array, a);
+        }
+
+    }
+
+    internal class Uint32Array : TypedArray
+    {
+        public Uint32Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Uint32ArrayPrototype)
+        {
+        }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Uint32ArrayPrototype, TypedArrayType.Uint32Array, a);
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Uint32ArrayPrototype, TypedArrayType.Uint32Array, a);
+        }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Uint32ArrayPrototype, TypedArrayType.Uint32Array, a);
+        }
+
+    }
+
+    internal class Float32Array : TypedArray
+    {
+        public Float32Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Float32ArrayPrototype)
+        {
+        }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Float32ArrayPrototype, TypedArrayType.Float32Array, a);
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Float32ArrayPrototype, TypedArrayType.Float32Array, a);
+        }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Float32ArrayPrototype, TypedArrayType.Float32Array, a);
+        }
+
+    }
+
+    internal class Float32Array : TypedArray
+    {
+        public Float64Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Float64ArrayPrototype)
+        {
+        }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Float64ArrayPrototype, TypedArrayType.Float64Array, a);
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Float64ArrayPrototype, TypedArrayType.Float64Array, a);
+        }
+
+
+        [Static("of", Length = 1)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Float64ArrayPrototype, TypedArrayType.Float64Array, a);
+        }
+
+    }
 
 
     internal static class TypedArrayStatic
