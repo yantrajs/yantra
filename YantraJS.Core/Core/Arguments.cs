@@ -58,6 +58,25 @@ namespace YantraJS.Core
 
             // in apply first parameter is @this and rest is An Array
             var (@this, args) = Get2();
+            if (args is JSArguments arg) {
+                ref var argList = ref arg.arguments;
+                switch(argList.Length)
+                {
+                    case 0:
+                        return new Arguments(@this);
+                    case 1:
+                        return new Arguments(@this, argList.Arg0);
+                    case 2:
+                        return new Arguments(@this, argList.Arg0, argList.Arg1);
+                    case 3:
+                        return new Arguments(@this, argList.Arg0, argList.Arg1, argList.Arg2);
+                    case 4:
+                        return new Arguments(@this, argList.Arg0, argList.Arg1, argList.Arg2, argList.Arg3);
+                    default:
+                        return new Arguments(@this, argList.Args);
+
+                }
+            }
             if (!(args is JSArray argArray))
                 return new Arguments(@this);
             switch(argArray._length)

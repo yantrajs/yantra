@@ -227,7 +227,7 @@ namespace YantraJS.Core.Typed
 
     }
 
-    internal class Float32Array : TypedArray
+    internal class Float64Array : TypedArray
     {
         public Float64Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
             : base(buffer, type, byteOffset, length, JSContext.Current.Float64ArrayPrototype)
