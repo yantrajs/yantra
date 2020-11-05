@@ -1025,7 +1025,7 @@ namespace YantraJS
 
 
                     // we need one more copy of same variables if they were declared with "let"
-                    if (varDec.NewScope)
+                    if (varDec !=null && varDec.NewScope)
                     {
 
                         

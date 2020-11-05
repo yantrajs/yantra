@@ -231,9 +231,11 @@ namespace YantraJS.ExpHelper
         public static Expression GetAllKeys(Expression target)
         {
             return
-                Expression.Call(
-                    Expression.Call(target, _GetAllKeys, Expression.Constant(false), Expression.Constant(true)),
-                    _GetEnumerator);
+                    // Expression.Call(
+                    Expression.Call(target, _GetAllKeys, Expression.Constant(false), Expression.Constant(true))
+                    // ,
+                    //_GetEnumerator);
+                    ;
         }
 
         private static MethodInfo _ConvertTo =
