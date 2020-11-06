@@ -376,6 +376,11 @@ namespace YantraJS.Core {
 
         public abstract JSValue InvokeFunction(in Arguments a);
 
+        internal virtual JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            return prototypeChain.GetMethod(key);
+        }
+
         /// <summary>
         /// Warning do not use in concatenation
         /// </summary>

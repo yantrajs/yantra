@@ -35,15 +35,11 @@ namespace YantraJS.Core
         public JSPropertyAttributes Attributes;
 
         public KeyString key;
+
+        // this slot will be used for getting method as well...
+        // to avoid casting at runtime...
         public JSFunction get;
-
-        public JSFunction set { 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (JSFunction)value;
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => this.value = value; 
-        }
-
+        public JSFunction set;
         public JSValue value;
 
         
@@ -104,6 +100,20 @@ namespace YantraJS.Core
             return new JSProperty
             {
                 value = d,
+                get = d as JSFunction,
+                Attributes = attributes
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSProperty Property(
+            JSFunction d,
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
+        {
+            return new JSProperty
+            {
+                value = d,
+                get = d,
                 Attributes = attributes
             };
         }
@@ -130,10 +140,12 @@ namespace YantraJS.Core
             JSFunctionDelegate d,
             JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableValue, int length = 0)
         {
+            var fx = new JSFunction(d, null, null, length);
             return new JSProperty
             {
                 key = key,
-                value = new JSFunction(d, null, null, length),
+                get = fx,
+                value = fx,
                 Attributes = attributes
             };
         }
@@ -152,6 +164,20 @@ namespace YantraJS.Core
             };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSProperty Property(
+            KeyString key,
+            JSFunction d,
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
+        {
+            return new JSProperty
+            {
+                key = key,
+                value = d,
+                get = d,
+                Attributes = attributes
+            };
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

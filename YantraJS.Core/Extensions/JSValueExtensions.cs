@@ -50,10 +50,8 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, KeyString name, in Arguments a)
         {
-            var fx = @this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
-            return fx.InvokeFunction(a.OverrideThis(@this));
+            var fx = @this.GetMethod(name);
+            return fx(a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

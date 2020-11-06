@@ -187,6 +187,25 @@ namespace YantraJS.Core
             return new JSProperty();
         }
 
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            if (!ownProperties.IsEmpty)
+            {
+                var p = ownProperties[key.Key];
+                if (p.IsValue)
+                {
+                    var g = p.get;
+                    if (g != null)
+                        return g.f;
+                }
+                if(p.IsProperty)
+                    return p.get.f;
+            }
+            if (prototypeChain != null && prototypeChain != this)
+                return prototypeChain.GetMethod(key);
+            throw JSContext.Current.NewError($"Method {key} not found");
+        }
+
         public override JSValue this[KeyString name] { 
             get => this.GetValue(GetInternalProperty(name)); 
             set {
