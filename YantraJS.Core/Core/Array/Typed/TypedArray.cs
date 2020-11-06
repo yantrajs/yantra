@@ -105,6 +105,7 @@ namespace YantraJS.Core.Typed
                     bytesPerElement = 8;
                     break;
             }
+
             if (buffer == null) {
                 buffer = new JSArrayBuffer(length * bytesPerElement);
                 this.length = length;
@@ -118,10 +119,16 @@ namespace YantraJS.Core.Typed
                 {
                     this.length = length;
                 }
+
+                if ( length < 0 ||
+                    ((byteOffset + length) > buffer.buffer.Length))
+                    throw JSContext.Current.NewRangeError($"Start offset {byteOffset} is outside the bounds of the buffer");
+
                 if (((length - byteOffset) % bytesPerElement) != 0)
                 {
                     throw JSContext.Current.NewRangeError($"byte length of {this.GetType().Name} should be multiple of {bytesPerElement}");
                 }
+
             }
 
             this.buffer = buffer;
