@@ -13,6 +13,13 @@ namespace YantraJS.Core.Typed
             return new JSNumber(@this.Length);
         }
 
+        [GetProperty("buffer")]
+        public static JSValue Buffer(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            return @this.buffer;
+        }
+
 
         [Prototype("toString")]
         public static JSValue ToString(in Arguments a) {

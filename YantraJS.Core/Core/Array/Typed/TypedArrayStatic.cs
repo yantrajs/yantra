@@ -39,7 +39,7 @@ namespace YantraJS.Core.Typed
     }
 
 
-
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Uint8Array : TypedArray
     {
         public Uint8Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
@@ -71,7 +71,7 @@ namespace YantraJS.Core.Typed
 
     }
 
-
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Int16Array : TypedArray
     {
         public Int16Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
@@ -103,6 +103,7 @@ namespace YantraJS.Core.Typed
 
     }
 
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Uint16Array : TypedArray
     {
         public Uint16Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
@@ -134,6 +135,7 @@ namespace YantraJS.Core.Typed
 
     }
 
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Int32Array : TypedArray
     {
         public Int32Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
@@ -165,6 +167,7 @@ namespace YantraJS.Core.Typed
 
     }
 
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Uint32Array : TypedArray
     {
         public Uint32Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
@@ -196,6 +199,7 @@ namespace YantraJS.Core.Typed
 
     }
 
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Float32Array : TypedArray
     {
         public Float32Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
@@ -227,6 +231,7 @@ namespace YantraJS.Core.Typed
 
     }
 
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Float64Array : TypedArray
     {
         public Float64Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
