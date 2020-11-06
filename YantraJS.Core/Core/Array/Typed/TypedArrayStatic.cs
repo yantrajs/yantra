@@ -7,7 +7,7 @@ using YantraJS.Core.Typed;
 
 namespace YantraJS.Core.Typed
 {
-    [JSRuntime(typeof(TypedArrayStatic),typeof(TypedArrayPrototype))]
+    [JSRuntime(typeof(TypedArrayStatic),typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Int8Array : TypedArray
     {
         public Int8Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length) 

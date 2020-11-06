@@ -15,6 +15,8 @@ namespace YantraJS.Core
             this.Prototype = prototype;
             this.StaticType = staticType;
         }
+
+        public bool PreventConstructorInvoke { get; set; }
     }
 
     public enum MemberType: int

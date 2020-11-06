@@ -43,12 +43,12 @@ namespace YantraJS.Core
             KeyString key, 
             JSObject chain = null, bool addToContext = true)
         {
+            var type = typeof(T);
+            var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
             var jsf = cache.GetOrCreate(key.Key, () =>
             {
-                var type = typeof(T);
                 JSFunction r = Create(key, type);
 
-                var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
                 if (rt != null)
                 {
 
@@ -70,7 +70,9 @@ namespace YantraJS.Core
                 return r;
             });
 
-            var copy = new JSFunction(jsf.f, key.ToString());
+            var copy = (rt?.PreventConstructorInvoke  ?? false)
+                ? new JSClassFunction(jsf.f, key.ToString())
+                :  new JSFunction(jsf.f, key.ToString());
             ref var target = ref copy.prototype.GetOwnProperties();
             var en = new PropertySequence.ValueEnumerator(jsf.prototype, false);
             while(en.MoveNextProperty(out var Value, out var Key ))
@@ -367,7 +369,7 @@ namespace YantraJS.Core
 
                 var (m, pr) = f;
 
-                if (pr is ConstructorAttribute)
+                if (pr is ConstructorAttribute ca)
                 {
                     r.f = f.CreateJSFunctionDelegate();
                     continue;

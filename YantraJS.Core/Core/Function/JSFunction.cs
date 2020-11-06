@@ -13,6 +13,24 @@ using YantraJS.LinqExpressions;
 
 namespace YantraJS.Core
 {
+    public class JSClassFunction: JSFunction
+    {
+
+        public JSClassFunction(
+            JSFunctionDelegate @delegate,
+            string name = null,
+            string source = null,
+            int length = 0) : base(@delegate, name, source, length)
+        {
+
+        }
+
+        public override JSValue InvokeFunction(in Arguments a)
+        {
+            throw JSContext.Current.NewTypeError($"{this.name} cannot be invoked directly");
+        }
+    }
+
     public partial class JSFunction : JSObject
     {
 

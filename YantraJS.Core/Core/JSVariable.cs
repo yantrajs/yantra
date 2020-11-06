@@ -17,7 +17,8 @@ namespace YantraJS.Core
         {
             this.Value = v;
             var c = JSContext.Current.Scope.Top;
-            c[name] = this;
+            // need to do this unless in eval
+            // c[name] = this;
             if (c.IsRoot || c.Parent.IsRoot)
             {
                 JSContext.Current[name] = v;
