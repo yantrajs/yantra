@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Yantra": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "D:\\git\\web-atoms\\core-js\\YantraTests\\Modules\\in-built\\ts\\index.js"
     }
   }
 }

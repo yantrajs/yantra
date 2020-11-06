@@ -155,14 +155,16 @@ namespace YantraJS.Core
             }
             Main = new JSModule(this, filePath, text, true);
             var r = Main.Exports;
-            if (WaitTask != null)
-                await WaitTask;
+            var w = WaitTask;
+            if (w != null)
+                await w;
             if (r is JSPromise promise)
             {
                 return await promise.Task;
             }
-            if (WaitTask != null)
-                await WaitTask;
+            w = WaitTask;
+            if (w != null)
+                await w;
             return r;
 
         }
@@ -190,9 +192,7 @@ namespace YantraJS.Core
                 {
                     text = await fs.ReadToEndAsync();
                 }
-
                 var main = m.Main = new JSModule(m, filePath, text, true);
-
                 var exported = main.Exports[exportedFunctionName];
                 if (exported.IsUndefined)
                     throw new KeyNotFoundException($"{exportedFunctionName} not found on the module");

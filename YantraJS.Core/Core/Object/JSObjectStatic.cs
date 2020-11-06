@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using YantraJS;
+using YantraJS.Core.Typed;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -324,7 +325,25 @@ namespace YantraJS.Core
             if (!(first is JSObject jobj))
                 return JSUndefined.Value;
             var key = name.ToKey(false);
-            var p = jobj.GetInternalProperty(key, false);
+            JSProperty p;
+            if (key.IsUInt)
+            {
+                // check for typedArray..
+                if (first is TypedArray ta)
+                {
+                    var v = ta[key.Key];
+                    if (v.IsUndefined)
+                        return JSUndefined.Value;
+
+                    p = JSProperty.Property(key, v);
+                }
+                else
+                {
+                    p = jobj.GetInternalProperty(key.Key, false);
+                }
+            } else {
+                p = jobj.GetInternalProperty(key, false);
+            }
             if (!p.IsEmpty)
                 return p.ToJSValue();
             return JSUndefined.Value;

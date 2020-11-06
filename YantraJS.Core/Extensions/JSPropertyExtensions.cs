@@ -20,7 +20,6 @@ namespace YantraJS.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSValue ToJSValue(this JSProperty px)
         {
-            var ctx = JSContext.Current;
             var t = JSBoolean.True;
             var f = JSBoolean.False;
             JSObject obj;
