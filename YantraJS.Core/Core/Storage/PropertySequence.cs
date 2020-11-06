@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using YantraJS.Extensions;
 
@@ -80,6 +81,34 @@ namespace YantraJS.Core
                 key = KeyString.Empty;
                 return false;
             }
+
+            public bool MoveNextProperty(out JSProperty value, out KeyString key)
+            {
+                if (this.array != null)
+                {
+                    while ((++index) < size)
+                    {
+                        ref var current = ref array[index];
+                        if (current.Attributes == JSPropertyAttributes.Deleted)
+                            continue;
+                        if (current.IsEmpty)
+                            continue;
+                        if (enumerableOnly)
+                        {
+                            if (!current.IsEnumerable)
+                                continue;
+                        }
+                        value = current;
+                        key = current.key;
+                        return true;
+                    }
+
+                }
+                value = new JSProperty { };
+                key = KeyString.Empty;
+                return false;
+            }
+
         }
         #endregion
 

@@ -165,10 +165,13 @@ namespace YantraJS.Core
             }
 
             this.Create<JSSymbol>(KeyStrings.Symbol);
-            FunctionPrototype = this.Create<JSFunction>(KeyStrings.Function).prototype;
+            var func = this.Create<JSFunction>(KeyStrings.Function);
+            FunctionPrototype = func.prototype;
             // create object prototype...
             Object =  this.Create<JSObject>(KeyStrings.Object);
             ObjectPrototype = Object.prototype;
+            func.prototypeChain = Object;
+            FunctionPrototype.prototypeChain = ObjectPrototype;
             ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
             StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
             NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;

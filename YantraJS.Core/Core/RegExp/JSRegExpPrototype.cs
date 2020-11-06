@@ -71,7 +71,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Prototype("test")]
+        [Prototype("exec")]
         public static JSValue Exec(in Arguments a)
         {
             var r = a.This.ToRegExp();
@@ -92,9 +92,9 @@ namespace YantraJS.Core
             {
                 r.lastIndex = match.Index + match.Length;
             }
-            JSArray result = new JSArray();
             var groups = match.Groups;
             var c = (int)groups.Count;
+            JSArray result = new JSArray(c);
             for (int i = 0; i < c; i++)
             {
                 var group = groups[i];
@@ -106,9 +106,10 @@ namespace YantraJS.Core
                     result[(uint)i] = new JSString(group.Value);
                 }
             }
+            result["index"] = new JSNumber(match.Index);
+            result["input"] = a.Get1();
             return result;
         }
-
 
         /// <summary>
         /// Calculates the position to start searching.

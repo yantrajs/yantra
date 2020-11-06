@@ -24,6 +24,9 @@ namespace YantraJS.Core
         {
         }
 
+        public UInt32Trie(int initialSize) : base(ToSize(initialSize,4), 16)
+        {
+        }
 
         protected override void Enumerate(UInt32 index, List<(uint Key, T Value)> all)
         {

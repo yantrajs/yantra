@@ -105,6 +105,7 @@ namespace YantraJS.Core
         public readonly static KeyString @null;
 
         public readonly static KeyString @global;
+        public readonly static KeyString globalThis;
 
         public readonly static KeyString Module;
         public readonly static KeyString module;

@@ -33,6 +33,11 @@ namespace YantraJS.Core
                 elements[_length++] = JSProperty.Property(item);
         }
 
+        public JSArray(int count): base(JSContext.Current.ArrayPrototype)
+        {
+            elements = new UInt32Trie<JSProperty>(count);
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();

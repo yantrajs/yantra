@@ -249,13 +249,30 @@ namespace YantraJS.Core
             return new JSString(@this.Slice(f.IntValue ,s.IntValue));
         }
 
-        /*[Prototype("split")]
+        [Prototype("split")]
         internal static JSValue Split(in Arguments a)
         {
             var @this = a.This.AsString();
-            var ch = a.Get1();
-            return new JSArray(@this.Split(ch.ToString().ToCharArray()));
-        }*/
+            var (_separator, limit) = a.Get2();
+            JSArray array;
+            if (!_separator.BooleanValue)
+            {
+                array = new JSArray(@this.Length);
+                foreach(var ch in @this)
+                {
+                    array[array._length++] = new JSString(ch);
+                }
+                return array;
+            }
+            var separator = _separator.ToString();
+            var tokens = @this.Split(new string[] { separator }, limit.AsInt32OrDefault(int.MaxValue), StringSplitOptions.None);
+            array = new JSArray(tokens.Length);
+            foreach(var token in tokens)
+            {
+                array[array._length++] = new JSString(token);
+            }
+            return array;
+        }
 
         [Prototype("toLocaleLowerCase")]
         internal static JSValue ToLocaleLowerCase(in Arguments a)

@@ -10,6 +10,9 @@ namespace YantraJS.Core.Date
     public static class JSDatePrototype
     {
 
+        static long MinTime = DateTimeOffset.MinValue.ToUnixTimeMilliseconds();
+        static long MaxTime = DateTimeOffset.MaxValue.ToUnixTimeMilliseconds();
+
         [Constructor( Length = 7 )]
         internal static JSValue Constructor(in Arguments a) {
             DateTimeOffset date;
@@ -24,7 +27,14 @@ namespace YantraJS.Core.Date
             }
             if (a.Length == 1) {
                 if (dateString.IsNumber) {
-                    date = DateTimeOffset.FromUnixTimeMilliseconds(dateString.BigIntValue);
+                    var ticks = dateString.BigIntValue;
+                    ticks = Math.Max(MinTime, ticks);
+                    ticks = Math.Min(MaxTime, ticks);
+                    date = DateTimeOffset.FromUnixTimeMilliseconds(ticks);
+                    if (ticks == MinTime || ticks == MaxTime)
+                    {
+                        return new JSDate(date);
+                    }
                     return new JSDate(date.ToOffset(JSDate.Local));
                 }
                 date = DateParser.Parse(dateString.ToString());

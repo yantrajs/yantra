@@ -11,6 +11,13 @@ namespace YantraJS.Core
     internal abstract class BaseMap<TKey, TValue> : IBitTrie<TKey, TValue, BaseMap<TKey, TValue>.TrieNode>
         where TKey : IComparable<TKey>
     {
+
+        protected static uint ToSize(int r, uint blocks)
+        {
+            var ri = (uint)r;
+            return ((ri / blocks)+ 1)*blocks;
+        }
+
         protected TrieNode[] Buffer;
 
         private long count;

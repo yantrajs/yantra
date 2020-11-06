@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using YantraJS.Core.Enumerators;
 using YantraJS.ExpHelper;
 
 namespace YantraJS.Core
@@ -71,21 +72,23 @@ namespace YantraJS.Core
 
             var copy = new JSFunction(jsf.f, key.ToString());
             ref var target = ref copy.prototype.GetOwnProperties();
-            foreach (var (Key, Value) in jsf.prototype.GetOwnProperties(false).AllValues())
+            var en = new PropertySequence.ValueEnumerator(jsf.prototype, false);
+            while(en.MoveNextProperty(out var Value, out var Key ))
             {
-                if (Key != KeyStrings.constructor.Key)
+                if (Key.Key != KeyStrings.constructor.Key)
                 {
-                    target[Key] = Value;
+                    target[Key.Key] = Value;
                 }
             }
             ref var ro = ref copy.GetOwnProperties();
-            foreach (var (Key, Value) in jsf.GetOwnProperties().AllValues())
+            en = new PropertySequence.ValueEnumerator(jsf, false);
+            while (en.MoveNextProperty(out var Value, out var Key))
             {
                 /// this is the case when we do not
                 /// want to overwrite Function.prototype
-                if (Key != KeyStrings.prototype.Key)
+                if (Key.Key != KeyStrings.prototype.Key)
                 {
-                    ro[Key] = Value;
+                    ro[Key.Key] = Value;
                 }
             }
             if (addToContext)
