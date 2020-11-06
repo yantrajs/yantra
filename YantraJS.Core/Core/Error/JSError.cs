@@ -5,6 +5,7 @@ using System.Text;
 namespace YantraJS.Core
 {
 
+
     public class JSError : JSObject
     {
 
@@ -19,6 +20,14 @@ namespace YantraJS.Core
         //    this.DefineProperty(KeyStrings.message, JSProperty.Property(message, JSPropertyAttributes.ConfigurableValue));
         //    this.DefineProperty(KeyStrings.stack, JSProperty.Property(stack, JSPropertyAttributes.ConfigurableValue));
         //}
+
+        internal JSError(JSException ex, JSObject prototype) : base(prototype)
+        {
+            this.Exception = ex;
+            this.DefineProperty(KeyStrings.message, JSProperty.Property(ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue));
+            this.DefineProperty(KeyStrings.stack, JSProperty.Property(ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue));
+        }
+
 
         internal JSError(JSException ex) : base(JSContext.Current.ErrorPrototype)
         {

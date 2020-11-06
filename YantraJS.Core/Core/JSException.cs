@@ -52,7 +52,7 @@ namespace YantraJS.Core
                 this.trace.Add((function, filePath ?? "Unknown", line, 1));
             }
 
-            Error = new JSError(this);
+            Error = new JSError(this, prototype);
         }
 
 
@@ -127,6 +127,10 @@ namespace YantraJS.Core
             if (exception.InnerException is JSException jse)
             {
                 return jse.Error;
+            }
+            if (exception is JSException jse2)
+            {
+                return jse2.Error;
             }
             var error = new JSException(exception.InnerException?.Message ?? exception.Message);
             return error.Error;

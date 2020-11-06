@@ -28,7 +28,9 @@ namespace YantraJS.Core.Tests.Imported
                 case JSString sv:
                     return sv.value;
                 case JSNumber number:
-                    return number.value;
+                    if ((number.value) % 1 == 0)
+                        return (int)number.value;
+                    return  number.value;
                 case JSBoolean boolean:
                     return boolean._value;
             }
@@ -53,7 +55,7 @@ namespace YantraJS.Core.Tests.Imported
 
     }
 
-    // [TestClass]
+    [TestClass]
     public class TypedArrayTests : TestBase
     {
         [TestMethod]

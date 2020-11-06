@@ -4,8 +4,14 @@ using System.Text;
 
 namespace YantraJS.Core
 {
-    public static class JSTypeError
+    public class JSTypeError
     {
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+            return new JSError(new JSException(a.Get1().ToString()), JSContext.Current.TypeErrorPrototype);
+        }
 
         public const string Cannot_convert_undefined_or_null_to_object = "Cannot convert undefined or null to object";
 

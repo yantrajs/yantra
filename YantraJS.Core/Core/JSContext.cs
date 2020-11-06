@@ -432,7 +432,9 @@ namespace YantraJS.Core
         {
             return AsyncPump.Run<JSValue>(async () => {
                 var r = CoreScript.Evaluate(code, codeFilePath);
-                await this.WaitTask;
+                var wt = this.WaitTask;
+                if (wt != null)
+                    await wt;
                 if (r is JSPromise promise)
                 {
                     return await promise.Task;
