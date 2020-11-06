@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using YantraJS.Core.Enumerators;
@@ -69,7 +70,6 @@ namespace YantraJS.Core
 
                 return r;
             });
-
             var copy = (rt?.PreventConstructorInvoke  ?? false)
                 ? new JSClassFunction(jsf.f, key.ToString())
                 :  new JSFunction(jsf.f, key.ToString());

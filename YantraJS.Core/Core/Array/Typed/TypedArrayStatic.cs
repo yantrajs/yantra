@@ -15,7 +15,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
@@ -47,7 +47,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
@@ -79,7 +79,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
@@ -111,7 +111,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
@@ -143,7 +143,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
@@ -175,7 +175,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
@@ -207,7 +207,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
@@ -239,7 +239,7 @@ namespace YantraJS.Core.Typed
         {
         }
 
-        [Constructor]
+        [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
