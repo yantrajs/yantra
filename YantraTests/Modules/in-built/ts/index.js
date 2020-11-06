@@ -4,4 +4,4 @@
 
 //let result = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
 
-//console.log(JSON.stringify(result));
+//console.log(JSON.stringify(result)); 1`
