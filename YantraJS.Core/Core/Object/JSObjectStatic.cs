@@ -318,10 +318,16 @@ namespace YantraJS.Core
         [Static("getOwnPropertyDescriptor")]
         internal static JSValue GetOwnPropertyDescriptor(in Arguments a)
         {
-            var first = a.Get1();
+            var (first, name) = a.Get2();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            throw new NotImplementedException();
+            if (!(first is JSObject jobj))
+                return JSUndefined.Value;
+            var key = name.ToKey(false);
+            var p = jobj.GetInternalProperty(key, false);
+            if (!p.IsEmpty)
+                return p.ToJSValue();
+            return JSUndefined.Value;
         }
 
         [Static("getOwnPropertyDescriptors")]
