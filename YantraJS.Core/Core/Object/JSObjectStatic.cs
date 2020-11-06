@@ -143,7 +143,7 @@ namespace YantraJS.Core
             var k = key.ToKey();
             if (k.IsSymbol)
             {
-                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
+                JSObject.InternalAddProperty(targetObject, k.JSValue as JSSymbol, pd);
             }
             else
             {
@@ -335,7 +335,7 @@ namespace YantraJS.Core
                     if (v.IsUndefined)
                         return JSUndefined.Value;
 
-                    p = JSProperty.Property(key, v);
+                    p = JSProperty.Property(key, v, JSPropertyAttributes.Enumerable | JSPropertyAttributes.Value);
                 }
                 else
                 {

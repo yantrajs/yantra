@@ -318,6 +318,11 @@ namespace YantraJS.Core
             return "[object Object]";
         }
 
+        protected internal override JSString ToJSString()
+        {
+            return new JSString("[object Object]");
+        }
+
         public override string ToDetailString()
         {
             var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");

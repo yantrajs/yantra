@@ -19,9 +19,22 @@ namespace YantraJS.Core
         internal static JSString Empty = new JSString(string.Empty);
 
         internal readonly string value;
-        KeyString _keyString = new KeyString(null,0);
+        KeyString _keyString = new KeyString();
 
-        public override double DoubleValue => NumberParser.CoerceToNumber(value);
+        private double NumberValue = 0;
+        private bool NumberParsed = false;
+
+        public override double DoubleValue
+        {
+            get
+            {
+                if (NumberParsed)
+                    return NumberValue;
+                NumberValue = NumberParser.CoerceToNumber(value);
+                NumberParsed = true;
+                return NumberValue;
+            }
+        }
 
         public override bool BooleanValue => value.Length > 0;
 
@@ -52,6 +65,17 @@ namespace YantraJS.Core
 
         internal override KeyString ToKey(bool create = true)
         {
+            if (_keyString.HasValue)
+                return _keyString;
+            var d = this.DoubleValue;
+            if (!double.IsNaN(d))
+            {
+                if (d >= 0 && (d % 1 == 0))
+                {
+                    _keyString = new KeyString((uint)d);
+                    return _keyString;
+                }
+            }
             if (!create)
             {
                 if(!KeyStrings.TryGet(this.value, out _keyString))

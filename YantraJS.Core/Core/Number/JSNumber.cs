@@ -67,9 +67,9 @@ namespace YantraJS.Core
             if (double.IsNaN(n))
                 return KeyStrings.NaN;
             if (n == 0)
-                return new KeyString(null, 0);
+                return new KeyString(0);
             if (n > 0 && ((int)n) == n)
-                return new KeyString(null, (uint)n);
+                return new KeyString((uint)n);
             if (!create)
             {
                 if (KeyStrings.TryGet(n.ToString(), out var k))

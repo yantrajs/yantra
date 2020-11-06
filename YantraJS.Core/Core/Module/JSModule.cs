@@ -40,6 +40,7 @@ namespace YantraJS.Core
             this.filePath = filePath;
             this.dirPath = System.IO.Path.GetDirectoryName(filePath);
 
+            Console.WriteLine($"Compiling module {filePath}");
             this.factory = context.Compile(code, filePath, new List<string> {
                 "exports",
                 "require",
@@ -47,7 +48,7 @@ namespace YantraJS.Core
                 "__filename",
                 "__dirname"
             });
-
+            Console.WriteLine($"Compiling module {filePath} finished ..");
             var exports = Exports = new JSObject();
             var require = Require = new JSFunction((in Arguments a1) => context.LoadModule(this, a1));
             require["main"] = main ? JSBoolean.True : JSBoolean.False;

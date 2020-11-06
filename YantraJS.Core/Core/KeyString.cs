@@ -3,8 +3,18 @@ using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core
 {
+    
+
     public struct KeyString
     {
+
+        enum KeyType
+        {
+            Empty = 0,
+            UInt = 1,
+            String = 2,
+            Symbol = 3
+        }
 
         public readonly static KeyString Empty = new KeyString();
 
@@ -14,17 +24,25 @@ namespace YantraJS.Core
             return KeyStrings.GetOrCreate(value);
         }
 
+        private readonly KeyType Type;
         public readonly string Value;
         public readonly uint Key;
-        public readonly JSSymbol Symbol;
-        public readonly JSString String;
+        public JSValue JSValue;
+
+        public bool HasValue
+        {
+            get
+            {
+                return Type != KeyType.Empty;
+            }
+        }
 
         public bool IsSymbol
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return Symbol != null;
+                return Type == KeyType.Symbol;
             }
         }
 
@@ -33,7 +51,7 @@ namespace YantraJS.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return String != null;
+                return Type == KeyType.String;
             }
         }
 
@@ -42,39 +60,48 @@ namespace YantraJS.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return Value == null;
+                return Type == KeyType.UInt;
             }
         }
 
+        internal KeyString(uint key)
+        {
+            Type = KeyType.UInt;
+            this.Value = null;
+            this.Key = key;
+            this.JSValue = null;
+        }
+
+
         internal KeyString(string value, uint key)
         {
+            Type = KeyType.String;
             this.Value = value;
             this.Key = key;
-            this.String = null;
-            this.Symbol = null;
+            this.JSValue = null;
         }
 
 
         internal KeyString(string value, uint key, JSString @string)
         {
+            Type = KeyType.String;
             this.Value = value;
             this.Key = key;
-            this.String = @string;
-            this.Symbol = null;
+            this.JSValue = @string;
         }
 
         internal KeyString(string value, uint key, JSSymbol symbol)
         {
+            Type = KeyType.String;
             this.Value = value;
             this.Key = key;
-            this.Symbol = symbol;
-            this.String = null;
+            this.JSValue = symbol;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is KeyString k)
-                return Key == k.Key;
+                return Key == k.Key && Type == k.Type && JSValue == k.JSValue;
             if (obj is string sv)
                 return Value == sv;
             return false;
@@ -92,11 +119,9 @@ namespace YantraJS.Core
 
         public JSValue ToJSValue()
         {
-            if (Symbol != null)
-                return Symbol;
-            if (String != null)
-                return String;
-            return new JSString(Value, this);
+            if (JSValue != null)
+                return JSValue;
+            return (JSValue = new JSString(Value, this));
         }
 
         public static (int size, int total, int next) Total =>

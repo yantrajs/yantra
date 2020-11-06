@@ -55,7 +55,7 @@ namespace YantraJS.Core.Tests.Imported
 
     }
 
-    //[TestClass]
+    // [TestClass]
     public class TypedArrayTests : TestBase
     {
         [TestMethod]
@@ -96,10 +96,10 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("RangeError", EvaluateExceptionType("new Int16Array(new ArrayBuffer(2), 2, 1).toString()"));
 
             // Array indexer - Implementation Pending - Nov/06/2020
-          //  Assert.AreEqual(2, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').value"));
-          //  Assert.AreEqual(true, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').writable"));
-          //  Assert.AreEqual(true, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').enumerable"));
-          //  Assert.AreEqual(false, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').configurable"));
+            Assert.AreEqual(2, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').value"));
+            Assert.AreEqual(true, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').writable"));
+            Assert.AreEqual(true, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').enumerable"));
+            Assert.AreEqual(false, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').configurable"));
 
             // delete
             Assert.AreEqual(false, Evaluate("delete new Int8Array([1, 2])[1]"));
@@ -107,9 +107,9 @@ namespace YantraJS.Core.Tests.Imported
 
             // toString and valueOf.
             // Yet to be implemented - Nov / 06 /2020
-            // Assert.AreEqual("function Int8Array() { [native code] }", Evaluate("Int8Array.toString()"));
-            // Assert.AreEqual(true, Evaluate("Int8Array.valueOf() === Int8Array"));
-            // Assert.AreEqual(false, Evaluate("Int16Array.valueOf() === Int8Array"));
+            Assert.AreEqual("function Int8Array() { [native code] }", Evaluate("Int8Array.toString()"));
+            Assert.AreEqual(true, Evaluate("Int8Array.valueOf() === Int8Array"));
+            Assert.AreEqual(false, Evaluate("Int16Array.valueOf() === Int8Array"));
 
             // Yet to be implemented - Nov / 06 /2020
             // species
@@ -124,15 +124,15 @@ namespace YantraJS.Core.Tests.Imported
             //Assert.AreEqual(true, Evaluate("Float64Array[Symbol.species] === Float64Array"));
 
             // length - To begin from here Unit Test - 11/06
-            //Assert.AreEqual(3, Evaluate("Int8Array.length"));
-            //Assert.AreEqual(3, Evaluate("Uint8Array.length"));
-            ////Assert.AreEqual(3, Evaluate("Uint8ClampedArray.length"));
-            //Assert.AreEqual(3, Evaluate("Int16Array.length"));
-            //Assert.AreEqual(3, Evaluate("Uint16Array.length"));
-            //Assert.AreEqual(3, Evaluate("Int32Array.length"));
-            //Assert.AreEqual(3, Evaluate("Uint32Array.length"));
-            //Assert.AreEqual(3, Evaluate("Float32Array.length"));
-            //Assert.AreEqual(3, Evaluate("Float64Array.length"));
+            Assert.AreEqual(3, Evaluate("Int8Array.length"));
+            Assert.AreEqual(3, Evaluate("Uint8Array.length"));
+            //Assert.AreEqual(3, Evaluate("Uint8ClampedArray.length"));
+            Assert.AreEqual(3, Evaluate("Int16Array.length"));
+            Assert.AreEqual(3, Evaluate("Uint16Array.length"));
+            Assert.AreEqual(3, Evaluate("Int32Array.length"));
+            Assert.AreEqual(3, Evaluate("Uint32Array.length"));
+            Assert.AreEqual(3, Evaluate("Float32Array.length"));
+            Assert.AreEqual(3, Evaluate("Float64Array.length"));
         }
 
         [TestMethod]

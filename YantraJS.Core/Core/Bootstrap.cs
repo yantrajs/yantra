@@ -55,24 +55,27 @@ namespace YantraJS.Core
 
 
                     var cx = Fill(rt.StaticType, r);
-                    if (cx != null && r.f == JSFunction.empty)
+                    if (cx.function != null && r.f == JSFunction.empty)
                     {
-                        r.f = cx;
+                        r.f = cx.function;
+                        r[KeyStrings.length] = new JSNumber(cx.length);
                         
                     }
 
                     cx = Fill(rt.Prototype, r.prototype);
-                    if (cx != null && r.f == JSFunction.empty)
+                    if (cx.function != null && r.f == JSFunction.empty)
                     {
-                        r.f = cx;
+                        r.f = cx.function;
+                        r[KeyStrings.length] = new JSNumber(cx.length);
                     }
                 }
 
                 return r;
             });
+            string source = $"function {key.ToString()}() {{ [native code] }}";
             var copy = (rt?.PreventConstructorInvoke  ?? false)
-                ? new JSClassFunction(jsf.f, key.ToString())
-                :  new JSFunction(jsf.f, key.ToString());
+                ? new JSClassFunction(jsf.f, key.ToString(), source)
+                :  new JSFunction(jsf.f, key.ToString(), source);
             ref var target = ref copy.prototype.GetOwnProperties();
             var en = new PropertySequence.ValueEnumerator(jsf.prototype, false);
             while(en.MoveNextProperty(out var Value, out var Key ))
@@ -97,7 +100,7 @@ namespace YantraJS.Core
             {
                 context.GetOwnProperties()[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
             }
-            copy.prototypeChain = chain ?? context.ObjectPrototype;
+            copy.prototypeChain = chain ?? context.FunctionPrototype ?? context.ObjectPrototype;
             return copy;
         }
 
@@ -207,10 +210,11 @@ namespace YantraJS.Core
             return lambda.Compile();
         }
 
-        public static JSFunctionDelegate Fill(Type type, JSObject target)
+        public static (JSFunctionDelegate function, int length) Fill(Type type, JSObject target)
         {
 
             JSFunctionDelegate r = null;
+            int length = 0;
 
             ref var ownProperties = ref target.GetOwnProperties();
 
@@ -299,7 +303,7 @@ namespace YantraJS.Core
                     JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableReadonlyValue);
             }
 
-            return r;
+            return (r, length);
         }
         #endregion
 
@@ -372,6 +376,7 @@ namespace YantraJS.Core
                 if (pr is ConstructorAttribute ca)
                 {
                     r.f = f.CreateJSFunctionDelegate();
+                    r[KeyStrings.length] = new JSNumber(ca.Length);
                     continue;
                 }
 

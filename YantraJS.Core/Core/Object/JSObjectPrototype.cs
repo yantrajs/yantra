@@ -36,7 +36,7 @@ namespace YantraJS.Core
         /// <returns></returns>
         [Prototype("toString")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "JavaScript Method Signature is Standard")]
-        public static JSValue ToString(in Arguments a) => new JSString("[object Object]");
+        public static JSValue ToString(in Arguments a) => a.This.ToJSString();
 
         // [Prototype("toLocaleString")]
         // public static JSValue ToLocaleString(JSValue t, params JSValue[] a)

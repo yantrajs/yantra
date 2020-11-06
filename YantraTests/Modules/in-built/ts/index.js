@@ -1,7 +1,7 @@
-﻿//import * as ts from "./typescript";
+﻿import * as ts from "./typescript";
+console.log("Typescript module loaded...");
+const source = "let x: string  = 'string'";
 
-//const source = "let x: string  = 'string'";
+let result = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
 
-//let result = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
-
-//console.log(JSON.stringify(result)); 1`
+console.log(JSON.stringify(result));
