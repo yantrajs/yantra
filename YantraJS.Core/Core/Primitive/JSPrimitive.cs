@@ -52,5 +52,9 @@ namespace YantraJS.Core
             return base.GetAllKeys(showEnumerableOnly, inherited);
         }
 
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            return (prototypeChain ?? (prototypeChain = GetPrototype())).GetMethod(key);
+        }
     }
 }

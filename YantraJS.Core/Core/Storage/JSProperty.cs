@@ -85,9 +85,11 @@ namespace YantraJS.Core
             JSFunctionDelegate d, 
             JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable)
         {
+            var fx = new JSFunction(d);
             return new JSProperty
             {
-                value = new JSFunction(d),
+                value = fx,
+                get = fx,
                 Attributes = attributes
             };
         }
@@ -160,6 +162,7 @@ namespace YantraJS.Core
             {
                 key = key,
                 value = d,
+                get = d as JSFunction,
                 Attributes = attributes
             };
         }

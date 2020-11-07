@@ -509,10 +509,10 @@ namespace YantraJS
             where T: Node
             where TR: Exp
         {
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                return exp();
-            }
+            //if (System.Diagnostics.Debugger.IsAttached)
+            //{
+            //    return exp();
+            //}
             var s = this.scope.Top.TopStackScope.Scope;
             var p = ast.Location.Start;
             try
@@ -869,7 +869,8 @@ namespace YantraJS
         class SwitchInfo
         {
             public List<Exp> Tests = new List<Exp>();
-            public Exp Body;
+            public List<Exp> Body;
+            public readonly System.Linq.Expressions.LabelTarget Label = Exp.Label();
         }
 
         protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
@@ -913,17 +914,30 @@ namespace YantraJS
                     if (body.Count > 0)
                     {
                         cases.Add(lastCase);
-                        lastCase.Body = Exp.Block(body);
+                        body.Insert(0, Exp.Label(lastCase.Label));
+                        lastCase.Body = body;
                         lastCase = new SwitchInfo();
                     }
                 }
             }
+
+            SwitchInfo last = null;
+            foreach(var @case in cases)
+            {
+                // if last one is not break statement... make it fall through...
+                if (last != null)
+                {
+                    last.Body.Add(Exp.Goto(@case.Label));
+                }
+                last = @case;
+            }
+
             var r = Exp.Block(
                 Exp.Switch(
                     VisitExpression(switchStatement.Discriminant), 
                     d.ToJSValue() ?? JSUndefinedBuilder.Value , 
                     ExpHelper.JSValueBuilder.StaticEquals, 
-                    cases.Select(x => Exp.SwitchCase(x.Body.ToJSValue(), x.Tests) ).ToList()),
+                    cases.Select(x => Exp.SwitchCase(Exp.Block(x.Body).ToJSValue(), x.Tests) ).ToList()),
                 Exp.Label(@break));
             return r;
         }
@@ -1087,11 +1101,12 @@ namespace YantraJS
                         list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
                     }
                     list.Add(body);
+                    list.Add(Exp.Label(continueTarget));
                     if (update != null)
                     {
                         list.Add(update);
                     }
-                    blockList.Add(Exp.Loop(Exp.Block(list), breakTarget, continueTarget));
+                    blockList.Add(Exp.Loop(Exp.Block(list), breakTarget));
                     return Exp.Block(paramList, blockList);
                 });
             }
@@ -1884,8 +1899,6 @@ namespace YantraJS
         protected override Exp VisitBreakStatement(Esprima.Ast.BreakStatement breakStatement)
         {
             var ls = this.LoopScope;
-            if (ls.IsSwitch)
-                return Exp.Goto(ls.Break);
 
             string name = breakStatement.Label?.Name;
             if(name != null)
@@ -1895,6 +1908,9 @@ namespace YantraJS
                     throw JSContext.Current.NewSyntaxError($"No label found for {name}");
                 return Exp.Break(target.Break);
             }
+
+            if (ls.IsSwitch)
+                return Exp.Goto(ls.Break);
 
             return Exp.Break(ls.Break);
         }

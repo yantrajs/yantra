@@ -51,7 +51,7 @@ namespace YantraJS.Core
         public static JSValue InvokeMethod(this JSValue @this, KeyString name, in Arguments a)
         {
             var fx = @this.GetMethod(name);
-            return fx(a);
+            return fx(a.OverrideThis(@this));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

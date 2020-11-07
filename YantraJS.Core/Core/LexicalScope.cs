@@ -14,7 +14,7 @@ namespace YantraJS.Core
 
         internal LexicalScope(string fileName, string function, int line, int column)
         {
-            this.scope = new UInt32Trie<JSVariable>();
+            // this.scope = new UInt32Trie<JSVariable>();
             FileName = fileName;
             Function = function;
             position = new Position(line, column);
@@ -30,7 +30,7 @@ namespace YantraJS.Core
             set
             {
                 position = value;
-                // Console.WriteLine($"{value.Line}, {value.Column}");
+                // Console.WriteLine($"{Function} {value.Line}, {value.Column}");
             }
         }
 

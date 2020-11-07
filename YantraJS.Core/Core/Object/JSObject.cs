@@ -497,6 +497,7 @@ namespace YantraJS.Core
             {
                 pt |= JSPropertyAttributes.Value;
                 p.value = value;
+                p.get = value as JSFunction;
             }
             p.Attributes = pt;
             ref var ownProperties = ref target.GetOwnProperties();
@@ -534,6 +535,7 @@ namespace YantraJS.Core
             {
                 pt |= JSPropertyAttributes.Value;
                 p.value = value;
+                p.get = value as JSFunction;
             }
             p.Attributes = pt;
             var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
