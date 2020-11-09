@@ -278,7 +278,8 @@ namespace YantraJS
             this.Awaiter = p.Awaiter;
             this.Super = p.Super;
             this.TempVariables = p.TempVariables;
-            this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
+            // this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
+            this.Scope = p.Scope;
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
         }

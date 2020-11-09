@@ -1928,12 +1928,12 @@ namespace YantraJS
                 var position = exp.Location.Start;
 
                 // collect variables...
-                var vList = new List<ParameterExpression>() { scope.Scope };
+                var vList = new List<ParameterExpression>() {};
 
                 var stmtList = new List<Exp>() {
-                    Exp.Assign(scope.Scope,
-                            ExpHelper.LexicalScopeBuilder.NewScope(
-                                FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column))
+                    //Exp.Assign(scope.Scope,
+                    //        ExpHelper.LexicalScopeBuilder.NewScope(
+                    //            FileNameExpression, scope.Function?.Id?.Name ?? "", position.Line, position.Column))
                 };
 
                 // bool hasVarDeclarations = scope.IsFunctionScope || scope.Variables.Any();
@@ -1956,9 +1956,7 @@ namespace YantraJS
                 stmtList.AddRange(pushedInits);
                 stmtList.Add(visited);
 
-                return Exp.Block(vList, Exp.TryFinally(
-                    Exp.Block(stmtList).ToJSValue()
-                    , IDisposableBuilder.Dispose(scope.Scope)));
+                return Exp.Block(vList,stmtList).ToJSValue();
             }
 
         }
