@@ -75,7 +75,7 @@ namespace YantraJS.Core.LightWeight
             return new Item(this, --length);
         }
 
-        public ref T Top => ref storage[length - 1];
+        public ref T Top => ref storage[length];
 
         void EnsureCapacity(int length)
         {
