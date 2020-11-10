@@ -32,6 +32,9 @@ namespace YantraJS.Core
     [StructLayout(LayoutKind.Sequential)]
     public struct JSProperty
     {
+
+        public static JSProperty Empty = new JSProperty();
+
         public JSPropertyAttributes Attributes;
 
         public KeyString key;

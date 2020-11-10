@@ -203,6 +203,20 @@ namespace YantraJS.Core
 
         protected abstract ref TrieNode GetTrieNode(TKey key, bool create = false);
 
+
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public ref TValue GetValue(TKey key, ref TValue def)
+        //{
+        //    ref var node = ref GetTrieNode(key);
+        //    if (node.HasValue)
+        //    {
+        //        return ref node.Value;
+        //        return true;
+        //    }
+        //    value = default;
+        //    return false;
+        //}
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(TKey key, out TValue value)
         {

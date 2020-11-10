@@ -321,7 +321,7 @@ namespace YantraJS.Core
                 if (p.IsEnumerable)
                     return JSBoolean.True;
             }
-            var p1 = tx.GetInternalProperty(key);
+            ref var p1 = ref tx.GetInternalProperty(key);
             if (p1.IsEnumerable)
                 return JSBoolean.True;
             return JSBoolean.False;

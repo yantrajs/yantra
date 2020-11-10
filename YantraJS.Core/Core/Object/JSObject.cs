@@ -153,15 +153,14 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSProperty GetInternalProperty(in KeyString key, bool inherited = true)
+        internal ref JSProperty GetInternalProperty(in KeyString key, bool inherited = true)
         {
-            if (ownProperties.TryGetValue(key.Key, out var r))
-            {
-                return r;
-            }
+            ref var r = ref ownProperties.GetValue(key.Key);
+            if (!r.IsEmpty)
+                return ref r;
             if (inherited && prototypeChain != null)
-                return prototypeChain.GetInternalProperty(key, inherited);
-            return new JSProperty();
+                return ref prototypeChain.GetInternalProperty(key, inherited);
+            return ref JSProperty.Empty;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -191,7 +190,7 @@ namespace YantraJS.Core
         {
             if (!ownProperties.IsEmpty)
             {
-                var p = ownProperties[key.Key];
+                ref var p = ref ownProperties.GetValue(key.Key);
                 if (p.IsValue)
                 {
                     var g = p.get;
@@ -209,7 +208,7 @@ namespace YantraJS.Core
         public override JSValue this[KeyString name] { 
             get => this.GetValue(GetInternalProperty(name)); 
             set {
-                var p = GetInternalProperty(name);
+                ref var p = ref GetInternalProperty(name);
                 if (p.IsProperty)
                 {
                     if (p.set != null)
@@ -324,7 +323,7 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            var px = GetInternalProperty(KeyStrings.toString);
+            ref var px = ref GetInternalProperty(KeyStrings.toString);
             if (!px.IsEmpty)
             {
                 var v = this.GetValue(px);

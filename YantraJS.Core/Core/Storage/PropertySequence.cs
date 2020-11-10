@@ -201,6 +201,19 @@ namespace YantraJS.Core
             }
             return false;
         }
+
+        public ref JSProperty GetValue(uint key)
+        {
+            if (map != null && map.TryGetValue(key, out var pkey))
+            {
+                ref var obj = ref properties[pkey];
+                // obj.Attributes != JSPropertyAttributes.Deleted;
+                if (obj.Attributes != JSPropertyAttributes.Deleted)
+                    return ref obj;
+            }
+            return ref JSProperty.Empty;
+        }
+
         public bool TryGetValue(uint key, out JSProperty obj)
         {
             if (map != null && map.TryGetValue(key, out var pkey))

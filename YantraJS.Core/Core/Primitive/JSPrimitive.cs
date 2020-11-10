@@ -33,7 +33,7 @@ namespace YantraJS.Core
             get
             {
                 ResolvePrototype();
-                var px = prototypeChain.GetInternalProperty(name);
+                ref var px = ref prototypeChain.GetInternalProperty(name);
                 if (px.IsEmpty)
                 {
                     throw JSContext.Current.NewTypeError($"{name} property not found on {this.GetType().Name}:{this}");
