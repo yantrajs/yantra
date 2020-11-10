@@ -16,10 +16,8 @@ namespace YantraJS.Core
         public JSVariable(JSValue v, string name)
         {
             this.Value = v;
-            var c = JSContext.Current.Scope.Top;
-            // need to do this unless in eval
-            // c[name] = this;
-            if (c.IsRoot || c.Parent.IsRoot)
+            var c = JSContext.Current.IsRootScope;
+            if (c)
             {
                 JSContext.Current[name] = v;
             }

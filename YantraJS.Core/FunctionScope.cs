@@ -141,7 +141,7 @@ namespace YantraJS
 
         public ParameterExpression Arguments { get; }
 
-        public ParameterExpression Scope { get; }
+        public ParameterExpression Context { get; }
 
         public bool IsRoot => Function == null;
 
@@ -261,7 +261,7 @@ namespace YantraJS
                 this.ThisExpression = _this.Expression;
             }
 
-            this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
+            this.Context = Expression.Parameter(typeof(JSContext), "Context");
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new List<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
@@ -279,7 +279,7 @@ namespace YantraJS
             this.Super = p.Super;
             this.TempVariables = p.TempVariables;
             // this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
-            this.Scope = p.Scope;
+            this.Context = p.Context;
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
         }

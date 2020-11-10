@@ -59,7 +59,7 @@ namespace YantraJS.Core
             ref var firstOwnProperties = ref firstObject.GetOwnProperties();
             while(en.MoveNext())
             {
-                var item = en.Current;
+                ref var item = ref en.Current;
                 firstOwnProperties[item.key.Key] = item;
             }
             return first;
@@ -361,7 +361,7 @@ namespace YantraJS.Core
             var en = new PropertySequence.Enumerator(jobj.GetOwnProperties(false));
             while(en.MoveNext())
             {
-                var x = en.Current;
+                ref var x = ref en.Current;
                 var p = JSProperty.Property(x.key, x.ToJSValue());
                 r.elements[x.key.Key] = p;
             }

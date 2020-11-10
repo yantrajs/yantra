@@ -18,9 +18,19 @@ using YantraJS.Core.Set;
 using YantraJS.Core.Weak;
 using System.Collections.Concurrent;
 using Microsoft.Threading;
+using YantraJS.Core.LightWeight;
 
 namespace YantraJS.Core
 {
+    public struct CallStackItem
+    {
+        public string Function;
+        public int Line;
+        public int Column;
+        public string FileName;
+        public bool IsRootScope;
+    }
+
 
     public delegate JSValue JSFunctionDelegate(in Arguments a);
 
@@ -33,7 +43,9 @@ namespace YantraJS.Core
 
         static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
 
-        internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
+        // internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
+
+        private LightWeightStack<CallStackItem> Stack = new LightWeightStack<CallStackItem>(256);
 
         // internal LinkedList<Task> waitTasks = new LinkedList<Task>();
         private TaskCompletionSource<int> _waitTask;
@@ -132,12 +144,75 @@ namespace YantraJS.Core
 
         public event ErrorEventHandler Error;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSContext Push(string fileName, string function, int line, int column)
+        {
+            ref var top = ref Stack.Push().Value;
+            top.Function = function;
+            top.FileName = fileName;
+            top.Line = line;
+            top.Column = column;
+            return this;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Pop()
+        {
+            Stack.Pop();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Update(int line, int column)
+        {
+            ref var top = ref Stack.Top;
+            top.Line = line;
+            top.Column = column;
+        }
+
+        internal bool IsRootScope
+        {
+            get
+            {
+                if (Stack.Count > 0)
+                {
+                    ref var top = ref Stack.Top;
+                    return top.IsRootScope;
+                } 
+                return false;
+            }
+        }
+
+        internal LightWeightStack<CallStackItem>.StackWalker StackWalker
+        {
+            get
+            {
+                return Stack.Walker;
+            }
+        }
+
+        internal void FillStackTrace(StringBuilder sb)
+        {
+        }
+
+        internal LightWeightStack<CallStackItem> CloneStack()
+        {
+            var copy = new LightWeightStack<CallStackItem>(this.Stack);
+            return copy;
+        }
+
+        internal LightWeightStack<CallStackItem> Switch(LightWeightStack<CallStackItem> newValue)
+        {
+            var old = this.Stack;
+            this.Stack = newValue;
+            return old;
+        }
+
         public JSContext(SynchronizationContext synchronizationContext = null)
         {
             this.synchronizationContext = synchronizationContext ?? SynchronizationContext.Current;
 
-            Scope.Push(new LexicalScope("", "", 1, 1));
-            Scope.Top.IsRoot = true;
+            // Scope.Push(new LexicalScope("", "", 1, 1));
+            // Scope.Top.IsRoot = true;
 
             _current.Value = this;
 

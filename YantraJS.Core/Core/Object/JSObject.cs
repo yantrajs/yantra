@@ -290,7 +290,7 @@ namespace YantraJS.Core
         {
             var key = name.Key;
             ref var ownProperties = ref GetOwnProperties();
-            var old = ownProperties[key];
+            ref var old = ref ownProperties.GetValue(name.Key);
             if (!old.IsEmpty)
             {
                 if (!old.IsConfigurable)
@@ -309,7 +309,7 @@ namespace YantraJS.Core
             foreach (var p in list)
             {
                 var key = p.key.Key;
-                var old = ownProperties[key];
+                ref var old = ref ownProperties.GetValue(key);
                 if (!old.IsEmpty)
                 {
                     if (!old.IsConfigurable)
@@ -365,7 +365,7 @@ namespace YantraJS.Core
                 {
                     return -1;
                 }
-                var l = ownp[KeyStrings.length.Key];
+                ref var l = ref ownp.GetValue(KeyStrings.length.Key);
                 if (!l.IsEmpty)
                 {
                     var n = this.GetValue(l);

@@ -107,7 +107,7 @@ namespace YantraJS
             {
                 var jScript = parser.ParseScript();
 
-                var lScope = fx.Scope;
+                var lScope = fx.Context;
 
                 ScopeAnalyzer scopeAnalyzer = new ScopeAnalyzer();
                 scopeAnalyzer.Visit(jScript);
@@ -132,7 +132,7 @@ namespace YantraJS
 
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
-                    Exp.Assign(lScope, ExpHelper.LexicalScopeBuilder.NewScope(FileNameExpression,"",1,1)),
+                    Exp.Assign(lScope, JSContextBuilder.Push(FileNameExpression,"",1,1)),
                     Exp.Assign(argLength, ArgumentsBuilder.Length(fx.ArgumentsExpression))
                 };
 
@@ -182,7 +182,7 @@ namespace YantraJS
                 script = Exp.Block(vList,
                     Exp.TryCatchFinally(
                         Exp.Block(sList),
-                        ExpHelper.IDisposableBuilder.Dispose(lScope),
+                        JSContextBuilder.Pop(lScope),
                         catchWithFilter)
                 );
 
@@ -351,7 +351,7 @@ namespace YantraJS
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis, super)))
             {
-                var lexicalScopeVar = cs.Scope;
+                var lexicalScopeVar = cs.Context;
 
 
                 FunctionScope.VariableScope jsFVarScope = null;
@@ -448,7 +448,7 @@ namespace YantraJS
                 var lexicalScope =
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar },
                     Exp.Assign(lexicalScopeVar, 
-                        ExpHelper.LexicalScopeBuilder.NewScope(
+                        JSContextBuilder.Push(
                             FileNameExpression,
                             fxName,
                             point.Line,
@@ -456,7 +456,7 @@ namespace YantraJS
                             )),
                     Exp.TryFinally(
                         block,
-                        ExpHelper.IDisposableBuilder.Dispose(lexicalScopeVar)));
+                        JSContextBuilder.Pop(lexicalScopeVar)));
 
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
@@ -513,12 +513,12 @@ namespace YantraJS
             //{
             //    return exp();
             //}
-            var s = this.scope.Top.TopStackScope.Scope;
+            var s = this.scope.Top.TopStackScope.Context;
             var p = ast.Location.Start;
             try
             {
                 return Exp.Block(
-                    LexicalScopeBuilder.SetPosition(s, p.Line, p.Column),
+                    JSContextBuilder.Update(s, p.Line, p.Column),
                     exp());
             }
             catch (Exception ex) when (!(ex is CompilerException))

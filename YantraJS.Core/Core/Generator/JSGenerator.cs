@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using YantraJS.Core.LightWeight;
 
 namespace YantraJS.Core.Generator
 {
@@ -27,7 +28,7 @@ namespace YantraJS.Core.Generator
         internal JSValue value;
         internal bool done;
         private Exception lastError;
-        private LexicalScope threadTop;
+        private LightWeightStack<CallStackItem> threadTop;
         readonly IElementEnumerator en;
         private readonly string name;
 
@@ -102,7 +103,7 @@ namespace YantraJS.Core.Generator
                 return ValueObject;
             }
 
-            var current = JSContext.Current.Scope.Top;
+            var current = JSContext.Current.CloneStack();
             if (replaceOld != null)
             {
                 this.value = replaceOld;
@@ -121,13 +122,13 @@ namespace YantraJS.Core.Generator
                 JSThreadPool.Queue(RunGenerator, new JSWeakGenerator(this));
             } else
             {
-                JSContext.Current.Scope.Switch(threadTop);
+                JSContext.Current.Switch(threadTop);
                 wait.Set();
             }
 
             yield.WaitOne(Timeout.Infinite);
 
-            threadTop = JSContext.Current.Scope.Switch(current);
+            threadTop = JSContext.Current.Switch(current);
 
             if (this.lastError != null)
             {
@@ -314,7 +315,7 @@ namespace YantraJS.Core.Generator
 
         private void OnDispose(bool supress = true)
         {
-            threadTop = null;
+            threadTop.Dispose();
             yield?.Dispose();
             wait?.Dispose();
             yield = null;

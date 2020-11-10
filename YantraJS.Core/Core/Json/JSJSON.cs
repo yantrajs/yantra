@@ -180,7 +180,7 @@ namespace YantraJS.Core
             var pen = new PropertySequence.Enumerator(obj.GetOwnProperties());
             while(pen.MoveNext())
             {
-                var p = pen.Current;
+                ref var p = ref pen.Current;
                 var value = p;
                 if (value.IsEmpty || !value.IsEnumerable)
                     continue;

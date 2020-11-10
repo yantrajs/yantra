@@ -38,7 +38,7 @@ namespace YantraJS.Tests.Generator
         [TestMethod]
         public void Function()
         {
-            Assert.IsNotNull(context.Scope);
+            // Assert.IsNotNull(context.Scope);
             var f = CoreScript.Evaluate("function a(a, b) { return a+b; }");
 
             Assert.IsTrue(f.IsFunction);

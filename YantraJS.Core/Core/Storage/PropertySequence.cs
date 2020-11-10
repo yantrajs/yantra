@@ -131,7 +131,7 @@ namespace YantraJS.Core
                     return false;
                 while ((++index) < size)
                 {
-                    var current = array[index];
+                    ref var current = ref array[index];
                     if (current.Attributes == JSPropertyAttributes.Deleted)
                         continue;
                     return true;
@@ -139,7 +139,7 @@ namespace YantraJS.Core
                 return false;
             }
 
-            public JSProperty Current => this.array[index];
+            public ref JSProperty Current => ref this.array[index];
         }
         #endregion
 
@@ -227,14 +227,14 @@ namespace YantraJS.Core
 
         public JSProperty this[uint key]
         {
-            get
-            {
-                if (map != null && map.TryGetValue(key, out var pkey))
-                {
-                    return properties[pkey];
-                }
-                return new JSProperty();
-            }
+            //get
+            //{
+            //    if (map != null && map.TryGetValue(key, out var pkey))
+            //    {
+            //        return properties[pkey];
+            //    }
+            //    return JSProperty.Empty;
+            //}
             set
             {
                 if (map.TryGetValue(key, out var pkey))

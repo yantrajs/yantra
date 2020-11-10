@@ -19,7 +19,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression Index(Expression exp)
         {
-            var top = Expression.Property(JSContextBuilder.CurrentScope, _Top);
+            var top = Expression.Property(null, _Top);
             return Expression.MakeIndex(top,
                 _Index,
                 new Expression[] { exp });
@@ -47,7 +47,7 @@ namespace YantraJS.ExpHelper
             int column)
         {
             return Expression.Call(
-                JSContextBuilder.CurrentScope,
+                JSContextBuilder.Current,
                 _Push,
                 Expression.New(_New,
                 fileName,
