@@ -13,6 +13,20 @@ namespace YantraJS.Core.Typed
             return new JSNumber(@this.Length);
         }
 
+        [GetProperty("byteOffset")]
+        public static JSValue ByteOffset(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            return new JSNumber(@this.byteOffset);
+        }
+
+        [GetProperty("byteLength")]
+        public static JSValue ByteLength(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            return new JSNumber(@this.buffer.buffer.Length);
+        }
+
         [GetProperty("buffer")]
         public static JSValue Buffer(in Arguments a)
         {
