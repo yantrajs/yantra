@@ -309,7 +309,7 @@ namespace YantraJS.Core
                     properties[length++] = value;
                     return;
                 }
-                int pkey = length;
+                int pkey;
                 if (map == null)
                 {
                     map = new UInt32Trie<int>(16);
@@ -325,6 +325,7 @@ namespace YantraJS.Core
                     properties[pkey] = value;
                     return;
                 }
+                pkey = length++;
                 if (pkey >= properties.Length)
                 {
                     Array.Resize(ref properties, properties.Length + 4);
