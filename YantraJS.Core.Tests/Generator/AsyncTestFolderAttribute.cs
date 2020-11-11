@@ -17,6 +17,7 @@ namespace YantraJS.Tests.Generator
 
         protected override void Evaluate(JSContext context, string content, string fullName)
         {
+            JSValue r;
             try
             {
                 
@@ -25,7 +26,16 @@ namespace YantraJS.Tests.Generator
                 {
                     // this needs to run inside AsyncPump 
                     // as Promise expects SynchronizationContext to be present
-                    var r = CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                    r = CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                    var w = context.WaitTask;
+                    if (w != null)
+                    {
+                        try
+                        {
+                            await w;
+                        }
+                        catch (TaskCanceledException) { }
+                    }
                     if (r is JSPromise jp)
                     {
                         try
@@ -36,14 +46,6 @@ namespace YantraJS.Tests.Generator
                         {
                             throw JSException.From(ex);
                         }
-                    }
-                    if (context.WaitTask != null)
-                    {
-                        try
-                        {
-                            await context.WaitTask;
-                        }
-                        catch (TaskCanceledException) { }
                     }
                 });
             }

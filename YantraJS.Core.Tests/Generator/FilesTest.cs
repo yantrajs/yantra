@@ -156,18 +156,20 @@ namespace YantraJS.Tests.Generator
     public class Promise
     {
 
-        //public TestContext _testContext;
+        public TestContext _testContext;
 
-        //public TestContext TestContext {
-        //    get => _testContext;
-        //    set {
-        //        _testContext = value;
-        //        Trace.Listeners.Add(new TestContextTraceListener(value));
-        //        value.WriteLine("Test context set");
-        //    }
-        //}
+        public TestContext TestContext
+        {
+            get => _testContext;
+            set
+            {
+                _testContext = value;
+                Trace.Listeners.Add(new TestContextTraceListener(value));
+                value.WriteLine("Test context set");
+            }
+        }
 
-        [AsyncTestFolder("es5\\Promise")]
+        // [AsyncTestFolder("es5\\Promise")]
         public void Run()
         {
 

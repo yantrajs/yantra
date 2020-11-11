@@ -213,15 +213,11 @@ namespace YantraJS.Core
                     taskCompletion = new TaskCompletionSource<JSValue>();
                     this.thenList = this.thenList ?? new List<Action>();
                     thenList.Add(() => {
-                        Post(() => {
-                            taskCompletion.TrySetResult(this.result);
-                        });
+                        taskCompletion.TrySetResult(this.result);
                     });
-                    rejectList = rejectList ?? new List<Action>();
+                    this.rejectList = this.rejectList ?? new List<Action>();
                     rejectList.Add(() => {
-                        Post(() => {
-                            taskCompletion.TrySetException(JSException.FromValue(this.result));
-                        });
+                        taskCompletion.TrySetException(JSException.FromValue(this.result));
                     });
                 }
                 return taskCompletion.Task;

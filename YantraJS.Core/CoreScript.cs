@@ -162,6 +162,15 @@ namespace YantraJS
 
                 vList.AddRange(fx.VariableParameters);
                 sList.AddRange(fx.InitList);
+                // register globals..
+                foreach (var v in fx.Variables)
+                {
+                    if (v.Variable != null && v.Variable.Type == typeof(JSVariable))
+                    {
+                        sList.Add(JSContextBuilder.Register(lScope, v.Variable));
+                    }
+                }
+
 
                 sList.Add(Exp.Return(l, script.ToJSValue()));
                 sList.Add(Exp.Label(l, JSUndefinedBuilder.Value));

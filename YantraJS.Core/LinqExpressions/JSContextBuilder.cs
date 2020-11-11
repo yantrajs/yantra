@@ -28,6 +28,8 @@ namespace YantraJS.ExpHelper
         public static MethodInfo _Update=
             type.InternalMethod(nameof(JSContext.Update), typeof(int), typeof(int));
 
+        public static MethodInfo _Register =
+            type.InternalMethod(nameof(JSContext.Register), typeof(JSVariable));
 
         private static PropertyInfo _Index =
             type.IndexProperty(typeof(Core.KeyString));
@@ -62,6 +64,10 @@ namespace YantraJS.ExpHelper
                 _Update,
                 Expression.Constant(line),
                 Expression.Constant(column));
+        }
+        public static Expression Register(ParameterExpression lScope, ParameterExpression variable)
+        {
+            return Expression.Call(lScope, _Register, variable);
         }
     }
 }

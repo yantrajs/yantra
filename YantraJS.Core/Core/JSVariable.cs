@@ -11,16 +11,13 @@ namespace YantraJS.Core
 
         static readonly FieldInfo _ValueField =
             typeof(JSVariable).GetField("Value");
+        internal readonly string Name;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JSVariable(JSValue v, string name)
         {
             this.Value = v;
-            var c = JSContext.Current.IsRootScope;
-            if (c)
-            {
-                JSContext.Current[name] = v;
-            }
+            this.Name = name;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

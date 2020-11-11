@@ -11,6 +11,8 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _GetOrAdd =
             typeof(KeyStrings).InternalMethod(nameof(KeyStrings.GetOrCreate), typeof(string));
 
+        public static readonly Type RefType = typeof(KeyString).MakeByRefType();
+
         public static Expression GetOrCreate(Expression text)
         {
             return Expression.Call(null, _GetOrAdd, text);

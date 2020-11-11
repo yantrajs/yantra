@@ -20,7 +20,7 @@ namespace YantraJS.Core.LightWeight
             }
             public ref T Value => ref stack.storage[index];
 
-            public ref T Parent => ref stack.storage[index - 1];
+            // public ref T Parent => ref stack.storage[index - 1];
         }
 
         public struct StackWalker
@@ -36,11 +36,11 @@ namespace YantraJS.Core.LightWeight
 
             public bool MoveNext()
             {
-                index--;
-                return index >= 0;
+                this.index--;
+                return this.index >= 0;
             }
 
-            public ref T Current => ref storage[index];
+            public ref T Current => ref storage[this.index];
         }
 
         public int Count => storage == null ? -1 : length;
@@ -60,7 +60,7 @@ namespace YantraJS.Core.LightWeight
         {
             storage = new T[stack.storage.Length];
             Array.Copy(stack.storage, storage, storage.Length);
-            length = 0;
+            length = stack.length;
         }
 
 

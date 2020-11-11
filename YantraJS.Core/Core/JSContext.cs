@@ -29,6 +29,11 @@ namespace YantraJS.Core
         public int Column;
         public string FileName;
         public bool IsRootScope;
+
+        public override string ToString()
+        {
+            return $"{Function} at {FileName} - {Line},{Column}";
+        }
     }
 
 
@@ -45,7 +50,7 @@ namespace YantraJS.Core
 
         // internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
 
-        private LightWeightStack<CallStackItem> Stack = new LightWeightStack<CallStackItem>(256);
+        internal LightWeightStack<CallStackItem> Stack = new LightWeightStack<CallStackItem>(256);
 
         // internal LinkedList<Task> waitTasks = new LinkedList<Task>();
         private TaskCompletionSource<int> _waitTask;
@@ -147,7 +152,9 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSContext Push(string fileName, string function, int line, int column)
         {
-            ref var top = ref Stack.Push().Value;
+            ref var stack = ref this.Stack;
+            var item = stack.Push();
+            ref var top = ref item.Value;
             top.Function = function;
             top.FileName = fileName;
             top.Line = line;
@@ -179,6 +186,29 @@ namespace YantraJS.Core
                     return top.IsRootScope;
                 } 
                 return false;
+            }
+        }
+
+        UInt32Trie<JSVariable> globalVars = new UInt32Trie<JSVariable>();
+
+        internal JSValue Register(JSVariable variable)
+        {
+            var v = variable.Value;
+            this[variable.Name] = v;
+            KeyString name = variable.Name;
+            globalVars[name.Key] = variable;
+            return v;
+        }
+
+        public override JSValue this[KeyString name] { 
+            get => base[name];
+            set
+            {
+                base[name] = value;
+                if(globalVars.TryGetValue(name.Key, out var jsv))
+                {
+                    jsv.Value = value;
+                }
             }
         }
 
@@ -451,7 +481,7 @@ namespace YantraJS.Core
             }
             return key;
         }
-        internal long SetInterval(int delay, JSFunction f, Arguments a)
+        internal long SetInterval(int delay, JSFunction f, in Arguments a)
         {
             var key = Interlocked.Increment(ref nextInterval);
             JSValue[] args = JSArguments.Empty;
