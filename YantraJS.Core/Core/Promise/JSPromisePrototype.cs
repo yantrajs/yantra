@@ -26,10 +26,16 @@ namespace YantraJS.Core.Runtime
         public static JSValue Then(in Arguments a)
         {
             var p = a.This.ToPromise();
-            var f = a.Get1();
-            if (!(f is JSFunction fx))
+            var (success, fail) = a.Get2();
+            if (!(success is JSFunction successFx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            return p.Then(fx.f, null);
+            if (!fail.IsUndefined)
+            {
+                if (!(fail is JSFunction failFx))
+                    throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
+                return p.Then(successFx.f, failFx.f);
+            }
+            return p.Then(successFx.f, null);
         }
 
         [Prototype("catch")]

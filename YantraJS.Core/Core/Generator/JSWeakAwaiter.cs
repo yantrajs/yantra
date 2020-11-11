@@ -74,7 +74,7 @@ namespace YantraJS.Core.Generator
                 return JSUndefined.Value;
             });
 
-            method.InvokeFunction(new Arguments(value, res, rej));
+            result = method.InvokeFunction(new Arguments(value, res, rej));
 
             // block till we get next result...
             try

@@ -118,6 +118,19 @@ namespace YantraJS.Core
             @delegate(p => Resolve(p), p => Reject(p));
         }
 
+        /// <summary>
+        /// This prevents garbage collection
+        /// </summary>
+        public JSPromise Parent { get; }
+        public JSPromise(JSPromiseDelegate @delegate, JSPromise parent) :
+            base(JSContext.Current.PromisePrototype)
+        {
+            this.Parent = parent;
+            RegisterPromise();
+            @delegate(p => Resolve(p), p => Reject(p));
+        }
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSValue Resolve(JSValue value)
         {
@@ -288,7 +301,7 @@ namespace YantraJS.Core
                     });
 
                 }
-            });
+            }, this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
