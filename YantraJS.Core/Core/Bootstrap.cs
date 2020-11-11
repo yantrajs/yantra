@@ -98,7 +98,7 @@ namespace YantraJS.Core
             }
             if (addToContext)
             {
-                context.GetOwnProperties()[key.Key] = JSProperty.Property(copy, JSPropertyAttributes.ConfigurableReadonlyValue);
+                context.GetOwnProperties()[key.Key] = JSProperty.Property(key, copy, JSPropertyAttributes.ConfigurableReadonlyValue);
             }
             copy.prototypeChain = chain ?? context.FunctionPrototype ?? context.ObjectPrototype;
             return copy;

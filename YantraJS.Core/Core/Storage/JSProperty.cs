@@ -83,19 +83,19 @@ namespace YantraJS.Core
             get => (Attributes & JSPropertyAttributes.Property) > 0;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSProperty Function(
-            JSFunctionDelegate d, 
-            JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable)
-        {
-            var fx = new JSFunction(d);
-            return new JSProperty
-            {
-                value = fx,
-                get = fx,
-                Attributes = attributes
-            };
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static JSProperty Function(
+        //    JSFunctionDelegate d, 
+        //    JSPropertyAttributes attributes = JSPropertyAttributes.Value | JSPropertyAttributes.Configurable)
+        //{
+        //    var fx = new JSFunction(d);
+        //    return new JSProperty
+        //    {
+        //        value = fx,
+        //        get = fx,
+        //        Attributes = attributes
+        //    };
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Property(
@@ -110,34 +110,34 @@ namespace YantraJS.Core
             };
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSProperty Property(
-            JSFunction d,
-            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
-        {
-            return new JSProperty
-            {
-                value = d,
-                get = d,
-                Attributes = attributes
-            };
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static JSProperty Property(
+        //    JSFunction d,
+        //    JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
+        //{
+        //    return new JSProperty
+        //    {
+        //        value = d,
+        //        get = d,
+        //        Attributes = attributes
+        //    };
+        //}
 
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSProperty Property(
-            JSFunctionDelegate get, 
-            JSFunctionDelegate set = null, 
-            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
-        {
-            return new JSProperty
-            {
-                get = new JSFunction(get),
-                set = set != null ? new JSFunction(set) : null,
-                Attributes = attributes
-            };
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static JSProperty Property(
+        //    JSFunctionDelegate get, 
+        //    JSFunctionDelegate set = null, 
+        //    JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        //{
+        //    return new JSProperty
+        //    {
+        //        get = new JSFunction(get),
+        //        set = set != null ? new JSFunction(set) : null,
+        //        Attributes = attributes
+        //    };
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Function(

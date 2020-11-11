@@ -136,7 +136,7 @@ namespace YantraJS.Core
                 elements[k.Key] = JSProperty.Property(value);
             } else
             {
-                ownProperties[k.Key] = JSProperty.Property(value);
+                ownProperties[k.Key] = JSProperty.Property(k, value);
             }
             return this;
         }

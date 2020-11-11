@@ -145,18 +145,18 @@ namespace YantraJS.Core
 
 
 
-        readonly UInt32Trie<int> map;
+        private UInt32Trie<int> map;
         private JSProperty[] properties;
         private int length;
 
         public PropertySequence(int size)
         {
             this.length = 0;
-            map = new CompactUInt32Trie<int>();
+            map = null;
             properties = new JSProperty[size];
         }
 
-        public bool IsEmpty => map == null;
+        public bool IsEmpty => properties == null;
 
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()
         {
@@ -189,12 +189,39 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasKey(uint key)
         {
-            return map != null && map.HasKey(key);
+            if (properties == null)
+                return false;
+            if (map == null)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    ref var p = ref properties[i];
+                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Deleted)
+                        return true;
+                }
+                return false;
+            }
+            return map.HasKey(key);
         }
 
         public bool RemoveAt(uint key)
         {
-            if (map != null && map.TryRemove(key, out var pkey))
+            if (properties == null)
+                return false;
+            if (map == null)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    ref var p = ref properties[i];
+                    if (p.key.Key == key)
+                    {
+                        p.Attributes = JSPropertyAttributes.Deleted;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if (map.TryRemove(key, out var pkey))
             {
                 // move all properties up...
                 properties[pkey] = new JSProperty { Attributes = JSPropertyAttributes.Deleted };
@@ -204,10 +231,22 @@ namespace YantraJS.Core
 
         public ref JSProperty GetValue(uint key)
         {
-            if (map != null && map.TryGetValue(key, out var pkey))
+            if (properties == null)
+                return ref JSProperty.Empty;
+            if (map == null)
+            {
+                // look up array...
+                for (int i = 0; i < length; i++)
+                {
+                    ref var p = ref properties[i];
+                    if(p.key.Key == key && p.Attributes != JSPropertyAttributes.Deleted)
+                    {
+                        return ref p;
+                    }
+                }
+            } else if (map.TryGetValue(key, out var pkey))
             {
                 ref var obj = ref properties[pkey];
-                // obj.Attributes != JSPropertyAttributes.Deleted;
                 if (obj.Attributes != JSPropertyAttributes.Deleted)
                     return ref obj;
             }
@@ -216,7 +255,23 @@ namespace YantraJS.Core
 
         public bool TryGetValue(uint key, out JSProperty obj)
         {
-            if (map != null && map.TryGetValue(key, out var pkey))
+            if (properties == null)
+            {
+                obj = JSProperty.Empty;
+                return false;
+            }
+            if (map == null)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    ref var p = ref properties[i];
+                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Deleted)
+                    {
+                        obj = p;
+                        return true;
+                    }
+                }
+            } else if (map.TryGetValue(key, out var pkey))
             {
                 obj = properties[pkey];
                 return obj.Attributes != JSPropertyAttributes.Deleted;
@@ -237,18 +292,46 @@ namespace YantraJS.Core
             //}
             set
             {
-                if (map.TryGetValue(key, out var pkey))
+                if (length < 8)
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        ref var p = ref properties[i];
+                        if (p.key.Key == key)
+                        {
+                            // set value..
+                            properties[i] = value;
+                            return;
+                        }
+                    }
+                    if (length >= properties.Length)
+                        Array.Resize(ref properties, properties.Length + 4);
+                    properties[length++] = value;
+                    return;
+                }
+                int pkey = length;
+                if (map == null)
+                {
+                    map = new UInt32Trie<int>(16);
+                    // copy..
+                    for (int i = 0; i < length; i++)
+                    {
+                        ref var p = ref properties[i];
+                        map[p.key.Key] = i;
+                    }
+                } 
+                if (map.TryGetValue(key, out pkey))
                 {
                     properties[pkey] = value;
                     return;
                 }
-                pkey = length++;
                 if (pkey >= properties.Length)
                 {
                     Array.Resize(ref properties, properties.Length + 4);
                 }
                 map[key] = pkey;
                 properties[pkey] = value;
+                length++;
             }
         }
 

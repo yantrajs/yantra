@@ -259,7 +259,7 @@ namespace YantraJS.Core
 
                 ref var op = ref this.GetOwnProperties();
 
-                op[name.Key] = JSProperty.Property(r, JSPropertyAttributes.ConfigurableReadonlyValue);
+                op[name.Key] = JSProperty.Property(name, r, JSPropertyAttributes.ConfigurableReadonlyValue);
 
                 foreach(var (Key, Value) in cached.GetOwnProperties().AllValues())
                 {

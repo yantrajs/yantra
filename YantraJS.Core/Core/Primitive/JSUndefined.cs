@@ -47,6 +47,11 @@ namespace YantraJS.Core
             set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
         }
 
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
+        }
+
         public override JSValue Delete(KeyString key)
         {
             throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);

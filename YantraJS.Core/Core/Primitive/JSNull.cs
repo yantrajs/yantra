@@ -63,6 +63,12 @@ namespace YantraJS.Core
             set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
         }
 
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+        }
+
+
         internal override IElementEnumerator GetElementEnumerator()
         {
             throw JSContext.Current.NewTypeError("null is not iterable");

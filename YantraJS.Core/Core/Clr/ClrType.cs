@@ -167,16 +167,16 @@ namespace YantraJS.Core.Clr
                     //}
 
                     target.DefineProperty(name,
-                        JSProperty.Function(ToInstanceDelegate(jsMethod.method)));
+                        JSProperty.Function(name, ToInstanceDelegate(jsMethod.method)));
 
 
                     continue;
                 }
                 target.DefineProperty(name, isStatic
-                    ? JSProperty.Function((in Arguments a) => {
+                    ? JSProperty.Function(name, (in Arguments a) => {
                         return StaticInvoke(name, all, a);
                     })
-                    : JSProperty.Function((in Arguments a) => {
+                    : JSProperty.Function(name, (in Arguments a) => {
                         return Invoke(name, type, all, a);
                         })
                     );
@@ -409,15 +409,15 @@ namespace YantraJS.Core.Clr
 
                 this.DefineProperty(
                     "makeGenericType",
-                    JSProperty.Function(MakeGenericType));
+                    JSProperty.Function("makeGenericType", MakeGenericType));
             }
             else
             {
                 // getMethod... name and types...
                 this.DefineProperty("getMethod",
-                    JSProperty.Function(GetMethod));
+                    JSProperty.Function("getMethod", GetMethod));
                 this.DefineProperty("getConstructor", 
-                    JSProperty.Function(GetConstructor));
+                    JSProperty.Function("getConstructor", GetConstructor));
             }
 
             if(baseType != null)
