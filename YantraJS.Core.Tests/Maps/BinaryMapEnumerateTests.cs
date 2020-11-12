@@ -1,9 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NuGet.Frameworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using YantraJS.Core;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Tests.Maps
 {
@@ -84,5 +86,25 @@ namespace YantraJS.Tests.Maps
             }
         }
 
+
+        [TestMethod]
+        public void UIntMapTest()
+        {
+            var map = new UInt32Map();
+
+            int max = 100;
+            for (int i = max; i >= 0; i--)
+            {
+                map.Save((uint)i ,(uint)i);
+            }
+
+            for (uint i = 0; i < max; i++)
+            {
+                if (!map.TryGetValue(i, out var value))
+                    Assert.Fail();
+                Assert.AreEqual(i, value);
+            }
+
+        }
     }
 }
