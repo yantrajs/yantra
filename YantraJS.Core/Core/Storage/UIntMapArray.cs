@@ -47,6 +47,10 @@ namespace YantraJS.Core.Core.Storage
                     }
                     key = length++;
                     Map.Save(index, length);
+                    if (key >= Storage.Length)
+                    {
+                        Array.Resize(ref Storage, Storage.Length + 8);
+                    }
                     Storage[key] = value;
                     return;
                 }
@@ -78,6 +82,10 @@ namespace YantraJS.Core.Core.Storage
                 IsSparse = true;
                 key = length++;
                 Map.Save(index, key);
+                if (key >= Storage.Length)
+                {
+                    Array.Resize(ref Storage, Storage.Length + 8);
+                }
                 Storage[key] = value;
             }
         }
