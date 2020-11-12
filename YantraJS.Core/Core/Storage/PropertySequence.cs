@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
@@ -145,14 +146,14 @@ namespace YantraJS.Core
 
 
 
-        private UInt32Trie<int> map;
+        private UInt32Map map;
         private JSProperty[] properties;
         private int length;
 
         public PropertySequence(int size)
         {
             this.length = 0;
-            map = null;
+            map = UInt32Map.Null;
             properties = new JSProperty[size];
         }
 
@@ -191,7 +192,7 @@ namespace YantraJS.Core
         {
             if (properties == null)
                 return false;
-            if (map == null)
+            if (map.IsNull)
             {
                 for (int i = 0; i < length; i++)
                 {
@@ -208,7 +209,7 @@ namespace YantraJS.Core
         {
             if (properties == null)
                 return false;
-            if (map == null)
+            if (map.IsNull)
             {
                 for (int i = 0; i < length; i++)
                 {
@@ -233,7 +234,7 @@ namespace YantraJS.Core
         {
             if (properties == null)
                 return ref JSProperty.Empty;
-            if (map == null)
+            if (map.IsNull)
             {
                 // look up array...
                 for (int i = 0; i < length; i++)
@@ -260,7 +261,7 @@ namespace YantraJS.Core
                 obj = JSProperty.Empty;
                 return false;
             }
-            if (map == null)
+            if (map.IsNull)
             {
                 for (int i = 0; i < length; i++)
                 {
@@ -309,15 +310,15 @@ namespace YantraJS.Core
                     properties[length++] = value;
                     return;
                 }
-                int pkey;
-                if (map == null)
+                uint pkey;
+                if (map.IsNull)
                 {
-                    map = new UInt32Trie<int>(16);
+                    map = new UInt32Map();
                     // copy..
-                    for (int i = 0; i < length; i++)
+                    for (uint i = 0; i < length; i++)
                     {
                         ref var p = ref properties[i];
-                        map[p.key.Key] = i;
+                        map.Save(p.key.Key, i);
                     }
                 } 
                 if (map.TryGetValue(key, out pkey))
@@ -325,12 +326,12 @@ namespace YantraJS.Core
                     properties[pkey] = value;
                     return;
                 }
-                pkey = length++;
+                pkey = (uint)length++;
                 if (pkey >= properties.Length)
                 {
                     Array.Resize(ref properties, properties.Length + 4);
                 }
-                map[key] = pkey;
+                map.Save(key, pkey);
                 properties[pkey] = value;
                 length++;
             }

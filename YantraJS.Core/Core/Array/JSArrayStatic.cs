@@ -23,7 +23,7 @@ namespace YantraJS.Core
             var t = a.This;
             var en = f.GetElementEnumerator();
             uint length = 0;
-            var elements = r.elements;
+            ref var elements = ref r.GetElements();
 
             if (map is JSFunction fx)
             {
@@ -55,9 +55,10 @@ namespace YantraJS.Core
         {
             var r = new JSArray();
             var al = a.Length;
+            ref var rElements = ref r.CreateElements();
             for(var ai = 0; ai<al; ai++)
             {
-                r.elements[r._length++] = JSProperty.Property(a.GetAt(ai));
+                rElements[r._length++] = JSProperty.Property(a.GetAt(ai));
             }
             return r;
         }

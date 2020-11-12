@@ -279,6 +279,7 @@ namespace YantraJS.Core
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var r = new JSArray();
+            ref var relements = ref r.GetElements();
             var en = @this.GetElementEnumerator();
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
@@ -288,7 +289,7 @@ namespace YantraJS.Core
                     continue;
                 }
                 var itemArgs = new Arguments(@this, item, new JSNumber(index), @this);
-                r.elements[r._length++] = JSProperty.Property(fn.f(itemArgs));
+                relements[r._length++] = JSProperty.Property(fn.f(itemArgs));
             }            
             return r;
         }
@@ -309,10 +310,11 @@ namespace YantraJS.Core
 
                 var i = ta._length;
                 al = a.Length;
+                ref var taElements = ref ta.GetElements();
                 for(ai = 0; ai < al; ai++)
                 {
                     var item = a.GetAt(ai);
-                    ta.elements[i++] = JSProperty.Property(item);
+                    taElements[i++] = JSProperty.Property(item);
                     
                 }
                 ta._length = i;
@@ -338,7 +340,8 @@ namespace YantraJS.Core
                 return JSUndefined.Value;
             if (ta.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot modify property length");
-            if (ta.elements.TryRemove(ta._length - 1, out JSProperty r))
+            ref var taElements = ref ta.GetElements();
+            if (taElements.TryRemove(ta._length - 1, out JSProperty r))
             {
                 ta._length--;
                 return r.value;
@@ -421,7 +424,7 @@ namespace YantraJS.Core
                     throw JSContext.Current.NewTypeError("Cannot modify property length");
 
                 var en = ary.GetElementEnumerator();
-                var elements = ary.elements;
+                ref var elements = ref ary.GetElements();
                 if (en.MoveNext(out var hasValue, out var item, out var index))
                 {
                     if(index > 0)
@@ -453,8 +456,8 @@ namespace YantraJS.Core
             var n = @this.Length;
             if (n == 0)
                 return first;
-            var oe = @object.elements;
-            if (oe == null)
+            ref var oe = ref @object.GetElements();
+            if (oe.IsNull)
                 return first;
             for(uint i = 1; i < n - 1; i++)
             {
@@ -472,6 +475,7 @@ namespace YantraJS.Core
             var start = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
             var end = a.TryGetAt(1, out var a2) ? a2.IntValue : -1;
             JSArray r = new JSArray();
+            ref var rElements = ref r.CreateElements();
             uint l;
             uint ni;
             if (a.This is JSArray ary)
@@ -486,11 +490,12 @@ namespace YantraJS.Core
                     l = n >= 0 ? (uint)n + 1 : ary._length;
                 }
                 ni = 0;
+                ref var aryElements = ref ary.GetElements();
                 for (uint i = (uint)start; i < l; i++)
                 {
-                    if (ary.elements.TryGetValue(i, out var p))
+                    if (aryElements.TryGetValue(i, out var p))
                     {
-                        r.elements[ni++] = p;
+                        rElements[ni++] = p;
                     } else
                     {
                         ni++;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
 using YantraJS.Extensions;
 using YantraJS.Utils;
@@ -18,7 +19,7 @@ namespace YantraJS.Core
 
         internal ObjectStatus status = ObjectStatus.None;
 
-        internal UInt32Trie<JSProperty> elements;
+        private ElementArray elements;
         private PropertySequence ownProperties;
         internal CompactUInt32Trie<JSProperty> symbols;
 
@@ -47,6 +48,22 @@ namespace YantraJS.Core
             if (ownProperties.IsEmpty && create)
                 ownProperties = new PropertySequence(4);
             return ref ownProperties;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref ElementArray GetElements(bool create = true)
+        {
+            if (elements.IsNull && create)
+                elements = new ElementArray(4);
+            return ref elements;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ref ElementArray CreateElements(int size = 4)
+        {
+            if (elements.IsNull)
+                elements = new ElementArray(size);
+            return ref elements;
         }
 
         public override JSValue TypeOf()
@@ -94,7 +111,7 @@ namespace YantraJS.Core
         {
             var o = new JSObject
             {
-                elements = new UInt32Trie<JSProperty>()
+                elements = new ElementArray(4)
             };
             return o;
         }
@@ -104,7 +121,7 @@ namespace YantraJS.Core
             var o = new JSObject
             {
                 ownProperties = new PropertySequence(4),
-                elements = new UInt32Trie<JSProperty>()
+                elements = new ElementArray(4)
             };
             return o;
         }
@@ -166,7 +183,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSProperty GetInternalProperty(uint key, bool inherited = true)
         {
-            if (elements != null && elements.TryGetValue(key, out var r))
+            if (!elements.IsNull && elements.TryGetValue(key, out var r))
             {
                 return r;
             }
@@ -242,7 +259,7 @@ namespace YantraJS.Core
                 }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                elements = elements ?? (elements = new UInt32Trie<JSProperty>());
+                ref var elements = ref CreateElements();
                 elements[name] = JSProperty.Property(value);
             }
         }
@@ -456,7 +473,7 @@ namespace YantraJS.Core
                 p.value = value;
             }
             p.Attributes = pt;
-            var elements = target.elements ?? (target.elements = new UInt32Trie<JSProperty>());
+            ref var elements = ref target.CreateElements();
             elements[key] = p;
             if (target is JSArray array)
             {
@@ -555,7 +572,7 @@ namespace YantraJS.Core
         {
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
-            if (elements?.RemoveAt(key) ?? false)
+            if (elements.RemoveAt(key))
                 return JSBoolean.True;
             return JSBoolean.False;
         }
@@ -635,7 +652,7 @@ namespace YantraJS.Core
 
         internal override bool TryGetValue(uint i, out JSProperty value)
         {
-            if (elements == null)
+            if (elements.IsNull)
             {
                 value = new JSProperty();
                 return false;
@@ -651,7 +668,7 @@ namespace YantraJS.Core
         /// <param name="to"></param>
         internal override void MoveElements(int start, int to)
         {
-            var elements = this.elements ?? (this.elements = new UInt32Trie<JSProperty>());
+            ref var elements = ref CreateElements();
 
             var end = this.Length - 1;
             var diff = to - start;
@@ -684,7 +701,7 @@ namespace YantraJS.Core
 
         internal override bool TryRemove(uint i, out JSProperty p)
         {
-            if(elements == null)
+            if(elements.IsNull)
                 return base.TryRemove(i, out p);
             return elements.TryRemove(i, out p);
         }
@@ -718,7 +735,7 @@ namespace YantraJS.Core
             readonly IEnumerator<(uint Key, JSProperty Value)> en;
             public ElementEnumerator(JSObject @object)
             {
-                this.en = @object.elements?.AllValues.GetEnumerator();
+                this.en = @object.elements.GetEnumerator();
                 this.@object = @object;
             }
 

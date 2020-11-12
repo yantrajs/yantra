@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace YantraJS.Core.Core.Storage
 {
     internal enum MapValueState: byte
     {
         Empty = 0,
-        HasDefaultValue = 1,
-        HasValue = 2,
-        AnyValue = 3,
+        Filled = 1,
+        HasDefaultValue = 2,
+        HasValue = 4,
+        AnyValue = 6,
         Null = 0xFF
     }
 
@@ -40,6 +42,16 @@ namespace YantraJS.Core.Core.Storage
             }
         }
 
+        public bool HasIndex
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return (State & MapValueState.Filled) > 0;
+            }
+        }
+
+
         public bool HasValue
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,6 +67,19 @@ namespace YantraJS.Core.Core.Storage
             get
             {
                 return (State & MapValueState.HasDefaultValue) > 0;
+            }
+        }
+
+        public IEnumerable<(uint key, uint value)> AllValues()
+        {
+            foreach(var node in Nodes)
+            {
+                if (node.Nodes != null)
+                {
+                    foreach (var child in node.AllValues())
+                        yield return child;
+                }
+                yield return (node.Key, node.value);
             }
         }
 
@@ -77,14 +102,33 @@ namespace YantraJS.Core.Core.Storage
             return false;
         }
 
+        public bool HasKey(uint key)
+        {
+            ref var node = ref GetNode(key, Key);
+            return node.HasValue;
+        }
+
+        public bool TryRemove(uint key, out uint value)
+        {
+            ref var node = ref GetNode(key, Key);
+            if (node.IsNull)
+            {
+                value = 0;
+                return false;
+            }
+            value = node.value;
+            node.State &= MapValueState.Filled;
+            return true;
+        }
+
         public void Save(uint key, uint value)
         {
             ref var node = ref GetNode(key, key, true);
-            node.State = MapValueState.HasValue;
+            node.State = MapValueState.HasValue | MapValueState.Filled;
             node.value = value;
         }
 
-        private ref UInt32Map GetNode(uint originalKey, uint key, bool create = false)
+        private ref UInt32Map GetNode(uint originalKey, uint key, bool create = false, int depth = 0)
         {
             ref var node = ref Null;
 
@@ -100,34 +144,40 @@ namespace YantraJS.Core.Core.Storage
             var suffix = key & 0x3;
 
             node = ref Nodes[suffix];
-
-            if(node.Key == originalKey)
-                return ref node;
-
-            if ((node.State | MapValueState.AnyValue) > 0)
+            if (!node.HasIndex)
             {
+                if (create)
+                {
+                    node.Key = originalKey;
+                    node.State = MapValueState.Filled;
+                    return ref node;
+                }
+                return ref Null;
+            }
+
+            if (node.Key == originalKey)
+            {
+                return ref node;
+            }
+            if (create)
+            {
+                // only swap bigger key
+                // if create...
                 if (node.Key > originalKey)
                 {
-                    // we need to shift to lower true...
-                    node.State = MapValueState.HasDefaultValue;
-
-                    ref var child = ref node.GetNode(originalKey, key >> 2, create);
-                    child.Key = node.Key;
-                    child.State = MapValueState.HasValue;
-                    child.value = node.value;
-
+                    node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+                    var oldKey = node.Key;
+                    var oldValue = node.value;
                     node.Key = originalKey;
-                }
-                else
-                {
-                    return ref node.GetNode(originalKey, key >> 2, create);
+
+                    ref var child = ref node.GetNode(oldKey, oldKey >> (depth+1)*2, create, depth + 1);
+                    child.Key = oldKey;
+                    child.State = MapValueState.HasValue | MapValueState.Filled;
+                    child.value = oldValue;
+                    return ref node;
                 }
             }
-            else
-            {
-                node.Key = originalKey;
-            }
-            return ref node;
+            return ref node.GetNode(originalKey, key >> 2, create, depth + 1);
         }
 
     }

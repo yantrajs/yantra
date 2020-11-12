@@ -19,7 +19,7 @@ namespace YantraJS.Core
 
         public JSArray(): base(JSContext.Current.ArrayPrototype)
         {
-            elements = new UInt32Trie<JSProperty>();
+            
         }
 
         public JSArray(params JSValue[] items): this((IEnumerable<JSValue>)items)
@@ -29,13 +29,14 @@ namespace YantraJS.Core
 
         public JSArray(IEnumerable<JSValue> items): this()
         {
+            ref var elements = ref GetElements(true);
             foreach (var item in items)
                 elements[_length++] = JSProperty.Property(item);
         }
 
         public JSArray(int count): base(JSContext.Current.ArrayPrototype)
         {
-            elements = new UInt32Trie<JSProperty>(count);
+            CreateElements(count);
         }
 
         public override string ToString()
@@ -78,7 +79,7 @@ namespace YantraJS.Core
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 if (this._length <= name)
                     this._length = name + 1;
-                elements = elements ?? (elements = new UInt32Trie<JSProperty>());
+                ref var elements = ref CreateElements();
                 elements[name] = JSProperty.Property(value);
             }
         }
@@ -88,6 +89,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(uint index, JSValue value)> GetArrayElements(bool withHoles = true)
         {
+            var elements = GetElements();
             uint l = this._length;
             for (uint i = 0; i < l; i++)
             {
@@ -115,13 +117,15 @@ namespace YantraJS.Core
             }
             else
             {
-                this.elements[this._length++] = JSProperty.Property(item);
+                ref var elements = ref CreateElements();
+                elements[this._length++] = JSProperty.Property(item);
             }
             return this;
         }
 
         internal override bool TryRemove(uint i, out JSProperty p)
         {
+            ref var elements = ref GetElements();
             return elements.TryRemove(i, out p);
         }
 
@@ -145,9 +149,10 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value)
             {
+                ref var elements = ref array.GetElements();
                 if ((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
                 {
-                    if (array.elements.TryGetValue(index, out var property))
+                    if (elements.TryGetValue(index, out var property))
                     {
                         value = property.IsEmpty
                             ? null
@@ -167,10 +172,11 @@ namespace YantraJS.Core
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
+                ref var elements = ref array.GetElements();
                 if((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
                 {
                     index = this.index;
-                    if(array.elements.TryGetValue(index, out var property))
+                    if(elements.TryGetValue(index, out var property))
                     {
                         value = property.IsEmpty 
                             ? null 
@@ -195,12 +201,13 @@ namespace YantraJS.Core
 
         internal void AddRange(JSValue iterator)
         {
-            var et = this.elements;
+            ref var et = ref CreateElements();
+            // var et = this.elements;
             var el = this._length;
             if (iterator is JSArray ary)
             {
                 var l = ary._length;
-                var e = ary.elements;
+                ref var e = ref ary.GetElements();
                 for (uint i = 0; i < l; i++)
                 {
                     if(e.TryGetValue(i, out var v))

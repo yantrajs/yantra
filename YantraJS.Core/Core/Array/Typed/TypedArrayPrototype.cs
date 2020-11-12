@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using YantraJS.Core.Generator;
 
@@ -289,6 +290,7 @@ namespace YantraJS.Core.Typed
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var r = new JSArray();
+            ref var rElements = ref r.CreateElements();
             var en = @this.GetElementEnumerator();
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
@@ -298,7 +300,7 @@ namespace YantraJS.Core.Typed
                     continue;
                 }
                 var itemArgs = new Arguments(thisArg, item, new JSNumber(index), @this);
-                r.elements[r._length++] = JSProperty.Property(fn.f(itemArgs));
+                rElements[r._length++] = JSProperty.Property(fn.f(itemArgs));
             }
             return r;
         }
