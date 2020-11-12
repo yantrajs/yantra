@@ -116,7 +116,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -155,7 +155,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -232,7 +232,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -270,7 +270,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -308,7 +308,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -346,7 +346,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
