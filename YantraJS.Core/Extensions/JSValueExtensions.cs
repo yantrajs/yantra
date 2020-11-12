@@ -256,10 +256,10 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject @object))
                 yield break;
-            var elements = @object.elements;
-            if (elements != null)
+            var elements = @object.GetElements();
+            if (!elements.IsNull)
             {
-                foreach (var (Key, Value) in elements.AllValues)
+                foreach (var (Key, Value) in elements.AllValues())
                 {
                     if (showEnumerableOnly)
                     {

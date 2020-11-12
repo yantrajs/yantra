@@ -52,6 +52,11 @@ namespace YantraJS.Core.Core.Storage
                 }
                 if (index < 64)
                 {
+                    if (index >= length)
+                    {
+                        length = index + 1;
+                    }
+
                     // extend array...
                     if (index < Storage.Length)
                     {
@@ -66,10 +71,6 @@ namespace YantraJS.Core.Core.Storage
                         Array.Resize(ref Storage, 64);
                     }
                     Storage[index] = value;
-                    if (index >= length)
-                    {
-                        length = index + 1;
-                    }
                     return;
                 }
 
@@ -88,7 +89,7 @@ namespace YantraJS.Core.Core.Storage
                 if (Map.TryGetValue(key, out var index))
                 {
                     value = Storage[index];
-                    return true;
+                    return !value.IsEmpty;
                 }
                 value = JSProperty.Empty;
                 return false;
@@ -99,8 +100,9 @@ namespace YantraJS.Core.Core.Storage
             } else
             {
                 value = JSProperty.Empty;
+                return false;
             }
-            return true;
+            return !value.IsEmpty;
         }
 
         public bool TryRemove(uint key, out JSProperty value)
@@ -143,7 +145,7 @@ namespace YantraJS.Core.Core.Storage
             }
             return false;
         }
-        public IEnumerator<(uint Key, JSProperty Value)> GetEnumerator()
+        public IEnumerable<(uint Key, JSProperty Value)> AllValues()
         {
             if(IsSparse)
             {
@@ -153,10 +155,25 @@ namespace YantraJS.Core.Core.Storage
                 }
                 yield break;
             }
+            if (Storage == null)
+                yield break;
             for (uint i = 0; i < Storage.Length; i++)
             {
                 yield return (i, Storage[i]);
             }
+        }
+        public bool HasKey(uint key)
+        {
+            if (IsSparse)
+            {
+                return Map.HasKey(key);
+            }
+            if (key >= length)
+            {
+                return false;
+            }
+            ref var p = ref Storage[key];
+            return !p.IsEmpty;
         }
     }
 }

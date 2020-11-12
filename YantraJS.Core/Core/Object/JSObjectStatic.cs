@@ -74,19 +74,20 @@ namespace YantraJS.Core
             if (!target.IsObject)
                 return new JSArray();
             var r = new JSArray();
+            ref var rElements = ref r.CreateElements();
             var ownEntries = target.GetElementEnumerator();
             while(ownEntries.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue)
                     continue;
-                r.elements[r._length++] = JSProperty.Property(
+                rElements[r._length++] = JSProperty.Property(
                         new JSArray(new JSString(index.ToString()), item)
                     ); 
             }
             var en = new PropertySequence.Enumerator((target as JSObject).GetOwnProperties(false));
             while (en.MoveNext())
             {
-                r.elements[r._length++] = JSProperty.Property(
+                rElements[r._length++] = JSProperty.Property(
                         new JSArray(en.Current.key.ToJSValue(), target.GetValue(en.Current))
                     );
             }
@@ -172,9 +173,11 @@ namespace YantraJS.Core
             var r = new JSObject();
             if ((v is JSArray va))
             {
+
+                ref var vaElements = ref va.GetElements();
                 for (uint i = 0; i < va._length; i++)
                 {
-                    var vi = va.elements[i];
+                    var vi = vaElements[i];
                     if (!(vi.value is JSArray ia))
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
                     var first = ia[0];
@@ -238,7 +241,7 @@ namespace YantraJS.Core
                 return new JSArray();
             var en = jobj.GetAllKeys(true, false);
             var r = new JSArray();
-            var e = r.elements;
+            ref var e = ref r.GetElements();
             while (en.MoveNext(out var hasValue, out var value, out var index)) {
                 if (hasValue)
                 {
@@ -295,6 +298,7 @@ namespace YantraJS.Core
             if (!(first is JSObject target))
                 return new JSArray();
             var r = new JSArray();
+            ref var rElements = ref r.CreateElements();
             var ownEntries = target.GetElementEnumerator();
             while (ownEntries.MoveNext(out var hasValue, out var item, out var index))
             {
@@ -302,14 +306,14 @@ namespace YantraJS.Core
                 {
                     continue;
                 }
-                r.elements[r._length++] = JSProperty.Property(
+                rElements[r._length++] = JSProperty.Property(
                         item
                     );
             }
             var en = new PropertySequence.Enumerator(target.GetOwnProperties(false));
             while (en.MoveNext())
             {
-                r.elements[r._length++] = JSProperty.Property(
+                rElements[r._length++] = JSProperty.Property(
                         target.GetValue(en.Current)
                     );
             }
@@ -358,12 +362,13 @@ namespace YantraJS.Core
             if (!(first is JSObject jobj))
                 return new JSArray();
             var r = new JSObject();
+            ref var rElements = ref r.CreateElements();
             var en = new PropertySequence.Enumerator(jobj.GetOwnProperties(false));
             while(en.MoveNext())
             {
                 ref var x = ref en.Current;
                 var p = JSProperty.Property(x.key, x.ToJSValue());
-                r.elements[x.key.Key] = p;
+                rElements[x.key.Key] = p;
             }
             return r;
         }

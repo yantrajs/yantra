@@ -735,7 +735,7 @@ namespace YantraJS.Core
             readonly IEnumerator<(uint Key, JSProperty Value)> en;
             public ElementEnumerator(JSObject @object)
             {
-                this.en = @object.elements.GetEnumerator();
+                this.en = @object.elements.AllValues().GetEnumerator();
                 this.@object = @object;
             }
 
