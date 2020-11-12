@@ -55,7 +55,7 @@ namespace YantraJS.Core.Tests.Imported
 
     }
 
-   // [TestClass]
+   [TestClass]
     public class TypedArrayTests : TestBase
     {
         [TestMethod]

@@ -270,7 +270,8 @@ namespace YantraJS.Core.Typed
             {
                 return JSNumber.MinusOne;
             }
-            var startIndex = fromIndex.AsInt32OrDefault(n - 1);
+           
+            var startIndex = a.Length == 2 ? fromIndex.IntValue : int.MaxValue;
             if (startIndex >= n)
             {
                 startIndex = n - 1;
