@@ -16,30 +16,36 @@ namespace YantraJS.Tests.Maps
         [TestMethod]
         public void CharMap()
         {
-            var a = new StringTrie<int>();
+            var a = new StringMap<int>();
             // a["<"] = 0;
             a["a"] = 1;
-            a["b"] = 2;
+            a["add"] = 5;
             a["aa"] = 3;
+            a["b"] = 2;
             a["bb"] = 4;
 
-            var all = a.AllValues.ToList();
-            Assert.AreEqual(4, all.Count);
-
-            Assert.AreEqual("a", all[0].Key);
-            Assert.AreEqual(1, all[0].Value);
-            Assert.AreEqual("aa", all[1].Key);
-            Assert.AreEqual(3, all[1].Value);
-            Assert.AreEqual("b", all[2].Key);
-            Assert.AreEqual(2, all[2].Value);
-            Assert.AreEqual("bb", all[3].Key);
-            Assert.AreEqual(4, all[3].Value);
+            // var all = a.AllValues.ToList();
+            // Assert.AreEqual(4, all.Count);
+            Assert.AreEqual(1, a["a"]);
+            Assert.AreEqual(2, a["b"]);
+            Assert.AreEqual(3, a["aa"]);
+            Assert.AreEqual(4, a["bb"]);
+            Assert.AreEqual(0, a["ba"]);
+            Assert.AreEqual(5, a["add"]);
+            //Assert.AreEqual("a", all[0].Key);
+            //Assert.AreEqual(1, all[0].Value);
+            //Assert.AreEqual("aa", all[1].Key);
+            //Assert.AreEqual(3, all[1].Value);
+            //Assert.AreEqual("b", all[2].Key);
+            //Assert.AreEqual(2, all[2].Value);
+            //Assert.AreEqual("bb", all[3].Key);
+            //Assert.AreEqual(4, all[3].Value);
         }
 
         [TestMethod]
         public void BigMap()
         {
-            var a = new StringTrie<int>();
+            var a = new StringMap<int>();
             a["toString"] = 1;
             a["constructor"] = 2;
             a["push"] = 3;
@@ -90,7 +96,7 @@ namespace YantraJS.Tests.Maps
         [TestMethod]
         public void UIntMapTest()
         {
-            var map = new UInt32Map();
+            var map = new UInt32Map<uint>();
 
             int max = 100;
             for (int i = max; i >= 0; i--)
@@ -104,6 +110,22 @@ namespace YantraJS.Tests.Maps
                     Assert.Fail();
                 Assert.AreEqual(i, value);
             }
+
+
+            map = new UInt32Map<uint>();
+
+            for (int i = 0; i < max; i++)
+            {
+                map.Save((uint)i, (uint)i);
+            }
+
+            for (uint i = 0; i < max; i++)
+            {
+                if (!map.TryGetValue(i, out var value))
+                    Assert.Fail();
+                Assert.AreEqual(i, value);
+            }
+
 
         }
     }

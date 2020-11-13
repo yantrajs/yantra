@@ -19,10 +19,10 @@ namespace YantraJS.Core.Core.Storage
     /// <summary>
     /// Mapping of uint to uint
     /// </summary>
-    public struct UInt32Map
+    public struct UInt32Map<T>
     {
 
-        public static UInt32Map Null = new UInt32Map() { State = MapValueState.Null };
+        public static UInt32Map<T> Null = new UInt32Map<T>() { State = MapValueState.Null };
 
         public bool IsNull
         {
@@ -47,7 +47,7 @@ namespace YantraJS.Core.Core.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return (State & MapValueState.Filled) > 0;
+                return (State & MapValueState.Filled) > 0 && State != MapValueState.Null;
             }
         }
 
@@ -57,7 +57,7 @@ namespace YantraJS.Core.Core.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return (State & MapValueState.HasValue) > 0;
+                return (State & MapValueState.HasValue) > 0 && State != MapValueState.Null;
             }
         }
 
@@ -66,11 +66,11 @@ namespace YantraJS.Core.Core.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return (State & MapValueState.HasDefaultValue) > 0;
+                return (State & MapValueState.HasDefaultValue) > 0 && State != MapValueState.Null;
             }
         }
 
-        public IEnumerable<(uint key, uint value)> AllValues()
+        public IEnumerable<(uint key, T value)> AllValues()
         {
             foreach(var node in Nodes)
             {
@@ -85,35 +85,50 @@ namespace YantraJS.Core.Core.Storage
 
         private MapValueState State;
 
-        private UInt32Map[] Nodes;
-        
-        private uint value;
-        private uint Key;
+        private UInt32Map<T>[] Nodes;
 
-        public bool TryGetValue(uint key, out uint value)
+        private uint Key;
+        private T value;
+
+        public T this[uint key]
         {
-            ref var node = ref GetNode(key, key);
-            if (!node.IsNull && node.HasValue)
+            get
+            {
+                ref var node = ref GetNode(key);
+                if (node.HasValue)
+                    return node.value;
+                return default;
+            }
+            set
+            {
+                Save(key, value);
+            }
+        }
+
+        public bool TryGetValue(uint key, out T value)
+        {
+            ref var node = ref GetNode(key);
+            if (node.HasValue)
             {
                 value = node.value;
                 return true;
             }
-            value = 0;
+            value = default;
             return false;
         }
 
         public bool HasKey(uint key)
         {
-            ref var node = ref GetNode(key, Key);
+            ref var node = ref GetNode(key);
             return node.HasValue;
         }
 
-        public bool TryRemove(uint key, out uint value)
+        public bool TryRemove(uint key, out T value)
         {
-            ref var node = ref GetNode(key, Key);
+            ref var node = ref GetNode(key);
             if (node.IsNull)
             {
-                value = 0;
+                value = default;
                 return false;
             }
             value = node.value;
@@ -121,63 +136,98 @@ namespace YantraJS.Core.Core.Storage
             return true;
         }
 
-        public void Save(uint key, uint value)
+        public void Save(uint key, T value)
         {
-            ref var node = ref GetNode(key, key, true);
+            ref var node = ref GetNode(key, true);
+            if (node.State == MapValueState.Null) {
+                throw new InsufficientMemoryException();
+            }
             node.State = MapValueState.HasValue | MapValueState.Filled;
             node.value = value;
         }
 
-        private ref UInt32Map GetNode(uint originalKey, uint key, bool create = false, int depth = 0)
+        private ref UInt32Map<T> GetNode(uint originalKey, bool create = false)
         {
             ref var node = ref Null;
+            ref var current = ref this;
 
-            if (Nodes == null)
+            if (originalKey == 0)
             {
-                if (!create)
+                if (Nodes == null && !create)
                 {
-                    return ref node;
+                    return ref Null;
                 }
-                Nodes = new UInt32Map[4];
-            }
-
-            var suffix = key & 0x3;
-
-            node = ref Nodes[suffix];
-            if (!node.HasIndex)
-            {
-                if (create)
+                Nodes = Nodes ?? new UInt32Map<T>[4];
+                node = ref Nodes[0];
+                if (node.Key != 0)
                 {
-                    node.Key = originalKey;
-                    node.State = MapValueState.Filled;
-                    return ref node;
-                }
-                return ref Null;
-            }
-
-            if (node.Key == originalKey)
-            {
-                return ref node;
-            }
-            if (create)
-            {
-                // only swap bigger key
-                // if create...
-                if (node.Key > originalKey)
-                {
-                    node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+                    // move...
                     var oldKey = node.Key;
                     var oldValue = node.value;
-                    node.Key = originalKey;
+                    var oldState = node.State;
+                    node.Key = 0;
+                    node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+                    node.value = default;
 
-                    ref var child = ref node.GetNode(oldKey, oldKey >> (depth+1)*2, create, depth + 1);
+                    ref var child = ref GetNode(oldKey, true);
                     child.Key = oldKey;
-                    child.State = MapValueState.HasValue | MapValueState.Filled;
                     child.value = oldValue;
+                    child.State = oldState;
+                }
+                node.State |= MapValueState.Filled;
+                return ref node;
+            }
+
+            for (long key = originalKey; key > 0; key >>= 2)
+            {
+                if (current.Nodes == null)
+                {
+                    if (!create)
+                    {
+                        return ref Null;
+                    }
+                    current.Nodes = new UInt32Map<T>[4];
+                }
+
+                node = ref current.Nodes[key & 0x3];
+                if (!node.HasIndex)
+                {
+                    if (create)
+                    {
+                        node.Key = originalKey;
+                        node.State = MapValueState.Filled;
+                        return ref node;
+                    }
+                    return ref Null;
+                }
+
+                if (node.Key == originalKey)
+                {
                     return ref node;
                 }
+                if (create)
+                {
+                    // only swap bigger key
+                    // if create...
+                    if (node.Key > originalKey)
+                    {
+                        node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+                        var oldKey = node.Key;
+                        var oldValue = node.value;
+                        node.Key = originalKey;
+
+                        ref var child = ref this.GetNode(oldKey, create);
+                        child.Key = oldKey;
+                        child.State = MapValueState.HasValue | MapValueState.Filled;
+                        child.value = oldValue;
+                        return ref node;
+                    }
+                }
+                current = ref node;
             }
-            return ref node.GetNode(originalKey, key >> 2, create, depth + 1);
+            if (node.Key == originalKey)
+                return ref node;
+            return ref Null;
         }
 
     }

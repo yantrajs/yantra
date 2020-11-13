@@ -9,13 +9,13 @@ namespace YantraJS.Core.Core.Storage
     {
 
         private JSProperty[] Storage;
-        private UInt32Map Map;
+        private UInt32Map<uint> Map;
         private bool IsSparse;
         private uint length;
         public ElementArray(int size)
         {
             Storage = new JSProperty[size < 16 ? 16 : size];
-            Map = UInt32Map.Null;
+            Map = UInt32Map<uint>.Null;
             IsSparse = false;
             length = 0;
         }

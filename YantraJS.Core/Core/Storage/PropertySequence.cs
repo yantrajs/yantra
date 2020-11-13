@@ -146,14 +146,14 @@ namespace YantraJS.Core
 
 
 
-        private UInt32Map map;
+        private UInt32Map<uint> map;
         private JSProperty[] properties;
         private int length;
 
         public PropertySequence(int size)
         {
             this.length = 0;
-            map = UInt32Map.Null;
+            map = UInt32Map<uint>.Null;
             properties = new JSProperty[size];
         }
 
@@ -272,7 +272,8 @@ namespace YantraJS.Core
                         return true;
                     }
                 }
-            } else if (map.TryGetValue(key, out var pkey))
+            } else 
+            if (map.TryGetValue(key, out var pkey))
             {
                 obj = properties[pkey];
                 return obj.Attributes != JSPropertyAttributes.Deleted;
@@ -313,7 +314,7 @@ namespace YantraJS.Core
                 uint pkey;
                 if (map.IsNull)
                 {
-                    map = new UInt32Map();
+                    map = new UInt32Map<uint>();
                     // copy..
                     for (uint i = 0; i < length; i++)
                     {

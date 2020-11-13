@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core
 {
@@ -143,13 +144,14 @@ namespace YantraJS.Core
 
         static KeyStrings()
         {
-            lock (map)
+            lock (typeof(KeyStrings))
             {
+                map = ConcurrentStringMap<KeyString>.Create();
                 KeyString Create(string key)
                 {
                     var i = NextID++;
                     var js = new KeyString(key, (uint)i);
-                    map.Save(key, js);
+                    map[key] =  js;
                     return js;
                 }
                 var t = typeof(KeyString);
@@ -163,11 +165,11 @@ namespace YantraJS.Core
             }
         }
 
-        private static ConcurrentStringTrie<KeyString> map = new ConcurrentStringTrie<KeyString>();
+        private static ConcurrentStringMap<KeyString> map;
 
         private static int NextID = 1;
 
-        internal static (int size, int total, int next) Total => (map.Size, map.Total, NextID);
+        // internal static (int size, int total, int next) Total => (map.Size, map.Total, NextID);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

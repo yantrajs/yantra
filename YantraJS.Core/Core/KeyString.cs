@@ -124,8 +124,8 @@ namespace YantraJS.Core
             return (JSValue = new JSString(Value, this));
         }
 
-        public static (int size, int total, int next) Total =>
-            KeyStrings.Total;
+        // public static (int size, int total, int next) Total =>
+            // KeyStrings.Total;
 
     }
 }
