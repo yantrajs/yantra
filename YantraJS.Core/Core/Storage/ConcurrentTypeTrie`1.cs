@@ -1,4 +1,5 @@
 ﻿using System;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core.Storage
 {
@@ -6,7 +7,7 @@ namespace YantraJS.Core.Storage
     {
 
         readonly Func<Type, T> factory;
-        readonly ConcurrentUInt32Trie<T> cache = new ConcurrentUInt32Trie<T>();
+        readonly ConcurrentUInt32Map<T> cache = ConcurrentUInt32Map<T>.Create();
 
         public ConcurrentTypeTrie(Func<Type, T> factory)
         {

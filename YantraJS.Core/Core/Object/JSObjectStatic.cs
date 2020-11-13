@@ -398,7 +398,8 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            var keys = jobj.symbols.AllValues.Select(x => x.Value.key.ToJSValue());
+            ref var symbols = ref jobj.GetSymbols();
+            var keys = symbols.AllValues().Select(x => x.Value.key.ToJSValue());
             return new JSArray(keys);
         }
 

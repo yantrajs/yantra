@@ -29,7 +29,7 @@ namespace YantraJS.Core
 
         private static string GenerateID(JSObject obj)
         {
-            var op = obj.symbols ?? (obj.symbols = new CompactUInt32Trie<JSProperty>());
+            ref var op = ref obj.GetSymbols();
             if(op.TryGetValue(UniqueIDKey.Key.Key, out var px))
             {
                 return $"ID:{px.value}";

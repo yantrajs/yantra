@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Storage;
 using YantraJS.ExpHelper;
 using YantraJS.LinqExpressions;
@@ -16,7 +17,7 @@ namespace YantraJS.Core.Clr
     public class ClrType : JSFunction
     {
 
-        private static ConcurrentUInt32Trie<ClrType> cachedTypes = new ConcurrentUInt32Trie<ClrType>();
+        private static ConcurrentUInt32Map<ClrType> cachedTypes = ConcurrentUInt32Map<ClrType>.Create();
 
         internal class ClrPrototype: JSObject
         {

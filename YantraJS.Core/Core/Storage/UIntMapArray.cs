@@ -157,9 +157,12 @@ namespace YantraJS.Core.Core.Storage
         {
             if(IsSparse)
             {
-                foreach(var (key, value) in Map.AllValues())
+                for(uint i = 0; i < length; i++)
                 {
-                    yield return (key, Storage[value]);
+                    if(Map.TryGetValue(i, out var v))
+                    {
+                        yield return (i , Storage[v]);
+                    }
                 }
                 yield break;
             }

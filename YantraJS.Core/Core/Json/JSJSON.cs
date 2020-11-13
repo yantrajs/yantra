@@ -8,6 +8,7 @@ using System.Net.Mail;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Schema;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
@@ -74,18 +75,14 @@ namespace YantraJS.Core
                 } else if (r is JSArray ra)
                 {
 
-                    StringTrie<int> map = null;
+                    StringMap<int> map = new StringMap<int>();
                     
                     replacer = (item) =>
                     {
-                        if (map == null)
+                        var en = ra.GetElementEnumerator();
+                        while(en.MoveNext(out var hasValue, out var ri, out var index))
                         {
-                            map = new StringTrie<int>();
-                            var en = ra.GetElementEnumerator();
-                            while(en.MoveNext(out var hasValue, out var ri, out var index))
-                            {
-                                map[ri.ToString()] = 1;
-                            }
+                            map[ri.ToString()] = 1;
                         }
                         if (map.TryGetValue(item.key.ToString(), out var a1))
                             return item.value;

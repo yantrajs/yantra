@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Runtime;
 using YantraJS.Extensions;
 
@@ -14,8 +15,8 @@ namespace YantraJS.Core
     public partial class JSWeakMap: JSObject
     {
 
-        private StringTrie<(WeakReference<JSValue> key, JSValue value)>
-            items = new StringTrie<(WeakReference<JSValue> key, JSValue value)>();
+        private StringMap<(WeakReference<JSValue> key, JSValue value)>
+            items = new StringMap<(WeakReference<JSValue> key, JSValue value)>();
 
         public JSWeakMap(): base(JSContext.Current.WeakMapPrototype)
         {
@@ -24,10 +25,10 @@ namespace YantraJS.Core
 
         private void ClearWeak()
         {
-            lock (items)
+            lock (this)
             {
                 var keysToDelete = new List<string>();
-                foreach (var item in items.AllValues)
+                foreach (var item in items.AllValues())
                 {
                     if (!item.Value.key.TryGetTarget(out var v))
                     {
@@ -73,7 +74,7 @@ namespace YantraJS.Core
         public static JSValue Delete(in Arguments a)
         {
             var w = ToWeakMap(a.This);
-            lock (w.items)
+            lock (w)
             {
                 var key = a.Get1().ToUniqueID();
                 if (w.items.RemoveAt(key))
@@ -87,7 +88,7 @@ namespace YantraJS.Core
         public static JSValue Get(in Arguments a)
         {
             var w = ToWeakMap(a.This);
-            lock (w.items)
+            lock (w)
             {
                 var key = a.Get1().ToUniqueID();
                 if (w.items.TryGetValue(key, out var v))
@@ -111,7 +112,7 @@ namespace YantraJS.Core
             var (first, second) = a.Get2();
             if (!(first is JSObject))
                 throw JSContext.Current.NewTypeError($"Key cannot be a primitive value");
-            lock (w.items)
+            lock (w)
             {
                 var key = first.ToUniqueID();
                 w.items.Save(key, ( new WeakReference<JSValue>(first), second ));
@@ -123,7 +124,7 @@ namespace YantraJS.Core
         public static JSValue Has(in Arguments a)
         {
             var w = ToWeakMap(a.This);
-            lock (w.items)
+            lock (w)
             {
                 var key = a.Get1().ToUniqueID();
                 if (w.items.TryGetValue(key, out var v))

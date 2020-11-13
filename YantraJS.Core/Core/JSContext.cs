@@ -19,6 +19,7 @@ using YantraJS.Core.Weak;
 using System.Collections.Concurrent;
 using Microsoft.Threading;
 using YantraJS.Core.LightWeight;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core
 {
@@ -189,7 +190,7 @@ namespace YantraJS.Core
             }
         }
 
-        UInt32Trie<JSVariable> globalVars = new UInt32Trie<JSVariable>();
+        UInt32Map<JSVariable> globalVars = new UInt32Map<JSVariable>();
 
         internal JSValue Register(JSVariable variable)
         {
@@ -346,7 +347,7 @@ namespace YantraJS.Core
         }
 
 
-        static readonly ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
+        static readonly ConcurrentUInt32Map<JSFunction> cache = ConcurrentUInt32Map<JSFunction>.Create();
         internal readonly SynchronizationContext synchronizationContext;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

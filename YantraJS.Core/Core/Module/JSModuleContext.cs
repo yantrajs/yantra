@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using YantraJS.Core.Clr;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Storage;
 using YantraJS.Utils;
 
@@ -43,10 +44,64 @@ namespace YantraJS.Core
     string __dirname
     );
 
-    internal class ModuleCache: ConcurrentSharedStringTrie<JSModule>
+    //internal class ModuleCache: ConcurrentSharedStringTrie<JSModule>
+    //{
+    //    internal static Key module = "module";
+    //    internal static Key clr = "clr";
+    //}
+
+    public struct ModuleCache
     {
-        internal static Key module = "module";
-        internal static Key clr = "clr";
+        private static ConcurrentNameMap nameCache;
+        private ConcurrentUInt32Map<JSModule> modules;
+        
+
+        static ModuleCache()
+        {
+            nameCache = new ConcurrentNameMap();
+            module = nameCache.Get("module");
+            clr = nameCache.Get("clr");
+        }
+
+        public static (uint Key, string Name) module;
+        public static (uint Key, string Name) clr;
+
+        public static ModuleCache Create()
+        {
+            return new ModuleCache(true);
+        }
+        public bool TryGetValue(string key, out JSModule obj)
+        {
+            if(nameCache.TryGetValue(key, out var i))
+            {
+                if (modules.TryGetValue(i.Key, out obj))
+                    return true;
+            }
+            obj = null;
+            return false;
+        }
+        public JSModule GetOrCreate(string key, Func<JSModule> factory)
+        {
+            var k = nameCache.Get(key);
+            return modules.GetOrCreate(k.Key, factory);
+        }
+
+        public ModuleCache(bool v)
+        {
+            modules = ConcurrentUInt32Map<JSModule>.Create();
+        }
+
+        public JSModule this[in (uint Key, string name) key]
+        {
+            get {
+                if (modules.TryGetValue(key.Key, out var m))
+                    return m;
+                return null;
+            }
+            set {
+                modules[key.Key] = value;
+            }
+        }
     }
 
     /// <summary>
@@ -78,7 +133,7 @@ namespace YantraJS.Core
         /// are identified by unique id present in ModuleName.
         /// </summary>
         readonly ModuleCache moduleCache
-            = new ModuleCache();
+            = ModuleCache.Create();
 
         private string[] paths;
 

@@ -14,10 +14,10 @@ namespace YantraJS.ExpHelper
         //private static FieldInfo _ownProperties =
         //    type.InternalField(nameof(Core.JSObject.ownProperties));
 
-        readonly static PropertyInfo _Index =
-            typeof(BaseMap<uint, Core.JSProperty>)
-                .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
-                .FirstOrDefault(x => x.GetIndexParameters().Length > 0);
+        //readonly static PropertyInfo _Index =
+        //    typeof(BaseMap<uint, Core.JSProperty>)
+        //        .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
+        //        .FirstOrDefault(x => x.GetIndexParameters().Length > 0);
 
         readonly static MethodInfo _NewWithProperties =
             type.StaticMethod(nameof(JSObject.NewWithProperties));

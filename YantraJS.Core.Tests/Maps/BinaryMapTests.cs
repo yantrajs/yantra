@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using YantraJS.Core;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Tests
 {
@@ -9,7 +10,7 @@ namespace YantraJS.Tests
         [TestMethod]
         public void CharTest()
         {
-            var tm = new StringTrie<string>();
+            var tm = new StringMap<string>();
 
             var i1 = "k1";
             var i2 = "k2";
@@ -32,7 +33,7 @@ namespace YantraJS.Tests
         [TestMethod]
         public void IntTest()
         {
-            var im = new UInt32Trie<string>();
+            var im = new UInt32Map<string>();
 
             var i1 = (uint)4;
             var i2 = (uint)687;

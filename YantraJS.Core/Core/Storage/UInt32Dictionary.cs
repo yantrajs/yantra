@@ -70,7 +70,7 @@ namespace YantraJS.Core.Core.Storage
             }
         }
 
-        public IEnumerable<(uint key, T value)> AllValues()
+        public IEnumerable<(uint Key, T Value)> AllValues()
         {
             foreach(var node in Nodes)
             {
@@ -79,7 +79,10 @@ namespace YantraJS.Core.Core.Storage
                     foreach (var child in node.AllValues())
                         yield return child;
                 }
-                yield return (node.Key, node.value);
+                if (node.HasValue)
+                {
+                    yield return (node.Key, node.value);
+                }
             }
         }
 
@@ -228,6 +231,17 @@ namespace YantraJS.Core.Core.Storage
             if (node.Key == originalKey)
                 return ref node;
             return ref Null;
+        }
+        public bool RemoveAt(uint key)
+        {
+            ref var node = ref GetNode(key);
+            if (node.HasValue)
+            {
+                node.State = MapValueState.Filled;
+                node.value = default;
+                return true;
+            }
+            return false;
         }
 
     }

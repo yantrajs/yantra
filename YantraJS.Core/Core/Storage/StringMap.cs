@@ -13,6 +13,10 @@ namespace YantraJS.Core.Core.Storage
 
         public static StringMap<T> Null = new StringMap<T>() { State = MapValueState.Null };
 
+        private int count;
+
+        public int Count => count;
+
         public bool IsNull
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,7 +63,7 @@ namespace YantraJS.Core.Core.Storage
             }
         }
 
-        public IEnumerable<(string key, T value)> AllValues()
+        public IEnumerable<(string Key, T Value)> AllValues()
         {
             foreach (var node in Nodes)
             {
@@ -68,7 +72,10 @@ namespace YantraJS.Core.Core.Storage
                     foreach (var child in node.AllValues())
                         yield return child;
                 }
-                yield return (node.Key, node.value);
+                if (node.HasValue)
+                {
+                    yield return (node.Key, node.value);
+                }
             }
         }
 
@@ -90,11 +97,7 @@ namespace YantraJS.Core.Core.Storage
             }
             set
             {
-                ref var node = ref GetNode(index, true);
-                if (node.IsNull)
-                    throw new InsufficientMemoryException();
-                node.value = value;
-                node.State = MapValueState.Filled | MapValueState.HasValue;
+                Save(index, value);
             }
         }
 
@@ -132,6 +135,9 @@ namespace YantraJS.Core.Core.Storage
         public void Save(string key, T value)
         {
             ref var node = ref GetNode(key, true);
+            if (!node.HasValue) {
+                count++;
+            }
             node.State = MapValueState.HasValue | MapValueState.Filled;
             node.value = value;
         }
@@ -192,6 +198,18 @@ namespace YantraJS.Core.Core.Storage
             if (node.Key == originalKey)
                 return ref node;
             return ref Null;
+        }
+        public bool RemoveAt(string key)
+        {
+            ref var node = ref GetNode(key);
+            if(node.HasValue)
+            {
+                node.State = MapValueState.Filled;
+                node.value = default;
+                count--;
+                return true;
+            }
+            return false;
         }
 
         //private ref StringMap<T> GetNode(string originalKey, uint key, bool create = false, int depth = 0)

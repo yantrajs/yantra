@@ -5,6 +5,38 @@ using System.Threading;
 
 namespace YantraJS.Core.Core.Storage
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ConcurrentNameMap
+    {
+        private ConcurrentStringMap<uint> map;
+        private long id;
+
+        public ConcurrentNameMap()
+        {
+            map = ConcurrentStringMap<uint>.Create();
+            id = 0;
+        }
+
+        public (uint Key, string Name) Get(string name)
+        {
+            uint r = map.GetOrCreate(name, (n) => ((uint)Interlocked.Increment(ref id)));
+            return (r, name);
+        }
+
+        public bool TryGetValue(string name, out (uint Key, string Name) value)
+        {
+            if(map.TryGetValue(name, out var i))
+            {
+                value = (i, name);
+                return true;
+            }
+            value = (0, null);
+            return false;
+        }
+    }
+
     public struct ConcurrentStringMap<T>
     {
 
@@ -46,14 +78,14 @@ namespace YantraJS.Core.Core.Storage
             return r;
         }
 
-        internal T GetOrCreate(string key, Func<T> value)
+        internal T GetOrCreate(string key, Func<string,T> value)
         {
             try
             {
                 lockSlim.EnterUpgradeableReadLock();
                 if (Map.TryGetValue(key, out var v))
                     return v;
-                var r = value();
+                var r = value(key);
                 lockSlim.EnterWriteLock();
                 try
                 {

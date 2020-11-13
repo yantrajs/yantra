@@ -36,7 +36,7 @@ namespace YantraJS.Core
             {
                 var m = ToMap(a.This);
                 m.entries.Clear();
-                m.cache = new StringTrie<LinkedListNode<(JSValue key, JSValue value)>>();
+                m.cache = new Core.Storage.StringMap<LinkedListNode<(JSValue key, JSValue value)>>();
                 return JSUndefined.Value;
             }
 

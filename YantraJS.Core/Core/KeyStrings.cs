@@ -175,10 +175,10 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static KeyString GetOrCreate(string key)
         {
-            return map.GetOrCreate(key, () =>
+            return map.GetOrCreate(key, (keyName) =>
             {
                 var i = (uint)Interlocked.Increment(ref NextID);
-                return new KeyString(key, i);
+                return new KeyString(keyName, i);
             });
         }
 

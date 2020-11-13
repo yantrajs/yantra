@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
 using YantraJS.ExpHelper;
 
@@ -15,16 +16,16 @@ namespace YantraJS.Core
     internal static class Bootstrap
     {
 
-        static readonly ConcurrentUInt32Trie<JSFunction> cache = new ConcurrentUInt32Trie<JSFunction>();
+        static readonly ConcurrentUInt32Map<JSFunction> cache = ConcurrentUInt32Map<JSFunction>.Create();
 
-        static readonly ConcurrentStringTrie<PropertySequence> propertyCache
-            = new ConcurrentStringTrie<PropertySequence>(64);
+        static readonly ConcurrentStringMap<PropertySequence> propertyCache
+            = ConcurrentStringMap<PropertySequence>.Create();
 
         public static void Fill<T>(this JSContext context)
         {
             var type = typeof(T);
             var key = type.FullName;
-            var cached = propertyCache.GetOrCreate(key, () =>
+            var cached = propertyCache.GetOrCreate(key, (_) =>
             {
                 var ps = new JSObject();
                 Fill(type, ps);

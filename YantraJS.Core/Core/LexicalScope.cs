@@ -3,12 +3,13 @@ using Esprima.Ast;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core
 {
     public class LexicalScope : LinkedStackItem<LexicalScope>
     {
-        private readonly UInt32Trie<JSVariable> scope;
+        private UInt32Map<JSVariable> scope;
 
         internal bool IsRoot = false;
 

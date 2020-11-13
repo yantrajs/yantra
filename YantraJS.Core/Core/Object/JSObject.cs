@@ -21,7 +21,7 @@ namespace YantraJS.Core
 
         private ElementArray elements;
         private PropertySequence ownProperties;
-        internal CompactUInt32Trie<JSProperty> symbols;
+        private UInt32Map<JSProperty> symbols;
 
         public override bool BooleanValue => true;
 
@@ -56,6 +56,11 @@ namespace YantraJS.Core
             if (elements.IsNull && create)
                 elements = new ElementArray(4);
             return ref elements;
+        }
+
+        public ref UInt32Map<JSProperty> GetSymbols()
+        {
+            return ref symbols;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -194,7 +199,7 @@ namespace YantraJS.Core
 
         internal JSProperty GetInternalProperty(JSSymbol key, bool inherited = true)
         {
-            if (symbols != null && symbols.TryGetValue(key.Key.Key, out var r))
+            if (symbols.TryGetValue(key.Key.Key, out var r))
             {
                 return r;
             }
@@ -281,7 +286,6 @@ namespace YantraJS.Core
                 }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                this.symbols = this.symbols ?? new CompactUInt32Trie<JSProperty>();
                 symbols[name.Key.Key] = JSProperty.Property(value);
             }
         }
@@ -289,7 +293,6 @@ namespace YantraJS.Core
         public JSValue DefineProperty(JSSymbol name, JSProperty p)
         {
             var key = name.Key.Key;
-            var symbols = this.symbols ?? (this.symbols = new CompactUInt32Trie<JSProperty>());
             var old = symbols[key];
             if (!old.IsEmpty)
             {
@@ -554,8 +557,8 @@ namespace YantraJS.Core
                 p.get = value as JSFunction;
             }
             p.Attributes = pt;
-            var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
-            symbols[p.key.Key] = p;
+            // var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
+            target.symbols[p.key.Key] = p;
         }
 
 
