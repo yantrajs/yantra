@@ -96,11 +96,6 @@ namespace YantraJS.Core {
 
         internal JSObject prototypeChain;
 
-        internal protected virtual JSString ToJSString()
-        {
-            return JSConstants.Undefined;
-        }
-
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>

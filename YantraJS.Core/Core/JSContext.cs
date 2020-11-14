@@ -153,16 +153,16 @@ namespace YantraJS.Core
         public event ErrorEventHandler Error;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSContext Push(string fileName, string function, int line, int column)
+        internal int Push(string fileName, string function, int line, int column)
         {
             ref var stack = ref this.Stack;
             var item = stack.Push();
-            ref var top = ref item.Value;
+            ref var top = ref this.Stack.GetAt(item);
             top.Function = function;
             top.FileName = fileName;
             top.Line = line;
             top.Column = column;
-            return this;
+            return item;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -172,9 +172,9 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Update(int line, int column)
+        internal void Update(int index, int line, int column)
         {
-            ref var top = ref Stack.Top;
+            ref var top = ref Stack.GetAt(index);
             top.Line = line;
             top.Column = column;
         }

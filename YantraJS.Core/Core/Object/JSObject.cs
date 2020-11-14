@@ -53,8 +53,8 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref ElementArray GetElements(bool create = true)
         {
-            if (elements.IsNull && create)
-                elements = new ElementArray(4);
+            //if (elements.IsNull && create)
+            //    elements = new UInt32Map<JSProperty>();
             return ref elements;
         }
 
@@ -66,8 +66,8 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ref ElementArray CreateElements(int size = 4)
         {
-            if (elements.IsNull)
-                elements = new ElementArray(size);
+            //if (elements.IsNull)
+            //    elements = new UInt32Map<JSProperty>();
             return ref elements;
         }
 
@@ -114,9 +114,9 @@ namespace YantraJS.Core
 
         internal static JSObject NewWithElements()
         {
-            var o = new JSObject
+            var o = new JSObject()
             {
-                elements = new ElementArray(4)
+                // elements = new ElementArray(4)
             };
             return o;
         }
@@ -126,7 +126,7 @@ namespace YantraJS.Core
             var o = new JSObject
             {
                 ownProperties = new PropertySequence(4),
-                elements = new ElementArray(4)
+                // elements = new ElementArray(4)
             };
             return o;
         }
@@ -188,7 +188,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSProperty GetInternalProperty(uint key, bool inherited = true)
         {
-            if (!elements.IsNull && elements.TryGetValue(key, out var r))
+            if (elements.TryGetValue(key, out var r))
             {
                 return r;
             }
@@ -356,11 +356,6 @@ namespace YantraJS.Core
             return "[object Object]";
         }
 
-        protected internal override JSString ToJSString()
-        {
-            return new JSString("[object Object]");
-        }
-
         public override string ToDetailString()
         {
             var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
@@ -380,19 +375,26 @@ namespace YantraJS.Core
         public override int Length {
             get
             {
-                var ownp = this.ownProperties;
-                if (ownp.IsEmpty)
+                try
                 {
+                    ref var ownp = ref this.ownProperties;
+                    if (ownp.IsEmpty)
+                    {
+                        return -1;
+                    }
+                    ref var l = ref ownp.GetValue(KeyStrings.length.Key);
+                    if (!l.IsEmpty)
+                    {
+                        var n = this.GetValue(l);
+                        var nvalue = ((uint)n.DoubleValue) >> 0;
+                        return (int)nvalue;
+                    }
+                    return -1;
+                }catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
                     return -1;
                 }
-                ref var l = ref ownp.GetValue(KeyStrings.length.Key);
-                if (!l.IsEmpty)
-                {
-                    var n = this.GetValue(l);
-                    var nvalue = ((uint)n.DoubleValue) >> 0;
-                    return (int)nvalue;
-                }
-                return -1;
             }
             set {
                 if (this.IsSealedOrFrozenOrNonExtensible())
@@ -655,11 +657,6 @@ namespace YantraJS.Core
 
         internal override bool TryGetValue(uint i, out JSProperty value)
         {
-            if (elements.IsNull)
-            {
-                value = new JSProperty();
-                return false;
-            }
             return elements.TryGetValue(i, out value);
         }
 
@@ -704,9 +701,9 @@ namespace YantraJS.Core
 
         internal override bool TryRemove(uint i, out JSProperty p)
         {
-            if(elements.IsNull)
-                return base.TryRemove(i, out p);
-            return elements.TryRemove(i, out p);
+            if (elements.TryRemove(i, out p))
+                return true;
+            return base.TryRemove(i, out p);
         }
 
         public override bool ConvertTo(Type type, out object value)

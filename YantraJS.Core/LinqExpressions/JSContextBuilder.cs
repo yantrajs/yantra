@@ -26,7 +26,7 @@ namespace YantraJS.ExpHelper
             type.InternalMethod(nameof(JSContext.Pop));
 
         public static MethodInfo _Update=
-            type.InternalMethod(nameof(JSContext.Update), typeof(int), typeof(int));
+            type.InternalMethod(nameof(JSContext.Update), typeof(int), typeof(int), typeof(int));
 
         public static MethodInfo _Register =
             type.InternalMethod(nameof(JSContext.Register), typeof(JSVariable));
@@ -44,24 +44,29 @@ namespace YantraJS.ExpHelper
         }
 
         public static Expression Push(
+            Expression context,
             Expression fileName, 
             string str, 
             int line, 
             int column)
         {
             return Expression.Call(
-                Current,
+                context,
                 _Push,
                 fileName,
                 Expression.Constant(str),
                 Expression.Constant(line),
                 Expression.Constant(column));
         }
-        public static Expression Update(ParameterExpression s, int line, int column)
+        public static Expression Update(
+            ParameterExpression s, 
+            Expression si,
+            int line, int column)
         {
             return Expression.Call(
                 s,
                 _Update,
+                si,
                 Expression.Constant(line),
                 Expression.Constant(column));
         }

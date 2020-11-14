@@ -12,17 +12,28 @@ namespace YantraJS.Tests.Maps
     [TestClass]
     public class BinaryMapEnumerateTests
     {
+        [TestMethod]
+        public void Less()
+        {
+            var a = new StringMap<int>();
+            a["createNodeFactory"] = 1;
+            a["<"] = 0;
+            Assert.AreEqual(a["<"], 0);
+            Assert.AreEqual(a["createNodeFactory"], 1);
+
+        }
+
 
         [TestMethod]
         public void CharMap()
         {
             var a = new StringMap<int>();
-            // a["<"] = 0;
             a["a"] = 1;
             a["add"] = 5;
             a["aa"] = 3;
             a["b"] = 2;
             a["bb"] = 4;
+            a["<"] = 0;
 
             // var all = a.AllValues.ToList();
             // Assert.AreEqual(4, all.Count);

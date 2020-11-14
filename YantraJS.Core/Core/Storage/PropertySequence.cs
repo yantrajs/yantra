@@ -334,7 +334,6 @@ namespace YantraJS.Core
                 }
                 map.Save(key, pkey);
                 properties[pkey] = value;
-                length++;
             }
         }
 

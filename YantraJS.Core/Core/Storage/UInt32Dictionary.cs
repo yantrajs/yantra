@@ -29,9 +29,19 @@ namespace YantraJS.Core.Core.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return State == MapValueState.Null;
+                return Nodes == null || State == MapValueState.Null;
             }
         }
+
+        public bool HasChildren
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return Nodes != null;
+            }
+        }
+
 
         public bool IsEmpty
         {

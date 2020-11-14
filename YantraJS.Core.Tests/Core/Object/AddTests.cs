@@ -56,6 +56,18 @@ namespace YantraJS.Tests.Core.Object
         }
 
         [TestMethod]
+        public void Length()
+        {
+            var a = new JSObject();
+            a["a"] = JSContext.Current;
+            a["valueOf"] = new JSFunction((in Arguments a) => {
+                return JSUndefined.Value;
+            });
+            a["length"] = a;
+            Assert.AreEqual(-1, a.Length);
+        }
+
+        [TestMethod]
         public void Number()
         {
             var NaN = JSNumber.NaN;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using YantraJS.Core;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Generator;
 using YantraJS.ExpHelper;
 using Exp = System.Linq.Expressions.Expression;
@@ -143,6 +144,8 @@ namespace YantraJS
 
         public ParameterExpression Context { get; }
 
+        public ParameterExpression StackItem { get; }
+
         public bool IsRoot => Function == null;
 
         public LinkedStack<LoopScope> Loop;
@@ -262,6 +265,7 @@ namespace YantraJS
             }
 
             this.Context = Expression.Parameter(typeof(JSContext), "Context");
+            this.StackItem = Expression.Parameter(typeof(int), "StackIndex");
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new List<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
@@ -280,19 +284,24 @@ namespace YantraJS
             this.TempVariables = p.TempVariables;
             // this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Context = p.Context;
+            this.StackItem = p.StackItem;
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
         }
+
+        StringMap<Exp> cache;
 
         public Exp this[string name]
         {
             get
             {
                 // go up..
-
-                return 
-                    variableScopeList.FirstOrDefault(x => x.Name == name)?.Expression
+                if (cache.TryGetValue(name, out var exp))
+                    return exp;
+                exp = variableScopeList.FirstOrDefault(x => x.Name == name)?.Expression
                     ?? (this.Parent?[name]);
+                cache[name] = exp;
+                return exp;
             }
         }
 

@@ -160,6 +160,23 @@ namespace YantraJS.Core
             return target;
         }
 
+        [Static("entries")]
+        internal static JSValue Entries(in  Arguments a)
+        {
+            var @this = a.This;
+            if(@this.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSTypeError.NotIterable("undefined"));
+            var obj = @this as JSObject;
+            var r = new JSArray();
+
+            var vp = new PropertySequence.ValueEnumerator(obj, false);
+            while(vp.MoveNext(out var value, out var key))
+            {
+                r[r._length++] = new JSArray(value, key.ToJSValue());
+            }
+            return r;
+        }
+
 
         [Static("fromEntries")]
 

@@ -119,11 +119,12 @@ namespace YantraJS
 
                 var argLength = Exp.Parameter(typeof(int));
 
-
+                var stackItem = fx.StackItem;
 
                 var vList = new List<ParameterExpression>() {
                     FileNameExpression,
                     lScope,
+                    stackItem,
                     argLength
                 };
 
@@ -132,7 +133,8 @@ namespace YantraJS
 
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
-                    Exp.Assign(lScope, JSContextBuilder.Push(FileNameExpression,"",1,1)),
+                    Exp.Assign(lScope, JSContextBuilder.Current),
+                    Exp.Assign(stackItem, JSContextBuilder.Push(lScope, FileNameExpression,"",1,1)),
                     Exp.Assign(argLength, ArgumentsBuilder.Length(fx.ArgumentsExpression))
                 };
 
@@ -382,6 +384,7 @@ namespace YantraJS
                 // use this to create variables...
                 var t = s.ThisExpression;
                 var args = s.ArgumentsExpression;
+                var stackItem = s.StackItem;
 
                 var r = s.ReturnLabel;
 
@@ -462,9 +465,12 @@ namespace YantraJS
                 var point = functionStatement.Location.Start; // this.Code.Position(functionDeclaration.Range);
 
                 var lexicalScope =
-                    Exp.Block(new ParameterExpression[] { lexicalScopeVar },
-                    Exp.Assign(lexicalScopeVar, 
+                    Exp.Block(new ParameterExpression[] { lexicalScopeVar, stackItem },
+                    Exp.Assign(lexicalScopeVar,
+                        JSContextBuilder.Current),
+                    Exp.Assign(stackItem, 
                         JSContextBuilder.Push(
+                            lexicalScopeVar,
                             FileNameExpression,
                             fxName,
                             point.Line,
@@ -529,12 +535,14 @@ namespace YantraJS
             //{
             //    return exp();
             //}
-            var s = this.scope.Top.TopStackScope.Context;
+            var topStack = this.scope.Top;
+            var s = topStack.Context;
+            var si = topStack.StackItem;
             var p = ast.Location.Start;
             try
             {
                 return Exp.Block(
-                    JSContextBuilder.Update(s, p.Line, p.Column),
+                    JSContextBuilder.Update(s, si, p.Line, p.Column),
                     exp());
             }
             catch (Exception ex) when (!(ex is CompilerException))
@@ -1833,7 +1841,7 @@ namespace YantraJS
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
                 }
 
-                return JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray);
+                return DebugExpression( callExpression, () => JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
 
             } else {
 

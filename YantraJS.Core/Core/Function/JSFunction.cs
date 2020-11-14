@@ -158,6 +158,12 @@ namespace YantraJS.Core
             return a.This;
         }
 
+        [Prototype("toString")]
+        public static JSValue ToString(in Arguments a)
+        {
+            var f = a.This as JSFunction;
+            return new JSString(f.source);
+        }
 
         [Prototype("call", Length = 1)]
         public static JSValue Call(in Arguments a)
@@ -190,11 +196,6 @@ namespace YantraJS.Core
                 prototypeChain = fOriginal
             };
             return fx;
-        }
-
-        protected internal override JSString ToJSString()
-        {
-            return new JSString(this.source);
         }
 
         internal static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)

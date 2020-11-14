@@ -9,20 +9,6 @@ namespace YantraJS.Core.LightWeight
     public struct LightWeightStack<T>
     {
 
-        public struct Item {
-            private readonly LightWeightStack<T> stack;
-            private readonly int index;
-
-            public Item(in LightWeightStack<T> stack, int index)
-            {
-                this.stack = stack;
-                this.index = index;
-            }
-            public ref T Value => ref stack.storage[index];
-
-            // public ref T Parent => ref stack.storage[index - 1];
-        }
-
         public struct StackWalker
         {
             private readonly T[] storage;
@@ -64,15 +50,21 @@ namespace YantraJS.Core.LightWeight
         }
 
 
-        public Item Push()
+        public int Push()
         {
             EnsureCapacity(length);
-            return new Item(this,length++);
+            return length++;
         }
 
-        public Item Pop()
+        
+        public void Pop()
         {
-            return new Item(this, --length);
+            --length;
+        }
+
+        public ref T GetAt(int index)
+        {
+            return ref storage[index];
         }
 
         public ref T Top => ref storage[length];
