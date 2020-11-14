@@ -115,6 +115,8 @@ namespace YantraJS.Core
 
         public readonly JSObject Uint8ArrayPrototype;
 
+        public readonly JSObject Uint8ClampedArrayPrototype;
+
         public readonly JSObject Int16ArrayPrototype;
 
         public readonly JSObject Uint16ArrayPrototype;
@@ -300,6 +302,7 @@ namespace YantraJS.Core
             ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
             Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
             Uint8ArrayPrototype = this.Create<Uint8Array>(KeyStrings.Uint8Array).prototype;
+            Uint8ClampedArrayPrototype = this.Create<Uint8ClampedArray>(KeyStrings.Uint8ClampedArray).prototype;
             Int16ArrayPrototype = this.Create<Int16Array>(KeyStrings.Int16Array).prototype;
             Uint16ArrayPrototype = this.Create<Uint16Array>(KeyStrings.Uint16Array).prototype;
             Int32ArrayPrototype = this.Create<Int32Array>(KeyStrings.Int32Array).prototype;

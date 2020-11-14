@@ -243,6 +243,19 @@ namespace YantraJS.Core
                 return (Arg0, Arg1);
             return (Args[0], Args[1]);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public (JSValue, JSValue) Get2(JSValue def1, JSValue def2)
+        {
+            if (Length == 0)
+                return (def1, def2);
+            if (Length == 1)
+                return (Arg0, def2);
+            if (Length < MinArray)
+                return (Arg0, Arg1);
+            return (Args[0], Args[1]);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
         public (JSValue, JSValue, JSValue) Get3()

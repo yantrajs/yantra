@@ -22,6 +22,13 @@ namespace YantraJS.Core.Typed
             return TypedArrayStatic.Constructor(JSContext.Current.Int8ArrayPrototype, TypedArrayType.Int8Array, a);
         }
 
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a) {
+            return JSNumber.One;
+        }
+
+
+
         [Static("from", Length = 1)]
         public static JSValue From(in Arguments a) {
 
@@ -47,11 +54,20 @@ namespace YantraJS.Core.Typed
         {
         }
 
+
+
         [Constructor(Length = 3)]
         public static JSValue Constructor(in Arguments a)
         {
 
             return TypedArrayStatic.Constructor(JSContext.Current.Uint8ArrayPrototype, TypedArrayType.Uint8Array, a);
+        }
+
+
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return JSNumber.One;
         }
 
         [Static("from", Length = 1)]
@@ -72,6 +88,44 @@ namespace YantraJS.Core.Typed
     }
 
     [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
+    internal class Uint8ClampedArray : TypedArray
+    {
+        public Uint8ClampedArray(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
+            : base(buffer, type, byteOffset, length, JSContext.Current.Uint8ClampedArrayPrototype)
+        {
+        }
+
+        [Constructor(Length = 3)]
+        public static JSValue Constructor(in Arguments a)
+        {
+
+            return TypedArrayStatic.Constructor(JSContext.Current.Uint8ClampedArrayPrototype, TypedArrayType.Uint8ClampedArray, a);
+        }
+
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return JSNumber.One;
+        }
+
+        [Static("from", Length = 1)]
+        public static JSValue From(in Arguments a)
+        {
+
+            return TypedArrayStatic.From(JSContext.Current.Uint8ClampedArrayPrototype, TypedArrayType.Uint8ClampedArray, a);
+        }
+
+
+        [Static("of", Length = 0)]
+        public static JSValue Of(in Arguments a)
+        {
+
+            return TypedArrayStatic.Of(JSContext.Current.Uint8ClampedArrayPrototype, TypedArrayType.Uint8ClampedArray, a);
+        }
+
+    }
+
+    [JSRuntime(typeof(TypedArrayStatic), typeof(TypedArrayPrototype), PreventConstructorInvoke = true)]
     internal class Int16Array : TypedArray
     {
         public Int16Array(JSArrayBuffer buffer, TypedArrayType type, int byteOffset, int length)
@@ -86,6 +140,13 @@ namespace YantraJS.Core.Typed
             return TypedArrayStatic.Constructor(JSContext.Current.Int16ArrayPrototype, TypedArrayType.Int16Array, a);
         }
 
+
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return JSNumber.Two;
+        }
+
         [Static("from", Length = 1)]
         public static JSValue From(in Arguments a)
         {
@@ -94,7 +155,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -116,6 +177,12 @@ namespace YantraJS.Core.Typed
         {
 
             return TypedArrayStatic.Constructor(JSContext.Current.Uint16ArrayPrototype, TypedArrayType.Uint16Array, a);
+        }
+
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return JSNumber.Two;
         }
 
         [Static("from", Length = 1)]
@@ -150,6 +217,13 @@ namespace YantraJS.Core.Typed
             return TypedArrayStatic.Constructor(JSContext.Current.Int32ArrayPrototype, TypedArrayType.Int32Array, a);
         }
 
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return new JSNumber(4);
+        }
+
+
         [Static("from", Length = 1)]
         public static JSValue From(in Arguments a)
         {
@@ -158,7 +232,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -182,6 +256,12 @@ namespace YantraJS.Core.Typed
             return TypedArrayStatic.Constructor(JSContext.Current.Uint32ArrayPrototype, TypedArrayType.Uint32Array, a);
         }
 
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return new JSNumber(4);
+        }
+
         [Static("from", Length = 1)]
         public static JSValue From(in Arguments a)
         {
@@ -190,7 +270,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -214,6 +294,12 @@ namespace YantraJS.Core.Typed
             return TypedArrayStatic.Constructor(JSContext.Current.Float32ArrayPrototype, TypedArrayType.Float32Array, a);
         }
 
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return new JSNumber(4);
+        }
+
         [Static("from", Length = 1)]
         public static JSValue From(in Arguments a)
         {
@@ -222,7 +308,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
@@ -246,6 +332,12 @@ namespace YantraJS.Core.Typed
             return TypedArrayStatic.Constructor(JSContext.Current.Float64ArrayPrototype, TypedArrayType.Float64Array, a);
         }
 
+        [StaticGetProperty("BYTES_PER_ELEMENT", Length = 0)]
+        public static JSValue BytesPerElement(in Arguments a)
+        {
+            return new JSNumber(8);
+        }
+
         [Static("from", Length = 1)]
         public static JSValue From(in Arguments a)
         {
@@ -254,7 +346,7 @@ namespace YantraJS.Core.Typed
         }
 
 
-        [Static("of", Length = 1)]
+        [Static("of", Length = 0)]
         public static JSValue Of(in Arguments a)
         {
 
