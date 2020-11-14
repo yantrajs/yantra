@@ -152,8 +152,6 @@ namespace YantraJS.Core.Core.Storage
                 Int32 uch = ch;
                 for (; uch > 0; uch >>= 2)
                 {
-                    var suffix = uch & 0x3;
-
                     if(current.Nodes == null)
                     {
                         if (!create)
@@ -161,7 +159,7 @@ namespace YantraJS.Core.Core.Storage
                         current.Nodes = new StringMap<T>[4];
                     }
 
-                    node = ref current.Nodes[suffix];
+                    node = ref current.Nodes[uch & 0x3];
                     if (!node.HasIndex)
                     {
                         if (create)
