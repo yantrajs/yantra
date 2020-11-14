@@ -212,7 +212,10 @@ namespace YantraJS
             {
                 foreach(var v in program.HoistingScope)
                 {
-                    this.scope.Top.CreateVariable(v, JSVariableBuilder.New(v));
+                    // these are global variables...
+                    var vs = this.scope.Top.CreateVariable(v, JSVariableBuilder.New(v));
+                    vs.Expression = JSVariableBuilder.Property(vs.Variable);
+                    
                 }
             }
             return CreateBlock(program.Body);

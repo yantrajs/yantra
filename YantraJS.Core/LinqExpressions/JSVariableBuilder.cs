@@ -29,6 +29,9 @@ namespace YantraJS.ExpHelper
         static readonly MethodInfo _NewFromArgument
             = type.InternalMethod(nameof(JSVariable.New), typeof(Arguments).MakeByRefType(), typeof(int), typeof(string));
 
+        static readonly PropertyInfo _GlobalValue
+            = type.Property(nameof(JSVariable.GlobalValue));
+
         public static Expression FromArgument(Expression args, int i, string name)
         {
             return Expression.Call(null, _NewFromArgument, args, Expression.Constant(i), Expression.Constant(name));
@@ -46,5 +49,10 @@ namespace YantraJS.ExpHelper
             return Expression.New(_New, ExpHelper.JSUndefinedBuilder.Value, Expression.Constant(name));
         }
 
+        public static Expression Property(Expression target)
+        {
+            return Expression.Property(target, _GlobalValue);
+        }
+        
     }
 }

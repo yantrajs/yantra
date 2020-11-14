@@ -18,4 +18,4 @@ assert.strictEqual(4, uint8.lastIndexOf(50, 8));
 
 let arr = new Int8Array([3, 2, 1]);
 assert.strictEqual(1, arr.lastIndexOf(2, -1));
-assert.strictEqual(2, arr.lastIndexOf(1, undefined));
+assert.strictEqual(-1, arr.lastIndexOf(1, undefined));

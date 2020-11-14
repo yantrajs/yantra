@@ -12,6 +12,7 @@ namespace YantraJS.Core
         static readonly FieldInfo _ValueField =
             typeof(JSVariable).GetField("Value");
         internal readonly string Name;
+        private KeyString key;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JSVariable(JSValue v, string name)
@@ -19,6 +20,23 @@ namespace YantraJS.Core
             this.Value = v;
             this.Name = name;
         }
+
+        public JSValue GlobalValue
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                this.Value = value;
+                if (key.Value == null)
+                {
+                    key = this.Name;
+                }
+                JSContext.Current[key] = value;
+            }
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JSVariable(Exception e, string name)
