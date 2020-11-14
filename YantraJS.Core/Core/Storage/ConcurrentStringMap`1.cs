@@ -37,7 +37,7 @@ namespace YantraJS.Core.Core.Storage
         }
     }
 
-    public struct ConcurrentStringMap<T>
+    public class ConcurrentStringMap<T>
     {
 
         private StringMap<T> Map;
@@ -105,7 +105,7 @@ namespace YantraJS.Core.Core.Storage
     }
 
 
-    public struct ConcurrentUInt32Map<T>
+    public class ConcurrentUInt32Map<T>
     {
 
         private UInt32Map<T> Map;
