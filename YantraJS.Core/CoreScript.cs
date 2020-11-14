@@ -210,10 +210,14 @@ namespace YantraJS
         {
             if (program.HoistingScope != null)
             {
+                var top = this.scope.Top;
                 foreach(var v in program.HoistingScope)
                 {
+                    // fetch global if exists..
+                    var g = JSValueBuilder.Index(top.Context, KeyOfName(v));
+
                     // these are global variables...
-                    var vs = this.scope.Top.CreateVariable(v, JSVariableBuilder.New(v));
+                    var vs = this.scope.Top.CreateVariable(v, JSVariableBuilder.New(g,  v));
                     vs.Expression = JSVariableBuilder.Property(vs.Variable);
                     
                 }
@@ -808,8 +812,9 @@ namespace YantraJS
                         var ve = this.scope.Top.CreateVariable(id.Name, null, newScope);
                         if (dInit != null)
                         {
-                            var init = ExpHelper.JSVariableBuilder.New(dInit, id.Name);
-                            inits.Add(Exp.Assign(ve.Variable, init));
+                            // var init = ExpHelper.JSVariableBuilder.New(dInit, id.Name);
+                            inits.Add(Exp.Assign(ve.Variable, Exp.Coalesce(ve.Variable, JSVariableBuilder.New(id.Name))));
+                            inits.Add(Exp.Assign(ve.Expression, dInit));
                         } else
                         {
                             inits.Add(Exp.Assign(ve.Variable, Exp.Coalesce(ve.Variable, JSVariableBuilder.New(id.Name))));

@@ -80,27 +80,25 @@ namespace YantraJS.Core.Core.Storage
 
         internal T GetOrCreate(string key, Func<string,T> value)
         {
+            lockSlim.EnterUpgradeableReadLock();
+            if (Map.TryGetValue(key, out var v))
+            {
+                lockSlim.ExitUpgradeableReadLock();
+                return v;
+            }
+            T r;
             try
             {
-                lockSlim.EnterUpgradeableReadLock();
-                if (Map.TryGetValue(key, out var v))
-                    return v;
-                var r = value(key);
                 lockSlim.EnterWriteLock();
-                try
-                {
-                    Map[key] = r;
-                }
-                finally
-                {
-                    lockSlim.ExitWriteLock();
-                }
-                return r;
+                r = value(key);
+                Map[key] = r;
             }
             finally
             {
+                lockSlim.ExitWriteLock();
                 lockSlim.ExitUpgradeableReadLock();
             }
+            return r;
         }
     }
 
