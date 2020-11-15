@@ -1075,14 +1075,11 @@ namespace YantraJS
 
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {
-                if (forStatement.Init != null)
+                var forInit = forStatement.Init;
+                if (forInit != null)
                 {
-                    switch (forStatement.Init)
+                    switch(forInit)
                     {
-                        case Expression exp:
-                            init = VisitExpression(exp);
-                            blockList.Add(init);
-                            break;
                         case VariableDeclaration dec:
                             varDec = new ScopedVariableDeclaration(dec) {
                                 Copy = true
@@ -1096,6 +1093,10 @@ namespace YantraJS
                                     vd.Init = VisitExpression(vd.Declarator.Init);
                                 }
                             }
+                            break;
+                        case Expression exp:
+                            init = VisitExpression(exp);
+                            blockList.Add(init);
                             break;
                         case Statement stmt:
                             init = VisitStatement(stmt);
@@ -1248,9 +1249,10 @@ namespace YantraJS
                 case UnaryOperator.Plus:
                     return ExpHelper.JSNumberBuilder.New(Exp.UnaryPlus(DoubleValue(target)));
                 case UnaryOperator.Minus:
-                    switch(target)
+                    if(target.Type == Nodes.Literal)
                     {
-                        case Literal l when l.TokenType == TokenType.NumericLiteral:
+                        Literal l = unaryExpression.Argument as Literal;
+                        if (l.TokenType == TokenType.NumericLiteral)
                             return JSNumberBuilder.New(Exp.Constant(-l.NumericValue));
                     }
                     return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
@@ -1268,13 +1270,18 @@ namespace YantraJS
                         return JSValueBuilder.Delete(targetObj, pe);
                     } else
                     {
-                        switch (me.Property)
+                        var mep = me.Property;
+                        switch (mep.Type)
                         {
-                            case Literal l when l.TokenType == TokenType.NumericLiteral:
-                                return JSValueBuilder.Delete(targetObj, Exp.Constant((uint)l.NumericValue));
-                            case Literal l1 when l1.TokenType == TokenType.StringLiteral:
-                                return JSValueBuilder.Delete(targetObj, KeyOfName(l1.StringValue));
-                            case Identifier id:
+                            case Nodes.Literal:
+                                Literal l = mep as Literal;
+                                if (l.TokenType == TokenType.NumericLiteral)
+                                    return JSValueBuilder.Delete(targetObj, Exp.Constant((uint)l.NumericValue));
+                                if(l.TokenType == TokenType.StringLiteral)
+                                    return JSValueBuilder.Delete(targetObj, KeyOfName(l.StringValue));
+                                break;
+                            case Nodes.Identifier:
+                                Identifier id = mep as Identifier;
                                 return JSValueBuilder.Delete(targetObj, KeyOfName(id.Name));
                         }
                     }
@@ -1347,19 +1354,31 @@ namespace YantraJS
                 Exp key = null;
                 Exp value = null;
                 string name = null;
-                switch (p.Key)
+                var pKey = p.Key;
+                switch (pKey.Type)
                 {
-                    case Identifier id
-                        when !p.Computed:
-                        key = KeyOfName(id.Name);
-                        name = id.Name;
+                    case Nodes.Identifier:
+                        Identifier id = pKey as Identifier;
+                        if (!p.Computed)
+                        {
+                            key = KeyOfName(id.Name);
+                            name = id.Name;
+                        } else 
+                            throw new NotSupportedException();
                         break;
-                    case Literal l when l.TokenType == TokenType.StringLiteral:
-                        key = KeyOfName(l.StringValue);
-                        name = l.StringValue;
-                        break;
-                    case Literal l when l.TokenType == TokenType.NumericLiteral:
-                        key = Exp.Constant((uint)l.NumericValue);
+                    case Nodes.Literal:
+                        Literal l = pKey as Literal;
+                        if (l.TokenType == TokenType.StringLiteral)
+                        {
+                            key = KeyOfName(l.StringValue);
+                            name = l.StringValue;
+                        }
+                        else if (l.TokenType == TokenType.NumericLiteral)
+                        {
+                            key = Exp.Constant((uint)l.NumericValue);
+                        }
+                        else
+                            throw new NotSupportedException();
                         break;
                     default:
                         throw new NotSupportedException();
