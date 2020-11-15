@@ -43,15 +43,16 @@ namespace YantraJS
         private StringMap<ParameterExpression> _keyStrings;
 
 
-        public Exp KeyOfName(in HashedString name)
+        public Exp KeyOfName(string name)
         {
             //if (string.IsNullOrEmpty(name.Value))
             //    throw new ArgumentNullException(nameof(name));
             ref var keyStrings = ref _keyStrings;
-            if (keyStrings.TryGetValue(name, out ParameterExpression pe))
+            HashedString hsName = name;
+            if (keyStrings.TryGetValue(in hsName, out ParameterExpression pe))
                 return pe;
-            pe = Exp.Variable(typeof(KeyString), name.Value);
-            keyStrings.Save(name, pe);
+            pe = Exp.Variable(typeof(KeyString), name);
+            keyStrings.Save(in hsName, pe);
             return pe;
         }
 
@@ -59,7 +60,7 @@ namespace YantraJS
         {
             codeCache = codeCache ?? DictionaryCodeCache.Current;
             var jsc = new JSCode(location, code, args);
-            return codeCache.GetOrCreate(jsc, (in JSCode a) =>
+            return codeCache.GetOrCreate(in jsc, (in JSCode a) =>
             {
                 var c = new CoreScript(a.Code, a.Location, a.Arguments, codeCache);
                 return c.Method;
@@ -226,7 +227,7 @@ namespace YantraJS
                     
                 }
             }
-            return CreateBlock(program.Body);
+            return CreateBlock(in program.Body);
         }
 
         protected override Exp VisitCatchClause(Esprima.Ast.CatchClause catchClause)
@@ -2007,7 +2008,7 @@ namespace YantraJS
                         }
                     }
 
-                    return VisitStatements(blockStatement.Body);
+                    return VisitStatements(in blockStatement.Body);
                 });
         }
 

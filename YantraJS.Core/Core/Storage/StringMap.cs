@@ -207,22 +207,22 @@ namespace YantraJS.Core.Core.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                ref var node = ref GetNode(index);
-                if (node.Key == index)
+                ref var node = ref GetNode(in index);
+                if (node.HasValue)
                     return node.value;
                 return default;
             }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                Save(index, value);
+                Save(in index, value);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(in HashedString key, out T value)
         {
-            ref var node = ref GetNode(key);
+            ref var node = ref GetNode(in key);
             if (node.HasValue)
             {
                 value = node.value;
@@ -235,14 +235,16 @@ namespace YantraJS.Core.Core.Storage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasKey(string key)
         {
-            ref var node = ref GetNode(key);
-            return node.HasValue && node.Key == key;
+            HashedString hsName = key;
+            ref var node = ref GetNode(in hsName);
+            return node.HasValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryRemove(string key, out T value)
         {
-            ref var node = ref GetNode(key);
+            HashedString hsName = key;
+            ref var node = ref GetNode(in hsName);
             if (node.HasValue)
             {
                 value = node.value;
@@ -257,9 +259,7 @@ namespace YantraJS.Core.Core.Storage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Save(in HashedString key, T value)
         {
-            ref var node = ref GetNode(key, true);
-            if (node.Key != key)
-                throw new InvalidOperationException();
+            ref var node = ref GetNode(in key, true);
             if (!node.HasValue) {
                 count++;
             }
@@ -297,13 +297,13 @@ namespace YantraJS.Core.Core.Storage
                     return ref node;
                 }
                 if (create) {
-                    if (node.Key.CompareToRef(originalKey) > 0)
+                    if (node.Key.CompareToRef(in originalKey) > 0)
                     {
                         node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
                         var oldKey = node.Key;
                         var oldValue = node.value;
                         node.Key = originalKey;
-                        ref var child = ref this.GetNode(oldKey, true);
+                        ref var child = ref this.GetNode(in oldKey, true);
                         child.Key = oldKey;
                         child.State = MapValueState.HasValue | MapValueState.Filled;
                         child.value = oldValue;
@@ -345,14 +345,14 @@ namespace YantraJS.Core.Core.Storage
                     }
                     if (create)
                     {
-                        if (node.Key.CompareToRef(originalKey) > 0)
+                        if (node.Key.CompareToRef(in originalKey) > 0)
                         {
                             node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
                             var oldKey = node.Key;
                             var oldValue = node.value;
                             node.Key = originalKey;
 
-                            ref var child = ref this.GetNode(oldKey, create);
+                            ref var child = ref this.GetNode(in oldKey, create);
                             child.Key = oldKey;
                             child.State = MapValueState.HasValue | MapValueState.Filled;
                             child.value = oldValue;
@@ -369,7 +369,8 @@ namespace YantraJS.Core.Core.Storage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool RemoveAt(string key)
         {
-            ref var node = ref GetNode(key);
+            HashedString hsKey = key;
+            ref var node = ref GetNode(in hsKey);
             if(node.HasValue)
             {
                 node.State = MapValueState.Filled;
