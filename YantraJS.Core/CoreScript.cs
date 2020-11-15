@@ -1443,9 +1443,11 @@ namespace YantraJS
                 ? this.scope.Top.ThisExpression
                 : VisitExpression(memberExpression.Object);
             var super = isSuper ? this.scope.Top.Super : null;
-            switch (memberExpression.Property)
+            var mp = memberExpression.Property;
+            switch (mp.Type)
             {
-                case Identifier id:
+                case Nodes.Identifier:
+                    Identifier id = mp as Identifier;
                     if (!memberExpression.Computed)
                     {
                         return ExpHelper.JSValueBuilder.Index(
@@ -1457,26 +1459,27 @@ namespace YantraJS
                         target,
                         super,
                         VisitIdentifier(id));
-                case Literal l
-                    when l.TokenType == Esprima.TokenType.BooleanLiteral:
-                    return ExpHelper.JSValueBuilder.Index(
-                        target,
-                        super,
-                        l.BooleanValue ? (uint)0 : (uint)1);
-                case Literal l
-                    when l.TokenType == Esprima.TokenType.StringLiteral:
-                    return ExpHelper.JSValueBuilder.Index(
-                        target,
-                        super,
-                        KeyOfName(l.StringValue));
-                case Literal l
-                    when l.TokenType == Esprima.TokenType.NumericLiteral 
-                        && l.NumericValue >= 0 && (l.NumericValue % 1 == 0):
-                    return ExpHelper.JSValueBuilder.Index(
-                        target,
-                        super,
-                        (uint)l.NumericValue);
-                case StaticMemberExpression se:
+                case Nodes.Literal:
+                    Literal l = mp as Literal;
+                    if(l.TokenType == Esprima.TokenType.BooleanLiteral)
+                        return ExpHelper.JSValueBuilder.Index(
+                            target,
+                            super,
+                            l.BooleanValue ? (uint)0 : (uint)1);
+                    if(l.TokenType == Esprima.TokenType.StringLiteral)
+                        return ExpHelper.JSValueBuilder.Index(
+                            target,
+                            super,
+                            KeyOfName(l.StringValue));
+                    if(l.TokenType == Esprima.TokenType.NumericLiteral 
+                        && l.NumericValue >= 0 && (l.NumericValue % 1 == 0))
+                        return ExpHelper.JSValueBuilder.Index(
+                            target,
+                            super,
+                            (uint)l.NumericValue);
+                    break;
+                case Nodes.MemberExpression:
+                    StaticMemberExpression se = mp as StaticMemberExpression;
                     return JSValueBuilder.Index( target,super, VisitExpression(se.Property));
 
             }
