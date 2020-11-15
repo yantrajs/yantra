@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.LightWeight
@@ -49,19 +50,21 @@ namespace YantraJS.Core.LightWeight
             length = stack.length;
         }
 
-
-        public int Push()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T Push(out int index)
         {
             EnsureCapacity(length);
-            return length++;
+            index = length++;
+            return ref storage[index];
         }
 
-        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pop()
         {
             --length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetAt(int index)
         {
             return ref storage[index];

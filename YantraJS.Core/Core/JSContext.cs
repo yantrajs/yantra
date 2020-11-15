@@ -155,9 +155,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal int Push(string fileName, string function, int line, int column)
         {
-            ref var stack = ref this.Stack;
-            var item = stack.Push();
-            ref var top = ref this.Stack.GetAt(item);
+            ref var top = ref Stack.Push(out var item);
             top.Function = function;
             top.FileName = fileName;
             top.Line = line;
