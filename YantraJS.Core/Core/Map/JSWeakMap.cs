@@ -28,19 +28,22 @@ namespace YantraJS.Core
             lock (this)
             {
                 var keysToDelete = new List<string>();
+                int count= 0;
                 foreach (var item in items.AllValues())
                 {
                     if (!item.Value.key.TryGetTarget(out var v))
                     {
                         keysToDelete.Add(item.Key);
+                        continue;
                     }
+                    count++;
                 }
                 foreach (var key in keysToDelete)
                 {
                     items.RemoveAt(key);
                 }
 
-                if (items.Count > 0)
+                if (count > 0)
                 {
                     SetTimeout();
                 }

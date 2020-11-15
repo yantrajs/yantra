@@ -67,12 +67,12 @@ namespace YantraJS.Core.Core.Storage
     /// </summary>
     public struct StringMap<T>
     {
+        private const int Bits = 2;
+        private const int Size = 1 << Bits;
+        private const int Mask = ~(-1 << Bits);
+
 
         public static StringMap<T> Null = new StringMap<T>() { State = MapValueState.Null };
-
-        private int count;
-
-        public int Count => count;
 
         public bool IsNull
         {
@@ -162,7 +162,7 @@ namespace YantraJS.Core.Core.Storage
             if (Nodes != null)
             {
                 (string Key, T Value) pair;
-                for (int i = 0; i < 8; i++)
+                for (int i = 0; i < Size; i++)
                 {
                     if(TryGetAt(i, out pair)) {
                         yield return pair;
@@ -260,9 +260,6 @@ namespace YantraJS.Core.Core.Storage
         public void Save(in HashedString key, T value)
         {
             ref var node = ref GetNode(in key, true);
-            if (!node.HasValue) {
-                count++;
-            }
             node.State = MapValueState.HasValue | MapValueState.Filled;
             node.value = value;
         }
@@ -273,15 +270,15 @@ namespace YantraJS.Core.Core.Storage
             ref var current = ref this;
 
             int start = originalKey.Hash;
-            for(; start != 0; start >>= 3)
+            for(; start != 0; start >>= Bits)
             {
                 if(current.Nodes == null)
                 {
                     if (!create)
                         return ref Null;
-                    current.Nodes = new StringMap<T>[8];
+                    current.Nodes = new StringMap<T>[Size];
                 }
-                node = ref current.Nodes[start & 0x7];
+                node = ref current.Nodes[start & Mask];
                 if (!node.HasIndex)
                 {
                     if (create)
@@ -319,16 +316,16 @@ namespace YantraJS.Core.Core.Storage
             foreach(var ch in originalKey.Value)
             {
                 Int32 uch = ch;
-                for (; uch > 0; uch >>= 3)
+                for (; uch > 0; uch >>= Bits)
                 {
                     if(current.Nodes == null)
                     {
                         if (!create)
                             return ref Null;
-                        current.Nodes = new StringMap<T>[8];
+                        current.Nodes = new StringMap<T>[Size];
                     }
 
-                    node = ref current.Nodes[uch & 0x7];
+                    node = ref current.Nodes[uch & Mask];
                     if (!node.HasIndex)
                     {
                         if (create)
@@ -375,7 +372,6 @@ namespace YantraJS.Core.Core.Storage
             {
                 node.State = MapValueState.Filled;
                 node.value = default;
-                count--;
                 return true;
             }
             return false;
