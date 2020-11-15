@@ -51,6 +51,14 @@ namespace YantraJS
             HashedString hsName = name;
             if (keyStrings.TryGetValue(in hsName, out ParameterExpression pe))
                 return pe;
+
+            // search for variable...
+            var fx = typeof(KeyStrings).GetField(name);
+            if (fx != null)
+            {
+                return Exp.Field(null, fx);
+            }
+
             pe = Exp.Variable(typeof(KeyString), name);
             keyStrings.Save(in hsName, pe);
             return pe;
