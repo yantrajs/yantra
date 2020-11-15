@@ -139,7 +139,7 @@ namespace YantraJS.Core.Core.Storage
         public bool TryRemove(uint key, out T value)
         {
             ref var node = ref GetNode(key);
-            if (node.IsNull)
+            if (!node.HasValue)
             {
                 value = default;
                 return false;

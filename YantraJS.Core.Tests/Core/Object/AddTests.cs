@@ -63,7 +63,7 @@ namespace YantraJS.Tests.Core.Object
             a["valueOf"] = new JSFunction((in Arguments a) => {
                 return JSUndefined.Value;
             });
-            a["length"] = a;
+            // a["length"] = a;
             Assert.AreEqual(-1, a.Length);
         }
 

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YantraJS.Core;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Generator;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
@@ -39,17 +40,18 @@ namespace YantraJS
 
         readonly ParameterExpression FileNameExpression;
 
-        readonly Dictionary<string, ParameterExpression> keyStrings
-            = new Dictionary<string, ParameterExpression>();
+        private StringMap<ParameterExpression> _keyStrings;
 
-        public Exp KeyOfName(string name)
+
+        public Exp KeyOfName(in HashedString name)
         {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException(nameof(name));
+            //if (string.IsNullOrEmpty(name.Value))
+            //    throw new ArgumentNullException(nameof(name));
+            ref var keyStrings = ref _keyStrings;
             if (keyStrings.TryGetValue(name, out ParameterExpression pe))
                 return pe;
-            pe = Exp.Variable(typeof(KeyString), name);
-            keyStrings.Add(name, pe);
+            pe = Exp.Variable(typeof(KeyString), name.Value);
+            keyStrings.Save(name, pe);
             return pe;
         }
 
@@ -154,8 +156,8 @@ namespace YantraJS
                 var l = fx.ReturnLabel;
 
                 var script = Visit(jScript);
-
-                foreach (var ks in keyStrings)
+                ref var keyStrings = ref _keyStrings;
+                foreach (var ks in keyStrings.AllValues())
                 {
                     var v = ks.Value;
                     vList.Add(v);
