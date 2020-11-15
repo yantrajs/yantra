@@ -82,18 +82,40 @@ namespace YantraJS.Core.Core.Storage
 
         public IEnumerable<(uint Key, T Value)> AllValues()
         {
-            foreach(var node in Nodes)
+            if (Nodes != null)
             {
-                if (node.Nodes != null)
+                (uint Key, T Value) pair;
+                for (int i = 0; i < 4; i++)
                 {
-                    foreach (var child in node.AllValues())
-                        yield return child;
-                }
-                if (node.HasValue)
-                {
-                    yield return (node.Key, node.value);
+                    if (TryGetAt(i, out pair))
+                    {
+                        yield return pair;
+                    }
+                    foreach (var item in AllValues(i))
+                    {
+                        yield return item;
+                    }
                 }
             }
+        }
+
+        private IEnumerable<(uint Key, T Value)> AllValues(int i)
+        {
+            ref var node = ref Nodes[i];
+            return node.AllValues();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool TryGetAt(int index, out (uint Key, T Value) pair)
+        {
+            ref var node = ref Nodes[index];
+            if (node.HasValue)
+            {
+                pair = (node.Key, node.value);
+                return true;
+            }
+            pair = (0, default);
+            return false;
         }
 
         private MapValueState State;
