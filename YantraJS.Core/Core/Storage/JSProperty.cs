@@ -30,23 +30,66 @@ namespace YantraJS.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct JSProperty
+    public readonly struct JSProperty
     {
 
         public static JSProperty Empty = new JSProperty();
 
-        public JSPropertyAttributes Attributes;
+        public static JSProperty Deleted = Empty.Delete();
 
-        public KeyString key;
+        public readonly JSPropertyAttributes Attributes;
+
+        public readonly KeyString key;
 
         // this slot will be used for getting method as well...
         // to avoid casting at runtime...
-        public JSFunction get;
-        public JSFunction set;
-        public JSValue value;
+        public readonly JSFunction get;
+        public readonly JSFunction set;
+        public readonly JSValue value;
 
-        
-        
+        public JSProperty Delete()
+        {
+            return new JSProperty(key, get, set, value, JSPropertyAttributes.Deleted);
+        }
+
+        public JSProperty(
+            in KeyString key,
+            JSFunction get,
+            JSFunction set,
+            JSPropertyAttributes attributes)
+        {
+            this.key = key;
+            this.get = get;
+            this.set = set;
+            this.value = get;
+            this.Attributes = attributes;
+        }
+        public JSProperty(
+            in KeyString key,
+            JSFunction get,
+            JSFunction set,
+            JSValue value,
+            JSPropertyAttributes attributes)
+        {
+            this.key = key;
+            this.get = get;
+            this.set = set;
+            this.value = value;
+            this.Attributes = attributes;
+        }
+
+        public JSProperty(
+            in KeyString key,
+            JSValue get,
+            JSPropertyAttributes attributes)
+        {
+            this.key = key;
+            this.get = get as JSFunction;
+            this.set = null;
+            this.value = get;
+            this.Attributes = attributes;
+        }
+
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -97,17 +140,13 @@ namespace YantraJS.Core
         //    };
         //}
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Property(
             JSValue d,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            return new JSProperty
-            {
-                value = d,
-                get = d as JSFunction,
-                Attributes = attributes
-            };
+            return new JSProperty(KeyString.Empty, d, attributes);
         }
 
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -146,13 +185,7 @@ namespace YantraJS.Core
             JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableValue, int length = 0)
         {
             var fx = new JSFunction(d, null, null, length);
-            return new JSProperty
-            {
-                key = key,
-                get = fx,
-                value = fx,
-                Attributes = attributes
-            };
+            return new JSProperty(key, fx, null, attributes);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -161,13 +194,7 @@ namespace YantraJS.Core
             JSValue d,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            return new JSProperty
-            {
-                key = key,
-                value = d,
-                get = d as JSFunction,
-                Attributes = attributes
-            };
+            return new JSProperty(key, d, attributes);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -176,13 +203,7 @@ namespace YantraJS.Core
             JSFunction d,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            return new JSProperty
-            {
-                key = key,
-                value = d,
-                get = d,
-                Attributes = attributes
-            };
+            return new JSProperty(key, d, attributes);
         }
 
 
@@ -193,13 +214,13 @@ namespace YantraJS.Core
             JSFunctionDelegate set = null,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            return new JSProperty
-            {
-                key = key,
-                get = new JSFunction(get),
-                set = set != null ? new JSFunction(set) : null,
-                Attributes = attributes
-            };
+            var fget = new JSFunction(get);
+            var fset = new JSFunction(set);
+            return new JSProperty(key, fget, fset, attributes);
+        }
+        public JSProperty With(in KeyString key)
+        {
+            return new JSProperty(key, get, set, value, Attributes);
         }
 
     }

@@ -127,6 +127,7 @@ namespace YantraJS.Core.Core.Storage
 
         public T this[uint key]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 ref var node = ref GetNode(key);
@@ -134,12 +135,14 @@ namespace YantraJS.Core.Core.Storage
                     return node.value;
                 return default;
             }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 Save(key, value);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(uint key, out T value)
         {
             ref var node = ref GetNode(key);
@@ -152,12 +155,14 @@ namespace YantraJS.Core.Core.Storage
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasKey(uint key)
         {
             ref var node = ref GetNode(key);
             return node.HasValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryRemove(uint key, out T value)
         {
             ref var node = ref GetNode(key);
@@ -171,6 +176,7 @@ namespace YantraJS.Core.Core.Storage
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Save(uint key, T value)
         {
             ref var node = ref GetNode(key, true);
@@ -181,6 +187,7 @@ namespace YantraJS.Core.Core.Storage
             node.value = value;
         }
 
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ref UInt32Map<T> GetNode(uint originalKey, bool create = false)
         {
             ref var node = ref Null;
@@ -264,6 +271,7 @@ namespace YantraJS.Core.Core.Storage
                 return ref node;
             return ref Null;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool RemoveAt(uint key)
         {
             ref var node = ref GetNode(key);

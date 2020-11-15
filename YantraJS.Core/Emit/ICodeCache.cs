@@ -7,7 +7,7 @@ using YantraJS.Core;
 
 namespace YantraJS.Emit
 {
-    public struct JSCode
+    public readonly struct JSCode
     {
         public readonly string Location;
 

@@ -4,17 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using YantraJS.Core;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Utils
 {
 
-    public class ScopeAnaylzerNode : LinkedStackItem<ScopeAnaylzerNode>
+    public class ScopeAnalyzerNode : LinkedStackItem<ScopeAnalyzerNode>
     {
 
-        private Dictionary<string, (string name, VariableDeclarationKind kind)> Variables
-            = new Dictionary<string, (string name, VariableDeclarationKind kind)>();
+        private StringMap<(string name, VariableDeclarationKind kind)> Variables;
+            // = new Dictionary<string, (string name, VariableDeclarationKind kind)>();
 
-        public ScopeAnaylzerNode(Node node)
+        public ScopeAnalyzerNode(Node node)
         {
             Node = node;
         }
@@ -80,7 +81,7 @@ namespace YantraJS.Utils
                 stmt = fx.Body as Statement;
             }
             List<string> list = new List<string>();
-            foreach (var node in Variables)
+            foreach (var node in Variables.AllValues())
             {
                 if(node.Value.kind == VariableDeclarationKind.Var)
                 {
@@ -131,13 +132,13 @@ namespace YantraJS.Utils
 
         public void Process(Program node)
         {
-            using (stack.Push(new ScopeAnaylzerNode(node)))
+            using (stack.Push(new ScopeAnalyzerNode(node)))
             {
                 this.Visit(node);
             }
         }
 
-        private LinkedStack<ScopeAnaylzerNode> stack = new LinkedStack<ScopeAnaylzerNode>();
+        private LinkedStack<ScopeAnalyzerNode> stack = new LinkedStack<ScopeAnalyzerNode>();
 
         protected override void VisitVariableDeclaration(VariableDeclaration variableDeclaration)
         {
@@ -163,7 +164,7 @@ namespace YantraJS.Utils
 
         protected override void VisitBlockStatement(BlockStatement blockStatement)
         {
-            using (stack.Push(new ScopeAnaylzerNode(blockStatement)))
+            using (stack.Push(new ScopeAnalyzerNode(blockStatement)))
             {
                 base.VisitBlockStatement(blockStatement);
             }
@@ -179,7 +180,7 @@ namespace YantraJS.Utils
         protected override void VisitFunctionDeclaration(FunctionDeclaration functionDeclaration)
         {
             stack.Top.AddVariable(functionDeclaration.Id?.Name);
-            using (stack.Push(new ScopeAnaylzerNode(functionDeclaration)))
+            using (stack.Push(new ScopeAnalyzerNode(functionDeclaration)))
             {
                 base.VisitFunctionDeclaration(functionDeclaration);
             }
@@ -188,7 +189,7 @@ namespace YantraJS.Utils
         protected override void VisitFunctionExpression(IFunction function)
         {
             stack.Top.AddVariable(function.Id?.Name);
-            using (stack.Push(new ScopeAnaylzerNode(function as Node)))
+            using (stack.Push(new ScopeAnalyzerNode(function as Node)))
             {
                 base.VisitFunctionExpression(function);
             }
@@ -197,7 +198,7 @@ namespace YantraJS.Utils
         protected override void VisitArrowFunctionExpression(ArrowFunctionExpression arrowFunctionExpression)
         {
             stack.Top.AddVariable(arrowFunctionExpression.Id?.Name);
-            using (stack.Push(new ScopeAnaylzerNode(arrowFunctionExpression)))
+            using (stack.Push(new ScopeAnalyzerNode(arrowFunctionExpression)))
             {
                 base.VisitArrowFunctionExpression(arrowFunctionExpression);
             }
@@ -225,7 +226,7 @@ namespace YantraJS.Utils
 
         protected override void VisitProgram(Program program)
         {
-            using (stack.Push(new ScopeAnaylzerNode(program)))
+            using (stack.Push(new ScopeAnalyzerNode(program)))
             {
                 base.VisitProgram(program);
             }

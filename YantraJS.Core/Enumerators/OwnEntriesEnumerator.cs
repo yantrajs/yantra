@@ -49,9 +49,9 @@ namespace YantraJS
     }
 
 
-    public struct ListElementEnumerator : IElementEnumerator
+    public readonly struct ListElementEnumerator : IElementEnumerator
     {
-        private List<JSValue>.Enumerator en;
+        private readonly List<JSValue>.Enumerator en;
 
         public ListElementEnumerator(in List<JSValue>.Enumerator en)
         {
@@ -120,7 +120,7 @@ namespace YantraJS
         }
     }
 
-    public struct ClrObjectEnumerable<T> : IEnumerable<T>
+    public readonly struct ClrObjectEnumerable<T> : IEnumerable<T>
     {
 
         readonly JSValue value;

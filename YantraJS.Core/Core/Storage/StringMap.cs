@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.Core.Storage
 {
-    public struct HashedString : IEquatable<HashedString>, IComparable<HashedString>
+    public readonly struct HashedString : IEquatable<HashedString>, IComparable<HashedString>
     {
         public readonly string Value;
 
@@ -175,6 +175,7 @@ namespace YantraJS.Core.Core.Storage
             } 
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IEnumerable<(string Key, T Value)> AllValues(int i)
         {
             ref var node = ref Nodes[i];
@@ -203,6 +204,7 @@ namespace YantraJS.Core.Core.Storage
 
         public T this[HashedString index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 ref var node = ref GetNode(index);
@@ -210,12 +212,14 @@ namespace YantraJS.Core.Core.Storage
                     return node.value;
                 return default;
             }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 Save(index, value);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(in HashedString key, out T value)
         {
             ref var node = ref GetNode(key);
@@ -228,12 +232,14 @@ namespace YantraJS.Core.Core.Storage
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasKey(string key)
         {
             ref var node = ref GetNode(key);
             return node.HasValue && node.Key == key;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryRemove(string key, out T value)
         {
             ref var node = ref GetNode(key);
@@ -247,6 +253,8 @@ namespace YantraJS.Core.Core.Storage
             return false;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Save(in HashedString key, T value)
         {
             ref var node = ref GetNode(key, true);
@@ -358,6 +366,7 @@ namespace YantraJS.Core.Core.Storage
                 return ref node;
             return ref Null;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool RemoveAt(string key)
         {
             ref var node = ref GetNode(key);

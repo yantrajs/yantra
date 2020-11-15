@@ -216,7 +216,7 @@ namespace YantraJS.Core
                     ref var p = ref properties[i];
                     if (p.key.Key == key)
                     {
-                        p.Attributes = JSPropertyAttributes.Deleted;
+                        p = JSProperty.Deleted;
                         return true;
                     }
                 }
@@ -225,7 +225,7 @@ namespace YantraJS.Core
             if (map.TryRemove(key, out var pkey))
             {
                 // move all properties up...
-                properties[pkey] = new JSProperty { Attributes = JSPropertyAttributes.Deleted };
+                properties[pkey] = JSProperty.Deleted;
             }
             return false;
         }

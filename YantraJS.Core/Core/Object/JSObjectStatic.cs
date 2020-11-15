@@ -288,7 +288,8 @@ namespace YantraJS.Core
             @object.status |= ObjectStatus.Sealed;
             @object.GetOwnProperties().Update((x, v) =>
             {
-                v.Attributes &= ~(JSPropertyAttributes.Configurable);
+                // v.Attributes &= ~(JSPropertyAttributes.Configurable);
+                v = new JSProperty(v.key, v.get, v.set, v.value, v.Attributes & (~JSPropertyAttributes.Configurable));
                 return (true, v);
             });
             return first;

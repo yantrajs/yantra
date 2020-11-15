@@ -108,7 +108,7 @@ namespace YantraJS.Core
         #region Fill
 
         private static (JSFunctionDelegate getter, JSFunctionDelegate setter) 
-            CreateProperty(this (PropertyInfo method, PrototypeAttribute attribute) m)
+            CreateProperty(in this (PropertyInfo method, PrototypeAttribute attribute) m)
         {
             
             var (property, p) = m;
@@ -171,7 +171,7 @@ namespace YantraJS.Core
         }
 
 
-        private static JSFunctionDelegate CreateJSFunctionDelegate(this (MethodInfo method, PrototypeAttribute attribute) m)
+        private static JSFunctionDelegate CreateJSFunctionDelegate(in this (MethodInfo method, PrototypeAttribute attribute) m)
         {
             var (method, p) = m;
             if (method.IsStatic)
@@ -327,8 +327,8 @@ namespace YantraJS.Core
         public static JSFunction Create(in KeyString key, Type type)
         {
             JSFunction r = typeof(JSFunction).IsAssignableFrom(type) && type != typeof(JSFunction)
-                ? (JSFunction)Activator.CreateInstance(type, key.ToString())
-                : new JSFunction(JSFunction.empty, key.ToString());
+                ? (JSFunction)Activator.CreateInstance(type, key.Value)
+                : new JSFunction(JSFunction.empty, key.Value);
 
             var p = r.prototype;
 

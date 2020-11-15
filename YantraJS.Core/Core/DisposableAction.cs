@@ -2,7 +2,7 @@
 
 namespace YantraJS.Core
 {
-    public struct DisposableAction : IDisposable
+    public readonly struct DisposableAction : IDisposable
     {
         readonly Action action;
         public DisposableAction(Action action)

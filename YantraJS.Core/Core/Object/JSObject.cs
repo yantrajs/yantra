@@ -290,7 +290,7 @@ namespace YantraJS.Core
             }
         }
 
-        public JSValue DefineProperty(JSSymbol name, JSProperty p)
+        public JSValue DefineProperty(JSSymbol name, in JSProperty p)
         {
             var key = name.Key.Key;
             var old = symbols[key];
@@ -301,12 +301,12 @@ namespace YantraJS.Core
                     throw new UnauthorizedAccessException();
                 }
             }
-            p.key = name.Key;
-            symbols[key] = p;
+            // p.key = name.Key;
+            symbols[key] = p.With(name.Key);
             return JSUndefined.Value;
         }
 
-        public JSValue DefineProperty(KeyString name, JSProperty p)
+        public JSValue DefineProperty(KeyString name, in JSProperty p)
         {
             var key = name.Key;
             ref var ownProperties = ref GetOwnProperties();
@@ -318,8 +318,8 @@ namespace YantraJS.Core
                     throw new UnauthorizedAccessException();
                 }
             }
-            p.key = name;
-            ownProperties[key] = p;
+            // p.key = name;
+            ownProperties[key] = p.With(name);
             return JSUndefined.Value;
         }
 
@@ -451,7 +451,9 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void InternalAddProperty(JSObject target, uint key, JSValue pd)
         {
-            var p = new JSProperty();
+            JSFunction pget = null;
+            JSFunction pset = null;
+            JSValue pvalue = null;
             var value = pd[KeyStrings.value];
             var get = pd[KeyStrings.get] as JSFunction;
             var set = pd[KeyStrings.set] as JSFunction;
@@ -465,21 +467,21 @@ namespace YantraJS.Core
             if (get != null)
             {
                 pt |= JSPropertyAttributes.Property;
-                p.get = get;
+                pget = get;
             }
             if (set != null)
             {
                 pt |= JSPropertyAttributes.Property;
-                p.set = set;
+                pset = set;
             }
             if (get == null && set == null)
             {
                 pt |= JSPropertyAttributes.Value;
-                p.value = value;
+                pvalue = value;
             }
-            p.Attributes = pt;
+            var pAttributes = pt;
             ref var elements = ref target.CreateElements();
-            elements[key] = p;
+            elements[key] = new JSProperty(KeyString.Empty, pget, pset, pvalue, pAttributes);
             if (target is JSArray array)
             {
                 if (array._length <= key)
@@ -490,10 +492,9 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void InternalAddProperty(JSObject target, in KeyString key, JSValue pd)
         {
-            var p = new JSProperty
-            {
-                key = key
-            };
+            JSFunction pget = null;
+            JSFunction pset = null;
+            JSValue pvalue = null;
             var value = pd[KeyStrings.value];
             var get = pd[KeyStrings.get] as JSFunction;
             var set = pd[KeyStrings.set] as JSFunction;
@@ -507,31 +508,27 @@ namespace YantraJS.Core
             if (get != null)
             {
                 pt |= JSPropertyAttributes.Property;
-                p.get = get;
+                pget = get;
             }
             if (set != null)
             {
                 pt |= JSPropertyAttributes.Property;
-                p.set = set;
+                pset = set;
             }
             if (get == null && set == null)
             {
                 pt |= JSPropertyAttributes.Value;
-                p.value = value;
-                p.get = value as JSFunction;
+                pvalue = value;
+                pget = value as JSFunction;
             }
-            p.Attributes = pt;
+            var pAttributes = pt;
             ref var ownProperties = ref target.GetOwnProperties();
-            ownProperties[p.key.Key] = p;
+            ownProperties[key.Key] = new JSProperty(key, pget, pset, pvalue, pAttributes);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void InternalAddProperty(JSObject target, JSSymbol key, JSValue pd)
         {
-            var p = new JSProperty
-            {
-                key = key.Key
-            };
             var value = pd[KeyStrings.value];
             var get = pd[KeyStrings.get] as JSFunction;
             var set = pd[KeyStrings.set] as JSFunction;
@@ -545,22 +542,19 @@ namespace YantraJS.Core
             if (get != null)
             {
                 pt |= JSPropertyAttributes.Property;
-                p.get = get;
             }
             if (set != null)
             {
                 pt |= JSPropertyAttributes.Property;
-                p.set = set;
             }
             if (get == null && set == null)
             {
                 pt |= JSPropertyAttributes.Value;
-                p.value = value;
-                p.get = value as JSFunction;
+                get = value as JSFunction;
             }
-            p.Attributes = pt;
+            // p.Attributes = pt;
             // var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
-            target.symbols[p.key.Key] = p;
+            target.symbols[key.Key.Key] = new JSProperty(key.Key, get, set, value, pt);
         }
 
 
@@ -729,7 +723,7 @@ namespace YantraJS.Core
             return new ElementEnumerator(this);
         }
 
-        private struct ElementEnumerator : IElementEnumerator
+        private readonly struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
             readonly IEnumerator<(uint Key, JSProperty Value)> en;

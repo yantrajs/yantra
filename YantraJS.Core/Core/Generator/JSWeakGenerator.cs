@@ -2,7 +2,7 @@
 
 namespace YantraJS.Core.Generator
 {
-    public struct JSWeakGenerator
+    public readonly struct JSWeakGenerator
     {
         internal readonly WeakReference<JSGenerator> generator;
 

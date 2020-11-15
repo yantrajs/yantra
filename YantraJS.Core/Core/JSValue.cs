@@ -465,7 +465,7 @@ namespace YantraJS.Core {
         }
 
 
-        private struct ElementEnumerator : IElementEnumerator
+        private readonly struct ElementEnumerator : IElementEnumerator
         {
             public static IElementEnumerator Empty = new ElementEnumerator();
 
