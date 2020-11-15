@@ -703,20 +703,24 @@ namespace YantraJS
                         switch (prop)
                         {
                             case Property property:
-                                switch (property.Key)
+                                switch (property.Key.Type)
                                 {
-                                    case Identifier id:
+                                    case Nodes.Identifier:
+                                        Identifier id = property.Key as Identifier;
                                         start = CreateMemberExpression(init, id, property.Computed);
                                         break;
                                     default:
                                         throw new NotImplementedException();
                                 }
-                                switch(property.Value)
+                                switch(property.Value.Type)
                                 {
-                                    case Identifier vid:
+                                    case Nodes.Identifier:
+                                        Identifier vid = property.Value as Identifier;
                                         inits.Add(CreateAssignment(vid, start, true, newScope));
                                         break;
-                                    case BindingPattern vp:
+                                    case Nodes.ArrayPattern:
+                                    case Nodes.ObjectPattern:
+                                        BindingPattern vp = property.Value as BindingPattern;
                                         inits.Add(CreateAssignment(vp, start, true, newScope));
                                         break;
                                     default:
@@ -830,9 +834,10 @@ namespace YantraJS
                 {
                     dInit = sDeclarator.Init;
                 }
-                switch(declarator.Id)
+                switch(declarator.Id.Type)
                 {
-                    case Esprima.Ast.Identifier id:
+                    case Nodes.Identifier:
+                        Esprima.Ast.Identifier id = declarator.Id as Identifier;
                         // variable might exist in current scope
                         // do not create and just set a value here...
                         var ve = this.scope.Top.CreateVariable(id.Name, null, newScope);
@@ -846,7 +851,8 @@ namespace YantraJS
                             inits.Add(Exp.Assign(ve.Variable, Exp.Coalesce(ve.Variable, JSVariableBuilder.New(id.Name))));
                         }
                         break;
-                    case Esprima.Ast.ObjectPattern objectPattern:
+                    case Nodes.ObjectPattern:
+                        Esprima.Ast.ObjectPattern objectPattern = declarator.Id as ObjectPattern;
                         // it will always have an init...
                         // put init in temp...
                         using (var temp = this.scope.Top.GetTempVariable())
@@ -855,7 +861,8 @@ namespace YantraJS
                             inits.Add(CreateAssignment(objectPattern, temp.Expression, true, newScope));
                         }
                         break;
-                    case Esprima.Ast.ArrayPattern arrayPattern:
+                    case Nodes.ArrayPattern:
+                        Esprima.Ast.ArrayPattern arrayPattern = declarator.Id as ArrayPattern;
                         // it will always have an init...
                         // put init in temp...
                         using (var temp = this.scope.Top.GetTempVariable())
@@ -1000,18 +1007,18 @@ namespace YantraJS
 
         protected override Exp VisitLabeledStatement(Esprima.Ast.LabeledStatement labeledStatement)
         {
-            switch(labeledStatement.Body)
+            switch(labeledStatement.Body.Type)
             {
-                case ForStatement forStatement:
-                    return VisitForStatement(forStatement, labeledStatement.Label.Name);
-                case ForOfStatement forOfStatement:
-                    return VisitForOfStatement(forOfStatement, labeledStatement.Label.Name);
-                case ForInStatement forInStatement:
-                    return VisitForInStatement(forInStatement, labeledStatement.Label.Name);
-                case WhileStatement whileStatement:
-                    return VisitWhileStatement(whileStatement, labeledStatement.Label.Name);
-                case DoWhileStatement doWhileStatement:
-                    return VisitDoWhileStatement(doWhileStatement, labeledStatement.Label.Name);
+                case Nodes.ForStatement:
+                    return VisitForStatement(labeledStatement.Body as ForStatement, labeledStatement.Label.Name);
+                case Nodes.ForOfStatement:
+                    return VisitForOfStatement(labeledStatement.Body as ForOfStatement, labeledStatement.Label.Name);
+                case Nodes.ForInStatement:
+                    return VisitForInStatement(labeledStatement.Body as ForInStatement, labeledStatement.Label.Name);
+                case Nodes.WhileStatement:
+                    return VisitWhileStatement(labeledStatement.Body as WhileStatement, labeledStatement.Label.Name);
+                case Nodes.DoWhileStatement:
+                    return VisitDoWhileStatement(labeledStatement.Body as DoWhileStatement, labeledStatement.Label.Name);
                 default:
                     throw JSContext.Current.NewSyntaxError($"Label can only be used for loops");
             }
@@ -1141,7 +1148,7 @@ namespace YantraJS
                         list.Add(update);
                     }
                     blockList.Add(Exp.Loop(Exp.Block(list), breakTarget));
-                    return Exp.Block(paramList, blockList);
+                    return new List<Exp> { Exp.Block(paramList, blockList) };
                 });
             }
         }
@@ -1326,7 +1333,7 @@ namespace YantraJS
 
         protected override Exp VisitSequenceExpression(Esprima.Ast.SequenceExpression sequenceExpression)
         {
-            var list = sequenceExpression.Expressions.Select(x => VisitExpression(x)).ToList();
+            var list = Visit(in sequenceExpression.Expressions);
             return Exp.Block(list);
         }
 
@@ -1405,7 +1412,7 @@ namespace YantraJS
         protected override Exp VisitNewExpression(Esprima.Ast.NewExpression newExpression)
         {
             var constructor = VisitExpression(newExpression.Callee);
-            var args = newExpression.Arguments.Select(e => VisitExpression((Esprima.Ast.Expression)e)).ToList();
+            var args = Visit(in newExpression.Arguments);
             var pe = ArgumentsBuilder.New( JSUndefinedBuilder.Value, args);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
@@ -1767,7 +1774,7 @@ namespace YantraJS
             {
                 quasis.Add(quasi.Value.Raw);
             }
-            return JSTemplateStringBuilder.New(quasis, templateLiteral.Expressions.Select(x => VisitExpression(x)));
+            return JSTemplateStringBuilder.New(quasis, Visit(in templateLiteral.Expressions));
         }
 
         protected override Exp VisitTemplateElement(Esprima.Ast.TemplateElement templateElement)
@@ -1804,7 +1811,7 @@ namespace YantraJS
         protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)
         {
             var calle = callExpression.Callee;
-            var args = callExpression.Arguments.Select((e) => VisitExpression((Esprima.Ast.Expression)e)).ToList();
+            var args = Visit(callExpression.Arguments);
             
             if (calle is Esprima.Ast.MemberExpression me)
             {
@@ -1813,20 +1820,24 @@ namespace YantraJS
 
                 Exp name;
 
-                switch(me.Property)
+                switch(me.Property.Type)
                 {
-                    case Identifier id:
+                    case Nodes.Identifier:
+                        var id = me.Property as Identifier;
                         name = me.Computed ? VisitExpression(id) : KeyOfName(id.Name);
                         // name = KeyOfName(id.Name);
                         break;
-                    case Literal l when l.TokenType == TokenType.StringLiteral:
-                        name = KeyOfName(l.StringValue);
+                    case Nodes.Literal:
+                        var l = me.Property as Literal;
+                        if (l.TokenType == TokenType.StringLiteral)
+                            name = KeyOfName(l.StringValue);
+                        else if (l.TokenType == TokenType.NumericLiteral)
+                            name = Exp.Constant((uint)l.NumericValue);
+                        else 
+                            throw new NotImplementedException();
                         break;
-                    case Literal l1 when l1.TokenType == TokenType.NumericLiteral:
-                        name = Exp.Constant((uint)l1.NumericValue);
-                        break;
-                    case StaticMemberExpression sme:
-                        name = VisitMemberExpression(sme);
+                    case Nodes.MemberExpression:
+                        name = VisitMemberExpression(me.Property as MemberExpression);
                         break;
                     default:
                         throw new NotImplementedException($"{me.Property}");
@@ -1850,7 +1861,7 @@ namespace YantraJS
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
                 }
 
-                return DebugExpression( callExpression, () => JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
+                return DebugNode( callExpression, JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
 
             } else {
 
@@ -1867,7 +1878,7 @@ namespace YantraJS
                     ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args)
                     : ArgumentsBuilder.Empty();
                 var callee = VisitExpression(callExpression.Callee);
-                return DebugExpression( callExpression, () => JSFunctionBuilder.InvokeFunction(callee, paramArray));
+                return DebugNode( callExpression, JSFunctionBuilder.InvokeFunction(callee, paramArray));
             }
         }
 
@@ -1889,17 +1900,12 @@ namespace YantraJS
             List<Exp> list = new List<Exp>();
             foreach(var e in arrayExpression.Elements)
             {
-                switch(e)
+                if (e == null)
                 {
-                    case Expression exp:
-                        list.Add(VisitExpression(exp));
-                        break;
-                    case null:
-                        list.Add(Exp.Constant(null, typeof(JSValue)));
-                        break;
-                    default:
-                        throw new NotImplementedException();
+                    list.Add(Exp.Constant(null, typeof(JSValue)));
+                    continue;
                 }
+                list.Add(VisitExpression(e));
             }
             return ExpHelper.JSArrayBuilder.New(list);
         }
@@ -1952,7 +1958,7 @@ namespace YantraJS
         private Exp NewLexicalScope(
             FunctionScope fnScope, 
             Node exp, 
-            Func<Exp> factory)
+            Func<List<Exp>> factory)
         {
             var top = this.scope.Top;
             var varToPush = top.PushToNewScope;
@@ -1988,16 +1994,11 @@ namespace YantraJS
                 stmtList.AddRange(scope.InitList);
                 vList.AddRange(scope.VariableParameters);
                 stmtList.AddRange(pushedInits);
-                stmtList.Add(visited);
+                stmtList.AddRange(visited);
 
                 return Exp.Block(vList,stmtList).ToJSValue();
             }
 
-        }
-
-        private Exp VisitStatements(in NodeList<Statement> body)
-        {
-            return Exp.Block(body.Select(x => VisitStatement((Statement)x)));
         }
 
         protected override Exp VisitBlockStatement(Esprima.Ast.BlockStatement blockStatement)
@@ -2013,13 +2014,17 @@ namespace YantraJS
                             this.scope.Top.CreateVariable(v, JSVariableBuilder.New(v));
                         }
                     }
-
-                    return VisitStatements(in blockStatement.Body);
+                    return VisitBody(blockStatement);
                 });
         }
 
+        private List<Exp> VisitBody(BlockStatement stmt)
+        {
+            return Visit(in stmt.Body);
+        }
+
         private Exp CreateBlock(in NodeList<Statement> body) {
-            var visitedList = body.Select(a => VisitStatement((Statement)a)).ToList();
+            var visitedList = Visit(in body);
 
             if (visitedList.Any())
             {

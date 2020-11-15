@@ -224,6 +224,25 @@ namespace YantraJS.Utils
             return result;
         }
 
+        public List<T> Visit(in NodeList<Expression> list)
+        {
+            var r = new List<T>(list.Count);
+            foreach(var exp in list)
+            {
+                r.Add(VisitExpression(exp));
+            }
+            return r;
+        }
+        public List<T> Visit(in NodeList<Statement> list)
+        {
+            var r = new List<T>(list.Count);
+            foreach (var exp in list)
+            {
+                r.Add(VisitStatement(exp));
+            }
+            return r;
+        }
+
         protected virtual T VisitStatement(Statement statement)
         {
             switch (statement.Type)
