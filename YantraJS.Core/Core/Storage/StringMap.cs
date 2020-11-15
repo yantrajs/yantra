@@ -120,23 +120,78 @@ namespace YantraJS.Core.Core.Storage
             }
         }
 
+        //struct Iterator : IEnumerator<(string Key, T Value)>
+        //{
+
+        //    StringMap<T>[] array;
+        //    int index;
+        //    public Iterator(StringMap<T>[] array)
+        //    {
+        //        this.array = array;
+        //        this.index = -1;
+        //    }
+
+        //    public (string Key, T Value) Current {
+        //        get
+        //        {
+        //            ref var node = ref array[index];
+        //            return (node.Key.Value, node.value);
+        //        }
+        //    }
+
+        //    object IEnumerator.Current => Current;
+
+        //    public void Dispose()
+        //    {
+                
+        //    }
+
+        //    public bool MoveNext()
+        //    {
+        //        return (this.index++) < this.array.Length;
+        //    }
+
+        //    public void Reset()
+        //    {
+                
+        //    }
+        //}
+
         public IEnumerable<(string Key, T Value)> AllValues()
         {
             if (Nodes != null)
             {
-                foreach (var node in Nodes)
+                (string Key, T Value) pair;
+                for (int i = 0; i < 8; i++)
                 {
-                    if (node.HasValue)
-                    {
-                        yield return (node.Key.Value, node.value);
+                    if(TryGetAt(i, out pair)) {
+                        yield return pair;
                     }
-                    if (node.Nodes != null)
+                    foreach (var item in AllValues(i))
                     {
-                        foreach (var child in node.AllValues())
-                            yield return child;
+                        yield return item;
                     }
                 }
+            } 
+        }
+
+        private IEnumerable<(string Key, T Value)> AllValues(int i)
+        {
+            ref var node = ref Nodes[i];
+            return node.AllValues();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool TryGetAt(int index, out (string Key, T Value) pair)
+        {
+            ref var node = ref Nodes[index];
+            if (node.HasValue)
+            {
+                pair = (node.Key.Value, node.value);
+                return true;
             }
+            pair = (null, default);
+            return false;
         }
 
         private MapValueState State;
