@@ -408,13 +408,15 @@ namespace YantraJS
 
                 foreach (var v in functionDeclaration.Params)
                 {
-                    switch (v)
+                    switch (v.Type)
                     {
-                        case Identifier id:
+                        case Nodes.Identifier:
+                            Identifier id = v as Identifier;
                             s.CreateVariable(id.Name,
                                 ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, id.Name));
                             break;
-                        case AssignmentPattern ap:
+                        case Nodes.AssignmentPattern:
+                            AssignmentPattern ap = v as AssignmentPattern;
                             var inits = CreateAssignment(
                                 ap.Left,
                                 ExpHelper.JSVariableBuilder.FromArgumentOptional(argumentElements, i, VisitExpression(ap.Right)), 
@@ -633,9 +635,10 @@ namespace YantraJS
 
         private Exp CreateMemberExpression(Exp target, Expression property, bool computed)
         {
-            switch (property)
+            switch (property.Type)
             {
-                case Identifier id:
+                case Nodes.Identifier:
+                    Identifier id = property as Identifier;
                     if (!computed)
                     {
                         return ExpHelper.JSValueBuilder.Index(
@@ -645,23 +648,29 @@ namespace YantraJS
                     return ExpHelper.JSValueBuilder.Index(
                         target,
                         VisitIdentifier(id));
-                case Literal l
-                    when l.TokenType == Esprima.TokenType.BooleanLiteral:
-                    return ExpHelper.JSValueBuilder.Index(
-                        target,
-                        l.BooleanValue ? (uint)0 : (uint)1);
-                case Literal l
-                    when l.TokenType == Esprima.TokenType.StringLiteral:
-                    return ExpHelper.JSValueBuilder.Index(
-                        target,
-                        KeyOfName(l.StringValue));
-                case Literal l
-                    when l.TokenType == Esprima.TokenType.NumericLiteral
-                        && l.NumericValue >= 0 && (l.NumericValue % 1 == 0):
-                    return ExpHelper.JSValueBuilder.Index(
-                        target,
-                        (uint)l.NumericValue);
-                case StaticMemberExpression se:
+                case Nodes.Literal:
+                    Literal l = property as Literal;
+                    switch (l.TokenType)
+                    {
+                        case Esprima.TokenType.BooleanLiteral:
+                            return ExpHelper.JSValueBuilder.Index(
+                                target,
+                                l.BooleanValue ? (uint)0 : (uint)1);
+
+                        case Esprima.TokenType.StringLiteral:
+                            return ExpHelper.JSValueBuilder.Index(
+                                target,
+                                    KeyOfName(l.StringValue));
+                        case Esprima.TokenType.NumericLiteral:
+                            if (l.NumericValue >= 0 && (l.NumericValue % 1 == 0))
+                                return ExpHelper.JSValueBuilder.Index(
+                                    target,
+                                    (uint)l.NumericValue);
+                            break;
+                    }
+                    break;
+                case Nodes.MemberExpression:
+                    StaticMemberExpression se = property as StaticMemberExpression;
                     return JSValueBuilder.Index(target, VisitExpression(se.Property));
 
             }
@@ -1577,10 +1586,11 @@ namespace YantraJS
             var exports = this.scope.Top.GetVariable("exports");
             Exp left;
             var top = this.scope.Top;
-
-            switch (exportNamedDeclaration.Declaration)
+            var ed = exportNamedDeclaration.Declaration;
+            switch (ed.Type)
             {
-                case VariableDeclaration vd:
+                case Nodes.VariableDeclaration:
+                    VariableDeclaration vd = ed as VariableDeclaration;
                     var sdd = new ScopedVariableDeclaration(vd);
                     var list = this.VisitVariableDeclaration(sdd);
                     foreach(var id in IdentifierExtractor.Names(vd))
@@ -1590,12 +1600,22 @@ namespace YantraJS
                         list.Add(Exp.Assign(left, right.Expression));
                     }
                     return Exp.Block(list);
-                case ClassDeclaration cd when cd.Id != null:
-                    left = JSValueBuilder.Index(exports.Expression, KeyOfName(cd.Id.Name));
-                    return Exp.Assign(left, VisitClassDeclaration(cd));
-                case FunctionDeclaration fd when fd.Id != null:
-                    left = JSValueBuilder.Index(exports.Expression, KeyOfName(fd.Id.Name));
-                    return Exp.Assign(left, VisitFunctionDeclaration(fd));
+                case Nodes.ClassDeclaration:
+                    ClassDeclaration cd = ed as ClassDeclaration;
+                    if (cd.Id != null)
+                    {
+                        left = JSValueBuilder.Index(exports.Expression, KeyOfName(cd.Id.Name));
+                        return Exp.Assign(left, VisitClassDeclaration(cd));
+                    }
+                    break;
+                case Nodes.FunctionDeclaration:
+                    FunctionDeclaration fd = ed as FunctionDeclaration;
+                    if (fd.Id != null)
+                    {
+                        left = JSValueBuilder.Index(exports.Expression, KeyOfName(fd.Id.Name));
+                        return Exp.Assign(left, VisitFunctionDeclaration(fd));
+                    }
+                    break;
 
             }
             throw new NotSupportedException();
@@ -1626,17 +1646,20 @@ namespace YantraJS
 
             foreach (var d in importDeclaration.Specifiers)
             {
-                switch (d) {
-                    case ImportDefaultSpecifier ids:
+                switch (d.Type) {
+                    case Nodes.ImportDefaultSpecifier:
+                        ImportDefaultSpecifier ids = d as ImportDefaultSpecifier;
                         imported = this.scope.Top.CreateVariable(ids.Local.Name);
                         prop = JSValueBuilder.Index(tempRequire, KeyOfName("default"));
                         stmts.Add(Exp.Assign(imported.Expression, prop));
                         break;
-                    case ImportNamespaceSpecifier ins:
+                    case Nodes.ImportNamespaceSpecifier:
+                        ImportNamespaceSpecifier ins = d as ImportNamespaceSpecifier;
                         imported = this.scope.Top.CreateVariable(ins.Local.Name);
                         stmts.Add(Exp.Assign(imported.Expression, tempRequire ));
                         break;
-                    case ImportSpecifier iss:
+                    case Nodes.ImportSpecifier:
+                        ImportSpecifier iss = d as ImportSpecifier;
                         imported = this.scope.Top.CreateVariable(iss.Local.Name);
                         prop = JSValueBuilder.Index(tempRequire, KeyOfName(iss.Imported.Name));
                         stmts.Add(Exp.Assign(imported.Expression, prop));
@@ -1675,15 +1698,18 @@ namespace YantraJS
             // ParameterExpression iterator = null;
             Exp identifier = null;
             ScopedVariableDeclaration varDec;
-            switch (forOfStatement.Left)
+            var left = forOfStatement.Left;
+            switch (left.Type)
             {
-                case Identifier id:
-                    identifier = VisitIdentifier(id);
-                    break;
-                case VariableDeclaration vd:
+                case Nodes.VariableDeclaration:
+                    VariableDeclaration vd = left as VariableDeclaration;
                     identifier = Exp.Variable(typeof(JSValue));
                     varDec = new ScopedVariableDeclaration(vd, identifier);
                     this.scope.Top.PushToNewScope = varDec;
+                    break;
+                case Nodes.Identifier:
+                    Identifier id = left as Identifier;
+                    identifier = VisitIdentifier(id);
                     break;
             }
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
@@ -1769,11 +1795,14 @@ namespace YantraJS
 
         protected override Exp VisitAssignmentPattern(Esprima.Ast.AssignmentPattern assignmentPattern)
         {
-            switch (assignmentPattern.Left)
+            var left = assignmentPattern.Left;
+            switch (left.Type)
             {
-                case ObjectPattern objectPattern:
+                case Nodes.ObjectPattern:
+                    ObjectPattern objectPattern = left as ObjectPattern;
                     return CreateAssignment(objectPattern, VisitExpression(assignmentPattern.Right as Expression ));
-                case ArrayPattern arrayPattern:
+                case Nodes.ArrayPattern:
+                    ArrayPattern arrayPattern = left as ArrayPattern;
                     return CreateAssignment(arrayPattern, VisitExpression(assignmentPattern.Right as Expression));
             }
             throw new NotImplementedException();
