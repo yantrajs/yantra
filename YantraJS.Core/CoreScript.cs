@@ -128,15 +128,12 @@ namespace YantraJS
 
                 var args = fx.ArgumentsExpression;
 
-                var argLength = Exp.Parameter(typeof(int));
-
                 var stackItem = fx.StackItem;
 
                 var vList = new List<ParameterExpression>() {
                     FileNameExpression,
                     lScope,
-                    stackItem,
-                    argLength
+                    stackItem
                 };
 
 
@@ -145,8 +142,7 @@ namespace YantraJS
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
                     Exp.Assign(lScope, JSContextBuilder.Current),
-                    Exp.Assign(stackItem, JSContextBuilder.Push(lScope, FileNameExpression,"",1,1)),
-                    Exp.Assign(argLength, ArgumentsBuilder.Length(fx.ArgumentsExpression))
+                    Exp.Assign(stackItem, JSContextBuilder.Push(lScope, FileNameExpression,"",1,1))
                 };
 
                 if (argsList != null)
@@ -538,6 +534,17 @@ namespace YantraJS
             }
         }
 
+        public override Exp DebugNode(Node node, Exp result)
+        {
+            var topStack = this.scope.Top;
+            var s = topStack.Context;
+            var si = topStack.StackItem;
+            var p = node.Location.Start;
+            return Exp.Block(
+                    JSContextBuilder.Update(s, si, p.Line, p.Column),
+                    result);
+        }
+
         private Exp DebugExpression<T, TR>(T ast, Func<TR> exp)
             where T: Node
             where TR: Exp
@@ -562,10 +569,10 @@ namespace YantraJS
             }
         }
 
-        protected override Exp VisitStatement(Statement statement)
-        {
-            return DebugExpression(statement, () => base.VisitStatement(statement));
-        }
+        //protected override Exp VisitStatement(Statement statement)
+        //{
+        //    return DebugExpression(statement, () => base.VisitStatement(statement));
+        //}
 
         protected override Exp VisitWithStatement(Esprima.Ast.WithStatement withStatement)
         {
@@ -1014,19 +1021,10 @@ namespace YantraJS
         protected override Exp VisitIfStatement(Esprima.Ast.IfStatement ifStatement)
         {
             var test =  ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(ifStatement.Test));
-            var trueCase = VisitStatement(ifStatement.Consequent);
-            // process else...
-            if (!typeof(JSValue).IsAssignableFrom(trueCase.Type))
-            {
-                trueCase = Exp.Block(trueCase, JSUndefinedBuilder.Value);
-            }
+            var trueCase = VisitStatement(ifStatement.Consequent).ToJSValue();
             if (ifStatement.Alternate != null)
             {
-                var elseCase = VisitStatement(ifStatement.Alternate);
-                if (!typeof(JSValue).IsAssignableFrom(elseCase.Type))
-                {
-                    elseCase = Exp.Block(elseCase, JSUndefinedBuilder.Value);
-                }
+                var elseCase = VisitStatement(ifStatement.Alternate).ToJSValue();
                 return Exp.Condition(test, trueCase, elseCase);
             }
             return Exp.Condition(test, trueCase, ExpHelper.JSUndefinedBuilder.Value);
@@ -1047,17 +1045,17 @@ namespace YantraJS
             return VisitExpression(expressionStatement.Expression);
         }
 
-        protected override Exp VisitExpression(Expression expression)
-        {
-            var p = expression.Location.Start ;
-            try
-            {
-                return base.VisitExpression(expression);
-            }catch (Exception ex) when (!(ex is CompilerException))
-            {
-                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}\r\n{ex}", ex);
-            }
-        }
+        //protected override Exp VisitExpression(Expression expression)
+        //{
+        //    var p = expression.Location.Start ;
+        //    try
+        //    {
+        //        return base.VisitExpression(expression);
+        //    }catch (Exception ex) when (!(ex is CompilerException))
+        //    {
+        //        throw new CompilerException($"Failed to parse at {p.Line},{p.Column}\r\n{ex}", ex);
+        //    }
+        //}
 
         protected override Exp VisitForStatement(Esprima.Ast.ForStatement forStatement, string label)
         {

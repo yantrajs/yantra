@@ -3,12 +3,15 @@ using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Parser;
 
 namespace YantraJS.Utils
 {
     public abstract class JSAstVisitor<T>
     {
         public bool IsStrictMode { get; set; } = false;
+
+        public bool Debug { get; set; } = true;
 
         public virtual T Visit(Node node)
         {
@@ -216,95 +219,100 @@ namespace YantraJS.Utils
             }
         }
 
+        public virtual T DebugNode(Node node, T result)
+        {
+            return result;
+        }
+
         protected virtual T VisitStatement(Statement statement)
         {
             switch (statement.Type)
             {
                 case Nodes.BlockStatement:
-                    return VisitBlockStatement(statement.As<BlockStatement>());
+                    return DebugNode(statement, VisitBlockStatement(statement.As<BlockStatement>()));
                 case Nodes.BreakStatement:
-                    return VisitBreakStatement(statement.As<BreakStatement>());
+                    return DebugNode(statement, VisitBreakStatement(statement.As<BreakStatement>()));
                     
                 case Nodes.ContinueStatement:
-                    return VisitContinueStatement(statement.As<ContinueStatement>());
+                    return DebugNode(statement, VisitContinueStatement(statement.As<ContinueStatement>()));
                     
                 case Nodes.DoWhileStatement:
-                    return VisitDoWhileStatement(statement.As<DoWhileStatement>());
+                    return DebugNode(statement, VisitDoWhileStatement(statement.As<DoWhileStatement>()));
                     
                 case Nodes.DebuggerStatement:
-                    return VisitDebuggerStatement(statement.As<DebuggerStatement>());
+                    return DebugNode(statement, VisitDebuggerStatement(statement.As<DebuggerStatement>()));
                     
                 case Nodes.EmptyStatement:
-                    return VisitEmptyStatement(statement.As<EmptyStatement>());
+                    return DebugNode(statement, VisitEmptyStatement(statement.As<EmptyStatement>()));
                     
                 case Nodes.ExpressionStatement:
-                    return VisitExpressionStatement(statement.As<ExpressionStatement>());
+                    return DebugNode(statement, VisitExpressionStatement(statement.As<ExpressionStatement>()));
                     
                 case Nodes.ForStatement:
-                    return VisitForStatement(statement.As<ForStatement>());
+                    return DebugNode(statement, VisitForStatement(statement.As<ForStatement>()));
                     
                 case Nodes.ForInStatement:
-                    return VisitForInStatement(statement.As<ForInStatement>());
+                    return DebugNode(statement, VisitForInStatement(statement.As<ForInStatement>()));
                     
                 case Nodes.ForOfStatement:
-                    return VisitForOfStatement(statement.As<ForOfStatement>());
+                    return DebugNode(statement, VisitForOfStatement(statement.As<ForOfStatement>()));
                     
                 case Nodes.FunctionDeclaration:
-                    return VisitFunctionDeclaration(statement.As<FunctionDeclaration>());
+                    return DebugNode(statement, VisitFunctionDeclaration(statement.As<FunctionDeclaration>()));
                     
                 case Nodes.IfStatement:
-                    return VisitIfStatement(statement.As<IfStatement>());
+                    return DebugNode(statement, VisitIfStatement(statement.As<IfStatement>()));
                     
                 case Nodes.LabeledStatement:
-                    return VisitLabeledStatement(statement.As<LabeledStatement>());
+                    return DebugNode(statement, VisitLabeledStatement(statement.As<LabeledStatement>()));
                     
                 case Nodes.ReturnStatement:
-                    return VisitReturnStatement(statement.As<ReturnStatement>());
+                    return DebugNode(statement, VisitReturnStatement(statement.As<ReturnStatement>()));
                     
                 case Nodes.SwitchStatement:
-                    return VisitSwitchStatement(statement.As<SwitchStatement>());
+                    return DebugNode(statement, VisitSwitchStatement(statement.As<SwitchStatement>()));
                     
                 case Nodes.ThrowStatement:
-                    return VisitThrowStatement(statement.As<ThrowStatement>());
+                    return DebugNode(statement, VisitThrowStatement(statement.As<ThrowStatement>()));
                     
                 case Nodes.TryStatement:
-                    return VisitTryStatement(statement.As<TryStatement>());
+                    return DebugNode(statement, VisitTryStatement(statement.As<TryStatement>()));
                     
                 case Nodes.VariableDeclaration:
-                    return VisitVariableDeclaration(statement.As<VariableDeclaration>());
+                    return DebugNode(statement, VisitVariableDeclaration(statement.As<VariableDeclaration>()));
                     
                 case Nodes.WhileStatement:
-                    return VisitWhileStatement(statement.As<WhileStatement>());
+                    return DebugNode(statement, VisitWhileStatement(statement.As<WhileStatement>()));
                     
                 case Nodes.WithStatement:
-                    return VisitWithStatement(statement.As<WithStatement>());
+                    return DebugNode(statement, VisitWithStatement(statement.As<WithStatement>()));
                     
                 case Nodes.Program:
-                    return VisitProgram(statement.As<Program>());
+                    return DebugNode(statement, VisitProgram(statement.As<Program>()));
                     
                 case Nodes.CatchClause:
-                    return VisitCatchClause(statement.As<CatchClause>());
+                    return DebugNode(statement, VisitCatchClause(statement.As<CatchClause>()));
 
                 case Nodes.ClassDeclaration:
-                    return VisitClassDeclaration(statement.As<ClassDeclaration>());
+                    return DebugNode(statement, VisitClassDeclaration(statement.As<ClassDeclaration>()));
                 case Nodes.ExportSpecifier:
-                    return VisitExportSpecifier(statement.As<ExportSpecifier>());
+                    return DebugNode(statement, VisitExportSpecifier(statement.As<ExportSpecifier>()));
                 case Nodes.ExportNamedDeclaration:
-                    return VisitExportNamedDeclaration(statement.As<ExportNamedDeclaration>());
+                    return DebugNode(statement, VisitExportNamedDeclaration(statement.As<ExportNamedDeclaration>()));
                 case Nodes.ExportAllDeclaration:
-                    return VisitExportAllDeclaration(statement.As<ExportAllDeclaration>());
+                    return DebugNode(statement, VisitExportAllDeclaration(statement.As<ExportAllDeclaration>()));
                 case Nodes.ExportDefaultDeclaration:
-                    return VisitExportDefaultDeclaration(statement.As<ExportDefaultDeclaration>());
+                    return DebugNode(statement, VisitExportDefaultDeclaration(statement.As<ExportDefaultDeclaration>()));
                 case Nodes.ImportDeclaration:
-                    return VisitImportDeclaration(statement.As<ImportDeclaration>());
+                    return DebugNode(statement, VisitImportDeclaration(statement.As<ImportDeclaration>()));
                 case Nodes.ImportDefaultSpecifier:
-                    return VisitImportDefaultSpecifier(statement.As<ImportDefaultSpecifier>());
+                    return DebugNode(statement, VisitImportDefaultSpecifier(statement.As<ImportDefaultSpecifier>()));
                 case Nodes.ImportSpecifier:
-                    return VisitImportSpecifier(statement.As<ImportSpecifier>());
+                    return DebugNode(statement, VisitImportSpecifier(statement.As<ImportSpecifier>()));
                 case Nodes.ImportNamespaceSpecifier:
-                    return VisitImportNamespaceSpecifier(statement.As<ImportNamespaceSpecifier>());
+                    return DebugNode(statement, VisitImportNamespaceSpecifier(statement.As<ImportNamespaceSpecifier>()));
                 default:
-                    return VisitUnknownNode(statement);
+                    return DebugNode(statement, VisitUnknownNode(statement));
                     
             }
         }
@@ -354,64 +362,71 @@ namespace YantraJS.Utils
 
         protected virtual T VisitExpression(Expression expression)
         {
-            switch (expression.Type)
+            try
             {
-                case Nodes.AssignmentExpression:
-                    return VisitAssignmentExpression(expression.As<AssignmentExpression>());
-                case Nodes.ArrayExpression:
-                    return VisitArrayExpression(expression.As<ArrayExpression>());
-                case Nodes.BinaryExpression:
-                    return VisitBinaryExpression(expression.As<BinaryExpression>());
-                case Nodes.CallExpression:
-                    return VisitCallExpression(expression.As<CallExpression>());
-                case Nodes.ConditionalExpression:
-                    return VisitConditionalExpression(expression.As<ConditionalExpression>());
-                    
-                case Nodes.FunctionExpression:
-                    return VisitFunctionExpression(expression.As<FunctionExpression>());
-                    
-                case Nodes.Identifier:
-                    return VisitIdentifier(expression.As<Identifier>());
-                    
-                case Nodes.Literal:
-                    return VisitLiteral(expression.As<Literal>());
-                    
-                case Nodes.LogicalExpression:
-                    return VisitLogicalExpression(expression.As<BinaryExpression>());
-                    
-                case Nodes.MemberExpression:
-                    return VisitMemberExpression(expression.As<MemberExpression>());
-                    
-                case Nodes.NewExpression:
-                    return VisitNewExpression(expression.As<NewExpression>());
-                    
-                case Nodes.ObjectExpression:
-                    return VisitObjectExpression(expression.As<ObjectExpression>());
-                    
-                case Nodes.SequenceExpression:
-                    return VisitSequenceExpression(expression.As<SequenceExpression>());
-                    
-                case Nodes.ThisExpression:
-                    return VisitThisExpression(expression.As<ThisExpression>());
-                    
-                case Nodes.UpdateExpression:
-                    return VisitUpdateExpression(expression.As<UpdateExpression>());
-                    
-                case Nodes.UnaryExpression:
-                    return VisitUnaryExpression(expression.As<UnaryExpression>());
-                    
-                case Nodes.ArrowFunctionExpression:
-                    return VisitArrowFunctionExpression(expression.As<ArrowFunctionExpression>());
-                case Nodes.YieldExpression:
-                    return VisitYieldExpression(expression.As<YieldExpression>());
-                case Nodes.AwaitExpression:
-                    return VisitAwaitExpression(expression.As<AwaitExpression>());
-                case Nodes.TemplateLiteral:
-                    return VisitTemplateLiteral(expression.As<TemplateLiteral>());
-                default:
-                    // return VisitUnknownNode(expression);
-                    throw new NotImplementedException($"{expression.GetType().FullName}");
-                    
+                switch (expression.Type)
+                {
+                    case Nodes.AssignmentExpression:
+                        return VisitAssignmentExpression(expression.As<AssignmentExpression>());
+                    case Nodes.ArrayExpression:
+                        return VisitArrayExpression(expression.As<ArrayExpression>());
+                    case Nodes.BinaryExpression:
+                        return VisitBinaryExpression(expression.As<BinaryExpression>());
+                    case Nodes.CallExpression:
+                        return VisitCallExpression(expression.As<CallExpression>());
+                    case Nodes.ConditionalExpression:
+                        return VisitConditionalExpression(expression.As<ConditionalExpression>());
+
+                    case Nodes.FunctionExpression:
+                        return VisitFunctionExpression(expression.As<FunctionExpression>());
+
+                    case Nodes.Identifier:
+                        return VisitIdentifier(expression.As<Identifier>());
+
+                    case Nodes.Literal:
+                        return VisitLiteral(expression.As<Literal>());
+
+                    case Nodes.LogicalExpression:
+                        return VisitLogicalExpression(expression.As<BinaryExpression>());
+
+                    case Nodes.MemberExpression:
+                        return VisitMemberExpression(expression.As<MemberExpression>());
+
+                    case Nodes.NewExpression:
+                        return VisitNewExpression(expression.As<NewExpression>());
+
+                    case Nodes.ObjectExpression:
+                        return VisitObjectExpression(expression.As<ObjectExpression>());
+
+                    case Nodes.SequenceExpression:
+                        return VisitSequenceExpression(expression.As<SequenceExpression>());
+
+                    case Nodes.ThisExpression:
+                        return VisitThisExpression(expression.As<ThisExpression>());
+
+                    case Nodes.UpdateExpression:
+                        return VisitUpdateExpression(expression.As<UpdateExpression>());
+
+                    case Nodes.UnaryExpression:
+                        return VisitUnaryExpression(expression.As<UnaryExpression>());
+
+                    case Nodes.ArrowFunctionExpression:
+                        return VisitArrowFunctionExpression(expression.As<ArrowFunctionExpression>());
+                    case Nodes.YieldExpression:
+                        return VisitYieldExpression(expression.As<YieldExpression>());
+                    case Nodes.AwaitExpression:
+                        return VisitAwaitExpression(expression.As<AwaitExpression>());
+                    case Nodes.TemplateLiteral:
+                        return VisitTemplateLiteral(expression.As<TemplateLiteral>());
+                    default:
+                        // return VisitUnknownNode(expression);
+                        throw new NotImplementedException($"{expression.GetType().FullName}");
+
+                }
+            }catch (Exception ex) when (!(ex is CompilerException))
+            {
+                var p = expression.Location.Start;
+                throw new CompilerException($"Failed to parse at {p.Line},{p.Column}\r\n{ex}", ex);
             }
         }
 

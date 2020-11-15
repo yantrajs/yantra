@@ -20,6 +20,7 @@ namespace YantraJS
                 return exp;
             if (!typeof(JSValue).IsAssignableFrom(exp.Type))
                 return Expression.Block(exp, JSUndefinedBuilder.Value);
+            // return Expression.Convert(exp, typeof(JSValue));
             return Expression.TypeAs(exp,typeof(JSValue));
         }
 
