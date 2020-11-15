@@ -5,63 +5,6 @@ using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.Core.Storage
 {
-    public readonly struct HashedString : IEquatable<HashedString>, IComparable<HashedString>
-    {
-        public readonly string Value;
-
-        public readonly int Hash;
-
-        public HashedString(string value)
-        {
-            this.Value = value;
-            this.Hash = value.GetHashCode();
-        }
-
-        public static implicit operator HashedString(string v)
-        {
-            return new HashedString(v);
-        }
-
-        public static bool operator == (HashedString left, HashedString right)
-        {
-            return left.Hash == right.Hash && left.Value == right.Value;
-        }
-
-        public static bool operator !=(HashedString left, HashedString right)
-        {
-            return left.Hash != right.Hash || left.Value != right.Value;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is HashedString @string && Equals(@string);
-        }
-
-        public bool Equals(HashedString other)
-        {
-            return Hash == other.Hash && Value == other.Value;
-        }
-
-        public override int GetHashCode()
-        {
-            return Hash;
-        }
-
-        public int CompareTo(HashedString other)
-        {
-            return Value.CompareTo(other.Value);
-        }
-        public int CompareToRef(in HashedString other)
-        {
-            return Value.CompareTo(other.Value);
-        }
-
-        public override string ToString()
-        {
-            return Value;
-        }
-    }
-
     /// <summary>
     /// Mapping of uint to uint
     /// </summary>
@@ -202,12 +145,12 @@ namespace YantraJS.Core.Core.Storage
         internal T value;
         private HashedString Key;
 
-        public T this[HashedString index]
+        public T this[string index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                ref var node = ref GetNode(in index);
+                ref var node = ref GetNode(index);
                 if (node.HasValue)
                     return node.value;
                 return default;
@@ -215,8 +158,24 @@ namespace YantraJS.Core.Core.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                Save(in index, value);
+                ref var node = ref GetNode(index, true);
+                node.State = MapValueState.HasValue | MapValueState.Filled;
+                node.value = value;
+
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetValue(string key, out T value)
+        {
+            ref var node = ref GetNode(key);
+            if (node.HasValue)
+            {
+                value = node.value;
+                return true;
+            }
+            value = default;
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -232,19 +191,19 @@ namespace YantraJS.Core.Core.Storage
             return false;
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasKey(string key)
         {
-            HashedString hsName = key;
-            ref var node = ref GetNode(in hsName);
+            ref var node = ref GetNode(key);
             return node.HasValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryRemove(string key, out T value)
         {
-            HashedString hsName = key;
-            ref var node = ref GetNode(in hsName);
+            // HashedString hsName = key;
+            ref var node = ref GetNode(key);
             if (node.HasValue)
             {
                 value = node.value;

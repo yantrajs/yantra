@@ -180,9 +180,6 @@ namespace YantraJS.Core.Core.Storage
         public void Save(uint key, T value)
         {
             ref var node = ref GetNode(key, true);
-            if (node.State == MapValueState.Null) {
-                throw new InsufficientMemoryException();
-            }
             node.State = MapValueState.HasValue | MapValueState.Filled;
             node.value = value;
         }
