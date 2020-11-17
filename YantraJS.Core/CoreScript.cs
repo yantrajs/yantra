@@ -120,12 +120,14 @@ namespace YantraJS
 
             using (var fx = this.scope.Push(new FunctionScope((IFunction)null)))
             {
+
                 var jScript = parser.ParseScript();
 
                 var lScope = fx.Context;
 
                 ScopeAnalyzer scopeAnalyzer = new ScopeAnalyzer();
                 scopeAnalyzer.Visit(jScript);
+
 
 
                 var te = fx.ThisExpression;
@@ -1582,34 +1584,41 @@ namespace YantraJS
 
         protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
         {
-            (Exp exp,string name) GetLiteral()
+
+            switch (literal.TokenType)
             {
-                switch (literal.TokenType)
-                {
-                    case Esprima.TokenType.BooleanLiteral:
-                        return literal.BooleanValue
-                            ? (ExpHelper.JSBooleanBuilder.True, "true")
-                            : (ExpHelper.JSBooleanBuilder.False, "false");
-                    case Esprima.TokenType.StringLiteral:
-                        return (ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
-                    case Esprima.TokenType.RegularExpression:
-                        return (ExpHelper.JSRegExpBuilder.New(
-                            Exp.Constant(literal.Regex.Pattern),
-                            Exp.Constant(literal.Regex.Flags)), (literal.Regex.Pattern + literal.Regex.Flags).Left(10));
-                    case Esprima.TokenType.Template:
-                        break;
-                    case Esprima.TokenType.NullLiteral:
-                        return (ExpHelper.JSNullBuilder.Value, "null");
-                    case Esprima.TokenType.NumericLiteral:
-                        return (ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
-                }
-                throw new NotImplementedException();
+                case TokenType.NullLiteral:
+                    return Exp.Constant(null, typeof(object));
             }
-            // var (exp, name) = GetLiteral();
-            // var pe = Exp.Variable(typeof(JSValue), name);
-            // this.scope.Top.AddVariable(null, pe, pe, exp);
-            // return pe;
-            return GetLiteral().exp;
+
+            //(Exp exp,string name) GetLiteral()
+            //{
+            //    switch (literal.TokenType)
+            //    {
+            //        case Esprima.TokenType.BooleanLiteral:
+            //            return literal.BooleanValue
+            //                ? (ExpHelper.JSBooleanBuilder.True, "true")
+            //                : (ExpHelper.JSBooleanBuilder.False, "false");
+            //        case Esprima.TokenType.StringLiteral:
+            //            return (ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
+            //        case Esprima.TokenType.RegularExpression:
+            //            return (ExpHelper.JSRegExpBuilder.New(
+            //                Exp.Constant(literal.Regex.Pattern),
+            //                Exp.Constant(literal.Regex.Flags)), (literal.Regex.Pattern + literal.Regex.Flags).Left(10));
+            //        case Esprima.TokenType.Template:
+            //            break;
+            //        case Esprima.TokenType.NullLiteral:
+            //            return (ExpHelper.JSNullBuilder.Value, "null");
+            //        case Esprima.TokenType.NumericLiteral:
+            //            return (ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
+            //    }
+            //    throw new NotImplementedException();
+            //}
+            //// var (exp, name) = GetLiteral();
+            //// var pe = Exp.Variable(typeof(JSValue), name);
+            //// this.scope.Top.AddVariable(null, pe, pe, exp);
+            //// return pe;
+            //return GetLiteral().exp;
             
         }
 
