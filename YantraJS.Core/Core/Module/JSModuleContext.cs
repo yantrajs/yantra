@@ -63,14 +63,14 @@ namespace YantraJS.Core
             clr = nameCache.Get("clr");
         }
 
-        public static (uint Key, string Name) module;
-        public static (uint Key, string Name) clr;
+        public static (uint Key, StringSpan Name) module;
+        public static (uint Key, StringSpan Name) clr;
 
         public static ModuleCache Create()
         {
             return new ModuleCache(true);
         }
-        public bool TryGetValue(string key, out JSModule obj)
+        public bool TryGetValue(in StringSpan key, out JSModule obj)
         {
             if(nameCache.TryGetValue(key, out var i))
             {
@@ -80,7 +80,7 @@ namespace YantraJS.Core
             obj = null;
             return false;
         }
-        public JSModule GetOrCreate(string key, Func<JSModule> factory)
+        public JSModule GetOrCreate(in StringSpan key, Func<JSModule> factory)
         {
             var k = nameCache.Get(key);
             return modules.GetOrCreate(k.Key, factory);
@@ -91,7 +91,7 @@ namespace YantraJS.Core
             modules = ConcurrentUInt32Map<JSModule>.Create();
         }
 
-        public JSModule this[in (uint Key, string name) key]
+        public JSModule this[in (uint Key, StringSpan name) key]
         {
             get {
                 if (modules.TryGetValue(key.Key, out var m))

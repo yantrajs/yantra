@@ -23,7 +23,7 @@ namespace YantraJS.Core.Set
         {
             lock (this)
             {
-                var keysToDelete = new List<string>();
+                var keysToDelete = new List<StringSpan>();
                 int count = 0;
                 foreach (var item in items.AllValues())
                 {

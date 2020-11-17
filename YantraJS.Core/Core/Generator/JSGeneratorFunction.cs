@@ -12,7 +12,7 @@ namespace YantraJS.Core.Generator
     {
         readonly JSGeneratorDelegate @delegate;
 
-        public JSGeneratorFunction(JSGeneratorDelegate @delegate, string name, string code): 
+        public JSGeneratorFunction(JSGeneratorDelegate @delegate, in StringSpan name, in StringSpan code): 
             base(null, name, code)
         {
             this.@delegate = @delegate;

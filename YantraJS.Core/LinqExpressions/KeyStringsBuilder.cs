@@ -9,7 +9,7 @@ namespace YantraJS.ExpHelper
     internal class KeyStringsBuilder
     {
         private static MethodInfo _GetOrAdd =
-            typeof(KeyStrings).InternalMethod(nameof(KeyStrings.GetOrCreate), typeof(string));
+            typeof(KeyStrings).InternalMethod(nameof(KeyStrings.GetOrCreate), StringSpanBuilder.RefType);
 
         public static readonly Type RefType = typeof(KeyString).MakeByRefType();
 

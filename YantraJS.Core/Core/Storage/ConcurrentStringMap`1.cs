@@ -19,13 +19,13 @@ namespace YantraJS.Core.Core.Storage
             id = 0;
         }
 
-        public (uint Key, string Name) Get(string name)
+        public (uint Key, StringSpan Name) Get(in StringSpan name)
         {
             uint r = map.GetOrCreate(name, (n) => ((uint)Interlocked.Increment(ref id)));
             return (r, name);
         }
 
-        public bool TryGetValue(string name, out (uint Key, string Name) value)
+        public bool TryGetValue(in StringSpan name, out (uint Key, StringSpan Name) value)
         {
             if(map.TryGetValue(name, out var i))
             {
@@ -52,7 +52,7 @@ namespace YantraJS.Core.Core.Storage
         }
 
 
-        public T this[string key]
+        public T this[in StringSpan key]
         {
             get
             {
@@ -70,7 +70,7 @@ namespace YantraJS.Core.Core.Storage
             }
         }
 
-        public bool TryGetValue(string key, out T value)
+        public bool TryGetValue(in StringSpan key, out T value)
         {
             lockSlim.EnterReadLock();
             var r = Map.TryGetValue(key, out value);
@@ -78,7 +78,7 @@ namespace YantraJS.Core.Core.Storage
             return r;
         }
 
-        internal T GetOrCreate(string key, Func<string,T> value)
+        internal T GetOrCreate(in StringSpan key, Func<StringSpan, T> value)
         {
             lockSlim.EnterUpgradeableReadLock();
             if (Map.TryGetValue(key, out var v))

@@ -8,7 +8,7 @@ namespace YantraJS.Core.Generator
     {
         readonly JSAsyncDelegate @delegate;
 
-        public JSAsyncFunction(JSAsyncDelegate @delegate, string name, string code) :
+        public JSAsyncFunction(JSAsyncDelegate @delegate, in StringSpan name, in StringSpan code) :
             base(null, name, code)
         {
             this.@delegate = @delegate;

@@ -100,11 +100,11 @@ namespace YantraJS.Core.Core.Storage
         //    }
         //}
 
-        public IEnumerable<(string Key, T Value)> AllValues()
+        public IEnumerable<(StringSpan Key, T Value)> AllValues()
         {
             if (Nodes != null)
             {
-                (string Key, T Value) pair;
+                (StringSpan Key, T Value) pair;
                 for (int i = 0; i < Size; i++)
                 {
                     if(TryGetAt(i, out pair)) {
@@ -119,14 +119,14 @@ namespace YantraJS.Core.Core.Storage
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerable<(string Key, T Value)> AllValues(int i)
+        private IEnumerable<(StringSpan Key, T Value)> AllValues(int i)
         {
             ref var node = ref Nodes[i];
             return node.AllValues();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetAt(int index, out (string Key, T Value) pair)
+        private bool TryGetAt(int index, out (StringSpan Key, T Value) pair)
         {
             ref var node = ref Nodes[index];
             if (node.HasValue)
@@ -145,7 +145,7 @@ namespace YantraJS.Core.Core.Storage
         internal T value;
         private HashedString Key;
 
-        public T this[string index]
+        public T this[StringSpan index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -166,7 +166,7 @@ namespace YantraJS.Core.Core.Storage
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryGetValue(string key, out T value)
+        public bool TryGetValue(in StringSpan key, out T value)
         {
             ref var node = ref GetNode(key);
             if (node.HasValue)
@@ -193,14 +193,14 @@ namespace YantraJS.Core.Core.Storage
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasKey(string key)
+        public bool HasKey(in StringSpan key)
         {
             ref var node = ref GetNode(key);
             return node.HasValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryRemove(string key, out T value)
+        public bool TryRemove(in StringSpan key, out T value)
         {
             // HashedString hsName = key;
             ref var node = ref GetNode(key);
@@ -323,7 +323,7 @@ namespace YantraJS.Core.Core.Storage
             return ref Null;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool RemoveAt(string key)
+        public bool RemoveAt(in StringSpan key)
         {
             HashedString hsKey = key;
             ref var node = ref GetNode(in hsKey);

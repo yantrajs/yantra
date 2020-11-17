@@ -328,7 +328,7 @@ namespace YantraJS.Core
         {
             JSFunction r = typeof(JSFunction).IsAssignableFrom(type) && type != typeof(JSFunction)
                 ? (JSFunction)Activator.CreateInstance(type, key.Value)
-                : new JSFunction(JSFunction.empty, key.Value);
+                : new JSFunction(JSFunction.empty, key.Value, StringSpan.Empty);
 
             var p = r.prototype;
 

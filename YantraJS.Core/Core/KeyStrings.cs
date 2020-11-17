@@ -174,7 +174,7 @@ namespace YantraJS.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString GetOrCreate(string key)
+        internal static KeyString GetOrCreate(in StringSpan key)
         {
             return map.GetOrCreate(key, (keyName) =>
             {
@@ -184,13 +184,13 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool TryGet(string key, out KeyString ks)
+        internal static bool TryGet(in StringSpan key, out KeyString ks)
         {
             return map.TryGetValue(key, out ks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString NewSymbol(string name, uint id)
+        internal static KeyString NewSymbol(in StringSpan name, uint id)
         {
             return new KeyString($"Symbol({name})", id);
         }

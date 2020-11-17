@@ -64,7 +64,7 @@ namespace YantraJS.Core
                         indent = new string(' ', pi.IntValue);
                     } else if (pi is JSString js)
                     {
-                        indent = js.value;
+                        indent = js.value.Value;
                     }
                 }
 
@@ -254,7 +254,7 @@ namespace YantraJS.Core
         /// </summary>
         /// <param name="input"> The string to quote. </param>
         /// <param name="result"> The StringBuilder to write the quoted string to. </param>
-        private static void QuoteString(string input, TextWriter result)
+        private static void QuoteString(in StringSpan input, TextWriter result)
         {
             result.Write('\"');
 

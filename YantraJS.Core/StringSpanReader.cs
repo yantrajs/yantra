@@ -29,7 +29,7 @@ namespace YantraJS.Core
 
         public override string ReadToEnd()
         {
-            return span.Substring(index);
+            return span.Substring(index).Value ?? string.Empty;
         }
     }
 }

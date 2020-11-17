@@ -36,9 +36,11 @@ namespace YantraJS
 
         // private ParsedScript Code;
 
-        readonly string Code;
+        // readonly string Code;
 
         readonly ParameterExpression FileNameExpression;
+
+        readonly ParameterExpression CodeStringExpression;
 
         private StringMap<ParameterExpression> _keyStrings;
 
@@ -64,7 +66,7 @@ namespace YantraJS
             return pe;
         }
 
-        internal static JSFunctionDelegate Compile(string code, string location = null, IList<string> args = null, ICodeCache codeCache = null)
+        internal static JSFunctionDelegate Compile(in StringSpan code, string location = null, IList<string> args = null, ICodeCache codeCache = null)
         {
             codeCache = codeCache ?? DictionaryCodeCache.Current;
             var jsc = new JSCode(location, code, args);
@@ -97,16 +99,17 @@ namespace YantraJS
             return result;
         }
 
-        public CoreScript(string code, string location = null, IList<string> argsList = null, ICodeCache codeCache = null)
+        public CoreScript(in StringSpan code, string location = null, IList<string> argsList = null, ICodeCache codeCache = null)
         {
-            this.Code = code;
+            // this.Code = code;
             location = location ?? "vm.js";
 
             FileNameExpression = Exp.Variable(typeof(string), "_fileName");
+            CodeStringExpression = Exp.Variable(typeof(string), "code");
 
             // this.Code = new ParsedScript(code);
             Esprima.JavaScriptParser parser =
-                new Esprima.JavaScriptParser(code, new Esprima.ParserOptions {
+                new Esprima.JavaScriptParser(code.Value, new Esprima.ParserOptions {
                     Range = true,
                     Loc = true,
                     // SourceType = SourceType.Script
@@ -132,6 +135,7 @@ namespace YantraJS
 
                 var vList = new List<ParameterExpression>() {
                     FileNameExpression,
+                    CodeStringExpression,
                     lScope,
                     stackItem
                 };
@@ -141,8 +145,9 @@ namespace YantraJS
 
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
+                    Exp.Assign(CodeStringExpression, Exp.Constant(code.Value)),
                     Exp.Assign(lScope, JSContextBuilder.Current),
-                    Exp.Assign(stackItem, JSContextBuilder.Push(lScope, FileNameExpression,"",1,1))
+                    Exp.Assign(stackItem, JSContextBuilder.Push(lScope, FileNameExpression,StringSpanBuilder.Empty,1,1))
                 };
 
                 if (argsList != null)
@@ -356,7 +361,7 @@ namespace YantraJS
             )
         {
             var node = functionDeclaration as Node;
-            var code = Code.Substring(node.Range.Start, 
+            var code = StringSpanBuilder.New(CodeStringExpression, node.Range.Start, 
                 node.Range.End - node.Range.Start);
 
             // get text...
@@ -371,7 +376,7 @@ namespace YantraJS
                 previousThis = null;
             }
 
-            var functionName  = functionDeclaration.Id?.Name;
+            var functionName = functionDeclaration.Id?.Name;
 
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis, super)))
@@ -469,7 +474,16 @@ namespace YantraJS
                 // adding lexical scope pending...
 
 
-                var fxName = functionDeclaration.Id?.Name ?? "inline";
+                Exp fxName;
+                if (functionName != null)
+                {
+                    var id = functionDeclaration.Id;
+                    fxName = StringSpanBuilder.New(CodeStringExpression, id.Range.Start, id.Range.End - id.Range.Start);
+                }
+                else
+                {
+                    fxName = StringSpanBuilder.Empty;
+                }
 
                 var point = functionStatement.Location.Start; // this.Code.Position(functionDeclaration.Range);
 
@@ -1488,7 +1502,7 @@ namespace YantraJS
                             (uint)l.NumericValue);
                     break;
                 case Nodes.MemberExpression:
-                    StaticMemberExpression se = mp as StaticMemberExpression;
+                    MemberExpression se = mp as MemberExpression;
                     return JSValueBuilder.Index( target,super, VisitExpression(se.Property));
 
             }

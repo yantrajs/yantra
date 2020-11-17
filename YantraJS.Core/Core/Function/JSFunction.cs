@@ -19,7 +19,7 @@ namespace YantraJS.Core
 
         public JSClassFunction(
             JSFunctionDelegate @delegate,
-            in StringSegment name,
+            in StringSpan name,
             in StringSpan source,
             int length = 0) : base(@delegate, name, source, length)
         {
@@ -103,6 +103,15 @@ namespace YantraJS.Core
         public JSFunction(
             JSFunctionDelegate f,
             in StringSpan name,
+            int length = 0): this(f, name, StringSpan.Empty, length)
+        {
+
+        }
+
+
+        public JSFunction(
+            JSFunctionDelegate f,
+            in StringSpan name,
             in StringSpan source,
             int length = 0): base(JSContext.Current?.FunctionPrototype)
         {
@@ -136,12 +145,12 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return name;
+            return name.Value;
         }
 
         public override string ToDetailString()
         {
-            return this.source;
+            return this.source.Value;
         }
 
         public override JSValue CreateInstance(in Arguments a)

@@ -38,7 +38,7 @@ namespace YantraJS.Core
 
         public override bool BooleanValue => value.Length > 0;
 
-        public override long BigIntValue => long.TryParse(value, out var n) ? n : 0;
+        public override long BigIntValue => long.TryParse(value.Value, out var n) ? n : 0;
 
         public override bool IsString => true;
 
@@ -109,7 +109,7 @@ namespace YantraJS.Core
         }
 
 
-        public JSString(string value, KeyString keyString) : this(value)
+        public JSString(in StringSpan value, KeyString keyString) : this(value)
         {
             this._keyString = keyString;
         }
@@ -205,10 +205,9 @@ namespace YantraJS.Core
 
         private struct ElementEnumerator : IElementEnumerator
         {
-
-            readonly CharEnumerator en;
+            private StringSpan.CharEnumerator en;
             int index;
-            public ElementEnumerator(string value)
+            public ElementEnumerator(in StringSpan value)
             {
                 this.en = value.GetEnumerator();
                 index = -1;

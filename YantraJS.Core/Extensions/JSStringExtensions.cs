@@ -15,11 +15,6 @@ namespace YantraJS.Extensions
             return value.Length > max ? value.Substring(0, max) : value;
         }
 
-        public static JSString JSTrim(this JSString value)
-        {
-            return new JSString(value.value.JSTrim());
-        }
-
         
         public static string JSTrim(this string text)
         {

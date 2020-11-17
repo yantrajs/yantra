@@ -25,7 +25,7 @@ namespace YantraJS.Core
         }
 
         private readonly KeyType Type;
-        public readonly string Value;
+        public readonly StringSpan Value;
         public readonly uint Key;
         public JSValue JSValue;
 
@@ -73,7 +73,7 @@ namespace YantraJS.Core
         }
 
 
-        internal KeyString(string value, uint key)
+        internal KeyString(in StringSpan value, uint key)
         {
             Type = KeyType.String;
             this.Value = value;
@@ -82,7 +82,7 @@ namespace YantraJS.Core
         }
 
 
-        internal KeyString(string value, uint key, JSString @string)
+        internal KeyString(in StringSpan value, uint key, JSString @string)
         {
             Type = KeyType.String;
             this.Value = value;
@@ -90,7 +90,7 @@ namespace YantraJS.Core
             this.JSValue = @string;
         }
 
-        internal KeyString(string value, uint key, JSSymbol symbol)
+        internal KeyString(in StringSpan value, uint key, JSSymbol symbol)
         {
             Type = KeyType.String;
             this.Value = value;
@@ -114,7 +114,7 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return Value;
+            return Value.Value;
         }
 
         public JSValue ToJSValue()

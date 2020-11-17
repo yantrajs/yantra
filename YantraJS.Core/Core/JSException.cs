@@ -11,8 +11,8 @@ namespace YantraJS.Core
 
         public JSError Error { get; }
 
-        private List<(string target, string file, int line, int column)> trace
-            = new List<(string target, string file, int line, int column)>();
+        private List<(StringSpan target, string file, int line, int column)> trace
+            = new List<(StringSpan target, string file, int line, int column)>();
 
         public JSException(
                     JSValue message,
@@ -72,7 +72,7 @@ namespace YantraJS.Core
                     ref var top = ref walker.Current;
                     var fx = top.Function;
                     var file = top.FileName;
-                    if (string.IsNullOrWhiteSpace(fx))
+                    if (fx.IsNullOrWhiteSpace())
                     {
                         fx = "native";
                     }

@@ -25,7 +25,7 @@ namespace YantraJS.Core
 {
     public struct CallStackItem
     {
-        public string Function;
+        public StringSpan Function;
         public int Line;
         public int Column;
         public string FileName;
@@ -153,7 +153,7 @@ namespace YantraJS.Core
         public event ErrorEventHandler Error;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int Push(string fileName, string function, int line, int column)
+        internal int Push(string fileName, in StringSpan function, int line, int column)
         {
             ref var top = ref Stack.Push(out var item);
             top.Function = function;

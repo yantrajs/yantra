@@ -20,7 +20,7 @@ namespace YantraJS.ExpHelper
             Expression.Field(Current, type.GetField(nameof(JSContext.Object)));
 
         public static MethodInfo _Push =
-            type.InternalMethod(nameof(JSContext.Push), typeof(string), typeof(string), typeof(int), typeof(int));
+            type.InternalMethod(nameof(JSContext.Push), typeof(string), StringSpanBuilder.RefType, typeof(int), typeof(int));
 
         public static MethodInfo _Pop=
             type.InternalMethod(nameof(JSContext.Pop));
@@ -46,7 +46,7 @@ namespace YantraJS.ExpHelper
         public static Expression Push(
             Expression context,
             Expression fileName, 
-            string str, 
+            Expression str, 
             int line, 
             int column)
         {
@@ -54,7 +54,7 @@ namespace YantraJS.ExpHelper
                 context,
                 _Push,
                 fileName,
-                Expression.Constant(str),
+                str,
                 Expression.Constant(line),
                 Expression.Constant(column));
         }

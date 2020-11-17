@@ -11,7 +11,7 @@ namespace YantraJS.Emit
     {
         public readonly string Location;
 
-        public readonly string Code;
+        public readonly StringSpan Code;
 
         public readonly IList<string> Arguments;
 
@@ -32,7 +32,7 @@ namespace YantraJS.Emit
             }
         }
 
-        public JSCode(string location, string code, IList<string> args)
+        public JSCode(string location, in StringSpan code, IList<string> args)
         {
             this.Location = location;
             this.Code = code;

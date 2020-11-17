@@ -11,11 +11,11 @@ namespace YantraJS.ExpHelper
         private static Type type = typeof(JSAsyncFunction);
 
         private static ConstructorInfo _New =
-            type.Constructor(typeof(JSAsyncDelegate), typeof(string), typeof(string));
+            type.Constructor(typeof(JSAsyncDelegate), StringSpanBuilder.RefType, StringSpanBuilder.RefType);
 
-        public static Expression New(Expression @delegate, string name, string code)
+        public static Expression New(Expression @delegate, Expression name, Expression code)
         {
-            return Expression.New(_New, @delegate, Expression.Constant(name), Expression.Constant(code));
+            return Expression.New(_New, @delegate, name, code);
         }
     }
 
@@ -25,11 +25,11 @@ namespace YantraJS.ExpHelper
         private static Type type = typeof(JSGeneratorFunction);
 
         private static ConstructorInfo _New =
-            type.Constructor(typeof(JSGeneratorDelegate), typeof(string), typeof(string));
+            type.Constructor(typeof(JSGeneratorDelegate), StringSpanBuilder.RefType, StringSpanBuilder.RefType);
 
-        public static Expression New(Expression @delegate, string name, string code)
+        public static Expression New(Expression @delegate, Expression name, Expression code)
         {
-            return Expression.New(_New, @delegate, Expression.Constant(name), Expression.Constant(code));
+            return Expression.New(_New, @delegate, name, code);
         }
     }
 }

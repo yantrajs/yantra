@@ -8,7 +8,7 @@ namespace YantraJS.Utils
 {
     public class JSAssert: JSFunction
     {
-        public JSAssert(string name): base(Assert, name)
+        public JSAssert(in StringSpan name): base(Assert, name, StringSpan.Empty)
         {
 
         }
