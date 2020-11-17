@@ -22,19 +22,25 @@ namespace YantraJS.Core.Tests.Imported
 
         public object Evaluate(string text)
         {
-            var value = context.Eval(text);
-            switch(value)
+            try
             {
-                case JSString sv:
-                    return sv.value;
-                case JSNumber number:
-                    if ((number.value) % 1 == 0)
-                        return (int)number.value;
-                    return  number.value;
-                case JSBoolean boolean:
-                    return boolean._value;
+                var value = context.Eval(text);
+                switch (value)
+                {
+                    case JSString sv:
+                        return sv.value.Value;
+                    case JSNumber number:
+                        if ((number.value) % 1 == 0)
+                            return (int)number.value;
+                        return number.value;
+                    case JSBoolean boolean:
+                        return boolean._value;
+                }
+                return value;
+            }catch (Exception ex)
+            {
+                throw new InvalidOperationException(ex.Message, ex);
             }
-            return value;
         }
 
         public object EvaluateExceptionType(string text)
@@ -46,7 +52,7 @@ namespace YantraJS.Core.Tests.Imported
             {
                 var ev = JSException.ErrorFrom(ex);
                 var v = ev?.prototypeChain?[KeyStrings.constructor] as JSFunction;
-                return v?.name;
+                return v?.name.Value;
             }
             throw new Exception();
         }
@@ -55,7 +61,7 @@ namespace YantraJS.Core.Tests.Imported
 
     }
 
-   //[TestClass]
+   [TestClass]
     public class TypedArrayTests : TestBase
     {
         [TestMethod]
@@ -165,7 +171,9 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(6, Evaluate("var uint8 = new Uint8Array(buffer, 2); uint8.length"));
 
             // Property is read-only.
-            Assert.AreEqual(6, Evaluate("uint8.length = 2; uint8.length"));
+            //Assert.AreEqual(6, Evaluate("uint8.length = 2; uint8.length"));
+            // Since we do not support non-strict mode - TC changed to below 
+            Assert.AreEqual("TypeError", EvaluateExceptionType("uint8.length = 2; uint8.length"));
         }
 
         [TestMethod]
