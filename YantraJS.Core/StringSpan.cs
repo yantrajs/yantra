@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -89,6 +90,15 @@ namespace YantraJS.Core
             return new StringSpan(source);
         }
 
+        public static bool operator ==(in StringSpan left, in StringSpan right)
+        {
+            return left.Equals(in right, StringComparison.Ordinal);
+        }
+        public static bool operator !=(in StringSpan left, in StringSpan right)
+        {
+            return !left.Equals(in right, StringComparison.Ordinal);
+        }
+
         public bool Equals(StringSpan other) => Equals(other, StringComparison.Ordinal);
 
         public bool Equals(in StringSpan other, StringComparison comparisonType)
@@ -131,5 +141,16 @@ namespace YantraJS.Core
         {
             return base.GetHashCode();
         }
+
+        public StringSpanReader Reader()
+        {
+            return new StringSpanReader(this);
+        }
+        public string Substring(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

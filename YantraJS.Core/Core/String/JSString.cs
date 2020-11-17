@@ -18,7 +18,7 @@ namespace YantraJS.Core
 
         internal static JSString Empty = new JSString(string.Empty);
 
-        internal readonly string value;
+        internal readonly StringSpan value;
         KeyString _keyString = new KeyString();
 
         private double NumberValue = 0;
@@ -97,6 +97,12 @@ namespace YantraJS.Core
             this.value = value;
         }
 
+        public JSString(in StringSpan value) : base()
+        {
+            this.value = value;
+        }
+
+
         public JSString(char ch) : this(new string(ch,1))
         {
             
@@ -121,12 +127,12 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return value;
+            return value.Value;
         }
 
         public override string ToDetailString()
         {
-            return value;
+            return value.Value;
         }
 
         public override JSValue this[uint key] { 

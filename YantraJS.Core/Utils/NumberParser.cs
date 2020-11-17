@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Utils
 {
@@ -271,6 +272,74 @@ namespace YantraJS.Utils
             return result;
         }
 
+        /// <summary>
+        /// Converts a string to a number (used in type coercion).
+        /// </summary>
+        /// <returns> The result of parsing the string as a number. </returns>
+        internal static double CoerceToNumber(in StringSpan input)
+        {
+            var reader = input.Reader();
+
+            // Skip whitespace and line terminators.
+            while (IsWhiteSpaceOrLineTerminator(reader.Peek()))
+                reader.Read();
+
+            // Empty strings return 0.
+            int firstChar = reader.Read();
+            if (firstChar == -1)
+                return 0.0;
+
+            // The number can start with a plus or minus sign.
+            bool negative = false;
+            switch (firstChar)
+            {
+                case '-':
+                    negative = true;
+                    firstChar = reader.Read();
+                    break;
+                case '+':
+                    firstChar = reader.Read();
+                    break;
+            }
+
+            // Infinity or -Infinity are also valid.
+            if (firstChar == 'I')
+            {
+                string restOfString1 = reader.ReadToEnd();
+                if (restOfString1.StartsWith("nfinity", StringComparison.Ordinal) == true)
+                {
+                    // Check the end of the string for junk.
+                    for (int i = 7; i < restOfString1.Length; i++)
+                        if (IsWhiteSpaceOrLineTerminator(restOfString1[i]) == false)
+                            return double.NaN;
+                    return negative ? double.NegativeInfinity : double.PositiveInfinity;
+                }
+            }
+
+            // Return NaN if the first digit is not a number or a period.
+            if ((firstChar < '0' || firstChar > '9') && firstChar != '.')
+                return double.NaN;
+
+            // Parse the number.
+            NumberParser.ParseCoreStatus status;
+            double result = NumberParser.ParseCore(reader, (char)firstChar, out status, allowES3Octal: false);
+
+            // Handle various error cases.
+            switch (status)
+            {
+                case ParseCoreStatus.NoDigits:
+                case ParseCoreStatus.NoExponent:
+                    return double.NaN;
+            }
+
+            // Check the end of the string for junk.
+            string restOfString2 = reader.ReadToEnd();
+            for (int i = 0; i < restOfString2.Length; i++)
+                if (IsWhiteSpaceOrLineTerminator(restOfString2[i]) == false)
+                    return double.NaN;
+
+            return negative ? -result : result;
+        }
 
 
         /// <summary>

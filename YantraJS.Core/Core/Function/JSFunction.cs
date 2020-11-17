@@ -94,6 +94,12 @@ namespace YantraJS.Core
             this[KeyStrings.length] = new JSNumber(0);
         }
 
+        public JSFunction(JSFunctionDelegate f)
+            : this(f, StringSpan.Empty, StringSpan.Empty)
+        {
+
+        }
+
         public JSFunction(
             JSFunctionDelegate f,
             in StringSpan name,
