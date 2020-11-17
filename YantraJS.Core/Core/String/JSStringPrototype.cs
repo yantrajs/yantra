@@ -85,7 +85,7 @@ namespace YantraJS.Core
         {
             var text = AsString(a.This);
             var at = a.TryGetAt(0, out var n) ? n.IntValue : 0;
-            return new JSString(new string(text[at], 1));
+            return new JSNumber(text[at]);
         }
 
         /*[Prototype("codePointAt")]
