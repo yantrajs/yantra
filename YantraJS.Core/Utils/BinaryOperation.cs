@@ -227,10 +227,16 @@ namespace YantraJS.Utils
 
             switch (op)
             {
+                case Esprima.Ast.BinaryOperator.Equal:
+                    return ExpHelper.JSValueBuilder.Equals(left, right);
+                case Esprima.Ast.BinaryOperator.NotEqual:
+                    return ExpHelper.JSValueBuilder.NotEquals(left, right);
                 case Esprima.Ast.BinaryOperator.StrictlyEqual:
                     return ExpHelper.JSValueBuilder.StrictEquals(left, right);
                 case Esprima.Ast.BinaryOperator.StricltyNotEqual:
                     return ExpHelper.JSValueBuilder.NotStrictEquals(left, right);
+
+
                 case Esprima.Ast.BinaryOperator.InstanceOf:
                     return ExpHelper.JSValueExtensionsBuilder.InstanceOf(left, right);
                 case Esprima.Ast.BinaryOperator.In:
@@ -245,10 +251,6 @@ namespace YantraJS.Utils
                     return ExpHelper.JSNumberBuilder.New(Expression.Divide(leftDouble, rightDouble));
                 case Esprima.Ast.BinaryOperator.Modulo:
                     return ExpHelper.JSNumberBuilder.New(Expression.Modulo(leftDouble, rightDouble));
-                case Esprima.Ast.BinaryOperator.Equal:
-                    return ExpHelper.JSValueBuilder.Equals(left, right);
-                case Esprima.Ast.BinaryOperator.NotEqual:
-                    return ExpHelper.JSValueBuilder.NotEquals(left, right);
                 case Esprima.Ast.BinaryOperator.Greater:
                     return ExpHelper.JSValueBuilder.Greater(left, right);
                 case Esprima.Ast.BinaryOperator.GreaterOrEqual:

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using YantraJS.Core;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Generator;
+using YantraJS.Core.LinqExpressions.Logical;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
 using YantraJS.Extensions;
@@ -1515,8 +1516,67 @@ namespace YantraJS
 
         protected override Exp VisitLogicalExpression(Esprima.Ast.BinaryExpression binaryExpression)
         {
-            var left = VisitExpression(binaryExpression.Left);
-            var right = VisitExpression(binaryExpression.Right);
+            Exp right;
+            Exp left;
+            // if any of it is literal...
+            //if(binaryExpression.Left.Type == Nodes.Literal)
+            //{
+            //    var literal = binaryExpression.Left as Literal;
+            //    right = VisitExpression(binaryExpression.Right);
+            //    switch(literal.TokenType)
+            //    {
+            //        case TokenType.BooleanLiteral:
+            //            return LogicalBoolean.Build(
+            //                literal.BooleanValue,
+            //                binaryExpression.Operator,
+            //                right);
+            //        case TokenType.NumericLiteral:
+            //            return LogicalNumeric.Build(
+            //                literal.NumericValue,
+            //                binaryExpression.Operator,
+            //                right);
+            //        case TokenType.StringLiteral:
+            //            return LogicalString.Build(
+            //                literal.StringValue,
+            //                binaryExpression.Operator,
+            //                right);
+            //        case TokenType.NullLiteral:
+            //            return LogicalNull.Build(
+            //                binaryExpression.Operator,
+            //                right);
+            //    }
+            //} else if (binaryExpression.Right.Type == Nodes.Literal)
+            //{
+            //    var literal = binaryExpression.Right as Literal;
+            //    right = VisitExpression(binaryExpression.Left);
+            //    switch (literal.TokenType)
+            //    {
+            //        case TokenType.BooleanLiteral:
+            //            return LogicalBoolean.Build(
+            //                literal.BooleanValue,
+            //                binaryExpression.Operator,
+            //                right);
+            //        case TokenType.NumericLiteral:
+            //            return LogicalNumeric.Build(
+            //                literal.NumericValue,
+            //                binaryExpression.Operator,
+            //                right);
+            //        case TokenType.StringLiteral:
+            //            return LogicalString.Build(
+            //                literal.StringValue,
+            //                binaryExpression.Operator,
+            //                right);
+            //        case TokenType.NullLiteral:
+            //            return LogicalNull.Build(
+            //                binaryExpression.Operator,
+            //                right);
+            //    }
+
+            //}
+
+
+            left = VisitExpression(binaryExpression.Left);
+            right = VisitExpression(binaryExpression.Right);
             return BinaryOperation.Operation(left, right, binaryExpression.Operator);
         }
 
@@ -1562,6 +1622,11 @@ namespace YantraJS
                 var vs = functionScope.CreateVariable("arguments",
                     JSArgumentsBuilder.New(functionScope.ArgumentsExpression));
                 return vs.Expression;
+            }
+
+            if (identifier.Name == "undefined")
+            {
+                return JSUndefinedBuilder.Value;
             }
 
             var local = this.scope.Top[identifier.Name];

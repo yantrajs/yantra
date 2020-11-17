@@ -184,23 +184,26 @@ namespace YantraJS.Core
 
         private unsafe int UnsafeGetHashCode()
         {
-            fixed(char* src = Source)
+            unchecked
             {
-                int hash1 = 5381;
-                int hash2 = hash1;
-
-                int c;
-                char* s = src + Offset;
-                while ((c = s[0]) != 0)
+                fixed (char* src = Source)
                 {
-                    hash1 = ((hash1 << 5) + hash1) ^ c;
-                    c = s[1];
-                    if (c == 0)
-                        break;
-                    hash2 = ((hash2 << 5) + hash2) ^ c;
-                    s += 2;
+                    int hash1 = 5381;
+                    int hash2 = hash1;
+
+                    int c;
+                    char* s = src + Offset;
+                    while ((c = s[0]) != 0)
+                    {
+                        hash1 = ((hash1 << 5) + hash1) ^ c;
+                        c = s[1];
+                        if (c == 0)
+                            break;
+                        hash2 = ((hash2 << 5) + hash2) ^ c;
+                        s += 2;
+                    }
+                    return hash1 + (hash2 * 1566083941);
                 }
-                return hash1 + (hash2 * 1566083941);
             }
         }
 
@@ -238,6 +241,23 @@ namespace YantraJS.Core
             {
                 this.span = span;
                 this.index = -1;
+            }
+
+            public unsafe bool MoveNext(out char ch)
+            {
+                this.index++;
+                if (this.index >= span.Length)
+                {
+                    ch = '\0';
+                    return false;
+                }
+                fixed (char* start = span.Source)
+                {
+                    char* ch1 = start + (span.Offset + index);
+                    ch = *ch1;
+                    return true;
+                }
+
             }
 
             public char Current => UnsafeChar();

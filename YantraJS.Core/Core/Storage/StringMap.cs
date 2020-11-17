@@ -145,7 +145,28 @@ namespace YantraJS.Core.Core.Storage
         internal T value;
         private HashedString Key;
 
-        public T this[StringSpan index]
+        public T this[in HashedString index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                ref var node = ref GetNode(index);
+                if (node.HasValue)
+                    return node.value;
+                return default;
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                ref var node = ref GetNode(index, true);
+                node.State = MapValueState.HasValue | MapValueState.Filled;
+                node.value = value;
+
+            }
+        }
+
+
+        public T this[in StringSpan index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -272,7 +293,8 @@ namespace YantraJS.Core.Core.Storage
             {
                 return ref node;
             }
-            foreach(var ch in originalKey.Value)
+            var en = originalKey.Value.GetEnumerator();
+            while(en.MoveNext(out var ch))
             {
                 Int32 uch = ch;
                 for (; uch > 0; uch >>= Bits)
