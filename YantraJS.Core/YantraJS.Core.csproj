@@ -30,6 +30,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />
     <PackageReference Include="FastExpressionCompiler" Version="3.0.0-preview-02" />
     <PackageReference Include="ErrorProne.NET.Structs" Version="0.3.0-beta.0">
       <PrivateAssets>all</PrivateAssets>

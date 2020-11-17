@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -18,8 +19,8 @@ namespace YantraJS.Core
 
         public JSClassFunction(
             JSFunctionDelegate @delegate,
-            string name = null,
-            string source = null,
+            in StringSegment name,
+            in StringSpan source,
             int length = 0) : base(@delegate, name, source, length)
         {
 
@@ -38,9 +39,9 @@ namespace YantraJS.Core
 
         internal JSObject prototype;
 
-        readonly string source;
+        readonly StringSpan source;
 
-        public readonly string name;
+        public readonly StringSpan name;
 
         internal JSFunctionDelegate f;
 
@@ -61,54 +62,57 @@ namespace YantraJS.Core
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = clrDelegate;
             this.name = "clr-native";
-            this.source = source
-                ?? $"function {type.name}() {{ [clr-native] }}";
+            this.source = source.IsEmpty 
+                ? $"function {type.name}() {{ [clr-native] }}"
+                : source;
             prototype = type.prototype;
             prototype[KeyStrings.constructor] = type;
             ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
 
-            this[KeyStrings.name] = name != null
-                ? new JSString(name)
-                : new JSString("native");
+            this[KeyStrings.name] = name.IsEmpty
+                ? new JSString("native")
+                : new JSString(name);
             this[KeyStrings.length] = new JSNumber(0);
         }
 
-        protected JSFunction(string name, string source, JSObject _prototype)
+        protected JSFunction(StringSpan name, StringSpan source, JSObject _prototype)
             : base(JSContext.Current?.FunctionPrototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = empty;
-            this.name = name ?? "native";
-            this.source = source
-                ?? $"function {name ?? "native"}() {{ [native] }}";
+            this.name = name.IsEmpty ? "native" : name;
+            this.source = source.IsEmpty 
+                ? $"function {this.name}() {{ [native] }}"
+                : source;
             prototype = _prototype;
             prototype[KeyStrings.constructor] = this;
             ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
 
-            this[KeyStrings.name] = name != null
-                ? new JSString(name)
-                : new JSString("native");
+            this[KeyStrings.name] = name.IsEmpty 
+                ? new JSString("native")
+                : new JSString(name);
             this[KeyStrings.length] = new JSNumber(0);
         }
 
         public JSFunction(
             JSFunctionDelegate f,
-            string name = null,
-            string source = null,
+            in StringSpan name,
+            in StringSpan source,
             int length = 0): base(JSContext.Current?.FunctionPrototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
-            this.name = name ?? "native";
-            this.source = source 
-                ?? $"function {name ?? "native"}() {{ [native] }}";
+            this.name = name.IsEmpty ? "native" : name;
+            this.source = source.IsEmpty
+                ? $"function {this.name}() {{ [native] }}"
+                : source;
             prototype = new JSObject();
             prototype[KeyStrings.constructor] = this;
             ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
 
-            this[KeyStrings.name] = name != null
-                ? new JSString(name)
-                : new JSString("native");
+            this[KeyStrings.name] = name.IsEmpty
+                ? new JSString("native")
+                : new JSString(name);
             this[KeyStrings.length] = new JSNumber(length);
 
         }
