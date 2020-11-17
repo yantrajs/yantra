@@ -14,6 +14,13 @@ namespace YantraJS.Core.Typed
             return new JSNumber(@this.Length);
         }
 
+        [SetProperty("length")]
+        public static JSValue SetLength(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            throw JSContext.Current.NewTypeError($"Cannot set property length of {@this} which has only a getter");
+        }
+
         [GetProperty("byteOffset")]
         public static JSValue ByteOffset(in Arguments a)
         {
@@ -338,7 +345,7 @@ namespace YantraJS.Core.Typed
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -364,14 +371,14 @@ namespace YantraJS.Core.Typed
             for (int i = start; i >= 0; i--)
             {
                 var item = @this[(uint)i];
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(i), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
         }
 
 
-        [Prototype("reverse", Length = 1)]
+        [Prototype("reverse", Length = 0)]
         public static JSValue Reverse(in Arguments a) {
             var @this = a.This.AsTypedArray();
 
