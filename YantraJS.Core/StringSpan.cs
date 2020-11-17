@@ -50,7 +50,7 @@ namespace YantraJS.Core
             }
         }
 
-        public char this[int index]
+        public unsafe char this[int index]
         {
             get
             {
@@ -58,8 +58,11 @@ namespace YantraJS.Core
                 {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
-
-                return Source[Offset + index];
+                fixed (char* src = Source)
+                {
+                    char* charAt = src + Offset + index;
+                    return *charAt;
+                }
             }
         }
 
@@ -187,7 +190,7 @@ namespace YantraJS.Core
                 int hash2 = hash1;
 
                 int c;
-                char* s = src + Offset * 2;
+                char* s = src + Offset;
                 while ((c = s[0]) != 0)
                 {
                     hash1 = ((hash1 << 5) + hash1) ^ c;
@@ -226,7 +229,7 @@ namespace YantraJS.Core
             return GetEnumerator();
         }
 
-        public class CharEnumerator: IEnumerator<char>
+        public struct CharEnumerator: IEnumerator<char>
         {
             private StringSpan span;
             private int index;
@@ -237,7 +240,16 @@ namespace YantraJS.Core
                 this.index = -1;
             }
 
-            public char Current => span[index];
+            public char Current => UnsafeChar();
+
+            private unsafe char UnsafeChar()
+            {
+                fixed(char* start = span.Source)
+                {
+                    char* ch = start + (span.Offset + index);
+                    return *ch;
+                }
+            }
 
             object IEnumerator.Current => Current;
 

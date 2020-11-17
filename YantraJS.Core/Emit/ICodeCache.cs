@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using YantraJS.Core;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Emit
 {
@@ -54,8 +55,8 @@ namespace YantraJS.Emit
 
     public class DictionaryCodeCache : ICodeCache
     {
-        private static ConcurrentDictionary<string, JSFunctionDelegate> cache
-            = new ConcurrentDictionary<string, JSFunctionDelegate>();
+        private static ConcurrentStringMap<JSFunctionDelegate> cache
+            = ConcurrentStringMap<JSFunctionDelegate>.Create();
 
         public static ICodeCache Current = new DictionaryCodeCache();
 
@@ -64,7 +65,7 @@ namespace YantraJS.Emit
             var c = code.Code;
             var location = code.Location;
             var args = code.Arguments;
-            return cache.GetOrAdd(code.Key, (k) => {
+            return cache.GetOrCreate(code.Key, (k) => {
                 var a = new JSCode(location, c, args);
                 return compiler(a);
             });
