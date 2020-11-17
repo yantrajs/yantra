@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core
@@ -25,8 +26,9 @@ namespace YantraJS.Core
         where T: LinkedStackItem<T>
     {
 
-        internal T _Top { get; set; } = null;
+        internal T _Top = null;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Push(T item)
         {
             item.Parent = this._Top;
@@ -36,7 +38,10 @@ namespace YantraJS.Core
             return item;
         }
 
-        public T Top => _Top;
+        public T Top {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _Top;
+        }
 
         public T Switch(T top)
         {

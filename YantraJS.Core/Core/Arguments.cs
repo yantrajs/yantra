@@ -365,6 +365,30 @@ namespace YantraJS.Core
             return false;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetIntAt(int index, int def)
+        {
+            if (Length > index)
+            {
+                switch (index)
+                {
+                    case 0:
+                        return Arg0.IntValue;
+                    case 1:
+                        return Arg1.IntValue;
+                    case 2:
+                        return Arg2.IntValue;
+                    case 3:
+                        return Arg3.IntValue;
+                    default:
+                        return Args[index].IntValue;
+                }
+            }
+            return def;
+        }
+
+
         internal JSValue this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -47,11 +47,24 @@ namespace YantraJS.Core
         public static JSValue Substring(in Arguments a) 
         {
             var @this = a.This.AsString();
-            if (!a.TryGetAt(0, out var start))
-                return a.This;
-            if (!a.TryGetAt(1, out var length))
-                return new JSString(@this.Substring(start.IntValue));
-            return new JSString(@this.Substring(start.IntValue, length.IntValue));
+            int start = a.GetIntAt(0, 0);
+            int end = a.GetIntAt(1, int.MaxValue);
+            var si = Math.Max(Math.Min(start, end), 0);
+            var ei = Math.Max(Math.Max(start, end), 0);
+            if (si < 0)
+            {
+                si += @this.Length;
+            }
+            if(ei < 0)
+            {
+                ei += @this.Length;
+            }
+            si = Math.Min(Math.Max(si, 0), @this.Length);
+            ei = Math.Min(Math.Max(ei, 0), @this.Length);
+            if (end <= start)
+                return new JSString(StringSpan.Empty);
+
+            return new JSString(@this.Substring(si, ei - si));
         }
 
         [Prototype("substr")]

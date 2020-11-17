@@ -23,21 +23,21 @@ namespace YantraJS.Utils
         public Node Node { get;}
         public void CreateVariable(Expression d, VariableDeclarationKind kind)
         {
-            switch (d)
+            switch ((d.Type,d))
             {
-                case Identifier id:
+                case (Nodes.Identifier , Identifier id):
                     AddVariable(id.Name, kind);
                     break;
-                case SpreadElement spe:
+                case (Nodes.SpreadElement, SpreadElement spe):
                     CreateVariable(spe.Argument, kind);
                     break;
-                case ArrayPattern ap:
+                case (Nodes.ArrayPattern, ArrayPattern ap):
                     foreach(var e in ap.Elements)
                     {
                         CreateVariable(e, kind);
                     }
                     break;
-                case ObjectPattern op:
+                case (Nodes.ObjectPattern, ObjectPattern op):
                     foreach(Property p in op.Properties.OfType<Property>())
                     {
                         CreateVariable(p.Value, kind);
@@ -62,7 +62,7 @@ namespace YantraJS.Utils
                 n = n.Parent;
                 if (n == null)
                     break;
-                if (n.Node is BlockStatement)
+                if (n.Node.Type == Nodes.BlockStatement)
                     continue;
                 break;
             }
@@ -96,11 +96,10 @@ namespace YantraJS.Utils
         }
         public void VerifyAssignment(Expression left)
         {
-            switch (left)
+            if(left.Type == Nodes.Identifier)
             {
-                case Identifier id:
-                    Assign(id.Name);
-                    break;
+                Identifier id = left as Identifier;
+                Assign(id.Name);
             }
         }
 
