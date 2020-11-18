@@ -518,8 +518,63 @@ namespace YantraJS.Core.Typed
             {
                 if (!fx.IsUndefined)
                     throw JSContext.Current.NewTypeError($"Argument is not a function");
-                cx = (l, r) => l.DoubleValue < r.DoubleValue ? -1 : 
-                (l.DoubleValue == r.DoubleValue ? 0 : 1);
+                cx = (l, r) =>
+                {
+                    var ld = l.DoubleValue;
+                    var rd = r.DoubleValue;
+                    if (double.IsNaN(ld))
+                    {
+                        if (double.IsNaN(rd))
+                            return 0;
+                        return 1;
+                    }
+                    if (double.IsNaN(rd))
+                        return -1;
+
+                    //if (double.IsPositiveInfinity(ld))
+                    //{ 
+                    //    if (double.IsPositiveInfinity(rd))
+                    //    {
+                    //        return -1;
+                    //    }
+                    //return 1;
+                    //}
+
+                    //if (double.IsNegativeInfinity(ld))
+                    //{
+                    //    if (double.IsNegativeInfinity(rd))
+                    //    {
+                    //        return 1;
+                    //    }
+                    //    return -1;
+                    //}
+
+                    //if (double.IsNegativeInfinity(ld))
+                    //{
+                    //    if (double.IsNegativeInfinity(rd))
+                    //        return 0;
+                    //    return -1;
+                    //}
+                    //if (double.IsPositiveInfinity(rd))
+                    //{
+                    //    if (double.IsPositiveInfinity(ld))
+                    //        return 0;
+                    //    return 1;
+                    //}
+                    //if (ld == -0.0d) { 
+                    //    if (rd == 0)
+                    //    {
+                    //        return -1;
+                    //    }
+                    //}
+                    //if (rd == -0.0d)
+                    //{
+                    //    if (ld == 0)
+                    //        return 1;
+                    //}
+                    return ld < rd ? -1 :
+                        (ld == rd ? 0 : 1);
+                };
             }
 
             var list = new List<JSValue>();

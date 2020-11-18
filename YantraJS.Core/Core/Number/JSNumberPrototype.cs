@@ -61,6 +61,11 @@ namespace YantraJS.Core.Runtime
         public static JSString ToString(in Arguments a)
         {
             var n = a.This.ToNumber();
+            if (double.IsPositiveInfinity(n.value))
+                return JSConstants.Infinity;
+            if (double.IsNegativeInfinity(n.value))
+                return JSConstants.NegativeInfinity;
+
             return new JSString(n.value.ToString());
         }
 

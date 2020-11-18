@@ -164,6 +164,10 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
+            if (double.IsPositiveInfinity(value))
+                return JSConstants.Infinity.value.Value;
+            if (double.IsNegativeInfinity(value))
+                return JSConstants.NegativeInfinity.value.Value;
             return value.ToString();
         }
 
