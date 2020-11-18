@@ -954,7 +954,7 @@ namespace YantraJS
 
         protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
         {
-            Exp d = null;
+            List<Exp> defBody = null;
             var @continue = this.scope.Top.Loop?.Top?.Continue;
             var @break = Exp.Label();
             var ls = new LoopScope(@break ,@continue, true);
@@ -982,7 +982,7 @@ namespace YantraJS
 
                     if (c.Test == null)
                     {
-                        d = Exp.Block(body);
+                        defBody = body;
                         lastCase = new SwitchInfo();
                         continue;
                     }
@@ -1009,6 +1009,17 @@ namespace YantraJS
                     last.Body.Add(Exp.Goto(@case.Label));
                 }
                 last = @case;
+            }
+            Exp d = null;
+            if(defBody != null)
+            {
+                var defLabel = Exp.Label();
+                if (last != null)
+                {
+                    last.Body.Add(Exp.Goto(defLabel));
+                }
+                defBody.Insert(0, Exp.Label(defLabel));
+                d = Exp.Block(defBody);
             }
 
             var r = Exp.Block(

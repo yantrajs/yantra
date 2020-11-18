@@ -275,7 +275,7 @@ namespace YantraJS.Core
 
             public void Dispose()
             {
-                throw new NotImplementedException();
+                // throw new NotImplementedException();
             }
 
             public bool MoveNext()
@@ -285,7 +285,7 @@ namespace YantraJS.Core
 
             public void Reset()
             {
-                throw new NotImplementedException();
+                // throw new NotImplementedException();
             }
         }
     }
