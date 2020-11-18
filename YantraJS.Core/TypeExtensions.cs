@@ -32,7 +32,12 @@ namespace YantraJS
 
         internal static FieldInfo InternalField(this Type type, string name)
         {
-            return type.GetField(name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
+            if (f == null)
+            {
+                throw new NullReferenceException($"Field {name} not found on {type.FullName}");
+            }
+            return f;
         }
 
         internal static PropertyInfo IndexProperty(this Type type, params Type[] types)

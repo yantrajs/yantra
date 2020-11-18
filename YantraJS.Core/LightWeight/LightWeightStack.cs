@@ -51,11 +51,12 @@ namespace YantraJS.Core.LightWeight
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T Push(out int index)
+        public T Push()
         {
             EnsureCapacity(length);
-            index = length++;
-            return ref storage[index];
+            var x = Activator.CreateInstance<T>();
+            storage[length++] = x;
+            return x;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

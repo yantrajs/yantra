@@ -23,7 +23,7 @@ using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core
 {
-    public struct CallStackItem
+    public class CallStackItem
     {
         public StringSpan Function;
         public int Line;
@@ -47,7 +47,11 @@ namespace YantraJS.Core
     public class JSContext: JSObject, IDisposable
     {
 
-        static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>();
+        internal static JSContext CurrentContext;
+
+        private static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>((e) => {
+            CurrentContext = CurrentContext ?? e.CurrentValue;
+        });
 
         // internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
 
@@ -145,6 +149,7 @@ namespace YantraJS.Core
             set
             {
                 _current.Value = value;
+                CurrentContext = value;
             }
         }
 
@@ -152,30 +157,30 @@ namespace YantraJS.Core
 
         public event ErrorEventHandler Error;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int Push(string fileName, in StringSpan function, int line, int column)
-        {
-            ref var top = ref Stack.Push(out var item);
-            top.Function = function;
-            top.FileName = fileName;
-            top.Line = line;
-            top.Column = column;
-            return item;
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal int Push(string fileName, in StringSpan function, int line, int column)
+        //{
+        //    ref var top = ref Stack.Push(out var item);
+        //    top.Function = function;
+        //    top.FileName = fileName;
+        //    top.Line = line;
+        //    top.Column = column;
+        //    return item;
+        //}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Pop()
-        {
-            Stack.Pop();
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal void Pop()
+        //{
+        //    Stack.Pop();
+        //}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Update(int index, int line, int column)
-        {
-            ref var top = ref Stack.GetAt(index);
-            top.Line = line;
-            top.Column = column;
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal void Update(int index, int line, int column)
+        //{
+        //    ref var top = ref Stack.GetAt(index);
+        //    top.Line = line;
+        //    top.Column = column;
+        //}
 
         internal bool IsRootScope
         {
