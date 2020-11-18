@@ -33,5 +33,10 @@ namespace YantraJS.Core
 
         public static readonly JSString Symbol =
             new JSString("symbol");
+
+        public static readonly JSString Infinity =
+            new JSString("Infinity");
+        public static readonly JSString NegativeInfinity =
+            new JSString("-Infinity");
     }
 }

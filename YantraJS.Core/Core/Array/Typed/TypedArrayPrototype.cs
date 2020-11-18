@@ -410,7 +410,8 @@ namespace YantraJS.Core.Typed
             }
             
             var relativeStart = offset.AsInt32OrDefault();
-
+            if (relativeStart < 0)
+                throw JSContext.Current.NewRangeError("Offset is out of bounds");
             var targetArrayLength = source.Length + relativeStart;
             if (targetArrayLength > length)
                 throw JSContext.Current.NewRangeError("Offset is out of bounds");
@@ -419,16 +420,27 @@ namespace YantraJS.Core.Typed
                 var target = @this.buffer.buffer;
                 int sourceBytesPerElement = typedArray.bytesPerElement;
                 int targetBytesPerElement = @this.bytesPerElement;
-
-                for (int i = 0; i < length; i++)
+                // var maxLength = source.Length - (relativeStart * sourceBytesPerElement);
+                if (src == target && (relativeStart * targetBytesPerElement) >= typedArray.byteOffset) { 
+                    for (int i = source.Length - 1; i >= 0 ; i--)
+                    {
+                        var y = relativeStart + i;
+                        Array.Copy(src, typedArray.byteOffset + (i * sourceBytesPerElement), 
+                            target, 
+                            @this.byteOffset + (y * targetBytesPerElement), 
+                            sourceBytesPerElement);
+                    }
+                }else { 
+                for (int i = 0; i < source.Length; i++)
                 {
                     var y = relativeStart + i;
-                    Array.Copy(src, typedArray.byteOffset + (i * sourceBytesPerElement), 
-                        target, 
-                        @this.byteOffset + (y * targetBytesPerElement), 
-                        targetBytesPerElement);
+                    Array.Copy(src, typedArray.byteOffset + (i * sourceBytesPerElement),
+                        target,
+                        @this.byteOffset + (y * targetBytesPerElement),
+                        sourceBytesPerElement);
                 }
-           
+                }
+
                 return @this;
             }
 
@@ -506,8 +518,63 @@ namespace YantraJS.Core.Typed
             {
                 if (!fx.IsUndefined)
                     throw JSContext.Current.NewTypeError($"Argument is not a function");
-                cx = (l, r) => l.DoubleValue < r.DoubleValue ? -1 : 
-                (l.DoubleValue == r.DoubleValue ? 0 : 1);
+                cx = (l, r) =>
+                {
+                    var ld = l.DoubleValue;
+                    var rd = r.DoubleValue;
+                    if (double.IsNaN(ld))
+                    {
+                        if (double.IsNaN(rd))
+                            return 0;
+                        return 1;
+                    }
+                    if (double.IsNaN(rd))
+                        return -1;
+
+                    //if (double.IsPositiveInfinity(ld))
+                    //{ 
+                    //    if (double.IsPositiveInfinity(rd))
+                    //    {
+                    //        return -1;
+                    //    }
+                    //return 1;
+                    //}
+
+                    //if (double.IsNegativeInfinity(ld))
+                    //{
+                    //    if (double.IsNegativeInfinity(rd))
+                    //    {
+                    //        return 1;
+                    //    }
+                    //    return -1;
+                    //}
+
+                    //if (double.IsNegativeInfinity(ld))
+                    //{
+                    //    if (double.IsNegativeInfinity(rd))
+                    //        return 0;
+                    //    return -1;
+                    //}
+                    //if (double.IsPositiveInfinity(rd))
+                    //{
+                    //    if (double.IsPositiveInfinity(ld))
+                    //        return 0;
+                    //    return 1;
+                    //}
+                    //if (ld == -0.0d) { 
+                    //    if (rd == 0)
+                    //    {
+                    //        return -1;
+                    //    }
+                    //}
+                    //if (rd == -0.0d)
+                    //{
+                    //    if (ld == 0)
+                    //        return 1;
+                    //}
+                    return ld < rd ? -1 :
+                        (ld == rd ? 0 : 1);
+                };
             }
 
             var list = new List<JSValue>();
@@ -539,7 +606,7 @@ namespace YantraJS.Core.Typed
             end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
             newLength = Math.Max(end - begin, 0);
 
-            var r = new TypedArray(@this.buffer, @this.type, @this.byteOffset + begin, newLength, @this.prototypeChain);
+            var r = new TypedArray(@this.buffer, @this.type, @this.byteOffset + begin *@this.bytesPerElement, newLength, @this.prototypeChain);
             return r;
 
         }
