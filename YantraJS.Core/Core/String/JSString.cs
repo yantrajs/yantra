@@ -215,12 +215,12 @@ namespace YantraJS.Core
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint i)
             {
-                if (en.MoveNext())
+                if (en.MoveNext(out var ch))
                 {
                     index++;
                     i = (uint)index;
                     hasValue = true;
-                    value = new JSString(new string(en.Current, 1));
+                    value = new JSString(new string(ch, 1));
                     return true;
                 }
                 i = 0;
@@ -231,10 +231,10 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value)
             {
-                if (en.MoveNext())
+                if (en.MoveNext(out var ch))
                 {
                     index++;
-                    value = new JSString(new string(en.Current, 1));
+                    value = new JSString(new string(ch, 1));
                     return true;
                 }
                 value = JSUndefined.Value;

@@ -279,7 +279,8 @@ namespace YantraJS.Core
             else
             {
                 // The string contains escape characters - fall back to the slower code path.
-                foreach (char c in input)
+                var en = input.GetEnumerator();
+                while(en.MoveNext(out  var c))
                 {
                     switch (c)
                     {
