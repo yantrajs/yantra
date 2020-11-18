@@ -48,19 +48,23 @@ namespace YantraJS.Core
         [Static("assign")]
         internal static JSValue Assign(in Arguments a)
         {
-            var (first,second) = a.Get2();
+            var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject firstObject))
                 return first;
-            if (!(second is JSObject @object))
-                return first;
-            var en = new PropertySequence.Enumerator(@object.GetOwnProperties(false));
             ref var firstOwnProperties = ref firstObject.GetOwnProperties();
-            while(en.MoveNext())
+            for (var i = 1; i < a.Length; i++)
             {
-                ref var item = ref en.Current;
-                firstOwnProperties[item.key.Key] = item;
+                var ai = a.GetAt(i);
+                if (!(ai is JSObject @object))
+                    continue;
+                var en = new PropertySequence.Enumerator(@object.GetOwnProperties(false));
+                while (en.MoveNext())
+                {
+                    ref var item = ref en.Current;
+                    firstOwnProperties[item.key.Key] = JSProperty.Property(item.key, @object.GetValue(item));
+                }
             }
             return first;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -30,6 +31,7 @@ namespace YantraJS.Core
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [DebuggerDisplay("{key}={get},{set},{value}")]
     public readonly struct JSProperty
     {
 
@@ -180,7 +182,7 @@ namespace YantraJS.Core
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Function(
-            KeyString key,
+            in KeyString key,
             JSFunctionDelegate d,
             JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableValue, int length = 0)
         {
@@ -190,7 +192,7 @@ namespace YantraJS.Core
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Property(
-            KeyString key,
+            in KeyString key,
             JSValue d,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
@@ -199,7 +201,7 @@ namespace YantraJS.Core
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Property(
-            KeyString key,
+            in KeyString key,
             JSFunction d,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
@@ -209,7 +211,7 @@ namespace YantraJS.Core
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSProperty Property(
-            KeyString key,
+            in KeyString key,
             JSFunctionDelegate get,
             JSFunctionDelegate set = null,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)

@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core
 {
     
 
-    public struct KeyString
+
+    [DebuggerDisplay("Key:{Key},{Value}")]
+    public readonly struct KeyString
     {
 
         enum KeyType
@@ -27,7 +30,7 @@ namespace YantraJS.Core
         private readonly KeyType Type;
         public readonly StringSpan Value;
         public readonly uint Key;
-        public JSValue JSValue;
+        public readonly JSValue JSValue;
 
         public bool HasValue
         {
@@ -121,7 +124,7 @@ namespace YantraJS.Core
         {
             if (JSValue != null)
                 return JSValue;
-            return (JSValue = new JSString(Value, this));
+            return new JSString(Value, this);
         }
 
         // public static (int size, int total, int next) Total =>

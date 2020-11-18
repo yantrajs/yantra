@@ -48,7 +48,7 @@ namespace YantraJS.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, KeyString name, in Arguments a)
+        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, in Arguments a)
         {
             var fx = @this.GetMethod(name);
             return fx(a.OverrideThis(@this));
@@ -147,7 +147,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, KeyString name)
+        public static JSValue InvokeMethod(this JSValue @this, in KeyString name)
         {
             var fx = @this[name];
             if (fx.IsUndefined)
@@ -158,7 +158,7 @@ namespace YantraJS.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0)
+        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0)
         {
             var fx = @this[name];
             if (fx.IsUndefined)
@@ -168,7 +168,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0, JSValue arg1)
+        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0, JSValue arg1)
         {
             var fx = @this[name];
             if (fx.IsUndefined)
@@ -178,7 +178,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0, JSValue arg1, JSValue arg2)
+        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0, JSValue arg1, JSValue arg2)
         {
             var fx = @this[name];
             if (fx.IsUndefined)
@@ -188,7 +188,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
+        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
         {
             var fx = @this[name];
             if (fx.IsUndefined)
@@ -198,7 +198,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, KeyString name, JSValue[] args)
+        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue[] args)
         {
             var fx = @this[name];
             if (fx.IsUndefined)

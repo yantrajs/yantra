@@ -1,5 +1,5 @@
-﻿import * as ts from "./typescript";
-// var ts = require("./typescript");
+﻿// import * as ts from "./typescript";
+var ts = require("./typescript");
 console.log("Typescript module loaded...");
 const source = "let x: string  = 'string'";
 

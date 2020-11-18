@@ -55,7 +55,7 @@ namespace YantraJS.ExpHelper
 
 
         static readonly MethodInfo _InvokeMethodKeyString
-            = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(KeyString), ArgumentsBuilder.refType);
+            = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType, ArgumentsBuilder.refType);
         static readonly MethodInfo _InvokeMethodUInt
             = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), ArgumentsBuilder.refType);
         static readonly MethodInfo _InvokeMethodJSValue
