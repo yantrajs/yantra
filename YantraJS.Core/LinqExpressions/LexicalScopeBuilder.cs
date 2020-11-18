@@ -29,46 +29,70 @@ namespace YantraJS.ExpHelper
             = typeof(LinkedStack<Core.LexicalScope>)
             .GetMethod(nameof(Core.LinkedStack<Core.LexicalScope>.Push));
 
+        private static MethodInfo _Pop
+            = type.GetMethod(nameof(Core.LexicalScope.Pop));
+
+
         private static ConstructorInfo _New
             = typeof(Core.LexicalScope)
             .GetConstructor(BindingFlags.CreateInstance | BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
                 new Type[] {
                     typeof(string),
-                    typeof(string),
+                    StringSpanBuilder.RefType,
                     typeof(int),
                     typeof(int)
                 }, null);
 
         public static Expression NewScope(
             Expression fileName,
-            string function,
+            Expression function,
             int line,
             int column)
         {
             return Expression.Call(
-                JSContextBuilder.Current,
+                JSContextBuilder.Stack,
                 _Push,
                 Expression.New(_New,
                 fileName,
-                Expression.Constant(function),
+                function,
                 Expression.Constant(line),
                 Expression.Constant(column)));
         }
 
-        private static PropertyInfo _Position =
-            type.Property(nameof(Core.LexicalScope.Position));
+        //private static PropertyInfo _Position =
+        //    type.Property(nameof(Core.LexicalScope.Position));
 
         private static ConstructorInfo _NewPosition =
             typeof(Position).Constructor(typeof(int), typeof(int));
 
-        public static Expression SetPosition(Expression exp, int line, int column)
+        private static FieldInfo _Line =
+            type.InternalField(nameof(LexicalScope.Line));
+
+        private static FieldInfo _Column =
+            type.InternalField(nameof(LexicalScope.Column));
+
+        public static Expression Update(Expression exp, int line, int column, Expression next)
         {
-            return Expression.Assign(
-                Expression.Property(exp, _Position),
-                Expression.New(_NewPosition, Expression.Constant(line), Expression.Constant(column)
-                ));
+            return Expression.Block(
+                Expression.Assign(Expression.Field(exp, _Line), Expression.Constant(line)),
+                Expression.Assign(Expression.Field(exp, _Column), Expression.Constant(column)),
+                next
+                );
         }
+
+        public static Expression Pop(Expression exp)
+        {
+            return Expression.Call(exp, _Pop);
+        }
+
+        //public static Expression SetPosition(Expression exp, int line, int column)
+        //{
+        //    return Expression.Assign(
+        //        Expression.Property(exp, _Position),
+        //        Expression.New(_NewPosition, Expression.Constant(line), Expression.Constant(column)
+        //        ));
+        //}
 
     }
 }

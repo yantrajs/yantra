@@ -66,10 +66,11 @@ namespace YantraJS.Core
                     var f = trace[0];
                     sb.AppendLine($"    at {f.target}:{f.file}:{f.line},{f.column}");
                 }
-                var walker = JSContext.Current.StackWalker;
-                while (walker.MoveNext())
+
+                var top = JSContext.Current.Stack._Top;
+                while (top != null)
                 {
-                    ref var top = ref walker.Current;
+                    // ref var top = ref walker.Current;
                     var fx = top.Function;
                     var file = top.FileName;
                     if (fx.IsNullOrWhiteSpace())
@@ -82,7 +83,25 @@ namespace YantraJS.Core
                     }
                     sb.AppendLine($"    at {fx}:{file}:{top.Line},{top.Column}");
                     trace.Add((fx, file, top.Line, top.Column));
+                    top = top.Parent;
                 }
+                //var walker = JSContext.Current.StackWalker;
+                //while (walker.MoveNext())
+                //{
+                //    ref var top = ref walker.Current;
+                //    var fx = top.Function;
+                //    var file = top.FileName;
+                //    if (fx.IsNullOrWhiteSpace())
+                //    {
+                //        fx = "native";
+                //    }
+                //    if (string.IsNullOrWhiteSpace(file))
+                //    {
+                //        file = "file";
+                //    }
+                //    sb.AppendLine($"    at {fx}:{file}:{top.Line},{top.Column}");
+                //    trace.Add((fx, file, top.Line, top.Column));
+                //}
                 return new JSString(sb.ToString());
             }
         }

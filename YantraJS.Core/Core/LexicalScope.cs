@@ -13,27 +13,29 @@ namespace YantraJS.Core
 
         internal bool IsRoot = false;
 
-        internal LexicalScope(string fileName, string function, int line, int column)
+        internal LexicalScope(string fileName, in StringSpan function, int line, int column)
         {
             // this.scope = new UInt32Trie<JSVariable>();
             FileName = fileName;
             Function = function;
-            position = new Position(line, column);
+            this.Line = line;
+            this.Column = column;
             // Console.WriteLine($"{function}, {line}, {column}");
         }
 
         public string FileName;
-        public string Function;
-        private Position position;
+        public StringSpan Function;
+        public int Line;
+        public int Column;
 
-        public Position Position { 
-            get => position;
-            set
-            {
-                position = value;
-                // Console.WriteLine($"{Function} {value.Line}, {value.Column}");
-            }
-        }
+        //public Position Position { 
+        //    get => position;
+        //    set
+        //    {
+        //        position = value;
+        //        // Console.WriteLine($"{Function} {value.Line}, {value.Column}");
+        //    }
+        //}
 
         public JSVariable Create(KeyString name, JSValue v)
         {

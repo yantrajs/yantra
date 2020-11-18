@@ -10,17 +10,17 @@ namespace YantraJS.ExpHelper
 {
     public class JSContextStackBuilder
     {
-        private readonly static Type type = typeof(LightWeightStack<CallStackItem>);
+        private readonly static Type type = typeof(LinkedStack<LexicalScope>);
 
         private readonly static Type itemType = typeof(CallStackItem);
 
         public readonly static Type itemTypeRef = typeof(CallStackItem).MakeByRefType();
 
         public static MethodInfo _Push =
-            type.InternalMethod(nameof(LightWeightStack<CallStackItem>.Push));
+            type.InternalMethod(nameof(LinkedStack<LexicalScope>.Push));
 
-        public static MethodInfo _Pop =
-            type.InternalMethod(nameof(LightWeightStack<CallStackItem>.Pop));
+        //public static MethodInfo _Pop =
+        //    type.InternalMethod(nameof(LightWeightStack<CallStackItem>.Pop));
 
         private static FieldInfo _fileName =
             itemType.InternalField(nameof(CallStackItem.FileName));
@@ -41,25 +41,27 @@ namespace YantraJS.ExpHelper
             int line,
             int column)
         {
-            stmtList.Add(Expression.Assign(stack, Expression.Call(JSContextBuilder.Stack, _Push)));
-            stmtList.Add(Expression.Assign(Expression.Field(stack, _fileName),fileName));
-            stmtList.Add(Expression.Assign(Expression.Field(stack, _Function), function));
-            stmtList.Add(Expression.Assign(Expression.Field(stack, _Line), Expression.Constant(line)));
-            stmtList.Add(Expression.Assign(Expression.Field(stack, _Column), Expression.Constant(column)));
+            var newScope = LexicalScopeBuilder.NewScope(fileName, function, line, column);
+            stmtList.Add(Expression.Assign(stack, newScope ));
+            //stmtList.Add(Expression.Assign(Expression.Field(stack, _fileName),fileName));
+            //stmtList.Add(Expression.Assign(Expression.Field(stack, _Function), function));
+            //stmtList.Add(Expression.Assign(Expression.Field(stack, _Line), Expression.Constant(line)));
+            //stmtList.Add(Expression.Assign(Expression.Field(stack, _Column), Expression.Constant(column)));
         }
 
         public static Expression Pop(Expression stack)
         {
-            return Expression.Call(JSContextBuilder.Stack, _Pop);
+            return LexicalScopeBuilder.Pop(stack);
         }
 
         internal static Expression Update(ParameterExpression stack, int line, int column, Expression next)
         {
-            return Expression.Block(
-                Expression.Assign(Expression.Field(stack, _Line), Expression.Constant(line)),
-                Expression.Assign(Expression.Field(stack, _Column), Expression.Constant(column)),
-                next
-                );
+            return LexicalScopeBuilder.Update(stack, line, column, next);
+            //return Expression.Block(
+            //    Expression.Assign(Expression.Field(stack, _Line), Expression.Constant(line)),
+            //    Expression.Assign(Expression.Field(stack, _Column), Expression.Constant(column)),
+            //    next
+            //    );
         }
     }
 
@@ -70,7 +72,7 @@ namespace YantraJS.ExpHelper
 
 
         public static Expression Current =
-            Expression.Property(null, type.Property(nameof(JSContext.Current)));
+            Expression.Field(null, type.InternalField(nameof(JSContext.Current)));
 
         //public static Expression Current =
         //    Expression.Field(null, type.InternalField(nameof(JSContext.CurrentContext)));

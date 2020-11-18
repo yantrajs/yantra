@@ -47,15 +47,18 @@ namespace YantraJS.Core
     public class JSContext: JSObject, IDisposable
     {
 
-        internal static JSContext CurrentContext;
+        [ThreadStatic]
+        internal static JSContext Current;
+
+        public static JSContext CurrentContext => Current;
 
         private static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>((e) => {
-            CurrentContext = CurrentContext ?? e.CurrentValue;
+            Current = e.CurrentValue;
         });
 
-        // internal LinkedStack<LexicalScope> Scope = new LinkedStack<LexicalScope>();
+        internal LinkedStack<LexicalScope> Stack = new LinkedStack<LexicalScope>();
 
-        internal LightWeightStack<CallStackItem> Stack = new LightWeightStack<CallStackItem>(256);
+        // internal LightWeightStack<CallStackItem> Stack = new LightWeightStack<CallStackItem>(256);
 
         // internal LinkedList<Task> waitTasks = new LinkedList<Task>();
         private TaskCompletionSource<int> _waitTask;
@@ -139,19 +142,19 @@ namespace YantraJS.Core
 
         public readonly JSFunction Object;
 
-        public static JSContext Current
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return _current.Value;
-            }
-            set
-            {
-                _current.Value = value;
-                CurrentContext = value;
-            }
-        }
+        //public static JSContext Current
+        //{
+        //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //    get
+        //    {
+        //        return _current.Value;
+        //    }
+        //    set
+        //    {
+        //        _current.Value = value;
+        //        CurrentContext = value;
+        //    }
+        //}
 
         public event LogEventHandler Log;
 
@@ -182,18 +185,18 @@ namespace YantraJS.Core
         //    top.Column = column;
         //}
 
-        internal bool IsRootScope
-        {
-            get
-            {
-                if (Stack.Count > 0)
-                {
-                    ref var top = ref Stack.Top;
-                    return top.IsRootScope;
-                } 
-                return false;
-            }
-        }
+        //internal bool IsRootScope
+        //{
+        //    get
+        //    {
+        //        if (Stack.Count > 0)
+        //        {
+        //            ref var top = ref Stack.Top;
+        //            return top.IsRootScope;
+        //        } 
+        //        return false;
+        //    }
+        //}
 
         UInt32Map<JSVariable> globalVars = new UInt32Map<JSVariable>();
 
@@ -218,30 +221,30 @@ namespace YantraJS.Core
             }
         }
 
-        internal LightWeightStack<CallStackItem>.StackWalker StackWalker
-        {
-            get
-            {
-                return Stack.Walker;
-            }
-        }
+        //internal LightWeightStack<CallStackItem>.StackWalker StackWalker
+        //{
+        //    get
+        //    {
+        //        return Stack.Walker;
+        //    }
+        //}
 
         internal void FillStackTrace(StringBuilder sb)
         {
         }
 
-        internal LightWeightStack<CallStackItem> CloneStack()
-        {
-            var copy = new LightWeightStack<CallStackItem>(this.Stack);
-            return copy;
-        }
+        //internal LightWeightStack<CallStackItem> CloneStack()
+        //{
+        //    var copy = new LightWeightStack<CallStackItem>(this.Stack);
+        //    return copy;
+        //}
 
-        internal LightWeightStack<CallStackItem> Switch(LightWeightStack<CallStackItem> newValue)
-        {
-            var old = this.Stack;
-            this.Stack = newValue;
-            return old;
-        }
+        //internal LightWeightStack<CallStackItem> Switch(LightWeightStack<CallStackItem> newValue)
+        //{
+        //    var old = this.Stack;
+        //    this.Stack = newValue;
+        //    return old;
+        //}
 
         public JSContext(SynchronizationContext synchronizationContext = null)
         {
@@ -249,7 +252,7 @@ namespace YantraJS.Core
 
             // Scope.Push(new LexicalScope("", "", 1, 1));
             // Scope.Top.IsRoot = true;
-
+            Current = this;
             _current.Value = this;
 
             ref var ownProperties = ref this.GetOwnProperties();

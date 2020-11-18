@@ -28,7 +28,8 @@ namespace YantraJS.Core.Generator
         internal JSValue value;
         internal bool done;
         private Exception lastError;
-        private LightWeightStack<CallStackItem> threadTop;
+        // private LightWeightStack<CallStackItem> threadTop;
+        private LexicalScope threadTop;
         readonly IElementEnumerator en;
         private readonly string name;
 
@@ -103,7 +104,8 @@ namespace YantraJS.Core.Generator
                 return ValueObject;
             }
 
-            var current = JSContext.Current.CloneStack();
+            // var current = JSContext.Current.CloneStack();
+            var current = JSContext.Current.Stack._Top;
             if (replaceOld != null)
             {
                 this.value = replaceOld;
@@ -119,16 +121,17 @@ namespace YantraJS.Core.Generator
                 yield = new AutoResetEvent(false);
                 // this.thread = new Thread(RunGenerator);
                 // thread.Start(new JSWeakGenerator(this));
+                threadTop = JSContext.Current.Stack._Top;
                 JSThreadPool.Queue(RunGenerator, new JSWeakGenerator(this));
             } else
             {
-                JSContext.Current.Switch(threadTop);
+                JSContext.Current.Stack.Switch(threadTop);
                 wait.Set();
             }
 
             yield.WaitOne(Timeout.Infinite);
 
-            threadTop = JSContext.Current.Switch(current);
+            threadTop = JSContext.Current.Stack.Switch(current);
 
             if (this.lastError != null)
             {
@@ -315,7 +318,8 @@ namespace YantraJS.Core.Generator
 
         private void OnDispose(bool supress = true)
         {
-            threadTop.Dispose();
+            threadTop?.Dispose();
+            threadTop = null;
             yield?.Dispose();
             wait?.Dispose();
             yield = null;
