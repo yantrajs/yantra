@@ -1585,41 +1585,35 @@ namespace YantraJS
         protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
         {
 
-            switch (literal.TokenType)
+            (Exp exp, string name) GetLiteral()
             {
-                case TokenType.NullLiteral:
-                    return Exp.Constant(null, typeof(object));
+                switch (literal.TokenType)
+                {
+                    case Esprima.TokenType.BooleanLiteral:
+                        return literal.BooleanValue
+                            ? (ExpHelper.JSBooleanBuilder.True, "true")
+                            : (ExpHelper.JSBooleanBuilder.False, "false");
+                    case Esprima.TokenType.StringLiteral:
+                        return (ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
+                    case Esprima.TokenType.RegularExpression:
+                        return (ExpHelper.JSRegExpBuilder.New(
+                            Exp.Constant(literal.Regex.Pattern),
+                            Exp.Constant(literal.Regex.Flags)), (literal.Regex.Pattern + literal.Regex.Flags).Left(10));
+                    case Esprima.TokenType.Template:
+                        break;
+                    case Esprima.TokenType.NullLiteral:
+                        return (ExpHelper.JSNullBuilder.Value, "null");
+                    case Esprima.TokenType.NumericLiteral:
+                        return (ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
+                }
+                throw new NotImplementedException();
             }
+            // var (exp, name) = GetLiteral();
+            // var pe = Exp.Variable(typeof(JSValue), name);
+            // this.scope.Top.AddVariable(null, pe, pe, exp);
+            // return pe;
+            return GetLiteral().exp;
 
-            //(Exp exp,string name) GetLiteral()
-            //{
-            //    switch (literal.TokenType)
-            //    {
-            //        case Esprima.TokenType.BooleanLiteral:
-            //            return literal.BooleanValue
-            //                ? (ExpHelper.JSBooleanBuilder.True, "true")
-            //                : (ExpHelper.JSBooleanBuilder.False, "false");
-            //        case Esprima.TokenType.StringLiteral:
-            //            return (ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
-            //        case Esprima.TokenType.RegularExpression:
-            //            return (ExpHelper.JSRegExpBuilder.New(
-            //                Exp.Constant(literal.Regex.Pattern),
-            //                Exp.Constant(literal.Regex.Flags)), (literal.Regex.Pattern + literal.Regex.Flags).Left(10));
-            //        case Esprima.TokenType.Template:
-            //            break;
-            //        case Esprima.TokenType.NullLiteral:
-            //            return (ExpHelper.JSNullBuilder.Value, "null");
-            //        case Esprima.TokenType.NumericLiteral:
-            //            return (ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
-            //    }
-            //    throw new NotImplementedException();
-            //}
-            //// var (exp, name) = GetLiteral();
-            //// var pe = Exp.Variable(typeof(JSValue), name);
-            //// this.scope.Top.AddVariable(null, pe, pe, exp);
-            //// return pe;
-            //return GetLiteral().exp;
-            
         }
 
         protected override Exp VisitIdentifier(Esprima.Ast.Identifier identifier)
