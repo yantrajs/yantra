@@ -1,12 +1,96 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using YantraJS.ExpHelper;
 
 namespace YantraJS
 {
+    internal static class ListOfExpressionsExtensions
+    {
+        internal static List<Expression> ConvertToInteger(this List<Expression> source)
+        {
+            List<Expression> result = new List<Expression>(source.Count);
+            foreach(var exp in source)
+            {
+                if (exp is not ConstantExpression ce)
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(int))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(Convert.ToInt32(ce.Value)));
+            }
+            return result;
+        }
+
+        internal static List<Expression> ConvertToNumber(this List<Expression> source)
+        {
+            List<Expression> result = new List<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (exp is not ConstantExpression ce)
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(double))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(Convert.ToDouble(ce.Value)));
+            }
+            return result;
+        }
+
+        internal static List<Expression> ConvertToString(this List<Expression> source)
+        {
+            List<Expression> result = new List<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (exp is not ConstantExpression ce)
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(string))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(ce.Value.ToString()));
+            }
+            return result;
+        }
+
+        internal static List<Expression> ConvertToJSValue(this List<Expression> source)
+        {
+            List<Expression> result = new List<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (exp is not ConstantExpression ce)
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                Expression item;
+                switch (ce.Value) {
+                    case string @string:
+                        item = JSStringBuilder.New(ce);
+                        break;
+                    case double @double:
+                        item = JSNumberBuilder.New(ce);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                result.Add(item);
+            }
+            return result;
+        }
+
+
+    }
+
     internal static class TypeExtensions
     {
 

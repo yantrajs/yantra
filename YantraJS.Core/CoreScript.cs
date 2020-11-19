@@ -566,17 +566,6 @@ namespace YantraJS
         public override Exp DebugNode(Node node, Exp result)
         {
             var topStack = this.scope.Top;
-            var s = topStack.Context;
-            var si = topStack.StackItem;
-            var p = node.Location.Start;
-            return JSContextStackBuilder.Update(si, p.Line, p.Column,
-                    result);
-        }
-
-        public Exp DebugCallNode(Node node, Exp context, Exp result)
-        {
-            var topStack = this.scope.Top;
-            var s = topStack.Context;
             var si = topStack.StackItem;
             var p = node.Location.Start;
             return JSContextStackBuilder.Update(si, p.Line, p.Column,
@@ -969,6 +958,12 @@ namespace YantraJS
 
         protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
         {
+
+            bool allStrings = true;
+            bool allNumbers = true;
+            bool allIntegers = true;
+
+
             List<Exp> defBody = null;
             var @continue = this.scope.Top.Loop?.Top?.Continue;
             var @break = Exp.Label();
@@ -1002,7 +997,42 @@ namespace YantraJS
                         continue;
                     }
 
-                    var test = VisitExpression(c.Test);
+                    Exp test = null;
+                    switch ((c.Test.Type,c.Test)) {
+                        case (Nodes.Literal, Literal literal):
+
+                            switch(literal.TokenType)
+                            {
+                                case TokenType.StringLiteral:
+                                    allNumbers = false;
+                                    test = Exp.Constant(literal.StringValue);
+                                    break;
+                                case TokenType.NumericLiteral:
+                                    var n = literal.NumericValue;
+                                    if ((n % 1) != 0)
+                                    {
+                                        allIntegers = false;
+                                    }
+                                    test = Exp.Constant(literal.NumericValue);
+                                    break;
+                                case TokenType.BooleanLiteral:
+                                    allNumbers = false;
+                                    allStrings = false;
+                                    allIntegers = false;
+                                    test = literal.BooleanValue ? JSBooleanBuilder.True : JSBooleanBuilder.False;
+                                    break;
+                                default:
+                                    throw new NotImplementedException();
+                            }
+
+                            break;
+                        default:
+                            test = VisitExpression(c.Test);
+                            allNumbers = false;
+                            allStrings = false;
+                            allIntegers = false;
+                            break;
+                    }
                     lastCase.Tests.Add(test);
 
                     if (body.Count > 0)
@@ -1015,6 +1045,8 @@ namespace YantraJS
                 }
             }
 
+            System.Reflection.MethodInfo equalsMethod = null;
+
             SwitchInfo last = null;
             foreach(var @case in cases)
             {
@@ -1024,7 +1056,56 @@ namespace YantraJS
                     last.Body.Add(Exp.Goto(@case.Label));
                 }
                 last = @case;
+
+                if (allNumbers)
+                {
+                    if (allIntegers)
+                    {
+                        @case.Tests = @case.Tests.ConvertToInteger();
+                    }
+                    else
+                    {
+                        // convert every case to double..
+                        @case.Tests = @case.Tests.ConvertToNumber();
+                    }
+                }
+                else
+                {
+                    if (allStrings)
+                    {
+                        // force everything to string if it isn't
+                        @case.Tests = @case.Tests.ConvertToString();
+                    } else
+                    {
+                        @case.Tests = @case.Tests.ConvertToJSValue();
+                        equalsMethod = ExpHelper.JSValueBuilder.StaticEquals;
+                    }
+                }
+
+
             }
+
+            var testTarget = VisitExpression(switchStatement.Discriminant);
+            if (allNumbers)
+            {
+                if (allIntegers)
+                {
+                    testTarget = Exp.Convert(JSValueBuilder.DoubleValue(testTarget), typeof(int));
+                } else
+                {
+                    testTarget = JSValueBuilder.DoubleValue(testTarget);
+                }
+            } else
+            {
+                if (allStrings)
+                {
+                    testTarget = ObjectBuilder.ToString(testTarget);
+                } else
+                {
+
+                }
+            }
+
             Exp d = null;
             if(defBody != null)
             {
@@ -1039,9 +1120,9 @@ namespace YantraJS
 
             var r = Exp.Block(
                 Exp.Switch(
-                    VisitExpression(switchStatement.Discriminant), 
+                    testTarget, 
                     d.ToJSValue() ?? JSUndefinedBuilder.Value , 
-                    ExpHelper.JSValueBuilder.StaticEquals, 
+                    equalsMethod, 
                     cases.Select(x => Exp.SwitchCase(Exp.Block(x.Body).ToJSValue(), x.Tests) ).ToList()),
                 Exp.Label(@break));
             return r;
