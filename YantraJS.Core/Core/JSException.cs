@@ -67,7 +67,7 @@ namespace YantraJS.Core
                     sb.AppendLine($"    at {f.target}:{f.file}:{f.line},{f.column}");
                 }
 
-                var top = JSContext.Current.Stack._Top;
+                var top = JSContext.Current.Top;
                 while (top != null)
                 {
                     // ref var top = ref walker.Current;

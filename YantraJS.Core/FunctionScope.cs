@@ -265,7 +265,7 @@ namespace YantraJS
             }
 
             this.Context = Expression.Parameter(typeof(JSContext), "Context");
-            this.StackItem = Expression.Parameter(typeof(LexicalScope), "StackIndex");
+            this.StackItem = Expression.Parameter(typeof(CallStackItem), "CallStackItem");
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new List<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));

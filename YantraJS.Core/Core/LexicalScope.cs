@@ -7,6 +7,7 @@ using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core
 {
+
     public class LexicalScope : LinkedStackItem<LexicalScope>
     {
         private UInt32Map<JSVariable> scope;

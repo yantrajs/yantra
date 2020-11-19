@@ -29,12 +29,15 @@ namespace YantraJS.Core.Generator
         internal bool done;
         private Exception lastError;
         // private LightWeightStack<CallStackItem> threadTop;
-        private LexicalScope threadTop;
+        private CallStackItem threadTop;
         readonly IElementEnumerator en;
         private readonly string name;
 
+        private JSContext context;
+
         public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)
         {
+            context = JSContext.Current;
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
             this.@delegate = @delegate;
             this.a = a;
@@ -105,7 +108,7 @@ namespace YantraJS.Core.Generator
             }
 
             // var current = JSContext.Current.CloneStack();
-            var current = JSContext.Current.Stack._Top;
+            var current = context.Top;
             if (replaceOld != null)
             {
                 this.value = replaceOld;
@@ -121,17 +124,18 @@ namespace YantraJS.Core.Generator
                 yield = new AutoResetEvent(false);
                 // this.thread = new Thread(RunGenerator);
                 // thread.Start(new JSWeakGenerator(this));
-                threadTop = JSContext.Current.Stack._Top;
+                threadTop = JSContext.Current.Top;
                 JSThreadPool.Queue(RunGenerator, new JSWeakGenerator(this));
             } else
             {
-                JSContext.Current.Stack.Switch(threadTop);
+                context.Top = threadTop;
                 wait.Set();
             }
 
             yield.WaitOne(Timeout.Infinite);
 
-            threadTop = JSContext.Current.Stack.Switch(current);
+            threadTop = context.Top;
+            context.Top = current;
 
             if (this.lastError != null)
             {
@@ -318,7 +322,7 @@ namespace YantraJS.Core.Generator
 
         private void OnDispose(bool supress = true)
         {
-            threadTop?.Dispose();
+            threadTop?.Pop(context);
             threadTop = null;
             yield?.Dispose();
             wait?.Dispose();

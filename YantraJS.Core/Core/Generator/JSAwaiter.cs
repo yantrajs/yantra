@@ -18,8 +18,8 @@ namespace YantraJS.Core.Generator
         private AutoResetEvent originatorThread;
         // private LightWeightStack<CallStackItem> originalStack;
         // private LightWeightStack<CallStackItem> current;
-        private LexicalScope originalStack;
-        private LexicalScope current;
+        private CallStackItem originalStack;
+        private CallStackItem current;
         private JSContext context;
 
         public JSAwaiter(JSAsyncDelegate @delegate, in Arguments a)
@@ -29,7 +29,7 @@ namespace YantraJS.Core.Generator
             main = new AutoResetEvent(false);
             originatorThread = new AutoResetEvent(false);
             JSThreadPool.Queue(RunAwaiter, new JSWeakAwaiter(this, @delegate, a, main));
-            originalStack = context.Stack._Top;
+            originalStack = context.Top;
             // current = new LightWeightStack<CallStackItem>(originalStack);
             // context.Switch(current);
             main.Set();
@@ -41,7 +41,7 @@ namespace YantraJS.Core.Generator
         public void Finish(JSValue value)
         {
             this.Resolve(value);
-            context.Stack.Switch(originalStack);
+            context.Top = originalStack;
             originatorThread.Set();
             this.Dispose();
         }
@@ -49,7 +49,7 @@ namespace YantraJS.Core.Generator
         public void Fail(JSValue value)
         {
             this.Reject(value);
-            context.Stack.Switch(originalStack);
+            context.Top = originalStack;
             originatorThread.Set();
             this.Dispose();
         }
@@ -66,7 +66,8 @@ namespace YantraJS.Core.Generator
             JSFunctionDelegate successFx = (in Arguments a) =>
             {
                 result = a.Get1();
-                originalStack = context.Stack.Switch(current);
+                originalStack = context.Top;
+                context.Top = current;
                 main.Set();
                 originatorThread.WaitOne();
                 return JSUndefined.Value;
@@ -74,7 +75,8 @@ namespace YantraJS.Core.Generator
 
             JSFunctionDelegate failFx = (in Arguments a) => {
                 error = a.Get1();
-                originalStack = context.Stack.Switch(current);
+                originalStack = context.Top;
+                context.Top = current;
                 main.Set();
                 originatorThread.WaitOne();
                 return JSUndefined.Value;
@@ -109,7 +111,8 @@ namespace YantraJS.Core.Generator
                 return error;
             }
 
-            current = context.Stack.Switch(originalStack);
+            current = context.Top;
+            context.Top = originalStack;
             originatorThread.Set();
             main.WaitOne();
 

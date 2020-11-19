@@ -25,11 +25,37 @@ namespace YantraJS.Core
 {
     public class CallStackItem
     {
+        internal CallStackItem(string fileName, in StringSpan function, int line, int column)
+        {
+            this.FileName = fileName;
+            this.Function = function;
+            this.Line = line;
+            this.Column = column;
+        }
+
+        internal CallStackItem(JSContext context, string fileName, in StringSpan function, int line, int column)
+        {
+            this.FileName = fileName;
+            this.Function = function;
+            this.Line = line;
+            this.Column = column;
+            this.Parent = context.Top;
+            context.Top = this;
+        }
+
+        public CallStackItem Parent;
+
         public StringSpan Function;
         public int Line;
         public int Column;
         public string FileName;
-        public bool IsRootScope;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Pop(JSContext context)
+        {
+            context.Top = Parent;
+            Parent = null;
+        }
 
         public override string ToString()
         {
@@ -56,7 +82,7 @@ namespace YantraJS.Core
             Current = e.CurrentValue;
         });
 
-        internal LinkedStack<LexicalScope> Stack = new LinkedStack<LexicalScope>();
+        // internal LinkedStack<LexicalScope> Stack = new LinkedStack<LexicalScope>();
 
         // internal LightWeightStack<CallStackItem> Stack = new LightWeightStack<CallStackItem>(256);
 
@@ -69,6 +95,8 @@ namespace YantraJS.Core
                 return _waitTask?.Task;
             }
         }
+
+        internal CallStackItem Top;
 
         public void Dispose()
         {

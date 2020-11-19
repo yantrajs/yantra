@@ -152,7 +152,7 @@ namespace YantraJS
                     Exp.Assign(lScope, JSContextBuilder.Current)
                 };
 
-                JSContextStackBuilder.Push(sList, stackItem, FileNameExpression, StringSpanBuilder.Empty, 0, 0);
+                JSContextStackBuilder.Push(sList, lScope, stackItem, FileNameExpression, StringSpanBuilder.Empty, 0, 0);
 
                 if (argsList != null)
                 {
@@ -198,20 +198,23 @@ namespace YantraJS
                 //        Exp.Block(sList),
                 //        ExpHelper.IDisposableBuilder.Dispose(lScope))
                 //);
-                var catchExp = Exp.Parameter(typeof(Exception));
-                vList.Add(catchExp);
+                //var catchExp = Exp.Parameter(typeof(Exception));
+                //vList.Add(catchExp);
 
-                var catchWithFilter = Exp.Catch(
-                    catchExp,
-                    Exp.Throw(JSExceptionBuilder.From(catchExp), typeof(JSValue)),
-                    Exp.Not(Exp.TypeIs(catchExp, typeof(JSException))));
+                //var catchWithFilter = Exp.Catch(
+                //    catchExp,
+                //    Exp.Throw(JSExceptionBuilder.From(catchExp), typeof(JSValue)),
+                //    Exp.Not(Exp.TypeIs(catchExp, typeof(JSException))));
+                //script = Exp.Block(vList,
+                //    Exp.TryCatchFinally(
+                //        Exp.Block(sList),
+                //        JSContextStackBuilder.Pop(stackItem),
+                //        catchWithFilter)
 
-                script = Exp.Block(vList,
-                    Exp.TryCatchFinally(
-                        Exp.Block(sList),
-                        JSContextStackBuilder.Pop(stackItem),
-                        catchWithFilter)
-                );
+                // sList.Add(JSContextStackBuilder.Pop(stackItem));
+
+                script = Exp.Block(vList, sList);
+                
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
@@ -421,7 +424,7 @@ namespace YantraJS
 
                 var point = functionStatement.Location.Start; // this.Code.Position(functionDeclaration.Range);
 
-                JSContextStackBuilder.Push(sList, stackItem, FileNameExpression, fxName, point.Line, point.Column);
+                JSContextStackBuilder.Push(sList, s.Context, stackItem, FileNameExpression, fxName, point.Line, point.Column);
 
                 var vList = new List<ParameterExpression>();
 
@@ -485,8 +488,9 @@ namespace YantraJS
                 sList.AddRange(bodyInits);
 
                 sList.Add(lambdaBody);
-
+                // sList.Add(JSContextStackBuilder.Pop(stackItem));
                 sList.Add(Exp.Label(r, ExpHelper.JSUndefinedBuilder.Value));
+                // sList.Add();
 
                 var block = Exp.Block(vList, sList);
 
@@ -508,8 +512,9 @@ namespace YantraJS
                     //        point.Column
                     //        )),
                     Exp.TryFinally(
-                        block,
-                        JSContextStackBuilder.Pop(stackItem)));
+                        block
+                         ,JSContextStackBuilder.Pop(stackItem, lexicalScopeVar))
+                    );
 
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
@@ -559,6 +564,16 @@ namespace YantraJS
         }
 
         public override Exp DebugNode(Node node, Exp result)
+        {
+            var topStack = this.scope.Top;
+            var s = topStack.Context;
+            var si = topStack.StackItem;
+            var p = node.Location.Start;
+            return JSContextStackBuilder.Update(si, p.Line, p.Column,
+                    result);
+        }
+
+        public Exp DebugCallNode(Node node, Exp context, Exp result)
         {
             var topStack = this.scope.Top;
             var s = topStack.Context;

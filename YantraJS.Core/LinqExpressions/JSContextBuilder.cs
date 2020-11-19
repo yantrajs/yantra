@@ -35,13 +35,13 @@ namespace YantraJS.ExpHelper
             itemType.InternalField(nameof(CallStackItem.Column));
 
 
-        public static void Push(List<Expression> stmtList, Expression stack, 
+        public static void Push(List<Expression> stmtList, Expression context,  Expression stack, 
             Expression fileName, 
             Expression  function,
             int line,
             int column)
         {
-            var newScope = LexicalScopeBuilder.NewScope(fileName, function, line, column);
+            var newScope = LexicalScopeBuilder.NewScope(context, fileName, function, line, column);
             stmtList.Add(Expression.Assign(stack, newScope ));
             //stmtList.Add(Expression.Assign(Expression.Field(stack, _fileName),fileName));
             //stmtList.Add(Expression.Assign(Expression.Field(stack, _Function), function));
@@ -49,9 +49,9 @@ namespace YantraJS.ExpHelper
             //stmtList.Add(Expression.Assign(Expression.Field(stack, _Column), Expression.Constant(column)));
         }
 
-        public static Expression Pop(Expression stack)
+        public static Expression Pop(Expression stack, Expression context)
         {
-            return LexicalScopeBuilder.Pop(stack);
+            return LexicalScopeBuilder.Pop(stack, context);
         }
 
         internal static Expression Update(ParameterExpression stack, int line, int column, Expression next)
@@ -63,6 +63,7 @@ namespace YantraJS.ExpHelper
             //    next
             //    );
         }
+
     }
 
     public class JSContextBuilder
@@ -80,8 +81,9 @@ namespace YantraJS.ExpHelper
         public static Expression Object =
             Expression.Field(Current, type.GetField(nameof(JSContext.Object)));
 
-        public static Expression Stack =
-            Expression.Field(Current, type.InternalField(nameof(JSContext.Stack)));
+        public static FieldInfo TopField =
+            type.InternalField(nameof(JSContext.Top));
+
 
         public static MethodInfo _Register =
             type.InternalMethod(nameof(JSContext.Register), typeof(JSVariable));

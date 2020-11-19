@@ -9,35 +9,18 @@ namespace YantraJS.ExpHelper
 {
     public class LexicalScopeBuilder
     {
-        private static Type type = typeof(LexicalScope);
-
-        private static PropertyInfo _Index =
-            type.IndexProperty(typeof(Core.KeyString));
-
-        private static PropertyInfo _Top
-            = typeof(LinkedStack<LexicalScope>).GetProperty(nameof(LinkedStack<LexicalScope>.Top));
-
-        public static Expression Index(Expression exp)
-        {
-            var top = Expression.Property(null, _Top);
-            return Expression.MakeIndex(top,
-                _Index,
-                new Expression[] { exp });
-        }
-
-        private static MethodInfo _Push
-            = typeof(LinkedStack<Core.LexicalScope>)
-            .GetMethod(nameof(Core.LinkedStack<Core.LexicalScope>.Push));
+        private static Type type = typeof(CallStackItem);
 
         private static MethodInfo _Pop
-            = type.GetMethod(nameof(Core.LexicalScope.Pop));
+            = type.GetMethod(nameof(Core.CallStackItem.Pop));
 
 
         private static ConstructorInfo _New
-            = typeof(Core.LexicalScope)
+            = typeof(Core.CallStackItem)
             .GetConstructor(BindingFlags.CreateInstance | BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
                 new Type[] {
+                    typeof(JSContext),
                     typeof(string),
                     StringSpanBuilder.RefType,
                     typeof(int),
@@ -45,19 +28,18 @@ namespace YantraJS.ExpHelper
                 }, null);
 
         public static Expression NewScope(
+            Expression context,
             Expression fileName,
             Expression function,
             int line,
             int column)
         {
-            return Expression.Call(
-                JSContextBuilder.Stack,
-                _Push,
-                Expression.New(_New,
+            return Expression.New(_New,
+                context,
                 fileName,
                 function,
                 Expression.Constant(line),
-                Expression.Constant(column)));
+                Expression.Constant(column));
         }
 
         //private static PropertyInfo _Position =
@@ -67,10 +49,10 @@ namespace YantraJS.ExpHelper
             typeof(Position).Constructor(typeof(int), typeof(int));
 
         private static FieldInfo _Line =
-            type.InternalField(nameof(LexicalScope.Line));
+            type.InternalField(nameof(CallStackItem.Line));
 
         private static FieldInfo _Column =
-            type.InternalField(nameof(LexicalScope.Column));
+            type.InternalField(nameof(CallStackItem.Column));
 
         public static Expression Update(Expression exp, int line, int column, Expression next)
         {
@@ -81,9 +63,9 @@ namespace YantraJS.ExpHelper
                 );
         }
 
-        public static Expression Pop(Expression exp)
+        public static Expression Pop(Expression exp, Expression context)
         {
-            return Expression.Call(exp, _Pop);
+            return Expression.Call(exp, _Pop , context);
         }
 
         //public static Expression SetPosition(Expression exp, int line, int column)
