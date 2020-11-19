@@ -953,7 +953,7 @@ namespace YantraJS
         {
             public List<Exp> Tests = new List<Exp>();
             public List<Exp> Body;
-            public readonly System.Linq.Expressions.LabelTarget Label = Exp.Label();
+            public readonly System.Linq.Expressions.LabelTarget Label = Exp.Label("case-start");
         }
 
         protected override Exp VisitSwitchStatement(Esprima.Ast.SwitchStatement switchStatement)
@@ -998,13 +998,15 @@ namespace YantraJS
                     }
 
                     Exp test = null;
-                    switch ((c.Test.Type,c.Test)) {
+                    switch ((c.Test.Type, c.Test))
+                    {
                         case (Nodes.Literal, Literal literal):
 
-                            switch(literal.TokenType)
+                            switch (literal.TokenType)
                             {
                                 case TokenType.StringLiteral:
                                     allNumbers = false;
+                                    allStrings = false;
                                     test = Exp.Constant(literal.StringValue);
                                     break;
                                 case TokenType.NumericLiteral:
@@ -1043,89 +1045,94 @@ namespace YantraJS
                         lastCase = new SwitchInfo();
                     }
                 }
-            }
 
-            System.Reflection.MethodInfo equalsMethod = null;
+                System.Reflection.MethodInfo equalsMethod = null;
 
-            SwitchInfo last = null;
-            foreach(var @case in cases)
-            {
-                // if last one is not break statement... make it fall through...
-                if (last != null)
+                SwitchInfo last = null;
+                foreach (var @case in cases)
                 {
-                    last.Body.Add(Exp.Goto(@case.Label));
-                }
-                last = @case;
+                    // if last one is not break statement... make it fall through...
+                    if (last != null)
+                    {
+                        last.Body.Add(Exp.Goto(@case.Label));
+                    }
+                    last = @case;
 
+                    if (allNumbers)
+                    {
+                        if (allIntegers)
+                        {
+                            @case.Tests = @case.Tests.ConvertToInteger();
+                        }
+                        else
+                        {
+                            // convert every case to double..
+                            @case.Tests = @case.Tests.ConvertToNumber();
+                        }
+                    }
+                    else
+                    {
+                        if (allStrings)
+                        {
+                            // force everything to string if it isn't
+                            @case.Tests = @case.Tests.ConvertToString();
+                        }
+                        else
+                        {
+                            @case.Tests = @case.Tests.ConvertToJSValue();
+                            equalsMethod = ExpHelper.JSValueBuilder.StaticEquals;
+                        }
+                    }
+
+
+                }
+
+                var testTarget = VisitExpression(switchStatement.Discriminant);
                 if (allNumbers)
                 {
                     if (allIntegers)
                     {
-                        @case.Tests = @case.Tests.ConvertToInteger();
+                        testTarget = Exp.Convert(JSValueBuilder.DoubleValue(testTarget), typeof(int));
                     }
                     else
                     {
-                        // convert every case to double..
-                        @case.Tests = @case.Tests.ConvertToNumber();
+                        testTarget = JSValueBuilder.DoubleValue(testTarget);
                     }
                 }
                 else
                 {
                     if (allStrings)
                     {
-                        // force everything to string if it isn't
-                        @case.Tests = @case.Tests.ConvertToString();
-                    } else
+                        testTarget = ObjectBuilder.ToString(testTarget);
+                    }
+                    else
                     {
-                        @case.Tests = @case.Tests.ConvertToJSValue();
-                        equalsMethod = ExpHelper.JSValueBuilder.StaticEquals;
+
                     }
                 }
 
-
-            }
-
-            var testTarget = VisitExpression(switchStatement.Discriminant);
-            if (allNumbers)
-            {
-                if (allIntegers)
+                Exp d = null;
+                var lastLine = switchStatement.Location.Start.Line;
+                if (defBody != null)
                 {
-                    testTarget = Exp.Convert(JSValueBuilder.DoubleValue(testTarget), typeof(int));
-                } else
-                {
-                    testTarget = JSValueBuilder.DoubleValue(testTarget);
+                    var defLabel = Exp.Label($"default-start-{lastLine}");
+                    if (last != null)
+                    {
+                        last.Body.Add(Exp.Goto(defLabel));
+                    }
+                    defBody.Insert(0, Exp.Label(defLabel));
+                    d = Exp.Block(defBody);
                 }
-            } else
-            {
-                if (allStrings)
-                {
-                    testTarget = ObjectBuilder.ToString(testTarget);
-                } else
-                {
 
-                }
+                var r = Exp.Block(
+                    Exp.Switch(
+                        testTarget,
+                        d.ToJSValue() ?? JSUndefinedBuilder.Value,
+                        equalsMethod,
+                        cases.Select(x => Exp.SwitchCase(Exp.Block(x.Body).ToJSValue(), x.Tests)).ToList()),
+                    Exp.Label(@break));
+                return r;
             }
-
-            Exp d = null;
-            if(defBody != null)
-            {
-                var defLabel = Exp.Label();
-                if (last != null)
-                {
-                    last.Body.Add(Exp.Goto(defLabel));
-                }
-                defBody.Insert(0, Exp.Label(defLabel));
-                d = Exp.Block(defBody);
-            }
-
-            var r = Exp.Block(
-                Exp.Switch(
-                    testTarget, 
-                    d.ToJSValue() ?? JSUndefinedBuilder.Value , 
-                    equalsMethod, 
-                    cases.Select(x => Exp.SwitchCase(Exp.Block(x.Body).ToJSValue(), x.Tests) ).ToList()),
-                Exp.Label(@break));
-            return r;
         }
 
         protected override Exp VisitSwitchCase(Esprima.Ast.SwitchCase switchCase)
