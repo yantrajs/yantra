@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Text;
 using YantraJS.Core.Generator;
 
@@ -520,60 +521,26 @@ namespace YantraJS.Core.Typed
                     throw JSContext.Current.NewTypeError($"Argument is not a function");
                 cx = (l, r) =>
                 {
-                    var ld = l.DoubleValue;
-                    var rd = r.DoubleValue;
-                    if (double.IsNaN(ld))
-                    {
-                        if (double.IsNaN(rd))
-                            return 0;
-                        return 1;
-                    }
-                    if (double.IsNaN(rd))
+                    var x = l.DoubleValue;
+                    var y = r.DoubleValue;
+                    if (x < y)
                         return -1;
+                    if (x > y)
+                        return 1;
+                    if (double.IsNaN(x) && double.IsNaN(y))
+                        return 0;
+                    if (double.IsNaN(x))
+                        return 1;
+                    if (double.IsNaN(y))
+                        return -1;
+                    if (JSNumber.IsNegativeZero(x) && JSNumber.IsPositiveZero(y))
+                        return -1;
+                    if (JSNumber.IsPositiveZero(x) && JSNumber.IsNegativeZero(y))
+                        return 1;
+                    return 0;
 
-                    //if (double.IsPositiveInfinity(ld))
-                    //{ 
-                    //    if (double.IsPositiveInfinity(rd))
-                    //    {
-                    //        return -1;
-                    //    }
-                    //return 1;
-                    //}
 
-                    //if (double.IsNegativeInfinity(ld))
-                    //{
-                    //    if (double.IsNegativeInfinity(rd))
-                    //    {
-                    //        return 1;
-                    //    }
-                    //    return -1;
-                    //}
 
-                    //if (double.IsNegativeInfinity(ld))
-                    //{
-                    //    if (double.IsNegativeInfinity(rd))
-                    //        return 0;
-                    //    return -1;
-                    //}
-                    //if (double.IsPositiveInfinity(rd))
-                    //{
-                    //    if (double.IsPositiveInfinity(ld))
-                    //        return 0;
-                    //    return 1;
-                    //}
-                    //if (ld == -0.0d) { 
-                    //    if (rd == 0)
-                    //    {
-                    //        return -1;
-                    //    }
-                    //}
-                    //if (rd == -0.0d)
-                    //{
-                    //    if (ld == 0)
-                    //        return 1;
-                    //}
-                    return ld < rd ? -1 :
-                        (ld == rd ? 0 : 1);
                 };
             }
 
@@ -606,7 +573,11 @@ namespace YantraJS.Core.Typed
             end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
             newLength = Math.Max(end - begin, 0);
 
-            var r = new TypedArray(@this.buffer, @this.type, @this.byteOffset + begin *@this.bytesPerElement, newLength, @this.prototypeChain);
+            var r = new TypedArray(@this.buffer, 
+                @this.type, 
+                @this.byteOffset + begin * @this.bytesPerElement, 
+                newLength * @this.bytesPerElement, 
+                @this.prototypeChain);
             return r;
 
         }
@@ -617,5 +588,43 @@ namespace YantraJS.Core.Typed
             return new JSGenerator(array.GetElementEnumerator(), "Array Iterator");
         }
 
+
+        [Prototype("toLocaleString", Length = 0)]
+        internal static JSValue ToLocaleString(in Arguments a)
+        {
+            var @this = a.This.AsTypedArray();
+            var (locale, format) = a.Get2();
+            StringBuilder sb = new StringBuilder();
+
+            var def = "N0";
+            switch (@this.type)
+            {
+                case TypedArrayType.Float32Array:
+                case TypedArrayType.Float64Array:
+                    def = "N";
+                    break;
+            }
+
+            string strFormat = format.IsNullOrUndefined ? def : (format.IsString ? format.ToString() :
+                throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats")
+                );
+
+            CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
+
+
+            bool first = true;
+            var en = @this.GetElementEnumerator();
+            while(en.MoveNext(out var n)) {
+                if (!first)
+                {
+                    sb.Append(',');
+                }
+                first = false;
+                sb.Append(n.ToLocaleString(strFormat, culture));
+            }
+            return new JSString(sb.ToString());
+            
+
+        }
     }
 }

@@ -106,7 +106,7 @@ namespace YantraJS.Core.Runtime
             if (a.Get1() is JSNumber n1)
             {
                 if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
-                    throw JSContext.Current.NewRangeError("toPrecision() digitis argument must be between 0 and 100");
+                    throw JSContext.Current.NewRangeError("toPrecision() digits argument must be between 0 and 100");
                 var i = (int)n1.value;
                 var d = n.value;
                 var prefix = 'G';

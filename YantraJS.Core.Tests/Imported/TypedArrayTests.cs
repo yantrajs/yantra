@@ -59,6 +59,8 @@ namespace YantraJS.Core.Tests.Imported
 
         public (JSValue Value, JSValue v2) Undefined => (JSUndefined.Value, null);
 
+        public (JSValue Value, JSValue v2) Null => (JSNull.Value, null);
+
     }
 
    [TestClass]
@@ -684,7 +686,9 @@ namespace YantraJS.Core.Tests.Imported
                 System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("de-de");
                 Assert.AreEqual("", Evaluate("new Int8Array([]).toLocaleString()"));
                 Assert.AreEqual("1", Evaluate("new Int8Array([1]).toLocaleString()"));
-                Assert.AreEqual("1;2", Evaluate("new Int8Array([1, 2]).toLocaleString()"));
+                //Assert.AreEqual("1;2", Evaluate("new Int8Array([1, 2]).toLocaleString()")); -> Wrong TC
+                Assert.AreEqual("1,2", Evaluate("new Int8Array([1, 2]).toLocaleString()")); 
+                Assert.AreEqual("8.123,2", Evaluate("new Int32Array([8123, 2]).toLocaleString()"));
             }
             finally
             {

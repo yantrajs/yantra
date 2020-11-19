@@ -429,7 +429,10 @@ namespace YantraJS.Core
         internal static JSValue GetPrototypeOf(in Arguments a)
         {
             var target = a.Get1();
+            if (target is JSPrimitive primitive)
+                primitive.ResolvePrototype();
             var p = target.prototypeChain;
+            
             return p;
         }
 

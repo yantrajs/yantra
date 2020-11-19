@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.NetworkInformation;
@@ -394,6 +395,17 @@ namespace YantraJS.Core {
             //}
             //return obj.ToString();
         }
+
+
+        /// <summary>
+        /// Returns a string containing a locale-dependant version of the number.
+        /// </summary>
+        /// <returns> A string containing a locale-dependant version of the number. </returns>
+        /// 
+        public virtual string ToLocaleString(string format, CultureInfo culture) {
+            throw new NotImplementedException();
+        }
+
 
         public virtual string ToDetailString()
         {

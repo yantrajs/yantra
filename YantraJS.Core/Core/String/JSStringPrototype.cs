@@ -35,6 +35,16 @@ namespace YantraJS.Core
             return v.ToString();
         }
 
+        [Constructor(Length = 1)]
+        public static JSValue Constructor(in Arguments a)
+        {
+            if (a.Length == 0)
+                return new JSString(StringSpan.Empty);
+
+            return new JSString(a.Get1().ToString());
+
+        }
+
         [Prototype("charAt")]
         public static JSValue CharAt(in Arguments a)
         {
@@ -329,7 +339,7 @@ namespace YantraJS.Core
             return new JSString(@this.TrimEnd());
         }
 
-        [Prototype("trimstart")]
+        [Prototype("trimStart")]
         internal static JSValue TrimStart(in Arguments a)
         {
             var @this = a.This.AsString();
