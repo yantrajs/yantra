@@ -18,6 +18,30 @@ namespace YantraJS.Core
 
         internal readonly double value;
 
+
+        private static readonly long positiveZeroBits = BitConverter.DoubleToInt64Bits(0.0);
+        /// <summary>
+        /// Determines if the given number is positive zero.
+        /// </summary>
+        /// <param name="value"> The value to test. </param>
+        /// <returns> <c>true</c> if the value is positive zero; <c>false</c> otherwise. </returns>
+        public static bool IsPositiveZero(double value)
+        {
+            return BitConverter.DoubleToInt64Bits(value) == positiveZeroBits;
+        }
+
+        private static readonly long negativeZeroBits = BitConverter.DoubleToInt64Bits(-0.0);
+
+        /// <summary>
+        /// Determines if the given number is negative zero.
+        /// </summary>
+        /// <param name="value"> The value to test. </param>
+        /// <returns> <c>true</c> if the value is negative zero; <c>false</c> otherwise. </returns>
+        public static bool IsNegativeZero(double value)
+        {
+            return BitConverter.DoubleToInt64Bits(value) == negativeZeroBits;
+        }
+
         [Static("NaN")]
         public static JSNumber NaN = new JSNumber(double.NaN);
 
@@ -169,6 +193,11 @@ namespace YantraJS.Core
             if (double.IsNegativeInfinity(value))
                 return JSConstants.NegativeInfinity.value.Value;
             return value.ToString();
+        }
+
+        public override string ToLocaleString(string format, CultureInfo culture)
+        {
+            return value.ToString(format,culture.NumberFormat);
         }
 
         public override string ToDetailString()

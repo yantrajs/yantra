@@ -117,7 +117,7 @@ namespace YantraJS.Core.Typed
                     this.length = length / bytesPerElement;
                 } else
                 {
-                    this.length = length;
+                    this.length = length / bytesPerElement;
                 }
 
                 if ( length < 0 ||
