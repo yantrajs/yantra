@@ -192,7 +192,9 @@ namespace YantraJS.Core
                 return JSConstants.Infinity.value.Value;
             if (double.IsNegativeInfinity(value))
                 return JSConstants.NegativeInfinity.value.Value;
-            return value.ToString();
+            if (value > 999999999999999.0)
+                return value.ToString("g21");
+            return value.ToString("g");
         }
 
         public override string ToLocaleString(string format, CultureInfo culture)

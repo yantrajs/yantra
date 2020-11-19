@@ -59,6 +59,8 @@ namespace YantraJS.Core.Tests.Imported
 
         public (JSValue Value, JSValue v2) Undefined => (JSUndefined.Value, null);
 
+        public (JSValue Value, JSValue v2) Null => (JSNull.Value, null);
+
     }
 
    [TestClass]
