@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using YantraJS.Core.Typed;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -143,6 +144,22 @@ namespace YantraJS.Core
                 return new JSString(new string(this.value[(int)key],1));
             }
             set { } 
+        }
+
+        public override JSValue this[KeyString name] {
+            get {
+                this.ResolvePrototype();
+                var p = prototypeChain.GetInternalProperty(in name, true);
+                if (p.IsEmpty)
+                    return JSUndefined.Value;
+                return this.GetValue(p);
+            }
+            set { }
+        }
+
+        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        {
+            return new KeyEnumerator(this.Length);
         }
 
         public override int Length => value.Length;

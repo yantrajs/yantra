@@ -287,47 +287,16 @@ namespace YantraJS.Core.Typed
             return new EntryEnumerator(this);
         }
 
+        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        {
+            return new KeyEnumerator(this.length);
+        }
+
         internal JSGenerator GetKeys() {
             return new JSGenerator(new KeyEnumerator(this.length), "Array Iterator");
         }
 
-        internal struct KeyEnumerator : IElementEnumerator
-        {
-            private int length;
-            private int index;
-
-            public KeyEnumerator(int length)
-            {
-                this.length = length;
-                this.index = -1;
-            }
-
-            public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
-            {
-                if (++this.index < this.length)
-                {
-                    hasValue = true;
-                    index = (uint)this.index;
-                    value = new JSNumber(index);
-                    return true;
-                }
-                hasValue = false;
-                index = 0;
-                value = JSUndefined.Value;
-                return false;
-            }
-
-            public bool MoveNext(out JSValue value)
-            {
-                if (++this.index < this.length)
-                {
-                    value = new JSNumber(index);
-                    return true;
-                }
-                value = JSUndefined.Value;
-                return false;
-            }
-        }
+        
 
         struct ElementEnumerator : IElementEnumerator
         {
@@ -410,5 +379,43 @@ namespace YantraJS.Core.Typed
         }
 
 
+    }
+
+    internal struct KeyEnumerator : IElementEnumerator
+    {
+        private int length;
+        private int index;
+
+        public KeyEnumerator(int length)
+        {
+            this.length = length;
+            this.index = -1;
+        }
+
+        public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+        {
+            if (++this.index < this.length)
+            {
+                hasValue = true;
+                index = (uint)this.index;
+                value = new JSNumber(index);
+                return true;
+            }
+            hasValue = false;
+            index = 0;
+            value = JSUndefined.Value;
+            return false;
+        }
+
+        public bool MoveNext(out JSValue value)
+        {
+            if (++this.index < this.length)
+            {
+                value = new JSNumber(index);
+                return true;
+            }
+            value = JSUndefined.Value;
+            return false;
+        }
     }
 }

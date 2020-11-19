@@ -8,7 +8,7 @@ namespace YantraJS.Core.Tests.Imported
     /// <summary>
     /// Test the global String object.
     /// </summary>
-    [TestClass]
+    // [TestClass]
     public class StringTests : TestBase
     {
 
