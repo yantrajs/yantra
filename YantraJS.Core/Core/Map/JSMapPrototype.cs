@@ -69,7 +69,7 @@ namespace YantraJS.Core
                 var m = ToMap(a.This);
                 foreach (var e in m.entries)
                 {
-                    fx.InvokeFunction(new Arguments(a.This, e.value, e.key, m));
+                    fx.InvokeFunction(new Arguments(a.Context, a.This, e.value, e.key, m));
                 }
                 return JSUndefined.Value;
             }
