@@ -13,55 +13,56 @@ namespace YantraJS.ExpHelper
 
         internal static readonly Type refType = type.MakeByRefType();
 
-        private readonly static Expression _Empty =
-            Expression.Field(null, type.GetField(nameof(Arguments.Empty)));
-
         private readonly static MethodInfo _Get1 =
             type.InternalMethod(nameof(Arguments.Get1));
 
         private readonly static MethodInfo _GetAt =
             type.InternalMethod(nameof(Arguments.GetAt), typeof(int));
 
-        public static Expression Empty()
+        public static Expression Empty(Expression context)
         {
-            return _Empty;
+            return Expression.New(_New, context);
         }
 
+        private readonly static ConstructorInfo _New
+    = type.Constructor(new Type[] { typeof(JSContext) });
+
+
         private readonly static ConstructorInfo _New0
-            = type.Constructor(new Type[] { typeof(JSValue) });
+            = type.Constructor(new Type[] { typeof(JSContext),  typeof(JSValue) });
 
         private readonly static ConstructorInfo _New1
-            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue) });
+            = type.Constructor(new Type[] { typeof(JSContext), typeof(JSValue), typeof(JSValue) });
 
         private readonly static ConstructorInfo _New2
-            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue), typeof(JSValue) });
+            = type.Constructor(new Type[] { typeof(JSContext), typeof(JSValue), typeof(JSValue), typeof(JSValue) });
 
         private readonly static ConstructorInfo _New3
-            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue) });
+            = type.Constructor(new Type[] { typeof(JSContext), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue) });
 
         private readonly static ConstructorInfo _New4
-            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue) });
+            = type.Constructor(new Type[] { typeof(JSContext), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue) });
 
-        private readonly static ConstructorInfo _New
-            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[]) });
+        private readonly static ConstructorInfo _NewWithArray
+            = type.Constructor(new Type[] { typeof(JSContext), typeof(JSValue), typeof(JSValue[]) });
 
         private readonly static MethodInfo _GetElementEnumerator
             = type.InternalMethod(nameof(Arguments.GetElementEnumerator));
 
-        public static Expression New(Expression @this, Expression arg0)
+        public static Expression New(Expression context, Expression @this, Expression arg0)
         {
-            return Expression.New(_New1, @this, arg0);
+            return Expression.New(_New1, context, @this, arg0);
         }
 
-        public static Expression New(Expression @this, Expression arg0, Expression arg2)
+        public static Expression New(Expression context, Expression @this, Expression arg0, Expression arg2)
         {
-            return Expression.New(_New1, @this, arg0, arg2);
+            return Expression.New(_New1, context, @this, arg0, arg2);
         }
 
 
-        public static Expression New(Expression @this, List<Expression> args)
+        public static Expression New(Expression context, Expression @this, List<Expression> args)
         {
-            var newList = new List<Expression>() { @this };
+            var newList = new List<Expression>() { context, @this };
             newList.AddRange(args);
             switch (args.Count)
             {
@@ -77,11 +78,19 @@ namespace YantraJS.ExpHelper
                     return Expression.New(_New4, newList);
             }
             var a = Expression.NewArrayInit(typeof(JSValue), args);
-            return Expression.New(_New, @this, a);
+            return Expression.New(_NewWithArray, context, @this, a);
         }
 
         private readonly static FieldInfo _This =
             type.GetField(nameof(Arguments.This));
+
+        private readonly static FieldInfo _Context =
+            type.GetField(nameof(Arguments.Context));
+
+        public static Expression Context(Expression argument)
+        {
+            return Expression.Field(argument, _Context);
+        }
         public static Expression This(Expression arguments)
         {
             return Expression.Field(arguments, _This);

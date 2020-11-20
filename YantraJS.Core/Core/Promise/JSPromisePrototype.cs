@@ -33,9 +33,9 @@ namespace YantraJS.Core.Runtime
             {
                 if (!(fail is JSFunction failFx))
                     throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-                return p.Then(successFx.f, failFx.f);
+                return p.Then(a.Context, successFx.f, failFx.f);
             }
-            return p.Then(successFx.f, null);
+            return p.Then(a.Context, successFx.f, null);
         }
 
         [Prototype("catch")]
@@ -45,7 +45,7 @@ namespace YantraJS.Core.Runtime
             var f = a.Get1();
             if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Then(null, fx.f);
+            p.Then(a.Context, null, fx.f);
             return p;
         }
 
@@ -56,7 +56,7 @@ namespace YantraJS.Core.Runtime
             var f = a.Get1();
             if (!(f is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            return p.Then(fx.f, fx.f);
+            return p.Then(a.Context, fx.f, fx.f);
         }
     }
 }

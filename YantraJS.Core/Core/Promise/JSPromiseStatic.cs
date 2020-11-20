@@ -39,7 +39,7 @@ namespace YantraJS.Core.Runtime
             var result = new List<JSValue>();
 
             int i = 0;
-
+            var context = a.Context;
             return new JSPromise((resolve, reject) =>
             {
                 var sc = SynchronizationContext.Current;
@@ -59,7 +59,7 @@ namespace YantraJS.Core.Runtime
                     var ni = i++;
                     total = i;
                     
-                    p.Then((in Arguments args) =>
+                    p.Then(context, (in Arguments args) =>
                     {
                         var r1 = args.Get1();
                         sc.Post((r) => { 

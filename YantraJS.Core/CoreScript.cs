@@ -149,7 +149,7 @@ namespace YantraJS
                 var sList = new List<Exp>() {
                     Exp.Assign(FileNameExpression, Exp.Constant(location)),
                     Exp.Assign(CodeStringExpression, Exp.Constant(code.Value)),
-                    Exp.Assign(lScope, JSContextBuilder.Current)
+                    Exp.Assign(lScope, ArgumentsBuilder.Context(args))
                 };
 
                 JSContextStackBuilder.Push(sList, lScope, stackItem, FileNameExpression, StringSpanBuilder.Empty, 0, 0);
@@ -267,7 +267,7 @@ namespace YantraJS
                 superExp = VisitExpression(super);
             } else
             {
-                superExp = JSContextBuilder.Object;
+                superExp = JSContextBuilder.Object(scope.Top.Context);
             }
 
             Exp constructor = null;
@@ -502,7 +502,7 @@ namespace YantraJS
                 var lexicalScope =
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar, stackItem },
                     Exp.Assign(lexicalScopeVar,
-                        JSContextBuilder.Current),
+                        ArgumentsBuilder.Context(args)),
                     //Exp.Assign(stackItem, 
                     //    JSContextBuilder.Push(
                     //        lexicalScopeVar,
@@ -1575,7 +1575,7 @@ namespace YantraJS
         {
             var constructor = VisitExpression(newExpression.Callee);
             var args = Visit(in newExpression.Arguments);
-            var pe = ArgumentsBuilder.New( JSUndefinedBuilder.Value, args);
+            var pe = ArgumentsBuilder.New(scope.Top.Context, JSUndefinedBuilder.Value, args);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
 
@@ -1752,7 +1752,7 @@ namespace YantraJS
             var local = this.scope.Top[identifier.Name];
             if (local != null)
                 return local;
-            return ExpHelper.JSContextBuilder.Index(KeyOfName(identifier.Name));
+            return ExpHelper.JSContextBuilder.Index(scope.Top.Context, KeyOfName(identifier.Name));
         }
 
         protected override Exp VisitFunctionExpression(Esprima.Ast.IFunction function)
@@ -1836,7 +1836,7 @@ namespace YantraJS
             var tempRequire = Exp.Parameter(typeof(JSValue));
             var require = this.scope.Top.GetVariable("require");
             var source = VisitExpression(importDeclaration.Source);
-            var args = ArgumentsBuilder.New(JSUndefinedBuilder.Value, source);
+            var args = ArgumentsBuilder.New(scope.Top.Context, JSUndefinedBuilder.Value, source);
             Exp prop;
             VariableScope imported;
             List<Exp> stmts = new List<Exp>() {
@@ -2062,6 +2062,8 @@ namespace YantraJS
         {
             var calle = callExpression.Callee;
             var args = Visit(callExpression.Arguments);
+
+            var scope = this.scope.Top.TopScope;
             
             if (calle is Esprima.Ast.MemberExpression me)
             {
@@ -2102,8 +2104,8 @@ namespace YantraJS
 
                 // var name = KeyOfName(id.Name);
                 var paramArray = args.Any()
-                    ? ArgumentsBuilder.New(isSuper ? target : JSUndefinedBuilder.Value , args)
-                    : ArgumentsBuilder.Empty();
+                    ? ArgumentsBuilder.New(scope.Context, isSuper ? target : JSUndefinedBuilder.Value , args)
+                    : ArgumentsBuilder.Empty(scope.Context);
 
                 if(isSuper)
                 {
@@ -2119,14 +2121,14 @@ namespace YantraJS
 
                 if (isSuper)
                 {
-                    var paramArray1 = ArgumentsBuilder.New(this.scope.Top.ThisExpression, args);
+                    var paramArray1 = ArgumentsBuilder.New(scope.Context, scope.ThisExpression, args);
                     var super = this.scope.Top.Super;
                     return JSFunctionBuilder.InvokeSuperConstructor(this.scope.Top.ThisExpression, super, paramArray1);
                 }
 
                 var paramArray = args.Any()
-                    ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args)
-                    : ArgumentsBuilder.Empty();
+                    ? ArgumentsBuilder.New(scope.Context, JSUndefinedBuilder.Value, args)
+                    : ArgumentsBuilder.Empty(scope.Context);
                 var callee = VisitExpression(callExpression.Callee);
                 return DebugNode( callExpression, JSFunctionBuilder.InvokeFunction(callee, paramArray));
             }
