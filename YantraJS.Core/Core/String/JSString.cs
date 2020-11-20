@@ -136,7 +136,7 @@ namespace YantraJS.Core
             return value.Value;
         }
 
-        public override JSValue this[uint key] { 
+        public override JSValue this[JSContext context, uint key] { 
             get
             {
                 if (key >= this.value.Length)
@@ -146,13 +146,13 @@ namespace YantraJS.Core
             set { } 
         }
 
-        public override JSValue this[KeyString name] {
+        public override JSValue this[JSContext context, KeyString name] {
             get {
                 this.ResolvePrototype();
                 var p = prototypeChain.GetInternalProperty(in name, true);
                 if (p.IsEmpty)
                     return JSUndefined.Value;
-                return this.GetValue(p);
+                return this.GetValue(p, context);
             }
             set { }
         }

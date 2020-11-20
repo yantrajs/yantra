@@ -66,9 +66,9 @@ namespace YantraJS.Core
             return $"[{this.ToString()}]"; ;
         }
 
-        public override JSValue this[uint name]
+        public override JSValue this[JSContext context, uint name]
         {
-            get => this.GetValue(GetInternalProperty(name), JSContext.Current);
+            get => this.GetValue(GetInternalProperty(name), context);
             set
             {
                 var p = GetInternalProperty(name);
@@ -76,13 +76,13 @@ namespace YantraJS.Core
                 {
                     if (p.set != null)
                     {
-                        p.set.f(new Arguments(JSContext.Current, this, value));
+                        p.set.f(new Arguments(context, this, value));
                         return;
                     }
                     return;
                 }
                 if (this.IsSealedOrFrozen())
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                    throw context.NewTypeError($"Cannot modify property {name} of {this}");
                 if (this._length <= name)
                     this._length = name + 1;
                 ref var elements = ref CreateElements();

@@ -269,7 +269,7 @@ namespace YantraJS.Core
             var i = (uint)(n - 1);
             while(i >= 0)
             {
-                var item = @this[i];
+                var item = @this[a.Context, i];
                 if (item.StrictEquals(first).BooleanValue)
                     return new JSNumber(i);
                 if (i == 0)
@@ -335,10 +335,10 @@ namespace YantraJS.Core
             al = a.Length;
             for(ai = 0; ai <al; ai++)
             {
-                t[ln++] = a.GetAt(ai);
+                t[a.Context, ln++] = a.GetAt(ai);
             }
             var n = new JSNumber(ln);
-            t[KeyStrings.length] = n;
+            t[a.Context, KeyStrings.length] = n;
             return n;
         }
 
@@ -398,13 +398,13 @@ namespace YantraJS.Core
             {
                 if (@this.Length == 0)
                     throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
-                initialValue = @this[(uint)start];
+                initialValue = @this[a.Context, (uint)start];
                 start--;
             }
             for (int i = start; i >= 0; i--)
             {
-                var item = @this[(uint)i];
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(i), @this);
+                var item = @this[a.Context, (uint)i];
+                var itemArgs = new Arguments(a.Context, @this, initialValue, item, new JSNumber(i), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -414,10 +414,10 @@ namespace YantraJS.Core
         public static JSValue Reverse(in Arguments a)
         {
             var @this = a.This;
-            var r = new JSArray();
+            var r = new JSArray(a.Context);
             for (int i = @this.Length - 1 ; i >= 0; i--)
             {
-                r.Add(@this[(uint)i]);
+                r.Add(@this[a.Context, (uint)i]);
             }
             return r;
 
@@ -532,7 +532,7 @@ namespace YantraJS.Core
             ni = 0;
             for (uint i = (uint)start; i < l; i++)
             {
-                r[ni++] = @object[i];
+                r[a.Context, ni++] = @object[a.Context, i];
             }
             r._length = ni;
 
@@ -648,7 +648,7 @@ namespace YantraJS.Core
                 for (uint i = (uint)start, j = 0; i <end; i++, j++)
                 {
                     if(@this.TryGetValue(i, out var p)) {
-                        r[j] = p.value;
+                        r[a.Context, j] = p.value;
                     }
 
                 }

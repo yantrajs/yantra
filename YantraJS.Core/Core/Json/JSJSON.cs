@@ -28,9 +28,10 @@ namespace YantraJS.Core
             var (text, receiver) = a.Get2();
             JsonParserReceiver r = null;
             var t = a.This;
+            var context = a.Context;
             if (receiver is JSFunction function)
             {
-                r = (p) => function.f( new Arguments(t, new JSString(p.key), p.value));
+                r = (p) => function.f( new Arguments(context, t, new JSString(p.key), p.value));
             }
             return JSJsonParser.Parse(text.ToString(), r);
 
@@ -53,7 +54,7 @@ namespace YantraJS.Core
             TextWriter sb = new StringWriter();
             Func<(JSValue target, JSValue key, JSValue value),JSValue> replacer = null;
             string indent = null;
-
+            var context = a.Context;
             // build replacer...
             if (a.Length > 1)
             {
@@ -71,7 +72,7 @@ namespace YantraJS.Core
                 if (r is JSFunction rf)
                 {
                     replacer = (item) =>
-                     rf.f(new Arguments(item.target, item.key, item.value));
+                     rf.f(new Arguments(context, item.target, item.key, item.value));
                 } else if (r is JSArray ra)
                 {
 
