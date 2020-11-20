@@ -17,6 +17,12 @@ namespace YantraJS.Core
     {
         internal uint _length;
 
+        public JSArray(JSContext context) : base(context.ArrayPrototype)
+        {
+
+        }
+
+        [Obsolete]
         public JSArray(): base(JSContext.Current.ArrayPrototype)
         {
             
@@ -43,7 +49,7 @@ namespace YantraJS.Core
         {
             var sb = new StringBuilder();
             bool first = true;
-            var en = new ElementEnumerator(this);
+            var en = new ElementEnumerator(JSContext.Current,this);
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!first)
@@ -62,7 +68,7 @@ namespace YantraJS.Core
 
         public override JSValue this[uint name]
         {
-            get => this.GetValue(GetInternalProperty(name));
+            get => this.GetValue(GetInternalProperty(name), JSContext.Current);
             set
             {
                 var p = GetInternalProperty(name);
@@ -70,7 +76,7 @@ namespace YantraJS.Core
                 {
                     if (p.set != null)
                     {
-                        p.set.f(new Arguments(this, value));
+                        p.set.f(new Arguments(JSContext.Current, this, value));
                         return;
                     }
                     return;
@@ -131,7 +137,7 @@ namespace YantraJS.Core
 
         internal override IElementEnumerator GetElementEnumerator()
         {
-            return new ElementEnumerator(this);
+            return new ElementEnumerator(JSContext.Current, this);
         }
 
 
@@ -139,10 +145,12 @@ namespace YantraJS.Core
         {
             uint length;
             uint index;
+            private readonly JSContext context;
             JSArray array;
-            public ElementEnumerator(JSArray array)
+            public ElementEnumerator(JSContext context, JSArray array)
             {
                 this.length = array._length;
+                this.context = context;
                 this.array = array;
                 index = uint.MaxValue;
             }
@@ -158,7 +166,7 @@ namespace YantraJS.Core
                             ? null
                             : (property.IsValue
                             ? property.value
-                            : (property.set.InvokeFunction(new Arguments(this.array))));
+                            : (property.set.InvokeFunction(new Arguments(context, array))));
                     }
                     else
                     {
@@ -182,7 +190,7 @@ namespace YantraJS.Core
                             ? null 
                             : (property.IsValue
                             ? property.value
-                            : (property.set.InvokeFunction(new Arguments(this.array))));
+                            : (property.set.InvokeFunction(new Arguments(context, this.array))));
                         hasValue = true;
                     } else
                     {

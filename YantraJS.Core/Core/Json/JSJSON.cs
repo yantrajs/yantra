@@ -93,10 +93,10 @@ namespace YantraJS.Core
             if (indent != null)
             {
                 var writer = new IndentedTextWriter(sb, indent);
-                Stringify(writer, f, replacer, writer);
+                Stringify(a.Context,writer, f, replacer, writer);
             } else
             {
-                Stringify(sb, f, replacer, null);
+                Stringify(a.Context, sb, f, replacer, null);
             }
             
             return new JSString(sb.ToString());
@@ -105,11 +105,12 @@ namespace YantraJS.Core
         public static string Stringify(JSValue value)
         {
             var sb = new StringWriter();
-            Stringify(sb, value, null, null);
+            Stringify(JSContext.Current, sb, value, null, null);
             return sb.ToString();
         }
 
         private static void Stringify(
+            JSContext context,
             TextWriter sb, 
             JSValue target, 
             Func<(JSValue, JSValue, JSValue), JSValue> replacer,
@@ -155,7 +156,7 @@ namespace YantraJS.Core
                         {
                             sb.WriteLine();
                         }
-                        Stringify(sb, ToJson(item), replacer, indent);
+                        Stringify(context, sb, ToJson(context, item), replacer, indent);
                     }
                     if (indent != null)
                     {
@@ -186,7 +187,7 @@ namespace YantraJS.Core
                 {
                     if (value.get == null)
                         continue;
-                    jsValue = (value.get as JSFunction).f(new Arguments(target));
+                    jsValue = (value.get as JSFunction).f(new Arguments(context, target));
                 } else
                 {
                     jsValue = value.value;
@@ -195,7 +196,7 @@ namespace YantraJS.Core
                 if (jsValue.IsUndefined || jsValue is JSFunction)
                     continue;
 
-                jsValue = ToJson(jsValue);
+                jsValue = ToJson(context, jsValue);
 
                 // check replacer...
                 if (replacer != null)
@@ -224,7 +225,7 @@ namespace YantraJS.Core
                 {
                     sb.Write(' ');
                 }
-                Stringify(sb, jsValue, replacer, indent);
+                Stringify(context, sb, jsValue, replacer, indent);
 
             }
             if (indent != null)
@@ -237,14 +238,14 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static JSValue ToJson(JSValue value)
+        private static JSValue ToJson(JSContext context, JSValue value)
         {
             if (!(value is JSObject jobj))
                 return value;
             ref var p = ref jobj.GetInternalProperty(KeyStrings.toJSON);
             if (p.IsEmpty)
                 return value;
-            return (jobj.GetValue(p) as JSFunction).f(new Arguments(value));
+            return (jobj.GetValue(p, context) as JSFunction).f(new Arguments(context, value));
         }
 
 

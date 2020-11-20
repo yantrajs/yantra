@@ -172,7 +172,7 @@ namespace YantraJS.Core.Generator
             if (!(value is JSGenerator generator))
             {
                 do {
-                    var a = value.InvokeMethod(KeyStrings.next, new Arguments(this));
+                    var a = value.InvokeMethod(KeyStrings.next, new Arguments(context, this));
                     if(a[KeyStrings.done].BooleanValue)
                     {
                         break;

@@ -243,15 +243,15 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSValue Then(JSFunctionDelegate resolved, JSFunctionDelegate failed)
+        internal JSValue Then(JSContext context, JSFunctionDelegate resolved, JSFunctionDelegate failed)
         {
             Action resolveAction = () =>
             {
-                this.result = (resolved?.Invoke(new Arguments(this, this.result))) ?? this.result;
+                this.result = (resolved?.Invoke(new Arguments(context, this, this.result))) ?? this.result;
             };
 
             Action failAction = () => {
-                this.result = (failed?.Invoke(new Arguments(this, this.result))) ?? this.result;
+                this.result = (failed?.Invoke(new Arguments(context, this, this.result))) ?? this.result;
             };
 
             if (this.state == PromiseState.Resolved)

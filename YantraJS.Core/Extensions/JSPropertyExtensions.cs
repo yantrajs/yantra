@@ -10,12 +10,21 @@ namespace YantraJS.Extensions
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete]
         internal static JSValue GetValue(this JSValue target, in JSProperty p)
         {
             if (p.IsEmpty)
                 return JSUndefined.Value;
             return p.IsValue ? p.value : p.get.f(new Arguments(target));
         }
+
+        internal static JSValue GetValue(this JSValue target, in JSProperty p, JSContext context)
+        {
+            if (p.IsEmpty)
+                return JSUndefined.Value;
+            return p.IsValue ? p.value : p.get.f(new Arguments(context, target));
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSValue ToJSValue(in this JSProperty px)

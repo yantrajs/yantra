@@ -84,7 +84,7 @@ namespace YantraJS
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
             AsyncPump.Run(() => {
-                result = fx(new Arguments(ctx));
+                result = fx(new Arguments(ctx,ctx));
                 return Task.CompletedTask;
             });
             return result;
@@ -96,7 +96,7 @@ namespace YantraJS
             var fx = Compile(code, location, null, codeCache);
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
-            result = fx(new Arguments(ctx));
+            result = fx(new Arguments(ctx, ctx));
             return result;
         }
 

@@ -85,7 +85,7 @@ namespace YantraJS.Core.Generator
             // is it a native promise
             if (value is JSPromise promise)
             {
-                result = promise.Then(successFx, failFx);
+                result = promise.Then(context, successFx, failFx);
             }
             else
             {
@@ -100,7 +100,7 @@ namespace YantraJS.Core.Generator
 
                 var fail = new JSFunction(failFx);
 
-                result = method.InvokeFunction(new Arguments(value, success, fail));
+                result = method.InvokeFunction(new Arguments(context, value, success, fail));
             }
 
 

@@ -21,6 +21,7 @@ namespace YantraJS.Core
             var r = new JSArray();
             var (f, map, mapThis) = a.Get3();
             var t = a.This;
+            var context = a.Context;
             var en = f.GetElementEnumerator();
             uint length = 0;
             ref var elements = ref r.GetElements();
@@ -30,7 +31,7 @@ namespace YantraJS.Core
                 var cb = fx.f;
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(cb(new Arguments(mapThis, item)));
+                    elements[length++] = JSProperty.Property(cb(new Arguments(context, mapThis, item)));
                 }
             }
             else

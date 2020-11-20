@@ -90,19 +90,16 @@ namespace YantraJS.Core
         public static JSValue SetImmediate(in Arguments a)
         {
             var @this = a.This;
+            var context = a.Context;
             var fx = a.Get1();
             if (!(fx is JSFunction f))
                 throw JSContext.Current.NewTypeError("Argument is not a function");
             AsyncPump.Run(() => {
-                f.f(new Arguments(@this));
+                f.f(new Arguments(context, @this));
                 return Task.CompletedTask;
             });
             return JSUndefined.Value;
         }
-
-        private static long timeouts = 1;
-
-        private static long intervals = 1;
 
         [Static("setInterval", Length = 2)]
         public static JSValue SetInterval(in Arguments a)

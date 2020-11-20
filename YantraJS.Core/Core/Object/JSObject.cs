@@ -348,7 +348,7 @@ namespace YantraJS.Core
             {
                 var v = this.GetValue(px);
                 if (v.IsFunction)
-                    v = v.InvokeFunction(new Arguments(this));
+                    v = v.InvokeFunction(new Arguments(JSContext.Current,this));
                 if (v == this)
                     return "Stack overflow ...";
                 return v.ToString();
@@ -367,7 +367,7 @@ namespace YantraJS.Core
                 var fx = this[KeyStrings.valueOf];
                 if (fx.IsUndefined)
                     return NumberParser.CoerceToNumber(this.ToString());
-                var v = fx.InvokeFunction(new Arguments(this));
+                var v = fx.InvokeFunction(new Arguments(JSContext.Current, this));
                 return v.DoubleValue;
             }
         }
