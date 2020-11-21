@@ -319,7 +319,7 @@ namespace YantraJS.Core
             });
             if(addToContext)
             {
-                context[context, key] = c;
+                context[key] = c;
             }
             return c;
         }

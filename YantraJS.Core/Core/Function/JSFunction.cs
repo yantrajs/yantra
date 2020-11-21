@@ -201,14 +201,16 @@ namespace YantraJS.Core
         public static JSValue Bind(in Arguments a) {
             var fOriginal = a.This as JSFunction;
             var original = a;
+            var copy = a.CopyForCall();
+            var first = a.Get1();
             var fx = new JSFunction((in Arguments a2) =>
             {
                 if (a2.Length == 0)
                 {
                     // for constructor...
-                    return fOriginal.f(original.CopyForCall());
+                    return fOriginal.f(copy);
                 }
-                return fOriginal.f(a2.OverrideThis(original.Get1()));
+                return fOriginal.f(a2.OverrideThis(first));
             })
             {
                 // need to set prototypeChain...
@@ -301,7 +303,7 @@ namespace YantraJS.Core
             var @delegate = function.f;
             var d = Expression.Constant(@delegate);
             var @this = Expression.Constant(function);
-            var nargs = ArgumentsBuilder.New(JSContextBuilder.Current, @this, veList.ToList<Expression>());
+            var nargs = ArgumentsBuilder.New(@this, veList.ToList<Expression>());
 
 
             stmts.Add(JSValueBuilder.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));

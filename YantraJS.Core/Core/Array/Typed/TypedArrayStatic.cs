@@ -380,7 +380,7 @@ namespace YantraJS.Core.Typed
                 int bufferLength = a3.AsInt32OrDefault(arrayBuffer.Length);
                 return new TypedArray(arrayBuffer, type, byteOffset,bufferLength, prototype);
             }
-            return CopyArray(a.Context, prototype, type, a1, JSUndefined.Value, null);
+            return CopyArray(prototype, type, a1, JSUndefined.Value, null);
 
             
         }
@@ -391,11 +391,11 @@ namespace YantraJS.Core.Typed
         {
             var (f, map, mapThis) = a.Get3();
             var t = a.This;
-            return CopyArray(a.Context, prototype, type, f, map, mapThis);
+            return CopyArray(prototype, type, f, map, mapThis);
 
         }
 
-        private static JSValue CopyArray(JSContext context, JSObject prototype, TypedArrayType type, JSValue f, JSValue map, JSValue mapThis)
+        private static JSValue CopyArray(JSObject prototype, TypedArrayType type, JSValue f, JSValue map, JSValue mapThis)
         {
             int length = -1;
 
@@ -440,7 +440,7 @@ namespace YantraJS.Core.Typed
                 var cb = fx2.f;
                 while (en2.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    typedArray[i++] = cb(new Arguments(context, mapThis, item));
+                    typedArray[i++] = cb(new Arguments(mapThis, item));
                 }
             }
             else

@@ -227,29 +227,29 @@ namespace YantraJS.Core
             throw JSContext.Current.NewError($"Method {key} not found");
         }
 
-        public override JSValue this[JSContext context, KeyString name] { 
-            get => this.GetValue(GetInternalProperty(name), context); 
+        public override JSValue this[KeyString name] { 
+            get => this.GetValue(GetInternalProperty(name)); 
             set {
                 ref var p = ref GetInternalProperty(name);
                 if (p.IsProperty)
                 {
                     if (p.set != null)
                     {
-                        p.set.f(new Arguments(context, this, value));
+                        p.set.f(new Arguments(this, value));
                         return;
                     }
                     return;
                 }
                 if (this.IsFrozen())
-                    throw context.NewTypeError($"Cannot modify property {name} of {this}");
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 ref var ownProperties = ref this.GetOwnProperties();
                 ownProperties[name.Key] = JSProperty.Property(name, value);
             }
         }
 
-        public override JSValue this[JSContext context, uint name]
+        public override JSValue this[uint name]
         {
-            get => this.GetValue(GetInternalProperty(name), context);
+            get => this.GetValue(GetInternalProperty(name));
             set
             {
                 var p = GetInternalProperty(name);
@@ -257,13 +257,13 @@ namespace YantraJS.Core
                 {
                     if (p.set != null)
                     {
-                        p.set.f(new Arguments(context, this, value));
+                        p.set.f(new Arguments(this, value));
                         return;
                     }
                     return;
                 }
                 if (this.IsFrozen())
-                    throw context.NewTypeError($"Cannot modify property {name} of {this}");
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 ref var elements = ref CreateElements();
                 elements[name] = JSProperty.Property(value);
             }
@@ -348,7 +348,7 @@ namespace YantraJS.Core
             {
                 var v = this.GetValue(px);
                 if (v.IsFunction)
-                    v = v.InvokeFunction(new Arguments(JSContext.Current,this));
+                    v = v.InvokeFunction(new Arguments(this));
                 if (v == this)
                     return "Stack overflow ...";
                 return v.ToString();
@@ -367,7 +367,7 @@ namespace YantraJS.Core
                 var fx = this[KeyStrings.valueOf];
                 if (fx.IsUndefined)
                     return NumberParser.CoerceToNumber(this.ToString());
-                var v = fx.InvokeFunction(new Arguments(JSContext.Current, this));
+                var v = fx.InvokeFunction(new Arguments(this));
                 return v.DoubleValue;
             }
         }

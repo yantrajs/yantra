@@ -145,13 +145,13 @@ namespace YantraJS.Core {
         internal abstract KeyString ToKey(bool create = true);
         
 
-        public virtual JSValue this[JSContext context, KeyString name]
+        public virtual JSValue this[KeyString name]
         {
             get
             {
                 if (prototypeChain == null)
                     return JSUndefined.Value;
-                return this.GetValue(prototypeChain.GetInternalProperty(name), context);
+                return this.GetValue(prototypeChain.GetInternalProperty(name));
             }
             set
             {
@@ -159,70 +159,70 @@ namespace YantraJS.Core {
             }
         }
 
-        public virtual JSValue this[JSContext context, uint key]
+        public virtual JSValue this[uint key]
         {
             get
             {
                 if (prototypeChain == null)
                     return JSUndefined.Value;
-                return this.GetValue(prototypeChain.GetInternalProperty(key), context);
+                return this.GetValue(prototypeChain.GetInternalProperty(key));
             }
             set { }
         }
 
-        public virtual JSValue this[JSContext context, JSSymbol symbol]
+        public virtual JSValue this[JSSymbol symbol]
         {
             get
             {
                 if (prototypeChain == null)
                     return JSUndefined.Value;
-                return this.GetValue(prototypeChain.GetInternalProperty(symbol), context);
+                return this.GetValue(prototypeChain.GetInternalProperty(symbol));
             }
             set { }
         }
 
-        public JSValue this[JSContext context, JSValue key]
+        public JSValue this[JSValue key]
         {
             get
             {
                 if (key is JSSymbol symbol)
-                    return this[context, symbol];
+                    return this[symbol];
                 var k = key.ToKey();
-                return k.IsUInt ? this[context, k.Key] : this[context, k];
+                return k.IsUInt ? this[k.Key] : this[k];
             }
             set
             {
                 if (key is JSSymbol symbol)
                 {
-                    this[context, symbol] = value;
+                    this[symbol] = value;
                     return;
                 }
                 var k = key.ToKey();
                 if (k.IsUInt)
                 {
-                    this[context, k.Key] = value;
+                    this[k.Key] = value;
                 }
                 else
                 {
-                    this[context, k] = value;
+                    this[k] = value;
                 }
             }
         }
 
-        internal virtual JSValue this[JSContext context, KeyString name, JSValue @this]
+        internal virtual JSValue this[KeyString name, JSValue @this]
         {
             get
             {
                 if (prototypeChain == null)
                     return JSUndefined.Value;
-                return @this.GetValue(prototypeChain.GetInternalProperty(name), context);
+                return @this.GetValue(prototypeChain.GetInternalProperty(name));
             }
             set { }
         }
 
-        internal JSValue this[JSContext context, JSObject super, KeyString name]
+        internal JSValue this[JSObject super, KeyString name]
         {
-            get => this.GetValue(super.GetInternalProperty(name), context);
+            get => this.GetValue(super.GetInternalProperty(name));
             set
             {
                 ref var p = ref super.GetInternalProperty(name);
@@ -230,7 +230,7 @@ namespace YantraJS.Core {
                 {
                     if (p.set != null)
                     {
-                        p.set.f(new Arguments(context, this, value));
+                        p.set.f(new Arguments(this, value));
                     }
                     return;
                 }
@@ -238,9 +238,9 @@ namespace YantraJS.Core {
             }
         }
 
-        internal JSValue this[JSContext context, JSObject super, uint index]
+        internal JSValue this[JSObject super, uint index]
         {
-            get => this.GetValue(super.GetInternalProperty(index), context);
+            get => this.GetValue(super.GetInternalProperty(index));
             set
             {
                 var p = super.GetInternalProperty(index);
@@ -248,7 +248,7 @@ namespace YantraJS.Core {
                 {
                     if (p.set != null)
                     {
-                        p.set.f(new Arguments(context, this, value));
+                        p.set.f(new Arguments(this, value));
                     }
                     return;
                 }
@@ -256,27 +256,27 @@ namespace YantraJS.Core {
             }
         }
 
-        internal JSValue this[JSContext context, JSObject super, JSValue name]
+        internal JSValue this[JSObject super, JSValue name]
         {
             get
             {
                 if (name is JSSymbol symbol)
-                    return this[context, super, symbol];
+                    return this[super, symbol];
                 var key = name.ToKey();
                 if (key.IsUInt)
-                    return this[context, super, key.Key];
-                return this[context, super, key];
+                    return this[super, key.Key];
+                return this[super, key];
             }
             set {
                 if (name is JSSymbol symbol)
-                    this[context, super, symbol] = value;
+                    this[super, symbol] = value;
                 var key = name.ToKey();
                 if (key.IsUInt)
                 {
-                    this[context, super, key.Key] = value;
+                    this[super, key.Key] = value;
                     return;
                 } 
-                this[context, super, key] = value;
+                this[super, key] = value;
             }
         }
 
@@ -435,13 +435,13 @@ namespace YantraJS.Core {
             switch(name)
             {
                 case JSValue v:
-                    fx = this[a.Context, v];
+                    fx = this[v];
                     break;
                 case KeyString ks:
-                    fx = this[a.Context, ks];
+                    fx = this[ks];
                     break;
                 case string str:
-                    fx = this[a.Context, str];
+                    fx = this[str];
                     break;
             }
             if (fx.IsUndefined)

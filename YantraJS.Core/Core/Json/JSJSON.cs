@@ -28,10 +28,9 @@ namespace YantraJS.Core
             var (text, receiver) = a.Get2();
             JsonParserReceiver r = null;
             var t = a.This;
-            var context = a.Context;
             if (receiver is JSFunction function)
             {
-                r = (p) => function.f( new Arguments(context, t, new JSString(p.key), p.value));
+                r = (p) => function.f( new Arguments(t, new JSString(p.key), p.value));
             }
             return JSJsonParser.Parse(text.ToString(), r);
 
@@ -54,7 +53,7 @@ namespace YantraJS.Core
             TextWriter sb = new StringWriter();
             Func<(JSValue target, JSValue key, JSValue value),JSValue> replacer = null;
             string indent = null;
-            var context = a.Context;
+
             // build replacer...
             if (a.Length > 1)
             {
@@ -72,7 +71,7 @@ namespace YantraJS.Core
                 if (r is JSFunction rf)
                 {
                     replacer = (item) =>
-                     rf.f(new Arguments(context, item.target, item.key, item.value));
+                     rf.f(new Arguments(item.target, item.key, item.value));
                 } else if (r is JSArray ra)
                 {
 
@@ -94,10 +93,10 @@ namespace YantraJS.Core
             if (indent != null)
             {
                 var writer = new IndentedTextWriter(sb, indent);
-                Stringify(a.Context,writer, f, replacer, writer);
+                Stringify(writer, f, replacer, writer);
             } else
             {
-                Stringify(a.Context, sb, f, replacer, null);
+                Stringify(sb, f, replacer, null);
             }
             
             return new JSString(sb.ToString());
@@ -106,12 +105,11 @@ namespace YantraJS.Core
         public static string Stringify(JSValue value)
         {
             var sb = new StringWriter();
-            Stringify(JSContext.Current, sb, value, null, null);
+            Stringify(sb, value, null, null);
             return sb.ToString();
         }
 
         private static void Stringify(
-            JSContext context,
             TextWriter sb, 
             JSValue target, 
             Func<(JSValue, JSValue, JSValue), JSValue> replacer,
@@ -157,7 +155,7 @@ namespace YantraJS.Core
                         {
                             sb.WriteLine();
                         }
-                        Stringify(context, sb, ToJson(context, item), replacer, indent);
+                        Stringify(sb, ToJson(item), replacer, indent);
                     }
                     if (indent != null)
                     {
@@ -188,7 +186,7 @@ namespace YantraJS.Core
                 {
                     if (value.get == null)
                         continue;
-                    jsValue = (value.get as JSFunction).f(new Arguments(context, target));
+                    jsValue = (value.get as JSFunction).f(new Arguments(target));
                 } else
                 {
                     jsValue = value.value;
@@ -197,7 +195,7 @@ namespace YantraJS.Core
                 if (jsValue.IsUndefined || jsValue is JSFunction)
                     continue;
 
-                jsValue = ToJson(context, jsValue);
+                jsValue = ToJson(jsValue);
 
                 // check replacer...
                 if (replacer != null)
@@ -226,7 +224,7 @@ namespace YantraJS.Core
                 {
                     sb.Write(' ');
                 }
-                Stringify(context, sb, jsValue, replacer, indent);
+                Stringify(sb, jsValue, replacer, indent);
 
             }
             if (indent != null)
@@ -239,14 +237,14 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static JSValue ToJson(JSContext context, JSValue value)
+        private static JSValue ToJson(JSValue value)
         {
             if (!(value is JSObject jobj))
                 return value;
             ref var p = ref jobj.GetInternalProperty(KeyStrings.toJSON);
             if (p.IsEmpty)
                 return value;
-            return (jobj.GetValue(p, context) as JSFunction).f(new Arguments(context, value));
+            return (jobj.GetValue(p) as JSFunction).f(new Arguments(value));
         }
 
 

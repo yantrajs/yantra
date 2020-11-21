@@ -10,15 +10,12 @@ namespace YantraJS.Core
     [StructLayout(LayoutKind.Sequential)]
     public readonly struct Arguments
     {
-        
-        [Obsolete]
-        public static Arguments Empty => new Arguments(JSContext.Current);
+
+        public static Arguments Empty = new Arguments { };
 
         private const int MinArray = 5;
 
         public readonly int Length;
-
-        public readonly JSContext Context;
 
         public readonly JSValue This;
 
@@ -38,21 +35,21 @@ namespace YantraJS.Core
             switch(Length)
             {
                 case 0:
-                    return new Arguments(Context, JSUndefined.Value);
+                    return new Arguments(JSUndefined.Value);
                 case 1:
-                    return new Arguments(Context, Arg0);
+                    return new Arguments(Arg0);
                 case 2:
-                    return new Arguments(Context, Arg0, Arg1);
+                    return new Arguments(Arg0, Arg1);
                 case 3:
-                    return new Arguments(Context, Arg0, Arg1, Arg2);
+                    return new Arguments(Arg0, Arg1, Arg2);
                 case 4:
-                    return new Arguments(Context, Arg0, Arg1, Arg2, Arg3);
+                    return new Arguments(Arg0, Arg1, Arg2, Arg3);
                 case 5:
-                    return new Arguments(Context, Args[0], Args[1], Args[2], Args[3], Args[4]);
+                    return new Arguments(Args[0], Args[1], Args[2], Args[3], Args[4]);
                 default:
                     var sa = new JSValue[Length - 1];
                     Array.Copy(Args, 1, sa, 0, sa.Length);
-                    return new Arguments(Context, Args[0], sa);
+                    return new Arguments(Args[0], sa);
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -66,174 +63,42 @@ namespace YantraJS.Core
                 switch(argList.Length)
                 {
                     case 0:
-                        return new Arguments(Context, @this);
+                        return new Arguments(@this);
                     case 1:
-                        return new Arguments(Context, @this, argList.Arg0);
+                        return new Arguments(@this, argList.Arg0);
                     case 2:
-                        return new Arguments(Context, @this, argList.Arg0, argList.Arg1);
+                        return new Arguments(@this, argList.Arg0, argList.Arg1);
                     case 3:
-                        return new Arguments(Context, @this, argList.Arg0, argList.Arg1, argList.Arg2);
+                        return new Arguments(@this, argList.Arg0, argList.Arg1, argList.Arg2);
                     case 4:
-                        return new Arguments(Context, @this, argList.Arg0, argList.Arg1, argList.Arg2, argList.Arg3);
+                        return new Arguments(@this, argList.Arg0, argList.Arg1, argList.Arg2, argList.Arg3);
                     default:
-                        return new Arguments(Context, @this, argList.Args);
+                        return new Arguments(@this, argList.Args);
 
                 }
             }
             if (!(args is JSArray argArray))
-                return new Arguments(Context, @this);
+                return new Arguments(@this);
             switch(argArray._length)
             {
                 case 0:
-                    return new Arguments(Context, @this);
+                    return new Arguments(@this);
                 case 1:
-                    return new Arguments(Context, @this, argArray[0]);
+                    return new Arguments(@this, argArray[0]);
                 case 2:
-                    return new Arguments(Context, @this, argArray[0], argArray[1]);
+                    return new Arguments(@this, argArray[0], argArray[1]);
                 case 3:
-                    return new Arguments(Context, @this, argArray[0], argArray[1], argArray[2]);
+                    return new Arguments(@this, argArray[0], argArray[1], argArray[2]);
                 case 4:
-                    return new Arguments(Context, @this, argArray[0], argArray[1], argArray[2], argArray[3]);
+                    return new Arguments(@this, argArray[0], argArray[1], argArray[2], argArray[3]);
                 default:
-                    return new Arguments(Context, @this, argArray);
+                    return new Arguments(@this, argArray);
             }
         }
-
-        public Arguments(JSContext context)
-        {
-            This = JSUndefined.Value;
-            Context = context;
-            Length = 0;
-            Arg0 = null;
-            Arg1 = null;
-            Arg2 = null;
-            Arg3 = null;
-            Args = null;
-
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments(JSContext context, JSValue @this)
-        {
-            This = @this;
-            Context = context;
-            Length = 0;
-            Arg0 = null;
-            Arg1 = null;
-            Arg2 = null;
-            Arg3 = null;
-            Args = null;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments(JSContext context, JSValue @this, JSValue a0)
-        {
-            This = @this;
-            Context = context;
-            Length = 1;
-            Arg0 = a0;
-            Arg1 = null;
-            Arg2 = null;
-            Arg3 = null;
-            Args = null;
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments(JSContext context, JSValue @this, JSValue a0, JSValue a1)
-        {
-            This = @this;
-            Context = context;
-            Length = 2;
-            Arg0 = a0;
-            Arg1 = a1;
-            Arg2 = null;
-            Arg3 = null;
-            Args = null;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments(JSContext context, JSValue @this, JSValue a0, JSValue a1, JSValue a2)
-        {
-            This = @this;
-            Context = context;
-            Length = 3;
-            Arg0 = a0;
-            Arg1 = a1;
-            Arg2 = a2;
-            Arg3 = null;
-            Args = null;
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments(JSContext context, JSValue @this, JSValue a0, JSValue a1, JSValue a2, JSValue a3)
-        {
-            This = @this;
-            Context = context;
-            Length = 4;
-            Arg0 = a0;
-            Arg1 = a1;
-            Arg2 = a2;
-            Arg3 = a3;
-            Args = null;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments(JSContext context, JSValue @this, JSValue[] args)
-        {
-            This = @this;
-            Context = context;
-            Length = args.Length;
-            switch (Length)
-            {
-                case 0:
-                    Arg0 = null;
-                    Arg1 = null;
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 1:
-                    Arg0 = args[0];
-                    Arg1 = null;
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 2:
-                    Arg0 = args[0];
-                    Arg1 = args[1];
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 3:
-                    Arg0 = args[0];
-                    Arg1 = args[1];
-                    Arg2 = args[2];
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 4:
-                    Arg0 = args[0];
-                    Arg1 = args[1];
-                    Arg2 = args[2];
-                    Arg3 = args[3];
-                    Args = null;
-                    break;
-                default:
-                    Arg0 = null;
-                    Arg1 = null;
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = args;
-                    break;
-            }
-        }
-
-        [Obsolete("Use one with Context")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this)
         {
             This = @this;
-            Context = JSContext.Current;
             Length = 0;
             Arg0 = null;
             Arg1 = null;
@@ -241,13 +106,10 @@ namespace YantraJS.Core
             Arg3 = null;
             Args = null;
         }
-
-        [Obsolete("Use one with Context")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0)
         {
             This = @this;
-            Context = JSContext.Current;
             Length = 1;
             Arg0 = a0;
             Arg1 = null;
@@ -255,13 +117,10 @@ namespace YantraJS.Core
             Arg3 = null;
             Args = null;
         }
-
-        [Obsolete("Use one with Context")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1)
         {
             This = @this;
-            Context = JSContext.Current;
             Length = 2;
             Arg0 = a0;
             Arg1 = a1;
@@ -270,12 +129,10 @@ namespace YantraJS.Core
             Args = null;
         }
 
-        [Obsolete("Use one with Context")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2)
         {
             This = @this;
-            Context = JSContext.Current;
             Length = 3;
             Arg0 = a0;
             Arg1 = a1;
@@ -283,13 +140,10 @@ namespace YantraJS.Core
             Arg3 = null;
             Args = null;
         }
-
-        [Obsolete("Use one with Context")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2, JSValue a3)
         {
             This = @this;
-            Context = JSContext.Current;
             Length = 4;
             Arg0 = a0;
             Arg1 = a1;
@@ -298,12 +152,10 @@ namespace YantraJS.Core
             Args = null;
         }
 
-        [Obsolete("Use one with Context")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue[] args)
         {
             This = @this;
-            Context = JSContext.Current;
             Length = args.Length;
             switch(Length)
             {
@@ -356,7 +208,6 @@ namespace YantraJS.Core
         private Arguments(JSValue @this, Arguments src)
         {
             Length = src.Length;
-            Context = src.Context;
             Arg0 = src.Arg0;
             Arg1 = src.Arg1;
             Arg2 = src.Arg2;

@@ -16,13 +16,13 @@ namespace YantraJS.Core
         public static JSValue Constructor(in Arguments a)
         {
             // throw JSContext.Current.NewTypeError("Not supported");
-            return new JSArray(a.Context);
+            return new JSArray();
         }
 
         [Prototype("concat", Length = 1)]
         public static JSValue Concat(in Arguments a)
         {
-            var r = new JSArray(a.Context);
+            var r = new JSArray();
             r.AddRange(a.This);
             for (int i = 0; i < a.Length; i++)
             {
@@ -46,11 +46,10 @@ namespace YantraJS.Core
             var (first, thisArg) = a.Get2();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
-            var context = a.Context;
             var en = array.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(context, thisArg, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -101,13 +100,12 @@ namespace YantraJS.Core
             var (callback, thisArg) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.filter");
-            var context = a.Context;
-            var r = new JSArray(context);
+            var r = new JSArray();
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue) continue;
-                var itemParams = new Arguments(context, thisArg, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);
@@ -123,14 +121,13 @@ namespace YantraJS.Core
             var (callback, thisArg) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            var context = a.Context;
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var itemParams = new Arguments(a.Context, thisArg, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return item;
@@ -148,7 +145,6 @@ namespace YantraJS.Core
             var (callback, thisArg) = a.Get2();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            var context = a.Context;
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var n))
             {
@@ -156,7 +152,7 @@ namespace YantraJS.Core
                 if (!hasValue)
                     continue;
                 var index = new JSNumber(n);
-                var itemParams = new Arguments(context, thisArg, item, index, @this);
+                var itemParams = new Arguments(thisArg, item, index, @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return index;
@@ -170,9 +166,8 @@ namespace YantraJS.Core
         {
             var @this = a.This;
             var (callback,thisArg) = a.Get2();
-            var context = a.Context;
             if (!(callback is JSFunction fn))
-                throw context.NewTypeError($"{callback} is not a function in Array.prototype.find");
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item , out var index))
             {
@@ -180,7 +175,7 @@ namespace YantraJS.Core
                 if (!hasValue)
                     continue;
                 var n = new JSNumber(index);
-                var itemParams = new Arguments(context, thisArg, item, n, @this);
+                var itemParams = new Arguments(thisArg, item, n, @this);
                 fn.f(itemParams);
             }
             return JSUndefined.Value;
@@ -191,7 +186,6 @@ namespace YantraJS.Core
         {
             var @this = a.This;
             var first = a.Get1();
-            var context = a.Context;
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
@@ -207,8 +201,7 @@ namespace YantraJS.Core
             var @this = a.This;
             var first = a.Get1();
             var en = @this.GetElementEnumerator();
-            var context = a.Context;
-            while (en.MoveNext(out var hasValue, out var item, out var index))
+            while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue)
                     continue;
@@ -248,8 +241,7 @@ namespace YantraJS.Core
         public static JSValue Keys(in Arguments a)
         {
             var @this = a.This;
-            var context = a.Context;
-            var r = new JSArray(context);
+            var r = new JSArray();
             for (int i = 0; i < @this.Length; i++)
             {
                 r.Add(new JSNumber(i));
@@ -269,7 +261,7 @@ namespace YantraJS.Core
             var i = (uint)(n - 1);
             while(i >= 0)
             {
-                var item = @this[a.Context, i];
+                var item = @this[i];
                 if (item.StrictEquals(first).BooleanValue)
                     return new JSNumber(i);
                 if (i == 0)
@@ -284,10 +276,9 @@ namespace YantraJS.Core
         {
             var @this = a.This;
             var callback = a.Get1();
-            var context = a.Context;
             if (!(callback is JSFunction fn))
-                throw context.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            var r = new JSArray(context);
+                throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            var r = new JSArray();
             ref var relements = ref r.GetElements();
             var en = @this.GetElementEnumerator();
             while (en.MoveNext(out var hasValue, out var item, out var index))
@@ -297,7 +288,7 @@ namespace YantraJS.Core
                     r._length++;
                     continue;
                 }
-                var itemArgs = new Arguments(context, @this, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(@this, item, new JSNumber(index), @this);
                 relements[r._length++] = JSProperty.Property(fn.f(itemArgs));
             }            
             return r;
@@ -335,10 +326,10 @@ namespace YantraJS.Core
             al = a.Length;
             for(ai = 0; ai <al; ai++)
             {
-                t[a.Context, ln++] = a.GetAt(ai);
+                t[ln++] = a.GetAt(ai);
             }
             var n = new JSNumber(ln);
-            t[a.Context, KeyStrings.length] = n;
+            t[KeyStrings.length] = n;
             return n;
         }
 
@@ -361,8 +352,7 @@ namespace YantraJS.Core
         [Prototype("reduce", Length = 1)]
         public static JSValue Reduce(in Arguments a)
         {
-            var context = a.Context;
-            var r = new JSArray(context);
+            var r = new JSArray();
             var @this = a.This;
             var (callback, initialValue) = a.Get2();
             if (!(callback is JSFunction fn))
@@ -378,7 +368,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(context, @this, initialValue, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(index), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -387,8 +377,7 @@ namespace YantraJS.Core
         [Prototype("reduceRight", Length = 1)]
         public static JSValue ReduceRight(in Arguments a)
         {
-            var context = a.Context;
-            var r = new JSArray(context);
+            var r = new JSArray();
             var @this = a.This;
             var (callback, initialValue) = a.Get2();
             if (!(callback is JSFunction fn))
@@ -398,13 +387,13 @@ namespace YantraJS.Core
             {
                 if (@this.Length == 0)
                     throw JSContext.Current.NewTypeError($"No initial value provided and array is empty");
-                initialValue = @this[a.Context, (uint)start];
+                initialValue = @this[(uint)start];
                 start--;
             }
             for (int i = start; i >= 0; i--)
             {
-                var item = @this[a.Context, (uint)i];
-                var itemArgs = new Arguments(a.Context, @this, initialValue, item, new JSNumber(i), @this);
+                var item = @this[(uint)i];
+                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(i), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -414,10 +403,10 @@ namespace YantraJS.Core
         public static JSValue Reverse(in Arguments a)
         {
             var @this = a.This;
-            var r = new JSArray(a.Context);
+            var r = new JSArray();
             for (int i = @this.Length - 1 ; i >= 0; i--)
             {
-                r.Add(@this[a.Context, (uint)i]);
+                r.Add(@this[(uint)i]);
             }
             return r;
 
@@ -532,7 +521,7 @@ namespace YantraJS.Core
             ni = 0;
             for (uint i = (uint)start; i < l; i++)
             {
-                r[a.Context, ni++] = @object[a.Context, i];
+                r[ni++] = @object[i];
             }
             r._length = ni;
 
@@ -543,7 +532,6 @@ namespace YantraJS.Core
         public static JSValue Some(in Arguments a)
         {
             var array = a.This;
-            var context = a.Context;
             var first = a.Get1();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
@@ -552,7 +540,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(context, a.This, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
                 if (fn.f(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
@@ -565,12 +553,11 @@ namespace YantraJS.Core
 
             var fx = a.Get1();
             var @this = a.This;
-            var context = a.Context;
             Comparison<JSValue> cx = null;
             if (fx is JSFunction fn)
             {
                 cx = (l, r) => {
-                    var arg = new Arguments(context, @this, l, r);
+                    var arg = new Arguments(@this, l, r);
                     return (int)(fn.f(arg).DoubleValue);
                 };
             } else
@@ -648,7 +635,7 @@ namespace YantraJS.Core
                 for (uint i = (uint)start, j = 0; i <end; i++, j++)
                 {
                     if(@this.TryGetValue(i, out var p)) {
-                        r[a.Context, j] = p.value;
+                        r[j] = p.value;
                     }
 
                 }

@@ -28,7 +28,7 @@ namespace YantraJS.Core
 
         }
 
-        public override JSValue this[JSContext context, KeyString name]
+        public override JSValue this[KeyString name]
         {
             get
             {
@@ -36,9 +36,9 @@ namespace YantraJS.Core
                 ref var px = ref prototypeChain.GetInternalProperty(name);
                 if (px.IsEmpty)
                 {
-                    throw context.NewTypeError($"{name} property not found on {this.GetType().Name}:{this}");
+                    throw JSContext.Current.NewTypeError($"{name} property not found on {this.GetType().Name}:{this}");
                 }
-                return this.GetValue(px, context);
+                return this.GetValue(px);
             }
             set
             {

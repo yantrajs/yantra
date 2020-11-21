@@ -17,12 +17,6 @@ namespace YantraJS.Core
     {
         internal uint _length;
 
-        public JSArray(JSContext context) : base(context.ArrayPrototype)
-        {
-
-        }
-
-        [Obsolete]
         public JSArray(): base(JSContext.Current.ArrayPrototype)
         {
             
@@ -49,7 +43,7 @@ namespace YantraJS.Core
         {
             var sb = new StringBuilder();
             bool first = true;
-            var en = new ElementEnumerator(JSContext.Current,this);
+            var en = new ElementEnumerator(this);
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!first)
@@ -66,9 +60,9 @@ namespace YantraJS.Core
             return $"[{this.ToString()}]"; ;
         }
 
-        public override JSValue this[JSContext context, uint name]
+        public override JSValue this[uint name]
         {
-            get => this.GetValue(GetInternalProperty(name), context);
+            get => this.GetValue(GetInternalProperty(name));
             set
             {
                 var p = GetInternalProperty(name);
@@ -76,13 +70,13 @@ namespace YantraJS.Core
                 {
                     if (p.set != null)
                     {
-                        p.set.f(new Arguments(context, this, value));
+                        p.set.f(new Arguments(this, value));
                         return;
                     }
                     return;
                 }
                 if (this.IsSealedOrFrozen())
-                    throw context.NewTypeError($"Cannot modify property {name} of {this}");
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 if (this._length <= name)
                     this._length = name + 1;
                 ref var elements = ref CreateElements();
@@ -137,7 +131,7 @@ namespace YantraJS.Core
 
         internal override IElementEnumerator GetElementEnumerator()
         {
-            return new ElementEnumerator(JSContext.Current, this);
+            return new ElementEnumerator(this);
         }
 
 
@@ -145,12 +139,10 @@ namespace YantraJS.Core
         {
             uint length;
             uint index;
-            private readonly JSContext context;
             JSArray array;
-            public ElementEnumerator(JSContext context, JSArray array)
+            public ElementEnumerator(JSArray array)
             {
                 this.length = array._length;
-                this.context = context;
                 this.array = array;
                 index = uint.MaxValue;
             }
@@ -166,7 +158,7 @@ namespace YantraJS.Core
                             ? null
                             : (property.IsValue
                             ? property.value
-                            : (property.set.InvokeFunction(new Arguments(context, array))));
+                            : (property.set.InvokeFunction(new Arguments(this.array))));
                     }
                     else
                     {
@@ -190,7 +182,7 @@ namespace YantraJS.Core
                             ? null 
                             : (property.IsValue
                             ? property.value
-                            : (property.set.InvokeFunction(new Arguments(context, this.array))));
+                            : (property.set.InvokeFunction(new Arguments(this.array))));
                         hasValue = true;
                     } else
                     {

@@ -25,7 +25,7 @@ namespace YantraJS.Core
         {
             if (name == "ToString")
                 return target.ToString();
-            return target.InvokeMethod(name, new Arguments(JSContext.Current, target, a));
+            return target.InvokeMethod(name, new Arguments(target, a));
         }
 
         public static JSValue[] __CreateArguments(object[] args)
@@ -61,19 +61,18 @@ namespace YantraJS.Core
         {
             if (name == null)
                 throw new ArgumentNullException();
-            var c = JSContext.Current;
             switch (name)
             {
-                case string s: return value[c,s];
-                case uint ui: return value[c,ui];
-                case int i: return value[c,(uint)i];
-                case double d: return value[c,(uint)d];
-                case decimal d1: return value[c,(uint)d1];
-                case float f1: return value[c,(uint)f1];
-                case JSNumber jn: return value[c,(uint)jn.value];
-                case JSString js: return value[c,js.ToKey()];
+                case string s: return value[s];
+                case uint ui: return value[ui];
+                case int i: return value[(uint)i];
+                case double d: return value[(uint)d];
+                case decimal d1: return value[(uint)d1];
+                case float f1: return value[(uint)f1];
+                case JSNumber jn: return value[(uint)jn.value];
+                case JSString js: return value[js.ToKey()];
             }
-            return value[c,name.ToString()];
+            return value[name.ToString()];
         }
 
         public static JSValue __SetMethod(JSValue target, object name, object _value)
@@ -81,19 +80,18 @@ namespace YantraJS.Core
             if (name == null)
                 throw new ArgumentNullException();
             JSValue value = TypeConverter.FromBasic(_value);
-            var c = JSContext.Current;
             switch (name)
             {
-                case string s: return target[c, s] = value;
-                case uint ui: return target[c, ui] = value;
-                case int i: return target[c, (uint)i] = value;
-                case double d: return target[c, (uint)d] = value;
-                case decimal d1: return target[c, (uint)d1] = value;
-                case float f1: return target[c, (uint)f1] = value;
-                case JSNumber jn: return target[c, (uint)jn.value] = value;
-                case JSString js: return target[c, js.ToKey()] = value;
+                case string s: return target[s] = value;
+                case uint ui: return target[ui] = value;
+                case int i: return target[(uint)i] = value;
+                case double d: return target[(uint)d] = value;
+                case decimal d1: return target[(uint)d1] = value;
+                case float f1: return target[(uint)f1] = value;
+                case JSNumber jn: return target[(uint)jn.value] = value;
+                case JSString js: return target[js.ToKey()] = value;
             }
-            return target[c, name.ToString()] = value;
+            return target[name.ToString()] = value;
         }
 
 

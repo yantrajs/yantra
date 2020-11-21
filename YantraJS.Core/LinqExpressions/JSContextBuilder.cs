@@ -78,8 +78,8 @@ namespace YantraJS.ExpHelper
         //public static Expression Current =
         //    Expression.Field(null, type.InternalField(nameof(JSContext.CurrentContext)));
 
-        public static Expression Object(Expression context) =>
-            Expression.Field(context, type.GetField(nameof(JSContext.Object)));
+        public static Expression Object =
+            Expression.Field(Current, type.GetField(nameof(JSContext.Object)));
 
         public static FieldInfo TopField =
             type.InternalField(nameof(JSContext.Top));
@@ -90,9 +90,9 @@ namespace YantraJS.ExpHelper
 
         private static PropertyInfo _Index =
             type.IndexProperty(typeof(Core.KeyString));
-        public static Expression Index(Expression context, Expression key)
+        public static Expression Index(Expression key)
         {
-            return Expression.MakeIndex(context, _Index, new Expression[] { key });
+            return Expression.MakeIndex(Current, _Index, new Expression[] { key });
         }
 
         //public static Expression Pop(Expression context)s

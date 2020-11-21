@@ -15,11 +15,9 @@ namespace YantraJS.Core
         internal readonly string filePath;
         internal readonly string dirPath;
         private JSFunctionDelegate factory;
-        private JSContext context;
 
         public JSModule(JSObject exports, string name)
         {
-            context = JSContext.Current;
             this.filePath = name;
             this.dirPath = "./";
             this.exports = exports;
@@ -27,7 +25,6 @@ namespace YantraJS.Core
 
         protected JSModule(string name)
         {
-            context = JSContext.Current;
             this.filePath = name;
             this.dirPath = "./";
         }
@@ -38,7 +35,6 @@ namespace YantraJS.Core
             string code,
             bool main = false): base(context.ModulePrototype)
         {
-            this.context = context;
             // this.ownProperties = new PropertySequence();
 
             this.filePath = filePath;
@@ -55,14 +51,14 @@ namespace YantraJS.Core
             Console.WriteLine($"Compiling module {filePath} finished ..");
             var exports = Exports = new JSObject();
             var require = Require = new JSFunction((in Arguments a1) => context.LoadModule(this, a1));
-            require[context, "main"] = main ? JSBoolean.True : JSBoolean.False;
+            require["main"] = main ? JSBoolean.True : JSBoolean.False;
             var resolve = new JSFunction((in Arguments ar) => {
                 var f = ar.Get1();
                 if (!f.IsString)
                     throw context.NewTypeError("First parameter is not string");
                 return new JSString(context.Resolve(dirPath, f.ToString()));
             });
-            require[context, KeyStrings.resolve] = resolve;
+            require[KeyStrings.resolve] = resolve;
 
         }
 
@@ -75,7 +71,7 @@ namespace YantraJS.Core
             get {
                 var factory = this.factory;
                 this.factory = null;
-                factory?.Invoke(new Arguments(context, this, new JSValue[] {
+                factory?.Invoke(new Arguments(this, new JSValue[] {
                     exports, Require, this, new JSString(filePath), new JSString(dirPath)
                 }));
                 return exports;
@@ -84,7 +80,7 @@ namespace YantraJS.Core
             {
                 if (value == null || value.IsNullOrUndefined)
                 {
-                    throw context.NewTypeError("Exports cannot be set to null or undefined");
+                    throw JSContext.Current.NewTypeError("Exports cannot be set to null or undefined");
                 }
                 exports = value;
             }

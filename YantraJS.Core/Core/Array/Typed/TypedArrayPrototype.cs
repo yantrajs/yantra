@@ -74,7 +74,7 @@ namespace YantraJS.Core.Typed
             var en = array.GetElementEnumerator();
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(a.Context, thisArg, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -113,7 +113,7 @@ namespace YantraJS.Core.Typed
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue) continue;
-                var itemParams = new Arguments(a.Context, thisArg, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);
@@ -138,7 +138,7 @@ namespace YantraJS.Core.Typed
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var itemParams = new Arguments(a.Context, thisArg, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return item;
@@ -160,7 +160,7 @@ namespace YantraJS.Core.Typed
                 if (!hasValue)
                     continue;
                 var index = new JSNumber(n);
-                var itemParams = new Arguments(a.Context, thisArg, item, index, @this);
+                var itemParams = new Arguments(thisArg, item, index, @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return index;
@@ -183,7 +183,7 @@ namespace YantraJS.Core.Typed
                 if (!hasValue)
                     continue;
                 var n = new JSNumber(index);
-                var itemParams = new Arguments(a.Context, thisArg, item, n, @this);
+                var itemParams = new Arguments(thisArg, item, n, @this);
                 fn.f(itemParams);
             }
             return JSUndefined.Value;
@@ -322,7 +322,7 @@ namespace YantraJS.Core.Typed
                     r._length++;
                     continue;
                 }
-                var itemArgs = new Arguments(a.Context, thisArg, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), @this);
                 rElements[r._length++] = JSProperty.Property(fn.f(itemArgs));
             }
             return r;
@@ -346,7 +346,7 @@ namespace YantraJS.Core.Typed
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(a.Context, JSUndefined.Value, initialValue, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -372,7 +372,7 @@ namespace YantraJS.Core.Typed
             for (int i = start; i >= 0; i--)
             {
                 var item = @this[(uint)i];
-                var itemArgs = new Arguments(a.Context, JSUndefined.Value, initialValue, item, new JSNumber(i), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -495,7 +495,7 @@ namespace YantraJS.Core.Typed
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(a.Context, thisArg, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (fn.f(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
@@ -507,12 +507,11 @@ namespace YantraJS.Core.Typed
         public static JSValue Sort(in Arguments a) {
             var fx = a.Get1();
             var @this = a.This.AsTypedArray();
-            var context = a.Context;
             Comparison<JSValue> cx = null;
             if (fx is JSFunction fn)
             {
                 cx = (l, r) => {
-                    var arg = new Arguments(context, @this, l, r);
+                    var arg = new Arguments(@this, l, r);
                     return (int)(fn.f(arg).DoubleValue);
                 };
             }

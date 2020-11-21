@@ -231,17 +231,17 @@ namespace YantraJS.Core
         internal JSValue Register(JSVariable variable)
         {
             var v = variable.Value;
-            this[this, variable.Name] = v;
+            this[variable.Name] = v;
             KeyString name = variable.Name;
             globalVars[name.Key] = variable;
             return v;
         }
 
-        public override JSValue this[JSContext context, KeyString name] { 
-            get => base[context, name];
+        public override JSValue this[KeyString name] { 
+            get => base[name];
             set
             {
-                base[context, name] = value;
+                base[name] = value;
                 if(globalVars.TryGetValue(name.Key, out var jsv))
                 {
                     jsv.Value = value;
@@ -352,7 +352,7 @@ namespace YantraJS.Core
             {
                 prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype
             };
-            this[this, KeyStrings.console] = c;
+            this[KeyStrings.console] = c;
 
         }
 
@@ -505,10 +505,9 @@ namespace YantraJS.Core
                 }
             }
             var ctx = SynchronizationContext.Current;
-            var context = a.Context;
             var timer = new Timer((_) => {
                 Post(ctx, () => {
-                    f.InvokeFunction(new Arguments(context, JSUndefined.Value, args));
+                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
                     ClearTimeout(key);
                 });
             }, f, delay, Timeout.Infinite);
@@ -533,10 +532,9 @@ namespace YantraJS.Core
                 }
             }
             var ctx = SynchronizationContext.Current;
-            var context = a.Context;
             var timer = new Timer((_) => {
                 Post(ctx, () => {
-                    f.InvokeFunction(new Arguments(context,JSUndefined.Value, args));
+                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
                     ClearInterval(key);
                 });
             }, f, delay, Timeout.Infinite);
@@ -586,7 +584,7 @@ namespace YantraJS.Core
                 }
                 if (r is JSObject @object)
                 {
-                    var then = @object[this, KeyStrings.then];
+                    var then = @object[KeyStrings.then];
                     if (then.IsFunction)
                     {
                         promise = new JSPromise((resolve, reject) => {
@@ -600,7 +598,7 @@ namespace YantraJS.Core
                                 reject(a1);
                                 return a1;
                             });
-                            var a = new Arguments(this, @object, resolveF, rejectF);
+                            var a = new Arguments(@object, resolveF, rejectF);
                             then.InvokeFunction(a);
                         });
                         return await promise.Task;

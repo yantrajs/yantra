@@ -20,7 +20,7 @@ namespace YantraJS.Core
         internal static JSString Empty = new JSString(string.Empty);
 
         internal readonly StringSpan value;
-        KeyString _keyString = new KeyString();
+        KeyString _keyString;
 
         private double NumberValue = 0;
         private bool NumberParsed = false;
@@ -136,7 +136,7 @@ namespace YantraJS.Core
             return value.Value;
         }
 
-        public override JSValue this[JSContext context, uint key] { 
+        public override JSValue this[uint key] { 
             get
             {
                 if (key >= this.value.Length)
@@ -146,13 +146,13 @@ namespace YantraJS.Core
             set { } 
         }
 
-        public override JSValue this[JSContext context, KeyString name] {
+        public override JSValue this[KeyString name] {
             get {
                 this.ResolvePrototype();
                 var p = prototypeChain.GetInternalProperty(in name, true);
                 if (p.IsEmpty)
                     return JSUndefined.Value;
-                return this.GetValue(p, context);
+                return this.GetValue(p);
             }
             set { }
         }

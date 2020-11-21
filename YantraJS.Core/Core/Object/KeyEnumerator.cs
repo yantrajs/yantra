@@ -49,7 +49,7 @@ namespace YantraJS.Core.Enumerators
                 }
                 parent = null;
             }
-            key = new KeyString();
+            key = KeyString.Empty;
             value = null;
             return false;
         }
