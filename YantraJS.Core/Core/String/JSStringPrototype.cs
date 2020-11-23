@@ -45,12 +45,19 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("charAt")]
+        [Prototype("charAt", Length =1)]
         public static JSValue CharAt(in Arguments a)
         {
             var text = AsString(a.This);
-            var at = a.TryGetAt(0, out var n) ? n.IntValue : 0;
-            return new JSString(new string(text[at], 1));
+            //int at = a.TryGetAt(0, out var n) ? (!n.IsNullOrUndefined ? n.IntValue : 0) : 0;
+            var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
+            if (double.IsNaN(at))
+                at = 0;
+
+            if (at < 0 || at >= text.Length)
+                return JSString.Empty;
+          
+            return new JSString(new string(text[(int)(uint)at], 1));
         }
 
         [Prototype("substring")]

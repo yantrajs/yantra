@@ -3,6 +3,11 @@
     "Yantra": {
       "commandName": "Project",
       "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\in-built\\ts\\index.js"
+    },
+    "YantraRpl": {
+      "commandName": "Project",
+      "commandLineArgs": ""
     }
+
   }
 }

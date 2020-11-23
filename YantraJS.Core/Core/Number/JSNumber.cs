@@ -108,6 +108,7 @@ namespace YantraJS.Core
             this.value = value;
         }
 
+        //public override int IntValue => (int)(uint)value;
         public override int IntValue => (int)value;
 
         public override double DoubleValue => value;

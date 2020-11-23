@@ -27,9 +27,15 @@ namespace YantraJS.Core.Tests.Imported
                 var value = context.Eval(text);
                 switch (value)
                 {
+                    //case JSNull n:
+                    //    return "null";
+                    //case JSUndefined _:
+                    //    return "undefined";
                     case JSString sv:
                         return sv.value.Value;
                     case JSNumber number:
+                        //if (double.IsNaN(number.value))
+                        //    return "NaN";
                         if ((number.value) % 1 == 0)
                             return (int)number.value;
                         return number.value;
