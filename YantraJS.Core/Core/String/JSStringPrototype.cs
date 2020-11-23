@@ -139,12 +139,19 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("concat")]
+        [Prototype("concat", Length = 1)]
         internal static JSValue Concat(in Arguments a)
         {
             var @this = a.This.AsString();
-            var f = a.Get1();
-            return new JSString( @this + f.ToString() );
+            if (a.Length == 0)
+                return a.This;
+            StringBuilder sb = new StringBuilder();
+            sb.Append(@this);
+            for (int i = 0; i < a.Length; i++)
+            {
+                sb.Append(a.GetAt(i));
+            }
+                return new JSString( sb.ToString() );
         }
 
         [Prototype("endsWith")]
