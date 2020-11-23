@@ -121,11 +121,23 @@ namespace YantraJS.Core
             return new JSNumber(text[(int)(uint)at]);
         }
 
-        /*[Prototype("codePointAt")]
+        [Prototype("codePointAt", Length =1)]
         internal static JSValue CodePointAt(in Arguments a)
         {
-            return null;
-        }*/
+            var text = AsString(a.This);
+            var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
+            if (at < 0 || at >= text.Length)
+                return JSNumber.NaN;
+            int firstCodePoint = text[(int)(uint)at];
+            if (firstCodePoint < 0xD800 || firstCodePoint > 0xDBFF || at + 1 == text.Length)
+                return new JSNumber(firstCodePoint);
+            int secondCodePoint = text[(int)(uint)(at + 1)];
+            if (secondCodePoint < 0xDC00 || secondCodePoint > 0xDFFF)
+                return new JSNumber(firstCodePoint);
+            var output = (double)((firstCodePoint - 0xD800) * 1024 + (secondCodePoint - 0xDC00) + 0x10000);
+            return new JSNumber(output);
+
+        }
 
         [Prototype("concat")]
         internal static JSValue Concat(in Arguments a)
