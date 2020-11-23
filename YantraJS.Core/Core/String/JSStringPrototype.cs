@@ -110,12 +110,15 @@ namespace YantraJS.Core
             return a.Get1();
         }
 
-        [Prototype("charCodeAt")]
+        [Prototype("charCodeAt", Length =1)]
         internal static JSValue CharCodeAt(in Arguments a)
         {
             var text = AsString(a.This);
-            var at = a.TryGetAt(0, out var n) ? n.IntValue : 0;
-            return new JSNumber(text[at]);
+            var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
+            if (at < 0 || at >= text.Length)
+                return JSNumber.NaN;
+
+            return new JSNumber(text[(int)(uint)at]);
         }
 
         /*[Prototype("codePointAt")]
