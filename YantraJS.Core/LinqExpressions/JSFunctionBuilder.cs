@@ -16,6 +16,32 @@ using YantraJS.Extensions;
 
 namespace YantraJS.ExpHelper
 {
+    public class JSClosureFunctionBuilder
+    {
+        private static readonly Type type = typeof(JSClosureFunction);
+
+        private static readonly ConstructorInfo _New =
+            type.Constructor(typeof(JSVariable[]),
+                typeof(JSClosureFunctionDelegate),
+                StringSpanBuilder.RefType,
+                StringSpanBuilder.RefType,
+                typeof(int));
+
+        internal static Expression New(
+            Expression closureArray, 
+            LambdaExpression lambda, 
+            Expression fxName, 
+            Expression code, 
+            int count)
+        {
+            return Expression.New(_New, closureArray,
+                lambda,
+                fxName,
+                code,
+                Expression.Constant(count));
+        }
+    }
+
     public class JSFunctionBuilder
     {
         static Type type = typeof(JSFunction);

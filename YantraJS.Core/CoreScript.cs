@@ -332,7 +332,7 @@ namespace YantraJS
                 }
             }
 
-            retValue = retValue ?? JSClassBuilder.New(constructor, superVar, id?.Name ?? "Unnamed");
+            retValue = retValue ?? JSClassBuilder.New( null, constructor, superVar, id?.Name ?? "Unnamed");
             foreach(var exp in members)
             {
                 if(exp.Value != null)
@@ -516,25 +516,31 @@ namespace YantraJS
                          ,JSContextStackBuilder.Pop(stackItem, lexicalScopeVar))
                     );
 
+                Exp closureArray = Exp.Constant(null, typeof(JSVariable[]));
+                if (cs.ClosureList != null)
+                {
+                    closureArray = Exp.NewArrayInit(typeof(JSVariable), cs.ClosureList.Select(x => x.Variable));
+                }
+
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
                 if (functionDeclaration.Generator)
                 {
-                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.Generator, cs.Arguments);
-                    jsf = JSGeneratorFunctionBuilder.New(lambda, fxName, code);
+                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope,cs.Closures,  cs.Generator, cs.Arguments);
+                    jsf = JSGeneratorFunctionBuilder.New(closureArray, lambda, fxName, code);
                 } else if (functionDeclaration.Async)
                 {
-                    lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, cs.Awaiter, cs.Arguments);
-                    jsf = JSAsyncFunctionBuilder.New(lambda, fxName, code);
+                    lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, cs.Closures, cs.Awaiter, cs.Arguments);
+                    jsf = JSAsyncFunctionBuilder.New(closureArray, lambda, fxName, code);
                 } else
                 {
-                    lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
+                    lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, cs.Closures, cs.Arguments);
                     if (createClass)
                     {
-                        jsf = JSClassBuilder.New(lambda, super, className ?? "Unnamed");
+                        jsf = JSClassBuilder.New(closureArray, lambda, super, className ?? "Unnamed");
                     } else
                     {
-                        jsf = JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count);
+                        jsf = JSClosureFunctionBuilder.New(closureArray, lambda, fxName, code, functionDeclaration.Params.Count);
                     }
                 }
 
@@ -549,14 +555,14 @@ namespace YantraJS
                 {
                     if (jsFVarScope != null)
                     {
-                        jsFVarScope.SetInit(jsf);
+                        jsFVarScope.SetPostInit(jsf);
                         return jsFVarScope.Expression;
                     }
                     return jsf;
                 }
                 if (jsFVarScope != null)
                 {
-                    jsFVarScope.SetInit(jsf);
+                    jsFVarScope.SetPostInit(jsf);
                     return jsFVarScope.Expression;
                 }
                 return jsf;
@@ -1749,9 +1755,10 @@ namespace YantraJS
                 return JSUndefinedBuilder.Value;
             }
 
-            var local = this.scope.Top[identifier.Name];
-            if (local != null)
-                return local;
+            var var = this.scope.Top.GetVariable(identifier.Name, true);
+            if (var != null)
+                return var.Expression;
+
             return ExpHelper.JSContextBuilder.Index(KeyOfName(identifier.Name));
         }
 

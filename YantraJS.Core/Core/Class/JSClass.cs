@@ -5,20 +5,37 @@ using System.Text;
 
 namespace YantraJS.Core
 {
-    public class JSClass: JSFunction
+    public class JSClass: JSClosureFunction
     {
 
         internal readonly JSFunction super;
         public JSClass(
-            JSFunctionDelegate fx, 
+            JSVariable[] closures,
+            JSClosureFunctionDelegate fx, 
             JSFunction super ,
             string name = null,
             string code = null)
-            : base(fx ?? super?.f ?? JSFunction.empty, name, code)
+            : base(closures, GetFactory(fx,super), name, code)
         {
             this.super = super;
             this.prototypeChain = super;
             this.prototype.prototypeChain = super.prototype;
+        }
+
+        private static JSClosureFunctionDelegate GetFactory(JSClosureFunctionDelegate fx, JSFunction super)
+        {
+            if (fx != null)
+                return fx;
+            if (super != null)
+            {
+                var f = super.f;
+                JSValue CallSuper(JSVariable[] vars, in Arguments a)
+                {
+                    return f(in a);
+                }
+                return CallSuper;
+            }
+            return JSFunction.emptyCF;
         }
 
         public override JSValue InvokeFunction(in Arguments a)

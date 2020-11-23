@@ -24,7 +24,7 @@ namespace YantraJS.Tests.Generator
 
             // pending new object initialization
 
-            // RunTest("es5\\Array\\Typed\\slice.js");
+            RunTest("es5\\Array\\Typed\\reduceRight.js");
             // RunTest("Objects\\Object\\entries.js");
 
             // RunTest("es6/Syntax/for-of/array.js");
@@ -34,6 +34,8 @@ namespace YantraJS.Tests.Generator
 
             // RunTest("es5/Syntax/for.js");
 
+            // RunTest("es5/Syntax/TryCatch/try.js");
+
             // RunTest("es5/Syntax/Variables/let.js");
             // RunTest("es5/Function/inheritance.js");
 
@@ -41,7 +43,11 @@ namespace YantraJS.Tests.Generator
 
             // RunTest("es5/Function/parameters.js");
 
-            RunTest("es5/Array/from.js");
+            // RunTest("es5/Array/from.js");
+
+            // RunTest("es5/Array/slice.js");
+
+            // RunTest("es6/Syntax/class/properties.js");
 
 
         }

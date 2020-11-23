@@ -2,15 +2,17 @@
 
 namespace YantraJS.Core.Generator
 {
-    public delegate JSValue JSAsyncDelegate(in JSWeakAwaiter generator, in Arguments a);
+    public delegate JSValue JSAsyncDelegate(JSVariable[] closures, in JSWeakAwaiter generator, in Arguments a);
 
     public class JSAsyncFunction : JSFunction
     {
+        private readonly JSVariable[] closures;
         readonly JSAsyncDelegate @delegate;
 
-        public JSAsyncFunction(JSAsyncDelegate @delegate, in StringSpan name, in StringSpan code) :
+        public JSAsyncFunction(JSVariable[] closures, JSAsyncDelegate @delegate, in StringSpan name, in StringSpan code) :
             base(null, name, code)
         {
+            this.closures = closures;
             this.@delegate = @delegate;
             this.f = InvokeFunction;
         }
@@ -18,7 +20,7 @@ namespace YantraJS.Core.Generator
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            return new JSAwaiter(@delegate, a);
+            return new JSAwaiter(closures, @delegate, a);
         }
 
     }

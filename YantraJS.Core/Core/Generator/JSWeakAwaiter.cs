@@ -13,15 +13,18 @@ namespace YantraJS.Core.Generator
         internal Arguments a;
         internal SynchronizationContext context;
         internal AutoResetEvent main;
+        internal JSVariable[] closures;
 
         public JSWeakAwaiter(
             JSAwaiter awaiter, 
             JSAsyncDelegate @delegate, 
             in Arguments a,
-            AutoResetEvent main)
+            AutoResetEvent main,
+            JSVariable[] closures)
         {
             this.awaiter = new WeakReference<JSAwaiter>(awaiter);
             this.main = main;
+            this.closures = closures;
             this.@delegate = @delegate;
             this.a = a;
             this.context = SynchronizationContext.Current;

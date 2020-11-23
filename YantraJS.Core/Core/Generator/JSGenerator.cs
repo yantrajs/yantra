@@ -22,7 +22,7 @@ namespace YantraJS.Core.Generator
 
         // wait by generator thread...
         private AutoResetEvent wait;
-
+        private readonly JSVariable[] closures;
         readonly JSGeneratorDelegate @delegate;
         readonly Arguments a;
         internal JSValue value;
@@ -35,10 +35,11 @@ namespace YantraJS.Core.Generator
 
         private JSContext context;
 
-        public JSGenerator(JSGeneratorDelegate @delegate, Arguments a)
+        public JSGenerator(JSVariable[] closures, JSGeneratorDelegate @delegate, Arguments a)
         {
             context = JSContext.Current;
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
+            this.closures = closures;
             this.@delegate = @delegate;
             this.a = a;
             done = false;
@@ -246,9 +247,11 @@ namespace YantraJS.Core.Generator
                 {
                     JSGeneratorDelegate @delegate;
                     Arguments a;
+                    JSVariable[] closures;
                     if (weakGenerator.generator.TryGetTarget(out var generator))
                     {
                         @delegate = generator.@delegate;
+                        closures = generator.closures;
                         a = generator.a;
                     }
                     else
@@ -256,7 +259,7 @@ namespace YantraJS.Core.Generator
                         return;
                     }
                     generator = null;
-                    @delegate.Invoke(weakGenerator, a);
+                    @delegate(closures, in weakGenerator, in a);
                     if (weakGenerator.generator.TryGetTarget(out generator))
                     {
                         generator.done = true;

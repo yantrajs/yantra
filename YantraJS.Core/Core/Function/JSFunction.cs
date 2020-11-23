@@ -32,10 +32,55 @@ namespace YantraJS.Core
         }
     }
 
+    public class JSClosureFunction: JSFunction
+    {
+        private readonly JSVariable[] closures;
+        internal readonly JSClosureFunctionDelegate cf;
+
+        public JSClosureFunction(
+            JSVariable[] closures,
+            JSClosureFunctionDelegate cf,
+            in StringSpan name,
+            in StringSpan source,
+            int length = 0): base(Closure(closures,cf), name, source, length)
+        {
+            this.closures = closures;
+            this.cf = cf;
+        }
+
+        private static JSFunctionDelegate Closure(JSVariable[] closures, JSClosureFunctionDelegate cf)
+        {
+            return (in Arguments a) => {
+                return cf(closures, in a);
+            };
+        }
+
+        public override JSValue CreateInstance(in Arguments a)
+        {
+            JSValue obj = new JSObject
+            {
+                prototypeChain = prototype
+            };
+            var a1 = a.OverrideThis(obj);
+            var r = cf(closures, in a1);
+            if (!r.IsUndefined)
+                return r;
+            return obj;
+        }
+
+        public override JSValue InvokeFunction(in Arguments a)
+        {
+            return cf(closures, in a);
+        }
+    }
+
+
     public partial class JSFunction : JSObject
     {
 
         internal static JSFunctionDelegate empty = (in Arguments a) => a.This;
+
+        internal static JSClosureFunctionDelegate emptyCF = (JSVariable[] closures, in Arguments a) => a.This;
 
         internal JSObject prototype;
 
@@ -44,13 +89,14 @@ namespace YantraJS.Core
         public readonly StringSpan name;
 
         internal JSFunctionDelegate f;
-
+        
         public override bool IsFunction => true;
 
         public override JSValue TypeOf()
         {
             return JSConstants.Function;
         }
+
 
         /// <summary>
         /// Used as specific type constructor
@@ -107,7 +153,6 @@ namespace YantraJS.Core
         {
 
         }
-
 
         public JSFunction(
             JSFunctionDelegate f,
@@ -199,7 +244,7 @@ namespace YantraJS.Core
 
         [Prototype("bind", Length = 1)]
         public static JSValue Bind(in Arguments a) {
-            var fOriginal = a.This as JSFunction;
+            var fOriginal = a.This;
             var original = a;
             var copy = a.CopyForCall();
             var first = a.Get1();
@@ -208,13 +253,13 @@ namespace YantraJS.Core
                 if (a2.Length == 0)
                 {
                     // for constructor...
-                    return fOriginal.f(copy);
+                    return fOriginal.InvokeFunction(copy);
                 }
-                return fOriginal.f(a2.OverrideThis(first));
+                return fOriginal.InvokeFunction(a2.OverrideThis(first));
             })
             {
                 // need to set prototypeChain...
-                prototypeChain = fOriginal
+                prototypeChain = fOriginal as JSFunction
             };
             return fx;
         }
@@ -222,7 +267,7 @@ namespace YantraJS.Core
         internal static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
         {
             var @this = a.This;
-            var r = (super as JSFunction).f(a);
+            var r = super.InvokeFunction(a);
             return r.IsUndefined ? @this : r;
         }
 
