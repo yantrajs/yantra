@@ -63,6 +63,7 @@ namespace YantraJS.Core
         }
     }
 
+    public delegate JSValue ClosureFunctionDelegate(in Arguments a, in JSClosures c);
 
     public delegate JSValue JSFunctionDelegate(in Arguments a);
 
