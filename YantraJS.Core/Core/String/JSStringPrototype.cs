@@ -154,6 +154,18 @@ namespace YantraJS.Core
                 return new JSString( sb.ToString() );
         }
 
+        [Prototype("contains", Length = 1)]
+        internal static JSValue Contains(in Arguments a) {
+            var @this = a.This.AsString();
+            var arg = a.Get1().ToString();
+            int position = a.GetIntAt(1,0);
+            position = Math.Min(Math.Max(0, position), @this.Length);
+            if(@this.IndexOf(arg, position) >= 0)
+                return JSBoolean.True;
+            return JSBoolean.False;
+
+        }
+
         [Prototype("endsWith")]
         internal static JSValue EndsWith(in Arguments a)
         {
