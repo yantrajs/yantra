@@ -11,19 +11,44 @@ namespace YantraJS.Core
     public class JSStringStatic
     {
 
-        [Static("fromCharCode")]
+        [Static("fromCharCode", Length = 1)]
         internal static JSValue FromCharCode(in Arguments a)
         {
-            StringBuilder sb = new StringBuilder();
             if (a.Length == 0)
                 return new JSString(string.Empty);
             var al = a.Length;
+            StringBuilder sb = new StringBuilder(al);
             for(var ai = 0; ai < al; ai++)
             {
                 var ch = a.GetAt(ai);
-                sb.Append((char)ch.IntValue);
+                sb.Append((char)(ushort)(uint)ch.DoubleValue);
             }
             return new JSString(sb.ToString());
+        }
+
+        [Static("fromCodePoint", Length = 1)]
+        internal static JSValue FromCodePoint(in Arguments a) {
+            if (a.Length == 0)
+                return new JSString(string.Empty);
+            var len = a.Length;
+            var result = new StringBuilder(len);
+
+            for (var i = 0; i < len; i++) {
+                var item = a.GetAt(i);
+                var codePointDouble = item.DoubleValue;
+                int codePoint = (int)codePointDouble;
+                if (codePoint < 0 || codePoint > 0x10FFFF || (double)codePoint != codePointDouble)
+                    throw JSContext.Current.NewRangeError($"Invalid code point {codePointDouble}");
+                if (codePoint <= 65535)
+                    result.Append((char)codePoint);
+                else
+                {
+                    result.Append((char)((codePoint - 65536) / 1024 + 0xD800));
+                    result.Append((char)((codePoint - 65536) % 1024 + 0xDC00));
+                }
+
+            }
+            return new JSString(result.ToString());
         }
 
     }

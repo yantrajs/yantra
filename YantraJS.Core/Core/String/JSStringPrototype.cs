@@ -198,12 +198,16 @@ namespace YantraJS.Core
             return @this.StartsWith(text.ToString()) ? JSBoolean.True : JSBoolean.False;
         }
 
-        [Prototype("includes")]
+        [Prototype("includes", Length = 1)]
         internal static JSValue Includes(in Arguments a)
         {
             var @this = a.This.AsString();
-            var (text, param) = a.Get2();
-            return @this.IndexOf(text.ToString(), param.IntValue) >= 0 ? JSBoolean.True : JSBoolean.False;
+            var (text, start) = a.Get2();
+            if (text is JSRegExp)
+                throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
+            var startIndex = start.IsUndefined ? 0 : start.IntValue;
+            startIndex = Math.Min(Math.Max(startIndex, 0), @this.Length);
+            return @this.IndexOf(text.ToString(), startIndex) >= 0 ? JSBoolean.True : JSBoolean.False;
         }
 
         [Prototype("indexOf")]
