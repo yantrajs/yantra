@@ -210,12 +210,13 @@ namespace YantraJS.Core
             return @this.IndexOf(text.ToString(), startIndex) >= 0 ? JSBoolean.True : JSBoolean.False;
         }
 
-        [Prototype("indexOf")]
+        [Prototype("indexOf", Length = 1)]
         internal static JSValue IndexOf(in Arguments a)
         {
             var @this = a.This.AsString();
             var (text, start) = a.Get2();
             var startIndex = start.IsUndefined ? 0 : start.IntValue;
+            startIndex = Math.Min(Math.Max(startIndex, 0), @this.Length);
             var index = @this.IndexOf(text.ToString(), startIndex);
             return new JSNumber(index);
         }
