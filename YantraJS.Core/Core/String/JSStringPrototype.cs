@@ -166,12 +166,28 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("endsWith")]
+        [Prototype("endsWith", Length = 1)]
         internal static JSValue EndsWith(in Arguments a)
         {
             var @this = a.This.AsString();
             var f = a.Get1();
-            return @this.EndsWith(f.ToString()) ? JSBoolean.True : JSBoolean.False;
+            if (f is JSRegExp)
+                throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
+            int length = a.GetIntAt(1, int.MaxValue);
+            var fs = f.ToString();
+            if (length == int.MaxValue)
+                return @this.EndsWith(fs) ? JSBoolean.True : JSBoolean.False;
+            length = Math.Min(Math.Max(0, length), @this.Length);
+
+            if (fs.Length > length)
+                return JSBoolean.False;
+            //if (@this.Substring(length - f.Length, f.Length) == f.ToString())
+            //    return JSBoolean.True;
+            if (string.Compare(@this, length - fs.Length, fs, 0, fs.Length) == 0)
+                return JSBoolean.True;
+            return JSBoolean.False;
+
+            
         }
 
         [Prototype("startsWith")]
