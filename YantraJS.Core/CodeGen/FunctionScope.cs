@@ -152,6 +152,10 @@ namespace YantraJS
                     {
                         yield return s.Value.Init;
                     }
+                }
+                en = variableScopeList.AllValues;
+                while (en.MoveNext(out var s))
+                {
                     if (s.Value.PostInit != null)
                     {
                         yield return s.Value.PostInit;
