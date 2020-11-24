@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using YantraJS.Core;
 using YantraJS.Core.CodeGen;
-using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Generator;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.Core.LinqExpressions.Logical;
@@ -28,23 +27,6 @@ using ParameterExpression = System.Linq.Expressions.ParameterExpression;
 
 namespace YantraJS
 {
-
-    public class StringArray
-    {
-        private StringMap<uint> map;
-        
-        public List<StringSpan> List { get; } = new List<StringSpan>();
-        
-        public uint GetOrAdd(in StringSpan code)
-        {
-            if (map.TryGetValue(code, out var i))
-                return i;
-            i = (uint)List.Count;
-            map[code] = i;
-            List.Add(code);
-            return i;
-        }
-    }
 
     public class CoreScript: JSAstVisitor<Exp>
     {

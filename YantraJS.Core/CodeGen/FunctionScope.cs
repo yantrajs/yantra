@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using YantraJS.Core;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Core.Storage;
@@ -211,8 +212,11 @@ namespace YantraJS
 
         public Expression Super { get; private set; }
 
+        private static int scopeID = 0;
+
         public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null, Expression super = null)
         {
+            var sID = Interlocked.Increment(ref scopeID);
             this.Function = fx;
             if (fx?.Generator ?? false)
             {
@@ -228,7 +232,7 @@ namespace YantraJS
             this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
-            this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType(), $"a-{sID}");
             this.ArgumentsExpression = Arguments;
             if (previousThis != null)
             {
@@ -241,10 +245,10 @@ namespace YantraJS
                 this.ThisExpression = _this.Expression;
             }
 
-            this.Context = Expression.Parameter(typeof(JSContext), "Context");
-            this.StackItem = Expression.Parameter(typeof(CallStackItem), "CallStackItem");
-            this.Closures = Expression.Parameter(typeof(JSVariable[]), "closures");
-            this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), nameof(ScriptInfo));
+            this.Context = Expression.Parameter(typeof(JSContext), $"{nameof(Context)}{sID}");
+            this.StackItem = Expression.Parameter(typeof(CallStackItem), $"{nameof(StackItem)}{sID}");
+            this.Closures = Expression.Parameter(typeof(JSVariable[]), $"{nameof(Closures)}{sID}");
+            this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), $"{nameof(ScriptInfo)}{sID}");
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new List<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
