@@ -221,15 +221,29 @@ namespace YantraJS.Core
             return new JSNumber(index);
         }
 
-        [Prototype("lastIndexOf")]
+        [Prototype("lastIndexOf", Length = 1)]
         internal static JSValue LastIndexOF(in Arguments a)
         {
             var @this = a.This.AsString();
-            var (text, param) = a.Get2();
-            if (param.IsUndefined)
+            var (text, fromIndex) = a.Get2();
+            if (fromIndex.IsUndefined)
                 return new JSNumber(@this.LastIndexOf(text.ToString()));
-            else
-                return new JSNumber(@this.LastIndexOf(text.ToString(),param.IntValue));
+            var startIndex = a.TryGetAt(1, out var n) ? (double.IsNaN(n.DoubleValue) ? int.MaxValue : n.IntValue ): n.IntValue;
+            //var startIndex = double.IsNaN(fromIndex) ? int.MaxValue : fromIndex.IntValue
+            startIndex = Math.Min(startIndex, @this.Length - 1);
+            startIndex = Math.Min(startIndex + text.Length - 1, @this.Length - 1);
+            if (startIndex < 0)
+            {
+                if (@this == string.Empty && text == JSString.Empty)
+                    return JSNumber.Zero;
+                return JSNumber.MinusOne;
+            }
+            return new JSNumber(@this.LastIndexOf(text.ToString(), startIndex, StringComparison.Ordinal));
+
+            //if (fromIndex.IsUndefined)
+            //    return new JSNumber(@this.LastIndexOf(text.ToString()));
+            //else
+            //    return new JSNumber(@this.LastIndexOf(text.ToString(),fromIndex.IntValue));
         }
 
         [Prototype("match")]
