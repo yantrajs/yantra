@@ -238,9 +238,9 @@ namespace YantraJS
                     var g = JSValueBuilder.Index(top.Context, KeyOfName(v));
 
                     // these are global variables...
-                    var vs = this.scope.Top.CreateVariable(v, JSVariableBuilder.New(g,  v));
+                    var vs = this.scope.Top.CreateVariable(v);
                     vs.Expression = JSVariableBuilder.Property(vs.Variable);
-                    
+                    vs.SetInit(JSVariableBuilder.New(g, v));
                 }
             }
             return CreateBlock(in program.Body);

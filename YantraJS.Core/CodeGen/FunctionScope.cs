@@ -45,7 +45,6 @@ namespace YantraJS
 
             public void SetPostInit(Expression exp)
             {
-                SetInit(null);
                 if (exp == null)
                 {
                     PostInit = null;
