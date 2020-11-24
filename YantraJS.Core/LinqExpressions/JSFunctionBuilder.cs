@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using YantraJS.Core;
+using YantraJS.Core.CodeGen;
 using YantraJS.Core.Generator;
 using YantraJS.Core.String;
 using YantraJS.Extensions;
@@ -21,20 +22,23 @@ namespace YantraJS.ExpHelper
         private static readonly Type type = typeof(JSClosureFunction);
 
         private static readonly ConstructorInfo _New =
-            type.Constructor(typeof(JSVariable[]),
+            type.Constructor(
+                typeof(ScriptInfo),
+                typeof(JSVariable[]),
                 typeof(JSClosureFunctionDelegate),
                 StringSpanBuilder.RefType,
                 StringSpanBuilder.RefType,
                 typeof(int));
 
         internal static Expression New(
+            Expression scriptInfo,
             Expression closureArray, 
             LambdaExpression lambda, 
             Expression fxName, 
             Expression code, 
             int count)
         {
-            return Expression.New(_New, closureArray,
+            return Expression.New(_New, scriptInfo, closureArray,
                 lambda,
                 fxName,
                 code,

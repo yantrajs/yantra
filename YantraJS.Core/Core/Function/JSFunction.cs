@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using YantraJS.Core.Clr;
+using YantraJS.Core.CodeGen;
 using YantraJS.ExpHelper;
 using YantraJS.Extensions;
 using YantraJS.LinqExpressions;
@@ -34,24 +35,27 @@ namespace YantraJS.Core
 
     public class JSClosureFunction: JSFunction
     {
+        private readonly ScriptInfo script;
         private readonly JSVariable[] closures;
         internal readonly JSClosureFunctionDelegate cf;
 
         public JSClosureFunction(
+            ScriptInfo script,
             JSVariable[] closures,
             JSClosureFunctionDelegate cf,
             in StringSpan name,
             in StringSpan source,
-            int length = 0): base(Closure(closures,cf), name, source, length)
+            int length = 0): base(Closure(script, closures,cf), name, source, length)
         {
+            this.script = script;
             this.closures = closures;
             this.cf = cf;
         }
 
-        private static JSFunctionDelegate Closure(JSVariable[] closures, JSClosureFunctionDelegate cf)
+        private static JSFunctionDelegate Closure(ScriptInfo script, JSVariable[] closures, JSClosureFunctionDelegate cf)
         {
             return (in Arguments a) => {
-                return cf(closures, in a);
+                return cf(script, closures, in a);
             };
         }
 
@@ -62,7 +66,7 @@ namespace YantraJS.Core
                 prototypeChain = prototype
             };
             var a1 = a.OverrideThis(obj);
-            var r = cf(closures, in a1);
+            var r = cf(script, closures, in a1);
             if (!r.IsUndefined)
                 return r;
             return obj;
@@ -70,7 +74,7 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            return cf(closures, in a);
+            return cf(script, closures, in a);
         }
     }
 
@@ -80,7 +84,7 @@ namespace YantraJS.Core
 
         internal static JSFunctionDelegate empty = (in Arguments a) => a.This;
 
-        internal static JSClosureFunctionDelegate emptyCF = (JSVariable[] closures, in Arguments a) => a.This;
+        internal static JSClosureFunctionDelegate emptyCF = (ScriptInfo s, JSVariable[] closures, in Arguments a) => a.This;
 
         internal JSObject prototype;
 

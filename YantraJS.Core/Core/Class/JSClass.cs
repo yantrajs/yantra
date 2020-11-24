@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.CodeGen;
 
 namespace YantraJS.Core
 {
@@ -10,12 +11,13 @@ namespace YantraJS.Core
 
         internal readonly JSFunction super;
         public JSClass(
+            ScriptInfo script,
             JSVariable[] closures,
             JSClosureFunctionDelegate fx, 
             JSFunction super ,
             string name = null,
             string code = null)
-            : base(closures, GetFactory(fx,super), name, code)
+            : base(script, closures, GetFactory(fx,super), name, code)
         {
             this.super = super;
             this.prototypeChain = super;
@@ -29,7 +31,7 @@ namespace YantraJS.Core
             if (super != null)
             {
                 var f = super.f;
-                JSValue CallSuper(JSVariable[] vars, in Arguments a)
+                JSValue CallSuper(ScriptInfo script, JSVariable[] vars, in Arguments a)
                 {
                     return f(in a);
                 }

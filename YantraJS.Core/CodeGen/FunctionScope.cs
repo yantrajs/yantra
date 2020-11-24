@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using YantraJS.Core;
+using YantraJS.Core.CodeGen;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Generator;
 using YantraJS.ExpHelper;
@@ -106,6 +107,8 @@ namespace YantraJS
         public ParameterExpression StackItem { get; }
 
         public ParameterExpression Closures { get; }
+
+        public ParameterExpression ScriptInfo { get; }
 
         public bool IsRoot => Function == null;
 
@@ -241,6 +244,7 @@ namespace YantraJS
             this.Context = Expression.Parameter(typeof(JSContext), "Context");
             this.StackItem = Expression.Parameter(typeof(CallStackItem), "CallStackItem");
             this.Closures = Expression.Parameter(typeof(JSVariable[]), "closures");
+            this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), nameof(ScriptInfo));
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new List<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
@@ -261,6 +265,7 @@ namespace YantraJS
             this.Context = p.Context;
             this.StackItem = p.StackItem;
             this.Closures = p.Closures;
+            this.ScriptInfo = p.ScriptInfo;
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
         }

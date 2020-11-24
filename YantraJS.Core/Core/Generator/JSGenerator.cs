@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using YantraJS.Core.CodeGen;
 using YantraJS.Core.LightWeight;
 
 namespace YantraJS.Core.Generator
@@ -22,6 +23,7 @@ namespace YantraJS.Core.Generator
 
         // wait by generator thread...
         private AutoResetEvent wait;
+        private readonly ScriptInfo script;
         private readonly JSVariable[] closures;
         readonly JSGeneratorDelegate @delegate;
         readonly Arguments a;
@@ -35,10 +37,11 @@ namespace YantraJS.Core.Generator
 
         private JSContext context;
 
-        public JSGenerator(JSVariable[] closures, JSGeneratorDelegate @delegate, Arguments a)
+        public JSGenerator(ScriptInfo script, JSVariable[] closures, JSGeneratorDelegate @delegate, Arguments a)
         {
             context = JSContext.Current;
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
+            this.script = script;
             this.closures = closures;
             this.@delegate = @delegate;
             this.a = a;
@@ -248,10 +251,12 @@ namespace YantraJS.Core.Generator
                     JSGeneratorDelegate @delegate;
                     Arguments a;
                     JSVariable[] closures;
+                    ScriptInfo script;
                     if (weakGenerator.generator.TryGetTarget(out var generator))
                     {
                         @delegate = generator.@delegate;
                         closures = generator.closures;
+                        script = generator.script;
                         a = generator.a;
                     }
                     else
@@ -259,7 +264,7 @@ namespace YantraJS.Core.Generator
                         return;
                     }
                     generator = null;
-                    @delegate(closures, in weakGenerator, in a);
+                    @delegate(script, closures, in weakGenerator, in a);
                     if (weakGenerator.generator.TryGetTarget(out generator))
                     {
                         generator.done = true;

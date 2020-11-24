@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Core.BigInt;
+using YantraJS.Core.CodeGen;
 using YantraJS.Core.LightWeight;
 
 namespace YantraJS.Core.Generator
@@ -22,13 +23,13 @@ namespace YantraJS.Core.Generator
         private CallStackItem current;
         private JSContext context;
 
-        public JSAwaiter(JSVariable[] closures, JSAsyncDelegate @delegate, in Arguments a)
+        public JSAwaiter( ScriptInfo scriptInfo, JSVariable[] closures, JSAsyncDelegate @delegate, in Arguments a)
             : base(JSUndefined.Value, PromiseState.Pending)
         {
             context = JSContext.Current;
             main = new AutoResetEvent(false);
             originatorThread = new AutoResetEvent(false);
-            JSThreadPool.Queue(RunAwaiter, new JSWeakAwaiter(this, @delegate, a, main, closures));
+            JSThreadPool.Queue(RunAwaiter, new JSWeakAwaiter(this, @delegate, a, main, scriptInfo, closures));
             originalStack = context.Top;
             // current = new LightWeightStack<CallStackItem>(originalStack);
             // context.Switch(current);
@@ -124,13 +125,14 @@ namespace YantraJS.Core.Generator
             JSWeakAwaiter awaiter = p as JSWeakAwaiter;
             JSAsyncDelegate @delegate = awaiter.@delegate;
             JSVariable[] closures = awaiter.closures;
+            ScriptInfo script = awaiter.scriptInfo;
             awaiter.@delegate = null;
             awaiter.closures = null;
             try
             {
                 SynchronizationContext.SetSynchronizationContext(awaiter.context);
                 awaiter.main.WaitOne();
-                var r = @delegate(closures, awaiter, awaiter.a);
+                var r = @delegate(script, closures, awaiter, awaiter.a);
                 awaiter.Finish(r);
             }
             catch (SafeExitException) { 
