@@ -356,7 +356,9 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.indexOf.call(null)"));
         }
 
-        [TestMethod]
+        //[TestMethod]
+        // Deprecated Method - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/italics
+        //Hence no test performed. Comment as on 11/24/2020
         public void italics()
         {
             Assert.AreEqual("<i>haha</i>", (string)Evaluate("'haha'.italics()"), true);
@@ -396,7 +398,9 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.lastIndexOf.call(null)"));
         }
 
-        [TestMethod]
+        //[TestMethod]
+        // Deprecated Method - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/link
+        //Hence no test performed. Comment as on 11/24/2020
         public void link()
         {
             Assert.AreEqual(@"<a href=""undefined"">haha</a>", (string)Evaluate("'haha'.link()"));
