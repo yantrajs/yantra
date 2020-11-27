@@ -1,5 +1,4 @@
-﻿using Microsoft.Build.Tasks.Deployment.Bootstrapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -72,7 +71,7 @@ namespace YantraJS.Core
 
     public delegate void ErrorEventHandler(JSContext context, Exception error);
 
-    public class JSContext: JSObject, IDisposable
+    public partial class JSContext: JSObject, IDisposable
     {
 
         [ThreadStatic]
