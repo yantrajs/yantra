@@ -14,7 +14,7 @@ using YantraJS.Utils;
 
 namespace YantraJS.Core {
 
-    public abstract class JSValue : IDynamicMetaObjectProvider {
+    public abstract partial class JSValue : IDynamicMetaObjectProvider {
 
         public virtual bool IsUndefined => false;
 

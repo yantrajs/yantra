@@ -1,5 +1,4 @@
-﻿using Microsoft.Build.Tasks.Deployment.Bootstrapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -20,6 +19,7 @@ using System.Collections.Concurrent;
 using Microsoft.Threading;
 using YantraJS.Core.LightWeight;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Core.CodeGen;
 
 namespace YantraJS.Core
 {
@@ -63,7 +63,7 @@ namespace YantraJS.Core
         }
     }
 
-    public delegate JSValue ClosureFunctionDelegate(in Arguments a, in JSClosures c);
+    public delegate JSValue JSClosureFunctionDelegate(ScriptInfo script, JSVariable[] closures, in Arguments a);
 
     public delegate JSValue JSFunctionDelegate(in Arguments a);
 
@@ -71,7 +71,7 @@ namespace YantraJS.Core
 
     public delegate void ErrorEventHandler(JSContext context, Exception error);
 
-    public class JSContext: JSObject, IDisposable
+    public partial class JSContext: JSObject, IDisposable
     {
 
         [ThreadStatic]
@@ -433,8 +433,11 @@ namespace YantraJS.Core
             return new JSException(message, ErrorPrototype, function, filePath, line);
         }
 
+        partial void OnError(Exception ex);
+
         internal void ReportError(Exception ex)
         {
+            OnError(ex);
             Error?.Invoke(this, ex);
             //var cx = this[KeyStrings.console];
             //if (cx.IsUndefined)

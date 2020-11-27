@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
+using YantraJS.Core.CodeGen;
 
 namespace YantraJS.ExpHelper
 {
@@ -12,7 +13,9 @@ namespace YantraJS.ExpHelper
 
         private static ConstructorInfo _New =
             type.Constructor(new Type[] {
-                typeof(JSFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
+                typeof(ScriptInfo),
+                typeof(JSVariable[]),
+                typeof(JSClosureFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
 
         private static MethodInfo _AddPrototypeProperty =
             type.InternalMethod(nameof(JSClass.AddPrototypeProperty), typeof(KeyString), typeof(JSFunction), typeof(JSFunction));
@@ -82,13 +85,17 @@ namespace YantraJS.ExpHelper
 
 
         public static Expression New(
+            Expression scriptInfo,
+            Expression closures,
             Expression constructor,
             Expression super,
             string name,
             string code = "")
         {
             return Expression.New(_New,
-                constructor ?? Expression.Constant(null, typeof(JSFunctionDelegate)),
+                scriptInfo,
+                closures ?? Expression.Constant(null,typeof(JSVariable[])),
+                constructor ?? Expression.Constant(null, typeof(JSClosureFunctionDelegate)),
                 super ?? Expression.Constant(null, typeof(JSFunction)),
                 Expression.Constant(name),
                 Expression.Constant(code));

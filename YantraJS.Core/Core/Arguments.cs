@@ -8,7 +8,7 @@ namespace YantraJS.Core
 {
 
     [StructLayout(LayoutKind.Sequential)]
-    public readonly struct Arguments
+    public readonly partial struct Arguments
     {
 
         public static Arguments Empty = new Arguments { };

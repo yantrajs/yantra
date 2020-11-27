@@ -1,5 +1,4 @@
 ﻿using Esprima.Ast;
-using Microsoft.Build.Tasks.Deployment.Bootstrapper;
 using System;
 using System.Collections;
 using System.Collections.Generic;
