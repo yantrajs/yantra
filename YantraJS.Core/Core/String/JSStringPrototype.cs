@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -244,6 +245,21 @@ namespace YantraJS.Core
             //    return new JSNumber(@this.LastIndexOf(text.ToString()));
             //else
             //    return new JSNumber(@this.LastIndexOf(text.ToString(),fromIndex.IntValue));
+        }
+
+        [Prototype("localeCompare", Length = 1)]
+        internal static JSValue LocaleCompare(in Arguments a) {
+
+            var @this = a.This;
+            if (@this.IsNullOrUndefined) {
+                throw JSContext.Current.NewTypeError("String.prototype.localeCompare called on null or undefined");
+            }
+            var (compareString,locale, options) = a.Get3();
+            var str = compareString.ToString();
+
+            CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
+
+            return new JSNumber(string.Compare(@this.ToString(), str,culture, 0));
         }
 
         [Prototype("match", Length = 1)]
