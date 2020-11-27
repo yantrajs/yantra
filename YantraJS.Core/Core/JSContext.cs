@@ -433,8 +433,11 @@ namespace YantraJS.Core
             return new JSException(message, ErrorPrototype, function, filePath, line);
         }
 
+        partial void OnError(Exception ex);
+
         internal void ReportError(Exception ex)
         {
+            OnError(ex);
             Error?.Invoke(this, ex);
             //var cx = this[KeyStrings.console];
             //if (cx.IsUndefined)
