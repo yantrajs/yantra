@@ -16,8 +16,8 @@ namespace YantraJS.ExpHelper
 
         public readonly static Type itemTypeRef = typeof(CallStackItem).MakeByRefType();
 
-        public static MethodInfo _Push =
-            type.InternalMethod(nameof(LinkedStack<LexicalScope>.Push));
+        //public static MethodInfo _Push =
+        //    type.InternalMethod(nameof(LinkedStack<LexicalScope>.Push));
 
         //public static MethodInfo _Pop =
         //    type.InternalMethod(nameof(LightWeightStack<CallStackItem>.Pop));

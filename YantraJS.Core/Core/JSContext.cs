@@ -80,7 +80,7 @@ namespace YantraJS.Core
         public static JSContext CurrentContext => Current;
 
         private static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>((e) => {
-            Current = e.CurrentValue;
+            Current = e.CurrentValue ?? e.PreviousValue;
         });
 
         // internal LinkedStack<LexicalScope> Stack = new LinkedStack<LexicalScope>();

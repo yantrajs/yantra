@@ -193,15 +193,25 @@ namespace YantraJS.Core
 
                     int c;
                     char* s = src + Offset;
-                    while ((c = s[0]) != 0)
+                    c = s[0];
+                    for(int i = 0; i < Length ; i++)
                     {
+                        c = s[i];
                         hash1 = ((hash1 << 5) + hash1) ^ c;
-                        c = s[1];
-                        if (c == 0)
+                        if (i == Length - 1)
                             break;
+                        c = s[i + 1];
                         hash2 = ((hash2 << 5) + hash2) ^ c;
-                        s += 2;
                     }
+                    //while ((c = s[0]) != 0)
+                    //{
+                    //    hash1 = ((hash1 << 5) + hash1) ^ c;
+                    //    c = s[1];
+                    //    if (c == 0)
+                    //        break;
+                    //    hash2 = ((hash2 << 5) + hash2) ^ c;
+                    //    s += 2;
+                    //}
                     return hash1 + (hash2 * 1566083941);
                 }
             }

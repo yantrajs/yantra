@@ -4,6 +4,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <SignAssembly>true</SignAssembly>
+
+    <DelaySign>false</DelaySign>
+
+    <AssemblyOriginatorKeyFile>YantraJS.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

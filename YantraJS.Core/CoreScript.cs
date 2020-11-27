@@ -1326,9 +1326,11 @@ namespace YantraJS
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
                 var pList = new List<ParameterExpression>() {
-                    en,
-                    identifier as ParameterExpression
+                    en
                 };
+
+                if (identifier is ParameterExpression pe)
+                    pList.Add(pe);
 
                 var body = VisitStatement(forInStatement.Body);
 

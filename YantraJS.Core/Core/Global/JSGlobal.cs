@@ -93,10 +93,19 @@ namespace YantraJS.Core
             var fx = a.Get1();
             if (!(fx is JSFunction f))
                 throw JSContext.Current.NewTypeError("Argument is not a function");
-            AsyncPump.Run(() => {
-                f.f(new Arguments(@this));
-                return Task.CompletedTask;
-            });
+            //AsyncPump.Run(() => {
+            //    f.f(new Arguments(@this));
+            //    return Task.CompletedTask;
+            //});
+            var c = JSContext.Current;
+            SynchronizationContext.Current.Post((_1) => { 
+                try {
+                    f.f(new Arguments(_1 as JSValue));
+                } catch (Exception ex)
+                {
+                    c.ReportError(ex);
+                }
+            }, @this);
             return JSUndefined.Value;
         }
 
