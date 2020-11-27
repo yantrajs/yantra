@@ -3,82 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using YantraJS.Core;
+using YantraJS.Core.CodeGen;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Generator;
 using YantraJS.ExpHelper;
+using YantraJS.Utils;
 using Exp = System.Linq.Expressions.Expression;
 
 namespace YantraJS
 {
-    public class LoopScope: LinkedStackItem<LoopScope>
-    {
-        public readonly LabelTarget Break;
-        public readonly LabelTarget Continue;
-        public readonly string Name;
-        public readonly bool IsSwitch;
-
-        public LoopScope(
-            LabelTarget breakTarget, 
-            LabelTarget continueTarget,
-            bool isSwitch = false, 
-            string name = null)
-        {
-            this.Name = name;
-            this.Break = breakTarget;
-            this.Continue = continueTarget;
-            this.IsSwitch = isSwitch;
-        }
-        public LoopScope Get(string name)
-        {
-            var start = this;
-            while (start != null  && start.Name != name)
-                start = start.Parent;
-            return start;
-        }
-    }
-
-    public class ScopedVariableDeclarator {
-        public Esprima.Ast.VariableDeclarator Declarator { get; set; }
-
-        public Exp Init { get; set; }
-    }
-
-    public class ScopedVariableDeclaration
-    {
-        public bool NewScope { get; private set; }
-
-        public bool Copy { get; set; }
-        public List<ScopedVariableDeclarator> Declarators { get; }
-            = new List<ScopedVariableDeclarator>();
-
-        public ScopedVariableDeclaration(IEnumerable<ScopedVariableDeclarator> list)
-        {
-            NewScope = true;
-            Declarators.AddRange(list);
-        }
-
-        public ScopedVariableDeclaration(
-            Esprima.Ast.VariableDeclaration declaration,
-            Exp init = null)
-        {
-            NewScope = 
-                declaration.Kind == Esprima.Ast.VariableDeclarationKind.Const 
-                || declaration.Kind == Esprima.Ast.VariableDeclarationKind.Let;
-            foreach(var d in declaration.Declarations)
-            {
-                var sd = new ScopedVariableDeclarator
-                {
-                    Declarator = d
-                };
-                Declarators.Add(sd);
-                if (init != null)
-                {
-                    sd.Init = init;
-                }
-            }
-        }
-    }
 
     public class FunctionScope: LinkedStackItem<FunctionScope>
     {
@@ -95,11 +30,37 @@ namespace YantraJS
 
             public Exp Init { get; private set; }
 
+            /// <summary>
+            /// Create Variable first and then assign it, in next step.
+            /// 
+            /// This is required for recursive function as name/instance of function
+            /// is null when it is being created and accessed at the same time
+            /// </summary>
+            public Exp PostInit { get; private set; }
+
             public bool InUse { get; internal set; }
 
             public void Dispose()
             {
                 InUse = false;
+            }
+
+            public void SetPostInit(Expression exp)
+            {
+                if (exp == null)
+                {
+                    PostInit = null;
+                    return;
+                }
+                if (Variable.Type == typeof(JSVariable))
+                {
+                    if (exp.Type == typeof(JSVariable))
+                    {
+                        PostInit = Exp.Assign(Variable, exp);
+                        return;
+                    }
+                } 
+                PostInit = Exp.Assign(Expression, exp);
             }
 
             public void SetInit(Expression exp)
@@ -132,7 +93,7 @@ namespace YantraJS
             }
         }
 
-        private List<VariableScope> variableScopeList = new List<VariableScope>();
+        private SharedParserStringMap<VariableScope> variableScopeList = new SharedParserStringMap<VariableScope>();
 
         public Esprima.Ast.IFunction Function { get; }
 
@@ -146,6 +107,10 @@ namespace YantraJS
 
         public ParameterExpression StackItem { get; }
 
+        public ParameterExpression Closures { get; }
+
+        public ParameterExpression ScriptInfo { get; }
+
         public bool IsRoot => Function == null;
 
         public LinkedStack<LoopScope> Loop;
@@ -154,11 +119,12 @@ namespace YantraJS
         {
             get
             {
-                foreach(var s in variableScopeList)
+                var en = variableScopeList.AllValues;
+                while(en.MoveNext(out var s))
                 {
-                    if (s.Variable != null)
+                    if (s.Value.Variable != null)
                     {
-                        yield return s;
+                        yield return s.Value;
                     }
                 }
             }
@@ -168,11 +134,12 @@ namespace YantraJS
         {
             get
             {
-                foreach (var s in variableScopeList)
+                var en = variableScopeList.AllValues;
+                while (en.MoveNext(out var s))
                 {
-                    if (s.Variable != null)
+                    if (s.Value.Variable != null)
                     {
-                        yield return s.Variable;
+                        yield return s.Value.Variable;
                     }
                 }
             }
@@ -182,15 +149,26 @@ namespace YantraJS
         {
             get
             {
-                foreach (var s in variableScopeList)
+                var en = variableScopeList.AllValues;
+                while (en.MoveNext(out var s))
                 {
-                    if (s.Init != null)
+                    if (s.Value.Init != null)
                     {
-                        yield return s.Init;
+                        yield return s.Value.Init;
+                    }
+                }
+                en = variableScopeList.AllValues;
+                while (en.MoveNext(out var s))
+                {
+                    if (s.Value.PostInit != null)
+                    {
+                        yield return s.Value.PostInit;
                     }
                 }
             }
         }
+
+
 
 
         public LabelTarget ReturnLabel { get; }
@@ -208,22 +186,22 @@ namespace YantraJS
             }
         }
 
-        public FunctionScope TopStackScope
-        {
-            get
-            {
-                var p = this;
-                if (p.variableScopeList.Any())
-                    return p;
-                while (p.Parent != null && p.Function == p.Parent.Function)
-                {
-                    p = p.Parent;
-                    if (p.variableScopeList.Any())
-                        return p;
-                }
-                return p;
-            }
-        }
+        //public FunctionScope TopStackScope
+        //{
+        //    get
+        //    {
+        //        var p = this;
+        //        if (p.variableScopeList.Any())
+        //            return p;
+        //        while (p.Parent != null && p.Function == p.Parent.Function)
+        //        {
+        //            p = p.Parent;
+        //            if (p.variableScopeList.Any())
+        //                return p;
+        //        }
+        //        return p;
+        //    }
+        //}
 
         public ParameterExpression Generator
         {
@@ -234,8 +212,11 @@ namespace YantraJS
 
         public Expression Super { get; private set; }
 
+        private static int scopeID = 0;
+
         public FunctionScope(Esprima.Ast.IFunction fx, Expression previousThis = null, Expression super = null)
         {
+            var sID = Interlocked.Increment(ref scopeID);
             this.Function = fx;
             if (fx?.Generator ?? false)
             {
@@ -251,7 +232,7 @@ namespace YantraJS
             this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
-            this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType(), $"a-{sID}");
             this.ArgumentsExpression = Arguments;
             if (previousThis != null)
             {
@@ -264,8 +245,10 @@ namespace YantraJS
                 this.ThisExpression = _this.Expression;
             }
 
-            this.Context = Expression.Parameter(typeof(JSContext), "Context");
-            this.StackItem = Expression.Parameter(typeof(CallStackItem), "CallStackItem");
+            this.Context = Expression.Parameter(typeof(JSContext), $"{nameof(Context)}{sID}");
+            this.StackItem = Expression.Parameter(typeof(CallStackItem), $"{nameof(StackItem)}{sID}");
+            this.Closures = Expression.Parameter(typeof(JSVariable[]), $"{nameof(Closures)}{sID}");
+            this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), $"{nameof(ScriptInfo)}{sID}");
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new List<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
@@ -285,36 +268,27 @@ namespace YantraJS
             // this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Context = p.Context;
             this.StackItem = p.StackItem;
+            this.Closures = p.Closures;
+            this.ScriptInfo = p.ScriptInfo;
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
         }
-
-        StringMap<Exp> cache;
 
         public Exp this[string name]
         {
             get
             {
-                // go up..
-                if (cache.TryGetValue(name, out var exp))
-                    return exp;
-                exp = variableScopeList.FirstOrDefault(x => x.Name == name)?.Expression
-                    ?? (this.Parent?[name]);
-                cache[name] = exp;
-                return exp;
+                return GetVariable(name).Expression;
             }
         }
 
         public VariableScope CreateException(string name)
         {
-            var v = this.variableScopeList.FirstOrDefault(x => x.Name == name);
-            if (v != null)
-                return v;
-            v = new VariableScope {
+            var v = new VariableScope {
                 Variable = Exp.Parameter(typeof(Exception), name + "Exp")
             };
-            this.variableScopeList.Add(v);
-            
+            this.variableScopeList[name + DateTime.UtcNow.Ticks] = v;
+            v.Expression = v.Variable;
             return v;
         }
 
@@ -334,7 +308,7 @@ namespace YantraJS
                     Create = true
                 };
                 TempVariables.Add(ts);
-                TopScope.variableScopeList.Add(ts);
+                TopScope.variableScopeList["#temp" + DateTime.UtcNow.Ticks] = ts;
             }
             ts.InUse = true;
             return ts;
@@ -348,7 +322,7 @@ namespace YantraJS
             bool newScope = false,
             Type type = null)
         {
-            var v = this.variableScopeList.FirstOrDefault(x => x.Name == name);
+            var v = this.variableScopeList[name];
             if (v != null)
                 return v;
 
@@ -358,13 +332,14 @@ namespace YantraJS
                 var p = this.Parent;
                 while (p != null && p.Function == this.Function)
                 {
-                    v = p.variableScopeList.FirstOrDefault(x => x.Name == name);
+                    v = p.variableScopeList[name];
                     if (v != null)
                         return v;
                     p = p.Parent;
                 }
             }
 
+            // we need to move variable in top scope...
             var pe = Expression.Parameter(type ?? typeof(JSVariable), name);
             var ve = JSVariable.ValueExpression(pe);
             v = new VariableScope
@@ -375,7 +350,7 @@ namespace YantraJS
                 Create = true
             };
             v.SetInit(init);
-            this.variableScopeList.Add(v);
+            this.variableScopeList[name] = v;
             return v;
         }
 
@@ -396,10 +371,55 @@ namespace YantraJS
         //    this.variableScopeList.Add(v);
         //    return v;
         //}
-        public VariableScope GetVariable(string name)
+
+        public List<VariableScope> ClosureList
         {
-            return this.variableScopeList.FirstOrDefault(x => x.Name == name)
-                 ??  this.Parent?.GetVariable(name);
+            get; private set;
+        }
+
+        public VariableScope GetVariable(in StringSpan name, bool createClosure = true)
+        {
+
+            var start = this;
+            while (true)
+            {
+
+                if (start.variableScopeList.TryGetValue(name, out var result))
+                {
+                    return result;
+                }
+                if (start.Parent == null)
+                    return null;
+                if (start.Parent.Function != start.Function)
+                    break;
+                start = start.Parent;
+            }
+
+            if (!createClosure)
+                throw new ArgumentOutOfRangeException($"{name} not found in current variable scope");
+
+            return start.CreateClosure(name);
+        }
+
+        private VariableScope CreateClosure(in StringSpan name)
+        {
+            var p = Parent;
+            if (p == null)
+                return null;
+            var v = p.GetVariable(name);
+            if (v == null)
+                return null;
+            ClosureList = ClosureList ?? new List<VariableScope>() ;
+            var v1 = new VariableScope() { 
+                Variable = Expression.Parameter(typeof(JSVariable), name.Value),
+                Name = name.Value
+            };
+            int index = ClosureList.Count;
+            v1.Expression = JSVariable.ValueExpression(v1.Variable);
+            v1.SetInit(Expression.ArrayIndex(Closures, Expression.Constant(index)));
+            ClosureList.Add(v);
+            this.variableScopeList[name] = v1;
+            return v1;
         }
 
 

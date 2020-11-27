@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net.Cache;
 using System.Threading;
+using YantraJS.Core.CodeGen;
 using Trace = System.Diagnostics.Debug;
 
 namespace YantraJS.Core.Generator
@@ -13,15 +14,21 @@ namespace YantraJS.Core.Generator
         internal Arguments a;
         internal SynchronizationContext context;
         internal AutoResetEvent main;
+        internal readonly ScriptInfo scriptInfo;
+        internal JSVariable[] closures;
 
         public JSWeakAwaiter(
             JSAwaiter awaiter, 
             JSAsyncDelegate @delegate, 
             in Arguments a,
-            AutoResetEvent main)
+            AutoResetEvent main,
+            ScriptInfo scriptInfo,
+            JSVariable[] closures)
         {
             this.awaiter = new WeakReference<JSAwaiter>(awaiter);
             this.main = main;
+            this.scriptInfo = scriptInfo;
+            this.closures = closures;
             this.@delegate = @delegate;
             this.a = a;
             this.context = SynchronizationContext.Current;

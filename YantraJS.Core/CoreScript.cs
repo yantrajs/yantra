@@ -11,8 +11,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YantraJS.Core;
-using YantraJS.Core.Core.Storage;
+using YantraJS.Core.CodeGen;
 using YantraJS.Core.Generator;
+using YantraJS.Core.LinqExpressions;
 using YantraJS.Core.LinqExpressions.Logical;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
@@ -35,26 +36,18 @@ namespace YantraJS
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
+        public Exp FileNameExpression => ScriptInfoBuilder.FileName(this.scope.Top.ScriptInfo);
+        public Exp CodeStringExpression => ScriptInfoBuilder.Code(this.scope.Top.ScriptInfo);
+
         // private ParsedScript Code;
 
         // readonly string Code;
 
-        readonly ParameterExpression FileNameExpression;
-
-        readonly ParameterExpression CodeStringExpression;
-
-        private StringMap<ParameterExpression> _keyStrings;
+        private StringArray _keyStrings = new StringArray();
 
 
         public Exp KeyOfName(string name)
         {
-            //if (string.IsNullOrEmpty(name.Value))
-            //    throw new ArgumentNullException(nameof(name));
-            ref var keyStrings = ref _keyStrings;
-            HashedString hsName = name;
-            if (keyStrings.TryGetValue(in hsName, out ParameterExpression pe))
-                return pe;
-
             // search for variable...
             var fx = typeof(KeyStrings).GetField(name);
             if (fx != null)
@@ -62,9 +55,8 @@ namespace YantraJS
                 return Exp.Field(null, fx);
             }
 
-            pe = Exp.Variable(typeof(KeyString), name);
-            keyStrings.Save(in hsName, pe);
-            return pe;
+            var i = _keyStrings.GetOrAdd(name);
+            return ScriptInfoBuilder.KeyString(this.scope.Top.ScriptInfo,(int)i);
         }
 
         internal static JSFunctionDelegate Compile(in StringSpan code, string location = null, IList<string> args = null, ICodeCache codeCache = null)
@@ -105,8 +97,9 @@ namespace YantraJS
             // this.Code = code;
             location = location ?? "vm.js";
 
-            FileNameExpression = Exp.Variable(typeof(string), "_fileName");
-            CodeStringExpression = Exp.Variable(typeof(string), "code");
+            // FileNameExpression = Exp.Variable(typeof(string), "_fileName");
+            // CodeStringExpression = Exp.Variable(typeof(string), "code");
+
 
             // this.Code = new ParsedScript(code);
             Esprima.JavaScriptParser parser =
@@ -128,7 +121,7 @@ namespace YantraJS
                 ScopeAnalyzer scopeAnalyzer = new ScopeAnalyzer();
                 scopeAnalyzer.Visit(jScript);
 
-
+                var scriptInfo = fx.ScriptInfo;
 
                 var te = fx.ThisExpression;
 
@@ -137,8 +130,7 @@ namespace YantraJS
                 var stackItem = fx.StackItem;
 
                 var vList = new List<ParameterExpression>() {
-                    FileNameExpression,
-                    CodeStringExpression,
+                    scriptInfo,
                     lScope,
                     stackItem
                 };
@@ -146,13 +138,6 @@ namespace YantraJS
 
 
 
-                var sList = new List<Exp>() {
-                    Exp.Assign(FileNameExpression, Exp.Constant(location)),
-                    Exp.Assign(CodeStringExpression, Exp.Constant(code.Value)),
-                    Exp.Assign(lScope, JSContextBuilder.Current)
-                };
-
-                JSContextStackBuilder.Push(sList, lScope, stackItem, FileNameExpression, StringSpanBuilder.Empty, 0, 0);
 
                 if (argsList != null)
                 {
@@ -170,13 +155,23 @@ namespace YantraJS
                 var l = fx.ReturnLabel;
 
                 var script = Visit(jScript);
-                ref var keyStrings = ref _keyStrings;
-                foreach (var ks in keyStrings.AllValues())
-                {
-                    var v = ks.Value;
-                    vList.Add(v);
-                    sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
-                }
+
+                var sList = new List<Exp>() {
+                    Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
+                    Exp.Assign(lScope, JSContextBuilder.Current)
+                };
+
+                JSContextStackBuilder.Push(sList, lScope, stackItem, Exp.Constant(location), StringSpanBuilder.Empty, 0, 0);
+
+                sList.Add(ScriptInfoBuilder.Build(scriptInfo, _keyStrings));
+
+                // ref var keyStrings = ref _keyStrings;
+                //foreach (var ks in keyStrings.AllValues())
+                //{
+                //    var v = ks.Value;
+                //    vList.Add(v);
+                //    sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
+                //}
 
                 vList.AddRange(fx.VariableParameters);
                 sList.AddRange(fx.InitList);
@@ -238,9 +233,9 @@ namespace YantraJS
                     var g = JSValueBuilder.Index(top.Context, KeyOfName(v));
 
                     // these are global variables...
-                    var vs = this.scope.Top.CreateVariable(v, JSVariableBuilder.New(g,  v));
+                    var vs = this.scope.Top.CreateVariable(v);
                     vs.Expression = JSVariableBuilder.Property(vs.Variable);
-                    
+                    vs.SetInit(JSVariableBuilder.New(g, v));
                 }
             }
             return CreateBlock(in program.Body);
@@ -332,7 +327,7 @@ namespace YantraJS
                 }
             }
 
-            retValue = retValue ?? JSClassBuilder.New(constructor, superVar, id?.Name ?? "Unnamed");
+            retValue = retValue ?? JSClassBuilder.New( this.scope.Top.ScriptInfo, null, constructor, superVar, id?.Name ?? "Unnamed");
             foreach(var exp in members)
             {
                 if(exp.Value != null)
@@ -368,7 +363,8 @@ namespace YantraJS
             )
         {
             var node = functionDeclaration as Node;
-            var code = StringSpanBuilder.New(CodeStringExpression, node.Range.Start, 
+            var codeExp = CodeStringExpression;
+            var code = StringSpanBuilder.New(codeExp, node.Range.Start, 
                 node.Range.End - node.Range.Start);
 
             // get text...
@@ -384,6 +380,8 @@ namespace YantraJS
             }
 
             var functionName = functionDeclaration.Id?.Name;
+
+            var parentScriptInfo = this.scope.Top.ScriptInfo;
 
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis, super)))
@@ -413,7 +411,7 @@ namespace YantraJS
                 if (functionName != null)
                 {
                     var id = functionDeclaration.Id;
-                    fxName = StringSpanBuilder.New(CodeStringExpression, id.Range.Start, id.Range.End - id.Range.Start);
+                    fxName = StringSpanBuilder.New(codeExp, id.Range.Start, id.Range.End - id.Range.Start);
                 }
                 else
                 {
@@ -516,25 +514,33 @@ namespace YantraJS
                          ,JSContextStackBuilder.Pop(stackItem, lexicalScopeVar))
                     );
 
+                Exp closureArray = Exp.Constant(null, typeof(JSVariable[]));
+                if (cs.ClosureList != null)
+                {
+                    closureArray = Exp.NewArrayInit(typeof(JSVariable), cs.ClosureList.Select(x => x.Variable));
+                }
+
+                Exp scriptInfo = parentScriptInfo;
+
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
                 if (functionDeclaration.Generator)
                 {
-                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.Generator, cs.Arguments);
-                    jsf = JSGeneratorFunctionBuilder.New(lambda, fxName, code);
+                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.ScriptInfo, cs.Closures,  cs.Generator, cs.Arguments);
+                    jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
                 } else if (functionDeclaration.Async)
                 {
-                    lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, cs.Awaiter, cs.Arguments);
-                    jsf = JSAsyncFunctionBuilder.New(lambda, fxName, code);
+                    lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments);
+                    jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
                 } else
                 {
-                    lambda = Exp.Lambda(typeof(JSFunctionDelegate), lexicalScope, cs.Arguments);
+                    lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, cs.ScriptInfo, cs.Closures, cs.Arguments);
                     if (createClass)
                     {
-                        jsf = JSClassBuilder.New(lambda, super, className ?? "Unnamed");
+                        jsf = JSClassBuilder.New(parentScriptInfo, closureArray, lambda, super, className ?? "Unnamed");
                     } else
                     {
-                        jsf = JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count);
+                        jsf = JSClosureFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code, functionDeclaration.Params.Count);
                     }
                 }
 
@@ -549,14 +555,14 @@ namespace YantraJS
                 {
                     if (jsFVarScope != null)
                     {
-                        jsFVarScope.SetInit(jsf);
+                        jsFVarScope.SetPostInit(jsf);
                         return jsFVarScope.Expression;
                     }
                     return jsf;
                 }
                 if (jsFVarScope != null)
                 {
-                    jsFVarScope.SetInit(jsf);
+                    jsFVarScope.SetPostInit(jsf);
                     return jsFVarScope.Expression;
                 }
                 return jsf;
@@ -1749,9 +1755,10 @@ namespace YantraJS
                 return JSUndefinedBuilder.Value;
             }
 
-            var local = this.scope.Top[identifier.Name];
-            if (local != null)
-                return local;
+            var var = this.scope.Top.GetVariable(identifier.Name, true);
+            if (var != null)
+                return var.Expression;
+
             return ExpHelper.JSContextBuilder.Index(KeyOfName(identifier.Name));
         }
 
