@@ -27,11 +27,15 @@ namespace YantraJS.Core
 
             this.value = CreateRegex(pattern, ParseFlags(flags, ref this.globalSearch, ref this.ignoreCase, ref this.multiline));
 
-            this.DefineProperty(KeyStrings.lastIndex, 
-                JSProperty.Property(KeyStrings.lastIndex, 
-                (in Arguments a) => new JSNumber(lastIndex), 
-                null, 
-                JSPropertyAttributes.ConfigurableReadonlyProperty ));
+            //this.DefineProperty(KeyStrings.lastIndex, 
+            //    JSProperty.Property(KeyStrings.lastIndex, 
+            //    (in Arguments a) => new JSNumber(lastIndex), 
+            //    (in Arguments a) =>
+            //    {
+            //        this.lastIndex = a.Get1().IntValue;
+            //        return a.Get1();
+            //    }, 
+            //    JSPropertyAttributes.ConfigurableProperty ));
         }
 
         /// <summary>
@@ -82,6 +86,37 @@ namespace YantraJS.Core
                 }
             }
             return options;
+        }
+
+        /// <summary>
+        /// Finds all regular expression matches within the given string.
+        /// </summary>
+        /// <param name="input"> The string on which to perform the search. </param>
+        /// <returns> An array containing the matched strings. </returns>
+        public JSValue Match(JSValue input)
+        {
+            // If the global flag is not set, returns a single match.
+            if (this.globalSearch == false)
+            {
+                var arg = new Arguments(this, input);
+
+                return JSRegExpPrototype.Exec(arg);
+            }
+
+            // Otherwise, find all matches.
+            var matches = this.value.Matches(input.ToString());
+            if (matches.Count == 0)
+                return JSNull.Value;
+
+            // Set the deprecated RegExp properties (using the last match).
+            //this.Engine.RegExp.SetDeprecatedProperties(input, matches[matches.Count - 1]);
+
+            // Construct the array to return.
+            JSArray matchValues = new JSArray(matches.Count);
+            for (int i = 0; i < matches.Count; i++)
+                matchValues[(uint)i] = new JSString(matches[i].Value);
+            return matchValues;
+            //return this.Engine.Array.New(matchValues);
         }
 
         /// <summary>

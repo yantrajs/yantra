@@ -34,6 +34,20 @@ namespace YantraJS.Core
             return a.This.ToRegExp().globalSearch ? JSBoolean.True : JSBoolean.False;
         }
 
+        [GetProperty("lastIndex", JSPropertyAttributes.ConfigurableProperty)]
+        public static JSValue GetLastIndex(in Arguments a)
+        {
+            return new JSNumber(a.This.ToRegExp().lastIndex);
+        }
+
+        [SetProperty("lastIndex", JSPropertyAttributes.ConfigurableProperty)]
+        public static JSValue SetLastIndex(in Arguments a)
+        {
+            var @this = a.This.ToRegExp();
+            var index = a.Get1().IntValue;
+            @this.lastIndex = index;
+            return a.Get1();
+        }
 
         [GetProperty("ignoreCase", JSPropertyAttributes.ConfigurableReadonlyProperty)]
         public static JSValue GetIgnoreCase(in Arguments a)

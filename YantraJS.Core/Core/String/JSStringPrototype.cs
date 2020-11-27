@@ -246,13 +246,18 @@ namespace YantraJS.Core
             //    return new JSNumber(@this.LastIndexOf(text.ToString(),fromIndex.IntValue));
         }
 
-        [Prototype("match")]
+        [Prototype("match", Length = 1)]
         internal static JSValue Match(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This;
+            if (@this.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError("String.prototype.match called on null or undefined");
             var reg = a.Get1();
-            var r = Regex.Match(@this, reg.ToString()).Value;
-            return new JSString(r);
+            if (reg is JSRegExp jSRegExp)
+                return jSRegExp.Match(@this);
+
+            var pattern = reg.IsNullOrUndefined ? "" : reg.ToString();
+            return new JSRegExp(pattern, "").Match(@this);
         }
 
         /*[Prototype("matchAll")]
