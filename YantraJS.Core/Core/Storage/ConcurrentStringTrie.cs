@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("YantraJS.Core.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001005193ddf7bf584417962669e48ae566dbc26cf0858673d7415214eea21cf3dcaf067ee0cad0c8cd900271b52daa8311bd0caf42743ad0474924c121c7d44d4ed43ffe17af89aee0e55f4a9c21cffead1f00b8a02815d132a11e7b146c5f2fb107a80a8341f352519949582a8daef8852328f87096946b99e329703319bc01a4d2")]
 namespace YantraJS.Core
 {
     //internal class ConcurrentStringTrie<T> : ConcurrentTrie<string, T>

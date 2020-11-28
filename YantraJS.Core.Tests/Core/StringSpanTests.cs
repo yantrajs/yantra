@@ -1,10 +1,21 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace YantraJS.Core.Tests.Core
 {
-    class StringSpanTests
+    [TestClass]
+    public class StringSpanTests
     {
+
+        [TestMethod]
+        public void Test1()
+        {
+            StringSpan s1 = StringSpan.Empty;
+
+            Assert.AreEqual(0, s1.GetHashCode());
+        }
+
     }
 }
