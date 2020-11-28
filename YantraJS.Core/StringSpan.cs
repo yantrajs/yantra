@@ -179,13 +179,16 @@ namespace YantraJS.Core
 
         public override int GetHashCode()
         {
-            return UnsafeGetHashCode();
+            //  return UnsafeGetHashCode();
+            return Value?.GetHashCode() ?? 0;
         }
 
         private unsafe int UnsafeGetHashCode()
         {
             unchecked
             {
+                if (Source == null)
+                    return 0;
                 fixed (char* src = Source)
                 {
                     int hash1 = 5381;

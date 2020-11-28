@@ -21,6 +21,8 @@ namespace YantraJS.Core
                     return $"number:{n.value}";
                 case JSObject @object:
                     return GenerateID(@object);
+                case JSSymbol symbol:
+                    return $"symbol:{symbol.Key.Value}";
             }
             return value.ToString();
         }
