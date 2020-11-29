@@ -52,13 +52,13 @@ namespace YantraJS.Tests.Core.Object
         [TestMethod]
         public void EqualsTest()
         {
-            var a = CoreScript.Evaluate("[2]");
-            var obj = context["object"];
-            var p = context["Object"].InvokeMethod("getPrototypeOf", new Arguments(obj, a));
+            //var a = CoreScript.Evaluate("[2]");
+            //var obj = context["object"];
+            //var p = context["Object"].InvokeMethod("getPrototypeOf", new Arguments(obj, a));
 
-            var ap = context["Array"]["prototype"];
+            //var ap = context["Array"]["prototype"];
 
-            Assert.IsTrue(p.StrictEquals(ap).BooleanValue);
+            //Assert.IsTrue(p.StrictEquals(ap).BooleanValue);
 
             CoreScript.Evaluate(@"var a = [1];
 var p = Object.getPrototypeOf(a);

@@ -67,7 +67,7 @@ namespace YantraJS.Emit
             var compiler = code.Compiler;
             return cache.GetOrCreate(code.Key, (k) => {
                 var  exp = compiler();
-                return exp.CompileFast();
+                return exp.Compile();
             });
         }
 
