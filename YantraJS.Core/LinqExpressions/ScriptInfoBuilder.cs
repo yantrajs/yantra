@@ -62,7 +62,7 @@ namespace YantraJS.Core.LinqExpressions
                 var code = Code(scriptInfo);
                 var key = item.Offset > 0 
                     ? KeyStringsBuilder.GetOrCreate(StringSpanBuilder.New(code, item.Offset, item.Length))
-                    : KeyStringsBuilder.GetOrCreate( Expression.Constant(item));
+                    : KeyStringsBuilder.GetOrCreate(StringSpanBuilder.New(Expression.Constant(item.Value), 0, item.Length));
                 list.Add(key);
             }
             return Expression.Assign(
