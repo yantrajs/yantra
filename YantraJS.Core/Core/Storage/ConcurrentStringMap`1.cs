@@ -78,7 +78,7 @@ namespace YantraJS.Core.Core.Storage
             return r;
         }
 
-        internal T GetOrCreate(in StringSpan key, Func<StringSpan, T> value)
+        public T GetOrCreate(in StringSpan key, Func<StringSpan, T> value)
         {
             lockSlim.EnterUpgradeableReadLock();
             if (Map.TryGetValue(key, out var v))
