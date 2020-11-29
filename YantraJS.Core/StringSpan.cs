@@ -179,8 +179,8 @@ namespace YantraJS.Core
 
         public override int GetHashCode()
         {
-            //  return UnsafeGetHashCode();
-            return Value?.GetHashCode() ?? 0;
+            return UnsafeGetHashCode();
+            // return Value?.GetHashCode() ?? 0;
         }
 
         private unsafe int UnsafeGetHashCode()

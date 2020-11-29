@@ -30,7 +30,7 @@ namespace YantraJS
 
     public class CoreScript: JSAstVisitor<Exp>
     {
-        public JSFunctionDelegate Method { get; }
+        public System.Linq.Expressions.Expression<JSFunctionDelegate> Method { get; }
 
         readonly LinkedStack<FunctionScope> scope = new LinkedStack<FunctionScope>();
 
@@ -62,12 +62,12 @@ namespace YantraJS
         internal static JSFunctionDelegate Compile(in StringSpan code, string location = null, IList<string> args = null, ICodeCache codeCache = null)
         {
             codeCache = codeCache ?? DictionaryCodeCache.Current;
-            var jsc = new JSCode(location, code, args);
-            return codeCache.GetOrCreate(in jsc, (in JSCode a) =>
-            {
-                var c = new CoreScript(a.Code, a.Location, a.Arguments, codeCache);
-                return c.Method;
+            var script = code;
+            var jsc = new JSCode(location, code, args, () => {
+                var cc = new CoreScript(script, location, args, codeCache);
+                return cc.Method;
             });
+            return codeCache.GetOrCreate(in jsc);
         }
 
         public static JSValue EvaluateWithTasks(string code, string location = null)
@@ -213,12 +213,7 @@ namespace YantraJS
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
-                this.Method = lambda.Compile();
-
-                if (codeCache != null)
-                {
-                    codeCache.Save(location, lambda);
-                }
+                this.Method = lambda;
             }
         }
 

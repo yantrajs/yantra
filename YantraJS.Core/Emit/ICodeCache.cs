@@ -16,9 +16,11 @@ namespace YantraJS.Emit
 
         public readonly IList<string> Arguments;
 
+        public readonly JSCodeCompiler Compiler;
+
         public JSCode Clone()
         {
-            return new JSCode(Location, Code, Arguments);
+            return new JSCode(Location, Code, Arguments, Compiler);
         }
 
         public string Key
@@ -33,23 +35,22 @@ namespace YantraJS.Emit
             }
         }
 
-        public JSCode(string location, in StringSpan code, IList<string> args)
+        public JSCode(string location, in StringSpan code, IList<string> args, JSCodeCompiler compiler)
         {
             this.Location = location;
             this.Code = code;
             this.Arguments = args;
+            this.Compiler = compiler;
         }
     }
 
-    public delegate JSFunctionDelegate JSCodeCompiler(in JSCode code);
+    public delegate Expression<JSFunctionDelegate> JSCodeCompiler();
 
     public interface ICodeCache
     {
 
-        JSFunctionDelegate GetOrCreate(in JSCode code, 
-            JSCodeCompiler compiler);
+        JSFunctionDelegate GetOrCreate(in JSCode code);
 
-        void Save(string location, Expression<JSFunctionDelegate> expression);
 
     }
 
@@ -60,20 +61,14 @@ namespace YantraJS.Emit
 
         public static ICodeCache Current = new DictionaryCodeCache();
 
-        public JSFunctionDelegate GetOrCreate(in JSCode code, JSCodeCompiler compiler)
+        public JSFunctionDelegate GetOrCreate(in JSCode code)
         {
-            var c = code.Code;
-            var location = code.Location;
-            var args = code.Arguments;
+            var compiler = code.Compiler;
             return cache.GetOrCreate(code.Key, (k) => {
-                var a = new JSCode(location, c, args);
-                return compiler(a);
+                var  exp = compiler();
+                return exp.Compile();
             });
         }
 
-        public void Save(string location, Expression<JSFunctionDelegate> expression)
-        {
-            
-        }
     }
 }

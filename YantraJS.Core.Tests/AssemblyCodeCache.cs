@@ -20,13 +20,10 @@ namespace YantraJS.Tests
 
         private static ConcurrentDictionary<string, JSFunctionDelegate> cache = new ConcurrentDictionary<string, JSFunctionDelegate>();
 
-        public JSFunctionDelegate GetOrCreate(in JSCode code, JSCodeCompiler compiler)
+        public JSFunctionDelegate GetOrCreate(in JSCode code)
         {
-            var cc = code.Clone();
-            return cache.GetOrAdd(code.Key, (_) =>
-            {
-                return compiler(cc);
-            });
+            var cc = code.Compiler();
+            return cc.Compile();
         }
 
         public void Save(string location, Expression<JSFunctionDelegate> expression)
