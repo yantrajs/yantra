@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastExpressionCompiler;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -66,7 +67,7 @@ namespace YantraJS.Emit
             var compiler = code.Compiler;
             return cache.GetOrCreate(code.Key, (k) => {
                 var  exp = compiler();
-                return exp.Compile();
+                return exp.CompileFast();
             });
         }
 
