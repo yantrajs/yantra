@@ -286,7 +286,10 @@ namespace YantraJS.Core
         internal static JSValue Normalize(in Arguments a)
         {
             var @this = a.This.AsString();
-            var form = a.Get1().ToString();
+            var input = a.Get1();
+            
+            string form = input.IsNullOrUndefined ? "NFC" : input.ToString();
+            
             switch (form) 
             {
                 case "NFC":
@@ -297,10 +300,9 @@ namespace YantraJS.Core
                     return new JSString(@this.Normalize(NormalizationForm.FormKC));
                 case "NFKD":
                     return new JSString(@this.Normalize(NormalizationForm.FormKD));
-                default:
-                    return new JSString(@this.Normalize(NormalizationForm.FormC));
-
+   
             }
+            throw JSContext.Current.NewRangeError($"The normalization form should be one of NFC, NFD, NFKC, NFKD.");
         }
 
         [Prototype("padEnd")]
