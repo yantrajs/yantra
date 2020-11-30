@@ -51,5 +51,33 @@ namespace YantraJS.Core
             return new JSString(result.ToString());
         }
 
+        [Static("raw", Length = 1)]
+        internal static JSValue Raw(in Arguments a)
+        {
+            var template = a.Get1();
+            if (!(template is JSObject))
+                throw JSContext.Current.NewTypeError($"Cannot convert undefined or null to object");
+            
+            var raw = template["raw"];
+            if (! (raw.IsString || raw.IsArray)) {
+                throw JSContext.Current.NewTypeError($"Cannot convert undefined or null to object");
+            }
+            var len = raw.Length;
+            if (len <= 0)
+                return new JSString(string.Empty);
+            
+            var result = new StringBuilder(len);
+            for (uint i = 0; i < len; i++)
+            {
+                var item = raw[i];
+                result.Append(item.ToString());
+                var substitutionIndex = i + 1;
+                if (i < len - 1 && substitutionIndex < a.Length) {
+                    item = a.GetAt((int)substitutionIndex);
+                    result.Append(item.ToString());
+                }
+            }
+            return new JSString(result.ToString());
+        }
     }
 }
