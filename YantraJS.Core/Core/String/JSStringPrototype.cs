@@ -324,17 +324,20 @@ namespace YantraJS.Core
             return new JSString(@this.PadLeft(s.IntValue, ch));
         }
 
-        [Prototype("repeat")]
+        [Prototype("repeat", Length = 1)]
         internal static JSValue Repeat(in Arguments a)
         {
             var @this = a.This.AsString();
-            var c = a.Get1();
-            var count = c.IsUndefined || !c.IsNumber ? 0 : c.IntValue;
-            for (var i = 0; i < count; i++)
+            var c = a.GetIntAt(0, int.MaxValue);
+            if (c < 0 || c == int.MaxValue)
+               throw JSContext.Current.NewRangeError($"Invalid count value");
+            var result = new StringBuilder(c * @this.Length);
+            for (var i = 0; i < c; i++)
             {
-                @this += @this;
+                result.Append(@this);
             }
-            return new JSString(@this);
+            return new JSString(result.ToString());
+            
         }
 
         [Prototype("replace")]
