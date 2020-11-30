@@ -340,12 +340,33 @@ namespace YantraJS.Core
             
         }
 
-        [Prototype("replace")]
+        [Prototype("replace", Length = 2)]
         internal static JSValue Replace(in Arguments a)
         {
             var @this = a.This.AsString();
             var (f, s) = a.Get2();
-            return new JSString(@this.Replace(f.ToString(), s.ToString()));
+            if (f is JSRegExp jSRegExp)
+            {
+                return new JSString(jSRegExp.Replace(@this, s));
+            }
+
+            // Find the first occurrance of substr.
+            var substr = f.ToString();
+            var replaceText = s.IsFunction ? s.InvokeFunction(Arguments.Empty).ToString() :  s.ToString();
+            int start = @this.IndexOf(substr, StringComparison.Ordinal);
+            if (start == -1)
+                return a.This;
+            int end = start + substr.Length;
+
+            // Replace only the first match.
+            var result = new System.Text.StringBuilder(@this.Length + (replaceText.Length - substr.Length));
+            result.Append(@this, 0, start);
+            result.Append(replaceText);
+            result.Append(@this, end, @this.Length - end);
+            return new JSString(result.ToString());
+
+
+            //return new JSString(@this.Replace(f.ToString(), s.ToString()));
         }
 
         /*[Prototype("replaceAll")]
