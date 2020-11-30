@@ -1,4 +1,6 @@
-﻿// using FastExpressionCompiler;
+﻿#if !WEBATOMS
+using FastExpressionCompiler;
+#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
