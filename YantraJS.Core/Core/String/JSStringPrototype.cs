@@ -388,10 +388,12 @@ namespace YantraJS.Core
             var @this = a.This.AsString();
             var search = a.Get1();
 
-            if (search.IsUndefined)
+            //search string not defined
+            if (search.IsUndefined) 
                 return JSNumber.Zero;
 
-            if (search is JSRegExp jSRegExp)
+            // is Regex?
+            if (search is JSRegExp jSRegExp) 
             {
                 var reg = jSRegExp.value.Match(@this);
                
@@ -399,16 +401,39 @@ namespace YantraJS.Core
                     return JSNumber.MinusOne;
                 return new JSNumber(reg.Index);
             }
-            var index = @this.IndexOf(search.ToString());
+
+            //is String
+            var index = @this.IndexOf(search.ToString()); 
             return new JSNumber(index);
         }
 
-        [Prototype("slice")]
+        [Prototype("slice", Length =2)]
         internal static JSValue Slice(in Arguments a)
         {
+            //var @this = a.This.AsString();
+            //var (f, s) = a.Get2();
+            //return new JSString(@this.Slice(f.IntValue ,s.IntValue));
             var @this = a.This.AsString();
-            var (f, s) = a.Get2();
-            return new JSString(@this.Slice(f.IntValue ,s.IntValue));
+
+            //0th argument, start
+            var f = a.Get1(); 
+            var start = f.IntValue;
+            //1st argument, end
+            int end = a.GetIntAt(1, int.MaxValue); 
+
+            if (start < 0)
+                start += @this.Length;
+            if (end < 0)
+                end += @this.Length;
+
+            start = Math.Min(Math.Max(start, 0), @this.Length);
+            end = Math.Min(Math.Max(end, 0), @this.Length);
+            if (end <= start)
+                    return JSString.Empty;
+            var result = @this.Substring(start, end - start);
+            return new JSString(result);
+
+
         }
 
         [Prototype("split")]
