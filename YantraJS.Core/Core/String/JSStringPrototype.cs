@@ -61,12 +61,18 @@ namespace YantraJS.Core
             return new JSString(new string(text[(int)(uint)at], 1));
         }
 
-        [Prototype("substring")]
+        [Prototype("substring", Length =2)]
         public static JSValue Substring(in Arguments a) 
         {
             var @this = a.This.AsString();
             int start = a.GetIntAt(0, 0);
             int end = a.GetIntAt(1, int.MaxValue);
+            if (a.GetAt(1).IsUndefined)
+            {
+                end = int.MaxValue;
+            }
+
+
             var si = Math.Max(Math.Min(start, end), 0);
             var ei = Math.Max(Math.Max(start, end), 0);
             if (si < 0)
@@ -79,8 +85,8 @@ namespace YantraJS.Core
             }
             si = Math.Min(Math.Max(si, 0), @this.Length);
             ei = Math.Min(Math.Max(ei, 0), @this.Length);
-            if (end <= start)
-                return new JSString(StringSpan.Empty);
+            if (ei <= si)
+                return JSString.Empty;
 
             return new JSString(@this.Substring(si, ei - si));
         }
@@ -191,12 +197,26 @@ namespace YantraJS.Core
             
         }
 
-        [Prototype("startsWith")]
+        [Prototype("startsWith", Length =1)]
         internal static JSValue StartsWith(in Arguments a)
         {
             var @this = a.This.AsString();
-            var text = a.Get1();
-            return @this.StartsWith(text.ToString()) ? JSBoolean.True : JSBoolean.False;
+            var (searchString,pos) = a.Get2();
+            if (searchString is JSRegExp)
+                throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
+            int position = pos.IntValue;
+            if (position == 0)
+                return @this.StartsWith(searchString.ToString()) ? JSBoolean.True : JSBoolean.False;
+
+            position = Math.Min(Math.Max(0, position), @this.Length);
+            if (position + searchString.Length > @this.Length)
+                return JSBoolean.False;
+
+            var result = @this.Substring(position, searchString.Length);
+            if (result == searchString.ToString())
+                return JSBoolean.True;
+
+            return JSBoolean.False;
         }
 
         [Prototype("includes", Length = 1)]
