@@ -377,13 +377,29 @@ namespace YantraJS.Core
             return new JSString(@this.ReplaceAll(f.ToString(), s.ToString()));
         }*/
 
-        [Prototype("search")]
+        [Prototype("search", Length =1)]
         internal static JSValue Search(in Arguments a)
         {
+            //var @this = a.This.AsString();
+            //var search = a.Get1();
+            //var reg = Regex.Match(@this, search.ToString());
+            //var index = @this.IndexOf(reg.ToString().ToCharArray()[0]);
+            //return new JSNumber(index);
             var @this = a.This.AsString();
             var search = a.Get1();
-            var reg = Regex.Match(@this, search.ToString());
-            var index = @this.IndexOf(reg.ToString().ToCharArray()[0]);
+
+            if (search.IsUndefined)
+                return JSNumber.Zero;
+
+            if (search is JSRegExp jSRegExp)
+            {
+                var reg = jSRegExp.value.Match(@this);
+               
+                if (!reg.Success)
+                    return JSNumber.MinusOne;
+                return new JSNumber(reg.Index);
+            }
+            var index = @this.IndexOf(search.ToString());
             return new JSNumber(index);
         }
 
