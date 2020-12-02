@@ -485,14 +485,32 @@ namespace YantraJS.Core
         internal static JSValue ToLocaleLowerCase(in Arguments a)
         {
             var @this = a.This.AsString();
-            return new JSString(@this.ToLower());
+            var locale = a.Get1();
+            try
+            {
+                CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
+                return new JSString(@this.ToLower(culture));
+            }
+            catch (CultureNotFoundException) {
+                throw JSContext.Current.NewRangeError($"Incorrect locale information provided");
+            }
+            
         }
 
         [Prototype("toLocaleUpperCase")]
         internal static JSValue ToLocaleUpperCase(in Arguments a)
         {
             var @this = a.This.AsString();
-            return new JSString(@this.ToUpper());
+            var locale = a.Get1();
+            try
+            {
+                CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
+                return new JSString(@this.ToUpper(culture));
+            }
+            catch (CultureNotFoundException)
+            {
+                throw JSContext.Current.NewRangeError($"Incorrect locale information provided");
+            }
         }
 
         [Prototype("toLowerCase")]
