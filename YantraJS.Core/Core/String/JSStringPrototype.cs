@@ -100,6 +100,8 @@ namespace YantraJS.Core
         [Prototype("toString")]
         public static JSValue ToString(in Arguments a)
         {
+            if(!(a.This is JSString))
+                throw JSContext.Current.NewTypeError("String.prototype.toString requires that 'this' be a String");
             return a.This;
         }
 
@@ -527,30 +529,46 @@ namespace YantraJS.Core
             return new JSString(@this.ToUpperInvariant());
         }
 
+        private static char[] trimCharacters = new char[] {
+            // Whitespace
+            '\x09', '\x0B', '\x0C', '\x20', '\xA0', '\xFEFF',
+
+            // Unicode space separator
+            '\u1680', '\u180E', '\u2000', '\u2001',
+            '\u2002', '\u2003', '\u2004', '\u2005',
+            '\u2006', '\u2007', '\u2008', '\u2009',
+            '\u200A', '\u202F', '\u205F', '\u3000', 
+
+            // Line terminators
+            '\x0A', '\x0D', '\u2028', '\u2029',
+        };
+
         [Prototype("trim")]
         internal static JSValue Trim(in Arguments a)
         {
             var @this = a.This.AsString();
-            return new JSString(@this.Trim());
+            return new JSString(@this.Trim(trimCharacters));
         }
 
         [Prototype("trimEnd")]
         internal static JSValue TrimEnd(in Arguments a)
         {
             var @this = a.This.AsString();
-            return new JSString(@this.TrimEnd());
+            return new JSString(@this.TrimEnd(trimCharacters));
         }
 
         [Prototype("trimStart")]
         internal static JSValue TrimStart(in Arguments a)
         {
             var @this = a.This.AsString();
-            return new JSString(@this.TrimStart());
+            return new JSString(@this.TrimStart(trimCharacters));
         }
 
         [Prototype("valueOf")]
         internal static JSValue ValueOf(in Arguments a)
         {
+            if (!(a.This is JSString))
+                throw JSContext.Current.NewTypeError("String.prototype.valueOf requires that 'this' be a String");
             var @this = a.This.AsString();
             return new JSString(@this);
         }
