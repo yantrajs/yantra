@@ -169,7 +169,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // charAt is generic.
             //Not implemented as on 11/23/2020
-           // Assert.AreEqual("2", Evaluate("x = new Number(6.1234); x.f = ''.charAt; x.f(3)"));
+           Assert.AreEqual("2", Evaluate("x = new Number(6.1234); x.f = ''.charAt; x.f(3)"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.charAt.call(undefined)"));
@@ -198,7 +198,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // charCodeAt is generic.
             //Not implemented as on 11/23/2020
-            //Assert.AreEqual(50, Evaluate("x = new Number(6.1234); x.f = ''.charCodeAt; x.f(3)"));
+            Assert.AreEqual(50, Evaluate("x = new Number(6.1234); x.f = ''.charCodeAt; x.f(3)"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.charCodeAt.call(undefined)"));
@@ -217,7 +217,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // charCodeAt is generic.
             //Not implemented as on 11/23/2020
-            //Assert.AreEqual(50, Evaluate("x = new Number(6.1234); x.f = ''.charCodeAt; x.f(3)"));
+            Assert.AreEqual(50, Evaluate("x = new Number(6.1234); x.f = ''.charCodeAt; x.f(3)"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.charCodeAt.call(undefined)"));
@@ -247,7 +247,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // concat is generic.
             //Not implemented as on 11/23/2020
-            // Assert.AreEqual("6.1234300", Evaluate("x = new Number(6.1234); x.f = ''.concat; x.f(300)"));
+            Assert.AreEqual("6.1234300", Evaluate("x = new Number(6.1234); x.f = ''.concat; x.f(300)"));
             //Not working as on 11/23/2020 - Should work!!!
             //Assert.AreEqual("first", Evaluate(@"
             //    obj1 = { toString: function() { throw 'first' } };
@@ -320,7 +320,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // includes is generic.
             //Not implemented as on 11/24/2020
-            //Assert.AreEqual(true, Evaluate("x = new Number(6.1234); x.f = ''.includes; x.f('123')"));
+            Assert.AreEqual(true, Evaluate("x = new Number(6.1234); x.f = ''.includes; x.f('123')"));
             //Assert.AreEqual(true, Evaluate("x = new Date(0); x.f = ''.includes; x.getTimezoneOffset() > 0 ? x.f('31') : x.f('01')"));
 
             // Undefined and null are not allowed as the "this" object.
@@ -348,8 +348,8 @@ namespace YantraJS.Core.Tests.Imported
 
             // indexOf is generic.
             //Not implemented as on 11/24/2020
-            //Assert.AreEqual(2, Evaluate("x = new Number(6.1234); x.f = ''.indexOf; x.f('123')"));
-            //Assert.AreEqual(8, Evaluate("x = new Date(0); x.f = ''.indexOf; x.getTimezoneOffset() > 0 ? x.f('31') : x.f('01')"));
+            Assert.AreEqual(2, Evaluate("x = new Number(6.1234); x.f = ''.indexOf; x.f('123')"));
+            // Assert.AreEqual(8, Evaluate("x = new Date(0); x.f = ''.indexOf; (x.getTimezoneOffset() > 0) ? x.f('31') : x.f('01')"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.indexOf.call(undefined)"));
@@ -392,7 +392,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // lastIndexOf is generic.
             //Not implemented as on 11/24/2020
-            // Assert.AreEqual(2, Evaluate("x = new Number(6.1234); x.f = ''.lastIndexOf; x.f('123')"));
+            Assert.AreEqual(2, Evaluate("x = new Number(6.1234); x.f = ''.lastIndexOf; x.f('123')"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.lastIndexOf.call(undefined)"));
@@ -425,7 +425,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(1, Evaluate("''.localeCompare.length"));
 
             // localeCompare is generic.
- //           Assert.AreEqual(0, Evaluate("x = new Number(6.1234); x.f = ''.localeCompare; x.f('6.1234')"));
+            Assert.AreEqual(0, Evaluate("x = new Number(6.1234); x.f = ''.localeCompare; x.f('6.1234')"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.localeCompare.call(undefined)"));
@@ -528,9 +528,9 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(1, Evaluate("''.match.length"));
 
             // match is generic.
-            //Evaluate("x = new Number(6.1234); x.f = ''.match; var result = x.f('12')");
-            //Assert.AreEqual(1, Evaluate("result.length"));
-            //Assert.AreEqual("12", Evaluate("result[0]"));
+            Evaluate("x = new Number(6.1234); x.f = ''.match; var result = x.f('12')");
+            Assert.AreEqual(1, Evaluate("result.length"));
+            Assert.AreEqual("12", Evaluate("result[0]"));
 
             Evaluate("x = { toString: function() { return '6.1234'; } }; x.f = ''.match; var result = x.f('12')");
             Assert.AreEqual(1, Evaluate("result.length"));
@@ -661,7 +661,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // normalize is generic.
             // Not Implemented as on 11/30/2020 
-           // Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.normalize; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.normalize; x.f()"));
         }
 
         
@@ -748,7 +748,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(2, Evaluate("''.replace.length"));
 
             // replace is generic.
-//            Assert.AreEqual("6.4334", Evaluate("x = new Number(6.1234); x.f = ''.replace; x.f('12', '43')"));
+            Assert.AreEqual("6.4334", Evaluate("x = new Number(6.1234); x.f = ''.replace; x.f('12', '43')"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.replace.call(undefined)"));
@@ -861,7 +861,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(1, Evaluate("''.search.length"));
 
             // search is generic.
-            //Assert.AreEqual(2, Evaluate("x = new Number(6.1234); x.f = ''.search; x.f('12')"));
+            Assert.AreEqual(2, Evaluate("x = new Number(6.1234); x.f = ''.search; x.f('12')"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.search.call(undefined)"));
@@ -924,7 +924,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(2, Evaluate("''.slice.length"));
 
             // slice is generic.
-           // Assert.AreEqual("23", Evaluate("x = new Number(6.1234); x.f = ''.slice; x.f(3, 5)"));
+            Assert.AreEqual("23", Evaluate("x = new Number(6.1234); x.f = ''.slice; x.f(3, 5)"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.slice.call(undefined)"));
@@ -1020,10 +1020,10 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(2, Evaluate("''.split.length"));
 
             // split is generic.
-//            Evaluate("x = new Number(6.1234); x.f = ''.split; var result = x.f('2')");
-            //Assert.AreEqual(2, Evaluate("result.length"));
-            //Assert.AreEqual("6.1", Evaluate("result[0]"));
-            //Assert.AreEqual("34", Evaluate("result[1]"));
+            Evaluate("x = new Number(6.1234); x.f = ''.split; var result = x.f('2')");
+            Assert.AreEqual(2, Evaluate("result.length"));
+            Assert.AreEqual("6.1", Evaluate("result[0]"));
+            Assert.AreEqual("34", Evaluate("result[1]"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.split.call(undefined)"));
@@ -1124,7 +1124,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(2, Evaluate("''.substring.length"));
 
             // substring is generic.
-//            Assert.AreEqual("23", Evaluate("x = new Number(6.1234); x.f = ''.substring; x.f(5, 3)"));
+            Assert.AreEqual("23", Evaluate("x = new Number(6.1234); x.f = ''.substring; x.f(5, 3)"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.substring.call(undefined)"));
@@ -1144,7 +1144,7 @@ namespace YantraJS.Core.Tests.Imported
         public void trim()
         {
             Assert.AreEqual("hello world", Evaluate("'  hello world  '.trim()"));
-//            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.trim; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.trim; x.f()"));
             Assert.AreEqual(0, Evaluate("''.trim.length"));
 
             // Other whitespace characters.
@@ -1168,7 +1168,7 @@ namespace YantraJS.Core.Tests.Imported
         public void trimStart()
         {
             Assert.AreEqual("hello world  ", Evaluate("'  hello world  '.trimStart()"));
-    //        Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.trimStart; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.trimStart; x.f()"));
             Assert.AreEqual(0, Evaluate("''.trimStart.length"));
 
             // Undefined and null are not allowed as the "this" object.
@@ -1180,7 +1180,7 @@ namespace YantraJS.Core.Tests.Imported
         public void trimEnd()
         {
             Assert.AreEqual("  hello world", Evaluate("'  hello world  '.trimEnd()"));
-//            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.trimEnd; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.trimEnd; x.f()"));
             Assert.AreEqual(0, Evaluate("''.trimEnd.length"));
 
             // Undefined and null are not allowed as the "this" object.
@@ -1192,7 +1192,7 @@ namespace YantraJS.Core.Tests.Imported
         public void toLocaleLowerCase()
         {
             Assert.AreEqual("hello world", Evaluate("'Hello World'.toLocaleLowerCase()"));
-//            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toLocaleLowerCase; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toLocaleLowerCase; x.f()"));
             Assert.AreEqual(0, Evaluate("''.toLocaleLowerCase.length"));
 
             // Undefined and null are not allowed as the "this" object.
@@ -1206,7 +1206,7 @@ namespace YantraJS.Core.Tests.Imported
         public void toLocaleUpperCase()
         {
             Assert.AreEqual("HELLO WORLD", Evaluate("'Hello World'.toLocaleUpperCase()"));
-//            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toLocaleUpperCase; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toLocaleUpperCase; x.f()"));
             Assert.AreEqual(0, Evaluate("''.toLocaleUpperCase.length"));
 
             // Undefined and null are not allowed as the "this" object.
@@ -1218,7 +1218,7 @@ namespace YantraJS.Core.Tests.Imported
         public void toLowerCase()
         {
             Assert.AreEqual("hello world", Evaluate("'Hello World'.toLowerCase()"));
-       //     Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toLowerCase; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toLowerCase; x.f()"));
             Assert.AreEqual(0, Evaluate("''.toLowerCase.length"));
 
             // Undefined and null are not allowed as the "this" object.
@@ -1230,7 +1230,7 @@ namespace YantraJS.Core.Tests.Imported
         public void toUpperCase()
         {
             Assert.AreEqual("HELLO WORLD", Evaluate("'Hello World'.toUpperCase()"));
-      //      Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toUpperCase; x.f()"));
+            Assert.AreEqual("6.1234", Evaluate("x = new Number(6.1234); x.f = ''.toUpperCase; x.f()"));
             Assert.AreEqual(0, Evaluate("''.toUpperCase.length"));
 
             // Undefined and null are not allowed as the "this" object.

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.Core.Primitive;
 using YantraJS.Utils;
 
 namespace YantraJS.Core.Tests.Imported
@@ -22,15 +23,16 @@ namespace YantraJS.Core.Tests.Imported
 
         public object Evaluate(string text)
         {
-            try
+            object ToPrimitive(object value)
             {
-                var value = context.Eval(text);
                 switch (value)
                 {
                     //case JSNull n:
                     //    return "null";
                     //case JSUndefined _:
                     //    return "undefined";
+                    case JSPrimitiveObject primitiveObject:
+                        return ToPrimitive(primitiveObject.value);
                     case JSString sv:
                         return sv.value.Value;
                     case JSNumber number:
@@ -43,6 +45,11 @@ namespace YantraJS.Core.Tests.Imported
                         return boolean._value;
                 }
                 return value;
+            }
+            try
+            {
+                var v = context.Eval(text);
+                return ToPrimitive(v);
             }catch (Exception ex)
             {
                 throw new InvalidOperationException(ex.Message, ex);

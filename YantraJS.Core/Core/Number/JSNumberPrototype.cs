@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.Core.Primitive;
 
 namespace YantraJS.Core.Runtime
 {
@@ -18,6 +19,13 @@ namespace YantraJS.Core.Runtime
                 throw JSContext.Current.NewTypeError($"Number.prototype.{name} requires that 'this' be a Number");
             return n;
         }
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+            return new JSPrimitiveObject(new JSNumber(a.Get1().DoubleValue));
+        }
+
 
         [Prototype("clz")]
         public static JSValue Clz(in Arguments a)

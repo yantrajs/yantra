@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using YantraJS.Core.Core.Primitive;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -24,7 +25,9 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
             if (v is JSString str)
                 return str;
-            return new JSString(v.ToString());
+            if (v is JSPrimitiveObject primitiveObject)
+                return primitiveObject.value.AsJSString();
+            throw JSContext.Current.NewTypeError($"String.prototype.{helper} called with non string");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,9 +43,9 @@ namespace YantraJS.Core
         public static JSValue Constructor(in Arguments a)
         {
             if (a.Length == 0)
-                return new JSString(StringSpan.Empty);
+                return new JSPrimitiveObject( new JSString(StringSpan.Empty));
 
-            return new JSString(a.Get1().ToString());
+            return new JSPrimitiveObject(new JSString(a.Get1().ToString()));
 
         }
 
@@ -622,10 +625,7 @@ namespace YantraJS.Core
         [Prototype("valueOf")]
         internal static JSValue ValueOf(in Arguments a)
         {
-            if (!(a.This is JSString))
-                throw JSContext.Current.NewTypeError("String.prototype.valueOf requires that 'this' be a String");
-            var @this = a.This.AsString();
-            return new JSString(@this);
+            return a.This.AsJSString();
         }
     }
 }
