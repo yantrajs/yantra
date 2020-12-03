@@ -119,6 +119,71 @@ namespace YantraJS.Core
             //return this.Engine.Array.New(matchValues);
         }
 
+        /// <summary>
+        /// Splits the given string into an array of strings by separating the string into substrings.
+        /// </summary>
+        /// <param name="input"> The string to split. </param>
+        /// <param name="limit"> The maximum number of array items to return.  Defaults to unlimited. </param>
+        /// <returns> An array containing the split strings. </returns>
+        public JSValue Split(string input, uint limit = uint.MaxValue)
+        {
+            // Return an empty array if limit = 0.
+            if (limit == 0)
+                return new JSArray();
+                
+
+            // Find the first match.
+            Match match = this.value.Match(input, 0);
+
+            
+            var results = new JSArray();
+            int startIndex = 0;
+            Match lastMatch = null;
+            while (match.Success == true)
+            {
+                // Do not match the an empty substring at the start or end of the string or at the
+                // end of the previous match.
+                if (match.Length == 0 && (match.Index == 0 || match.Index == input.Length || match.Index == startIndex))
+                {
+                    // Find the next match.
+                    match = match.NextMatch();
+                    continue;
+                }
+
+                // Add the match results to the array.
+                var element = input.Substring(startIndex, match.Index - startIndex);
+                results.Add(new JSString(element));
+                //if (results.Count >= limit)
+                if (results.Length >= limit)
+                  return  results;
+                startIndex = match.Index + match.Length;
+                for (int i = 1; i < match.Groups.Count; i++)
+                {
+                    var group = match.Groups[i];
+                    if (group.Captures.Count == 0)
+                        results.Add(JSUndefined.Value);       // Non-capturing groups return "undefined".
+                    else
+                        results.Add(new JSString(match.Groups[i].Value));
+                    if (results.Length >= limit)
+                        return results;
+                }
+
+                // Record the last match.
+                lastMatch = match;
+
+                // Find the next match.
+                match = match.NextMatch();
+            }
+            var ele = input.Substring(startIndex, input.Length - startIndex);
+            results.Add(new JSString(ele));
+            return results;
+            // Set the deprecated RegExp properties.
+           // if (lastMatch != null)
+           //     this.Engine.RegExp.SetDeprecatedProperties(input, lastMatch);
+
+           // return this.Engine.Array.New(results.ToArray());
+        }
+
 
         /// <summary>
         /// Returns a copy of the given string with text replaced using a regular expression.

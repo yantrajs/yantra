@@ -458,30 +458,85 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("split")]
+        /// <summary>
+        /// Splits this string into an array of strings by separating the string into substrings.
+        /// </summary>
+        /// <param name="engine"> The current script environment. </param>
+        /// <param name="thisObject"> The string that is being operated on. </param>
+        /// <param name="separator"> A string or regular expression that indicates where to split the string. </param>
+        /// <param name="limit"> The maximum number of array items to return.  Defaults to unlimited. </param>
+        /// <returns> An array containing the split strings. </returns>
+        [Prototype("split", Length = 2)]
         internal static JSValue Split(in Arguments a)
         {
+
             var @this = a.This.AsString();
             var (_separator, limit) = a.Get2();
-            JSArray array;
-            if (!_separator.BooleanValue)
+            // Limit defaults to unlimited.  Note the ToUint32() conversion.
+            var limitMax = uint.MaxValue;
+
+            if (!limit.IsUndefined)
+                limitMax = (uint)limit.DoubleValue;
+
+            if (_separator is JSRegExp jSRegExp)
             {
-                array = new JSArray(@this.Length);
-                foreach(var ch in @this)
-                {
-                    array[array._length++] = new JSString(ch);
-                }
-                return array;
+                return jSRegExp.Split(@this, limitMax);
+             
             }
+
             var separator = _separator.ToString();
-            var tokens = @this.Split(new string[] { separator }, limit.AsInt32OrDefault(int.MaxValue), StringSplitOptions.None);
-            array = new JSArray(tokens.Length);
-            foreach(var token in tokens)
+            var result = new JSArray();
+            if (string.IsNullOrEmpty(separator))
+
             {
-                array[array._length++] = new JSString(token);
+                // If the separator is empty, split the string into individual characters.
+                
+                for (int i = 0; i < @this.Length; i++)
+                    result[(uint)i] = new JSString(@this[i]);
+                return result;
             }
-            return array;
+
+            // .NET Split is buggy, it should not remove empty string entries
+            // when StringSplitOptions is None
+            var splitStrings = @this.Split(new string[] { separator }, StringSplitOptions.None);
+            if (limitMax < splitStrings.Length)
+            {
+                var splitStrings2 = new string[limitMax];
+                Array.Copy(splitStrings, splitStrings2, (int)limitMax);
+                splitStrings = splitStrings2;
+            }
+
+            foreach (var item in splitStrings)
+            {
+                result.Add(new JSString(item));    
+            }
+            return result;
+
+
+            //var @this = a.This.AsString();
+            //var (_separator, limit) = a.Get2();
+            //JSArray array;
+            //if (!_separator.BooleanValue)
+            //{
+            //    array = new JSArray(@this.Length);
+            //    foreach(var ch in @this)
+            //    {
+            //        array[array._length++] = new JSString(ch);
+            //    }
+            //    return array;
+            //}
+            //var separator = _separator.ToString();
+            //var tokens = @this.Split(new string[] { separator }, limit.AsInt32OrDefault(int.MaxValue), StringSplitOptions.None);
+            //array = new JSArray(tokens.Length);
+            //foreach(var token in tokens)
+            //{
+            //    array[array._length++] = new JSString(token);
+            //}
+            //return array;
         }
+
+
+
 
         [Prototype("toLocaleLowerCase")]
         internal static JSValue ToLocaleLowerCase(in Arguments a)

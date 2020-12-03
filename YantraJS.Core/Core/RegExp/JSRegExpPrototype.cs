@@ -10,8 +10,17 @@ namespace YantraJS.Core
         [Constructor]
         public static JSValue Constructor(in Arguments a)
         {
-            var (pattern, flags) = a.Get2();
-            return new JSRegExp(pattern.ToString(), flags.IsNull || flags.IsUndefined ? "" : flags.ToString());
+            var pattern = "";
+            var flags = "";
+            if(a.Length > 0)
+            {
+                pattern = a.GetAt(0).ToString();
+            }
+            if (a.Length > 1)
+            {
+                flags = a.GetAt(1).ToString();
+            }
+            return new JSRegExp(pattern, flags);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
