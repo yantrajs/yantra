@@ -59,12 +59,12 @@ namespace YantraJS.Core
 
 
         [Static("EPSILON")]
-        public static readonly double Epsilon = double.Epsilon;
+        public static readonly double Epsilon = 2.2204460492503130808472633361816E-16;
 
         [Static("MAX_SAFE_INTEGER")]
         public static readonly double MaxSafeInteger = 9007199254740991d;
 
-        [Static("MAX_VALUE")]
+        [Static("MAX_VALUE", JSPropertyAttributes.ReadonlyValue)]
         public static readonly double MaxValue = double.MaxValue;
 
         [Static("MIN_SAFE_INTEGER")]

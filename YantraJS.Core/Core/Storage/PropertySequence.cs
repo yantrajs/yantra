@@ -224,6 +224,11 @@ namespace YantraJS.Core
             }
             if (map.TryRemove(key, out var pkey))
             {
+                ref var p = ref properties[pkey];
+                if (p.IsReadOnly)
+                {
+                    throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
+                }
                 // move all properties up...
                 properties[pkey] = JSProperty.Deleted;
             }

@@ -314,7 +314,7 @@ namespace YantraJS.Core
                 if (ownProperties.TryGetValue(pr.Name.Key, out var _))
                     continue;
                 ownProperties[pr.Name.Key] = 
-                    JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableReadonlyValue);
+                    JSProperty.Property(pr.Name, jv, pr.ReadonlyValue);
             }
 
             return (r, length);
@@ -450,7 +450,7 @@ namespace YantraJS.Core
                     }
                 }
 
-                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, JSPropertyAttributes.ConfigurableReadonlyValue));
+                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, pr.ReadonlyValue));
             }
 
             return r;

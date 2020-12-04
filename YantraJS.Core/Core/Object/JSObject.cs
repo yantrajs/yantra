@@ -240,6 +240,11 @@ namespace YantraJS.Core
                     }
                     return;
                 }
+                if(p.IsReadOnly)
+                {
+                    // Only in Strict Mode ..
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 ref var ownProperties = ref this.GetOwnProperties();

@@ -28,6 +28,8 @@ namespace YantraJS.Core
         ConfigurableProperty = Property | Configurable,
         ConfigurableReadonlyProperty = Property | Configurable | Readonly,
 
+        ReadonlyValue = Readonly | Value,
+
     }
 
     [StructLayout(LayoutKind.Sequential)]

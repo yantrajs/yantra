@@ -71,6 +71,11 @@ namespace YantraJS.Core
             ? JSPropertyAttributes.ConfigurableValue
             : this.Attributes;
 
+        public JSPropertyAttributes ReadonlyValue =>
+            this.Attributes == JSPropertyAttributes.Empty
+            ? JSPropertyAttributes.ReadonlyValue
+            : this.Attributes;
+
         public JSPropertyAttributes ConfigurableProperty =>
             this.Attributes == JSPropertyAttributes.Empty
             ? JSPropertyAttributes.ConfigurableProperty

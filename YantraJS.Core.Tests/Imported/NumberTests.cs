@@ -65,7 +65,10 @@ namespace YantraJS.Core.Tests.Imported
                 Assert.AreEqual(-9007199254740991.0, Evaluate("Number.MIN_SAFE_INTEGER"));
 
                 // Constants are non-enumerable, non-configurable, non-writable.
-                Assert.AreEqual(double.MaxValue, Evaluate("Number.MAX_VALUE = 5; Number.MAX_VALUE"));
+                // Non-strict mode
+                //Assert.AreEqual(double.MaxValue, Evaluate("Number.MAX_VALUE = 5; Number.MAX_VALUE"));
+                // Strict Mode
+                Assert.AreEqual("TypeError", EvaluateExceptionType("Number.MAX_VALUE = 5; Number.MAX_VALUE"));
                 Assert.AreEqual(false, Evaluate("delete Number.MAX_VALUE"));
                 Assert.AreEqual(double.MaxValue, Evaluate("delete Number.MAX_VALUE; Number.MAX_VALUE"));
 
