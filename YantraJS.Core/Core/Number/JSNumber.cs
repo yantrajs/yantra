@@ -70,8 +70,10 @@ namespace YantraJS.Core
         [Static("MIN_SAFE_INTEGER")]
         public static readonly double MinSafeInteger = -9007199254740991d;
 
+        //Javascript considers double.Epsilon as MIN_VALUE and not .Net double.MinValue
         [Static("MIN_VALUE")]
-        public static readonly double MinValue = double.MinValue;
+        public static readonly double MinValue = double.Epsilon;
+        
 
         public override bool IsNumber => true;
 
@@ -105,6 +107,10 @@ namespace YantraJS.Core
 
         public JSNumber(double value) : base()
         {
+            if (value > 0 && value < double.Epsilon)
+            {
+                value = 0;
+            }
             this.value = value;
         }
 

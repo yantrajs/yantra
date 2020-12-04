@@ -257,6 +257,7 @@ namespace YantraJS.Core
                 if (pr is ConstructorAttribute)
                 {
                     r = f.CreateJSFunctionDelegate();
+                    length = pr.Length;
                     continue;
                 }
 

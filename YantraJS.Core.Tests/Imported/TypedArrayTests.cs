@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using YantraJS.Core.Core.Primitive;
 using YantraJS.Utils;
 
@@ -21,6 +22,32 @@ namespace YantraJS.Core.Tests.Imported
             context.Eval(code);
         }
 
+
+        /// <summary>
+        /// Changes the culture to run the the given action, then restores the culture.
+        /// </summary>
+        /// <param name="cultureName"> The culture name. </param>
+        /// <param name="action"> The action to run under the modified culture. </param>
+        public static T ChangeLocale<T>(string cultureName, Func<T> action)
+        {
+            // Save the current culture.
+            var previousCulture = Thread.CurrentThread.CurrentCulture;
+
+            // Replace it with a new culture.
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(cultureName, false);
+
+            try
+            {
+                // Run the action.
+                return action();
+            }
+            finally
+            {
+                // Restore the previous culture.
+                Thread.CurrentThread.CurrentCulture = previousCulture;
+            }
+        }
+
         public object Evaluate(string text)
         {
             object ToPrimitive(object value)
@@ -38,8 +65,10 @@ namespace YantraJS.Core.Tests.Imported
                     case JSNumber number:
                         //if (double.IsNaN(number.value))
                         //    return "NaN";
-                        if ((number.value) % 1 == 0)
-                            return (int)number.value;
+                        if ((number.value) % 1 == 0) { 
+                            if (number.value >= -2147483648.0 && number.value <= 2147483648.0)
+                                return (int)number.value;
+                        }
                         return number.value;
                     case JSBoolean boolean:
                         return boolean._value;

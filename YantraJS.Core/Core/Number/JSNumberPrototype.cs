@@ -16,13 +16,21 @@ namespace YantraJS.Core.Runtime
         private static JSNumber ToNumber(this JSValue target, [CallerMemberName] string name = null)
         {
             if (!(target is JSNumber n))
+            {
+                if (target is JSPrimitiveObject primitiveObject)
+                {
+                    return primitiveObject.value.ToNumber();
+                }
                 throw JSContext.Current.NewTypeError($"Number.prototype.{name} requires that 'this' be a Number");
+            }
             return n;
         }
 
-        [Constructor]
+        [Constructor(Length = 1)]
         public static JSValue Constructor(in Arguments a)
         {
+            if (a.Length == 0)
+                return new JSPrimitiveObject(JSNumber.Zero);
             return new JSPrimitiveObject(new JSNumber(a.Get1().DoubleValue));
         }
 
