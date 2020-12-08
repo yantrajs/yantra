@@ -38,7 +38,7 @@ namespace YantraJS.Core.Runtime
         [Prototype("clz")]
         public static JSValue Clz(in Arguments a)
         {
-            uint x = (uint)a.This.ToNumber().IntValue;
+            uint x = (uint)a.This.ToNumber().DoubleValue;
 
             // Propagate leftmost 1-bit to the right 
             x = x | (x >> 1);

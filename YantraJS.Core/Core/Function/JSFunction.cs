@@ -124,6 +124,19 @@ namespace YantraJS.Core
             this[KeyStrings.length] = new JSNumber(0);
         }
 
+        internal void Seal()
+        {
+            ref var ownProperties = ref this.GetOwnProperties();
+            for (int i = 0; i < ownProperties.properties.Length; i++)
+            {
+                ref var p = ref ownProperties.properties[i];
+                if (p.IsValue)
+                {
+                    ownProperties.properties[i] = new JSProperty(p.key, p.get, p.set, p.value, JSPropertyAttributes.ReadonlyValue);
+                }
+            }
+        }
+
         protected JSFunction(StringSpan name, StringSpan source, JSObject _prototype)
             : base(JSContext.Current?.FunctionPrototype)
         {

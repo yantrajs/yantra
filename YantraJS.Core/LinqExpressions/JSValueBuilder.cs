@@ -232,7 +232,7 @@ namespace YantraJS.ExpHelper
         {
             return
                     // Expression.Call(
-                    Expression.Call(target, _GetAllKeys, Expression.Constant(false), Expression.Constant(true))
+                    Expression.Call(target, _GetAllKeys, Expression.Constant(true), Expression.Constant(false))
                     // ,
                     //_GetEnumerator);
                     ;
