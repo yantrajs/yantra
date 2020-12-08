@@ -169,5 +169,20 @@ namespace YantraJS.Core.Core.Storage
                 lockSlim.ExitUpgradeableReadLock();
             }
         }
+
+        public IEnumerable<T> All
+        {
+            get
+            {
+                try {
+                    lockSlim.EnterReadLock();
+                    foreach (var k in Map.AllValues()) {
+                        yield return k.Value;
+                    }
+                } finally {
+                    lockSlim.ExitReadLock();
+                }
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -104,6 +105,8 @@ namespace YantraJS.Core
                 modules[key.Key] = value;
             }
         }
+
+        public IEnumerable<JSModule> All => modules.All;
     }
 
     /// <summary>
@@ -137,6 +140,15 @@ namespace YantraJS.Core
         /// </summary>
         readonly ModuleCache moduleCache
             = ModuleCache.Create();
+
+        [Browsable(false)]
+        public IEnumerable<JSModule> All
+        {
+            get
+            {
+                return moduleCache.All;
+            }
+        }
 
         private string[] paths;
 
