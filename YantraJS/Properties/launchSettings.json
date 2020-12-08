@@ -1,12 +1,16 @@
 {
   "profiles": {
-    "Yantra": {
+    "Yantra TypeScript": {
       "commandName": "Project",
       "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\in-built\\ts\\index.js"
     },
-    "YantraRpl": {
+    "Yantra REPL": {
       "commandName": "Project",
       "commandLineArgs": ""
+    },
+    "Yantra SEO": {
+      "commandName": "Project",
+      "commandLineArgs": "d:/git/c8private/server/seo-service/test.js"
     }
 
   }

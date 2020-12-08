@@ -78,6 +78,11 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
+        public override JSValue CreateInstance(in Arguments a)
+        {
+            throw JSContext.Current.NewTypeError("cannot create instance of undefined");
+        }
+
         public override JSValue InvokeFunction(in Arguments a)
         {
             throw JSContext.Current.NewTypeError("undefined is not a function");

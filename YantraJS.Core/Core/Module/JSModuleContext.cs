@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -143,7 +145,26 @@ namespace YantraJS.Core
         {
             bool Exists(string folder, string file, out string path)
             {
-                string fullName = Path.Combine(folder, file);
+                string fullName = folder;
+                if (!file.StartsWith("."))
+                {
+                    if (System.IO.Directory.Exists(fullName))
+                    {
+                        var pkgJson = fullName + "/package.json";
+                        if (System.IO.File.Exists(pkgJson))
+                        {
+                            var json = System.IO.File.ReadAllText(pkgJson);
+                            var pkg = JObject.Parse(json);
+                            if (pkg.TryGetValue("main", out var token))
+                            {
+                                var v = token.Value<string>();
+                                path = Path.Combine(fullName, v);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                fullName = Path.Combine(folder, file);
                 if(System.IO.File.Exists(fullName))
                 {
                     path = fullName;
@@ -171,6 +192,9 @@ namespace YantraJS.Core
                         return path;
                     if (Exists(folder, relativePath + "/index" + ext, out path))
                         return path;
+
+                    // check if package.json exists...
+
                 }
             }
             return null;

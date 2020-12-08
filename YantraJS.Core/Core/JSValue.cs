@@ -367,7 +367,7 @@ namespace YantraJS.Core {
 
         public virtual JSValue CreateInstance(in Arguments a)
         {
-            throw new NotImplementedException();
+            throw JSContext.Current.NewTypeError($"Cannot create instance of {this}");
         }
 
         public abstract JSValue InvokeFunction(in Arguments a);
