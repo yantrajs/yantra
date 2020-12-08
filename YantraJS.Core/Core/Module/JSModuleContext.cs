@@ -145,7 +145,7 @@ namespace YantraJS.Core
         {
             bool Exists(string folder, string file, out string path)
             {
-                string fullName = folder;
+                string fullName = Path.Combine(folder, file);
                 if (!file.StartsWith("."))
                 {
                     if (System.IO.Directory.Exists(fullName))
@@ -164,7 +164,6 @@ namespace YantraJS.Core
                         }
                     }
                 }
-                fullName = Path.Combine(folder, file);
                 if(System.IO.File.Exists(fullName))
                 {
                     path = fullName;

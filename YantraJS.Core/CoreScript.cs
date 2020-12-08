@@ -1509,8 +1509,11 @@ namespace YantraJS
                         {
                             key = KeyOfName(id.Name);
                             name = id.Name;
-                        } else 
-                            throw new NotSupportedException();
+                        }
+                        else {
+                            key = this.scope.Top.GetVariable(id.Name).Expression;
+                            name = id.Name;
+                        }
                         break;
                     case Nodes.Literal:
                         Literal l = pKey as Literal;
