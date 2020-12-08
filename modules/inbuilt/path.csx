@@ -19,24 +19,24 @@ public class YPath {
 
     public static JSValue sep = new JSString(Path.DirectorySeparatorChar);
 
-    public static JSValue dirname(in Arguments a) {
+    public static JSValue Dirname(in Arguments a) {
         var name = a.Get1().ToString();
         var file = new FileInfo(name);
         return new JSString(file.DirectoryName);
     }
 
-    public static JSValue extname(in Arguments a) {
+    public static JSValue Extname(in Arguments a) {
         var name = a.Get1().ToString();
         var file = new FileInfo(name);
         return new JSString(file.Extension);
     }
 
-    public static JSValue isAbsolute(in Arguments a) {
+    public static JSValue IsAbsolute(in Arguments a) {
         var name = a.Get1().ToString();
         return Path.IsPathRooted(name) ? JSBoolean.True : JSBoolean.False;
     }
 
-    public static JSValue join(in Arguments a) {
+    public static JSValue Join(in Arguments a) {
         string path = null;
         for(var i = 0; i < a.Length; i++) {
             if(!(a.GetAt(i) is JSString @string))
@@ -62,6 +62,10 @@ public class YPath {
         @object[KeyStrings.name] = new JSString(name);
         @object[ext] = new JSString(file.Extension);
         return @object;
+    }
+
+    public static JSValue Resolve(in Arguments a) {
+        return Join(a);
     }
 
 }

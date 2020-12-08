@@ -126,6 +126,7 @@ namespace YantraJS.Core
             moduleCache[ModuleCache.clr] = new JSModule(ClrModule.Default, "clr");
 
             this[KeyStrings.globalThis] = this;
+            this[KeyStrings.global] = this;
         }
 
         /// <summary>
@@ -298,8 +299,10 @@ namespace YantraJS.Core
             var relativePath = name.ToString();
 
             // fetch system modules 
-            if (moduleCache.TryGetValue(relativePath, out var m))
-                return m.Exports;
+            //if (moduleCache.TryGetValue(relativePath, out var m))
+            //{
+            //    return m.Exports;
+            //}
 
             // resolve full name..
             var fullPath = Resolve(callee.dirPath, relativePath);

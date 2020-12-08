@@ -28,7 +28,7 @@ namespace Yantra
             if (!file.Exists)
                 throw new FileNotFoundException(file.FullName);
 
-            var filePath = new FileInfo(typeof(Program).Assembly.CodeBase);
+            var filePath = new FileInfo(typeof(Program).Assembly.Location);
             var inbuilt = filePath.DirectoryName + "/modules";
             
             var yc = new YantraContext(file.DirectoryName);

@@ -17,6 +17,10 @@ public static class FSModule {
         return JSUndefined.Value;
     }
 
+    public static JSValue Access(in Arguments a) {
+        throw JSContext.CurrentContext.NewTypeError($"Not implemented");
+    }
+
 }
 
 static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {

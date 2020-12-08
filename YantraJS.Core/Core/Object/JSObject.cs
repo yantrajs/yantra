@@ -369,11 +369,18 @@ namespace YantraJS.Core
 
         public override double DoubleValue{
             get {
-                var fx = this[KeyStrings.valueOf];
-                if (fx.IsUndefined)
-                    return NumberParser.CoerceToNumber(this.ToString());
-                var v = fx.InvokeFunction(new Arguments(this));
-                return v.DoubleValue;
+                try
+                {
+                    var fx = this[KeyStrings.valueOf];
+                    if (fx.IsUndefined)
+                        return NumberParser.CoerceToNumber(this.ToString());
+                    var v = fx.InvokeFunction(new Arguments(this));
+                    return v.DoubleValue;
+                } catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                    return double.NaN;
+                }
             }
         }
 
@@ -602,7 +609,7 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            throw new NotImplementedException("object is not a function");
+            throw JSContext.Current.NewTypeError($"{this} is not a function");
         }
 
         internal override JSBoolean Less(JSValue value)

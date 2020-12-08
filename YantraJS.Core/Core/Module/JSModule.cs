@@ -30,15 +30,16 @@ namespace YantraJS.Core
         }
 
         internal JSModule(
-            JSModuleContext context, 
-            string filePath, 
+            JSModuleContext context,
+            string filePath,
             string code,
-            bool main = false): base(context.ModulePrototype)
+            bool main = false) : base(context.ModulePrototype)
         {
             // this.ownProperties = new PropertySequence();
 
             this.filePath = filePath;
             this.dirPath = System.IO.Path.GetDirectoryName(filePath);
+            this.exports = new JSObject();
 
             Console.WriteLine($"Compiling module {filePath}");
             this.factory = context.Compile(code, filePath, new List<string> {
@@ -49,8 +50,10 @@ namespace YantraJS.Core
                 "__dirname"
             });
             Console.WriteLine($"Compiling module {filePath} finished ..");
-            var exports = Exports = new JSObject();
-            var require = Require = new JSFunction((in Arguments a1) => context.LoadModule(this, a1));
+            var require = Require = new JSFunction((in Arguments a1) => { 
+                var r = context.LoadModule(this, a1);
+                return r;
+            });
             require["main"] = main ? JSBoolean.True : JSBoolean.False;
             var resolve = new JSFunction((in Arguments ar) => {
                 var f = ar.Get1();
@@ -69,11 +72,14 @@ namespace YantraJS.Core
         [Prototype("exports")]
         public JSValue Exports {
             get {
-                var factory = this.factory;
-                this.factory = null;
-                factory?.Invoke(new Arguments(this, new JSValue[] {
+                var f = this.factory;
+                if (f != null)
+                {
+                    this.factory = null;
+                    f(new Arguments(this, new JSValue[] {
                     exports, Require, this, new JSString(filePath), new JSString(dirPath)
                 }));
+                }
                 return exports;
             }
             set
