@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
@@ -366,6 +367,9 @@ namespace YantraJS.Core
             var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
             return $"{{ {string.Join(", ", all)} }}";
         }
+
+        [Browsable(false)]
+        public string DebugView => ToDetailString();
 
         public override double DoubleValue{
             get {

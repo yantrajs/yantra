@@ -77,8 +77,8 @@ namespace YantraJS.Core
                 {
                     this.factory = null;
                     f(new Arguments(this, new JSValue[] {
-                    exports, Require, this, new JSString(filePath), new JSString(dirPath)
-                }));
+                        exports, Require, this, new JSString(filePath), new JSString(dirPath)
+                    }));
                 }
                 return exports;
             }
