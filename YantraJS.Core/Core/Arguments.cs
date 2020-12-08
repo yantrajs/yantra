@@ -440,7 +440,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSValue GetAt(int index)
+        public JSValue GetAt(int index)
         {
             if (Length >= MinArray)
                 return index < Length ? Args[index] : JSUndefined.Value;
