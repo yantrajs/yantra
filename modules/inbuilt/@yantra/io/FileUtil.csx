@@ -1,7 +1,7 @@
-#r "nuget: YantraJS.Core, 1.0.1-CI-20201023-114123"
+#r "nuget: YantraJS.Core,1.0.12"
 using System;
-using WebAtoms.CoreJS.Core;
-using WebAtoms.CoreJS.Core.Clr;
+using YantraJS.Core;
+using YantraJS.Core.Clr;
 
 public class FileUtil {
 
@@ -14,7 +14,7 @@ public class FileUtil {
             System.IO.File.WriteAllText(filePath, contents, System.Text.Encoding.GetEncoding(encoding));
             return JSUndefined.Value;
         } catch (Exception ex) {
-            throw JSContext.Current.NewError(ex.Message);
+            throw JSContext.CurrentContext.NewError(ex.Message);
         }
     }
 
@@ -26,7 +26,7 @@ public class FileUtil {
             var contents = System.IO.File.ReadAllText(filePath, System.Text.Encoding.GetEncoding(encoding));
             return new JSString(contents);
         } catch (Exception ex) {
-            throw JSContext.Current.NewError(ex.Message);
+            throw JSContext.CurrentContext.NewError(ex.Message);
         }
     }
 }

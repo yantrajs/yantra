@@ -1,4 +1,4 @@
-#r "nuget: YantraJS.Core,1.0.11"
+#r "nuget: YantraJS.Core,1.0.12"
 using System;
 using System.IO;
 using System.Linq;
@@ -6,6 +6,14 @@ using YantraJS.Core;
 using YantraJS.Core.Clr;
 
 public class YPath {
+
+    private static KeyString root = "root";
+
+    private static KeyString dir = "dir";
+
+    private static KeyString @base = "base";
+
+    private static KeyString ext = "ext";
 
     public static JSValue delimiter = new JSString(Path.PathSeparator);
 
@@ -29,9 +37,31 @@ public class YPath {
     }
 
     public static JSValue join(in Arguments a) {
+        string path = null;
         for(var i = 0; i < a.Length; i++) {
-            var ai = a.GetAt(i);
+            if(!(a.GetAt(i) is JSString @string))
+                throw JSContext.CurrentContext.NewTypeError($"input must be a string");
+            path = path == null ? path : Path.Join(path, @string.ToString());
         }
+        return new JSString( path ?? ".");
+    }
+
+    public static JSValue Normalize(in Arguments a) {
+        return new JSString(Path.GetFullPath(a.Get1().ToString()));
+    }
+
+    public static JSValue Parse(in Arguments a) {
+        if(!(a.Get1() is JSString path))
+            throw JSContext.CurrentContext.NewTypeError($"Path must be a string");
+        var file = new FileInfo(path.ToString());
+        var name = file.Name.Substring(0, file.Name.Length - file.Extension.Length);
+        var @object = new JSObject();
+        @object[dir] = new JSString(file.DirectoryName);
+        @object[root] = new JSString(file.Directory.Root.FullName);
+        @object[@base] = new JSString(file.Name);
+        @object[KeyStrings.name] = new JSString(name);
+        @object[ext] = new JSString(file.Extension);
+        return @object;
     }
 
 }
