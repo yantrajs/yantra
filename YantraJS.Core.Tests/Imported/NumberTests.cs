@@ -10,7 +10,7 @@ namespace YantraJS.Core.Tests.Imported
         /// <summary>
         /// Test the global Number object.
         /// </summary>
-        [TestClass]
+        // [TestClass]
         public class NumberTests : TestBase
         {
             [TestMethod]
