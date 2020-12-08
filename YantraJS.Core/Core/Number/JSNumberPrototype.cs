@@ -38,7 +38,7 @@ namespace YantraJS.Core.Runtime
         [Prototype("clz")]
         public static JSValue Clz(in Arguments a)
         {
-            uint x = (uint)a.This.ToNumber().DoubleValue;
+            uint x = (uint)a.This.ToNumber().IntValue;
 
             // Propagate leftmost 1-bit to the right 
             x = x | (x >> 1);
@@ -90,15 +90,25 @@ namespace YantraJS.Core.Runtime
         public static JSString ToExponential(in Arguments a)
         {
             var n = a.This.ToNumber();
-            if (a.Get1() is JSNumber n1)
+            if (a.Length > 0)
             {
-                var v = n1.value;
-                if (double.IsNaN(v) || v > 100 || v < 1)
-                    throw JSContext.Current.NewRangeError("toExponential() digitis argument must be between 0 and 100");
-                var fx = $"#.{new string('#', (int)v)}e+0";
-                return new JSString(n.value.ToString(fx));
+                if (a.Get1() is JSNumber n1)
+                {
+
+                    var v = n1.value;
+                    var nv = n.value;
+                    if (double.IsNaN(v) || v > 100 || v < 0)
+                        throw JSContext.Current.NewRangeError("toExponential() digitis argument must be between 0 and 100");
+                    var m = (int)v;
+                    if (m == 0) {
+                        // round..
+                        return new JSString(nv.ToString("0e+0"));
+                    }
+                    var fx = $"#.{new string('0', m)}{new string('#', m != 0 ? 0 : 16 - m)}e+0";
+                    return new JSString(nv.ToString(fx));
+                }
             }
-            return new JSString(n.value.ToString("#.#################e+0"));
+            return new JSString(n.value.ToString("#.################e+0"));
         }
 
         [Prototype("toFixed")]

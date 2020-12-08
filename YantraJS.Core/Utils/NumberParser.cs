@@ -10,6 +10,52 @@ namespace YantraJS.Utils
 {
     class NumberParser
     {
+        /// <summary>
+        /// Converts a string to a number (used by parseFloat).
+        /// </summary>
+        /// <param name="input"> The string to convert. </param>
+        /// <returns> The result of parsing the string as a number. </returns>
+        internal static double ParseFloat(string input)
+        {
+            var reader = new System.IO.StringReader(input);
+
+            // Skip whitespace and line terminators.
+            while (IsWhiteSpaceOrLineTerminator(reader.Peek()))
+                reader.Read();
+
+            // The number can start with a plus or minus sign.
+            bool negative = false;
+            int firstChar = reader.Read();
+            switch (firstChar)
+            {
+                case '-':
+                    negative = true;
+                    firstChar = reader.Read();
+                    break;
+                case '+':
+                    firstChar = reader.Read();
+                    break;
+            }
+
+            // Infinity or -Infinity are also valid.
+            if (firstChar == 'I' && reader.ReadToEnd().StartsWith("nfinity", StringComparison.Ordinal) == true)
+                return negative ? double.NegativeInfinity : double.PositiveInfinity;
+
+            // Empty strings return NaN.
+            if ((firstChar < '0' || firstChar > '9') && firstChar != '.')
+                return double.NaN;
+
+            // Parse the number.
+            NumberParser.ParseCoreStatus status;
+            double result = NumberParser.ParseCore(reader, (char)firstChar, out status, decimalOnly: true);
+
+            // Handle various error cases.
+            if (status == ParseCoreStatus.NoDigits)
+                return double.NaN;
+
+            return negative ? -result : result;
+        }
+
         private static readonly int[] integerPowersOfTen = new int[] {
             1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
         };
