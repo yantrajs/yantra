@@ -147,7 +147,7 @@ namespace YantraJS.Core
 
 
         private UInt32Map<uint> map;
-        private JSProperty[] properties;
+        internal JSProperty[] properties;
         private int length;
 
         public PropertySequence(int size)

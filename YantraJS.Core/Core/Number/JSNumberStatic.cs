@@ -31,8 +31,12 @@ namespace YantraJS.Core.Runtime
             if (a.Get1() is JSNumber n)
             {
                 var v = n.value;
-                if (((int)v) == v)
-                    return JSBoolean.True;
+                //if (((int)v) == v)
+                //    return JSBoolean.True;
+                if (!double.IsInfinity(v)) {
+                    if (Math.Floor(v) == v)
+                        return JSBoolean.True;
+                }
             }
             return JSBoolean.False;
         }
@@ -55,8 +59,12 @@ namespace YantraJS.Core.Runtime
             if (a.Get1() is JSNumber n)
             {
                 var v = n.value;
-                if (v >= JSNumber.MinSafeInteger && v <= JSNumber.MaxSafeInteger)
-                    return JSBoolean.True;
+                if (!double.IsInfinity(v))
+                {
+                    if (Math.Floor(v) == v && v >= JSNumber.MinSafeInteger && v <= JSNumber.MaxSafeInteger)
+                    
+                        return JSBoolean.True;
+                }
             }
             return JSBoolean.False;
         }
@@ -65,74 +73,76 @@ namespace YantraJS.Core.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue ParseFloat(in Arguments a)
         {
-            var nan = JSNumber.NaN;
-            if (a.Length > 0)
-            {
-                var p = a.Get1();
-                if (p.IsNumber)
-                    return p;
-                if (p.IsNull || p.IsUndefined)
-                    return nan;
-                var text = p.JSTrim();
-                if (text.Length > 0)
-                {
-                    int start = 0;
-                    char ch;
-                    bool hasDot = false;
-                    bool hasE = false;
-                    do
-                    {
-                        ch = text[start];
-                        if (char.IsDigit(ch))
-                        {
-                            start++;
-                            continue;
-                        }
-                        if (ch == '.')
-                        {
-                            if (!hasDot)
-                            {
-                                hasDot = true;
-                                start++;
-                                continue;
-                            }
-                            break;
-                        }
-                        if (ch == 'E' || ch == 'e')
-                        {
-                            if (!hasE)
-                            {
-                                hasE = true;
-                                start++;
-                                if (start < text.Length)
-                                {
-                                    var next = text[start];
-                                    if (next == '+' || next == '-')
-                                    {
-                                        start++;
-                                        continue;
-                                    }
-                                }
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
-                    } while (start < text.Length);
-                    if (text.Length > start)
-                        text = text.Substring(0, start);
-                    if (text.EndsWith("e+"))
-                        text += "0";
-                    if (text.EndsWith("e"))
-                        text += "+0";
-                    if (double.TryParse(text, out var d))
-                    {
-                        return new JSNumber(d);
-                    }
-                    return nan;
-                }
-            }
-            return nan;
+            var result = NumberParser.ParseFloat(a.Get1().ToString());
+            return new JSNumber(result);
+            //var nan = JSNumber.NaN;
+            //if (a.Length > 0)
+            //{
+            //    var p = a.Get1();
+            //    if (p.IsNumber)
+            //        return p;
+            //    if (p.IsNull || p.IsUndefined)
+            //        return nan;
+            //    var text = p.JSTrim();
+            //    if (text.Length > 0)
+            //    {
+            //        int start = 0;
+            //        char ch;
+            //        bool hasDot = false;
+            //        bool hasE = false;
+            //        do
+            //        {
+            //            ch = text[start];
+            //            if (char.IsDigit(ch))
+            //            {
+            //                start++;
+            //                continue;
+            //            }
+            //            if (ch == '.')
+            //            {
+            //                if (!hasDot)
+            //                {
+            //                    hasDot = true;
+            //                    start++;
+            //                    continue;
+            //                }
+            //                break;
+            //            }
+            //            if (ch == 'E' || ch == 'e')
+            //            {
+            //                if (!hasE)
+            //                {
+            //                    hasE = true;
+            //                    start++;
+            //                    if (start < text.Length)
+            //                    {
+            //                        var next = text[start];
+            //                        if (next == '+' || next == '-')
+            //                        {
+            //                            start++;
+            //                            continue;
+            //                        }
+            //                    }
+            //                    continue;
+            //                }
+            //                break;
+            //            }
+            //            break;
+            //        } while (start < text.Length);
+            //        if (text.Length > start)
+            //            text = text.Substring(0, start);
+            //        if (text.EndsWith("e+"))
+            //            text += "0";
+            //        if (text.EndsWith("e"))
+            //            text += "+0";
+            //        if (double.TryParse(text, out var d))
+            //        {
+            //            return new JSNumber(d);
+            //        }
+            //        return nan;
+            //    }
+            //}
+            //return nan;
         }
 
 
@@ -140,6 +150,7 @@ namespace YantraJS.Core.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue ParseInt(in Arguments a)
         {
+
             var nan = JSNumber.NaN;
             if (a.Length > 0)
             {
