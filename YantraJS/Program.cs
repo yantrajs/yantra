@@ -27,49 +27,21 @@ namespace Yantra
             var file = new FileInfo(args[0]);
             if (!file.Exists)
                 throw new FileNotFoundException(file.FullName);
+
+            var filePath = new FileInfo(typeof(Program).Assembly.CodeBase);
+            var inbuilt = filePath.DirectoryName + "/modules";
             
             var yc = new YantraContext(file.DirectoryName);
-            var r = await yc.RunAsync(file.DirectoryName, "./" + file.Name);
+            var r = await yc.RunAsync(
+                file.DirectoryName, "./" + file.Name, 
+                new string[] { 
+                    file.DirectoryName,
+                    file.DirectoryName + "/node_modules",
+                    inbuilt
+                });
             if (!r.IsUndefined)
                 Console.WriteLine(r);
-            //using var jc = new JSTestContext();
-            //jc["global"] = jc;
-            //var a = new Stopwatch();
-            //try
-            //{
-            //    a.Start();
-            //    CoreScript.Evaluate(script, args[1]);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex);
-            //}
-            //a.Stop();
-            //Console.WriteLine($"Total time: {a.Elapsed}");
-            //var (size, total, next) = KeyString.Total;
-            //Console.WriteLine($"Total: {total} Size: {size} Last Index: {next}");
         }
     }
 
-    //public class Helper
-    //{
-    //    public static void Generate()
-    //    {
-    //        AssemblyName aName = new AssemblyName("DynamicAssemblyExample");
-    //        AssemblyBuilder ab =
-    //            AssemblyBuilder.DefineDynamicAssembly(
-    //                aName,
-    //                AssemblyBuilderAccess.RunAndCollect);
-
-    //        var md = ab.DefineDynamicModule(aName.Name);
-
-    //        var t = md.DefineType("JSCode", TypeAttributes.Public);
-
-    //        var m = t.DefineMethod(
-    //            "Run",
-    //            MethodAttributes.Static | MethodAttributes.Public,
-    //            typeof(JSValue),
-    //            new Type[] { typeof(JSValue), typeof(JSValue[]) });
-    //    }
-    //}
 }

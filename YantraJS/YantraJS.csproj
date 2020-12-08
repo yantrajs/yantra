@@ -28,5 +28,11 @@
   <ItemGroup>
     <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\modules\inbuilt\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>modules\%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
 
 </Project>
