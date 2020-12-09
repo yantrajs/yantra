@@ -86,6 +86,19 @@ namespace YantraJS.Core
             
         }
 
+        public IEnumerable<(string Key, JSValue value)> Entries
+        {
+            get
+            {
+                var ownProperties = GetOwnProperties();
+                for(int i = 0; i< ownProperties.properties.Length; i++)
+                {
+                    var p = ownProperties.properties[i];
+                    yield return (p.key.ToString(), this.GetValue(p));
+                }
+            }
+        }
+
         public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
         {
             ownProperties = new PropertySequence(4);
@@ -364,12 +377,9 @@ namespace YantraJS.Core
 
         public override string ToDetailString()
         {
-            var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value.ToDetailString()}");
+            var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value?.ToDetailString()}");
             return $"{{ {string.Join(", ", all)} }}";
         }
-
-        [Browsable(false)]
-        public string DebugView => ToDetailString();
 
         public override double DoubleValue{
             get {

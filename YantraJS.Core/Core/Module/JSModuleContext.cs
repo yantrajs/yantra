@@ -319,7 +319,7 @@ namespace YantraJS.Core
             // resolve full name..
             var fullPath = Resolve(callee.dirPath, relativePath);
             if (fullPath == null)
-                throw new FileNotFoundException($"{relativePath} module not found");
+                throw NewTypeError($"{relativePath} module not found");
             var code = System.IO.File.ReadAllText(fullPath);
             JSModule module = moduleCache.GetOrCreate(fullPath, () => new JSModule(this, fullPath, code));
             var exports = module.Exports;
