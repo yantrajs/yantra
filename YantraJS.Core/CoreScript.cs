@@ -121,6 +121,14 @@ namespace YantraJS
                 ScopeAnalyzer scopeAnalyzer = new ScopeAnalyzer();
                 scopeAnalyzer.Visit(jScript);
 
+                if(jScript.HoistingScope != null && argsList != null)
+                {
+                    foreach (var a in argsList)
+                    {
+                        jScript.HoistingScope.Remove(a);
+                    }
+                }
+
                 var scriptInfo = fx.ScriptInfo;
 
                 var te = fx.ThisExpression;
@@ -180,6 +188,8 @@ namespace YantraJS
                 {
                     if (v.Variable != null && v.Variable.Type == typeof(JSVariable))
                     {
+                        if (argsList?.Contains(v.Name) ?? false)
+                            continue;
                         sList.Add(JSContextBuilder.Register(lScope, v.Variable));
                     }
                 }

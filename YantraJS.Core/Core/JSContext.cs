@@ -77,7 +77,14 @@ namespace YantraJS.Core
         [ThreadStatic]
         internal static JSContext Current;
 
-        public static JSContext CurrentContext => Current;
+        public static JSContext CurrentContext
+        {
+            get => Current;
+            set {
+                _current.Value = value;
+                Current = value;
+            }
+        }
 
         private static readonly AsyncLocal<JSContext> _current = new AsyncLocal<JSContext>((e) => {
             Current = e.CurrentValue ?? e.PreviousValue;
