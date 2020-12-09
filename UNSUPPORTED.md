@@ -10,3 +10,7 @@ Due to implementation difference in .NET, following Ecmascript features are not 
 ## Single Threaded Generators
 
 1. Since CLR does not allow resumable functions, it is not possible to create generators without changing whole expression tree. This may be created in future.
+
+## Number
+
+1. Due to difference in double precision (15 digits), double values differ compared to V8 and Firefox. 

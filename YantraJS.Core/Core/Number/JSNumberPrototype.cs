@@ -38,7 +38,7 @@ namespace YantraJS.Core.Runtime
         [Prototype("clz")]
         public static JSValue Clz(in Arguments a)
         {
-            uint x = (uint)a.This.ToNumber().IntValue;
+            uint x = (uint)a.This.ToNumber().value;
 
             // Propagate leftmost 1-bit to the right 
             x = x | (x >> 1);
@@ -85,19 +85,24 @@ namespace YantraJS.Core.Runtime
             return new JSString(n.value.ToString());
         }
 
-        [Prototype("toExponential")]
+        [Prototype("toExponential", Length =1)]
 
         public static JSString ToExponential(in Arguments a)
         {
             var n = a.This.ToNumber();
+            var nv = n.value;
+            if (double.IsPositiveInfinity(nv))
+                return JSConstants.Infinity;
+            if (double.IsNegativeInfinity(nv))
+                return JSConstants.NegativeInfinity;
             if (a.Length > 0)
             {
                 if (a.Get1() is JSNumber n1)
                 {
 
                     var v = n1.value;
-                    var nv = n.value;
-                    if (double.IsNaN(v) || v > 100 || v < 0)
+                    
+                    if (double.IsNaN(v) || v > 20 || v < 0)
                         throw JSContext.Current.NewRangeError("toExponential() digitis argument must be between 0 and 100");
                     var m = (int)v;
                     if (m == 0) {
@@ -108,21 +113,37 @@ namespace YantraJS.Core.Runtime
                     return new JSString(nv.ToString(fx));
                 }
             }
-            return new JSString(n.value.ToString("#.################e+0"));
+           
+            var text = n.value.ToString("#.################e+0");
+            //if (text.Length > 15) {
+            //    return new JSString(n.value.ToString("r"));
+            //}
+            return new JSString(text);
+            // return new JSString(n.value.ToString("g17"));
+            // return new JSString(n.value.ToString());
         }
 
-        [Prototype("toFixed")]
+        [Prototype("toFixed", Length = 1)]
         public static JSString ToFixed(in Arguments a)
         {
             var n = a.This.ToNumber();
+            var nv = n.value;
+            if (double.IsPositiveInfinity(nv))
+                return JSConstants.Infinity;
+            if (double.IsNegativeInfinity(nv))
+                return JSConstants.NegativeInfinity;
             if (a.Get1() is JSNumber n1)
             {
-                if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
+                if (double.IsNaN(n1.value) || n1.value > 20 || n1.value < 0)
                     throw JSContext.Current.NewRangeError("toFixed() digitis argument must be between 0 and 100");
                 var i = (int)n1.value;
-                return new JSString(n.value.ToString($"F{i}"));
+                if (nv > 999999999999999.0 && i <= 15)
+                    return new JSString(nv.ToString("g21"));
+                return new JSString(nv.ToString($"F{i}"));
             }
-            return new JSString(n.value.ToString("F0"));
+            if (nv > 999999999999999.0)
+                return new JSString(nv.ToString("g21"));
+            return new JSString(nv.ToString("F0"));
         }
 
         [Prototype("toPrecision")]
@@ -160,13 +181,15 @@ namespace YantraJS.Core.Runtime
         {
             var n = a.This.ToNumber();
             var (locale, format) = a.Get2();
+            var formatting = "g";
+           
             if (!locale.IsNullOrUndefined)
             {
                 string number;
                 var culture = CultureInfo.GetCultureInfo(locale.ToString());
                 if (format.IsNullOrUndefined)
                 {
-                    number = n.value.ToString("N2", culture);
+                    number = n.value.ToString(formatting, culture);
                 }
                 else
                 {
@@ -179,10 +202,11 @@ namespace YantraJS.Core.Runtime
                         throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats");
                     }
                 }
-
+                return new JSString(number);
             }
 
-            return new JSString(n.value.ToString("N2"));
+
+            return new JSString(n.value.ToString(formatting, System.Globalization.CultureInfo.CurrentCulture));
         }
     }
 }
