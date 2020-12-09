@@ -156,10 +156,10 @@ namespace YantraJS.Core.Runtime
                     throw JSContext.Current.NewRangeError("toPrecision() digits argument must be between 0 and 100");
                 var i = (int)n1.value;
                 var d = n.value;
-                var prefix = 'G';
+                var prefix = 'g';
                 if (d < 1)
                 {
-                    prefix = 'F';
+                    prefix = 'f';
                     // increase i for below 1
                     while (d < 1)
                     {
@@ -169,8 +169,7 @@ namespace YantraJS.Core.Runtime
                     i--;
                 }
                 var txt = n.value.ToString($"{prefix}{i}")
-                    .ToLower()
-                    .Replace("e+0", "0e+");
+                    .Replace("e+0", "e+");
                 return new JSString(txt);
             }
             return new JSString(n.value.ToString("G2"));
