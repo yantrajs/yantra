@@ -107,10 +107,10 @@ namespace YantraJS.Core
 
         public JSNumber(double value) : base()
         {
-            if (value > 0 && value < double.Epsilon)
-            {
-                value = 0;
-            }
+            //if (value > 0 && value < double.Epsilon)
+            //{
+            //    value = 0;
+            //}
             this.value = value;
         }
 
