@@ -172,7 +172,19 @@ namespace YantraJS.Core
                             {
                                 var v = token.Value<string>();
                                 path = Path.Combine(fullName, v);
-                                return true;
+                                if (System.IO.File.Exists(path))
+                                    return true;
+                                foreach(var ext in extensions)
+                                {
+                                    var np = path + ext;
+                                    if (System.IO.File.Exists(np))
+                                    {
+                                        path = np;
+                                        return true;
+                                    }
+                                }
+                                throw new FileNotFoundException(path);
+                                // return true;
                             }
                         }
                     }

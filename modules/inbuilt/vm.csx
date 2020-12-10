@@ -1,25 +1,52 @@
-#r "nuget: YantraJS.Core,1.0.14"
+#r "nuget: YantraJS.Core,1.0.18"
 using System;
 using System.IO;
 using System.Linq;
+using YantraJS;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
 
 public class YScript {
 
     private string code;
+    private string fileName;
 
     public YScript(in Arguments a) {
         code = a.Get1().ToString();
+        var options = a.GetAt(1);
+
+        if (options.IsObject) {
+            var fn = options["filename"];
+            if(!fn.IsUndefined) {
+                fileName = fn.ToString();
+            }
+        }
     }
 
     public JSValue RunInContext(in Arguments a) {
         var (contextifiedObject, options) = a.Get2();
         var context = contextifiedObject[YVM.context];
         var oldContext = JSContext.CurrentContext;
-
-        JSContext.CurrentContext = oldContext;
+        try {
+            JSContext.CurrentContext = context as JSContext;
+            return CoreScript.Evaluate(code, fileName);
+        } finally {
+            JSContext.CurrentContext = oldContext;
+        }
     }
+
+    public JSValue RunInNewContext(JSValue contextObject, JSValue options) {
+        contextObject = contextObject.IsUndefined ? new JSObject() : contextObject;
+        // check if it is already a context...
+        if (!(contextObject[YVM.context] is JSContext)) {
+            YVM.CreateContext(new Arguments(JSUndefined.Value, contextObject));
+        }
+        return RunInContext(new Arguments(JSUndefined.Value, contextObject));
+    }
+
+    public JSValue RunInThisContext(JSValue options) {
+        return CoreScript.Evaluate(code, fileName);
+    }    
 
 }
 
@@ -39,21 +66,34 @@ public class YVM {
         var a1 = a.Get1();
         if (a1.IsUndefined || a1.IsNull || (!a1.IsObject))
             throw JSContext.CurrentContext.NewTypeError($"Object to contextify must be an object");
+        var old = JSContext.CurrentContext;
         var c = new JSContext();
+        JSContext.CurrentContext = old;
         a1[context] = c;
         return a1;
     }
 
     public static JSValue RunInContext(in Arguments a) {
         var (code, contextifiedObject, options) = a.Get3();
-        var script = new YScript(new Arguments(code));
+        var script = new YScript(new Arguments(code, options));
         return script.RunInContext(new Arguments(contextifiedObject, options));
     }
 
+    public static JSValue RunInNewContext(in Arguments a) {
+        var (code, contextObject, options) = a.Get3();
+        var script = new YScript(new Arguments(code, options));
+        return script.RunInNewContext(contextObject, options);
+    }
+
+    public static JSValue RunInThisContext(in Arguments a) {
+        var (code, options) = a.Get2();
+        var script = new YScript(new Arguments(code, options));
+        return script.RunInThisContext(options);
+    }
 }
 
 static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
-    YVM.context = new JSSymbol("context");
+    YVM.context = YVM.context ?? new JSSymbol("context");
     module["exports"] = ClrType.From(typeof(YVM));
 }
 

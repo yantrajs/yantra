@@ -435,6 +435,9 @@ namespace YantraJS.Utils
                 case Nodes.ImportNamespaceSpecifier:
                     VisitImportNamespaceSpecifier(node.As<ImportNamespaceSpecifier>());
                     return;
+                case Nodes.SpreadElement:
+                    VisitSpreadElement(node.As<SpreadElement>());
+                    return;
             }
             base.VisitExpression(node);
         }
