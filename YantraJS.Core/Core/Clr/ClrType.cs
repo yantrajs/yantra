@@ -206,7 +206,7 @@ namespace YantraJS.Core.Clr
                     Expression.Call(
                         convert, method, args))));
 
-            return Expression.Lambda<JSFunctionDelegate>(body, args).Compile();
+            return Expression.Lambda<JSFunctionDelegate>(body, args).CompileDynamic();
         }
 
         private static JSValue Invoke(in KeyString name, Type type, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
@@ -248,7 +248,7 @@ namespace YantraJS.Core.Clr
                         convertedThis, field))));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
 
         }
 
@@ -271,7 +271,7 @@ namespace YantraJS.Core.Clr
                 JSExceptionBuilder.Wrap(assign);
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
         }
 
         private static JSFunctionDelegate GeneratePropertyGetter(bool isStatic, PropertyInfo property)
@@ -287,7 +287,7 @@ namespace YantraJS.Core.Clr
                         convertedThis, property))));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
 
         }
 
@@ -314,7 +314,7 @@ namespace YantraJS.Core.Clr
                     clrArg1).ToJSValue()));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
         }
 
         private static Func<object,uint,JSValue> GenerateIndexedGetter(PropertyInfo property)
@@ -337,7 +337,7 @@ namespace YantraJS.Core.Clr
             }
             Expression body = JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(indexExpression));
             var lambda = Expression.Lambda<Func<object,uint,JSValue>>(body, @this, index);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
         }
 
         private static Func<object, uint, object, JSValue> GenerateIndexedSetter(PropertyInfo property)
@@ -372,7 +372,7 @@ namespace YantraJS.Core.Clr
                 JSExceptionBuilder.Wrap( 
                     Expression.Assign(indexExpression , Expression.TypeAs(value, elementType)).ToJSValue()));
             var lambda = Expression.Lambda<Func<object, uint, object, JSValue>>(body, @this, index, value);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
         }
 
         private ClrType(
@@ -551,7 +551,7 @@ namespace YantraJS.Core.Clr
             var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
         }
 
         public JSValue GetConstructor(in Arguments a)
@@ -599,7 +599,7 @@ namespace YantraJS.Core.Clr
             var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
         }
 
 
