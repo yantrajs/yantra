@@ -323,10 +323,10 @@ namespace YantraJS.Core
             var relativePath = name.ToString();
 
             // fetch system modules 
-            //if (moduleCache.TryGetValue(relativePath, out var m))
-            //{
-            //    return m.Exports;
-            //}
+            if (moduleCache.TryGetValue(relativePath, out var m))
+            {
+                return m.Exports;
+            }
 
             // resolve full name..
             var fullPath = Resolve(callee.dirPath, relativePath);
