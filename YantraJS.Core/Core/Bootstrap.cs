@@ -152,7 +152,7 @@ namespace YantraJS.Core
             {
                 var getterBody = Expression.Property(coalesce, property);
                 var getterLambda = Expression.Lambda<JSFunctionDelegate>(getterBody, pe);
-                getter = getterLambda.Compile();
+                getter = getterLambda.CompileDynamic();
             }
             if (property.CanWrite)
             {
@@ -161,7 +161,7 @@ namespace YantraJS.Core
                     JSValueBuilder.ForceConvert(arg1, rType));
                 var setterLambda = Expression.Lambda<JSFunctionDelegate>(Expression.Block(peList,
                     setterBody), pe);
-                setter = setterLambda.Compile();
+                setter = setterLambda.CompileDynamic();
             }
             setter = (in Arguments a) =>
             {
@@ -223,7 +223,7 @@ namespace YantraJS.Core
                 : Expression.Call(coalesce, method, JSValueBuilder.Coalesce(arg1, rType, targetExp, p.Name.ToString())),
                 peThis);
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, pe);
-            return lambda.Compile();
+            return lambda.CompileDynamic();
         }
 
         public static (JSFunctionDelegate function, int length) Fill(Type type, JSObject target)
