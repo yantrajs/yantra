@@ -146,33 +146,93 @@ namespace YantraJS.Core.Runtime
             return new JSString(nv.ToString("F0"));
         }
 
-        [Prototype("toPrecision")]
+        [Prototype("toPrecision", Length = 1)]
         public static JSString ToPrecision(in Arguments a)
         {
             var n = a.This.ToNumber();
+
+            if (double.IsPositiveInfinity(n.value))
+                return JSConstants.Infinity;
+            if (double.IsNegativeInfinity(n.value))
+                return JSConstants.NegativeInfinity;
+
             if (a.Get1() is JSNumber n1)
             {
-                if (double.IsNaN(n1.value) || n1.value > 100 || n1.value < 1)
+                if (double.IsNaN(n1.value) || n1.value > 21 || n1.value < 1)
                     throw JSContext.Current.NewRangeError("toPrecision() digits argument must be between 0 and 100");
                 var i = (int)n1.value;
+                var originalPrecision = i;
                 var d = n.value;
                 var prefix = 'g';
+                var iteration = 0;
                 if (d < 1)
                 {
                     prefix = 'f';
-                    // increase i for below 1
+                    // switch to f when number is less than 1
+                    // because precision is measured from the first non zero
+                    // digit position
+                    // Assert.AreEqual("0.0000012", Evaluate("0.00000123.toPrecision(2)"));
                     while (d < 1)
                     {
                         d = d * 10;
                         i++;
+                        iteration++;
+                        if (iteration > 6) {
+                            // do this only 6 times
+                            // or switch back to g
+                            // Assert.AreEqual("1.2e-7", Evaluate("0.000000123.toPrecision(2)"));
+                            prefix = 'g';
+                            i = originalPrecision + 1;
+                            break;
+                        }
                     }
                     i--;
                 }
-                var txt = n.value.ToString($"{prefix}{i}")
-                    .Replace("e+0", "e+");
+                string txt;
+                txt = n.value.ToString($"{prefix}{i}");
+
+                // add trailing zeros after .
+
+                var eIndex = txt.IndexOf('e');
+                if (eIndex != -1)
+                {
+                    if (txt[eIndex + 2] == '0')
+                    {
+                        txt = txt.Substring(0, eIndex + 2) + txt.Substring(eIndex + 3);
+                    }
+                    var totalDigits = eIndex;
+                    var hasDot = txt.IndexOf('.');
+                    if (hasDot != -1) {
+                        totalDigits--;
+                    }
+                    var diff = originalPrecision - totalDigits;
+                    if (diff > 0) {
+                        if (hasDot == -1)
+                        {
+                            txt = txt.Insert(eIndex, ".");
+                            eIndex++;
+                        }
+                        txt = txt.Insert(eIndex, new string('0', diff));
+                    }
+                }
+                else
+                {
+                    var totalDigits = txt.Length;
+                    var dotIndex = txt.IndexOf('.');
+                    if (dotIndex != -1) {
+                        totalDigits--;
+                    }
+                    if (totalDigits < originalPrecision) {
+                        if (dotIndex == -1)
+                            txt += ".";
+                        var diff = originalPrecision - totalDigits;
+                        txt += new string('0', diff);
+                    }
+                }
+                //var result = string.Format("{0:0.00}", txt);
                 return new JSString(txt);
             }
-            return new JSString(n.value.ToString("G2"));
+            return new JSString(n.value.ToString());
         }
 
         [Prototype("toLocaleString")]
