@@ -77,12 +77,37 @@ namespace YantraJS.Core.Runtime
         public static JSString ToString(in Arguments a)
         {
             var n = a.This.ToNumber();
-            if (double.IsPositiveInfinity(n.value))
+            var value = n.value;
+            var arg = a.Get1();
+            int radix = 0;
+            if (!arg.IsNullOrUndefined)
+            {
+                radix = arg.IntValue;
+                if (radix < 2 || radix > 36)
+                    throw JSContext.Current.NewRangeError("The radix must be between 2 and 36, inclusive.");
+
+                return new JSString(Convert.ToString((int)value, radix));
+            }
+            if (double.IsPositiveInfinity(value))
                 return JSConstants.Infinity;
-            if (double.IsNegativeInfinity(n.value))
+            if (double.IsNegativeInfinity(value))
                 return JSConstants.NegativeInfinity;
 
-            return new JSString(n.value.ToString());
+            if (value > 999999999999999.0)
+                return new JSString(value.ToString("g21"));
+            if (value > 5e-7 && value < 1)
+                return new JSString(value.ToString("f6")); //Assert.AreEqual("0.000005", Evaluate("5e-6.toString()"));
+            var txt = value.ToString("g");
+            var eIndex = txt.IndexOf('e'); // remove extra zero, after e if any. 
+            if (eIndex != -1) {
+                if (txt[eIndex+2] == '0')
+                {
+                    txt = txt.Remove(eIndex + 2,1);
+                }
+            }
+            var result = string.Format(txt,radix);
+            return new JSString(txt);
+
         }
 
         [Prototype("toExponential", Length =1)]
