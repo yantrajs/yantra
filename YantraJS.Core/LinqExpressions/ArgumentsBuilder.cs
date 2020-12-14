@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
+using YantraJS.Core.LinqExpressions;
 
 namespace YantraJS.ExpHelper
 {
@@ -21,6 +22,9 @@ namespace YantraJS.ExpHelper
 
         private readonly static MethodInfo _GetAt =
             type.InternalMethod(nameof(Arguments.GetAt), typeof(int));
+
+        private readonly static MethodInfo _RestFrom =
+            type.InternalMethod(nameof(Arguments.RestFrom), typeof(uint));
 
         public static Expression Empty()
         {
@@ -45,6 +49,9 @@ namespace YantraJS.ExpHelper
         private readonly static ConstructorInfo _New
             = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[]) });
 
+        private readonly static ConstructorInfo _NewSpread
+            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[]), typeof(int) });
+
         private readonly static MethodInfo _GetElementEnumerator
             = type.InternalMethod(nameof(Arguments.GetElementEnumerator));
 
@@ -59,8 +66,33 @@ namespace YantraJS.ExpHelper
         }
 
 
-        public static Expression New(Expression @this, List<Expression> args)
+        public static Expression New(Expression @this, List<Expression> args, bool hasSpread = false)
         {
+            if (hasSpread)
+            {
+                // create from spread...
+
+                // create length expression..
+                Expression length = null;
+                List<Expression> paramList = new List<Expression>();
+                foreach(var arg in args)
+                {
+                    Expression al;
+                    if (arg is ClrSpreadExpression cse)
+                    {
+                        al = JSValueBuilder.Length(cse.Argument);
+                        paramList.Add(cse.Argument);
+                    } else
+                    {
+                        al = Expression.Constant((int)1);
+                        paramList.Add(arg);
+                    }
+                    length = length == null ? al : Expression.Add(length, al);
+                }
+
+                var a1 = Expression.NewArrayInit(typeof(JSValue), paramList);
+                return Expression.New(_NewSpread, @this, a1, length);
+            }
             var newList = new List<Expression>() { @this };
             newList.AddRange(args);
             switch (args.Count)
@@ -102,6 +134,11 @@ namespace YantraJS.ExpHelper
         public static Expression GetAt(Expression arguments, int index)
         {
             return Expression.Call(arguments, _GetAt, Expression.Constant(index));
+        }
+
+        public static Expression RestFrom(Expression arguments, uint index)
+        {
+            return Expression.Call(arguments, _RestFrom, Expression.Constant(index));
         }
 
         public static Expression GetElementEnumerator(Expression target)

@@ -438,6 +438,9 @@ namespace YantraJS.Utils
                 case Nodes.SpreadElement:
                     VisitSpreadElement(node.As<SpreadElement>());
                     return;
+                case Nodes.ArrayPattern:
+                    VisitArrayPattern(node as ArrayPattern);
+                    return;
             }
             base.VisitExpression(node);
         }

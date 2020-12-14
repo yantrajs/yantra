@@ -437,6 +437,8 @@ namespace YantraJS.Utils
                         return VisitAwaitExpression(expression.As<AwaitExpression>());
                     case Nodes.TemplateLiteral:
                         return VisitTemplateLiteral(expression.As<TemplateLiteral>());
+                    case Nodes.ClassExpression:
+                        return VisitClassExpression(expression as ClassExpression);
                     default:
                         // return VisitUnknownNode(expression);
                         throw new NotImplementedException($"{expression.GetType().FullName}");

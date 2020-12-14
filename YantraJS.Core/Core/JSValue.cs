@@ -34,6 +34,8 @@ namespace YantraJS.Core {
 
         public virtual bool IsFunction => false;
 
+        internal virtual bool IsSpread => false;
+
         internal object Convert(Type type, object def)
         {
             if (type.IsAssignableFrom(typeof(JSValue)))

@@ -4,6 +4,10 @@
       "commandName": "Project",
       "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\in-built\\ts\\index.js"
     },
+    "Yantra XF-Samples": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\YantraJS.Core.Tests\\Generator\\Files\\es5\\Index\\Index.pack.js"
+    },
     "Yantra REPL": {
       "commandName": "Project",
       "commandLineArgs": ""

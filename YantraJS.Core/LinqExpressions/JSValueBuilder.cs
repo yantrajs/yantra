@@ -14,6 +14,15 @@ namespace YantraJS.ExpHelper
 
         private static PropertyInfo _DoubleValue =
             type.Property(nameof(Core.JSValue.DoubleValue));
+
+        private static PropertyInfo _lengthProperty
+            = type.Property(nameof(Core.JSValue.Length));
+
+        public static Expression Length(Expression target)
+        {
+            return Expression.Property(target, _lengthProperty);
+        }
+
         public static Expression DoubleValue(Expression exp)
         {
             return Expression.Property(exp, _DoubleValue);
