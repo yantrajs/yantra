@@ -441,6 +441,12 @@ namespace YantraJS.Utils
                 case Nodes.ArrayPattern:
                     VisitArrayPattern(node as ArrayPattern);
                     return;
+                case Nodes.ClassExpression:
+                    VisitClassExpression(node as ClassExpression);
+                    return;
+                case Nodes.TaggedTemplateExpression:
+                    VisitTaggedTemplateExpression(node as TaggedTemplateExpression);
+                    return;
             }
             base.VisitExpression(node);
         }

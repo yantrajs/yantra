@@ -439,6 +439,8 @@ namespace YantraJS.Utils
                         return VisitTemplateLiteral(expression.As<TemplateLiteral>());
                     case Nodes.ClassExpression:
                         return VisitClassExpression(expression as ClassExpression);
+                    case Nodes.TaggedTemplateExpression:
+                        return VisitTaggedTemplateExpression(expression as TaggedTemplateExpression);
                     default:
                         // return VisitUnknownNode(expression);
                         throw new NotImplementedException($"{expression.GetType().FullName}");

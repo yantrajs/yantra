@@ -777,10 +777,14 @@ namespace YantraJS
                                         inits.Add(CreateAssignment(vp, start, true, newScope));
                                         break;
                                     // TODO
-                                    //case Nodes.AssignmentPattern:
-                                    //    AssignmentPattern ap = property.Value as AssignmentPattern;
-                                    //    inits.Add(CreateAssignment())
-                                    //    break;
+                                    case Nodes.AssignmentPattern:
+                                        AssignmentPattern ap = property.Value as AssignmentPattern;
+                                        inits.Add(CreateAssignment(ap.Left, 
+                                            Exp.Coalesce(
+                                                JSValueExtensionsBuilder.NullIfUndefined(start),
+                                                VisitExpression(ap.Right))
+                                        ));
+                                        break;
                                     default:
                                         throw new NotImplementedException();
                                 } 
@@ -1995,7 +1999,16 @@ namespace YantraJS
 
         protected override Exp VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)
         {
-            throw new NotImplementedException();
+            var tag = taggedTemplateExpression.Tag;
+            var args = new List<Expression>();
+            var strings = new List<Expression>();
+            foreach (var a in taggedTemplateExpression.Quasi.Quasis) {
+                strings.Add(new Literal(a.Value.Raw));
+            }
+            args.Add(new ArrayExpression(new NodeList<Expression>(strings)));
+            args.AddRange(taggedTemplateExpression.Quasi.Expressions);
+
+            return VisitCallExpression(new CallExpression(tag, new NodeList<Expression>(args)), taggedTemplateExpression);
         }
 
         protected override Exp VisitSuper(Esprima.Ast.Super super)
@@ -2089,7 +2102,11 @@ namespace YantraJS
                 @false, typeof(JSValue));
         }
 
-        protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)
+        protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression){
+            return VisitCallExpression(callExpression, callExpression);
+        }
+
+        protected Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression, Expression node)
         {
             var calle = callExpression.Callee;
             var args = new List<Exp>(callExpression.Arguments.Count);
@@ -2154,7 +2171,7 @@ namespace YantraJS
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
                 }
 
-                return DebugNode( callExpression, JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
+                return DebugNode( node, JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
 
             } else {
 
@@ -2171,7 +2188,7 @@ namespace YantraJS
                     ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args, hasSpread)
                     : ArgumentsBuilder.Empty();
                 var callee = VisitExpression(callExpression.Callee);
-                return DebugNode( callExpression, JSFunctionBuilder.InvokeFunction(callee, paramArray));
+                return DebugNode( node, JSFunctionBuilder.InvokeFunction(callee, paramArray));
             }
         }
 
