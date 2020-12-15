@@ -177,20 +177,28 @@ namespace YantraJS.Utils
 
         public override void Dispose()
         {
-            // hoist here..
-            var stmt = this.Node as Statement;
-            if (stmt == null)
-            {
-                var fx = (this.Node as IFunction);
-                stmt = fx.Body as Statement;
-            }
             List<string> list = new List<string>();
             foreach (var node in Variables.AllValues())
             {
-                if(node.Value.kind == VariableDeclarationKind.Var)
+                if (node.Value.kind == VariableDeclarationKind.Var)
                 {
                     list.Add(node.Value.name);
                 }
+            }
+            Statement stmt = null;
+            // hoist here..
+            switch(this.Node)
+            {
+                case Statement s:
+                    stmt = s;
+                    break;
+                case IFunction fx:
+                    stmt = fx.Body as Statement;
+                    break;
+                default:
+                    if (list.Count > 0)
+                        throw new NotSupportedException($"Hoisting not supported in {this.Node.GetType()}");
+                    break;
             }
             if (list.Count > 0)
             {
