@@ -67,7 +67,7 @@ namespace YantraJS.Core.Runtime
         }
 
         [Prototype("valueOf")]
-        public static  JSValue ValueOf(in Arguments a)
+        public static JSValue ValueOf(in Arguments a)
         {
             return a.This.ToNumber();
         }
@@ -77,6 +77,7 @@ namespace YantraJS.Core.Runtime
         public static JSString ToString(in Arguments a)
         {
             var n = a.This.ToNumber();
+            string result;
             var value = n.value;
             var arg = a.Get1();
             int radix = 0;
@@ -86,7 +87,10 @@ namespace YantraJS.Core.Runtime
                 if (radix < 2 || radix > 36)
                     throw JSContext.Current.NewRangeError("The radix must be between 2 and 36, inclusive.");
 
-                return new JSString(Convert.ToString((int)value, radix));
+                // return new JSString(Convert.ToString((int)value, radix));
+                result = DecimalToBase(value, radix);
+                return new JSString(result);
+
             }
             if (double.IsPositiveInfinity(value))
                 return JSConstants.Infinity;
@@ -99,18 +103,19 @@ namespace YantraJS.Core.Runtime
                 return new JSString(value.ToString("f6")); //Assert.AreEqual("0.000005", Evaluate("5e-6.toString()"));
             var txt = value.ToString("g");
             var eIndex = txt.IndexOf('e'); // remove extra zero, after e if any. 
-            if (eIndex != -1) {
-                if (txt[eIndex+2] == '0')
+            if (eIndex != -1)
+            {
+                if (txt[eIndex + 2] == '0')
                 {
-                    txt = txt.Remove(eIndex + 2,1);
+                    txt = txt.Remove(eIndex + 2, 1);
                 }
             }
-            var result = string.Format(txt,radix);
+            
             return new JSString(txt);
 
         }
 
-        [Prototype("toExponential", Length =1)]
+        [Prototype("toExponential", Length = 1)]
 
         public static JSString ToExponential(in Arguments a)
         {
@@ -126,11 +131,12 @@ namespace YantraJS.Core.Runtime
                 {
 
                     var v = n1.value;
-                    
+
                     if (double.IsNaN(v) || v > 20 || v < 0)
                         throw JSContext.Current.NewRangeError("toExponential() digitis argument must be between 0 and 100");
                     var m = (int)v;
-                    if (m == 0) {
+                    if (m == 0)
+                    {
                         // round..
                         return new JSString(nv.ToString("0e+0"));
                     }
@@ -138,7 +144,7 @@ namespace YantraJS.Core.Runtime
                     return new JSString(nv.ToString(fx));
                 }
             }
-           
+
             var text = n.value.ToString("#.################e+0");
             //if (text.Length > 15) {
             //    return new JSString(n.value.ToString("r"));
@@ -202,7 +208,8 @@ namespace YantraJS.Core.Runtime
                         d = d * 10;
                         i++;
                         iteration++;
-                        if (iteration > 6) {
+                        if (iteration > 6)
+                        {
                             // do this only 6 times
                             // or switch back to g
                             // Assert.AreEqual("1.2e-7", Evaluate("0.000000123.toPrecision(2)"));
@@ -227,11 +234,13 @@ namespace YantraJS.Core.Runtime
                     }
                     var totalDigits = eIndex;
                     var hasDot = txt.IndexOf('.');
-                    if (hasDot != -1) {
+                    if (hasDot != -1)
+                    {
                         totalDigits--;
                     }
                     var diff = originalPrecision - totalDigits;
-                    if (diff > 0) {
+                    if (diff > 0)
+                    {
                         if (hasDot == -1)
                         {
                             txt = txt.Insert(eIndex, ".");
@@ -244,10 +253,12 @@ namespace YantraJS.Core.Runtime
                 {
                     var totalDigits = txt.Length;
                     var dotIndex = txt.IndexOf('.');
-                    if (dotIndex != -1) {
+                    if (dotIndex != -1)
+                    {
                         totalDigits--;
                     }
-                    if (totalDigits < originalPrecision) {
+                    if (totalDigits < originalPrecision)
+                    {
                         if (dotIndex == -1)
                             txt += ".";
                         var diff = originalPrecision - totalDigits;
@@ -266,7 +277,7 @@ namespace YantraJS.Core.Runtime
             var n = a.This.ToNumber();
             var (locale, format) = a.Get2();
             var formatting = "g";
-           
+
             if (!locale.IsNullOrUndefined)
             {
                 string number;
@@ -292,5 +303,74 @@ namespace YantraJS.Core.Runtime
 
             return new JSString(n.value.ToString(formatting, System.Globalization.CultureInfo.CurrentCulture));
         }
+
+        public static string DecimalToBase(double number, int radix)
+        {
+            if (number == 0.0)
+                return "0";
+            if (double.IsPositiveInfinity(number))
+                return "Infinity";
+            if (double.IsNegativeInfinity(number))
+                return "-Infinity";
+            if (double.IsNaN(number))
+                return "NaN";
+            var isNegative = number < 0.0;
+            number = Math.Abs(number);
+            var digits = Math.Floor(number);
+            var digitsTxt = DecimalToArbitrarySystem((long)digits, radix);
+            if (digits == number)
+                return digitsTxt;
+            var fraction = number % digits;
+            for (int i = 0; i < 15; i++)
+            {
+                fraction = fraction * 10;
+                if (Math.Floor(fraction) == fraction)
+                    break;
+            }
+            var fractionText = DecimalToArbitrarySystem((long)fraction, radix);
+            return $"{(isNegative ? "-" : " ")}{digitsTxt}.{fractionText}";
+        }
+
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/923771/quickest-way-to-convert-a-base-10-number-to-any-base-in-net
+        /// Converts the given decimal number to the numeral system with the
+        /// specified radix (in the range [2, 36]).
+        /// </summary>
+        /// <param name="decimalNumber">The number to convert.</param>
+        /// <param name="radix">The radix of the destination numeral system (in the range [2, 36]).</param>
+        /// <returns></returns>
+        public static string DecimalToArbitrarySystem(long decimalNumber, int radix)
+        {
+            const int BitsInLong = 64;
+            const string Digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+            if (radix < 2 || radix > Digits.Length)
+                throw new ArgumentException("The radix must be >= 2 and <= " + Digits.Length.ToString());
+
+            if (decimalNumber == 0)
+                return "0";
+
+            int index = BitsInLong - 1;
+            long currentNumber = Math.Abs(decimalNumber);
+            char[] charArray = new char[BitsInLong];
+
+            while (currentNumber != 0)
+            {
+                int remainder = (int)(currentNumber % radix);
+                charArray[index--] = Digits[remainder];
+                currentNumber = currentNumber / radix;
+            }
+
+            string result = new string(charArray, index + 1, BitsInLong - index - 1);
+            if (decimalNumber < 0)
+            {
+                result = "-" + result;
+            }
+
+            return result;
+        }
+
+
     }
 }
