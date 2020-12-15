@@ -153,6 +153,73 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Arguments(JSValue @this, JSValue[] list, int length)
+        {
+            This = @this;
+            Length = length;
+            JSValue[] args = new JSValue[length];
+            int i = 0;
+            foreach(var a in list)
+            {
+                if (a.IsSpread)
+                {
+                    for (uint j = 0; j < a.Length; j++,i++)
+                    {
+                        args[i] = a[j];
+                    }
+                    continue;
+                }
+                list[i] = a;
+            }
+            switch (Length)
+            {
+                case 0:
+                    Arg0 = null;
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 1:
+                    Arg0 = args[0];
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 2:
+                    Arg0 = args[0];
+                    Arg1 = args[1];
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 3:
+                    Arg0 = args[0];
+                    Arg1 = args[1];
+                    Arg2 = args[2];
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 4:
+                    Arg0 = args[0];
+                    Arg1 = args[1];
+                    Arg2 = args[2];
+                    Arg3 = args[3];
+                    Args = null;
+                    break;
+                default:
+                    Arg0 = null;
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = args;
+                    break;
+            }
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue[] args)
         {
             This = @this;
@@ -457,6 +524,18 @@ namespace YantraJS.Core
                 default:
                     return index >= Length ? JSUndefined.Value : Args[index];
             }
+        }
+
+        public JSValue RestFrom(uint index)
+        {
+            var a = new JSArray();
+            ref var ae = ref a.GetElements(true);
+            for (uint i = index; i < Length; i++)
+            {
+                ae[(uint)i] = JSProperty.Property( GetAt((int)i));
+            }
+            a._length = (uint)Length - index;
+            return a;
         }
 
 

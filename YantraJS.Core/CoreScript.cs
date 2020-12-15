@@ -456,6 +456,15 @@ namespace YantraJS
                                 true);
                             bodyInits.Add(inits);
                             break;
+                        case Nodes.RestElement:
+                            var re = v as RestElement;
+                            id = re.Argument as Identifier;
+                            inits = CreateAssignment(re.Argument,
+                                ArgumentsBuilder.RestFrom(argumentElements, (uint)i)
+                                , true,
+                                true);
+                            bodyInits.Add(inits);
+                            break;
                         //case ArrayPattern aap:
                         //    bodyInits.Add(CreateAssignment(v, argumentElements, true, true));
                         //    break;
@@ -766,6 +775,15 @@ namespace YantraJS
                                     case Nodes.ObjectPattern:
                                         BindingPattern vp = property.Value as BindingPattern;
                                         inits.Add(CreateAssignment(vp, start, true, newScope));
+                                        break;
+                                    // TODO
+                                    case Nodes.AssignmentPattern:
+                                        AssignmentPattern ap = property.Value as AssignmentPattern;
+                                        inits.Add(CreateAssignment(ap.Left, 
+                                            Exp.Coalesce(
+                                                JSValueExtensionsBuilder.NullIfUndefined(start),
+                                                VisitExpression(ap.Right))
+                                        ));
                                         break;
                                     default:
                                         throw new NotImplementedException();
@@ -1591,7 +1609,7 @@ namespace YantraJS
         {
             var constructor = VisitExpression(newExpression.Callee);
             var args = Visit(in newExpression.Arguments);
-            var pe = ArgumentsBuilder.New( JSUndefinedBuilder.Value, args);
+            var pe = ArgumentsBuilder.New(JSUndefinedBuilder.Value, args);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, pe);
         }
 
@@ -1981,7 +1999,16 @@ namespace YantraJS
 
         protected override Exp VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)
         {
-            throw new NotImplementedException();
+            var tag = taggedTemplateExpression.Tag;
+            var args = new List<Expression>();
+            var strings = new List<Expression>();
+            foreach (var a in taggedTemplateExpression.Quasi.Quasis) {
+                strings.Add(new Literal(a.Value.Raw));
+            }
+            args.Add(new ArrayExpression(new NodeList<Expression>(strings)));
+            args.AddRange(taggedTemplateExpression.Quasi.Expressions);
+
+            return VisitCallExpression(new CallExpression(tag, new NodeList<Expression>(args)), taggedTemplateExpression);
         }
 
         protected override Exp VisitSuper(Esprima.Ast.Super super)
@@ -2075,10 +2102,26 @@ namespace YantraJS
                 @false, typeof(JSValue));
         }
 
-        protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression)
+        protected override Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression){
+            return VisitCallExpression(callExpression, callExpression);
+        }
+
+        protected Exp VisitCallExpression(Esprima.Ast.CallExpression callExpression, Expression node)
         {
             var calle = callExpression.Callee;
-            var args = Visit(callExpression.Arguments);
+            var args = new List<Exp>(callExpression.Arguments.Count);
+            bool hasSpread = false;
+            foreach (var a in callExpression.Arguments) {
+                var ae = a as Expression;
+                if (ae.Type != Nodes.SpreadElement) {
+                    args.Add(VisitExpression(ae));
+                    continue;
+                }
+                // spread....
+                var sa = a as SpreadElement;
+                args.Add(new ClrSpreadExpression(VisitExpression(sa.Argument)));
+                hasSpread = true;
+            }
             
             if (calle is Esprima.Ast.MemberExpression me)
             {
@@ -2119,7 +2162,7 @@ namespace YantraJS
 
                 // var name = KeyOfName(id.Name);
                 var paramArray = args.Any()
-                    ? ArgumentsBuilder.New(isSuper ? target : JSUndefinedBuilder.Value , args)
+                    ? ArgumentsBuilder.New(isSuper ? target : JSUndefinedBuilder.Value , args, hasSpread)
                     : ArgumentsBuilder.Empty();
 
                 if(isSuper)
@@ -2128,7 +2171,7 @@ namespace YantraJS
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
                 }
 
-                return DebugNode( callExpression, JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
+                return DebugNode( node, JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
 
             } else {
 
@@ -2136,16 +2179,16 @@ namespace YantraJS
 
                 if (isSuper)
                 {
-                    var paramArray1 = ArgumentsBuilder.New(this.scope.Top.ThisExpression, args);
+                    var paramArray1 = ArgumentsBuilder.New(this.scope.Top.ThisExpression, args, hasSpread);
                     var super = this.scope.Top.Super;
                     return JSFunctionBuilder.InvokeSuperConstructor(this.scope.Top.ThisExpression, super, paramArray1);
                 }
 
                 var paramArray = args.Any()
-                    ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args)
+                    ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args, hasSpread)
                     : ArgumentsBuilder.Empty();
                 var callee = VisitExpression(callExpression.Callee);
-                return DebugNode( callExpression, JSFunctionBuilder.InvokeFunction(callee, paramArray));
+                return DebugNode( node, JSFunctionBuilder.InvokeFunction(callee, paramArray));
             }
         }
 
@@ -2181,6 +2224,15 @@ namespace YantraJS
         {
             // simple identifier based assignments or 
             // array index based assignments...
+
+            var leftExp = assignmentExpression.Left as Esprima.Ast.Expression;
+
+            switch(leftExp.Type)
+            {
+                case Nodes.ArrayPattern:
+                case Nodes.ObjectPattern:
+                    return CreateAssignment(leftExp, VisitExpression(assignmentExpression.Right));
+            }
 
             var left = VisitExpression((Esprima.Ast.Expression)assignmentExpression.Left);
             var right = VisitExpression(assignmentExpression.Right);

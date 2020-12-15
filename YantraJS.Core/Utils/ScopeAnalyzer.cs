@@ -177,20 +177,28 @@ namespace YantraJS.Utils
 
         public override void Dispose()
         {
-            // hoist here..
-            var stmt = this.Node as Statement;
-            if (stmt == null)
-            {
-                var fx = (this.Node as IFunction);
-                stmt = fx.Body as Statement;
-            }
             List<string> list = new List<string>();
             foreach (var node in Variables.AllValues())
             {
-                if(node.Value.kind == VariableDeclarationKind.Var)
+                if (node.Value.kind == VariableDeclarationKind.Var)
                 {
                     list.Add(node.Value.name);
                 }
+            }
+            Statement stmt = null;
+            // hoist here..
+            switch(this.Node)
+            {
+                case Statement s:
+                    stmt = s;
+                    break;
+                case IFunction fx:
+                    stmt = fx.Body as Statement;
+                    break;
+                default:
+                    if (list.Count > 0)
+                        throw new NotSupportedException($"Hoisting not supported in {this.Node.GetType()}");
+                    break;
             }
             if (list.Count > 0)
             {
@@ -295,6 +303,25 @@ namespace YantraJS.Utils
             using (stack.Push(new ScopeAnalyzerNode(function as Node)))
             {
                 base.VisitFunctionExpression(function);
+            }
+        }
+
+        protected override void VisitClassDeclaration(ClassDeclaration classDeclaration)
+        {
+            stack.Top.AddVariable(classDeclaration.Id?.Name);
+            using (stack.Push(new ScopeAnalyzerNode(classDeclaration)))
+            {
+                base.VisitClassDeclaration(classDeclaration);
+            }
+        }
+
+        protected override void VisitClassExpression(ClassExpression classExpression)
+        {
+
+            stack.Top.AddVariable(classExpression.Id?.Name);
+            using (stack.Push(new ScopeAnalyzerNode(classExpression)))
+            {
+                base.VisitClassExpression(classExpression);
             }
         }
 
@@ -437,6 +464,15 @@ namespace YantraJS.Utils
                     return;
                 case Nodes.SpreadElement:
                     VisitSpreadElement(node.As<SpreadElement>());
+                    return;
+                case Nodes.ArrayPattern:
+                    VisitArrayPattern(node as ArrayPattern);
+                    return;
+                case Nodes.ClassExpression:
+                    VisitClassExpression(node as ClassExpression);
+                    return;
+                case Nodes.TaggedTemplateExpression:
+                    VisitTaggedTemplateExpression(node as TaggedTemplateExpression);
                     return;
             }
             base.VisitExpression(node);

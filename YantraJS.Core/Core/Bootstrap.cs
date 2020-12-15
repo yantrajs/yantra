@@ -99,7 +99,7 @@ namespace YantraJS.Core
             }
             if (addToContext)
             {
-                context.GetOwnProperties()[key.Key] = JSProperty.Property(key, copy, JSPropertyAttributes.ConfigurableReadonlyValue);
+                context.GetOwnProperties()[key.Key] = JSProperty.Property(key, copy, JSPropertyAttributes.EnumerableConfigurableReadonlyValue);
             }
 
             // seal copy...

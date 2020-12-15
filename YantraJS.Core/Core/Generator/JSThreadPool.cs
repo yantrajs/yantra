@@ -25,6 +25,7 @@ namespace YantraJS.Core.Generator
             thread = new JSThread(action) {
                 Parameter = p
             };
+            System.Diagnostics.Debug.WriteLine($"JSThreadPool thread #{thread.thread.ManagedThreadId} created");
             thread.Resume();
         }
 
