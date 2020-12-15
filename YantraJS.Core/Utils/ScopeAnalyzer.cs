@@ -298,6 +298,25 @@ namespace YantraJS.Utils
             }
         }
 
+        protected override void VisitClassDeclaration(ClassDeclaration classDeclaration)
+        {
+            stack.Top.AddVariable(classDeclaration.Id?.Name);
+            using (stack.Push(new ScopeAnalyzerNode(classDeclaration)))
+            {
+                base.VisitClassDeclaration(classDeclaration);
+            }
+        }
+
+        protected override void VisitClassExpression(ClassExpression classExpression)
+        {
+
+            stack.Top.AddVariable(classExpression.Id?.Name);
+            using (stack.Push(new ScopeAnalyzerNode(classExpression)))
+            {
+                base.VisitClassExpression(classExpression);
+            }
+        }
+
         protected override void VisitArrowFunctionExpression(ArrowFunctionExpression arrowFunctionExpression)
         {
             stack.Top.AddVariable(arrowFunctionExpression.Id?.Name);

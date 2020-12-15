@@ -1,15 +1,15 @@
 ﻿// hoisting of class is pending !!
 
-//class Shape {
+class Shape {
 
-//    static get shapeName() {
-//        return Shape._name;
-//    }
-//    static set shapeName(v) {
-//        Shape._name = v;
-//    }
+    static get shapeName() {
+        return Shape._name;
+    }
+    static set shapeName(v) {
+        Shape._name = v;
+    }
 
-//}
+}
 
-//Shape.shapeName = "shape";
-//assert.strictEqual("shape", Shape.shapeName);
+Shape.shapeName = "shape";
+assert.strictEqual("shape", Shape.shapeName);
