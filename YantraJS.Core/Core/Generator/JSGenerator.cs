@@ -258,6 +258,8 @@ namespace YantraJS.Core.Generator
                         closures = generator.closures;
                         script = generator.script;
                         a = generator.a;
+                        JSContext.Current = generator.context;
+                        SynchronizationContext.SetSynchronizationContext(generator.context.synchronizationContext);
                     }
                     else
                     {
