@@ -474,6 +474,9 @@ namespace YantraJS.Utils
                 case Nodes.TaggedTemplateExpression:
                     VisitTaggedTemplateExpression(node as TaggedTemplateExpression);
                     return;
+                case Nodes.MetaProperty:
+                    VisitMetaProperty(node as MetaProperty);
+                    return;
             }
             base.VisitExpression(node);
         }

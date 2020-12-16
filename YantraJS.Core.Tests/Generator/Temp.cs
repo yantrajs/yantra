@@ -24,7 +24,7 @@ namespace YantraJS.Tests.Generator
 
             // pending new object initialization
 
-            RunTest("es5\\Array\\Typed\\reduceRight.js");
+            // RunTest("es5\\Array\\Typed\\reduceRight.js");
             // RunTest("Objects\\Object\\entries.js");
 
             // RunTest("es6/Syntax/for-of/array.js");
@@ -48,6 +48,8 @@ namespace YantraJS.Tests.Generator
             // RunTest("es5/Array/slice.js");
 
             // RunTest("es6/Syntax/class/properties.js");
+
+            RunTest("es6/Syntax/class/new-target.js");
 
 
         }
