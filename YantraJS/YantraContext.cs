@@ -210,15 +210,27 @@ namespace YantraJS
             while ((line = sr.ReadLine() ) != null)
             {
                 var l = line.TrimStart();
-                if(l.StartsWith("nuget:"))
+                if(l.StartsWith("#r \"nuget: "))
                 {
-                    l = l.Substring(6).Trim();
-                    if (l.StartsWith("YantraJS.Core,"))
+                    var name = ParseName(l);
+                    if (name == "YantraJS.Core")
                         continue;
                 }
                 sb.AppendLine(line);
             }
             return sb.ToString();
+        }
+
+        private static string ParseName(string text)
+        {
+            int index = text.IndexOf(':');
+            if (index == -1)
+                return text;
+            text = text.Substring(index + 1);
+            index = text.IndexOf(',');
+            if (index == -1)
+                return text;
+            return text.Substring(0, index).Trim();
         }
 
     }

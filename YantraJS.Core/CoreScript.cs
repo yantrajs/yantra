@@ -218,7 +218,7 @@ namespace YantraJS
 
                 // sList.Add(JSContextStackBuilder.Pop(stackItem));
 
-                script = Exp.Block(vList, sList);
+                script = Exp.Block(vList, Exp.TryFinally( Exp.Block(sList), JSContextStackBuilder.Pop(stackItem, lScope)));
                 
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);

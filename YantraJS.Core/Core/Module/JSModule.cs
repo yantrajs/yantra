@@ -42,6 +42,14 @@ namespace YantraJS.Core
             this.exports = new JSObject();
 
             Console.WriteLine($"Compiling module {filePath}");
+
+            // if this is a json file... then pad with module.exports = 
+
+            if (this.filePath.EndsWith(".json"))
+            {
+                code = $"module.exports = {code};";
+            }
+
             this.factory = context.Compile(code, filePath, new List<string> {
                 "exports",
                 "require",

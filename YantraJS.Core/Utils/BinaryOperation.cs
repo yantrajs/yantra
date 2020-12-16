@@ -109,9 +109,10 @@ namespace YantraJS.Utils
             var rightDouble = ExpHelper.JSValueBuilder.DoubleValue(right);
 
             var leftInt = Expression.Convert(leftDouble, typeof(int));
+            var leftUInt = Expression.Convert(leftDouble, typeof(uint));
             var rightInt = Expression.Convert(rightDouble, typeof(int));
 
-            var rightUInt = Expression.Convert(rightDouble, typeof(uint));
+            // var rightUInt = Expression.Convert(rightDouble, typeof(uint));
 
             // convert to double...
             switch (assignmentOperator)
@@ -135,7 +136,7 @@ namespace YantraJS.Utils
                 case AssignmentOperator.RightShiftAssign:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
                 case AssignmentOperator.UnsignedRightShiftAssign:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightUInt)));
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
                 case AssignmentOperator.ExponentiationAssign:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Power(leftInt, rightInt)));
             }
