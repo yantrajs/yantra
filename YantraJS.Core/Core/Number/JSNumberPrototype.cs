@@ -72,7 +72,7 @@ namespace YantraJS.Core.Runtime
             return a.This.ToNumber();
         }
 
-        [Prototype("toString")]
+        [Prototype("toString", Length =1)]
 
         public static JSString ToString(in Arguments a)
         {
@@ -81,6 +81,7 @@ namespace YantraJS.Core.Runtime
             var value = n.value;
             var arg = a.Get1();
             int radix = 0;
+            var culture = CultureInfo.GetCultureInfo("en-US");
             if (!arg.IsNullOrUndefined)
             {
                 radix = arg.IntValue;
@@ -98,10 +99,10 @@ namespace YantraJS.Core.Runtime
                 return JSConstants.NegativeInfinity;
 
             if (value > 999999999999999.0)
-                return new JSString(value.ToString("g21"));
+                return new JSString(value.ToString("g21", culture));
             if (value > 5e-7 && value < 1)
-                return new JSString(value.ToString("f6")); //Assert.AreEqual("0.000005", Evaluate("5e-6.toString()"));
-            var txt = value.ToString("g");
+                return new JSString(value.ToString("f6", culture)); //Assert.AreEqual("0.000005", Evaluate("5e-6.toString()"));
+            var txt = value.ToString("g", culture);
             var eIndex = txt.IndexOf('e'); // remove extra zero, after e if any. 
             if (eIndex != -1)
             {
