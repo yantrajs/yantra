@@ -584,7 +584,7 @@ namespace YantraJS.Core.Tests.Imported
                 Assert.AreEqual(75557863725914323419136d, Evaluate("Number.parseFloat('75557863725914323419136')"));
             }
 
-         //   [TestMethod]
+            [TestMethod]
             public void parseInt()
             {
                 Assert.AreEqual(1, Evaluate("Number.parseInt('1')"));

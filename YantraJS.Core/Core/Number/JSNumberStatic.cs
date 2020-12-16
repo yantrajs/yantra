@@ -162,20 +162,20 @@ namespace YantraJS.Core.Runtime
                 var text = p.JSTrim();
                 if (text.Length > 0)
                 {
-                    var radix = 10;
-                    if (a.Length > 2)
+                    var radix = 0;
+                    if (a.Length > 1)
                     {
                         var (_, a1) = a.Get2();
                         if (a1.IsNull || a1.IsUndefined)
                         {
-                            radix = 10;
+                            radix = 0;
                         }
                         else
                         {
                             var n = a1.DoubleValue;
                             if (!double.IsNaN(n))
                             {
-                                radix = (int)n;
+                                radix = (int)(uint)n;
                                 if (radix < 0 || radix == 1 || radix > 36)
                                     return nan;
                             }

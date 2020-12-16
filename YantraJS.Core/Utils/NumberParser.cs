@@ -8,7 +8,10 @@ using YantraJS.Core;
 
 namespace YantraJS.Utils
 {
-    class NumberParser
+    /// <summary>
+    /// Parses strings into numbers.
+    /// </summary>
+    internal static class NumberParser
     {
         /// <summary>
         /// Converts a string to a number (used by parseFloat).
@@ -56,10 +59,78 @@ namespace YantraJS.Utils
             return negative ? -result : result;
         }
 
+        /// <summary>
+        /// Converts a string to a number (used in type coercion).
+        /// </summary>
+        /// <returns> The result of parsing the string as a number. </returns>
+        internal static double CoerceToNumber(in StringSpan input)
+        {
+            var reader = input.Reader();
+
+            // Skip whitespace and line terminators.
+            while (IsWhiteSpaceOrLineTerminator(reader.Peek()))
+                reader.Read();
+
+            // Empty strings return 0.
+            int firstChar = reader.Read();
+            if (firstChar == -1)
+                return 0.0;
+
+            // The number can start with a plus or minus sign.
+            bool negative = false;
+            switch (firstChar)
+            {
+                case '-':
+                    negative = true;
+                    firstChar = reader.Read();
+                    break;
+                case '+':
+                    firstChar = reader.Read();
+                    break;
+            }
+
+            // Infinity or -Infinity are also valid.
+            if (firstChar == 'I')
+            {
+                string restOfString1 = reader.ReadToEnd();
+                if (restOfString1.StartsWith("nfinity", StringComparison.Ordinal) == true)
+                {
+                    // Check the end of the string for junk.
+                    for (int i = 7; i < restOfString1.Length; i++)
+                        if (IsWhiteSpaceOrLineTerminator(restOfString1[i]) == false)
+                            return double.NaN;
+                    return negative ? double.NegativeInfinity : double.PositiveInfinity;
+                }
+            }
+
+            // Return NaN if the first digit is not a number or a period.
+            if ((firstChar < '0' || firstChar > '9') && firstChar != '.')
+                return double.NaN;
+
+            // Parse the number.
+            NumberParser.ParseCoreStatus status;
+            double result = NumberParser.ParseCore(reader, (char)firstChar, out status, allowES3Octal: false);
+
+            // Handle various error cases.
+            switch (status)
+            {
+                case ParseCoreStatus.NoDigits:
+                case ParseCoreStatus.NoExponent:
+                    return double.NaN;
+            }
+
+            // Check the end of the string for junk.
+            string restOfString2 = reader.ReadToEnd();
+            for (int i = 0; i < restOfString2.Length; i++)
+                if (IsWhiteSpaceOrLineTerminator(restOfString2[i]) == false)
+                    return double.NaN;
+
+            return negative ? -result : result;
+        }
+
         private static readonly int[] integerPowersOfTen = new int[] {
             1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
         };
-
 
         internal enum ParseCoreStatus
         {
@@ -185,7 +256,7 @@ namespace YantraJS.Utils
                     else if (totalDigits < 18)
                         desired2 = desired2 * 10 + (c - '0');
                     else
-                        desired3 = BigInteger.Add(BigInteger.Multiply(desired3, 10), c - '0');
+                        desired3 = BigInteger.Add( BigInteger.Multiply(desired3, 10), c - '0');
                     totalDigits++;
                 }
             }
@@ -319,146 +390,6 @@ namespace YantraJS.Utils
         }
 
         /// <summary>
-        /// Converts a string to a number (used in type coercion).
-        /// </summary>
-        /// <returns> The result of parsing the string as a number. </returns>
-        internal static double CoerceToNumber(in StringSpan input)
-        {
-            var reader = input.Reader();
-
-            // Skip whitespace and line terminators.
-            while (IsWhiteSpaceOrLineTerminator(reader.Peek()))
-                reader.Read();
-
-            // Empty strings return 0.
-            int firstChar = reader.Read();
-            if (firstChar == -1)
-                return 0.0;
-
-            // The number can start with a plus or minus sign.
-            bool negative = false;
-            switch (firstChar)
-            {
-                case '-':
-                    negative = true;
-                    firstChar = reader.Read();
-                    break;
-                case '+':
-                    firstChar = reader.Read();
-                    break;
-            }
-
-            // Infinity or -Infinity are also valid.
-            if (firstChar == 'I')
-            {
-                string restOfString1 = reader.ReadToEnd();
-                if (restOfString1.StartsWith("nfinity", StringComparison.Ordinal) == true)
-                {
-                    // Check the end of the string for junk.
-                    for (int i = 7; i < restOfString1.Length; i++)
-                        if (IsWhiteSpaceOrLineTerminator(restOfString1[i]) == false)
-                            return double.NaN;
-                    return negative ? double.NegativeInfinity : double.PositiveInfinity;
-                }
-            }
-
-            // Return NaN if the first digit is not a number or a period.
-            if ((firstChar < '0' || firstChar > '9') && firstChar != '.')
-                return double.NaN;
-
-            // Parse the number.
-            NumberParser.ParseCoreStatus status;
-            double result = NumberParser.ParseCore(reader, (char)firstChar, out status, allowES3Octal: false);
-
-            // Handle various error cases.
-            switch (status)
-            {
-                case ParseCoreStatus.NoDigits:
-                case ParseCoreStatus.NoExponent:
-                    return double.NaN;
-            }
-
-            // Check the end of the string for junk.
-            string restOfString2 = reader.ReadToEnd();
-            for (int i = 0; i < restOfString2.Length; i++)
-                if (IsWhiteSpaceOrLineTerminator(restOfString2[i]) == false)
-                    return double.NaN;
-
-            return negative ? -result : result;
-        }
-
-
-        /// <summary>
-        /// Converts a string to a number (used in type coercion).
-        /// </summary>
-        /// <returns> The result of parsing the string as a number. </returns>
-        internal static double CoerceToNumber(string input)
-        {
-            var reader = new System.IO.StringReader(input);
-
-            // Skip whitespace and line terminators.
-            while (IsWhiteSpaceOrLineTerminator(reader.Peek()))
-                reader.Read();
-
-            // Empty strings return 0.
-            int firstChar = reader.Read();
-            if (firstChar == -1)
-                return 0.0;
-
-            // The number can start with a plus or minus sign.
-            bool negative = false;
-            switch (firstChar)
-            {
-                case '-':
-                    negative = true;
-                    firstChar = reader.Read();
-                    break;
-                case '+':
-                    firstChar = reader.Read();
-                    break;
-            }
-
-            // Infinity or -Infinity are also valid.
-            if (firstChar == 'I')
-            {
-                string restOfString1 = reader.ReadToEnd();
-                if (restOfString1.StartsWith("nfinity", StringComparison.Ordinal) == true)
-                {
-                    // Check the end of the string for junk.
-                    for (int i = 7; i < restOfString1.Length; i++)
-                        if (IsWhiteSpaceOrLineTerminator(restOfString1[i]) == false)
-                            return double.NaN;
-                    return negative ? double.NegativeInfinity : double.PositiveInfinity;
-                }
-            }
-
-            // Return NaN if the first digit is not a number or a period.
-            if ((firstChar < '0' || firstChar > '9') && firstChar != '.')
-                return double.NaN;
-
-            // Parse the number.
-            NumberParser.ParseCoreStatus status;
-            double result = NumberParser.ParseCore(reader, (char)firstChar, out status, allowES3Octal: false);
-
-            // Handle various error cases.
-            switch (status)
-            {
-                case ParseCoreStatus.NoDigits:
-                case ParseCoreStatus.NoExponent:
-                    return double.NaN;
-            }
-
-            // Check the end of the string for junk.
-            string restOfString2 = reader.ReadToEnd();
-            for (int i = 0; i < restOfString2.Length; i++)
-                if (IsWhiteSpaceOrLineTerminator(restOfString2[i]) == false)
-                    return double.NaN;
-
-            return negative ? -result : result;
-        }
-
-
-        /// <summary>
         /// Converts a string to an integer (used by parseInt).
         /// </summary>
         /// <param name="input"> The input text to parse. </param>
@@ -543,7 +474,7 @@ namespace YantraJS.Utils
                     bigResult = new BigInteger(result);
                 result = result * radix + numericValue;
                 if (digitCount >= maxDigits)
-                    bigResult += radix * numericValue;
+                    bigResult = BigInteger.Add( BigInteger.Multiply( bigResult, radix), numericValue);
                 digitCount++;
             }
 
@@ -645,7 +576,6 @@ namespace YantraJS.Utils
         /// <param name="c"> The unicode code point for the character. </param>
         /// <returns> <c>true</c> if the character is whitespace or a line terminator; <c>false</c>
         /// otherwise. </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsWhiteSpaceOrLineTerminator(int c)
         {
             return c == 9 || c == 0x0b || c == 0x0c || c == ' ' || c == 0xa0 || c == 0xfeff ||
@@ -802,6 +732,6 @@ namespace YantraJS.Utils
             result = result << shift;
             return result;
         }
-
     }
+
 }
