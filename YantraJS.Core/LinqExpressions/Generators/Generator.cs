@@ -5,14 +5,107 @@ using System.Text;
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
-    public delegate void GeneratorDelegate();
-
     public class Generator
     {
 
-        public Generator()
-        {
+        private Stack<Action> Stack = new Stack<Action>();
 
+        public Arguments Arguments { get; }
+
+        public Generator(in Arguments a)
+        {
+            this.Arguments = a;
+        }
+
+        private bool stop = false;
+        private JSValue result = null;
+
+        public void Yield(Func<JSValue> yield)
+        {
+            Stack.Push(() => {
+                result = yield();
+                stop = true;
+            });
+        }
+
+        public bool Next(JSValue next, out JSValue value)
+        {
+            result = result ?? next;
+            while(Stack.Count > 0)
+            {
+                var step = Stack.Pop();
+                stop = false;
+                step();
+                if (stop) {
+                    value = result;
+                    return true;
+                }
+            }
+            value = null;
+            return false;
+        }
+
+        public void Block(Action[] list)
+        {
+            for (int i = list.Length-1; i > 0; i--)
+            {
+                Stack.Push(list[i]);
+            }
+        }
+
+        public void Assign(Action<JSValue> left, Func<JSValue> right) {
+            JSValue result = null;
+            Stack.Push(() => {
+                left(result);
+            });
+            Stack.Push(() => {
+                result = right();
+            });
+        }
+
+        public void If(Func<bool> test, Action @true, Action @false = null)
+        {
+            Stack.Push(() => { 
+                if (test())
+                {
+                    Stack.Push(@true);
+                }
+                if (@false != null)
+                    Stack.Push(@false);
+            });
+        }
+
+        public void Break(Action body)
+        {
+            while(Stack.Count > 0)
+            {
+                if(Stack.Peek() == body)
+                {
+                    Stack.Pop();
+                    break;
+                }
+                Stack.Pop();
+            }
+        }
+
+        public void Continue(Action body)
+        {
+            while (Stack.Count > 0)
+            {
+                if (Stack.Peek() == body)
+                {
+                    break;
+                }
+                Stack.Pop();
+            }
+        }
+
+        public void Loop(Action body)
+        {
+            Stack.Push(() => {
+                Loop(body);
+                body();
+            });
         }
 
     }
@@ -36,8 +129,18 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public override ExpressionType NodeType => ExpressionType.Extension;
     }
 
+    public class Step {
+
+        public List<Expression> Steps = new List<Expression>();
+
+        public void Add(Expression exp) => Steps.Add(exp);
+
+    }
+
     public class YieldRewriter: ExpressionVisitor
     {
+        List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
+
         public static Expression Rewrite(Expression body)
         {
             return (new YieldRewriter()).Visit(body);
@@ -48,21 +151,50 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         }
 
-        //protected override Expression VisitBlock(BlockExpression node)
-        //{
-        //    List<Expression> body = new List<Expression>();
-        //    List<Expression> afterYield = null;
-        //    foreach(var child in node.Expressions)
-        //    {
-        //        if (YieldFinder.ContainsYield(child))
-        //        {
-        //            // we need to break here...
-        //            afterYield = afterYield ?? new List<Expression>();
-        //            break;
-        //        }
-        //        body.Add(child);
-        //    }
-        //}
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            lifedVariables.AddRange(node.Variables);
+
+
+            Step step = new Step();
+            List<Step> lambdaList = new List<Step>() { step };
+
+            if (lifedVariables.Count> 0)
+            {
+                foreach(var lv in lifedVariables)
+                {
+                    step.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+                }
+            }
+            List<Expression> afterYield = null;
+            foreach (var child in node.Expressions)
+            {
+                if (YieldFinder.ContainsYield(child))
+                {
+                    // we need to break here...
+                    afterYield = afterYield ?? new List<Expression>();
+
+                    step = new Step();
+                    lambdaList.Add(step);
+
+                    step.Add(Visit(child));
+
+                    step = new Step();
+                    lambdaList.Add(step);
+                    continue;
+                }
+                step.Add(child);
+            }
+            if (lifedVariables.Count > 0)
+            {
+                foreach (var lv in lifedVariables)
+                {
+                    step.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+                }
+            }
+
+            
+        }
     }
 
     public class YieldFinder: ExpressionVisitor {
