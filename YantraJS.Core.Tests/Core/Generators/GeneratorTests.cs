@@ -15,10 +15,10 @@ namespace YantraJS.Core.Tests.Core.Generators
         {
             var g = new ClrGenerator();
             int a = 0;
-            g.Block(
+            g.Body(g.Block(
                 g.Yield(() => new JSNumber(a++)),
                 g.Yield(() => new JSNumber(a++))
-            );
+            ));
             JSValue n = null;
             Assert.IsTrue(g.Next(n, out n));
             Assert.AreEqual(0, n.IntValue);
