@@ -441,6 +441,8 @@ namespace YantraJS.Utils
                         return VisitClassExpression(expression as ClassExpression);
                     case Nodes.TaggedTemplateExpression:
                         return VisitTaggedTemplateExpression(expression as TaggedTemplateExpression);
+                    case Nodes.MetaProperty:
+                        return VisitMetaProperty(expression as MetaProperty);
                     default:
                         // return VisitUnknownNode(expression);
                         throw new NotImplementedException($"{expression.GetType().FullName}");

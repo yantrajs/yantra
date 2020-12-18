@@ -19,6 +19,8 @@ namespace YantraJS.Core
 
         public readonly JSValue This;
 
+        // public readonly JSValue NewTarget;
+
         private readonly JSValue Arg0;
 
         private readonly JSValue Arg1;
