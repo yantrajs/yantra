@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.LinqExpressions.Generators
@@ -12,7 +13,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             this.n = n;
         }
-        public object Nop() {
+
+        [MethodImpl(
+            MethodImplOptions.NoInlining
+            | MethodImplOptions.NoOptimization)]
+        public Func<object> Nop() {
             return null;
         }
 
@@ -27,6 +32,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
      * Block/TryCatch etc cannot directly add anything onto stack as code
      * may not even reach there, so in case of nested logic, every logic
      * just contains a logic to put items on stack and to execute it further.
+     * 
+     * Instructions cannot be executed within simple block as instructions need to
+     * go on Stack in reverse order.
      * 
      * 
      * Generators are very bad for extensive logic, it is recommended to extract 
