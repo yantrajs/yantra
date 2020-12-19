@@ -15,7 +15,7 @@ namespace YantraJS.Core.Tests.Core.Generators
         {
             var g = new ClrGenerator();
             int a = 0;
-            g.Body(g.Block(
+            g.Build(g.Block(
                 g.Yield(() => new JSNumber(a++)),
                 g.Yield(() => new JSNumber(a++))
             ));
@@ -52,7 +52,7 @@ namespace YantraJS.Core.Tests.Core.Generators
              * }
              */
 
-            g.Body(
+            g.Build(
                 g.Block(
                     g.Loop(g.Block(
                         () => {

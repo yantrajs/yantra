@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -27,7 +29,50 @@ namespace YantraJS.Core.LinqExpressions.Generators
         }
     }
 
+    /// <summary>
+    /// Instructions - source: TypeScript
+    /// </summary>
+    public enum Instruction: byte { 
+        Next = 0,
+        Throw = 1,
+        Return = 2,
+        Break = 3,
+        Yield = 4,
+        YieldStar = 5,
+        Catch = 6,
+        EndFinally = 7
+    }
+
+
+    /*
+     https://www.typescriptlang.org/play?target=1#code/GYVwdgxgLglg9mABAKgLYAoCUiDeAoRQxKAJwE9cCjqyYBTAGwBNEBDARgG4rrDV30tRiw4AaNu3FDmbAEzjWAZkydEPXkzj5eO4uUq7eMYInQBCVKmwAjEnVYBrboZr0Zl5y8IBfRBFZQEAAWpnTs2NpevNIsYZ5e3urUvogA7kEwDHTopCB0Kuq+-oEh6PkGujGIdPGIvsAwYKwMDBSROlUAtFyFeN5AA
+     */
+
+    public struct TryBlock {
+        public int Begin;
+        public int Catch;
+        public int Finally;
+        public int End;
+    }
+
     /**
+     * Return value of Generator delegate must be combination of
+     * 
+     */
+    public struct Result {
+        public Instruction Instruction;
+        public JSValue Value;
+
+        // useful only in case of jump
+        public int Jump;
+    }
+
+    /**
+     * Switch based generator is only perfect
+     * 1. As they run on same thread
+     * 2. Do not use too much of allocation
+     * 
+     * 
      * Each method actually contains steps to manipulate execution stack. 
      * Block/TryCatch etc cannot directly add anything onto stack as code
      * may not even reach there, so in case of nested logic, every logic
@@ -142,7 +187,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
-        public void Body(Func<object> body)
+        public void Build(Func<object> body)
         {
             Stack.Push(body);
         }
@@ -397,73 +442,130 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public override ExpressionType NodeType => ExpressionType.Extension;
     }
 
-    public class Step {
+    public static class ClrGeneratorBuilder
+    {
+        private static Type type = typeof(ClrGenerator);
+
+        private static MethodInfo _block = type.GetMethod(nameof(ClrGenerator.Block));
+
+        public static Expression Block(Expression generator, IEnumerable<Expression> lambda)
+        {
+            return Expression.Call(generator, _block, lambda);
+        }
+    }
+
+    public class Block {
 
         public List<Expression> Steps = new List<Expression>();
 
         public void Add(Expression exp) => Steps.Add(exp);
 
+        public Expression ToExpression() {
+            Expression body;
+            switch (Steps.Count)
+            {
+                case 0:
+                    body = Expression.Constant(null, typeof(object));
+                    break;
+                case 1:
+                    body = Steps[0];
+                    if (body.Type == typeof(void))
+                    {
+                        body = Expression.Block(body, Expression.Constant(null, typeof(object)));
+                    }
+                    break;
+                default:
+                    if (Steps.Last().Type == typeof(void))
+                    {
+                        Steps.Add(Expression.Constant(null, typeof(object)));
+                        body = Expression.Block(Steps);
+                    }
+                    else
+                    {
+                        body = Expression.Block(Steps);
+                    }
+                    break;
+            }
+            return Expression.Lambda(body);
+        }
+
     }
 
-    //public class YieldRewriter: ExpressionVisitor
-    //{
-    //    List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
+    public class VMBlock {
 
-    //    public static Expression Rewrite(Expression body)
-    //    {
-    //        return (new YieldRewriter()).Visit(body);
-    //    }
+        private List<Block> blocks = new List<Block>();
 
-    //    public YieldRewriter()
-    //    {
+        private Block current = new Block();
 
-    //    }
+        public void Add(Expression exp)
+        {
+            current.Add(exp);
+        }
 
-    //    protected override Expression VisitBlock(BlockExpression node)
-    //    {
-    //        lifedVariables.AddRange(node.Variables);
+        public void Break()
+        {
+            blocks.Add(current);
+            current = new Block();
+        }
 
+        public Expression ToExpression(Expression generator) {
+            if (current != null)
+            {
+                blocks.Add(current);
+            }
+            current = null;
+            return ClrGeneratorBuilder.Block(generator, blocks.Select(x => x.ToExpression()));
+        }
+    }
 
-    //        Step step = new Step();
-    //        List<Step> lambdaList = new List<Step>() { step };
+    public class YieldRewriter : ExpressionVisitor
+    {
+        List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
 
-    //        if (lifedVariables.Count> 0)
-    //        {
-    //            foreach(var lv in lifedVariables)
-    //            {
-    //                step.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
-    //            }
-    //        }
-    //        List<Expression> afterYield = null;
-    //        foreach (var child in node.Expressions)
-    //        {
-    //            if (YieldFinder.ContainsYield(child))
-    //            {
-    //                // we need to break here...
-    //                afterYield = afterYield ?? new List<Expression>();
+        public ParameterExpression generator;
 
-    //                step = new Step();
-    //                lambdaList.Add(step);
+        public static Expression Rewrite(Expression body, ParameterExpression generator)
+        {
+            return (new YieldRewriter(generator)).Visit(body);
+        }
 
-    //                step.Add(Visit(child));
+        public YieldRewriter(ParameterExpression generator)
+        {
+            this.generator = generator;
+        }
 
-    //                step = new Step();
-    //                lambdaList.Add(step);
-    //                continue;
-    //            }
-    //            step.Add(child);
-    //        }
-    //        if (lifedVariables.Count > 0)
-    //        {
-    //            foreach (var lv in lifedVariables)
-    //            {
-    //                step.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
-    //            }
-    //        }
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            lifedVariables.AddRange(node.Variables);
 
-            
-    //    }
-    //}
+            VMBlock block = new VMBlock();
+
+            if (lifedVariables.Count > 0)
+            {
+                foreach (var lv in lifedVariables)
+                {
+                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+                }
+            }
+            foreach (var child in node.Expressions)
+            {
+                if (YieldFinder.ContainsYield(child))
+                {
+                    block.Break();
+                }
+                block.Add(child);
+            }
+            if (lifedVariables.Count > 0)
+            {
+                foreach (var lv in lifedVariables)
+                {
+                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+                }
+            }
+
+            return block.ToExpression(generator);
+        }
+    }
 
     public class YieldFinder: ExpressionVisitor {
 
