@@ -8,18 +8,38 @@ using System.Text;
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
+    public class StackLabel
+    {
+        private readonly int n;
 
-    public delegate Instruction MoveNext(ref JSValue value, ref int label, ref Exception exception);
+        public StackLabel(int n)
+        {
+            this.n = n;
+        }
 
+        [MethodImpl(
+            MethodImplOptions.NoInlining
+            | MethodImplOptions.NoOptimization)]
+        public Func<object> Nop()
+        {
+            return null;
+        }
+
+        public override string ToString()
+        {
+            return n.ToString();
+        }
+    }
 
     /// <summary>
     /// Instructions - source: TypeScript
     /// </summary>
-    public enum Instruction: byte { 
+    public enum Instruction : byte
+    {
         Next = 0,
         Throw = 1,
         Return = 2,
-        Jump = 3,
+        Break = 3,
         Yield = 4,
         YieldStar = 5,
         Catch = 6,
@@ -31,7 +51,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
      https://www.typescriptlang.org/play?target=1#code/GYVwdgxgLglg9mABAKgLYAoCUiDeAoRQxKAJwE9cCjqyYBTAGwBNEBDARgG4rrDV30tRiw4AaNu3FDmbAEzjWAZkydEPXkzj5eO4uUq7eMYInQBCVKmwAjEnVYBrboZr0Zl5y8IBfRBFZQEAAWpnTs2NpevNIsYZ5e3urUvogA7kEwDHTopCB0Kuq+-oEh6PkGujGIdPGIvsAwYKwMDBSROlUAtFyFeN5AA
      */
 
-    public struct TryBlock {
+    public struct TryBlock
+    {
         public int Begin;
         public int Catch;
         public int Finally;
@@ -42,7 +63,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
      * Return value of Generator delegate must be combination of
      * 
      */
-    public struct Result {
+    public struct Result
+    {
         public Instruction Instruction;
         public JSValue Value;
 
@@ -50,13 +72,63 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public int Jump;
     }
 
+    //public class FastStack<T>
+    //{
+    //    private int _count;
+    //    public int Count => _count;
+
+    //    private FastStackNode Start = null;
+
+    //    class FastStackNode {
+    //        internal T[] Nodes = new T[8];
+    //        internal FastStackNode Parent;
+    //    }
+
+    //    public void Push(T item)
+    //    {
+    //        var index = _count % 8;
+    //        if (index == 0)
+    //        {
+    //            Start = new FastStackNode { Parent = Start };
+    //        }
+    //        Start.Nodes[index] = item;
+    //        _count++;
+    //    }
+
+    //    public T Pop()
+    //    {
+    //        if (_count == 0)
+    //            throw new KeyNotFoundException();
+    //        _count--;
+    //        var index = _count % 8;
+    //        ref var t = ref Start.Nodes[index];
+    //        if (index == 0)
+    //        {
+    //            Start = Start.Parent ?? Start;
+    //        }
+    //        return t;
+    //    }
+
+    //    public T Peek()
+    //    {
+    //        if (_count == 0)
+    //            throw new KeyNotFoundException();
+    //        return Start.Nodes[(_count - 1) % 8];
+    //    }
+
+    //}
+
+
     /**
+     * Switch based generator is too complicated to generate
+     * 
+     * It is posponed for future.
+     * 
+     * Instead we have opted for creating Function based VM
+     * 
      * Switch based generator is only perfect
      * 1. As they run on same thread
      * 2. Do not use too much of allocation
-     * 3. Breaking statement into lambda equalivalent to Pausable VM could 
-     *    run very slow as it would cause too many jumps (most likely tail calls) but
-     *    still switch would perform faster.
      * 
      * 
      * Each method actually contains steps to manipulate execution stack. 
@@ -77,84 +149,344 @@ namespace YantraJS.Core.LinqExpressions.Generators
     public class ClrGenerator
     {
 
-        private Stack<(int start, int @catch, int @finally, int @end)> CatchStack
-            = new Stack<(int start, int @catch, int @finally, int end)>();
+        private Stack<Func<object>> Stack = new Stack<Func<object>>();
 
-        private Stack<int> OpStack = new Stack<int>();
+        private List<Func<object>> labels = new List<Func<object>>();
 
-        public ClrGenerator(MoveNext moveNext)
+        private Stack<(int label, Func<object> @catch)> CatchStack = new Stack<(int, Func<object>)>();
+
+        public ClrGenerator()
         {
-            this.moveNext = moveNext;
         }
 
         private bool stop = false;
         private JSValue result = null;
-        private readonly MoveNext moveNext;
+
+        public int NewLabel()
+        {
+            var i = labels.Count;
+            var sl = new StackLabel(i);
+            labels.Add(sl.Nop);
+            return i;
+        }
+
+        public Func<object> Yield(Func<object> yield)
+        {
+            return () => {
+                Stack.Push(() =>
+                {
+                    result = yield() as JSValue;
+                    stop = true;
+                    return result;
+                });
+                return null;
+            };
+        }
 
         public bool Next(JSValue next, out JSValue value)
         {
-
-            int jump = 1;
-            JSValue result = null;
-            Instruction inst = Instruction.Next;
-            Exception exception = null;
-
-            while(inst != Instruction.Return)
+            result = result ?? next;
+            while (Stack.Count > 0)
             {
+                var step = Stack.Pop();
+                stop = false;
                 try
                 {
-                    inst = moveNext(ref result, ref jump, ref exception);
-                    switch (inst)
-                    {
-                        case Instruction.Next:
-                            jump++;
-                            continue;
-                        case Instruction.Throw:
-
-                            break;
-                        case Instruction.Return:
-                            break;
-                        case Instruction.Jump:
-                            continue;
-                        case Instruction.Yield:
-                            break;
-                        case Instruction.YieldStar:
-                            break;
-                        case Instruction.Catch:
-                            break;
-                        case Instruction.EndFinally:
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (Exception ex)
+                    step();
+                }
+                catch (Exception ex)
                 {
-                    if(CatchStack.Count == 0)
+                    // catch... 
+                    // and go upto last try catch..
+                    if (CatchStack.Count > 0)
                     {
-                        throw ex;
+                        var (id, @catch) = CatchStack.Pop();
+                        var catchLabel = labels[id];
+                        while (Stack.Count > 0)
+                        {
+                            var l = Stack.Pop();
+                            if (l == catchLabel)
+                            {
+                                break;
+                            }
+                        }
+                        // push the exception on stack...
+                        // if it requires catch...
+                        if (@catch != null)
+                        {
+                            Stack.Push(() => ex);
+                            Stack.Push(@catch);
+                        }
+                        continue;
                     }
-                    var (start, @catch, @finally, end) = CatchStack.Pop();
-                    if (@catch == 0)
+                    else
                     {
-                        // goto finally...
-                        OpStack.Push(end);
-                    } else
-                    {
-                        // goto catch...
-                        OpStack.Push(end);
-                        OpStack.Push(@finally);
+                        throw;
                     }
                 }
+                if (stop)
+                {
+                    value = result;
+                    return true;
+                }
             }
-
-
             value = null;
             return false;
         }
 
+        public Func<object> Block(params Func<object>[] list)
+        {
+            return () =>
+            {
+                for (int i = list.Length - 1; i >= 0; i--)
+                {
+                    var step = list[i];
+                    Stack.Push(step);
+                }
+                return null;
+            };
+        }
+
+        public void Build(Func<object> body)
+        {
+            Stack.Push(body);
+        }
+
+        public Func<object> Assign<T>(Action<T> left, Func<object> right)
+        {
+            return () =>
+            {
+                T result = default;
+                Stack.Push(() =>
+                {
+                    left(result);
+                    return result;
+                });
+                Stack.Push(() =>
+                {
+                    result = (T)right();
+                    return result;
+                });
+                return null;
+            };
+        }
+
+        public Func<object> If(Func<bool> test, Func<object> @true, Func<object> @false = null)
+        {
+            return () => {
+                bool testResult = false;
+                Stack.Push(() => {
+                    if (testResult)
+                    {
+                        Stack.Push(@true);
+                    }
+                    else if (@false != null)
+                        Stack.Push(@false);
+                    return testResult;
+                });
+                Stack.Push(() => {
+                    testResult = test();
+                    return null;
+                });
+                return null;
+            };
+        }
+
+        public Func<object> TryFinally(Func<object> tryBody, Func<object> @finally)
+        {
+            int finallyLabel = NewLabel();
+            return () => {
+                CatchStack.Push((finallyLabel, null));
+                Stack.Push(@finally);
+                Stack.Push(labels[finallyLabel]);
+                Stack.Push(() => CatchStack.Pop());
+                Stack.Push(tryBody);
+                return null;
+            };
+        }
+
+        public Func<object> TryCatchFinally(
+            Func<object> tryBody,
+            Func<object> @catch,
+            Func<object> @finally)
+        {
+            int finallyLabel = NewLabel();
+            // catch block is only pushed onto stack
+            // if there was any exception caught
+            return () => {
+                CatchStack.Push((finallyLabel, @catch));
+                Stack.Push(@finally);
+                Stack.Push(labels[finallyLabel]);
+                Stack.Push(() => CatchStack.Pop());
+                Stack.Push(tryBody);
+                return null;
+            };
+        }
+
+        public Func<object> TryCatch(
+            Func<object> tryBody,
+            Func<object> @catch)
+        {
+            int finallyLabel = NewLabel();
+            // catch block is only pushed onto stack
+            // if there was any exception caught
+            return () => {
+                CatchStack.Push((finallyLabel, @catch));
+                Stack.Push(labels[finallyLabel]);
+                Stack.Push(() => CatchStack.Pop());
+                Stack.Push(tryBody);
+                return null;
+            };
+        }
+
+
+        public Func<object> Loop(Func<object> body, int breakLabel, int continueLabel)
+        {
+            var @break = labels[breakLabel];
+            var @continue = labels[continueLabel];
+            object LoopBody()
+            {
+                Stack.Push(LoopBody);
+                Stack.Push(@continue);
+                return body();
+            };
+            return () =>
+            {
+                Stack.Push(@break);
+                return LoopBody();
+            };
+        }
+
+        public Func<object> Goto(int label)
+        {
+            return () => {
+                var l = labels[label];
+                while (Stack.Count > 0)
+                {
+                    if (Stack.Peek() == l)
+                        break;
+                    Stack.Pop();
+                }
+                return null;
+            };
+        }
+
+        public Func<object> Constant(object value)
+        {
+            return () => {
+                Stack.Push(() => value);
+                return null;
+            };
+        }
+
+        public Func<object> Unary(Func<object> target, Func<object, object> process)
+        {
+            return () => {
+                object t = null;
+                Stack.Push(() => process(t));
+                Stack.Push(() => t = target());
+                return null;
+            };
+        }
+
+        public Func<object> Binary(Func<object> left, Func<object> right, Func<object, object, object> process)
+        {
+            return () => {
+
+                object l = null;
+                object r = null;
+
+                Stack.Push(() => {
+                    return process(l, r);
+                });
+
+                Stack.Push(() => {
+                    return r = right();
+                });
+                Stack.Push(() => {
+                    return l = left();
+                });
+
+                return null;
+            };
+        }
+
+        public Func<object> Coalesc(Func<object> left, Func<object> right)
+        {
+            return () => {
+                object r = null;
+                Stack.Push(() => {
+                    return r = r ?? right();
+                });
+                Stack.Push(() => {
+                    return r = left();
+                });
+                return r;
+            };
+        }
+
+        public Func<object> Call(Func<object>[] parameters, Func<object[], object> call)
+        {
+            return () => {
+                int length = parameters.Length;
+                object[] pa = length > 0 ? new object[length] : Array.Empty<object>();
+
+                // we need to push call
+                Stack.Push(() => {
+                    return call(pa);
+                });
+
+                // we need to push parameter in reverse order
+                // so actual evalution will will be in correct order
+                for (int i = length - 1; i >= 0; i--)
+                {
+                    var pi = i;
+                    var fx = parameters[pi];
+                    Stack.Push(() => {
+                        var r = pa[pi] = fx();
+                        return r;
+                    });
+                }
+                return null;
+            };
+        }
+
+
+
+        public Func<object> Switch(
+            Func<object> target,
+            int breakLabel,
+            CatchBody[] @cases)
+        {
+            return () => {
+                object t = null;
+                var @break = labels[breakLabel];
+                Stack.Push(@break);
+                Stack.Push(() => {
+                    bool push = false;
+                    foreach (var c in cases)
+                    {
+                        if (push = push || c.Test == t)
+                        {
+                            Stack.Push(c.Body);
+                        }
+                    }
+                    return null;
+                });
+                Stack.Push(() => t = target());
+                return t;
+            };
+        }
+
+        public struct CatchBody
+        {
+            public object Test;
+            public Func<object> Body;
+        }
+
     }
 
-    public class YieldExpression: Expression
+    public class YieldExpression : Expression
     {
         public YieldExpression New(Expression argument)
         {
@@ -173,6 +505,86 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public override ExpressionType NodeType => ExpressionType.Extension;
     }
 
+    public static class ClrGeneratorBuilder
+    {
+        private static Type type = typeof(ClrGenerator);
+
+        private static MethodInfo _block = type.GetMethod(nameof(ClrGenerator.Block));
+
+        public static Expression Block(Expression generator, IEnumerable<Expression> lambda)
+        {
+            return Expression.Call(generator, _block, lambda);
+        }
+    }
+
+    public class Block
+    {
+
+        public List<Expression> Steps = new List<Expression>();
+
+        public void Add(Expression exp) => Steps.Add(exp);
+
+        public Expression ToExpression()
+        {
+            Expression body;
+            switch (Steps.Count)
+            {
+                case 0:
+                    body = Expression.Constant(null, typeof(object));
+                    break;
+                case 1:
+                    body = Steps[0];
+                    if (body.Type == typeof(void))
+                    {
+                        body = Expression.Block(body, Expression.Constant(null, typeof(object)));
+                    }
+                    break;
+                default:
+                    if (Steps.Last().Type == typeof(void))
+                    {
+                        Steps.Add(Expression.Constant(null, typeof(object)));
+                        body = Expression.Block(Steps);
+                    }
+                    else
+                    {
+                        body = Expression.Block(Steps);
+                    }
+                    break;
+            }
+            return Expression.Lambda(body);
+        }
+
+    }
+
+    public class VMBlock
+    {
+
+        private List<Block> blocks = new List<Block>();
+
+        private Block current = new Block();
+
+        public void Add(Expression exp)
+        {
+            current.Add(exp);
+        }
+
+        public void Break()
+        {
+            blocks.Add(current);
+            current = new Block();
+        }
+
+        public Expression ToExpression(Expression generator)
+        {
+            if (current != null)
+            {
+                blocks.Add(current);
+            }
+            current = null;
+            return ClrGeneratorBuilder.Block(generator, blocks.Select(x => x.ToExpression()));
+        }
+    }
+
     public class YieldRewriter : ExpressionVisitor
     {
         List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
@@ -189,9 +601,41 @@ namespace YantraJS.Core.LinqExpressions.Generators
             this.generator = generator;
         }
 
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            lifedVariables.AddRange(node.Variables);
+
+            VMBlock block = new VMBlock();
+
+            if (lifedVariables.Count > 0)
+            {
+                foreach (var lv in lifedVariables)
+                {
+                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+                }
+            }
+            foreach (var child in node.Expressions)
+            {
+                if (YieldFinder.ContainsYield(child))
+                {
+                    block.Break();
+                }
+                block.Add(child);
+            }
+            if (lifedVariables.Count > 0)
+            {
+                foreach (var lv in lifedVariables)
+                {
+                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+                }
+            }
+
+            return block.ToExpression(generator);
+        }
     }
 
-    public class YieldFinder: ExpressionVisitor {
+    public class YieldFinder : ExpressionVisitor
+    {
 
         private bool found = false;
 
