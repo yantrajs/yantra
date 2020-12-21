@@ -119,6 +119,8 @@ namespace YantraJS.Core
 
         public readonly static KeyString Generator;
         public readonly static KeyString next;
+        public readonly static KeyString @throw;
+        public readonly static KeyString @return;
 
 
         // global methods...
