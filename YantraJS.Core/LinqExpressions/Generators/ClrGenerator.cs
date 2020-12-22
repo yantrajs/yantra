@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -379,22 +377,22 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
-        public Func<object> Unary(Func<object> target, Func<object, object> process)
+        public Func<object> Unary<T>(Func<object> target, Func<T, object> process)
         {
             return () => {
-                object t = null;
+                T t = default;
                 Stack.Push(() => process(t));
-                Stack.Push(() => t = target());
+                Stack.Push(() => t = (T)target());
                 return null;
             };
         }
 
-        public Func<object> Binary(Func<object> left, Func<object> right, Func<object, object, object> process)
+        public Func<object> Binary<TLeft,TRight>(Func<TLeft> left, Func<TRight> right, Func<TLeft, TRight, object> process)
         {
             return () => {
 
-                object l = null;
-                object r = null;
+                TLeft l = default;
+                TRight r = default;
 
                 Stack.Push(() => {
                     return process(l, r);
@@ -484,182 +482,5 @@ namespace YantraJS.Core.LinqExpressions.Generators
             public Func<object> Body;
         }
 
-    }
-
-    public class YieldExpression : Expression
-    {
-        public YieldExpression New(Expression argument)
-        {
-            return new YieldExpression(argument);
-        }
-
-        private YieldExpression(Expression argument)
-        {
-            Argument = argument;
-        }
-
-        public Expression Argument { get; }
-
-        public override Type Type => Argument.Type;
-
-        public override ExpressionType NodeType => ExpressionType.Extension;
-    }
-
-    public static class ClrGeneratorBuilder
-    {
-        private static Type type = typeof(ClrGenerator);
-
-        private static MethodInfo _block = type.GetMethod(nameof(ClrGenerator.Block));
-
-        public static Expression Block(Expression generator, IEnumerable<Expression> lambda)
-        {
-            return Expression.Call(generator, _block, lambda);
-        }
-    }
-
-    public class Block
-    {
-
-        public List<Expression> Steps = new List<Expression>();
-
-        public void Add(Expression exp) => Steps.Add(exp);
-
-        public Expression ToExpression()
-        {
-            Expression body;
-            switch (Steps.Count)
-            {
-                case 0:
-                    body = Expression.Constant(null, typeof(object));
-                    break;
-                case 1:
-                    body = Steps[0];
-                    if (body.Type == typeof(void))
-                    {
-                        body = Expression.Block(body, Expression.Constant(null, typeof(object)));
-                    }
-                    break;
-                default:
-                    if (Steps.Last().Type == typeof(void))
-                    {
-                        Steps.Add(Expression.Constant(null, typeof(object)));
-                        body = Expression.Block(Steps);
-                    }
-                    else
-                    {
-                        body = Expression.Block(Steps);
-                    }
-                    break;
-            }
-            return Expression.Lambda(body);
-        }
-
-    }
-
-    public class VMBlock
-    {
-
-        private List<Block> blocks = new List<Block>();
-
-        private Block current = new Block();
-
-        public void Add(Expression exp)
-        {
-            current.Add(exp);
-        }
-
-        public void Break()
-        {
-            blocks.Add(current);
-            current = new Block();
-        }
-
-        public Expression ToExpression(Expression generator)
-        {
-            if (current != null)
-            {
-                blocks.Add(current);
-            }
-            current = null;
-            return ClrGeneratorBuilder.Block(generator, blocks.Select(x => x.ToExpression()));
-        }
-    }
-
-    public class YieldRewriter : ExpressionVisitor
-    {
-        List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
-
-        public ParameterExpression generator;
-
-        public static Expression Rewrite(Expression body, ParameterExpression generator)
-        {
-            return (new YieldRewriter(generator)).Visit(body);
-        }
-
-        public YieldRewriter(ParameterExpression generator)
-        {
-            this.generator = generator;
-        }
-
-        protected override Expression VisitBlock(BlockExpression node)
-        {
-            lifedVariables.AddRange(node.Variables);
-
-            VMBlock block = new VMBlock();
-
-            if (lifedVariables.Count > 0)
-            {
-                foreach (var lv in lifedVariables)
-                {
-                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
-                }
-            }
-            foreach (var child in node.Expressions)
-            {
-                if (YieldFinder.ContainsYield(child))
-                {
-                    block.Break();
-                }
-                block.Add(child);
-            }
-            if (lifedVariables.Count > 0)
-            {
-                foreach (var lv in lifedVariables)
-                {
-                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
-                }
-            }
-
-            return block.ToExpression(generator);
-        }
-    }
-
-    public class YieldFinder : ExpressionVisitor
-    {
-
-        private bool found = false;
-
-        public static bool ContainsYield(Expression node)
-        {
-            var finder = new YieldFinder();
-            finder.Visit(node);
-            return finder.found;
-        }
-
-        protected override Expression VisitExtension(Expression node)
-        {
-            if (node is YieldExpression)
-            {
-                found = found || true;
-            }
-            return node;
-        }
-
-        public override Expression Visit(Expression node)
-        {
-            if (node is LambdaExpression)
-                return node;
-            return base.Visit(node);
-        }
     }
 }
