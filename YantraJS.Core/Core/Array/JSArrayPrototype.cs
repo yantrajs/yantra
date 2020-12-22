@@ -16,7 +16,31 @@ namespace YantraJS.Core
         public static JSValue Constructor(in Arguments a)
         {
             // throw JSContext.Current.NewTypeError("Not supported");
-            return new JSArray();
+            var @this = a.This;
+            var arg = a.Get1();
+            var result = new JSArray();
+            if (a.Length == 0)
+                return new JSArray();
+            // If only length is specified
+            if (a.Length == 1 && arg.IsNumber)
+            {
+                double val = arg.DoubleValue;
+                if(double.IsNaN(val) || val < 0 || val > UInt32.MaxValue || Math.Floor(val) != val)
+                    throw JSContext.Current.NewRangeError($"Invalid array length");
+                return new JSArray(arg.IntValue);
+            }
+            // If elements are specified
+            for (int i = 0; i < a.Length; i++)
+            {
+                var ele = a.GetAt(i);
+                //if (ele == null)
+                //    ele = JSUndefined.Value;
+                result.Add(ele);
+                
+            }
+            return result;
+
+            
         }
 
         [Prototype("concat", Length = 1)]

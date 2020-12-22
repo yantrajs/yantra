@@ -183,7 +183,10 @@ namespace YantraJS.Core
                 ? $"function {this.name}() {{ [native] }}"
                 : source;
             prototype = new JSObject();
-            prototype[KeyStrings.constructor] = this;
+            // prototype[KeyStrings.constructor] = this;
+            prototype.DefineProperty(KeyStrings.constructor, JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue));
+            // ref var opp = ref prototype.GetOwnProperties(true);
+            // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
             ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
 
             this[KeyStrings.name] = name.IsEmpty
