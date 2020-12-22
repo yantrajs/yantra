@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using YantraJS.Core.CodeGen;
+using YantraJS.Core.LinqExpressions.Generators;
 
 namespace YantraJS.Core.Generator
 {
-    public delegate void JSGeneratorDelegate(ScriptInfo script, JSVariable[] closures, in JSWeakGenerator generator, in Arguments a);
+    public delegate void JSGeneratorDelegate(ScriptInfo script, JSVariable[] closures, ClrGenerator g, in Arguments a);
     public class JSGeneratorFunction: JSFunction
     {
         private readonly ScriptInfo script;
@@ -31,7 +32,9 @@ namespace YantraJS.Core.Generator
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            return new JSGenerator(script, closures, @delegate, a);
+            var g = new ClrGenerator();
+            @delegate(script, closures, g, a);
+            return new JSGenerator(g);
         }
 
     }

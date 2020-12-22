@@ -1,12 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
+    
+
     public class YieldRewriter : ExpressionVisitor
     {
+
+        struct __Labels {
+            uint lastID;
+            Dictionary<LabelTarget, uint> labels;
+            public __Labels(int i)
+            {
+                labels = new Dictionary<LabelTarget, uint>(i);
+                lastID = 1;
+            }
+
+            public uint this[LabelTarget t] { 
+                get
+                {
+                    if (labels.TryGetValue(t, out var i))
+                        return i;
+                    i = lastID++;
+                    labels[t] = i;
+                    return i;
+                }
+            }
+
+        }
 
         private static Type type = typeof(ClrGenerator);
 
@@ -14,8 +39,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static MethodInfo _binary = type.GetMethod(nameof(ClrGenerator.Binary));
         private static MethodInfo _if = type.GetMethod(nameof(ClrGenerator.If));
         private static MethodInfo _unary = type.GetMethod(nameof(ClrGenerator.Unary));
+        private static MethodInfo _loop = type.GetMethod(nameof(ClrGenerator.Loop));
+        private static MethodInfo _goto = type.GetMethod(nameof(ClrGenerator.Goto));
 
         List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
+
+        private __Labels labels = new __Labels(8);
+
 
         public ParameterExpression generator;
 
@@ -23,7 +53,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public static Expression Rewrite(Expression body, ParameterExpression generator)
         {
-            return (new YieldRewriter(generator)).Visit(body);
+            var lambdaBody = (new YieldRewriter(generator)).Visit(body);
+            return Expression.Lambda(lambdaBody, generator);
         }
 
         public YieldRewriter(ParameterExpression generator)
@@ -68,7 +99,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 return node;
             var left = ConvertTyped(node.Left);
             var right = ConvertTyped(node.Right);
-            return ClrGeneratorBuilder.Binary(generator, left, right, node);
+            return ClrGeneratorBuilder.Binary(generator, left, node.Left.Type, right, node.Right.Type, node);
         }
 
         protected override Expression VisitConditional(ConditionalExpression node)
@@ -97,7 +128,18 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (!split)
                 return node;
-            return base.VisitLoop(node);
+            var @break = labels[node.BreakLabel];
+            var @continue = labels[node.ContinueLabel];
+            var @block = Convert(node.Body);
+            return Expression.Call(generator,_loop, @block, Expression.Constant(@break), Expression.Constant(@continue));
+        }
+
+        protected override Expression VisitGoto(GotoExpression node)
+        {
+            if (!split)
+                return node;
+            var target = labels[node.Target];
+            return Expression.Call(generator, _goto, Expression.Constant(target));
         }
 
         protected override Expression VisitBlock(BlockExpression node)

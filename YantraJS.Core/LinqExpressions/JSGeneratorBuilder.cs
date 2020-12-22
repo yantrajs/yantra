@@ -22,21 +22,21 @@ namespace YantraJS.ExpHelper
 
     }
 
-    public class JSGeneratorBuilder
-    {
-        private static Type type = typeof(JSWeakGenerator);
-        private static MethodInfo yield = type.GetMethod(nameof(JSWeakGenerator.Yield), new Type[] { typeof(JSValue) });
-        private static MethodInfo @delegate = type.GetMethod(nameof(JSWeakGenerator.Delegate), new Type[] { typeof(JSValue) });
+    //public class JSGeneratorBuilder
+    //{
+    //    private static Type type = typeof(JSWeakGenerator);
+    //    private static MethodInfo yield = type.GetMethod(nameof(JSWeakGenerator.Yield), new Type[] { typeof(JSValue) });
+    //    private static MethodInfo @delegate = type.GetMethod(nameof(JSWeakGenerator.Delegate), new Type[] { typeof(JSValue) });
 
-        public static Expression Yield(Expression generator, Expression value)
-        {
-            return Expression.Call(generator, yield, value);
-        }
+    //    public static Expression Yield(Expression generator, Expression value)
+    //    {
+    //        return Expression.Call(generator, yield, value);
+    //    }
 
-        public static Expression Delegate(Expression generator, Expression value)
-        {
-            return Expression.Call(generator, @delegate, value);
-        }
+    //    public static Expression Delegate(Expression generator, Expression value)
+    //    {
+    //        return Expression.Call(generator, @delegate, value);
+    //    }
 
-    }
+    //}
 }

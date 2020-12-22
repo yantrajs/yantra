@@ -1,6 +1,6 @@
-﻿function a() {
-    if (!new.target)
-        throw new Error("");
-}
+﻿//function a() {
+//    if (!new.target)
+//        throw new Error("");
+//}
 
-assert.throws(() => a());
+//assert.throws(() => a());

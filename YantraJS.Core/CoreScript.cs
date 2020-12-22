@@ -14,6 +14,7 @@ using YantraJS.Core;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Generator;
 using YantraJS.Core.LinqExpressions;
+using YantraJS.Core.LinqExpressions.Generators;
 using YantraJS.Core.LinqExpressions.Logical;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
@@ -539,9 +540,11 @@ namespace YantraJS
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
                 if (functionDeclaration.Generator)
-                {
-                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), lexicalScope, cs.ScriptInfo, cs.Closures,  cs.Generator, cs.Arguments);
+                {                    
+                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), YieldRewriter.Rewrite(lexicalScope, cs.Generator), cs.ScriptInfo, cs.Closures, cs.Generator, cs.Arguments);
+                    // rewrite lambda...
                     jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
+
                 } else if (functionDeclaration.Async)
                 {
                     lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments);
@@ -1990,11 +1993,14 @@ namespace YantraJS
 
         protected override Exp VisitYieldExpression(Esprima.Ast.YieldExpression yieldExpression)
         {
+            var target = VisitExpression(yieldExpression.Argument);
             if (yieldExpression.Delegate)
             {
-                return JSGeneratorBuilder.Delegate(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
+                throw new NotSupportedException();
+                // return JSGeneratorBuilder.Delegate(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
             }
-            return JSGeneratorBuilder.Yield(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
+            // return JSGeneratorBuilder.Yield(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
+            return YantraJS.Core.LinqExpressions.Generators.YieldExpression.New(target);
         }
 
         protected override Exp VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)

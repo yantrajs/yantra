@@ -5,7 +5,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 {
     public class YieldExpression : Expression
     {
-        public YieldExpression New(Expression argument)
+        public static YieldExpression New(Expression argument)
         {
             return new YieldExpression(argument);
         }

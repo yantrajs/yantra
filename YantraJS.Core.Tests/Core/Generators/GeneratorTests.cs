@@ -33,9 +33,9 @@ namespace YantraJS.Core.Tests.Core.Generators
             var g = new ClrGenerator();
             int a = 0;
 
-            int @break = g.NewLabel();
+            var @break = g.NewLabel();
 
-            int @continue = g.NewLabel();
+            var @continue = g.NewLabel();
 
             // only iterate even numbers... till 6
             /**

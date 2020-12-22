@@ -8,6 +8,7 @@ using YantraJS.Core;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Generator;
+using YantraJS.Core.LinqExpressions.Generators;
 using YantraJS.ExpHelper;
 using YantraJS.Utils;
 using Exp = System.Linq.Expressions.Expression;
@@ -220,7 +221,7 @@ namespace YantraJS
             this.Function = fx;
             if (fx?.Generator ?? false)
             {
-                Generator = Expression.Parameter(typeof(JSWeakGenerator).MakeByRefType());
+                Generator = Expression.Parameter(typeof(ClrGenerator));
             } else
             {
                 Generator = null;

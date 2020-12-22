@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
     public class StackLabel
     {
-        private readonly int n;
+        private readonly uint n;
 
-        public StackLabel(int n)
+        public StackLabel(uint n)
         {
             this.n = n;
         }
@@ -116,6 +117,62 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
     //}
 
+    public struct InstructionStack {
+        private (uint label, Func<object> instruction)[] items;
+        private int index;
+
+        public int Count => index + 1;
+
+        public InstructionStack(int size)
+        {
+            items = new (uint label, Func<object> instruction)[size];
+            this.index = -1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void EnsureCapacity(int size)
+        {
+            if (items.Length <= size)
+            {
+                Array.Resize(ref items, ((size >> 2)+1) << 2);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public (uint label, Func<object> instruction) Pop()
+        {
+            return items[index--];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public (uint label, Func<object> instruction) Peek()
+        {
+            return items[index];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Push(uint label)
+        {
+            EnsureCapacity(index + 1);
+            items[++index] = (label, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Push(uint label, Func<object> instruction)
+        {
+            EnsureCapacity(index + 1);
+            items[++index] = (label, instruction);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Push(Func<object> instruction)
+        {
+            EnsureCapacity(index + 1);
+            items[++index] = (0, instruction);
+        }
+
+    }
+
 
     /**
      * Switch based generator is too complicated to generate
@@ -147,11 +204,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
     public class ClrGenerator
     {
 
-        private Stack<Func<object>> Stack = new Stack<Func<object>>();
 
-        private List<Func<object>> labels = new List<Func<object>>();
+        private InstructionStack Stack = new InstructionStack(8);
 
-        private Stack<(int label, Func<object> @catch)> CatchStack = new Stack<(int, Func<object>)>();
+        private Stack<(uint label, Func<object> @catch)> CatchStack = new Stack<(uint, Func<object>)>();
 
         public ClrGenerator()
         {
@@ -160,12 +216,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private bool stop = false;
         private JSValue result = null;
 
-        public int NewLabel()
+        private static uint _nextLabel = 1;
+
+        public uint NewLabel()
         {
-            var i = labels.Count;
-            var sl = new StackLabel(i);
-            labels.Add(sl.Nop);
-            return i;
+            return _nextLabel++;
         }
 
         public Func<object> Yield(Func<object> yield)
@@ -186,7 +241,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
             result = result ?? next;
             while (Stack.Count > 0)
             {
-                var step = Stack.Pop();
+                var (label, step) = Stack.Pop();
+                if (step == null)
+                    continue;
                 stop = false;
                 try
                 {
@@ -199,11 +256,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     if (CatchStack.Count > 0)
                     {
                         var (id, @catch) = CatchStack.Pop();
-                        var catchLabel = labels[id];
                         while (Stack.Count > 0)
                         {
-                            var l = Stack.Pop();
-                            if (l == catchLabel)
+                            var (l,_) = Stack.Pop();
+                            if (l == id)
                             {
                                 break;
                             }
@@ -292,11 +348,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public Func<object> TryFinally(Func<object> tryBody, Func<object> @finally)
         {
-            int finallyLabel = NewLabel();
+            var finallyLabel = NewLabel();
             return () => {
                 CatchStack.Push((finallyLabel, null));
                 Stack.Push(@finally);
-                Stack.Push(labels[finallyLabel]);
+                Stack.Push(finallyLabel);
                 Stack.Push(() => CatchStack.Pop());
                 Stack.Push(tryBody);
                 return null;
@@ -308,13 +364,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
             Func<object> @catch,
             Func<object> @finally)
         {
-            int finallyLabel = NewLabel();
+            var finallyLabel = NewLabel();
             // catch block is only pushed onto stack
             // if there was any exception caught
             return () => {
                 CatchStack.Push((finallyLabel, @catch));
                 Stack.Push(@finally);
-                Stack.Push(labels[finallyLabel]);
+                Stack.Push(finallyLabel);
                 Stack.Push(() => CatchStack.Pop());
                 Stack.Push(tryBody);
                 return null;
@@ -325,12 +381,12 @@ namespace YantraJS.Core.LinqExpressions.Generators
             Func<object> tryBody,
             Func<object> @catch)
         {
-            int finallyLabel = NewLabel();
+            var finallyLabel = NewLabel();
             // catch block is only pushed onto stack
             // if there was any exception caught
             return () => {
                 CatchStack.Push((finallyLabel, @catch));
-                Stack.Push(labels[finallyLabel]);
+                Stack.Push(finallyLabel);
                 Stack.Push(() => CatchStack.Pop());
                 Stack.Push(tryBody);
                 return null;
@@ -338,10 +394,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
         }
 
 
-        public Func<object> Loop(Func<object> body, int breakLabel, int continueLabel)
+        public Func<object> Loop(Func<object> body, uint breakLabel, uint continueLabel)
         {
-            var @break = labels[breakLabel];
-            var @continue = labels[continueLabel];
+            var @break = breakLabel;
+            var @continue = continueLabel;
             object LoopBody()
             {
                 Stack.Push(LoopBody);
@@ -355,13 +411,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
-        public Func<object> Goto(int label)
+        public Func<object> Goto(uint label)
         {
             return () => {
-                var l = labels[label];
+                var l = label;
                 while (Stack.Count > 0)
                 {
-                    if (Stack.Peek() == l)
+                    if (Stack.Peek().label == l)
                         break;
                     Stack.Pop();
                 }
@@ -453,12 +509,12 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public Func<object> Switch(
             Func<object> target,
-            int breakLabel,
+            uint breakLabel,
             CatchBody[] @cases)
         {
             return () => {
                 object t = null;
-                var @break = labels[breakLabel];
+                var @break = breakLabel;
                 Stack.Push(@break);
                 Stack.Push(() => {
                     bool push = false;

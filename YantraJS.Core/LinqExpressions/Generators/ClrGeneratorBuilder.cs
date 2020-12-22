@@ -51,11 +51,14 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public static Expression Binary(
             Expression generator, 
             Expression left,
-            Expression right, BinaryExpression final)
+            Type leftType,
+            Expression right, 
+            Type rightType,
+            BinaryExpression final)
         {
             var m = _binary.MakeGenericMethod(left.Type, right.Type);
-            var pLeft = Expression.Parameter(left.Type);
-            var pRight = Expression.Parameter(right.Type);
+            var pLeft = Expression.Parameter(leftType);
+            var pRight = Expression.Parameter(rightType);
             var body = Expression.Lambda(final.Update(pLeft, final.Conversion, pRight), pLeft, pRight);
             return Expression.Call(generator, m, left, right, body);
         }
