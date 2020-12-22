@@ -16,8 +16,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
             current.Add(exp);
         }
 
-        public void Break()
+        public void AddYield(Expression exp)
         {
+            blocks.Add(current);
+            current = new Block();
+            current.Add(exp);
             blocks.Add(current);
             current = new Block();
         }
@@ -29,7 +32,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 blocks.Add(current);
             }
             current = null;
-            return ClrGeneratorBuilder.Block(generator, blocks.Select(x => x.ToExpression()));
+            return ClrGeneratorBuilder.Block(generator, blocks.Select(x => x.ToExpression()).ToList());
         }
     }
 }

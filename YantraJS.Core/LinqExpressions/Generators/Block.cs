@@ -38,7 +38,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     }
                     break;
             }
-            return Expression.Lambda(body);
+            return Expression.Lambda(body.AsObject());
         }
 
     }

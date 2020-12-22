@@ -21,6 +21,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
             return YieldFinder.ContainsYield(exp);
         }
 
+        internal static Expression AsObject(this Expression target)
+        {
+            if (target.Type == typeof(object))
+                return target;
+            return Expression.TypeAs(target, typeof(object));
+        }
+
         internal static Expression CastAs(this Expression target, Type type)
         {
             if (target == null)
@@ -45,21 +52,22 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public static Expression Block(Expression generator, IEnumerable<Expression> lambda)
         {
-            return Expression.Call(generator, _block, lambda);
+            return Expression.Call(generator, _block, Expression.NewArrayInit(typeof(Func<object>), lambda));
         }
 
         public static Expression Binary(
             Expression generator, 
+            ParameterExpression leftParameter,
             Expression left,
             Type leftType,
             Expression right, 
             Type rightType,
             BinaryExpression final)
         {
-            var m = _binary.MakeGenericMethod(left.Type, right.Type);
-            var pLeft = Expression.Parameter(leftType);
+            var m = _binary.MakeGenericMethod(leftParameter.Type, rightType);
+            // var pLeft = Expression.Parameter(leftType);
             var pRight = Expression.Parameter(rightType);
-            var body = Expression.Lambda(final.Update(pLeft, final.Conversion, pRight), pLeft, pRight);
+            var body = Expression.Lambda(final.Update(leftParameter, final.Conversion, pRight), leftParameter, pRight);
             return Expression.Call(generator, m, left, right, body);
         }
     }

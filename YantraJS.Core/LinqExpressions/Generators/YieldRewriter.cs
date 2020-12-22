@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -41,6 +42,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static MethodInfo _unary = type.GetMethod(nameof(ClrGenerator.Unary));
         private static MethodInfo _loop = type.GetMethod(nameof(ClrGenerator.Loop));
         private static MethodInfo _goto = type.GetMethod(nameof(ClrGenerator.Goto));
+        private static MethodInfo _yield = type.GetMethod(nameof(ClrGenerator.Yield));
 
         List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
 
@@ -51,10 +53,19 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         private bool split = false;
 
-        public static Expression Rewrite(Expression body, ParameterExpression generator)
+        public static Expression Rewrite(
+            Expression body,
+            params ParameterExpression[] generators)
         {
-            var lambdaBody = (new YieldRewriter(generator)).Visit(body);
-            return Expression.Lambda(lambdaBody, generator);
+            // var lambdaBody = (new YieldRewriter(generator)).Visit(body);
+            // return Expression.Lambda(lambdaBody, generator);
+            var yr = new YieldRewriter(generators[0]);
+            var l = new List<ParameterExpression>();
+            l.AddRange(generators);
+            var b = yr.Visit(body);
+                l.AddRange(yr.lifedVariables);
+            b = Expression.Block(l, b);
+            return b;
         }
 
         public YieldRewriter(ParameterExpression generator)
@@ -67,6 +78,23 @@ namespace YantraJS.Core.LinqExpressions.Generators
             if (node == null)
                 return node;
             return base.Visit(node);
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            if (!split)
+                return node;
+            return Expression.Lambda(node.AsObject());
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is YieldExpression @yield)
+            {
+                var arg = yield.Argument.AsObject().ToLambda();
+                return Expression.Call(generator, _yield, arg);
+            }
+            return base.VisitExtension(node);
         }
 
         private Expression ConvertTyped(Expression node)
@@ -86,9 +114,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 return Expression.Constant(null);
             if (node.HasYield())
             {
-                return Visit(node).ToLambda();
+                return Visit(node).AsObject().ToLambda();
             }
-            return node.ToLambda();
+            return node.AsObject().ToLambda();
         }
 
 
@@ -97,9 +125,24 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (!split)
                 return node;
-            var left = ConvertTyped(node.Left);
+
+            var nodeLeft = node.Left;
+            ParameterExpression leftParemeter = null;
+            switch ((nodeLeft.NodeType, nodeLeft))
+            {
+                case (ExpressionType.MemberAccess, MemberExpression me):
+                    leftParemeter = Expression.Parameter(me.Expression.Type);
+                    nodeLeft = me.Update(leftParemeter);
+                    break;
+                case (ExpressionType.Index, IndexExpression ie):
+                    leftParemeter = Expression.Parameter(ie.Object.Type);
+                    nodeLeft = ie.Update(leftParemeter, ie.Arguments);
+                    break;
+            }
+
+            var left = ConvertTyped(nodeLeft);
             var right = ConvertTyped(node.Right);
-            return ClrGeneratorBuilder.Binary(generator, left, node.Left.Type, right, node.Right.Type, node);
+            return ClrGeneratorBuilder.Binary(generator, leftParemeter, left, node.Left.Type, right, node.Right.Type, node);
         }
 
         protected override Expression VisitConditional(ConditionalExpression node)
@@ -120,7 +163,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
             var converted = ConvertTyped(node.Operand);
             var p = Expression.Parameter(node.Operand.Type);
             var m = _unary.MakeGenericMethod(p.Type);
-            var body = Expression.Lambda(node.Update(p),p);
+            var body = Expression.Lambda(node.Update(p).AsObject(),p);
             return Expression.Call(generator, m, converted, body);
         }
 
@@ -144,13 +187,12 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitBlock(BlockExpression node)
         {
+            if (!split && !YieldFinder.ContainsYield(node))
+                return node;
+
             lifedVariables.AddRange(node.Variables);
 
             VMBlock block = new VMBlock();
-            if (split)
-            {
-                block.Break();
-            }
             if (lifedVariables.Count > 0)
             {
                 foreach (var lv in lifedVariables)
@@ -161,22 +203,22 @@ namespace YantraJS.Core.LinqExpressions.Generators
             foreach (var e in node.Expressions)
             {
                 var child = e;
-                if (split || YieldFinder.ContainsYield(child))
+                if (split)
                 {
-                    block.Break();
+                    block.AddYield(Visit(child));
+                    continue;
+                }
+                if (YieldFinder.ContainsYield(child))
+                {
                     try { 
                         split = true;
-                        child = Visit(child);
-                    } finally
+                        block.AddYield(Visit(child));
+                    }
+                    finally
                     {
                         split = false;
                     }
                 }
-                if (split)
-                {
-                    child = Visit(child);
-                }
-                block.Add(child);
             }
             if (lifedVariables.Count > 0)
             {

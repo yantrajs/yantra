@@ -443,7 +443,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
-        public Func<object> Binary<TLeft,TRight>(Func<TLeft> left, Func<TRight> right, Func<TLeft, TRight, object> process)
+        public Func<object> Binary<TLeft,TRight>(Func<TLeft> left, Func<TRight> right, Func<TLeft, TRight, TRight> process)
         {
             return () => {
 
