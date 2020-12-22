@@ -67,7 +67,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
             var m = _binary.MakeGenericMethod(leftParameter.Type, rightType);
             // var pLeft = Expression.Parameter(leftType);
             var pRight = Expression.Parameter(rightType);
-            var body = Expression.Lambda(final.Update(leftParameter, final.Conversion, pRight), leftParameter, pRight);
+            var body = Expression.Lambda(final.Update(left, final.Conversion, pRight), leftParameter, pRight);
             return Expression.Call(generator, m, left, right, body);
         }
     }

@@ -128,6 +128,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
             var nodeLeft = node.Left;
             ParameterExpression leftParemeter = null;
+            var target = node.Left;
             switch ((nodeLeft.NodeType, nodeLeft))
             {
                 case (ExpressionType.MemberAccess, MemberExpression me):
@@ -138,11 +139,19 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     leftParemeter = Expression.Parameter(ie.Object.Type);
                     nodeLeft = ie.Update(leftParemeter, ie.Arguments);
                     break;
+                default:
+                    leftParemeter = Expression.Parameter(node.Left.Type);
+                    break;
             }
-
             var left = ConvertTyped(nodeLeft);
             var right = ConvertTyped(node.Right);
-            return ClrGeneratorBuilder.Binary(generator, leftParemeter, left, node.Left.Type, right, node.Right.Type, node);
+            var rightParameter = Expression.Parameter(node.Right.Type);
+            var final = Expression.Lambda(node.Update(nodeLeft, node.Conversion, rightParameter), leftParemeter, rightParameter);
+            return Expression.Call(generator, 
+                _binary.MakeGenericMethod(leftParemeter.Type,right.Type), 
+                left, 
+                right, 
+                final);
         }
 
         protected override Expression VisitConditional(ConditionalExpression node)
