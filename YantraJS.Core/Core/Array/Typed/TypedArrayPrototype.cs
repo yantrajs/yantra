@@ -67,7 +67,7 @@ namespace YantraJS.Core.Typed
             var target = t.IntValue;
             var start = s.IntValue;
             var end = a.TryGetAt(2, out var e) ? e.IntValue : int.MaxValue;
-            var @this = a.This;
+            var @this = a.This.AsTypedArray();
             // Negative values represent offsets from the end of the array.
             target = target < 0 ? Math.Max(@this.Length + target, 0) : Math.Min(target, @this.Length);
             start = start < 0 ? Math.Max(@this.Length + start, 0) : Math.Min(start, @this.Length);

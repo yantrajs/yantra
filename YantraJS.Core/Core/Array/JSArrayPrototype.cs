@@ -85,41 +85,93 @@ namespace YantraJS.Core
             return JSBoolean.True;
         }
 
-        [Prototype("copyWithIn", Length = 2)]
-        public static JSValue CopyWithIn(in Arguments a)
-        {
-            var @this = a.This;
-            if (@this.IsNullOrUndefined)
-                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            var array = @this as JSObject;
-            if (array.IsSealedOrFrozen())
-                throw JSContext.Current.NewTypeError($"Cannot modify property length of {@this}");
-            var len = array.Length;
+        //[Prototype("copyWithIn", Length = 2)]
+        //public static JSValue CopyWithIn(in Arguments a)
+        //{
+        //    var @this = a.This;
+        //    if (@this.IsNullOrUndefined)
+        //        throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+        //    var array = @this as JSObject;
+        //    if (array.IsSealedOrFrozen())
+        //        throw JSContext.Current.NewTypeError($"Cannot modify property length of {@this}");
+        //    var len = array.Length;
 
-            var (target, start, end) = a.Get3();
+        //    var (target, start, end) = a.Get3();
 
-            var relativeTarget = target.IntValue;
+        //    var relativeTarget = target.IntValue;
 
-            var to = relativeTarget < 0
-                ? Math.Max(len + relativeTarget, 0)
-                : Math.Min(relativeTarget, len);
+        //    var to = relativeTarget < 0
+        //        ? Math.Max(len + relativeTarget, 0)
+        //        : Math.Min(relativeTarget, len);
 
-            var relativeStart = start.IntValue;
+        //    var relativeStart = start.IntValue;
 
-            var from = relativeStart < 0
-                ? Math.Max(len + relativeStart, 0)
-                : Math.Min(relativeStart, len);
+        //    var from = relativeStart < 0
+        //        ? Math.Max(len + relativeStart, 0)
+        //        : Math.Min(relativeStart, len);
 
-            var relativeEnd = end.IsUndefined ? len : end.IntValue;
+        //    var relativeEnd = end.IsUndefined ? len : end.IntValue;
 
-            var final = relativeEnd < 0
-                ? Math.Max(len + relativeEnd, 0)
-                : Math.Min(relativeEnd, len);
+        //    var final = relativeEnd < 0
+        //        ? Math.Max(len + relativeEnd, 0)
+        //        : Math.Min(relativeEnd, len);
 
-            var count = Math.Min(final - from, len - to);
+        //    var count = Math.Min(final - from, len - to);
 
 
-            throw new NotImplementedException();
+        //    //throw new NotImplementedException();
+        //}
+
+        [Prototype("copyWithin", Length = 2)]
+        public static JSValue CopyWithin(in Arguments a) {
+            var (t, s) = a.Get2();
+            var target = t.IntValue;
+            var start = s.IntValue;
+            var end = a.TryGetAt(2, out var e) ? e.IntValue : int.MaxValue;
+            var @this = a.This as JSArray;
+            // Negative values represent offsets from the end of the array.
+            target = target < 0 ? Math.Max(@this.Length + target, 0) : Math.Min(target, @this.Length);
+            start = start < 0 ? Math.Max(@this.Length + start, 0) : Math.Min(start, @this.Length);
+            end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
+
+            // Calculate the number of values to copy.
+            int count = Math.Min(end - start, @this.Length - target);
+
+            // Check if we need to copy in reverse due to an overlap.
+            int direction = 1;
+            if (start < target && target < start + count)
+            {
+                direction = -1;
+                start += count - 1;
+                target += count - 1;
+            }
+
+            ref var elements = ref @this.GetElements(true);
+
+            while (count > 0)
+            {
+                // Get the value of the array element.
+                var elementValue = elements[(uint)start];
+
+                if (!elementValue.IsEmpty)
+                {
+                    // Copy the value to the new position.
+                    elements[(uint)target] = elementValue;
+                }
+                else
+                {
+                    // Delete the element at the new position.
+                    // Delete((uint)target);
+                    elements.RemoveAt((uint)target);
+                }
+
+                // Progress to the next element.
+                start += direction;
+                target += direction;
+                count--;
+            }
+
+            return @this;
         }
 
         [Prototype("filter", Length = 1)]
