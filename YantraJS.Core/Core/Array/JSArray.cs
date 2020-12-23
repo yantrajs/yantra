@@ -34,6 +34,14 @@ namespace YantraJS.Core
                 elements[_length++] = JSProperty.Property(item);
         }
 
+      
+        internal IElementEnumerator GetEntries()
+        {
+            return new EntryEnumerator(this);
+        }
+
+        
+
         public JSArray(int count): base(JSContext.Current.ArrayPrototype)
         {
             CreateElements(count);
@@ -227,6 +235,47 @@ namespace YantraJS.Core
                 }
             }
             this._length = el;
+        }
+    }
+
+
+    struct EntryEnumerator : IElementEnumerator
+    {
+        private JSArray array;
+        private int index;
+
+        public EntryEnumerator(JSArray typedArray)
+        {
+            this.array = typedArray;
+            this.index = -1;
+        }
+
+        public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+        {
+            if (++this.index < array.Length)
+            {
+                hasValue = true;
+                index = (uint)this.index;
+                value = new JSArray(new JSNumber(index), array[index]);
+                return true;
+            }
+
+            hasValue = false;
+            index = 0;
+            value = JSUndefined.Value;
+            return false;
+        }
+
+        public bool MoveNext(out JSValue value)
+        {
+            if (++this.index < array.Length)
+            {
+                value = new JSArray(new JSNumber(index), array[(uint)index]);
+                return true;
+            }
+
+            value = JSUndefined.Value;
+            return false;
         }
     }
 }

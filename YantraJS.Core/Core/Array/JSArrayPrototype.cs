@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using YantraJS;
 using YantraJS.Extensions;
+using YantraJS.Core.Generator;
 
 namespace YantraJS.Core
 {
@@ -172,6 +173,16 @@ namespace YantraJS.Core
             }
 
             return @this;
+        }
+
+
+        [Prototype("entries")]
+        public static JSValue Entries(in Arguments a)
+        {
+            var array = a.This as JSArray;
+          
+            return new JSGenerator(array.GetEntries(), "Array Iterator");
+            
         }
 
         [Prototype("filter", Length = 1)]
