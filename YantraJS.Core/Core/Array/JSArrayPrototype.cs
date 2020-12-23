@@ -47,19 +47,24 @@ namespace YantraJS.Core
         public static JSValue Concat(in Arguments a)
         {
             var r = new JSArray();
-            r.AddRange(a.This);
+            if (a.This.IsArray)
+                r.AddRange(a.This);
+            else
+                r.Add(a.This);
+
             for (int i = 0; i < a.Length; i++)
             {
                 var f = a.GetAt(i);
                 if (f.IsArray)
-                {
-                    r.AddRange(f);
+                    {
+                        r.AddRange(f);
+                    }
+                    else
+                    {
+                        r.Add(f);
+                    }
                 }
-                else
-                {
-                    r.Add(f);
-                }
-            }
+            
             return r;
         }
 

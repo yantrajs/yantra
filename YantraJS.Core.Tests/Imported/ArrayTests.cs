@@ -250,17 +250,17 @@ namespace YantraJS.Core.Tests.Imported
                   y[66] = 12;
                   x.concat(y)");
             Assert.AreEqual(Undefined.Value, x[0]);
-            Assert.AreEqual(5, x[1]);
+            Assert.AreEqual(5, x[1].IntValue);
             Assert.AreEqual(Undefined.Value, x[2]);
             Assert.AreEqual(Undefined.Value, x[21]);
-            Assert.AreEqual(13, x[22]);
-            Assert.AreEqual(22, x[23]);
+            Assert.AreEqual(13, x[22].IntValue);
+            Assert.AreEqual(22, x[23].IntValue);
             Assert.AreEqual(Undefined.Value, x[24]);
             Assert.AreEqual(Undefined.Value, x[47]);
-            Assert.AreEqual(34, x[48]);
+            Assert.AreEqual(34, x[48].IntValue);
             Assert.AreEqual(Undefined.Value, x[49]);
             Assert.AreEqual(Undefined.Value, x[88]);
-            Assert.AreEqual(12, x[89]);
+            Assert.AreEqual(12, x[89].IntValue);
             Assert.AreEqual(Undefined.Value, x[90]);
 
             // concat is generic.

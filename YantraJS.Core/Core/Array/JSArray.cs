@@ -43,15 +43,13 @@ namespace YantraJS.Core
         public override string ToString()
         {
             var sb = new StringBuilder();
-            bool first = true;
-            var en = new ElementEnumerator(this);
-            while(en.MoveNext(out var hasValue, out var item, out var index))
+            for(uint i =0; i<_length;i++)
             {
-                if (!first)
+                if (i > 0)
                     sb.Append(',');
-                if (item != null && !item.IsUndefined)
+                var item = this[i];
+                if (item != null && !item.IsNullOrUndefined)
                     sb.Append(item);
-                first = false;
             }
             return sb.ToString();
         }
@@ -211,10 +209,7 @@ namespace YantraJS.Core
                 ref var e = ref ary.GetElements();
                 for (uint i = 0; i < l; i++)
                 {
-                    if(e.TryGetValue(i, out var v))
-                    {
-                        et[el++] = v;
-                    }
+                    et[el++] = JSProperty.Property(ary[i]);
                 }
                 this._length = el;
                 return;
