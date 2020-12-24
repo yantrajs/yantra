@@ -255,6 +255,21 @@ namespace YantraJS.Core
 
         }
 
+        /// <summary>
+        /// Creates a new array with all sub-array elements concatenated into it recursively up to
+        /// the specified depth.
+        /// </summary>
+        /// <param name="thisObj"> The array that is being operated on. </param>
+        /// <param name="depth"> The depth level specifying how deep a nested array structure
+        /// should be flattened. Defaults to 1. </param>
+        /// <returns> A new array with the sub-array elements concatenated into it. </returns>
+        [Prototype("flat", Length = 1)]
+        public static JSValue Flat(in Arguments a)
+        {
+            var result = new JSArray(a.This.Length);
+            throw new NotImplementedException();
+
+        }
 
         [Prototype("findIndex", Length = 1)]
         public static JSValue FindIndex(in Arguments a)
