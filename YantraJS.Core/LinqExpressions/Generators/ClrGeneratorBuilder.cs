@@ -11,8 +11,19 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (body == null)
                 return Expression.Constant(null);
-            return Expression.Lambda(body);
+            if (body.Type == typeof(Func<object>))
+                return body;
+            return Expression.Lambda(typeof(Func<object>), body);
         }
+
+        internal static Expression ToLambda(this Expression body, Type type)
+        {
+            if (body == null)
+                return Expression.Constant(null);
+            var t = typeof(Func<>).MakeGenericType(type);
+            return Expression.Lambda(t, body);
+        }
+
 
         internal static bool HasYield(this Expression exp)
         {

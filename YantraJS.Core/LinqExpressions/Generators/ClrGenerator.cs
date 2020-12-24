@@ -142,7 +142,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (uint label, Func<object> instruction) Pop()
         {
-            return items[index--];
+            var item = items[index];
+            items[index].instruction = null;
+            index--;
+            return item;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -202,6 +205,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
      * Following statements will process slow...
      * 
      */
+
     public class ClrGenerator
     {
 
@@ -264,7 +268,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     stop = false;
                     try
                     {
-                        step();
+                        var a = step();
+                        //if (a is Func<object> fx)
+                        //{
+                        //    Stack.Push(fx);
+                        //}
                     }
                     catch (Exception ex)
                     {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -17,10 +18,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
             switch (Steps.Count)
             {
                 case 0:
-                    body = Expression.Constant(null, typeof(object));
-                    break;
+                    throw new NotSupportedException();
                 case 1:
                     body = Steps[0];
+                    if (body.Type == typeof(Func<object>))
+                        return body;
                     if (body.Type == typeof(void))
                     {
                         body = Expression.Block(body, Expression.Constant(null, typeof(object)));
@@ -38,6 +40,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     }
                     break;
             }
+            if (body.Type == typeof(Func<object>))
+                return body;
             return Expression.Lambda(body.AsObject());
         }
 

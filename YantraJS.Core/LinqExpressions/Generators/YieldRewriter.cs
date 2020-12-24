@@ -24,6 +24,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
             public uint this[LabelTarget t] { 
                 get
                 {
+                    if (t == null)
+                        return 0;
                     if (labels.TryGetValue(t, out var i))
                         return i;
                     i = lastID++;
@@ -106,9 +108,12 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 return Expression.Constant(null);
             if (node.HasYield())
             {
-                return Visit(node).CastAs(node.Type).ToLambda();
+                var n = Visit(node);
+                if (n.Type == typeof(Func<object>))
+                    return n;
+                return n.ToLambda(node.Type);
             }
-            return node.ToLambda();
+            return Visit(node).ToLambda(node.Type);
         }
 
         private Expression Convert(Expression node)
@@ -132,6 +137,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
             var nodeLeft = node.Left;
             ParameterExpression leftParemeter = null;
             Expression target = node.Left;
+            var rightParameter = Expression.Parameter(node.Left.Type);
             switch ((nodeLeft.NodeType, nodeLeft))
             {
                 case (ExpressionType.MemberAccess, MemberExpression me):
@@ -150,7 +156,6 @@ namespace YantraJS.Core.LinqExpressions.Generators
             }
             var left = ConvertTyped(target);
             var right = ConvertTyped(node.Right);
-            var rightParameter = Expression.Parameter(node.Right.Type);
             var final = Expression.Lambda(node.Update(nodeLeft, node.Conversion, rightParameter), leftParemeter, rightParameter);
             return Expression.Call(generator, 
                 _binary.MakeGenericMethod(target.Type,rightParameter.Type), 

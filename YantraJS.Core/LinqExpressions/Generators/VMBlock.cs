@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -18,7 +19,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public void AddYield(Expression exp)
         {
-            blocks.Add(current);
+            if (current.Steps.Any())
+            {
+                blocks.Add(current);
+            }
             current = new Block();
             current.Add(exp);
             blocks.Add(current);
@@ -27,11 +31,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public Expression ToExpression(Expression generator)
         {
-            if (current != null)
+            if (current.Steps.Any())
             {
                 blocks.Add(current);
             }
-            current = null;
             return ClrGeneratorBuilder.Block(
                 generator, 
                 blocks.Select(x => x.ToExpression()).ToList());
