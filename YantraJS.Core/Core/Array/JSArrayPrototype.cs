@@ -185,6 +185,32 @@ namespace YantraJS.Core
             
         }
 
+        /// <summary>
+        /// Fills all the elements of a typed array from a start index to an end index with a
+        /// static value.
+        /// </summary>
+        /// <param name="value"> The value to fill the typed array with. </param>
+        /// <param name="start"> Optional. Start index. Defaults to 0. </param>
+        /// <param name="end"> Optional. End index (exclusive). Defaults to the length of the array. </param>
+        /// <returns> The array that is being operated on. </returns>
+        [Prototype("fill", Length = 1)]
+        public static JSValue Fill(in Arguments a) {
+            var @this = a.This;
+            var (value, start, end) = a.Get3();
+            // JSArray r = new JSArray();
+            var len = @this.Length;
+            var relativeStart = start.AsInt32OrDefault();
+            var relativeEnd = end.AsInt32OrDefault(len);
+            // Negative values represent offsets from the end of the array.
+            relativeStart = relativeStart < 0 ? Math.Max(len + relativeStart, 0) : Math.Min(relativeStart, len);
+            relativeEnd = relativeEnd < 0 ? Math.Max(len + relativeEnd, 0) : Math.Min(relativeEnd, len);
+            for (; relativeStart < relativeEnd; relativeStart++)
+            {
+                @this[(uint)relativeStart] = value;
+            }
+            return @this;
+        }
+
         [Prototype("filter", Length = 1)]
         public static JSValue Filter(in Arguments a)
         {
