@@ -56,11 +56,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public static Expression Rewrite(
             Expression body,
+            ParameterExpression pe,
             params ParameterExpression[] generators)
         {
             // var lambdaBody = (new YieldRewriter(generator)).Visit(body);
             // return Expression.Lambda(lambdaBody, generator);
-            var pe = generators[0];
             var yr = new YieldRewriter(pe);
             var l = new List<ParameterExpression>();
             l.AddRange(generators);
@@ -207,21 +207,21 @@ namespace YantraJS.Core.LinqExpressions.Generators
             lifedVariables.AddRange(node.Variables);
 
             VMBlock block = new VMBlock();
-            if (lifedVariables.Count > 0)
-            {
-                foreach (var lv in lifedVariables)
-                {
-                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
-                }
-            }
+            //if (lifedVariables.Count > 0)
+            //{
+            //    foreach (var lv in lifedVariables)
+            //    {
+            //        block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+            //    }
+            //}
             foreach (var e in node.Expressions)
             {
                 var child = e;
-                if (split)
-                {
-                    block.AddYield(Visit(child));
-                    continue;
-                }
+                //if (split)
+                //{
+                //    block.AddYield(Visit(child));
+                //    continue;
+                //}
                 if (YieldFinder.ContainsYield(child))
                 {
                     try { 
@@ -232,15 +232,18 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     {
                         split = false;
                     }
-                }
-            }
-            if (lifedVariables.Count > 0)
-            {
-                foreach (var lv in lifedVariables)
+                } else
                 {
-                    block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+                    block.Add(Visit(child));
                 }
             }
+            //if (lifedVariables.Count > 0)
+            //{
+            //    foreach (var lv in lifedVariables)
+            //    {
+            //        block.Add(Expression.Assign(lv, Expression.Constant(null, lv.Type)));
+            //    }
+            //}
 
             return block.ToExpression(generator);
         }

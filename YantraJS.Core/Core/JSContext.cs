@@ -35,6 +35,7 @@ namespace YantraJS.Core
 
         internal CallStackItem(JSContext context, string fileName, in StringSpan function, int line, int column)
         {
+            context = context ?? JSContext.Current;
             this.FileName = fileName;
             this.Function = function;
             this.Line = line;
@@ -53,6 +54,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pop(JSContext context)
         {
+            context = context ?? JSContext.Current;
             context.Top = Parent;
             Parent = null;
         }

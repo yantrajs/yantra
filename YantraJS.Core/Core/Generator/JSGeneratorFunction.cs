@@ -9,7 +9,7 @@ using YantraJS.Core.LinqExpressions.Generators;
 
 namespace YantraJS.Core.Generator
 {
-    public delegate void JSGeneratorDelegate(ScriptInfo script, JSVariable[] closures, ClrGenerator g, CallStackItem stackItem, in Arguments a);
+    public delegate void JSGeneratorDelegate(ScriptInfo script, JSVariable[] closures, ClrGenerator g, CallStackItem stackItem, Arguments a);
     public class JSGeneratorFunction: JSFunction
     {
         private readonly ScriptInfo script;

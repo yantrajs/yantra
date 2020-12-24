@@ -590,11 +590,12 @@ namespace YantraJS
 
         public override Exp DebugNode(Node node, Exp result)
         {
-            var topStack = this.scope.Top;
-            var si = topStack.StackItem;
-            var p = node.Location.Start;
-            return JSContextStackBuilder.Update(si, p.Line, p.Column,
-                    result);
+            return result;
+            //var topStack = this.scope.Top;
+            //var si = topStack.StackItem;
+            //var p = node.Location.Start;
+            //return JSContextStackBuilder.Update(si, p.Line, p.Column,
+            //        result);
         }
 
         private Exp DebugExpression<T, TR>(T ast, Func<TR> exp)

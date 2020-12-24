@@ -233,7 +233,9 @@ namespace YantraJS
             this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
-            this.Arguments = Expression.Parameter(typeof(Arguments).MakeByRefType(), $"a-{sID}");
+            this.Arguments = (fx?.Generator ?? false) 
+                ? Expression.Parameter(typeof(Arguments), $"a-{sID}")
+                : Expression.Parameter(typeof(Arguments).MakeByRefType(), $"a-{sID}");
             this.ArgumentsExpression = Arguments;
             if (previousThis != null)
             {
