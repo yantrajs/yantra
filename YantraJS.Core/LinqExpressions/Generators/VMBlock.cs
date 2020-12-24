@@ -32,7 +32,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 blocks.Add(current);
             }
             current = null;
-            return ClrGeneratorBuilder.Block(generator, blocks.Select(x => x.ToExpression()).ToList());
+            return ClrGeneratorBuilder.Block(
+                generator, 
+                blocks.Select(x => x.ToExpression()).ToList());
         }
     }
 }

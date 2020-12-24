@@ -43,6 +43,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static MethodInfo _loop = type.GetMethod(nameof(ClrGenerator.Loop));
         private static MethodInfo _goto = type.GetMethod(nameof(ClrGenerator.Goto));
         private static MethodInfo _yield = type.GetMethod(nameof(ClrGenerator.Yield));
+        private static MethodInfo _build = type.GetMethod(nameof(ClrGenerator.Build));
 
         List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
 
@@ -59,11 +60,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             // var lambdaBody = (new YieldRewriter(generator)).Visit(body);
             // return Expression.Lambda(lambdaBody, generator);
-            var yr = new YieldRewriter(generators[0]);
+            var pe = generators[0];
+            var yr = new YieldRewriter(pe);
             var l = new List<ParameterExpression>();
             l.AddRange(generators);
-            var b = yr.Visit(body);
-                l.AddRange(yr.lifedVariables);
+            Expression b = yr.Visit(body);
+            b = Expression.Call(pe, _build, b);
+            l.AddRange(yr.lifedVariables);
             b = Expression.Block(l, b);
             return b;
         }
@@ -128,27 +131,29 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
             var nodeLeft = node.Left;
             ParameterExpression leftParemeter = null;
-            var target = node.Left;
+            Expression target = node.Left;
             switch ((nodeLeft.NodeType, nodeLeft))
             {
                 case (ExpressionType.MemberAccess, MemberExpression me):
                     leftParemeter = Expression.Parameter(me.Expression.Type);
                     nodeLeft = me.Update(leftParemeter);
+                    target = me.Expression;
                     break;
                 case (ExpressionType.Index, IndexExpression ie):
                     leftParemeter = Expression.Parameter(ie.Object.Type);
                     nodeLeft = ie.Update(leftParemeter, ie.Arguments);
+                    target = ie.Object;
                     break;
                 default:
                     leftParemeter = Expression.Parameter(node.Left.Type);
                     break;
             }
-            var left = ConvertTyped(nodeLeft);
+            var left = ConvertTyped(target);
             var right = ConvertTyped(node.Right);
             var rightParameter = Expression.Parameter(node.Right.Type);
             var final = Expression.Lambda(node.Update(nodeLeft, node.Conversion, rightParameter), leftParemeter, rightParameter);
             return Expression.Call(generator, 
-                _binary.MakeGenericMethod(leftParemeter.Type,right.Type), 
+                _binary.MakeGenericMethod(target.Type,rightParameter.Type), 
                 left, 
                 right, 
                 final);
@@ -196,8 +201,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitBlock(BlockExpression node)
         {
-            if (!split && !YieldFinder.ContainsYield(node))
-                return node;
+
+            node = node.Reduce() as BlockExpression;
 
             lifedVariables.AddRange(node.Variables);
 

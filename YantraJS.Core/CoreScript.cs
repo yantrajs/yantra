@@ -541,7 +541,9 @@ namespace YantraJS
                 Exp jsf;
                 if (functionDeclaration.Generator)
                 {                    
-                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), YieldRewriter.Rewrite(block, cs.Generator, lexicalScopeVar, stackItem ), cs.ScriptInfo, cs.Closures, cs.Generator, cs.Arguments);
+                    lambda = Exp.Lambda(typeof(JSGeneratorDelegate), 
+                        YieldRewriter.Rewrite(block, cs.Generator, lexicalScopeVar, stackItem ), 
+                        cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments);
                     // rewrite lambda...
                     jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
 
