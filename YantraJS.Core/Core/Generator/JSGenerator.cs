@@ -119,12 +119,20 @@ namespace YantraJS.Core.Generator
                 this.value = JSUndefined.Value;
                 return ValueObject;
             }
-
-            if(cg.Next(replaceOld, out item))
+            var c = JSContext.Current;
+            var top = c.Top;
+            try
             {
-                this.done = false;
-                this.value = item;
-                return ValueObject;
+                c.Top = cg.StackItem;
+                if (cg.Next(replaceOld, out item))
+                {
+                    this.done = false;
+                    this.value = item;
+                    return ValueObject;
+                }
+            }finally
+            {
+                c.Top = top; 
             }
 
             this.done = true;

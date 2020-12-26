@@ -2,10 +2,24 @@
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
+
+
     public class YieldFinder : ExpressionVisitor
     {
 
+        class ENode: LinkedStackItem<ENode>
+        {
+            public Expression Node;
+
+            public ENode(Expression node)
+            {
+                this.Node = node;
+            }
+        }
+
         private bool found = false;
+
+        private LinkedStack<ENode> stack = new LinkedStack<ENode>();
 
         public static bool ContainsYield(Expression node)
         {
@@ -17,14 +31,56 @@ namespace YantraJS.Core.LinqExpressions.Generators
         protected override Expression VisitExtension(Expression node)
         {
             found = found || node is YieldExpression;
+            if (found)
+            {
+                var top = stack.Top;
+                while(top != null)
+                {
+                    top.Node.UpdateExtendedValue((e) => {
+                        e.HasYield = true;
+                    });
+                    top = top.Parent;
+                }
+            }
             return node;
+        }
+
+        protected override Expression VisitGoto(GotoExpression node)
+        {
+            var top = stack.Top;
+            LinkedStackItem<ENode> @yield = null;
+            while (top != null)
+            {
+                if(top.Node.GetExtendedValue().HasYield)
+                {
+                    yield = top;
+                    break;
+                }
+            }
+            if(yield != null)
+            {
+                top = stack.Top;
+                while(top != null)
+                {
+                    top.Node.UpdateExtendedValue(e => {
+                        e.ForceBreak = true;
+                    });
+                    top = top.Parent;
+                    if (top == yield)
+                        break;
+                }
+            }
+            return base.VisitGoto(node);
         }
 
         public override Expression Visit(Expression node)
         {
             if (node is LambdaExpression)
                 return node;
-            return base.Visit(node);
+            using (var e = stack.Push(new ENode(node)))
+            {
+                return base.Visit(node);
+            }
         }
     }
 }

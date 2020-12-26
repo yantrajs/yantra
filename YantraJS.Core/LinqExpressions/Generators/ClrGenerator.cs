@@ -214,7 +214,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         private Stack<(uint label, Func<object> @catch)> CatchStack = new Stack<(uint, Func<object>)>();
 
-        private CallStackItem stackItem;
+        public readonly CallStackItem StackItem;
 
         public ClrGenerator()
         {
@@ -224,7 +224,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             this.script = script;
             this.closures = closures;
-            this.stackItem = c;
+            this.StackItem = c;
         }
 
         private bool stop = false;
@@ -254,64 +254,55 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public bool Next(JSValue next, out JSValue value)
         {
-            var c = JSContext.Current;
-            CallStackItem old = c.Top;
-            try
+            result = result ?? next;
+            while (Stack.Count > 0)
             {
-                c.Top = stackItem;
-                result = result ?? next;
-                while (Stack.Count > 0)
+                var (label, step) = Stack.Pop();
+                if (step == null)
+                    continue;
+                stop = false;
+                try
                 {
-                    var (label, step) = Stack.Pop();
-                    if (step == null)
+                    var a = step();
+                    //if (a is Func<object> fx)
+                    //{
+                    //    Stack.Push(fx);
+                    //}
+                }
+                catch (Exception ex)
+                {
+                    // catch... 
+                    // and go upto last try catch..
+                    if (CatchStack.Count > 0)
+                    {
+                        var (id, @catch) = CatchStack.Pop();
+                        while (Stack.Count > 0)
+                        {
+                            var (l, _) = Stack.Pop();
+                            if (l == id)
+                            {
+                                break;
+                            }
+                        }
+                        // push the exception on stack...
+                        // if it requires catch...
+                        if (@catch != null)
+                        {
+                            Stack.Push(() => ex);
+                            Stack.Push(@catch);
+                        }
                         continue;
-                    stop = false;
-                    try
-                    {
-                        var a = step();
-                        //if (a is Func<object> fx)
-                        //{
-                        //    Stack.Push(fx);
-                        //}
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        // catch... 
-                        // and go upto last try catch..
-                        if (CatchStack.Count > 0)
-                        {
-                            var (id, @catch) = CatchStack.Pop();
-                            while (Stack.Count > 0)
-                            {
-                                var (l, _) = Stack.Pop();
-                                if (l == id)
-                                {
-                                    break;
-                                }
-                            }
-                            // push the exception on stack...
-                            // if it requires catch...
-                            if (@catch != null)
-                            {
-                                Stack.Push(() => ex);
-                                Stack.Push(@catch);
-                            }
-                            continue;
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                    if (stop)
-                    {
-                        value = result;
-                        return true;
+                        throw;
                     }
                 }
-            } finally
-            {
-                c.Top = old;
+                if (stop)
+                {
+                    value = result;
+                    return true;
+                }
             }
             value = null;
             return false;

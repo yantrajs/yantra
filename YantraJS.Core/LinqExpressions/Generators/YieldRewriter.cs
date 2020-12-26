@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
-    
+
 
     public class YieldRewriter : ExpressionVisitor
     {
@@ -198,8 +198,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitGoto(GotoExpression node)
         {
-            if (!split)
-                return node;
+            // if (!split)
+            //     return node;
+
             var target = labels[node.Target];
             return Expression.Call(generator, _goto, Expression.Constant(target));
         }

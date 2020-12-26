@@ -29,7 +29,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (exp == null)
                 return false;
-            return YieldFinder.ContainsYield(exp);
+            return exp.GetExtendedValue().HasYield;
         }
 
         internal static Expression AsObject(this Expression target)
