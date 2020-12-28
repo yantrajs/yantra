@@ -9,6 +9,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static ExpressionValue Default = new ExpressionValue();
         private static ConditionalWeakTable<Expression, ExpressionValue> storage = new ConditionalWeakTable<Expression, ExpressionValue>();
 
+        public static bool ForceBreak(this Expression exp)
+        {
+            return GetExtendedValue(exp).ForceBreak;
+        }
+
         public static ExpressionValue GetExtendedValue(this Expression exp, ExpressionValue def = null)
         {
             if (storage.TryGetValue(exp, out var v))

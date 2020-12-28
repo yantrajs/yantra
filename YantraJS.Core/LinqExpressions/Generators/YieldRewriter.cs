@@ -54,8 +54,6 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public ParameterExpression generator;
 
-        private bool split = false;
-
         public static Expression Rewrite(
             Expression body,
             ParameterExpression pe,
@@ -63,6 +61,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             // var lambdaBody = (new YieldRewriter(generator)).Visit(body);
             // return Expression.Lambda(lambdaBody, generator);
+
+            YieldFinder.MarkYield(body);
+
             var yr = new YieldRewriter(pe);
             var l = new List<ParameterExpression>();
             l.AddRange(generators);
@@ -82,13 +83,16 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (node == null)
                 return node;
+            if(node.NodeType!= ExpressionType.Block)
+            {
+                if (!(node.HasYield() && node.ForceBreak()))
+                    return node;
+            }
             return base.Visit(node);
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (!split)
-                return node;
             return Expression.Lambda(node.AsObject());
         }
 
@@ -131,9 +135,6 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (!split)
-                return node;
-
             var nodeLeft = node.Left;
             ParameterExpression leftParemeter = null;
             Expression target = node.Left;
@@ -166,8 +167,6 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitConditional(ConditionalExpression node)
         {
-            if (!split)
-                return node;
             return Expression.Call(generator,
                 ClrGeneratorBuilder._if,
                 ConvertTyped(node.Test),
@@ -177,8 +176,6 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            if (!split)
-                return node;
             var converted = ConvertTyped(node.Operand);
             var p = Expression.Parameter(node.Operand.Type);
             var m = _unary.MakeGenericMethod(p.Type);
@@ -188,8 +185,6 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitLoop(LoopExpression node)
         {
-            if (!split)
-                return node;
             var @break = labels[node.BreakLabel];
             var @continue = labels[node.ContinueLabel];
             var @block = Convert(node.Body);
@@ -223,23 +218,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
             foreach (var e in node.Expressions)
             {
                 var child = e;
-                //if (split)
-                //{
-                //    block.AddYield(Visit(child));
-                //    continue;
-                //}
-                if (YieldFinder.ContainsYield(child))
-                {
-                    try { 
-                        split = true;
-                        block.AddYield(Visit(child));
-                    }
-                    finally
-                    {
-                        split = false;
-                    }
-                } else
-                {
+                if (e.HasYield() || e.ForceBreak()) {
+                    block.AddYield(Visit(e));
+                } else {
                     block.Add(Visit(child));
                 }
             }

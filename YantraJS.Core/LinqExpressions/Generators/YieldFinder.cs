@@ -21,11 +21,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         private LinkedStack<ENode> stack = new LinkedStack<ENode>();
 
-        public static bool ContainsYield(Expression node)
+        public static void MarkYield(Expression exp)
         {
-            var finder = new YieldFinder();
-            finder.Visit(node);
-            return finder.found;
+            var yf = new YieldFinder();
+            yf.Visit(exp);
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -42,6 +41,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     top = top.Parent;
                 }
             }
+            node.UpdateExtendedValue((e) => {
+                e.HasYield = true;
+            });
             return node;
         }
 
@@ -56,6 +58,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     yield = top;
                     break;
                 }
+                top = top.Parent;
             }
             if(yield != null)
             {
@@ -70,6 +73,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                         break;
                 }
             }
+            node.UpdateExtendedValue(e => e.ForceBreak = true);
             return base.VisitGoto(node);
         }
 
