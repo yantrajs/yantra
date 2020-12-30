@@ -262,7 +262,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(0, Evaluate("Int16Array.of.length"));
         }
 
-      //  [TestMethod]
+        [TestMethod]
         public void copyWithin()
         {
             // Check basic copies.

@@ -34,23 +34,30 @@ namespace YantraJS.Core
                 elements[_length++] = JSProperty.Property(item);
         }
 
+      
+        internal IElementEnumerator GetEntries()
+        {
+            return new EntryEnumerator(this);
+        }
+
+        
+
         public JSArray(int count): base(JSContext.Current.ArrayPrototype)
         {
             CreateElements(count);
+            _length = (uint)count;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            bool first = true;
-            var en = new ElementEnumerator(this);
-            while(en.MoveNext(out var hasValue, out var item, out var index))
+            for(uint i =0; i<_length;i++)
             {
-                if (!first)
+                if (i > 0)
                     sb.Append(',');
-                if (item != null && !item.IsUndefined)
+                var item = this[i];
+                if (item != null && !item.IsNullOrUndefined)
                     sb.Append(item);
-                first = false;
             }
             return sb.ToString();
         }
@@ -210,10 +217,7 @@ namespace YantraJS.Core
                 ref var e = ref ary.GetElements();
                 for (uint i = 0; i < l; i++)
                 {
-                    if(e.TryGetValue(i, out var v))
-                    {
-                        et[el++] = v;
-                    }
+                    et[el++] = JSProperty.Property(ary[i]);
                 }
                 this._length = el;
                 return;
@@ -231,6 +235,47 @@ namespace YantraJS.Core
                 }
             }
             this._length = el;
+        }
+    }
+
+
+    struct EntryEnumerator : IElementEnumerator
+    {
+        private JSArray array;
+        private int index;
+
+        public EntryEnumerator(JSArray typedArray)
+        {
+            this.array = typedArray;
+            this.index = -1;
+        }
+
+        public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+        {
+            if (++this.index < array.Length)
+            {
+                hasValue = true;
+                index = (uint)this.index;
+                value = new JSArray(new JSNumber(index), array[index]);
+                return true;
+            }
+
+            hasValue = false;
+            index = 0;
+            value = JSUndefined.Value;
+            return false;
+        }
+
+        public bool MoveNext(out JSValue value)
+        {
+            if (++this.index < array.Length)
+            {
+                value = new JSArray(new JSNumber(index), array[(uint)index]);
+                return true;
+            }
+
+            value = JSUndefined.Value;
+            return false;
         }
     }
 }

@@ -50,10 +50,57 @@ namespace YantraJS.Core.Typed
             return new JSString(@this.ToString());
         }
 
+
+        /// <summary>
+        /// Copies the sequence of array elements within the array to the position starting at
+        /// target. The copy is taken from the index positions of the second and third arguments
+        /// start and end. The end argument is optional and defaults to the length of the array.
+        /// This method has the same algorithm as Array.prototype.copyWithin.
+        /// </summary>
+        /// <param name="target"> Target start index position where to copy the elements to. </param>
+        /// <param name="start"> Source start index position where to start copying elements from. </param>
+        /// <param name="end"> Optional. Source end index position where to end copying elements from. </param>
+        /// <returns> The array that is being operated on. </returns>
         [Prototype("copyWithin", Length = 2)]
         public static JSValue CopyWithin(in Arguments a) {
-            var(target, start, end) = a.Get3();
-            throw new NotImplementedException();
+            var(t, s) = a.Get2();
+            var target = t.IntValue;
+            var start = s.IntValue;
+            var end = a.TryGetAt(2, out var e) ? e.IntValue : int.MaxValue;
+            var @this = a.This.AsTypedArray();
+            // Negative values represent offsets from the end of the array.
+            target = target < 0 ? Math.Max(@this.Length + target, 0) : Math.Min(target, @this.Length);
+            start = start < 0 ? Math.Max(@this.Length + start, 0) : Math.Min(start, @this.Length);
+            end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
+
+            // Calculate the number of values to copy.
+            int count = Math.Min(end - start, @this.Length - target);
+
+            // Check if we need to copy in reverse due to an overlap.
+            int direction = 1;
+            if (start < target && target < start + count)
+            {
+                direction = -1;
+                start += count - 1;
+                target += count - 1;
+            }
+
+            while (count > 0)
+            {
+                // Get the value of the array element.
+                var elementValue = @this[(uint)start];
+
+                // Copy the value to the new position.
+                @this[(uint)target] = elementValue;
+
+                // Progress to the next element.
+                start += direction;
+                target += direction;
+                count--;
+            }
+
+            return @this;
+            //throw new NotImplementedException();
         }
 
 

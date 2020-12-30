@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using YantraJS;
 using YantraJS.Extensions;
+using YantraJS.Core.Generator;
 
 namespace YantraJS.Core
 {
@@ -16,26 +17,55 @@ namespace YantraJS.Core
         public static JSValue Constructor(in Arguments a)
         {
             // throw JSContext.Current.NewTypeError("Not supported");
-            return new JSArray();
+            var @this = a.This;
+            var arg = a.Get1();
+            var result = new JSArray();
+            if (a.Length == 0)
+                return new JSArray();
+            // If only length is specified
+            if (a.Length == 1 && arg.IsNumber)
+            {
+                double val = arg.DoubleValue;
+                if(double.IsNaN(val) || val < 0 || val > UInt32.MaxValue || Math.Floor(val) != val)
+                    throw JSContext.Current.NewRangeError($"Invalid array length");
+                return new JSArray(arg.IntValue);
+            }
+            // If elements are specified
+            for (int i = 0; i < a.Length; i++)
+            {
+                var ele = a.GetAt(i);
+                //if (ele == null)
+                //    ele = JSUndefined.Value;
+                result.Add(ele);
+                
+            }
+            return result;
+
+            
         }
 
         [Prototype("concat", Length = 1)]
         public static JSValue Concat(in Arguments a)
         {
             var r = new JSArray();
-            r.AddRange(a.This);
+            if (a.This.IsArray)
+                r.AddRange(a.This);
+            else
+                r.Add(a.This);
+
             for (int i = 0; i < a.Length; i++)
             {
                 var f = a.GetAt(i);
                 if (f.IsArray)
-                {
-                    r.AddRange(f);
+                    {
+                        r.AddRange(f);
+                    }
+                    else
+                    {
+                        r.Add(f);
+                    }
                 }
-                else
-                {
-                    r.Add(f);
-                }
-            }
+            
             return r;
         }
 
@@ -56,41 +86,129 @@ namespace YantraJS.Core
             return JSBoolean.True;
         }
 
-        [Prototype("copyWithIn", Length = 2)]
-        public static JSValue CopyWithIn(in Arguments a)
+        //[Prototype("copyWithIn", Length = 2)]
+        //public static JSValue CopyWithIn(in Arguments a)
+        //{
+        //    var @this = a.This;
+        //    if (@this.IsNullOrUndefined)
+        //        throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+        //    var array = @this as JSObject;
+        //    if (array.IsSealedOrFrozen())
+        //        throw JSContext.Current.NewTypeError($"Cannot modify property length of {@this}");
+        //    var len = array.Length;
+
+        //    var (target, start, end) = a.Get3();
+
+        //    var relativeTarget = target.IntValue;
+
+        //    var to = relativeTarget < 0
+        //        ? Math.Max(len + relativeTarget, 0)
+        //        : Math.Min(relativeTarget, len);
+
+        //    var relativeStart = start.IntValue;
+
+        //    var from = relativeStart < 0
+        //        ? Math.Max(len + relativeStart, 0)
+        //        : Math.Min(relativeStart, len);
+
+        //    var relativeEnd = end.IsUndefined ? len : end.IntValue;
+
+        //    var final = relativeEnd < 0
+        //        ? Math.Max(len + relativeEnd, 0)
+        //        : Math.Min(relativeEnd, len);
+
+        //    var count = Math.Min(final - from, len - to);
+
+
+        //    //throw new NotImplementedException();
+        //}
+
+        [Prototype("copyWithin", Length = 2)]
+        public static JSValue CopyWithin(in Arguments a) {
+            var (t, s) = a.Get2();
+            var target = t.IntValue;
+            var start = s.IntValue;
+            var end = a.TryGetAt(2, out var e) ? e.IntValue : int.MaxValue;
+            var @this = a.This as JSArray;
+            // Negative values represent offsets from the end of the array.
+            target = target < 0 ? Math.Max(@this.Length + target, 0) : Math.Min(target, @this.Length);
+            start = start < 0 ? Math.Max(@this.Length + start, 0) : Math.Min(start, @this.Length);
+            end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
+
+            // Calculate the number of values to copy.
+            int count = Math.Min(end - start, @this.Length - target);
+
+            // Check if we need to copy in reverse due to an overlap.
+            int direction = 1;
+            if (start < target && target < start + count)
+            {
+                direction = -1;
+                start += count - 1;
+                target += count - 1;
+            }
+
+            ref var elements = ref @this.GetElements(true);
+
+            while (count > 0)
+            {
+                // Get the value of the array element.
+                var elementValue = elements[(uint)start];
+
+                if (!elementValue.IsEmpty)
+                {
+                    // Copy the value to the new position.
+                    elements[(uint)target] = elementValue;
+                }
+                else
+                {
+                    // Delete the element at the new position.
+                    // Delete((uint)target);
+                    elements.RemoveAt((uint)target);
+                }
+
+                // Progress to the next element.
+                start += direction;
+                target += direction;
+                count--;
+            }
+
+            return @this;
+        }
+
+
+        [Prototype("entries")]
+        public static JSValue Entries(in Arguments a)
         {
+            var array = a.This as JSArray;
+          
+            return new JSGenerator(array.GetEntries(), "Array Iterator");
+            
+        }
+
+        /// <summary>
+        /// Fills all the elements of a typed array from a start index to an end index with a
+        /// static value.
+        /// </summary>
+        /// <param name="value"> The value to fill the typed array with. </param>
+        /// <param name="start"> Optional. Start index. Defaults to 0. </param>
+        /// <param name="end"> Optional. End index (exclusive). Defaults to the length of the array. </param>
+        /// <returns> The array that is being operated on. </returns>
+        [Prototype("fill", Length = 1)]
+        public static JSValue Fill(in Arguments a) {
             var @this = a.This;
-            if (@this.IsNullOrUndefined)
-                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            var array = @this as JSObject;
-            if (array.IsSealedOrFrozen())
-                throw JSContext.Current.NewTypeError($"Cannot modify property length of {@this}");
-            var len = array.Length;
-
-            var (target, start, end) = a.Get3();
-
-            var relativeTarget = target.IntValue;
-
-            var to = relativeTarget < 0
-                ? Math.Max(len + relativeTarget, 0)
-                : Math.Min(relativeTarget, len);
-
-            var relativeStart = start.IntValue;
-
-            var from = relativeStart < 0
-                ? Math.Max(len + relativeStart, 0)
-                : Math.Min(relativeStart, len);
-
-            var relativeEnd = end.IsUndefined ? len : end.IntValue;
-
-            var final = relativeEnd < 0
-                ? Math.Max(len + relativeEnd, 0)
-                : Math.Min(relativeEnd, len);
-
-            var count = Math.Min(final - from, len - to);
-
-
-            throw new NotImplementedException();
+            var (value, start, end) = a.Get3();
+            // JSArray r = new JSArray();
+            var len = @this.Length;
+            var relativeStart = start.AsInt32OrDefault();
+            var relativeEnd = end.AsInt32OrDefault(len);
+            // Negative values represent offsets from the end of the array.
+            relativeStart = relativeStart < 0 ? Math.Max(len + relativeStart, 0) : Math.Min(relativeStart, len);
+            relativeEnd = relativeEnd < 0 ? Math.Max(len + relativeEnd, 0) : Math.Min(relativeEnd, len);
+            for (; relativeStart < relativeEnd; relativeStart++)
+            {
+                @this[(uint)relativeStart] = value;
+            }
+            return @this;
         }
 
         [Prototype("filter", Length = 1)]
@@ -137,6 +255,21 @@ namespace YantraJS.Core
 
         }
 
+        /// <summary>
+        /// Creates a new array with all sub-array elements concatenated into it recursively up to
+        /// the specified depth.
+        /// </summary>
+        /// <param name="thisObj"> The array that is being operated on. </param>
+        /// <param name="depth"> The depth level specifying how deep a nested array structure
+        /// should be flattened. Defaults to 1. </param>
+        /// <returns> A new array with the sub-array elements concatenated into it. </returns>
+        [Prototype("flat", Length = 1)]
+        public static JSValue Flat(in Arguments a)
+        {
+            var result = new JSArray(a.This.Length);
+            throw new NotImplementedException();
+
+        }
 
         [Prototype("findIndex", Length = 1)]
         public static JSValue FindIndex(in Arguments a)
