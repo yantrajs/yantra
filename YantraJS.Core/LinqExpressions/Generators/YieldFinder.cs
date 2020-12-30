@@ -25,6 +25,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             var yf = new YieldFinder();
             yf.Visit(exp);
+            // do agin to mark gotos...
+            yf.Visit(exp);
         }
 
         protected override Expression VisitExtension(Expression node)

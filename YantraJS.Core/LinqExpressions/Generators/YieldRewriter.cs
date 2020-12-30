@@ -83,17 +83,14 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (node == null)
                 return node;
-            if(node.NodeType!= ExpressionType.Block)
-            {
-                if (!(node.HasYield() && node.ForceBreak()))
-                    return node;
-            }
             return base.Visit(node);
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            return Expression.Lambda(node.AsObject());
+            if (!node.ShouldBreak())
+                return node;
+            return node.ToLambda();
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -110,7 +107,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (node == null)
                 return Expression.Constant(null);
-            if (node.HasYield())
+            if (node.ShouldBreak())
             {
                 var n = Visit(node);
                 if (n.Type == typeof(Func<object>))
@@ -123,18 +120,29 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private Expression Convert(Expression node)
         {
             if (node == null)
-                return Expression.Constant(null);
-            if (node.HasYield())
+                return Expression.Constant(null,typeof(object));
+            if (node.ShouldBreak())
             {
                 return Visit(node).AsObject().ToLambda();
             }
             return node.AsObject().ToLambda();
         }
 
+        protected override Expression VisitLabel(LabelExpression node)
+        {
+            return null;
+        }
+
+        protected override LabelTarget VisitLabelTarget(LabelTarget node)
+        {
+            return null;
+        }
 
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            if (!node.ShouldBreak())
+                return node;
             var nodeLeft = node.Left;
             ParameterExpression leftParemeter = null;
             Expression target = node.Left;
@@ -167,6 +175,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitConditional(ConditionalExpression node)
         {
+            if (!node.ShouldBreak())
+                return node;
             return Expression.Call(generator,
                 ClrGeneratorBuilder._if,
                 ConvertTyped(node.Test),
@@ -176,6 +186,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
+            if (!node.ShouldBreak())
+                return node;
             var converted = ConvertTyped(node.Operand);
             var p = Expression.Parameter(node.Operand.Type);
             var m = _unary.MakeGenericMethod(p.Type);
@@ -185,6 +197,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitLoop(LoopExpression node)
         {
+            if (!node.ShouldBreak())
+                return node;
             var @break = labels[node.BreakLabel];
             var @continue = labels[node.ContinueLabel];
             var @block = Convert(node.Body);
@@ -193,8 +207,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitGoto(GotoExpression node)
         {
-            // if (!split)
-            //     return node;
+            if (!node.ShouldBreak())
+                return node;
 
             var target = labels[node.Target];
             return Expression.Call(generator, _goto, Expression.Constant(target));
@@ -218,7 +232,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
             foreach (var e in node.Expressions)
             {
                 var child = e;
-                if (e.HasYield() || e.ForceBreak()) {
+                if (e.ShouldBreak()) {
                     block.AddYield(Visit(e));
                 } else {
                     block.Add(Visit(child));

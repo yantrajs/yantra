@@ -11,6 +11,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             if (body == null)
                 return Expression.Constant(null);
+            if (body.NodeType == ExpressionType.Default && body.Type == typeof(void))
+                return Expression.Constant(null, typeof(Func<object>));
             if (body.Type == typeof(Func<object>))
                 return body;
             return Expression.Lambda(typeof(Func<object>), body);
@@ -32,10 +34,21 @@ namespace YantraJS.Core.LinqExpressions.Generators
             return exp.GetExtendedValue().HasYield;
         }
 
+        internal static bool ShouldBreak(this Expression exp)
+        {
+            if (exp == null)
+                return false;
+            var e = exp.GetExtendedValue();
+            return e.HasYield || e.ForceBreak;
+        }
+
+
         internal static Expression AsObject(this Expression target)
         {
             if (target.Type == typeof(object))
                 return target;
+            if (target.NodeType == ExpressionType.Default && target.Type == typeof(void))
+                return Expression.Constant(null, typeof(object));
             return Expression.TypeAs(target, typeof(object));
         }
 

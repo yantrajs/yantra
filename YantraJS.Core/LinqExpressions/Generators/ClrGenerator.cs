@@ -264,10 +264,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 try
                 {
                     var a = step();
-                    //if (a is Func<object> fx)
-                    //{
-                    //    Stack.Push(fx);
-                    //}
+                    if (a is Func<object> fx)
+                    {
+                        Stack.Push(fx);
+                    }
                 }
                 catch (Exception ex)
                 {

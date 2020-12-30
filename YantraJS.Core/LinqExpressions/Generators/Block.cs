@@ -15,10 +15,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public Expression ToExpression()
         {
             Expression body;
+
+            Steps = Steps.Where(x => x != null).ToList();
+
             switch (Steps.Count)
             {
                 case 0:
-                    throw new NotSupportedException();
+                    return null;
                 case 1:
                     body = Steps[0];
                     if (body.Type == typeof(Func<object>))
