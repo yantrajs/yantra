@@ -184,7 +184,7 @@ namespace YantraJS.Core
                 : source;
             prototype = new JSObject();
             // prototype[KeyStrings.constructor] = this;
-            prototype.DefineProperty(KeyStrings.constructor, JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue));
+            prototype.DefineProperty(KeyStrings.constructor, JSProperty.Property(this, JSPropertyAttributes.ConfigurableValue));
             // ref var opp = ref prototype.GetOwnProperties(true);
             // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
             ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
