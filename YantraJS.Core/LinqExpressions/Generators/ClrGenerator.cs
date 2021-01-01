@@ -329,6 +329,18 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
+        public Func<object> MemberAccess<T>(Func<object> target, Func<T, object> member)
+        {
+            return () => {
+                T result = default;
+                Stack.Push(() => {
+                    return member(result);
+                });
+                Stack.Push(() => result = (T)target());
+                return null;
+            };
+        }
+
         public Func<object> Call(Func<object>[] parameters, Func<object[], object> call)
         {
             return () => {

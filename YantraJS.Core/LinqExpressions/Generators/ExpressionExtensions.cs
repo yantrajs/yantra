@@ -48,5 +48,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
             storage.Remove(exp);
         }
 
+        public static bool IsFunc(this Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Func<>);
+        }
+
     }
 }

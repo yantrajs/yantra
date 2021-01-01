@@ -15,7 +15,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 return Expression.Constant(null, typeof(Func<object>));
             if (body.Type == typeof(Func<object>))
                 return body;
-            return Expression.Lambda(typeof(Func<object>), body);
+            return Expression.Lambda(typeof(Func<object>), 
+                body.Type.IsValueType 
+                ? Expression.Convert(body,typeof(object)) 
+                : body);
         }
 
         internal static Expression ToLambda(this Expression body, Type type)
@@ -23,7 +26,26 @@ namespace YantraJS.Core.LinqExpressions.Generators
             if (body == null)
                 return Expression.Constant(null);
             var t = typeof(Func<>).MakeGenericType(type);
-            return Expression.Lambda(t, body);
+            if (body.NodeType == ExpressionType.Lambda)
+            {
+                var l = body as LambdaExpression;
+                if (l.ReturnType == typeof(object))
+                {
+                    var lb = l.Body;
+                    return Expression.Lambda(t, Expression.Convert(lb, type));
+                }
+            }
+            if (body.Type.IsFunc())
+            {
+                var p = Expression.Parameter(body.Type, "func");
+                return Expression.Lambda(t, Expression.Block(
+                    new ParameterExpression[] {p},
+                    Expression.Assign(p, body),
+                    Expression.Convert( Expression.Invoke(body),type)
+                    ));
+            }
+
+            return Expression.Lambda(t, Expression.Convert(body,type));
         }
 
 

@@ -221,7 +221,7 @@ namespace YantraJS
             this.Function = fx;
             if (fx?.Generator ?? false)
             {
-                Generator = Expression.Parameter(typeof(ClrGenerator));
+                Generator = Expression.Parameter(typeof(ClrGenerator), "clrGenerator");
             } else
             {
                 Generator = null;

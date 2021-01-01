@@ -46,6 +46,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static MethodInfo _loop = type.GetMethod(nameof(ClrGenerator.Loop));
         private static MethodInfo _goto = type.GetMethod(nameof(ClrGenerator.Goto));
         private static MethodInfo _yield = type.GetMethod(nameof(ClrGenerator.Yield));
+        private static MethodInfo _memberAccess = type.GetMethod(nameof(ClrGenerator.MemberAccess));
         private static MethodInfo _build = type.GetMethod(nameof(ClrGenerator.Build));
         private static MethodInfo _assign = type.GetMethod(nameof(ClrGenerator.Assign));
         private static MethodInfo _tryCatchFinally = type.GetMethod(nameof(ClrGenerator.TryCatchFinally));
@@ -122,23 +123,24 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private Expression ExecuteCall(IEnumerable<Expression> arguments, Func<List<Expression>, Expression> transform)
         {
             // break every parameter...
-            List<ParameterExpression> peList = new List<ParameterExpression>();
+            ParameterExpression peList = Expression.Parameter(typeof(object[]));
             // cast to native type...
             List<Expression> argList = new List<Expression>();
 
             List<Expression> lambaList = new List<Expression>();
 
+            int i = 0;
             foreach (var a in arguments)
             {
-                var pe = Expression.Parameter(typeof(object));
-                peList.Add(pe);
+                var al = Visit(a).ToLambda();
+                var pe = Expression.ArrayIndex(peList,Expression.Constant(i++));
+                
                 argList.Add(a.Type.IsValueType
                     ? Expression.Convert(pe, a.Type)
                     : Expression.TypeAs(pe, a.Type));
                 if (a.Type.IsValueType)
                 {
-                    lambaList.Add(Expression.Lambda(typeof(Func<object>),
-                        Expression.Convert(a, typeof(object))));
+                    lambaList.Add(al);
                 }
                 else
                 {
@@ -174,8 +176,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
             if (node.ShouldBreak())
             {
                 var n = Visit(node);
-                if (n.Type == typeof(Func<object>))
-                    return n;
+                //if (n.Type == typeof(Func<object>))
+                //    return n;
                 return n.ToLambda(node.Type);
             }
             return Visit(node).ToLambda(node.Type);
@@ -358,15 +360,25 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitSwitch(SwitchExpression node)
         {
-            return base.VisitSwitch(node);
+            if (!node.ShouldBreak())
+                return node;
+            // return base.VisitSwitch(node);
+            throw new NotSupportedException();
         }
 
         protected override Expression VisitMember(MemberExpression node)
         {
             if (!node.ShouldBreak())
                 return node;
-
-            return ExecuteCall(new Expression[] { node.Expression }, t => node.Update(t[0]));
+            var returnType = node.Expression.Type;
+            var t = typeof(Func<,>).MakeGenericType(returnType, typeof(object));
+            var pe = Expression.Parameter(node.Expression.Type, "member");
+            var updatedNode = node.Update(Expression.Convert(pe, returnType));
+            var body = Expression.Lambda(t, updatedNode.AsObject(), pe);
+            return Expression.Call(generator,
+                _memberAccess.MakeGenericMethod(node.Expression.Type),
+                Visit(node.Expression),
+                body);
         }
     }
 }
