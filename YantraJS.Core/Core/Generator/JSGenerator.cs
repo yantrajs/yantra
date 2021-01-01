@@ -11,26 +11,6 @@ namespace YantraJS.Core.Generator
 {
     public class JSGenerator : JSObject, IDisposable
     {
-
-        ///**
-        // * Using ManualResetEventSlim is of no use as it blocks endlessly when `Set` is applied
-        // * before `Wait` and which causes singal loss leading to deadlock.
-        // */
-
-
-        //// wait by current thread...
-        //// AutoResetEvent yield;
-        //private AutoResetEvent yield;
-
-        //// wait by generator thread...
-        //private AutoResetEvent wait;
-        //private readonly ScriptInfo script;
-        //private readonly JSVariable[] closures;
-        //readonly JSGeneratorDelegate @delegate;
-        //readonly Arguments a;
-        //private Exception lastError;
-        //// private LightWeightStack<CallStackItem> threadTop;
-        //private CallStackItem threadTop;
         readonly IElementEnumerator en;
         private ClrGenerator cg;
         private readonly string name;
@@ -38,18 +18,6 @@ namespace YantraJS.Core.Generator
         private JSContext context;
         internal JSValue value;
         internal bool done;
-
-        //public JSGenerator(ScriptInfo script, JSVariable[] closures, JSGeneratorDelegate @delegate, Arguments a)
-        //{
-        //    context = JSContext.Current;
-        //    this.prototypeChain = JSContext.Current.GeneratorPrototype;
-        //    this.script = script;
-        //    this.closures = closures;
-        //    this.@delegate = @delegate;
-        //    this.a = a;
-        //    done = false;
-        //    name = "generator";
-        //}
 
         public JSGenerator(IElementEnumerator en, string name) {
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
@@ -87,8 +55,6 @@ namespace YantraJS.Core.Generator
         {
             this.done = true;
             this.value = JSUndefined.Value;
-            //yield?.Set();
-            //wait?.Set();
             return (JSObject.NewWithProperties())
                     .AddProperty(KeyStrings.value, value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
@@ -138,87 +104,7 @@ namespace YantraJS.Core.Generator
             this.done = true;
             this.value = JSUndefined.Value;
             return ValueObject;
-
-            //// var current = JSContext.Current.CloneStack();
-            //var current = context.Top;
-            //if (replaceOld != null)
-            //{
-            //    this.value = replaceOld;
-            //}
-            //if (this.done)
-            //{
-            //    this.value = JSUndefined.Value;
-            //    return ValueObject;
-            //}
-            //if (wait == null)
-            //{
-            //    wait = new AutoResetEvent(false);
-            //    yield = new AutoResetEvent(false);
-            //    // this.thread = new Thread(RunGenerator);
-            //    // thread.Start(new JSWeakGenerator(this));
-            //    threadTop = JSContext.Current.Top;
-            //    JSThreadPool.Queue(RunGenerator, new JSWeakGenerator(this));
-            //} else
-            //{
-            //    context.Top = threadTop;
-            //    wait.Set();
-            //}
-
-            //yield.WaitOne(Timeout.Infinite);
-
-            //threadTop = context.Top;
-            //context.Top = current;
-
-            //if (this.lastError != null)
-            //{
-            //    this.OnDispose();
-            //    throw lastError;
-            //}
-
-            //if (this.done)
-            //{
-            //    this.value = JSUndefined.Value;
-            //    this.OnDispose();
-            //    return ValueObject;
-            //}
-
-            return ValueObject;
         }
-
-        //public JSValue Yield(JSValue value)
-        //{
-        //    try
-        //    {
-        //        this.value = value;
-        //        yield.Set();
-        //        wait.WaitOne(Timeout.Infinite);
-        //    } catch (ObjectDisposedException)
-        //    {
-        //        throw new SafeExitException();
-        //    }
-        //    return this.value;
-        //}
-
-        //public JSValue Delegate(JSValue value)
-        //{
-        //    if (!(value is JSGenerator generator))
-        //    {
-        //        do {
-        //            var a = value.InvokeMethod(KeyStrings.next, new Arguments(this));
-        //            if(a[KeyStrings.done].BooleanValue)
-        //            {
-        //                break;
-        //            }
-        //            this.Yield(a[KeyStrings.value]);
-        //        } while (true);
-        //        return this.value;
-        //    }
-        //    while (!generator.done)
-        //    {
-        //        this.Yield(generator.Next());
-        //    }
-        //    return this.value;
-        //}
 
         internal override IElementEnumerator GetElementEnumerator()
         {
@@ -268,65 +154,6 @@ namespace YantraJS.Core.Generator
 
             }
         }
-
-        //private static void RunGenerator(object state)
-        //{
-        //    try
-        //    {
-        //        var weakGenerator = (JSWeakGenerator)state;
-        //        try
-        //        {
-        //            JSGeneratorDelegate @delegate;
-        //            Arguments a;
-        //            JSVariable[] closures;
-        //            ScriptInfo script;
-        //            if (weakGenerator.generator.TryGetTarget(out var generator))
-        //            {
-        //                @delegate = generator.@delegate;
-        //                closures = generator.closures;
-        //                script = generator.script;
-        //                a = generator.a;
-        //                JSContext.Current = generator.context;
-        //                SynchronizationContext.SetSynchronizationContext(generator.context.synchronizationContext);
-        //            }
-        //            else
-        //            {
-        //                return;
-        //            }
-        //            generator = null;
-        //            @delegate(script, closures, in weakGenerator, in a);
-        //            if (weakGenerator.generator.TryGetTarget(out generator))
-        //            {
-        //                generator.done = true;
-        //                try
-        //                {
-        //                    generator.yield.Set();
-        //                }
-        //                catch (ObjectDisposedException)
-        //                {
-        //                    throw new SafeExitException();
-        //                }
-        //            }
-        //        }
-        //        catch (SafeExitException)
-        //        {
-        //            // do nothing..
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            if (weakGenerator.generator.TryGetTarget(out var g))
-        //            {
-        //                g.lastError = ex;
-        //                g.yield.Set();
-
-        //            }
-        //        }
-        //    } 
-        //    catch (ObjectDisposedException)
-        //    {
-        //        // do nothing...
-        //    }
-        //}
 
         [Prototype("next", Length = 1)]
         public static JSValue Next(in Arguments a)
