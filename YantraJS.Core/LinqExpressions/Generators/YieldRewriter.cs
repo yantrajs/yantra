@@ -40,12 +40,17 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         private static MethodInfo _block = type.GetMethod(nameof(ClrGenerator.Block));
         private static MethodInfo _binary = type.GetMethod(nameof(ClrGenerator.Binary));
+        private static MethodInfo _call = type.GetMethod(nameof(ClrGenerator.Call));
         private static MethodInfo _if = type.GetMethod(nameof(ClrGenerator.If));
         private static MethodInfo _unary = type.GetMethod(nameof(ClrGenerator.Unary));
         private static MethodInfo _loop = type.GetMethod(nameof(ClrGenerator.Loop));
         private static MethodInfo _goto = type.GetMethod(nameof(ClrGenerator.Goto));
         private static MethodInfo _yield = type.GetMethod(nameof(ClrGenerator.Yield));
         private static MethodInfo _build = type.GetMethod(nameof(ClrGenerator.Build));
+        private static MethodInfo _assign = type.GetMethod(nameof(ClrGenerator.Assign));
+        private static MethodInfo _tryCatchFinally = type.GetMethod(nameof(ClrGenerator.TryCatchFinally));
+        private static MethodInfo _tryCatch = type.GetMethod(nameof(ClrGenerator.TryCatch));
+        private static MethodInfo _tryFinally = type.GetMethod(nameof(ClrGenerator.TryFinally));
 
         List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
 
@@ -86,11 +91,70 @@ namespace YantraJS.Core.LinqExpressions.Generators
             return base.Visit(node);
         }
 
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            return node;
+        }
+
         protected override Expression VisitParameter(ParameterExpression node)
         {
             if (!node.ShouldBreak())
                 return node;
             return node.ToLambda();
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            if (!node.ShouldBreak())
+                return node;
+
+            return ExecuteCall(node.Arguments, a => node.Update(a));
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            if (!node.ShouldBreak())
+                return node;
+
+            return ExecuteCall(node.Arguments, a => node.Update(node.Object,a));
+        }
+
+        private Expression ExecuteCall(IEnumerable<Expression> arguments, Func<List<Expression>, Expression> transform)
+        {
+            // break every parameter...
+            List<ParameterExpression> peList = new List<ParameterExpression>();
+            // cast to native type...
+            List<Expression> argList = new List<Expression>();
+
+            List<Expression> lambaList = new List<Expression>();
+
+            foreach (var a in arguments)
+            {
+                var pe = Expression.Parameter(typeof(object));
+                peList.Add(pe);
+                argList.Add(a.Type.IsValueType
+                    ? Expression.Convert(pe, a.Type)
+                    : Expression.TypeAs(pe, a.Type));
+                if (a.Type.IsValueType)
+                {
+                    lambaList.Add(Expression.Lambda(typeof(Func<object>),
+                        Expression.Convert(a, typeof(object))));
+                }
+                else
+                {
+                    lambaList.Add(Expression.Lambda(typeof(Func<object>), a));
+                }
+            }
+
+            var newNode =
+                Expression.Lambda(typeof(Func<object[], object>),
+                transform(argList).AsObject(), peList);
+
+
+
+            return Expression.Call(generator, _call,
+                Expression.NewArrayInit(typeof(Func<object>), lambaList),
+                newNode);
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -138,12 +202,28 @@ namespace YantraJS.Core.LinqExpressions.Generators
             return null;
         }
 
+        protected Expression  VisitAssign(BinaryExpression node)
+        {
+            var p = Expression.Parameter(node.Left.Type);
+            var left = Expression.Lambda(typeof(Action<>).MakeGenericType(p.Type),
+                node.Update(node.Left, node.Conversion,p),p);
+            var right = Convert(node.Right);
+            return Expression.Call(generator, _assign.MakeGenericMethod(p.Type), left, right);
+        }
+
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
             if (!node.ShouldBreak())
                 return node;
             var nodeLeft = node.Left;
+
+            switch (node.NodeType)
+            {
+                case ExpressionType.Assign:
+                    return VisitAssign(node);
+            }
+
             ParameterExpression leftParemeter = null;
             Expression target = node.Left;
             var rightParameter = Expression.Parameter(node.Left.Type);
@@ -247,6 +327,46 @@ namespace YantraJS.Core.LinqExpressions.Generators
             //}
 
             return block.ToExpression(generator);
+        }
+
+        protected override Expression VisitTry(TryExpression node)
+        {
+            if (!node.ShouldBreak())
+                return node;
+            Expression @catch = null;
+            if (node.Handlers.Any())
+            {
+                var cb = node.Handlers.Single();
+                var pe = Expression.Parameter(typeof(Exception));
+                @catch = Expression.Lambda(typeof(Func<Exception,object>), 
+                    Expression.Block(
+                        Expression.Assign(cb.Variable, pe),
+                        cb.Body
+                    ), pe);
+            }
+            var @try = Convert(node.Body);
+            var @finally = Convert(node.Finally);
+            if (node.Finally != null)
+            {
+                if (@catch != null)
+                    return Expression.Call(generator, _tryCatchFinally, @try, @catch, @finally);
+                return Expression.Call(generator, _tryFinally, @try, @finally);
+            }
+
+            return Expression.Call(generator, _tryCatch, @try, @catch);
+        }
+
+        protected override Expression VisitSwitch(SwitchExpression node)
+        {
+            return base.VisitSwitch(node);
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (!node.ShouldBreak())
+                return node;
+
+            return ExecuteCall(new Expression[] { node.Expression }, t => node.Update(t[0]));
         }
     }
 }

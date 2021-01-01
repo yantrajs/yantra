@@ -43,7 +43,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         private InstructionStack Stack = new InstructionStack(8);
 
-        private Stack<(uint label, Func<object> @catch)> CatchStack = new Stack<(uint, Func<object>)>();
+        private Stack<(uint label, Func<Exception, object> @catch)> CatchStack = new Stack<(uint, Func<Exception, object>)>();
 
         public readonly CallStackItem StackItem;
 
@@ -119,8 +119,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                         // if it requires catch...
                         if (@catch != null)
                         {
-                            Stack.Push(() => ex);
-                            Stack.Push(@catch);
+                            Stack.Push(() => @catch(ex));
                         }
                         continue;
                     }
@@ -212,7 +211,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public Func<object> TryCatchFinally(
             Func<object> tryBody,
-            Func<object> @catch,
+            Func<Exception, object> @catch,
             Func<object> @finally)
         {
             var finallyLabel = NewLabel();
@@ -230,7 +229,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public Func<object> TryCatch(
             Func<object> tryBody,
-            Func<object> @catch)
+            Func<Exception, object> @catch)
         {
             var finallyLabel = NewLabel();
             // catch block is only pushed onto stack
