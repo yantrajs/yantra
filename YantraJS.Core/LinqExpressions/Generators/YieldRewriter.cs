@@ -58,13 +58,6 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static Type caseBlockType = typeof(CaseBody);
         private static ConstructorInfo newCaseBlock = caseBlockType.Constructor(typeof(object[]), typeof(Func<object>));
 
-        private static Expression ToCaseExpression(SwitchCase @case)
-        {
-            var body = Expression.Lambda(typeof(Func<object>), @case.Body.AsObject());
-            var tests = Expression.NewArrayInit(typeof(object), @case.TestValues);
-            return Expression.New(newCaseBlock, tests, body);
-        }
-
         List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
 
         private __Labels labels = new __Labels(8);
@@ -313,6 +306,14 @@ namespace YantraJS.Core.LinqExpressions.Generators
             var @break = labels[label.Target];
             var target = Convert(@switch.SwitchValue);
             var @default = Convert(@switch.DefaultBody);
+
+            Expression ToCaseExpression(SwitchCase @case)
+            {
+                var body = Expression.Lambda(typeof(Func<object>), Visit(@case.Body).AsObject());
+                var tests = Expression.NewArrayInit(typeof(object), @case.TestValues);
+                return Expression.New(newCaseBlock, tests, body);
+            }
+
 
             var @cases = @switch.Cases.Select(
                 x => ToCaseExpression(x)
