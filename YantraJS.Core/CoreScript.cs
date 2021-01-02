@@ -545,6 +545,9 @@ namespace YantraJS
                         YieldRewriter.Rewrite(block, cs.Generator, lexicalScopeVar, stackItem ), 
                         cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments);
                     // rewrite lambda...
+
+                    // lambda.Compile();
+
                     jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
 
                 } else if (functionDeclaration.Async)

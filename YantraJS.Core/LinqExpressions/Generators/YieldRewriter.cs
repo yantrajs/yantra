@@ -143,14 +143,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 argList.Add(a.Type.IsValueType
                     ? Expression.Convert(pe, a.Type)
                     : Expression.TypeAs(pe, a.Type));
-                if (a.Type.IsValueType)
-                {
-                    lambaList.Add(al);
-                }
-                else
-                {
-                    lambaList.Add(Expression.Lambda(typeof(Func<object>), a));
-                }
+                lambaList.Add(al);
             }
 
             var newNode =
