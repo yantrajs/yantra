@@ -368,24 +368,71 @@ namespace YantraJS.Core.LinqExpressions.Generators
         }
 
 
+        private static bool ValueEquals(object[] leftValues, object rightValue) {
+
+            foreach(var v in leftValues)
+            {
+                if (_ValueEquals(v, rightValue))
+                    return true;
+            }
+            return false;
+            bool _ValueEquals(object left, object right)
+            {
+                if (Object.ReferenceEquals(left, right))
+                    return true;
+                Type type = left.GetType();
+                TypeCode tc = Type.GetTypeCode(type);
+                switch (tc)
+                {
+                    case TypeCode.Boolean:
+                        return (bool)left == (bool)right;
+                    case TypeCode.Int32:
+                        return (int)left == (int)right;
+                    case TypeCode.Int64:
+                        return (long)left == (long)right;
+                    case TypeCode.Double:
+                        return (double)left == (double)right;
+                    case TypeCode.Single:
+                        return (float)left == (float)right;
+                }
+                if (left is JSValue leftJS && right is JSValue rightJS)
+                    return leftJS.StrictEquals(rightJS).BooleanValue;
+                return false;
+            }
+        }
+
 
         public Func<object> Switch(
             Func<object> target,
             uint breakLabel,
-            CatchBody[] @cases)
+            CaseBody[] @cases,
+            Func<object> @default)
         {
             return () => {
                 object t = null;
                 var @break = breakLabel;
                 Stack.Push(@break);
+
+                // cases must be ordered in reverse order...
+
                 Stack.Push(() => {
                     bool push = false;
+                    List<Func<object>> caseList = new List<Func<object>>(cases.Length + 1);
                     foreach (var c in cases)
                     {
-                        if (push = push || c.Test == t)
+                        if (push = push || ValueEquals(c.Test,t))
                         {
-                            Stack.Push(c.Body);
+                            // Stack.Push(c.Body);
+                            caseList.Add(c.Body);
                         }
+                    }
+                    if (@default != null)
+                    {
+                        Stack.Push(@default);
+                    }
+                    for (int i = caseList.Count - 1; i >= 0; i--)
+                    {
+                        Stack.Push(caseList[i]);
                     }
                     return null;
                 });
@@ -394,10 +441,16 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
-        public struct CatchBody
+        public struct CaseBody
         {
-            public object Test;
+            public object[] Test;
             public Func<object> Body;
+
+            public CaseBody(object[] test, Func<object> body)
+            {
+                this.Test = test;
+                this.Body = body;
+            }
         }
 
     }

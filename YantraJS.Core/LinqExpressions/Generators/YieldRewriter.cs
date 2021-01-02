@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using static YantraJS.Core.LinqExpressions.Generators.ClrGenerator;
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
@@ -49,9 +50,20 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static MethodInfo _memberAccess = type.GetMethod(nameof(ClrGenerator.MemberAccess));
         private static MethodInfo _build = type.GetMethod(nameof(ClrGenerator.Build));
         private static MethodInfo _assign = type.GetMethod(nameof(ClrGenerator.Assign));
+        private static MethodInfo _switch = type.GetMethod(nameof(ClrGenerator.Switch));
         private static MethodInfo _tryCatchFinally = type.GetMethod(nameof(ClrGenerator.TryCatchFinally));
         private static MethodInfo _tryCatch = type.GetMethod(nameof(ClrGenerator.TryCatch));
         private static MethodInfo _tryFinally = type.GetMethod(nameof(ClrGenerator.TryFinally));
+
+        private static Type caseBlockType = typeof(CaseBody);
+        private static ConstructorInfo newCaseBlock = caseBlockType.Constructor(typeof(object[]), typeof(Func<object>));
+
+        private static Expression ToCaseExpression(SwitchCase @case)
+        {
+            var body = Expression.Lambda(typeof(Func<object>), @case.Body.AsObject());
+            var tests = Expression.NewArrayInit(typeof(object), @case.TestValues);
+            return Expression.New(newCaseBlock, tests, body);
+        }
 
         List<ParameterExpression> lifedVariables = new List<ParameterExpression>();
 
@@ -296,8 +308,42 @@ namespace YantraJS.Core.LinqExpressions.Generators
             return Expression.Call(generator, _goto, Expression.Constant(target));
         }
 
+        protected Expression VisitSwitch(SwitchExpression @switch, LabelExpression label)
+        {
+            var @break = labels[label.Target];
+            var target = Convert(@switch.SwitchValue);
+            var @default = Convert(@switch.DefaultBody);
+
+            var @cases = @switch.Cases.Select(
+                x => ToCaseExpression(x)
+                ).ToList();
+
+            var plist = new List<Expression>() {
+                target,
+                Expression.Constant(@break),
+                Expression.NewArrayInit(typeof(CaseBody), @cases),
+                @default
+            };
+
+
+            return Expression.Call(generator, _switch, plist);
+        }
+
         protected override Expression VisitBlock(BlockExpression node)
         {
+            if(node.Expressions.Count == 2)
+            {
+                if(node.Expressions[0] is SwitchExpression @switch)
+                {
+                    if(node.Expressions[1] is LabelExpression label)
+                    {
+                        if (@switch.ShouldBreak())
+                        {
+                            return VisitSwitch(@switch, label);
+                        }
+                    }
+                }
+            }
 
             node = node.Reduce() as BlockExpression;
 
