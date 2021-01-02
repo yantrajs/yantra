@@ -64,9 +64,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
 
         public ParameterExpression generator;
+        private readonly uint @return;
 
         public static Expression Rewrite(
             Expression body,
+            LabelTarget r,
             ParameterExpression pe,
             params ParameterExpression[] generators)
         {
@@ -75,7 +77,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
             YieldFinder.MarkYield(body);
 
-            var yr = new YieldRewriter(pe);
+            var yr = new YieldRewriter(pe, r);
             var l = new List<ParameterExpression>();
             l.AddRange(generators);
             Expression b = yr.Visit(body);
@@ -85,9 +87,10 @@ namespace YantraJS.Core.LinqExpressions.Generators
             return b;
         }
 
-        public YieldRewriter(ParameterExpression generator)
+        public YieldRewriter(ParameterExpression generator, LabelTarget @return)
         {
             this.generator = generator;
+            this.@return = labels[@return];
         }
 
         public override Expression Visit(Expression node)
@@ -143,7 +146,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 argList.Add(a.Type.IsValueType
                     ? Expression.Convert(pe, a.Type)
                     : Expression.TypeAs(pe, a.Type));
-                lambaList.Add(al);
+                    lambaList.Add(al);
             }
 
             var newNode =
@@ -342,7 +345,12 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
             node = node.Reduce() as BlockExpression;
 
-            lifedVariables.AddRange(node.Variables);
+            foreach(var v in node.Variables)
+            {
+                if (!lifedVariables.Contains(v))
+                    lifedVariables.Add(v);
+            }
+            // lifedVariables.AddRange(node.Variables);
 
             VMBlock block = new VMBlock();
             //if (lifedVariables.Count > 0)
@@ -380,11 +388,15 @@ namespace YantraJS.Core.LinqExpressions.Generators
             if (node.Handlers.Any())
             {
                 var cb = node.Handlers.Single();
+
+                var cbb = Visit(cb.Body);
+                // if this is lambda.. convert it...
+
                 var pe = Expression.Parameter(typeof(Exception));
                 @catch = Expression.Lambda(typeof(Func<Exception,object>), 
                     Expression.Block(
                         Expression.Assign(cb.Variable, pe),
-                        cb.Body
+                        Expression.Invoke(cbb)
                     ), pe);
             }
             var @try = Convert(node.Body);

@@ -37,8 +37,8 @@ namespace YantraJS
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
-        public Exp FileNameExpression => ScriptInfoBuilder.FileName(this.scope.Top.ScriptInfo);
-        public Exp CodeStringExpression => ScriptInfoBuilder.Code(this.scope.Top.ScriptInfo);
+        // public Exp FileNameExpression => ScriptInfoBuilder.FileName(this.scope.Top.ScriptInfo);
+        // public Exp CodeStringExpression => ScriptInfoBuilder.Code(this.scope.Top.ScriptInfo);
 
         // private ParsedScript Code;
 
@@ -369,9 +369,6 @@ namespace YantraJS
             )
         {
             var node = functionDeclaration as Node;
-            var codeExp = CodeStringExpression;
-            var code = StringSpanBuilder.New(codeExp, node.Range.Start, 
-                node.Range.End - node.Range.Start);
 
             // get text...
 
@@ -389,6 +386,10 @@ namespace YantraJS
 
             var parentScriptInfo = this.scope.Top.ScriptInfo;
 
+            var code = StringSpanBuilder.New(
+                ScriptInfoBuilder.Code(parentScriptInfo), 
+                node.Range.Start,
+                node.Range.End - node.Range.Start);
 
             using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis, super)))
             {
@@ -414,21 +415,32 @@ namespace YantraJS
                 var sList = new List<Exp>();
 
                 Exp fxName;
+                Exp localFxName;
                 if (functionName != null)
                 {
                     var id = functionDeclaration.Id;
-                    fxName = StringSpanBuilder.New(codeExp, id.Range.Start, id.Range.End - id.Range.Start);
+                    fxName = StringSpanBuilder.New( 
+                        ScriptInfoBuilder.Code( parentScriptInfo), 
+                        id.Range.Start, 
+                        id.Range.End - id.Range.Start);
+                    localFxName = StringSpanBuilder.New(
+                        ScriptInfoBuilder.Code(s.ScriptInfo),
+                        id.Range.Start,
+                        id.Range.End - id.Range.Start);
                 }
                 else
                 {
                     fxName = StringSpanBuilder.Empty;
+                    localFxName = StringSpanBuilder.Empty;
                 }
 
                 var functionStatement = functionDeclaration as Node;
 
                 var point = functionStatement.Location.Start; // this.Code.Position(functionDeclaration.Range);
 
-                JSContextStackBuilder.Push(sList, s.Context, stackItem, FileNameExpression, fxName, point.Line, point.Column);
+                var fn = ScriptInfoBuilder.FileName(s.ScriptInfo);
+                
+                JSContextStackBuilder.Push(sList, s.Context, stackItem, fn, localFxName, point.Line, point.Column);
 
                 var vList = new List<ParameterExpression>();
 
@@ -542,11 +554,11 @@ namespace YantraJS
                 if (functionDeclaration.Generator)
                 {                    
                     lambda = Exp.Lambda(typeof(JSGeneratorDelegate), 
-                        YieldRewriter.Rewrite(block, cs.Generator, lexicalScopeVar, stackItem ), 
+                        YieldRewriter.Rewrite(block,r , cs.Generator, lexicalScopeVar, stackItem), 
                         cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments);
                     // rewrite lambda...
 
-                    // lambda.Compile();
+                    lambda.Compile();
 
                     jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
 

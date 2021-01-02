@@ -51,7 +51,7 @@ namespace YantraJS.Tests.Generator
 
             // RunTest("es6/Syntax/class/new-target.js");
 
-            RunTest("es6/Syntax/generators/simple.js");
+            RunTest("es6/Syntax/generators/try.js");
 
 
         }
