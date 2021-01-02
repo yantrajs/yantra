@@ -327,7 +327,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
 
 
-            return Expression.Call(generator, _switch, plist);
+            var r = Expression.Call(generator, _switch, plist);
+            return r;
         }
 
         protected override Expression VisitBlock(BlockExpression node)
