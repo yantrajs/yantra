@@ -318,8 +318,17 @@ namespace YantraJS.Utils
 
         protected override void VisitClassBody(ClassBody classBody)
         {
-            
-            base.VisitClassBody(classBody);
+
+            foreach (var p in classBody.Body)
+            {
+                if (p.Kind == PropertyKind.Method)
+                {
+                    using (stack.Push(new ScopeAnalyzerNode(classBody)))
+                    {
+                        Visit(p.Value);
+                    }
+                }
+            }
         }
 
         protected override void VisitClassExpression(ClassExpression classExpression)
