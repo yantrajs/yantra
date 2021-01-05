@@ -36,9 +36,9 @@ namespace YantraJS.Core.Runtime
 
             var en = f.GetElementEnumerator();
 
-            var result = new List<JSValue>();
+            var result = new JSArray();
 
-            int i = 0;
+            uint i = 0;
 
             return new JSPromise((resolve, reject) =>
             {
@@ -46,7 +46,7 @@ namespace YantraJS.Core.Runtime
                 if (sc == null)
                     throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 
-                int total = 0;
+                uint total = 0;
 
                 bool empty = true;   
 
@@ -67,7 +67,7 @@ namespace YantraJS.Core.Runtime
                         total--;
                         if (total <= 0)
                         {
-                            resolve(new JSArray(result));
+                            resolve(result);
                         }
                         }, r1);
                         return JSUndefined.Value;

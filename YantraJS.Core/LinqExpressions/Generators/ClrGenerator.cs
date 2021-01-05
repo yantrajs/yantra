@@ -157,19 +157,25 @@ namespace YantraJS.Core.LinqExpressions.Generators
         }
 
         public Func<object> Assign<T>(Action<T> left, Func<object> right)
-        {
+        {            
             return () =>
             {
-                T result = default;
                 Stack.Push(() =>
                 {
-                    left(result);
-                    return result;
-                });
-                Stack.Push(() =>
-                {
-                    result = (T)right();
-                    return result;
+                    var v = right();
+                    if (v is Func<object> fx)
+                    {
+                        return Assign(left, fx)();
+                    }
+                    else {
+                        var item = (T)v;
+                        Stack.Push(() =>
+                        {
+                            left(item);
+                            return item;
+                        });
+                    }
+                    return null;
                 });
                 return null;
             };
