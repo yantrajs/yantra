@@ -236,6 +236,26 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
+        public Func<object> Return(Func<object> value)
+        {
+            return () => {
+                Stack.Push(() => {
+                    var v = value();
+                    if (v is Func<object> fx)
+                    {
+                        return Return(fx)();
+                    }
+                    this.result = v as JSValue;
+                    Stack.Push(() => {
+                        Stack.Clear();
+                        return null;
+                    });
+                    return v;
+                });
+                return null;
+            };
+        }
+
         public Func<object> TryCatch(
             Func<object> tryBody,
             Func<Exception, object> @catch)

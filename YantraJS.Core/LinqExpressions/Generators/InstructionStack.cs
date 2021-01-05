@@ -107,5 +107,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
             items[++index] = (0, instruction);
         }
 
+        internal void Clear()
+        {
+            while (index >= 0)
+            {
+                items[index].instruction = null;
+                index--;
+            }
+        }
     }
 }

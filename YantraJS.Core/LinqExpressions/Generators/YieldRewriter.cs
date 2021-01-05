@@ -54,6 +54,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private static MethodInfo _tryCatchFinally = type.GetMethod(nameof(ClrGenerator.TryCatchFinally));
         private static MethodInfo _tryCatch = type.GetMethod(nameof(ClrGenerator.TryCatch));
         private static MethodInfo _tryFinally = type.GetMethod(nameof(ClrGenerator.TryFinally));
+        private static MethodInfo _return = type.GetMethod(nameof(ClrGenerator.Return));
 
         private static Type caseBlockType = typeof(CaseBody);
         private static ConstructorInfo newCaseBlock = caseBlockType.Constructor(typeof(object[]), typeof(Func<object>));
@@ -294,6 +295,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 return node;
 
             var target = labels[node.Target];
+            if (target == this.@return && node.Value != null)
+            {
+                // this is return...
+                return Expression.Call(generator, _return, Convert(node.Value));
+            }
             return Expression.Call(generator, _goto, Expression.Constant(target));
         }
 
