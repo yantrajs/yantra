@@ -312,7 +312,14 @@ namespace YantraJS.Utils
             using (stack.Push(new ScopeAnalyzerNode(classDeclaration)))
             {
                 base.VisitClassDeclaration(classDeclaration);
+                VisitClassBody(classDeclaration.Body);
             }
+        }
+
+        protected override void VisitClassBody(ClassBody classBody)
+        {
+            
+            base.VisitClassBody(classBody);
         }
 
         protected override void VisitClassExpression(ClassExpression classExpression)

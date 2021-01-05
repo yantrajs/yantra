@@ -38,13 +38,13 @@ namespace YantraJS.Core
 
         public override JSValue this[KeyString name] {
             get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of undefined");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of undefined");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {name} of undefined");
         }
 
         public override JSValue this[uint key]
         {
             get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
+            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {key} of undefined");
         }
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)

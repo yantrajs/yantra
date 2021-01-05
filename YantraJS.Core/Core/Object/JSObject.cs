@@ -244,7 +244,16 @@ namespace YantraJS.Core
         public override JSValue this[KeyString name] { 
             get => this.GetValue(GetInternalProperty(name)); 
             set {
-                ref var p = ref GetInternalProperty(name);
+                var start = this;
+                ref var p = ref JSProperty.Empty;
+                while (start != null && start != start.prototypeChain)
+                {
+                    ref var ps = ref start.GetOwnProperties();
+                    p = ref ps.GetValue(name.Key);
+                    if (!p.IsEmpty)
+                        break;
+                    start = start.prototypeChain;
+                }
                 if (p.IsProperty)
                 {
                     if (p.set != null)
@@ -254,7 +263,7 @@ namespace YantraJS.Core
                     }
                     return;
                 }
-                if(p.IsReadOnly)
+                if(p.IsReadOnly && start == this)
                 {
                     // Only in Strict Mode ..
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
