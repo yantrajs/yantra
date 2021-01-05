@@ -493,6 +493,9 @@ namespace YantraJS.Utils
                 case Nodes.MetaProperty:
                     VisitMetaProperty(node as MetaProperty);
                     return;
+                case Nodes.Super:
+                    VisitSuper(node as Super);
+                    return;
             }
             base.VisitExpression(node);
         }

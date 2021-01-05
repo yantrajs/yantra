@@ -32,8 +32,8 @@ namespace YantraJS.Core.Generator
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            var c = new CallStackItem(script.FileName, this.ToString(), 0, 0);
-            var g = new ClrGenerator(script, closures, c);
+            var c = new CallStackItem(script.FileName, this.name, 0, 0);
+            var g = new ClrGenerator(script, closures, c, this);
             @delegate(script, closures, g, c, a);
             return new JSGenerator(g);
         }

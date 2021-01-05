@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Core.Generator;
 
 namespace YantraJS.Core.LinqExpressions.Generators
 {
@@ -46,16 +47,18 @@ namespace YantraJS.Core.LinqExpressions.Generators
         private Stack<(uint label, Func<Exception, object> @catch)> CatchStack = new Stack<(uint, Func<Exception, object>)>();
 
         public readonly CallStackItem StackItem;
+        private readonly JSGeneratorFunction code;
 
         public ClrGenerator()
         {
         }
 
-        public ClrGenerator(ScriptInfo script, JSVariable[] closures, CallStackItem c)
+        public ClrGenerator(ScriptInfo script, JSVariable[] closures, CallStackItem c, JSGeneratorFunction code)
         {
             this.script = script;
             this.closures = closures;
             this.StackItem = c;
+            this.code = code;
         }
 
         private bool stop = false;

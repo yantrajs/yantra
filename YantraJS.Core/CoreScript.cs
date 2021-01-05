@@ -554,11 +554,11 @@ namespace YantraJS
                 if (functionDeclaration.Generator)
                 {                    
                     lambda = Exp.Lambda(typeof(JSGeneratorDelegate), 
-                        YieldRewriter.Rewrite(block,r , cs.Generator, lexicalScopeVar, stackItem), 
+                        YieldRewriter.Rewrite(block,r , cs.Generator, lexicalScopeVar), 
                         cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments);
                     // rewrite lambda...
 
-                    lambda.Compile();
+                    // lambda.Compile();
 
                     jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
 
