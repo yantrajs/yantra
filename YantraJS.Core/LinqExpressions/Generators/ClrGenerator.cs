@@ -187,18 +187,15 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public Func<object> If(Func<bool> test, Func<object> @true, Func<object> @false = null)
         {
             return () => {
-                bool testResult = false;
                 Stack.Push(() => {
+                    var testResult = test();
                     if (testResult)
                     {
                         Stack.Push(@true);
-                    }
-                    else if (@false != null)
+                    } else if (@false != null)
+                    {
                         Stack.Push(@false);
-                    return testResult;
-                });
-                Stack.Push(() => {
-                    testResult = test();
+                    }
                     return null;
                 });
                 return null;
