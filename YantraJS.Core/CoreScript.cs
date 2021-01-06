@@ -2349,6 +2349,8 @@ namespace YantraJS
             return this.NewLexicalScope(new FunctionScope(this.scope.Top), 
                 blockStatement , () =>
                 {
+                    var t = this.scope.Top;
+                    var st = t.StackItem;
 
                     if (blockStatement.HoistingScope != null)
                     {
@@ -2357,7 +2359,13 @@ namespace YantraJS
                             this.scope.Top.CreateVariable(v, JSVariableBuilder.New(v));
                         }
                     }
-                    return VisitBody(blockStatement);
+                    List<Exp> result = new List<Exp>();
+                    foreach(var s in blockStatement.Body)
+                    {
+                        LexicalScopeBuilder.Update(result, st, blockStatement.Location.Start.Line, blockStatement.Location.Start.Column);
+                        result.Add(VisitStatement(s));
+                    }
+                    return result;
                 });
         }
 

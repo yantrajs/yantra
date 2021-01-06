@@ -1,5 +1,6 @@
 ﻿using Esprima;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -53,6 +54,13 @@ namespace YantraJS.ExpHelper
 
         private static FieldInfo _Column =
             type.InternalField(nameof(CallStackItem.Column));
+
+        public static void Update(List<Expression> result, Expression exp, int line, int column)
+        {
+            result.Add(Expression.Assign(Expression.Field(exp, _Line), Expression.Constant(line)));
+            result.Add(Expression.Assign(Expression.Field(exp, _Column), Expression.Constant(column)));
+        }
+
 
         public static Expression Update(Expression exp, int line, int column, Expression next)
         {

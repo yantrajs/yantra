@@ -243,6 +243,7 @@ namespace YantraJS.Utils
             return r;
         }
 
+
         protected virtual T VisitStatement(Statement statement)
         {
             switch (statement.Type)
