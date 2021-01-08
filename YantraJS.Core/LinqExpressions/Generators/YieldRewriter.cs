@@ -78,9 +78,13 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
             YieldFinder.MarkYield(body);
 
-            var yr = new YieldRewriter(pe, r);
             var l = new List<ParameterExpression>();
             l.AddRange(generators);
+
+            if (!body.ShouldBreak())
+                return Expression.Block(l, body);
+
+            var yr = new YieldRewriter(pe, r);
             Expression b = yr.Visit(body);
             b = Expression.Call(pe, _build, b);
             l.AddRange(yr.lifedVariables);
@@ -400,12 +404,15 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
                 var cbb = Visit(cb.Body);
                 // if this is lambda.. convert it...
-
+                if (cbb is LambdaExpression)
+                {
+                    cbb = Expression.Invoke(cbb);
+                }
                 var pe = Expression.Parameter(typeof(Exception));
                 @catch = Expression.Lambda(typeof(Func<Exception,object>), 
                     Expression.Block(
                         Expression.Assign(cb.Variable, pe),
-                        Expression.Invoke(cbb)
+                        cbb
                     ), pe);
             }
             var @try = Convert(node.Body);
