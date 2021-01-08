@@ -274,7 +274,26 @@ namespace YantraJS.Core
 
         }
 
-        private static void FlattenTo(JSArray result, JSValue @this, JSValue callback, JSValue  thisArg, int depth)
+        /// <summary>
+        /// Maps each element using a mapping function, then flattens the result into a new array.
+        /// </summary>
+        /// <param name="thisObj"> The array that is being operated on. </param>
+        /// <param name="callback"> A function that produces an element of the new Array, taking
+        /// three arguments: currentValue, index, array. </param>
+        /// <param name="thisArg"> Value to use as this when executing callback. </param>
+        /// <returns> A new array with each element being the result of the callback function and
+        /// flattened to a depth of 1. </returns>
+        [Prototype("flatMap", Length = 1)]
+        public static JSValue FlatMap(in Arguments a)
+        {
+            var result = new JSArray();
+            int depth = 1;
+            var (callback, thisArg) = a.Get2();
+            FlattenTo(result, a.This, callback, thisArg, depth);
+            return result;
+        }
+
+            private static void FlattenTo(JSArray result, JSValue @this, JSValue callback, JSValue  thisArg, int depth)
         {
             
             
