@@ -263,12 +263,36 @@ namespace YantraJS.Core
         /// <param name="depth"> The depth level specifying how deep a nested array structure
         /// should be flattened. Defaults to 1. </param>
         /// <returns> A new array with the sub-array elements concatenated into it. </returns>
-        [Prototype("flat", Length = 1)]
+        [Prototype("flat", Length = 0)]
         public static JSValue Flat(in Arguments a)
         {
-            var result = new JSArray(a.This.Length);
-            throw new NotImplementedException();
+            var result = new JSArray();
+            int depth = a[0]?.IntValue ?? 1;
+            FlattenTo(result, a.This, null, null, depth);
+            return result;
+            //throw new NotImplementedException();
 
+        }
+
+        private static void FlattenTo(JSArray result, JSValue @this, JSValue callback, JSValue  thisArg, int depth)
+        {
+            
+            
+            for (int i = 0; i < @this.Length; i++) {
+                // TryGetElement - to check for holes in array
+                if (@this.TryGetElement((uint)i, out var elementValue)) {
+                    // Transform the value using the mapping function.
+                    if (callback != null) {
+                        elementValue = callback.InvokeFunction(new Arguments(thisArg, elementValue, new JSNumber(i), @this));
+                    }
+                    // If the element is an array, flatten it.
+                    if (depth > 0 && elementValue is JSArray childArray)
+                        FlattenTo(result, childArray, callback, thisArg, depth - 1);
+                    else
+                        result.Add(elementValue);
+
+                }
+            }
         }
 
         [Prototype("findIndex", Length = 1)]

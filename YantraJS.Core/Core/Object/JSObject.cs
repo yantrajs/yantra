@@ -689,6 +689,16 @@ namespace YantraJS.Core
             return elements.TryGetValue(i, out value);
         }
 
+        internal override bool TryGetElement(uint i, out JSValue value)
+        {
+            if (elements.TryGetValue(i, out var p)) {
+                value = this.GetValue(p);
+                return true;
+            }
+            value = null;
+            return false;
+        }
+
         /// <summary>
         /// Moves elements from `start` to `to`.
         /// </summary>

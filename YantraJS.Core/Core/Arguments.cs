@@ -504,7 +504,7 @@ namespace YantraJS.Core
                             return Args[index];
                     }
                 }
-                return JSUndefined.Value;
+                return null;
             }
         }
 

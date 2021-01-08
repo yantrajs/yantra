@@ -462,6 +462,12 @@ namespace YantraJS.Core {
             return false;
         }
 
+        internal virtual bool TryGetElement(uint i, out JSValue value)
+        {
+            value = null;
+            return false;
+        }
+
         internal virtual void MoveElements(int start, int to)
         {
 
