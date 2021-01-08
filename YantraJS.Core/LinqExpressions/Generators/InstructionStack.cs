@@ -87,24 +87,27 @@ namespace YantraJS.Core.LinqExpressions.Generators
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Push(uint label)
+        public object Push(uint label)
         {
             EnsureCapacity(index + 1);
             items[++index] = (label, null);
+            return this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Push(uint label, Func<object> instruction)
+        public object Push(uint label, Func<object> instruction)
         {
             EnsureCapacity(index + 1);
             items[++index] = (label, instruction);
+            return this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Push(Func<object> instruction)
+        public object Push(Func<object> instruction)
         {
             EnsureCapacity(index + 1);
             items[++index] = (0, instruction);
+            return this;
         }
 
         internal void Clear()

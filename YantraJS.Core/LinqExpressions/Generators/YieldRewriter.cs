@@ -335,6 +335,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         protected override Expression VisitBlock(BlockExpression node)
         {
+            if (!node.ShouldBreak())
+                return node;
+
             if(node.Expressions.Count == 2)
             {
                 if(node.Expressions[0] is SwitchExpression @switch)

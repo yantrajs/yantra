@@ -163,41 +163,40 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {            
             return () =>
             {
-                Stack.Push(() =>
-                {
-                    var v = right();
-                    if (v is Func<object> fx)
-                    {
-                        return Assign(left, fx)();
-                    }
-                    else {
-                        var item = (T)v;
-                        Stack.Push(() =>
+                return Stack.Push(() => {
+                    return Result(right, x => {
+                        return Stack.Push(() =>
                         {
-                            left(item);
-                            return item;
+                            left((T)x);
+                            return x;
                         });
-                    }
-                    return null;
+                    });
                 });
-                return null;
+                //Stack.Push(() =>
+                //{
+                //    var v = right();
+                //    if (v is Func<object> fx)
+                //    {
+                //        return Assign(left, fx)();
+                //    }
+                //    else {
+                //        var item = (T)v;
+                //        Stack.Push(() =>
+                //        {
+                //            left(item);
+                //            return item;
+                //        });
+                //    }
+                //    return null;
+                //});
+                // return null;
             };
         }
 
         public Func<object> If(Func<bool> test, Func<object> @true, Func<object> @false = null)
         {
             return () => {
-                Stack.Push(() => {
-                    var testResult = test();
-                    if (testResult)
-                    {
-                        Stack.Push(@true);
-                    } else if (@false != null)
-                    {
-                        Stack.Push(@false);
-                    }
-                    return null;
-                });
+                Stack.Push(() => test() ? @true : @false);
                 return null;
             };
         }
@@ -309,12 +308,24 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
+        private Func<object> Result(Func<object> f, Func<object, object> ra)
+        {
+            var r = f();
+            if (r is Func<object> fx)
+            {
+                return () => {
+                    return Stack.Push(() => {
+                        return Result(fx, ra);
+                    });
+                };
+            }
+            return () => ra(r);
+        }
+
         public Func<object> Unary<T>(Func<object> target, Func<T, object> process)
         {
             return () => {
-                T t = default;
-                Stack.Push(() => process(t));
-                Stack.Push(() => t = (T)target());
+                Stack.Push(() => Result(target, x => process((T)x)));
                 return null;
             };
         }
@@ -323,18 +334,27 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             return () => {
 
-                TLeft l = default;
-                TRight r = default;
+                //TLeft l = default;
+                //TRight r = default;
+
+                //Stack.Push(() => {
+                //    return process(l, r);
+                //});
+
+                //Stack.Push(() => {
+                //    return r = right();
+                //});
+                //Stack.Push(() => {
+                //    return l = left();
+                //});
 
                 Stack.Push(() => {
-                    return process(l, r);
-                });
-
-                Stack.Push(() => {
-                    return r = right();
-                });
-                Stack.Push(() => {
-                    return l = left();
+                    return Result(() => right(), (x) =>
+                    {
+                        return Result(() => left(), (y) => {
+                            return process((TLeft)x, (TRight)y);
+                        });
+                    });
                 });
 
                 return null;
@@ -344,26 +364,36 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public Func<object> Coalesc(Func<object> left, Func<object> right)
         {
             return () => {
-                object r = null;
+                //object r = null;
+                //Stack.Push(() => {
+                //    return r = r ?? right();
+                //});
+                //Stack.Push(() => {
+                //    return r = left();
+                //});
+                //return r;
                 Stack.Push(() => {
-                    return r = r ?? right();
+                    return Result(left, x => {
+                        return x ?? right;
+                    });
                 });
-                Stack.Push(() => {
-                    return r = left();
-                });
-                return r;
+                return null;
             };
         }
 
         public Func<object> MemberAccess<T>(Func<object> target, Func<T, object> member)
         {
             return () => {
-                T result = default;
-                Stack.Push(() => {
-                    return member(result);
+                //T result = default;
+                //Stack.Push(() => {
+                //    return member(result);
+                //});
+                //Stack.Push(() => result = (T)target());
+                return Stack.Push(() => {
+                    return Result(target, x => {
+                        return Stack.Push(() => member((T)x));
+                    });
                 });
-                Stack.Push(() => result = (T)target());
-                return null;
             };
         }
 
