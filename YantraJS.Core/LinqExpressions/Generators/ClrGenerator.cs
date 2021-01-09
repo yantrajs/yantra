@@ -87,6 +87,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         public bool Next(JSValue next, out JSValue value)
         {
+            var lastResult = result;
             result = result ?? next;
             while (Stack.Count > 0)
             {
