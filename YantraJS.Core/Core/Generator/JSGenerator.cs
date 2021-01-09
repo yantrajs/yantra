@@ -102,7 +102,7 @@ namespace YantraJS.Core.Generator
             }
 
             this.done = true;
-            this.value = JSUndefined.Value;
+            // this.value = JSUndefined.Value;
             return ValueObject;
         }
 

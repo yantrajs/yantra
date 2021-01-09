@@ -76,13 +76,12 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public Func<object> Yield(Func<object> yield)
         {
             return () => {
-                Stack.Push(() =>
-                {
+                //return Stack.Push(() =>
+                //{
                     result = yield() as JSValue;
                     stop = true;
                     return result;
-                });
-                return null;
+                // });
             };
         }
 
@@ -137,7 +136,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     return true;
                 }
             }
-            value = null;
+            value = result;
             return false;
         }
 
@@ -242,10 +241,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
                         return Return(fx)();
                     }
                     this.result = v as JSValue;
-                    Stack.Push(() => {
-                        Stack.Clear();
-                        return null;
-                    });
+                    stop = true;
+                    Stack.Clear();
                     return v;
                 });
                 return null;
