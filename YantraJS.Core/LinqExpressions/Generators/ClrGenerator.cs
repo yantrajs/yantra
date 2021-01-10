@@ -73,6 +73,11 @@ namespace YantraJS.Core.LinqExpressions.Generators
             return _nextLabel++;
         }
 
+        private object ThisResult()
+        {
+            return this.result;
+        }
+
         public Func<object> Yield(Func<object> yield)
         {
             return () => {
@@ -80,7 +85,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
                 //{
                     result = yield() as JSValue;
                     stop = true;
-                    return result;
+                    return (Func<object>)ThisResult;
                 // });
             };
         }
