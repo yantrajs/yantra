@@ -93,7 +93,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public bool Next(JSValue next, out JSValue value)
         {
             var lastResult = result;
-            result = result ?? next;
+            result = next ?? result;
             while (Stack.Count > 0)
             {
                 var (label, step) = Stack.Pop();
