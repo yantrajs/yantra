@@ -549,13 +549,17 @@ namespace YantraJS
 
                 Exp scriptInfo = parentScriptInfo;
 
+                functionName = functionName ?? "inline";
+
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
                 if (functionDeclaration.Generator)
                 {                    
                     lambda = Exp.Lambda(typeof(JSGeneratorDelegate), 
                         YieldRewriter.Rewrite(block,r , cs.Generator, lexicalScopeVar), 
-                        cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments);
+                        functionName, new ParameterExpression[] {
+                            cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments 
+                        });
                     // rewrite lambda...
 
                     // lambda.Compile();
@@ -564,11 +568,13 @@ namespace YantraJS
 
                 } else if (functionDeclaration.Async)
                 {
-                    lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments);
+                    lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, functionName, new ParameterExpression[] {
+                        cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
+                    });
                     jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
                 } else
                 {
-                    lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, cs.ScriptInfo, cs.Closures, cs.Arguments);
+                    lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, functionName ,new ParameterExpression[] { cs.ScriptInfo, cs.Closures, cs.Arguments });
                     if (createClass)
                     {
                         jsf = JSClassBuilder.New(parentScriptInfo, closureArray, lambda, super, className ?? "Unnamed");
