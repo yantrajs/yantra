@@ -30,7 +30,7 @@ namespace YantraJS.Core
                 var cb = fx.f;
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(cb(new Arguments(mapThis, item)));
+                    elements[length++] = JSProperty.Property(cb(new Arguments(mapThis, item,new JSNumber(index))));
                 }
             }
             else

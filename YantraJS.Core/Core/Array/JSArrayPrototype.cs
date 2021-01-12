@@ -362,11 +362,28 @@ namespace YantraJS.Core
         {
             var @this = a.This;
             var first = a.Get1();
+
+            var fromIndex = a[1]?.IntValue ?? 0;
+            if (fromIndex < 0)
+                fromIndex += @this.Length;
+
+            bool isUndefined = first.IsUndefined;
+            
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                if (hasValue && item.Equals(first).BooleanValue)
-                    return JSBoolean.True;
+                if (fromIndex > index)
+                    continue;
+                if (hasValue)
+                {
+                    if (item.StrictEquals(first).BooleanValue)
+                        return JSBoolean.True;
+
+                }
+                else {
+                    if (isUndefined)
+                        return JSBoolean.True;
+                }
             }
             return JSBoolean.False;
         }
