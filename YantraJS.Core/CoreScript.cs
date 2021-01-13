@@ -1574,8 +1574,15 @@ namespace YantraJS
                         Literal l = pKey as Literal;
                         if (l.TokenType == TokenType.StringLiteral)
                         {
-                            key = KeyOfName(l.StringValue);
-                            name = l.StringValue;
+                            if (NumberParser.TryCoerceToUInt32(l.StringValue, out var ui))
+                            {
+                                key = Exp.Constant(ui);
+
+                            }
+                            else { 
+                                key = KeyOfName(l.StringValue);
+                                name = l.StringValue;
+                            }
                         }
                         else if (l.TokenType == TokenType.NumericLiteral)
                         {

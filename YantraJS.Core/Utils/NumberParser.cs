@@ -59,6 +59,17 @@ namespace YantraJS.Utils
             return negative ? -result : result;
         }
 
+        internal static bool TryCoerceToUInt32(in StringSpan input, out uint value) {
+            var d = CoerceToNumber(in input);
+            if (Math.Floor(d) == d)
+            {
+                value = (uint)d;
+                return true;
+            }
+            value = 0;
+            return false;
+        }
+
         /// <summary>
         /// Converts a string to a number (used in type coercion).
         /// </summary>

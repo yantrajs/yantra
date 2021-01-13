@@ -292,6 +292,16 @@ namespace YantraJS.Core {
 
         public abstract JSBoolean StrictEquals(JSValue value);
 
+        /// <summary>
+        /// 1. NaN is considered equal to NaN.
+        /// 2. +0 and -0 are considered to be equal.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public virtual JSBoolean SameValueZero(JSValue value) {
+            return this.StrictEquals(value);
+        }
+
         internal virtual JSBoolean Less(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))

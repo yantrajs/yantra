@@ -310,10 +310,32 @@ namespace YantraJS.Core
 
         public override JSBoolean StrictEquals(JSValue value)
         {
-            if (object.ReferenceEquals(this, value))
+            
+            if (object.ReferenceEquals(this, value)) {
+                if (double.IsNaN(this.value))
+                    return JSBoolean.False;
                 return JSBoolean.True;
+            }
             if (value is JSNumber n)
             {
+                if (double.IsNaN(this.value) || double.IsNaN(n.value))
+                    return JSBoolean.False;
+                if (this.value == n.value)
+                    return JSBoolean.True;
+            }
+            return JSBoolean.False;
+        }
+
+        public override JSBoolean SameValueZero(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+            {
+                return JSBoolean.True;
+            }
+            if (value is JSNumber n)
+            {
+                if (double.IsNaN(this.value) && double.IsNaN(n.value))
+                    return JSBoolean.True;
                 if (this.value == n.value)
                     return JSBoolean.True;
             }

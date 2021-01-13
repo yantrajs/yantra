@@ -376,7 +376,7 @@ namespace YantraJS.Core
                     continue;
                 if (hasValue)
                 {
-                    if (item.StrictEquals(first).BooleanValue)
+                    if (item.SameValueZero(first).BooleanValue)
                         return JSBoolean.True;
 
                 }
@@ -393,9 +393,15 @@ namespace YantraJS.Core
         {
             var @this = a.This;
             var first = a.Get1();
+            var fromIndex = a[1]?.IntValue ?? 0;
+            if (fromIndex < 0)
+                fromIndex += @this.Length;
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
+                if (fromIndex > index)
+                    continue;
+
                 if (!hasValue)
                     continue;
                 if (first.StrictEquals(item).BooleanValue)
@@ -415,6 +421,7 @@ namespace YantraJS.Core
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var item))
             {
+
                 if (!isFirst)
                 {
                     sb.Append(sep);
@@ -423,7 +430,7 @@ namespace YantraJS.Core
                 {
                     isFirst = false;
                 }
-                if (item.IsUndefined)
+                if (item.IsNullOrUndefined)
                     continue;
                 sb.Append(item.ToString());
             }
