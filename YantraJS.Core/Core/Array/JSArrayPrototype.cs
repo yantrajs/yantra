@@ -7,6 +7,7 @@ using System.Text;
 using YantraJS;
 using YantraJS.Extensions;
 using YantraJS.Core.Generator;
+using YantraJS.Core.Typed;
 
 namespace YantraJS.Core
 {
@@ -441,12 +442,8 @@ namespace YantraJS.Core
         public static JSValue Keys(in Arguments a)
         {
             var @this = a.This;
-            var r = new JSArray();
-            for (int i = 0; i < @this.Length; i++)
-            {
-                r.Add(new JSNumber(i));
-            }
-            return r;
+
+            return new JSGenerator(new KeyEnumerator(@this.Length), "Array Iterator");
 
         }
 
@@ -456,17 +453,21 @@ namespace YantraJS.Core
             var @this = a.This;
             var first = a.Get1();
             var n = @this.Length;
+            var fromIndex = a[1]?.IntValue ?? int.MaxValue;
+            if (fromIndex < 0)
+                fromIndex += @this.Length;
             if (n == 0)
                 return JSNumber.MinusOne;
-            var i = (uint)(n - 1);
-            while(i >= 0)
+            
+
+            for (int i = Math.Min(n - 1, fromIndex); i >= 0; i--)
             {
-                var item = @this[i];
+                
+                if (!@this.TryGetElement((uint)i, out var item))
+                    continue;
                 if (item.StrictEquals(first).BooleanValue)
                     return new JSNumber(i);
-                if (i == 0)
-                    break;
-                i--;
+                
             }
             return JSNumber.MinusOne;
         }
