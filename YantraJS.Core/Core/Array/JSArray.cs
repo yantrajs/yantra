@@ -42,10 +42,10 @@ namespace YantraJS.Core
 
         
 
-        public JSArray(int count): base(JSContext.Current.ArrayPrototype)
+        public JSArray(uint count): base(JSContext.Current.ArrayPrototype)
         {
             CreateElements(count);
-            _length = (uint)count;
+            _length = count;
         }
 
         public override string ToString()

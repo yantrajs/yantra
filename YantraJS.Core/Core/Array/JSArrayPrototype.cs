@@ -29,7 +29,7 @@ namespace YantraJS.Core
                 double val = arg.DoubleValue;
                 if(double.IsNaN(val) || val < 0 || val > UInt32.MaxValue || Math.Floor(val) != val)
                     throw JSContext.Current.NewRangeError($"Invalid array length");
-                return new JSArray(arg.IntValue);
+                return new JSArray((uint)arg.DoubleValue);
             }
             // If elements are specified
             for (int i = 0; i < a.Length; i++)
@@ -896,8 +896,21 @@ namespace YantraJS.Core
             var @this = a.This as JSArray;
             if (@this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError("Cannot modify property length");
-
-            return new JSNumber(@this._length = (uint)a.Get1().IntValue);
+            var prev = @this._length;
+            ref var elements = ref @this.GetElements();
+            double n = a.Get1().DoubleValue;
+            if (n < 0 || n > uint.MaxValue || double.IsNaN(n))
+                throw JSContext.Current.NewRangeError("Invalid length");
+            @this._length = (uint)n;
+            if (prev > @this._length)
+            {
+                // remove.. 
+                for (uint i = @this._length; i < prev; i++)
+                {
+                    elements.RemoveAt(i);
+                }
+            }
+            return new JSNumber(@this._length);
         }
 
         [Prototype("toString")]

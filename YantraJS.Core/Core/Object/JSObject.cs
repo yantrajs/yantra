@@ -65,7 +65,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ref ElementArray CreateElements(int size = 4)
+        internal ref ElementArray CreateElements(uint size = 4)
         {
             //if (elements.IsNull)
             //    elements = new UInt32Map<JSProperty>();

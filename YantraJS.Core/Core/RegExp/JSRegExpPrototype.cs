@@ -117,7 +117,7 @@ namespace YantraJS.Core
             }
             var groups = match.Groups;
             var c = (int)groups.Count;
-            JSArray result = new JSArray(c);
+            JSArray result = new JSArray((uint)c);
             for (int i = 0; i < c; i++)
             {
                 var group = groups[i];

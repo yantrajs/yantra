@@ -112,7 +112,7 @@ namespace YantraJS.Core
             //this.Engine.RegExp.SetDeprecatedProperties(input, matches[matches.Count - 1]);
 
             // Construct the array to return.
-            JSArray matchValues = new JSArray(matches.Count);
+            JSArray matchValues = new JSArray((uint)matches.Count);
             for (int i = 0; i < matches.Count; i++)
                 matchValues[(uint)i] = new JSString(matches[i].Value);
             return matchValues;
