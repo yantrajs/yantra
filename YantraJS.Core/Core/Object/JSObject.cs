@@ -738,11 +738,19 @@ namespace YantraJS.Core
 
         }
 
+        /// <summary>
+        /// Used in pop
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
         internal override bool TryRemove(uint i, out JSProperty p)
         {
             if (elements.TryRemove(i, out p))
                 return true;
-            return base.TryRemove(i, out p);
+            if (prototypeChain != null)
+                return prototypeChain.TryRemove(i, out p);
+            return false;
         }
 
         public override bool ConvertTo(Type type, out object value)

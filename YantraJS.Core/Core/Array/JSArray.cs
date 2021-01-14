@@ -130,11 +130,11 @@ namespace YantraJS.Core
             return this;
         }
 
-        internal override bool TryRemove(uint i, out JSProperty p)
-        {
-            ref var elements = ref GetElements();
-            return elements.TryRemove(i, out p);
-        }
+        //internal override bool TryRemove(uint i, out JSProperty p)
+        //{
+        //    ref var elements = ref GetElements();
+        //    return elements.TryRemove(i, out p);
+        //}
 
         internal override IElementEnumerator GetElementEnumerator()
         {

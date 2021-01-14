@@ -537,14 +537,18 @@ namespace YantraJS.Core
         [Prototype("pop")]
         public static JSValue Pop(in Arguments a)
         {
-            if (!(a.This is JSArray ta) || ta._length == 0)
+            var @this = a.This;
+            if (@this == null)
                 return JSUndefined.Value;
-            if (ta.IsSealedOrFrozen())
-                throw JSContext.Current.NewTypeError($"Cannot modify property length");
-            ref var taElements = ref ta.GetElements();
-            if (taElements.TryRemove(ta._length - 1, out JSProperty r))
+            var length = @this.Length;
+            if (length <= 0)
+                return JSUndefined.Value;
+            //if (@this.IsSealedOrFrozen())
+            //    throw JSContext.Current.NewTypeError($"Cannot modify property length");
+            var index = length - 1;
+            if (@this.TryRemove((uint)index, out JSProperty r))
             {
-                ta._length--;
+                @this.Length = index;
                 return r.value;
             }
             return JSUndefined.Value;
