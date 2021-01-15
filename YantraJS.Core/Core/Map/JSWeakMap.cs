@@ -93,6 +93,9 @@ namespace YantraJS.Core
             var w = ToWeakMap(a.This);
             lock (w)
             {
+                var a1 = a.Get1();
+                if (!a1.IsObject)
+                    return JSUndefined.Value;
                 var key = a.Get1().ToUniqueID();
                 if (w.items.TryGetValue(key, out var v))
                 {
