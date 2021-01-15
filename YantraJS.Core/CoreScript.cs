@@ -549,7 +549,7 @@ namespace YantraJS
 
                 Exp scriptInfo = parentScriptInfo;
 
-                functionName = functionName ?? "inline";
+                functionName = (functionName ?? "inline")+ "_"  + point.Line;
 
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;

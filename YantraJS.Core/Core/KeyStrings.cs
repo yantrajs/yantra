@@ -43,6 +43,7 @@ namespace YantraJS.Core
 
         public readonly static KeyString Boolean;
         public readonly static KeyString Math;
+        public readonly static KeyString Reflect;
         public readonly static KeyString Date;
         public readonly static KeyString Symbol;
 

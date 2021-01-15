@@ -54,15 +54,13 @@ namespace YantraJS.Core
                     return new Arguments(Args[0], sa);
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments CopyForApply()
-        {
 
-            // in apply first parameter is @this and rest is An Array
-            var (@this, args) = Get2();
-            if (args is JSArguments arg) {
+        public static Arguments ForApply(JSValue @this, JSValue args)
+        {
+            if (args is JSArguments arg)
+            {
                 ref var argList = ref arg.arguments;
-                switch(argList.Length)
+                switch (argList.Length)
                 {
                     case 0:
                         return new Arguments(@this);
@@ -81,7 +79,7 @@ namespace YantraJS.Core
             }
             if (!(args is JSArray argArray))
                 return new Arguments(@this);
-            switch(argArray._length)
+            switch (argArray._length)
             {
                 case 0:
                     return new Arguments(@this);
@@ -97,6 +95,16 @@ namespace YantraJS.Core
                     return new Arguments(@this, argArray);
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Arguments CopyForApply()
+        {
+
+            // in apply first parameter is @this and rest is An Array
+            var (@this, args) = Get2();
+            return ForApply(@this, args);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this)
         {

@@ -51,6 +51,11 @@ namespace YantraJS.Core
         public int Column;
         public string FileName;
 
+        public void Update()
+        {
+            System.Diagnostics.Debug.WriteLine($"{Function} at {Line}, {Column}");
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pop(JSContext context)
         {
@@ -179,6 +184,8 @@ namespace YantraJS.Core
         public readonly JSMath Math;
 
         public readonly JSFunction Object;
+
+        public readonly JSReflect Reflect;
 
         //public static JSContext Current
         //{
@@ -355,6 +362,7 @@ namespace YantraJS.Core
             Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
+            Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.Fill<JSGlobalStatic>();
 
