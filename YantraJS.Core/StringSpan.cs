@@ -2,12 +2,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core
 {
+    [DebuggerDisplay("Value")]
     public readonly struct StringSpan: 
         IEquatable<StringSpan>, 
         IEquatable<string>,
