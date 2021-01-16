@@ -47,12 +47,12 @@ namespace YantraJS.Core
         {
             if (type == typeof(string))
             {
-                value = this.value;
+                value = this.value.Value;
                 return true;
             }
             if (type == typeof(object))
             {
-                value = this.value;
+                value = this.value.Value;
                 return true;
             }
             if (type.IsAssignableFrom(typeof(JSString)))

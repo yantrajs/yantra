@@ -315,7 +315,7 @@ namespace YantraJS.Core
 
         public JSModule Main { get; set;}
 
-        internal JSValue LoadModule(JSModule callee, in Arguments a)
+        internal protected JSValue LoadModule(JSModule callee, in Arguments a)
         {
             var name = a.Get1();
             if (!name.IsString)

@@ -33,7 +33,11 @@ namespace YantraJS.Core
                 {
                     key = this.Name;
                 }
-                JSContext.Current[key] = value;
+                var old = JSContext.Current[key];
+                if (old != value)
+                {
+                    JSContext.Current[key] = value;
+                }
             }
         }
 

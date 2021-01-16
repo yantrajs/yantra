@@ -19,8 +19,8 @@ assert(a instanceof ClrInt32Array);
 assert.strictEqual(10, a.length);
 
 var List = clr.getClass("System.Collections.Generic.List`1, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
-var String = clr.getClass("System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
-var ListOfString = List.makeGenericType(String);
+var ClrString = clr.getClass("System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+var ListOfString = List.makeGenericType(ClrString);
 
 var a2 = new ListOfString(2);
 a2.add("akash");

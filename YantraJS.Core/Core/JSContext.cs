@@ -248,7 +248,12 @@ namespace YantraJS.Core
         internal JSValue Register(JSVariable variable)
         {
             var v = variable.Value;
-            this[variable.Name] = v;
+            var oldV = this[variable.Name];
+            if (oldV != v)
+            {
+                // avoid IsReadOnly error
+                this[variable.Name] = v;
+            }
             KeyString name = variable.Name;
             globalVars[name.Key] = variable;
             return v;
