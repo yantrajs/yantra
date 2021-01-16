@@ -398,6 +398,8 @@ namespace YantraJS.Core
                     if (fx.IsUndefined)
                         return NumberParser.CoerceToNumber(this.ToString());
                     var v = fx.InvokeFunction(new Arguments(this));
+                    if (v == this)
+                        return double.NaN;
                     return v.DoubleValue;
                 } catch (Exception ex)
                 {
