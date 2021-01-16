@@ -1146,19 +1146,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 
-var AtomComponent = class AtomComponent { };
-
-function b() {
+var r1 = {};
+function b(t, n, i) {
+    r1.a = Reflect.getMetadata("design:paramtypes", t, n);
 }
 
-var p = __param(0, b);
-var m = __metadata("design:paramtypes",[String]);
+var mm = (function () {
 
-AtomComponent = __decorate([
-    p,
-    m
-], AtomComponent);
+    let AtomComponent = class AtomComponent { };
+    var p = __param(0, b);
+    var m = __metadata("design:paramtypes", [String]);
 
-var r = Reflect.getMetadata("design:paramtypes", AtomComponent);
+    AtomComponent = __decorate([
+        p,
+        m
+    ], AtomComponent);
+    return AtomComponent;
+})()
+
+var r = Reflect.getMetadata("design:paramtypes", mm);
 assert.strictEqual(r[0], String);
+assert.strictEqual(r1.a[0], String);
 // console.log(r);
