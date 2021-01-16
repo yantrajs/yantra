@@ -378,6 +378,13 @@ namespace YantraJS.Core
             };
             this[KeyStrings.console] = c;
 
+            this[KeyStrings.debug] = new JSFunction(this.Debug);
+
+        }
+
+        private JSValue Debug(in Arguments a)
+        {
+            return JSUndefined.Value;
         }
 
         internal readonly ConcurrentDictionary<long, Timer> timeouts = new ConcurrentDictionary<long, Timer>();

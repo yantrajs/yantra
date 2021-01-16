@@ -142,6 +142,7 @@ namespace YantraJS.Core
 
 
         public readonly static KeyString console;
+        public readonly static KeyString @debug;
         public readonly static KeyString log;
 
         public readonly static KeyString clr;
