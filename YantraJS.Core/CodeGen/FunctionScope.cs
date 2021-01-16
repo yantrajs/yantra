@@ -244,6 +244,9 @@ namespace YantraJS
             else
             {
                 // this.ThisExpression = Expression.Parameter(typeof(JSValue));
+                
+                // this is needed to fix closure over lambda
+                // this can be improved
                 var _this = this.CreateVariable("this", ArgumentsBuilder.This(Arguments) );
                 this.ThisExpression = _this.Expression;
             }

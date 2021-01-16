@@ -15,7 +15,19 @@ namespace YantraJS.Tests.Generator
         {
             var fileObj = new System.IO.FileInfo("../../../Generator/Files/" + file);
             var text = System.IO.File.ReadAllText(fileObj.FullName);
-            CoreScript.Evaluate(text, fileObj.FullName);
+            var sb = new StringBuilder();
+            context.Log += (s, e) => {
+                sb.AppendLine(e.ToDetailString());
+            };
+            try
+            {
+                CoreScript.Evaluate(text, fileObj.FullName);
+            }catch (Exception ex)
+            {
+                if (sb.Length > 0)
+                    throw new Exception(sb.ToString(), ex);
+                throw;
+            }
         }
 
 
@@ -51,7 +63,9 @@ namespace YantraJS.Tests.Generator
 
             // RunTest("es6/Syntax/class/new-target.js");
 
-            RunTest("es6/Syntax/generators/all.js");
+            // RunTest("es6/Syntax/generators/all.js");
+
+            RunTest("es5/Objects/Reflect/Reflect.js");
 
 
         }

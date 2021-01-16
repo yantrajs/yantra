@@ -7,6 +7,7 @@ m.set("c1", "3");
 assert.strictEqual(m.get("a1"), "1");
 assert.strictEqual(m.get("b1"), "2");
 assert.strictEqual(m.get("c1"), "3");
+assert.strictEqual(m.get("cc"), undefined);
 
 var a = m.keys();
 assert.strictEqual(a.length, 3);

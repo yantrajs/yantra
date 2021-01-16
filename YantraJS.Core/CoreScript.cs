@@ -77,7 +77,7 @@ namespace YantraJS
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
             AsyncPump.Run(() => {
-                result = fx(new Arguments(JSUndefined.Value));
+                result = fx(new Arguments(ctx));
                 return Task.CompletedTask;
             });
             return result;
@@ -89,7 +89,7 @@ namespace YantraJS
             var fx = Compile(code, location, null, codeCache);
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
-            result = fx(new Arguments(JSUndefined.Value));
+            result = fx(new Arguments(ctx));
             return result;
         }
 
@@ -190,6 +190,8 @@ namespace YantraJS
                     if (v.Variable != null && v.Variable.Type == typeof(JSVariable))
                     {
                         if (argsList?.Contains(v.Name) ?? false)
+                            continue;
+                        if (v.Name == "this")
                             continue;
                         sList.Add(JSContextBuilder.Register(lScope, v.Variable));
                     }
@@ -1817,6 +1819,11 @@ namespace YantraJS
                 return JSUndefinedBuilder.Value;
             }
 
+            if (identifier.Name == "this")
+            {
+                return this.scope.Top.ThisExpression;
+            }
+
             var var = this.scope.Top.GetVariable(identifier.Name, true);
             if (var != null)
                 return var.Expression;
@@ -2375,7 +2382,7 @@ namespace YantraJS
                     List<Exp> result = new List<Exp>();
                     foreach(var s in blockStatement.Body)
                     {
-                        LexicalScopeBuilder.Update(result, st, blockStatement.Location.Start.Line, blockStatement.Location.Start.Column);
+                        LexicalScopeBuilder.Update(result, st, s.Location.Start.Line, s.Location.Start.Column);
                         result.Add(VisitStatement(s));
                     }
                     return result;

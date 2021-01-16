@@ -22,7 +22,7 @@ namespace YantraJS.Utils
         public JSTestContext()
         {
             this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
-
+            this[KeyStrings.global] = this;
             this[KeyStrings.clr] = ClrType.From(typeof(ClrModule));
         }
 

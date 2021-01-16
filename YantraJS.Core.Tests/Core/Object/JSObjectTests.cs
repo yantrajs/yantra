@@ -50,6 +50,13 @@ namespace YantraJS.Tests.Core.Object
         }
 
         [TestMethod]
+        public void Function()
+        {
+            var a = CoreScript.Evaluate("Function('return this;')()");
+            Assert.IsNotNull(a);
+        }
+
+        [TestMethod]
         public void EqualsTest()
         {
             //var a = CoreScript.Evaluate("[2]");
