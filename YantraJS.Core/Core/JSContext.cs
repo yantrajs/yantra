@@ -329,6 +329,7 @@ namespace YantraJS.Core
             // create object prototype...
             Object =  this.Create<JSObject>(KeyStrings.Object);
             ObjectPrototype = Object.prototype;
+            ObjectPrototype.prototypeChain = null;
             func.prototypeChain = Object;
             FunctionPrototype.prototypeChain = ObjectPrototype;
             ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
@@ -362,7 +363,7 @@ namespace YantraJS.Core
             Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
-            Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
+            // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.Fill<JSGlobalStatic>();
 

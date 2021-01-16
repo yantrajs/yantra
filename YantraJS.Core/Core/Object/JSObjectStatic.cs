@@ -431,8 +431,7 @@ namespace YantraJS.Core
             var target = a.Get1();
             if (target is JSPrimitive primitive)
                 primitive.ResolvePrototype();
-            var p = target.prototypeChain;
-            
+            var p = target.prototypeChain ?? JSNull.Value;
             return p;
         }
 

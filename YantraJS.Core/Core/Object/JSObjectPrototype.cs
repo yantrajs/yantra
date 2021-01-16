@@ -45,7 +45,7 @@ namespace YantraJS.Core
         [GetProperty("__proto__")]
         internal static JSValue PrototypeGet(in Arguments a)
         {
-            return a.This.prototypeChain;
+            return a.This.prototypeChain ?? JSNull.Value;
         }
 
         [SetProperty("__proto__")]
