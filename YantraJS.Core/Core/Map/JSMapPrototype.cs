@@ -111,6 +111,7 @@ namespace YantraJS.Core
                 var key = first.ToUniqueID();
                 if(m.cache.TryGetValue(key, out var entry))
                 {
+                    entry.Value = (first, second);
                     return entry.Value.value;
                 }
                 var index = m.entries.Count;

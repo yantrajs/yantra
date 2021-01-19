@@ -9,7 +9,15 @@ using System.Text;
 
 namespace YantraJS.Core
 {
-    [DebuggerDisplay("Value")]
+
+    [DebuggerDisplay("{Key}: {Value}")]
+    public struct KeyValue
+    {
+        public string Key;
+        public JSValue Value;
+    }
+
+    [DebuggerDisplay("{Value}")]
     public readonly struct StringSpan: 
         IEquatable<StringSpan>, 
         IEquatable<string>,
