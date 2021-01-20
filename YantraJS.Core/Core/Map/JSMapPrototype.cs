@@ -20,7 +20,7 @@ namespace YantraJS.Core
             private static JSMap ToMap(JSValue t)
             {
                 if (!(t is JSMap m))
-                    throw JSContext.Current.NewTypeError($"Receiver is not a map");
+                    throw JSContext.Current.NewTypeError($"Receiver {t} is not a map");
                 return m;
             }
 
@@ -48,8 +48,9 @@ namespace YantraJS.Core
                 if(m.cache.TryRemove(key, out var e))
                 {
                     m.entries.Remove(e);
+                    return JSBoolean.True;
                 }
-                return JSUndefined.Value;
+                return JSBoolean.False;
             }
 
 
@@ -112,11 +113,11 @@ namespace YantraJS.Core
                 if(m.cache.TryGetValue(key, out var entry))
                 {
                     entry.Value = (first, second);
-                    return entry.Value.value;
+                    return m;
                 }
                 var index = m.entries.Count;
                 m.cache.Save(key, m.entries.AddLast((first, second)));
-                return second;
+                return m;
             }
 
             [Prototype("values")]
