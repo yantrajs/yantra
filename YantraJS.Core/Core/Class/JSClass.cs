@@ -58,21 +58,35 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddPrototypeProperty(KeyString name, JSFunction getter, JSFunction setter)
+        internal JSClass AddPrototypeProperty(in KeyString name, JSFunction getter, JSFunction setter)
         {
             this.prototype.GetOwnProperties()[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddPrototypeMethod(KeyString name, JSValue value)
+        internal JSClass AddPrototypeMethod(in KeyString name, JSValue value)
         {
             this.prototype.GetOwnProperties()[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddStaticProperty(KeyString name, JSFunction getter, JSFunction setter)
+        internal JSClass AddPrototypeMethod(JSValue name, JSValue value)
+        {
+            var key = name.ToKey();
+            if (key.IsSymbol)
+            {
+                this.prototype.DefineProperty(key.JSValue as JSSymbol, JSProperty.Property(key, value, JSPropertyAttributes.ConfigurableValue));
+                return this;
+            }
+            this.prototype.DefineProperty(key, JSProperty.Property(key, value, JSPropertyAttributes.ConfigurableValue));
+            return this;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal JSClass AddStaticProperty(in KeyString name, JSFunction getter, JSFunction setter)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             ownProperties[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
@@ -80,7 +94,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddStaticMethod(KeyString name, JSValue value)
+        internal JSClass AddStaticMethod(in KeyString name, JSValue value)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);

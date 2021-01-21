@@ -18,22 +18,30 @@ namespace YantraJS.ExpHelper
                 typeof(JSClosureFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
 
         private static MethodInfo _AddPrototypeProperty =
-            type.InternalMethod(nameof(JSClass.AddPrototypeProperty), typeof(KeyString), typeof(JSFunction), typeof(JSFunction));
+            type.InternalMethod(nameof(JSClass.AddPrototypeProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
 
         private static MethodInfo _AddPrototypeMethod =
-                    type.InternalMethod(nameof(JSClass.AddPrototypeMethod), typeof(KeyString), typeof(JSValue));
+                    type.InternalMethod(nameof(JSClass.AddPrototypeMethod), KeyStringsBuilder.RefType, typeof(JSValue));
+        private static MethodInfo _AddPrototypeValueMethod =
+                    type.InternalMethod(nameof(JSClass.AddPrototypeMethod), typeof(JSValue), typeof(JSValue));
 
         private static MethodInfo _AddStaticProperty =
-            type.InternalMethod(nameof(JSClass.AddStaticProperty), typeof(KeyString), typeof(JSFunction), typeof(JSFunction));
+            type.InternalMethod(nameof(JSClass.AddStaticProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
 
         private static MethodInfo _AddStaticMethod =
-                    type.InternalMethod(nameof(JSClass.AddStaticMethod), typeof(KeyString), typeof(JSValue));
+                    type.InternalMethod(nameof(JSClass.AddStaticMethod), KeyStringsBuilder.RefType, typeof(JSValue));
 
         public static Expression AddValue(
             Expression target,
             Expression name,
             Expression value)
         {
+            if (name.Type == typeof(JSValue))
+                return Expression.Call(
+                    target,
+                    _AddPrototypeValueMethod,
+                    name,
+                    value);
             return Expression.Call(
                 target,
                 _AddPrototypeMethod,

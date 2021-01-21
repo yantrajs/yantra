@@ -289,9 +289,23 @@ namespace YantraJS
 
             Exp retValue = null;
 
+            (string, Exp) GetName(Expression exp, bool computed) { 
+                switch((exp.Type,exp))
+                {
+                    case (Nodes.Identifier, Identifier id):
+                        if (computed)
+                            return (id.Name, VisitIdentifier(id));
+                        return (id.Name, KeyOfName(id.Name));
+                    case (Nodes.Literal, Literal l):
+                        return (l.StringValue, KeyOfName(l.StringValue));
+                    default:
+                        throw new NotImplementedException($"{exp.GetType().Name}");
+                }
+            }
+
             foreach (var property in body.Body)
             {
-                var name = property.Key.As<Identifier>()?.Name;
+                var (name, nameExp) = GetName(property.Key, property.Computed);
                 var method = property as MethodDefinition;
                 switch (property.Kind)
                 {
@@ -299,7 +313,7 @@ namespace YantraJS
                         if(!cache.TryGetValue(name, out expHolder))
                         {
                             expHolder = new ExpressionHolder() { 
-                                Key = KeyOfName(name)
+                                Key = nameExp
                             };
                             cache[name] = expHolder;
                             members.Add(expHolder);
@@ -311,7 +325,7 @@ namespace YantraJS
                         if (!cache.TryGetValue(name, out expHolder))
                         {
                             expHolder = new ExpressionHolder() {
-                                Key = KeyOfName(name)
+                                Key = nameExp
                             };
                             cache[name] = expHolder;
                             members.Add(expHolder);
@@ -325,7 +339,7 @@ namespace YantraJS
                     case PropertyKind.Method:
                         members.Add(new ExpressionHolder()
                         {
-                            Key = KeyOfName(name),
+                            Key = nameExp,
                             Value = CreateFunction(property.Value as IFunction, superPrototypeVar),
                             Static = method.Static
                         });
