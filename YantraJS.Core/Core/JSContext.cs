@@ -384,6 +384,7 @@ namespace YantraJS.Core
 
         private JSValue Debug(in Arguments a)
         {
+            System.Diagnostics.Debug.WriteLine(a.Get1().ToString());
             return JSUndefined.Value;
         }
 
