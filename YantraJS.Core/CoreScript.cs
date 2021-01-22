@@ -2124,7 +2124,7 @@ namespace YantraJS
             var quasis = new List<string>();
             foreach(var quasi in templateLiteral.Quasis)
             {
-                quasis.Add(quasi.Value.Raw);
+                quasis.Add(quasi.Value.Cooked);
             }
             return JSTemplateStringBuilder.New(quasis, Visit(in templateLiteral.Expressions));
         }
