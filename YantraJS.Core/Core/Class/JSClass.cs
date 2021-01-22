@@ -48,12 +48,14 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override JSValue CreateInstance(in Arguments a)
         {
-            var @object = new JSObject();
+            var @object = new JSObject()
+            {
+                prototypeChain = this.prototype
+            };
             var ao = a.OverrideThis(@object);
             var @this = f(ao);
             if (@this.IsUndefined)
                 @this = @object;
-            @this.prototypeChain = this.prototype;
             return @this;
         }
 
