@@ -385,9 +385,10 @@ namespace YantraJS.Core
             return "[object Object]";
         }
 
+        // prevent recursive...
         public override string ToDetailString()
         {
-            var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value?.ToDetailString()}");
+            var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value?.ToString()}");
             return $"{{ {string.Join(", ", all)} }}";
         }
 
