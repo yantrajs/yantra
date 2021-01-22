@@ -2151,11 +2151,27 @@ namespace YantraJS
 
         protected override Exp VisitConditionalExpression(Esprima.Ast.ConditionalExpression conditionalExpression)
         {
-            var test = VisitExpression(conditionalExpression.Test);
+
+            Exp EvaluateTest(Expression exp)
+            {
+                if (exp.Type == Nodes.UnaryExpression)
+                {
+                    var u = exp as UnaryExpression;
+                    if (u.Operator == UnaryOperator.LogicalNot)
+                    {
+                        var eu = VisitExpression(u.Argument);
+                        var e1 = JSValueBuilder.BooleanValue(eu);
+                        var e2 = Exp.Not(e1);
+                        return e2;
+                    }
+                }
+                return JSValueBuilder.BooleanValue(VisitExpression(exp));
+            }
+            var test = EvaluateTest(conditionalExpression.Test);
             var @true = VisitExpression(conditionalExpression.Consequent);
             var @false = VisitExpression(conditionalExpression.Alternate);
             return Exp.Condition(
-                ExpHelper.JSValueBuilder.BooleanValue(test),
+                test,
                 @true,
                 @false, typeof(JSValue));
         }
