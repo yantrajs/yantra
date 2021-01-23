@@ -239,6 +239,8 @@ namespace YantraJS.Core
             }
             if (prototypeChain != null && prototypeChain != this)
                 return prototypeChain.GetMethod(key);
+            // check default parameter of methods
+            // may be the problem
             throw JSContext.Current.NewError($"Method {key} not found");
         }
 
