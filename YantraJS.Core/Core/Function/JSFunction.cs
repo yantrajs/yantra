@@ -89,6 +89,8 @@ namespace YantraJS.Core
 
         readonly StringSpan source;
 
+        internal JSFunction constructor;
+
         public readonly StringSpan name;
 
         internal JSFunctionDelegate f;
@@ -122,6 +124,7 @@ namespace YantraJS.Core
                 ? new JSString("native")
                 : new JSString(name);
             this[KeyStrings.length] = new JSNumber(0);
+            constructor = this;
         }
 
         internal void Seal()
@@ -154,6 +157,7 @@ namespace YantraJS.Core
                 ? new JSString("native")
                 : new JSString(name);
             this[KeyStrings.length] = new JSNumber(0);
+            constructor = this;
         }
 
         public JSFunction(JSFunctionDelegate f)
@@ -193,7 +197,7 @@ namespace YantraJS.Core
                 ? new JSString("native")
                 : new JSString(name);
             this[KeyStrings.length] = new JSNumber(length);
-
+            constructor = this;
         }
 
         public override JSValue this[KeyString name] { 
@@ -223,7 +227,7 @@ namespace YantraJS.Core
             {
                 prototypeChain = prototype
             };
-            var a1 = a.OverrideThis(obj, this);
+            var a1 = a.OverrideThis(obj, constructor);
             var r = f(a1);
             if (!r.IsUndefined)
                 return r;
@@ -273,7 +277,8 @@ namespace YantraJS.Core
             {
                 // need to set prototypeChain...
                 prototypeChain = (fOriginal as JSFunction).prototypeChain,
-                prototype = (fOriginal as JSFunction).prototype
+                prototype = (fOriginal as JSFunction).prototype,
+                constructor = fOriginal.constructor
             };
             return fx;
         }
