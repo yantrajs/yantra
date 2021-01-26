@@ -380,6 +380,13 @@ namespace YantraJS.Core
                 .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
                 .Where(x => x.attribute != null && x.method.DeclaringType == type)
                 .GroupBy(x => x.attribute.Name).ToList();
+
+            List<JSFunction> functionMembers = null;
+            if (type == typeof(JSFunction))
+            {
+                functionMembers = new List<JSFunction>();
+            }
+
             foreach (var mg in all)
             {
                 
@@ -400,9 +407,10 @@ namespace YantraJS.Core
                 var target = pr.IsStatic ? r : p;
                 if (pr.IsMethod)
                 {
-
-                    target.DefineProperty(pr.Name, JSProperty.Function(pr.Name,
-                        f.CreateJSFunctionDelegate(), pr.ConfigurableValue, pr.Length));
+                    var fxp = JSProperty.Function(pr.Name,
+                        f.CreateJSFunctionDelegate(), pr.ConfigurableValue, pr.Length);
+                    functionMembers?.Add(fxp.value as JSFunction);
+                    target.DefineProperty(pr.Name, fxp);
                     continue;
                 }
                 
@@ -454,6 +462,15 @@ namespace YantraJS.Core
                 }
 
                 target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, pr.ReadonlyValue));
+            }
+
+            if (functionMembers != null)
+            {
+                // need to set prototype of bind/apply/call... as they are function and prototype would'nt be set
+                foreach(var f in functionMembers)
+                {
+                    f.prototypeChain = r.prototype;
+                }
             }
 
             return r;

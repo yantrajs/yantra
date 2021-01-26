@@ -207,10 +207,10 @@ namespace YantraJS.Core
             }
         }
 
-        public override string ToString()
-        {
-            return name.Value;
-        }
+        //public override string ToString()
+        //{
+        //    return name.Value;
+        //}
 
         public override string ToDetailString()
         {
@@ -263,7 +263,7 @@ namespace YantraJS.Core
 
         [Prototype("bind", Length = 1)]
         public static JSValue Bind(in Arguments a) {
-            var fOriginal = a.This;
+            var fOriginal = a.This as JSFunction;
             var original = a;
             var copy = a.CopyForCall();
             var first = a.Get1();
@@ -272,13 +272,14 @@ namespace YantraJS.Core
                 if (a2.Length == 0)
                 {
                     // for constructor...
-                    return fOriginal.InvokeFunction(copy);
+                    return fOriginal.f(copy.OverrideThis(a2.This));
                 }
                 return fOriginal.InvokeFunction(a2.OverrideThis(first));
             })
             {
                 // need to set prototypeChain...
-                prototypeChain = fOriginal as JSFunction
+                prototypeChain = (fOriginal as JSFunction).prototypeChain,
+                prototype = (fOriginal as JSFunction).prototype
             };
             return fx;
         }
