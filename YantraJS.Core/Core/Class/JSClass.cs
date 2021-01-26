@@ -42,7 +42,9 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            throw JSContext.Current.NewTypeError($"{this} is not a function");
+            if (a.NewTarget == null)
+                throw JSContext.Current.NewTypeError($"{this} is not a function");
+            return f(a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,7 +54,7 @@ namespace YantraJS.Core
             {
                 prototypeChain = this.prototype
             };
-            var ao = a.OverrideThis(@object);
+            var ao = a.OverrideThis(@object, this);
             var @this = f(ao);
             if (@this.IsUndefined)
                 @this = @object;

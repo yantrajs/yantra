@@ -64,7 +64,7 @@ namespace YantraJS.Core
             {
                 prototypeChain = prototype
             };
-            var a1 = a.OverrideThis(obj);
+            var a1 = a.OverrideThis(obj, this);
             var r = cf(script, closures, in a1);
             if (!r.IsUndefined)
                 return r;
@@ -223,7 +223,7 @@ namespace YantraJS.Core
             {
                 prototypeChain = prototype
             };
-            var a1 = a.OverrideThis(obj);
+            var a1 = a.OverrideThis(obj, this);
             var r = f(a1);
             if (!r.IsUndefined)
                 return r;
@@ -265,16 +265,10 @@ namespace YantraJS.Core
         public static JSValue Bind(in Arguments a) {
             var fOriginal = a.This as JSFunction;
             var original = a;
-            var copy = a.CopyForCall();
-            var first = a.Get1();
+            var copy = a;
             var fx = new JSFunction((in Arguments a2) =>
             {
-                if (a2.Length == 0)
-                {
-                    // for constructor...
-                    return fOriginal.f(copy.OverrideThis(a2.This));
-                }
-                return fOriginal.InvokeFunction(a2.OverrideThis(first));
+                return fOriginal.InvokeFunction(copy.CopyForBind(a2));
             })
             {
                 // need to set prototypeChain...
