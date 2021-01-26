@@ -1707,7 +1707,7 @@ namespace YantraJS
                     break;
                 case Nodes.MemberExpression:
                     MemberExpression se = mp as MemberExpression;
-                    return JSValueBuilder.Index( target,super, VisitExpression(se.Property));
+                    return JSValueBuilder.Index( target,super, VisitExpression(se));
 
             }
             if (memberExpression.Computed)
