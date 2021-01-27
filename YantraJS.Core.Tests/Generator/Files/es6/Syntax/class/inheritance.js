@@ -18,3 +18,20 @@ var c = new ChildClass();
 assert.strictEqual(c.n, "base");
 
 assert.strictEqual(Object.getPrototypeOf(ChildClass), BaseClass);
+
+class Shape {
+
+    constructor(n) {
+        this.name = n;
+    }
+
+}
+
+class Circle extends Shape {
+    constructor() {
+        super(...arguments);
+    }
+}
+
+let c = new Circle("Circle");
+assert.strictEqual("Circle", c.name);

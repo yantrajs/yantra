@@ -16,6 +16,13 @@ namespace YantraJS.Core.Core.Array
 
         internal override bool IsSpread => true;
 
+        public override int Length { get => _length; set { } }
+
+        public override JSValue this[uint key] { 
+            get => Value[key]; 
+            set => Value[key] = value; 
+        }
+
 
         public override bool BooleanValue => throw new NotImplementedException();
 

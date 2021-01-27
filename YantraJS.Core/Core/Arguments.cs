@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using YantraJS.Core.Core.Array;
 
 namespace YantraJS.Core
 {
@@ -196,11 +197,11 @@ namespace YantraJS.Core
             int i = 0;
             foreach(var a in list)
             {
-                if (a.IsSpread)
+                if (a is JSSpreadValue spv)
                 {
                     for (uint j = 0; j < a.Length; j++,i++)
                     {
-                        args[i] = a[j];
+                        args[i] = spv.Value[j];
                     }
                     continue;
                 }

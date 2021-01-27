@@ -59,7 +59,7 @@ namespace YantraJS.Tests.Generator
 
             // RunTest("es5/Array/slice.js");
 
-            RunTest("es6/Syntax/class/member.js");
+            RunTest("es6/Syntax/class/inheritance.js");
 
             // RunTest("es6/Syntax/class/new-target.js");
 
