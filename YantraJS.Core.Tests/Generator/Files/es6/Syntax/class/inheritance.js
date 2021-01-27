@@ -16,3 +16,5 @@ class ChildClass extends BaseClass {
 var c = new ChildClass();
 
 assert.strictEqual(c.n, "base");
+
+assert.strictEqual(Object.getPrototypeOf(ChildClass), BaseClass);
