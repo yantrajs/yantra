@@ -634,11 +634,13 @@ namespace YantraJS.Core
         {
             var a = new JSArray();
             ref var ae = ref a.GetElements(true);
-            for (uint i = index; i < Length; i++)
+            uint i;
+            uint ai;
+            for (ai = 0,i = index; i < Length; i++, ai++)
             {
-                ae[(uint)i] = JSProperty.Property( GetAt((int)i));
+                ae[ai] = JSProperty.Property( GetAt((int)i));
             }
-            a._length = (uint)Length - index;
+            a._length = ai;
             return a;
         }
 

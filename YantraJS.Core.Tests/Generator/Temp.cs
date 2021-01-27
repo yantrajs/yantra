@@ -54,12 +54,13 @@ namespace YantraJS.Tests.Generator
             // RunTest("es5/Objects/Object/mixed.js");
 
             // RunTest("es5/Function/parameters.js");
+            RunTest("es6/Syntax/Function/rest.js");
 
             // RunTest("es5/Array/from.js");
 
             // RunTest("es5/Array/slice.js");
 
-            RunTest("es6/Syntax/class/inheritance.js");
+            // RunTest("es6/Syntax/class/inheritance.js");
 
             // RunTest("es6/Syntax/class/new-target.js");
 
