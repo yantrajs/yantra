@@ -878,7 +878,7 @@ namespace YantraJS.Core
             if (l > 0)
             {
                 // move.. 
-                @this.MoveElements(0, l - 1);
+                @this.MoveElements(0, a.Length);
 
                 for (uint i = 0; i < a.Length; i++)
                 {
