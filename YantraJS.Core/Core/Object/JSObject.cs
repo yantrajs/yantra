@@ -90,11 +90,25 @@ namespace YantraJS.Core
         {
             get
             {
+                var es = GetElementEnumerator();
+                while (es.MoveNext(out var hasValue, out var value, out var index))
+                {
+                    if(hasValue)
+                        yield return (index.ToString(), value);
+                }
+
                 var ownProperties = GetOwnProperties();
                 for(int i = 0; i< ownProperties.properties.Length; i++)
                 {
                     var p = ownProperties.properties[i];
-                    yield return (p.key.ToString(), this.GetValue(p));
+                    JSValue v = null;
+                    try {
+                        v = this.GetValue(p);
+                    } catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex);
+                    }
+                    yield return (p.key.ToString(), v);
                 }
             }
         }
