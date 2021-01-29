@@ -205,13 +205,13 @@ namespace YantraJS.Core
             {
                 if (a is JSSpreadValue spv)
                 {
-                    for (uint j = 0; j < a.Length; j++,i++)
+                    for (uint j = 0; j < spv.Value.Length; j++)
                     {
-                        args[i] = spv.Value[j];
+                        args[i++] = spv.Value[j];
                     }
                     continue;
                 }
-                list[i] = a;
+                args[i++] = a;
             }
             switch (Length)
             {
