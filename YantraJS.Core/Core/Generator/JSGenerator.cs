@@ -29,6 +29,7 @@ namespace YantraJS.Core.Generator
         {
             this.prototypeChain = JSContext.Current.GeneratorPrototype;
             this.cg = g;
+            value = JSUndefined.Value;
         }
 
         public override string ToString()

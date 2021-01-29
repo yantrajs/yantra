@@ -106,7 +106,7 @@ namespace YantraJS.Core.Clr
                         continue;
                     var fgm = f.GetMethod;
                     var fsm = f.SetMethod;
-                    if (fgm.GetParameters().Length > 0)
+                    if (fgm?.GetParameters().Length > 0)
                     {
                         // it is an index property...
                         name = "index";

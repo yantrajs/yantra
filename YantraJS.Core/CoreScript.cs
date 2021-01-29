@@ -530,6 +530,13 @@ namespace YantraJS
 
                 sList.Add(lambdaBody);
                 // sList.Add(JSContextStackBuilder.Pop(stackItem));
+                if (createClass)
+                {
+                    sList.Add(Exp.Return(r, Exp.Coalesce(
+                        s.ThisExpression,
+                        JSExceptionBuilder.Throw("this cannot be null")
+                        )));
+                }
                 sList.Add(Exp.Label(r, ExpHelper.JSUndefinedBuilder.Value));
                 // sList.Add();
 

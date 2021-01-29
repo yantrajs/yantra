@@ -8,7 +8,7 @@ using YantraJS.Utils;
 
 namespace YantraJS.Core.Clr
 {
-    public class ClrProxy : JSObject
+    public partial class ClrProxy : JSObject
     {
 
         internal readonly object value;

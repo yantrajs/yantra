@@ -75,7 +75,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
         private object ThisResult()
         {
-            return this.result;
+            return this.result ?? JSUndefined.Value;
         }
 
         public Func<object> Yield(Func<object> yield)
@@ -93,7 +93,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         public bool Next(JSValue next, out JSValue value)
         {
             var lastResult = result;
-            result = next ?? result;
+            result = next ?? result ?? JSUndefined.Value;
             while (Stack.Count > 0)
             {
                 var (label, step) = Stack.Pop();
@@ -419,6 +419,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     var fx = parameters[pi];
                     Stack.Push(() => {
                         var r = pa[pi] = fx();
+                        if (r is Func<object> fx1)
+                            r = pa[pi] = fx1();
                         return r;
                     });
                 }
