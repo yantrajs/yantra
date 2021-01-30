@@ -76,7 +76,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
             // var lambdaBody = (new YieldRewriter(generator)).Visit(body);
             // return Expression.Lambda(lambdaBody, generator);
 
-            YieldFinder.MarkYield(body);
+            body = YieldFinder.MarkYield(body);
 
             var l = new List<ParameterExpression>();
             l.AddRange(generators);
@@ -161,7 +161,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
 
             return Expression.Call(generator, _call,
-                Expression.NewArrayInit(typeof(Func<object>), lambaList),
+                Expression.NewArrayInit(typeof(object), lambaList),
                 newNode);
         }
 
@@ -375,6 +375,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
             //}
             foreach (var e in node.Expressions)
             {
+                // we need to lift and break yield sequence... in new and method calls
+
                 var child = e;
                 if (e.ShouldBreak()) {
                     block.AddYield(Visit(e));

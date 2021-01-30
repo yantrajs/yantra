@@ -51,6 +51,8 @@ namespace YantraJS.Core.LinqExpressions.Generators
 
     public struct InstructionStack
     {
+        public static object StackItem = new object();
+
         private (uint label, Func<object> instruction)[] items;
         private int index;
 
@@ -91,7 +93,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             EnsureCapacity(index + 1);
             items[++index] = (label, null);
-            return this;
+            return StackItem;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -99,7 +101,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             EnsureCapacity(index + 1);
             items[++index] = (label, instruction);
-            return this;
+            return StackItem;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -107,7 +109,7 @@ namespace YantraJS.Core.LinqExpressions.Generators
         {
             EnsureCapacity(index + 1);
             items[++index] = (0, instruction);
-            return this;
+            return StackItem;
         }
 
         internal void Clear()

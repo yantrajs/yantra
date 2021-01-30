@@ -2426,12 +2426,26 @@ namespace YantraJS
                 });
         }
 
-        private List<Exp> VisitBody(BlockStatement stmt)
-        {
-            return Visit(in stmt.Body);
-        }
+        //private List<Exp> VisitBody(BlockStatement stmt)
+        //{
+        //    return Visit(in stmt.Body);
+        //}
 
         private Exp CreateBlock(in NodeList<Statement> body) {
+
+            List<Exp> Visit(in NodeList<Statement> list)
+            {
+                var t = this.scope.Top;
+                var st = t.StackItem;
+                List<Exp> r = new List<Exp>();
+                foreach(var s in list)
+                {
+                    LexicalScopeBuilder.Update(r, st, s.Location.Start.Line, s.Location.Start.Column);
+                    r.Add(VisitStatement(s));
+                }
+                return r;
+            }
+
             var visitedList = Visit(in body);
 
             if (visitedList.Any())

@@ -233,15 +233,15 @@ namespace YantraJS.Utils
             }
             return r;
         }
-        public List<T> Visit(in NodeList<Statement> list)
-        {
-            var r = new List<T>(list.Count);
-            foreach (var exp in list)
-            {
-                r.Add(VisitStatement(exp));
-            }
-            return r;
-        }
+        //public List<T> Visit(in NodeList<Statement> list)
+        //{
+        //    var r = new List<T>(list.Count);
+        //    foreach (var exp in list)
+        //    {
+        //        r.Add(VisitStatement(exp));
+        //    }
+        //    return r;
+        //}
 
 
         protected virtual T VisitStatement(Statement statement)

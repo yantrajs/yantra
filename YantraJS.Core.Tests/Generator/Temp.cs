@@ -54,7 +54,7 @@ namespace YantraJS.Tests.Generator
             // RunTest("es5/Objects/Object/mixed.js");
 
             // RunTest("es5/Function/parameters.js");
-            RunTest("es6/Syntax/Function/rest.js");
+            // RunTest("es6/Syntax/Function/rest.js");
 
             // RunTest("es5/Array/from.js");
 
@@ -64,7 +64,7 @@ namespace YantraJS.Tests.Generator
 
             // RunTest("es6/Syntax/class/new-target.js");
 
-            // RunTest("es6/Syntax/generators/all.js");
+            RunTest("es6/Syntax/generators/call.js");
 
             // RunTest("es5/Objects/Reflect/Reflect.js");
 

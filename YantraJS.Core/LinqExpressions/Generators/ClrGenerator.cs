@@ -322,6 +322,9 @@ namespace YantraJS.Core.LinqExpressions.Generators
                     });
                 };
             }
+            if (r == InstructionStack.StackItem)
+                return null;
+
             return () => ra(r);
         }
 
@@ -400,31 +403,26 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
-        public Func<object> Call(Func<object>[] parameters, Func<object[], object> call)
+        public Func<object> Call(object[] parameters, Func<object[], object> call)
         {
             return () => {
-                int length = parameters.Length;
-                object[] pa = length > 0 ? new object[length] : Array.Empty<object>();
-
-                // we need to push call
-                Stack.Push(() => {
-                    return call(pa);
-                });
-
-                // we need to push parameter in reverse order
-                // so actual evalution will will be in correct order
-                for (int i = length - 1; i >= 0; i--)
+                int i = 0;
+                foreach(var p in parameters)
                 {
-                    var pi = i;
-                    var fx = parameters[pi];
-                    Stack.Push(() => {
-                        var r = pa[pi] = fx();
-                        if (r is Func<object> fx1)
-                            r = pa[pi] = fx1();
-                        return r;
-                    });
+                    int ii = i;
+                    if (p is Func<object> fx)
+                    {
+                        return Result(fx, x => {
+                            parameters[ii] = x;
+                            return Call(parameters, call);
+                        });
+                    }
+                    if (p == InstructionStack.StackItem)
+                        return p;
+                    i++;
                 }
-                return null;
+                return (Func<object>)(() => call(parameters));
+                // return null;
             };
         }
 
