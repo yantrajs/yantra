@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.Core;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
 using YantraJS.Extensions;
@@ -14,12 +15,29 @@ using YantraJS.Utils;
 namespace YantraJS.Core
 {
 
+    internal delegate void PropertyChangedEventHandler(JSObject sender, (uint keyString, uint index, JSSymbol symbol) index);
+
     [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
     public partial class JSObject : JSValue
     {
+        private JSPrototype currentPrototype;
+
+        
+        internal JSPrototype PrototypeObject
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return (currentPrototype ?? (currentPrototype = new JSPrototype(this)));
+            }
+        }
+        
+
 
         internal ObjectStatus status = ObjectStatus.None;
 
+        // internal long version = 0;
+        internal event PropertyChangedEventHandler PropertyChanged;
         private ElementArray elements;
         private PropertySequence ownProperties;
         private UInt32Map<JSProperty> symbols;
@@ -210,8 +228,10 @@ namespace YantraJS.Core
             if (!r.IsEmpty)
                 return ref r;
             if (inherited && prototypeChain != null)
-                return ref prototypeChain.GetInternalProperty(key, inherited);
-            return ref JSProperty.Empty;
+            {
+                r = prototypeChain.GetInternalProperty(key);
+            }
+            return ref r;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -222,7 +242,7 @@ namespace YantraJS.Core
                 return r;
             }
             if (inherited && prototypeChain != null)
-                return prototypeChain.GetInternalProperty(key, inherited);
+                return prototypeChain.GetInternalProperty(key);
             return new JSProperty();
         }
 
@@ -233,7 +253,7 @@ namespace YantraJS.Core
                 return r;
             }
             if (inherited && prototypeChain != null)
-                return prototypeChain.GetInternalProperty(key, inherited);
+                return prototypeChain.GetInternalProperty(key);
             return new JSProperty();
         }
 
@@ -251,26 +271,14 @@ namespace YantraJS.Core
                 if(p.IsProperty)
                     return p.get.f;
             }
-            if (prototypeChain != null && prototypeChain != this)
-                return prototypeChain.GetMethod(key);
-            // check default parameter of methods
-            // may be the problem
-            throw JSContext.Current.NewError($"Method {key} not found");
+            return prototypeChain?.GetMethod(key) ?? throw JSContext.Current.NewError($"Method {key} not found");
         }
 
         public override JSValue this[KeyString name] { 
             get => this.GetValue(GetInternalProperty(name)); 
             set {
                 var start = this;
-                ref var p = ref JSProperty.Empty;
-                while (start != null && start != start.prototypeChain)
-                {
-                    ref var ps = ref start.GetOwnProperties();
-                    p = ref ps.GetValue(name.Key);
-                    if (!p.IsEmpty)
-                        break;
-                    start = start.prototypeChain;
-                }
+                ref var p = ref GetInternalProperty(name, true);
                 if (p.IsProperty)
                 {
                     if (p.set != null)
@@ -280,7 +288,7 @@ namespace YantraJS.Core
                     }
                     return;
                 }
-                if(p.IsReadOnly && start == this)
+                if(p.IsReadOnly)
                 {
                     // Only in Strict Mode ..
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
@@ -289,6 +297,7 @@ namespace YantraJS.Core
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 ref var ownProperties = ref this.GetOwnProperties();
                 ownProperties[name.Key] = JSProperty.Property(name, value);
+                PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
             }
         }
 
@@ -311,6 +320,7 @@ namespace YantraJS.Core
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 ref var elements = ref CreateElements();
                 elements[name] = JSProperty.Property(value);
+                PropertyChanged?.Invoke(this, (uint.MaxValue, name, null));
             }
         }
 
@@ -332,6 +342,7 @@ namespace YantraJS.Core
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 symbols[name.Key.Key] = JSProperty.Property(value);
+                PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             }
         }
 
@@ -348,10 +359,11 @@ namespace YantraJS.Core
             }
             // p.key = name.Key;
             symbols[key] = p.With(name.Key);
+            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             return JSUndefined.Value;
         }
 
-        public JSValue DefineProperty(KeyString name, in JSProperty p)
+        public JSValue DefineProperty(in KeyString name, in JSProperty p)
         {
             var key = name.Key;
             ref var ownProperties = ref GetOwnProperties();
@@ -365,6 +377,7 @@ namespace YantraJS.Core
             }
             // p.key = name;
             ownProperties[key] = p.With(name);
+            PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
             return JSUndefined.Value;
         }
 
@@ -384,6 +397,7 @@ namespace YantraJS.Core
                 }
                 ownProperties[key] = p;
             }
+            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
         }
 
         public override string ToString()
@@ -456,6 +470,7 @@ namespace YantraJS.Core
                     throw JSContext.Current.NewTypeError($"Cannot modify property length of {this}");
                 ref var ownp = ref GetOwnProperties();
                 ownp[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length,new JSNumber(value));
+                PropertyChanged?.Invoke(this, (KeyStrings.length.Key, uint.MaxValue, null));
             }
         }
 
@@ -542,6 +557,7 @@ namespace YantraJS.Core
                 if (array._length <= key)
                     array._length = key + 1;
             }
+            target.PropertyChanged?.Invoke(target, (uint.MaxValue, key , null));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -579,6 +595,7 @@ namespace YantraJS.Core
             var pAttributes = pt;
             ref var ownProperties = ref target.GetOwnProperties();
             ownProperties[key.Key] = new JSProperty(key, pget, pset, pvalue, pAttributes);
+            target.PropertyChanged?.Invoke(target, (key.Key, uint.MaxValue, null));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -610,6 +627,7 @@ namespace YantraJS.Core
             // p.Attributes = pt;
             // var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
             target.symbols[key.Key.Key] = new JSProperty(key.Key, get, set, value, pt);
+            target.PropertyChanged?.Invoke(target, (uint.MaxValue, uint.MaxValue, key));
         }
 
 
@@ -618,7 +636,10 @@ namespace YantraJS.Core
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
             if (ownProperties.RemoveAt(key.Key))
+            {
+                PropertyChanged?.Invoke(this, (key.Key, uint.MaxValue, null));
                 return JSBoolean.True;
+            }
             return JSBoolean.False;
         }
 
@@ -627,7 +648,10 @@ namespace YantraJS.Core
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
             if (elements.RemoveAt(key))
+            {
+                PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
                 return JSBoolean.True;
+            }
             return JSBoolean.False;
         }
 
@@ -755,6 +779,7 @@ namespace YantraJS.Core
                 }
                 this.Length += diff;
             }
+            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
 
         }
 
@@ -767,7 +792,10 @@ namespace YantraJS.Core
         internal override bool TryRemove(uint i, out JSProperty p)
         {
             if (elements.TryRemove(i, out p))
+            {
+                PropertyChanged?.Invoke(this, (uint.MaxValue, i, null));
                 return true;
+            }
             if (prototypeChain != null)
                 return prototypeChain.TryRemove(i, out p);
             return false;

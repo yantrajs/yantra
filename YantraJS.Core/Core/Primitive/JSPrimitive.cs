@@ -35,7 +35,7 @@ namespace YantraJS.Core
                 ResolvePrototype();
                 if (prototypeChain == null)
                     return JSUndefined.Value;
-                ref var px = ref prototypeChain.GetInternalProperty(name);
+                var px = prototypeChain.GetInternalProperty(name);
                 if (px.IsEmpty)
                 {
                     // throw JSContext.Current.NewTypeError($"{name} property not found on {this.GetType().Name}:{this}");

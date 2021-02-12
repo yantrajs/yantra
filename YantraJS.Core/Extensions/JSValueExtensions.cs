@@ -299,7 +299,7 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError("Right side of instanceof is null");
             if(!value.IsObject)
                 throw JSContext.Current.NewTypeError("Right side of instanceof is not an object");
-            var p = target.prototypeChain;
+            var p = target.prototypeChain?.@object;
             if (p == null)
                 return JSBoolean.False;
             var c = p[KeyStrings.constructor];

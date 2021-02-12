@@ -307,7 +307,7 @@ namespace YantraJS.Core
                 return first;
             if (!@object.IsExtensible())
                 throw JSContext.Current.NewTypeError("Object is not extensible");
-            first.prototypeChain = second as JSObject ?? first.prototypeChain;
+            first.prototypeChain = (second as JSObject ?? first.prototypeChain?.@object).PrototypeObject;
             return first;
         }
 
@@ -431,7 +431,7 @@ namespace YantraJS.Core
             var target = a.Get1();
             if (target is JSPrimitive primitive)
                 primitive.ResolvePrototype();
-            var p = target.prototypeChain ?? JSNull.Value;
+            var p = target.prototypeChain?.@object ?? JSNull.Value;
             return p;
         }
 

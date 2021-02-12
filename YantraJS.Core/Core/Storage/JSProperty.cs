@@ -51,6 +51,11 @@ namespace YantraJS.Core
         public readonly JSFunction set;
         public readonly JSValue value;
 
+        internal JSProperty ToNotReadOnly()
+        {
+            return new JSProperty(key, get, set, value, Attributes & (~JSPropertyAttributes.Readonly));
+        }
+
         public JSProperty Delete()
         {
             return new JSProperty(key, get, set, value, JSPropertyAttributes.Deleted);

@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.Core;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -97,7 +98,7 @@ namespace YantraJS.Core {
 
         public virtual long BigIntValue => (long)(ulong)this.DoubleValue;
 
-        internal JSObject prototypeChain;
+        internal JSPrototype prototypeChain;
 
         /// <summary>
         /// Speed improvements for string contact operations
@@ -141,7 +142,7 @@ namespace YantraJS.Core {
 
         protected JSValue(JSObject prototype)
         {
-            this.prototypeChain = prototype;
+            this.prototypeChain = prototype.PrototypeObject;
         }
 
         internal abstract KeyString ToKey(bool create = true);

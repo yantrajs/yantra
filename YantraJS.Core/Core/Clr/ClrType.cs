@@ -423,8 +423,8 @@ namespace YantraJS.Core.Clr
 
             if(baseType != null)
             {
-                prototypeChain = baseType;
-                prototype.prototypeChain = baseType.prototype;
+                prototypeChain = baseType.PrototypeObject;
+                prototype.prototypeChain = baseType.prototype.PrototypeObject;
 
                 // set indexer... for int/uint
                 

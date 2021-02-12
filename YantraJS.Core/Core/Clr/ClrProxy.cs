@@ -15,13 +15,13 @@ namespace YantraJS.Core.Clr
         public ClrProxy(object value)
         {
             this.value = value;
-            this.prototypeChain = ClrType.From(value.GetType()).prototype;
+            this.prototypeChain = ClrType.From(value.GetType()).prototype.PrototypeObject;
         }
 
         internal ClrProxy(object value, JSObject prototypeChain)
         {
             this.value = value;
-            this.prototypeChain = prototypeChain;
+            this.prototypeChain = prototypeChain.PrototypeObject;
         }
 
 
@@ -195,13 +195,13 @@ namespace YantraJS.Core.Clr
         {
             get
             {
-                return (prototypeChain as ClrType.ClrPrototype).GetElementAt(this.value, name);
+                return (prototypeChain?.@object as ClrType.ClrPrototype).GetElementAt(this.value, name);
             }
             set
             {
                 try
                 {
-                    var cp = prototypeChain as ClrType.ClrPrototype;
+                    var cp = prototypeChain?.@object as ClrType.ClrPrototype;
                     cp.SetElementAt(this.value, name, value);
                 } catch (Exception ex)
                 {
