@@ -106,6 +106,8 @@ namespace YantraJS.Core
             copy.Seal();
             copy.prototypeChain = (chain ?? context.FunctionPrototype ?? context.ObjectPrototype)?.PrototypeObject;
             copy.Dirty();
+            copy.prototype.Dirty();
+            copy.prototypeChain?.@object?.Dirty();
             return copy;
         }
 
@@ -474,7 +476,7 @@ namespace YantraJS.Core
                     f.Dirty();
                 }
             }
-
+            r.prototype.Dirty();
             return r;
         }
 

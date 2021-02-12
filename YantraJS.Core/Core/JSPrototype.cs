@@ -24,14 +24,20 @@ namespace YantraJS.Core.Core
 
         private void Build()
         {
+            
             if (!this.dirty)
                 return;
+            lock (this)
+            {
+                if (!this.dirty)
+                    return;
+                properties = new UInt32Map<(JSProperty, JSPrototype)>();
+                elements = new UInt32Map<(JSProperty, JSPrototype)>();
+                symbols = new UInt32Map<(JSProperty, JSPrototype)>();
 
-            properties = new UInt32Map<(JSProperty, JSPrototype)>();
-            elements = new UInt32Map<(JSProperty, JSPrototype)>();
-            symbols = new UInt32Map<(JSProperty, JSPrototype)>();
-
-            Build(this);
+                Build(this);
+                dirty = false;
+            }
         }
 
         private void Build(JSPrototype target)
@@ -53,14 +59,21 @@ namespace YantraJS.Core.Core
             ref var objectProperties = ref @object.GetOwnProperties(false);
             if (objectProperties.properties != null)
             {
-                for (int i = 0; i < objectProperties.properties.Length; i++)
+                foreach(var ep in objectProperties.AllValues())
                 {
-                    ref var ep = ref objectProperties.properties[i];
-                    if (!ep.IsEmpty)
+                    if (!ep.Value.IsEmpty)
                     {
-                        properties[ep.key.Key] = (ep.ToNotReadOnly(), target);
+                        properties[ep.Key] = (ep.Value.ToNotReadOnly(),target);
                     }
                 }
+                //for (int i = 0; i < objectProperties.properties.Length; i++)
+                //{
+                //    ref var ep = ref objectProperties.properties[i];
+                //    if (!ep.IsEmpty)
+                //    {
+                //        properties[ep.key.Key] = (ep.ToNotReadOnly(), target);
+                //    }
+                //}
             }
 
             ref var objectElements = ref @object.GetElements(false);

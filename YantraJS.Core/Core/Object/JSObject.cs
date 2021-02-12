@@ -28,10 +28,7 @@ namespace YantraJS.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                lock (this)
-                {
-                    return (currentPrototype ?? (currentPrototype = new JSPrototype(this)));
-                }
+                return (currentPrototype ?? (currentPrototype = new JSPrototype(this)));
             }
         }
         
