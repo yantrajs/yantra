@@ -149,7 +149,7 @@ namespace YantraJS.Core
         public override JSValue this[KeyString name] {
             get {
                 this.ResolvePrototype();
-                var p = prototypeChain.GetInternalProperty(in name, true);
+                var p = prototypeChain.GetInternalProperty(in name);
                 if (p.IsEmpty)
                     return JSUndefined.Value;
                 return this.GetValue(p);

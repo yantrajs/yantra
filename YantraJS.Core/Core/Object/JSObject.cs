@@ -28,7 +28,10 @@ namespace YantraJS.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return (currentPrototype ?? (currentPrototype = new JSPrototype(this)));
+                lock (this)
+                {
+                    return (currentPrototype ?? (currentPrototype = new JSPrototype(this)));
+                }
             }
         }
         
@@ -56,6 +59,11 @@ namespace YantraJS.Core
 
 
         internal bool IsSealedOrFrozenOrNonExtensible() => ((this.status & ObjectStatus.SealedFrozenNonExtensible) > 0);
+
+        internal void Dirty()
+        {
+            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsFrozen() => (this.status & ObjectStatus.Frozen) > 0;

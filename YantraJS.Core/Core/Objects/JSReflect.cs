@@ -138,7 +138,7 @@ namespace YantraJS.Core.Objects
             var target = a.Get1();
             if(!(target is JSObject))
                 throw JSContext.Current.NewTypeError($"Not an object");
-            var p = target.prototypeChain;
+            var p = target.prototypeChain?.@object;
             if (p == target || p == null)
                 return JSNull.Value;
             return p;
@@ -277,7 +277,7 @@ namespace YantraJS.Core.Objects
                 throw JSContext.Current.NewTypeError($"Not an object");
             if(!(p is JSObject prototype))
                 throw JSContext.Current.NewTypeError($"Not an object");
-            target.prototypeChain = prototype;
+            target.prototypeChain = prototype?.PrototypeObject;
             return p;
         }
     }

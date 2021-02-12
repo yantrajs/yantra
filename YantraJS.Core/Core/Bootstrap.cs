@@ -104,7 +104,8 @@ namespace YantraJS.Core
 
             // seal copy...
             copy.Seal();
-            copy.prototypeChain = chain ?? context.FunctionPrototype ?? context.ObjectPrototype;
+            copy.prototypeChain = (chain ?? context.FunctionPrototype ?? context.ObjectPrototype)?.PrototypeObject;
+            copy.Dirty();
             return copy;
         }
 
@@ -469,7 +470,8 @@ namespace YantraJS.Core
                 // need to set prototype of bind/apply/call... as they are function and prototype would'nt be set
                 foreach(var f in functionMembers)
                 {
-                    f.prototypeChain = r.prototype;
+                    f.prototypeChain = r.prototype.PrototypeObject;
+                    f.Dirty();
                 }
             }
 

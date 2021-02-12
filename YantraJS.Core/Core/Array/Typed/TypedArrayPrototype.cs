@@ -516,7 +516,7 @@ namespace YantraJS.Core.Typed
 
 
             var src = @this.buffer.buffer;
-            var r = new TypedArray(null, @this.type, 0, newLength, @this.prototypeChain);
+            var r = new TypedArray(null, @this.type, 0, newLength, @this.prototypeChain.@object);
             var target = r.buffer.buffer;
             int bytesPerElement = @this.bytesPerElement;
 
@@ -624,7 +624,7 @@ namespace YantraJS.Core.Typed
                 @this.type, 
                 @this.byteOffset + begin * @this.bytesPerElement, 
                 newLength * @this.bytesPerElement, 
-                @this.prototypeChain);
+                @this.prototypeChain.@object);
             return r;
 
         }

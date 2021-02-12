@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Extensions;
 
 namespace YantraJS.Core.Core
 {
@@ -40,11 +41,12 @@ namespace YantraJS.Core.Core
             var @object = target.@object;
 
             // if(@object.prototypeChain)
-            var @base = @object.prototypeChain;
-            if (@base == null || @object.prototypeChain == this)
+            var @base = @object.prototypeChain?.@object;
+            if (@base != null && @base.prototypeChain != null && @base.prototypeChain != this)
+                this.Build(@base.prototypeChain);
+
+            if (@object.prototypeChain == null)
                 return;
-
-
             this.Build(@object.prototypeChain);
 
             @object.PropertyChanged += @object_PropertyChanged;
@@ -124,6 +126,27 @@ namespace YantraJS.Core.Core
                 return p.get.f;
             }
             return null;
+        }
+
+        internal bool TryRemove(uint i, out JSProperty p)
+        {
+            if(elements.TryGetValue(i, out var ee))
+            {
+                var @object = ee.owner.@object;
+                ref var elements = ref @object.GetElements(false);
+                return elements.TryRemove(i, out p);
+            }
+            p = JSProperty.Empty;
+            return false;
+        }
+
+        public JSValue this[in KeyString k]
+        {
+            get
+            {
+                var p = GetInternalProperty(k);
+                return @object.GetValue(p);
+            }
         }
     }
 

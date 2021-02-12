@@ -282,7 +282,7 @@ namespace YantraJS.Core
                 yield return (p.key.ToJSValue(), value.GetValue(p));
             }
 
-            var @base = value.prototypeChain;
+            var @base = value.prototypeChain?.@object;
             if (@base != value && @base != null) {
                 foreach(var bp in @base.GetAllEntries(showEnumerableOnly))
                 {

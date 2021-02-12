@@ -425,6 +425,7 @@ namespace YantraJS.Core.Clr
             {
                 prototypeChain = baseType.PrototypeObject;
                 prototype.prototypeChain = baseType.prototype.PrototypeObject;
+                prototype.Dirty();
 
                 // set indexer... for int/uint
                 

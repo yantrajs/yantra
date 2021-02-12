@@ -62,7 +62,7 @@ namespace YantraJS.Core
         {
             JSValue obj = new JSObject
             {
-                prototypeChain = prototype
+                prototypeChain = prototype.PrototypeObject
             };
             var a1 = a.OverrideThis(obj, this);
             var r = cf(script, closures, in a1);
@@ -225,7 +225,7 @@ namespace YantraJS.Core
         {
             JSValue obj = new JSObject
             {
-                prototypeChain = prototype
+                prototypeChain = prototype.PrototypeObject
             };
             var a1 = a.OverrideThis(obj, constructor);
             var r = f(a1);

@@ -17,7 +17,7 @@ namespace YantraJS.Core
         internal protected void ResolvePrototype() { 
             if (prototypeChain == null)
             {
-                prototypeChain = GetPrototype();
+                prototypeChain = GetPrototype()?.PrototypeObject;
             }
         }
 
@@ -57,7 +57,7 @@ namespace YantraJS.Core
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {
-            return (prototypeChain ?? (prototypeChain = GetPrototype())).GetMethod(key);
+            return (prototypeChain ?? (prototypeChain = GetPrototype()?.PrototypeObject)).GetMethod(key);
         }
     }
 }

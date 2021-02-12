@@ -35,9 +35,11 @@ namespace YantraJS.Core.Enumerators
                 this.properties.target = null;
                 if (this.inherited)
                 {
-                    if (target.prototypeChain != null && target.prototypeChain != target)
+                    var @base = target.prototypeChain?.@object;
+                    if (@base != null 
+                        && @base != target)
                     {
-                        parent = new PropertyEnumerator(target.prototypeChain, showEnumerableOnly, inherited);
+                        parent = new PropertyEnumerator(@base, showEnumerableOnly, inherited);
                     }
                 }
             }
@@ -78,7 +80,8 @@ namespace YantraJS.Core.Enumerators
         {
             if (this.elements != null)
             {
-                if (this.elements.MoveNext(out var hasValueout, out var _, out var ui)) {
+                if (this.elements.MoveNext(out var hasValueout, out var _, out var ui))
+                {
                     value = new JSNumber(ui);
                     hasValue = hasValueout;
                     index = ui;
@@ -86,9 +89,10 @@ namespace YantraJS.Core.Enumerators
                 }
                 this.elements = null;
             }
-            if(this.properties.target != null)
+            if (this.properties.target != null)
             {
-                if (this.properties.MoveNext(out var key)) {
+                if (this.properties.MoveNext(out var key))
+                {
                     value = key.ToJSValue();
                     hasValue = true;
                     index = 0;
@@ -97,15 +101,16 @@ namespace YantraJS.Core.Enumerators
                 this.properties.target = null;
                 if (this.inherited)
                 {
-                    if(target.prototypeChain != null && target.prototypeChain != target)
+                    var @base = target.prototypeChain?.@object;
+                    if (@base != null && @base != target)
                     {
-                        parent = new KeyEnumerator(target.prototypeChain, showEnumerableOnly, inherited);
+                        parent = new KeyEnumerator(@base, showEnumerableOnly, inherited);
                     }
                 }
             }
             if (parent != null)
             {
-                if(parent.MoveNext(out hasValue, out value, out index))
+                if (parent.MoveNext(out hasValue, out value, out index))
                 {
                     return true;
                 }
@@ -138,9 +143,10 @@ namespace YantraJS.Core.Enumerators
                 this.properties.target = null;
                 if (this.inherited)
                 {
-                    if (target.prototypeChain != null && target.prototypeChain != target)
+                    var @base = target.prototypeChain?.@object;
+                    if (@base != null && @base != target)
                     {
-                        parent = new KeyEnumerator(target.prototypeChain, showEnumerableOnly, inherited);
+                        parent = new KeyEnumerator(@base, showEnumerableOnly, inherited);
                     }
                 }
             }

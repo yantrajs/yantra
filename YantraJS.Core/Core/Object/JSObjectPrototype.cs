@@ -53,7 +53,13 @@ namespace YantraJS.Core
         {
             var a0 = a.Get1();
             if (a0 is JSObject o)
+            {
                 a.This.prototypeChain = o.PrototypeObject;
+                if(a.This is JSObject o2)
+                {
+                    o2.Dirty();
+                }
+            }
             return a0;
         }
 
@@ -85,11 +91,11 @@ namespace YantraJS.Core
             var first = a.Get1();
             while (true)
             {
-                if (@this == first.prototypeChain)
+                if (@this == first.prototypeChain?.@object)
                     return JSBoolean.True;
-                if (first.prototypeChain == first || first.prototypeChain == null)
+                if (first.prototypeChain?.@object == first || first.prototypeChain?.@object == null)
                     break;
-                first = first.prototypeChain;
+                first = first.prototypeChain?.@object;
             }
             return JSBoolean.False;
         }

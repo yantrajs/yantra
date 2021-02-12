@@ -20,14 +20,14 @@ namespace YantraJS.Core.Generator
         internal bool done;
 
         public JSGenerator(IElementEnumerator en, string name) {
-            this.prototypeChain = JSContext.Current.GeneratorPrototype;
+            this.prototypeChain = JSContext.Current.GeneratorPrototype.PrototypeObject;
             this.en = en;
             this.name = name;
         }
 
         public JSGenerator(ClrGenerator g)
         {
-            this.prototypeChain = JSContext.Current.GeneratorPrototype;
+            this.prototypeChain = JSContext.Current.GeneratorPrototype.PrototypeObject;
             this.cg = g;
             value = JSUndefined.Value;
         }
