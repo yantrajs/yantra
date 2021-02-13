@@ -276,7 +276,7 @@ namespace YantraJS.Core
             })
             {
                 // need to set prototypeChain...
-                BasePrototypeObject = (fOriginal as JSFunction),
+                prototypeChain = (fOriginal as JSFunction).prototypeChain,
                 prototype = (fOriginal as JSFunction).prototype,
                 constructor = fOriginal.constructor
             };

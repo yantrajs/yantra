@@ -307,7 +307,8 @@ namespace YantraJS.Core
                 return first;
             if (!@object.IsExtensible())
                 throw JSContext.Current.NewTypeError("Object is not extensible");
-            first.BasePrototypeObject = (second as JSObject ?? first.prototypeChain?.@object);
+            if (second is JSObject proto)
+                first.BasePrototypeObject = proto;
             return first;
         }
 

@@ -150,7 +150,7 @@ namespace YantraJS.Core {
 
         protected JSValue(JSObject prototype)
         {
-            this.prototypeChain = prototype?.PrototypeObject;
+            this.BasePrototypeObject = prototype;
         }
 
         internal abstract KeyString ToKey(bool create = true);
