@@ -334,11 +334,9 @@ namespace YantraJS.Core
             // create object prototype...
             Object =  this.Create<JSObject>(KeyStrings.Object);
             ObjectPrototype = Object.prototype;
-            ObjectPrototype.prototypeChain = null;
-            func.prototypeChain = Object.PrototypeObject;
-            func.Dirty();
-            FunctionPrototype.prototypeChain = ObjectPrototype.PrototypeObject;
-            FunctionPrototype.Dirty();
+            ObjectPrototype.BasePrototypeObject = null;
+            func.BasePrototypeObject = Object;
+            FunctionPrototype.BasePrototypeObject = ObjectPrototype;
             ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
             StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
             NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
@@ -376,7 +374,7 @@ namespace YantraJS.Core
 
             var c = new JSObject
             {
-                prototypeChain = (Bootstrap.Create("console", typeof(JSConsole))).prototype.PrototypeObject
+                BasePrototypeObject = (Bootstrap.Create("console", typeof(JSConsole))).prototype
             };
             this[KeyStrings.console] = c;
 

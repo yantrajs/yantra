@@ -100,6 +100,14 @@ namespace YantraJS.Core {
 
         internal JSPrototype prototypeChain;
 
+        internal virtual JSObject BasePrototypeObject
+        {
+            set
+            {
+                prototypeChain = value?.PrototypeObject;
+            }
+        }
+
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>

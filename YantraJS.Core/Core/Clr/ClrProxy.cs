@@ -15,13 +15,13 @@ namespace YantraJS.Core.Clr
         public ClrProxy(object value)
         {
             this.value = value;
-            this.prototypeChain = ClrType.From(value.GetType()).prototype.PrototypeObject;
+            this.BasePrototypeObject = ClrType.From(value.GetType()).prototype;
         }
 
         internal ClrProxy(object value, JSObject prototypeChain)
         {
             this.value = value;
-            this.prototypeChain = prototypeChain.PrototypeObject;
+            this.BasePrototypeObject = prototypeChain;
         }
 
 

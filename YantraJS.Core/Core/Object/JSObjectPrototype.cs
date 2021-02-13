@@ -54,11 +54,7 @@ namespace YantraJS.Core
             var a0 = a.Get1();
             if (a0 is JSObject o)
             {
-                a.This.prototypeChain = o.PrototypeObject;
-                if(a.This is JSObject o2)
-                {
-                    o2.Dirty();
-                }
+                a.This.BasePrototypeObject = o;
             }
             return a0;
         }

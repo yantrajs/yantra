@@ -6,14 +6,22 @@ using YantraJS.Extensions;
 
 namespace YantraJS.Core.Core
 {
+    
+
     public class JSPrototype
     {
+
+        private class JSPropertySet
+        {
+            internal UInt32Map<(JSProperty property, JSPrototype owner)> properties;
+            internal UInt32Map<(JSProperty property, JSPrototype owner)> elements;
+            internal UInt32Map<(JSProperty property, JSPrototype owner)> symbols;
+
+        }
+        private JSPropertySet propertySet;
         public readonly JSObject @object;
         private bool dirty = true;
 
-        private UInt32Map<(JSProperty property, JSPrototype owner)> properties;
-        private UInt32Map<(JSProperty property, JSPrototype owner)> elements;
-        private UInt32Map<(JSProperty property, JSPrototype owner)> symbols;
 
         internal JSPrototype(JSObject @object)
         {
@@ -27,33 +35,30 @@ namespace YantraJS.Core.Core
             
             if (!this.dirty)
                 return;
+            var ps = new JSPropertySet();
             lock (this)
             {
                 if (!this.dirty)
                     return;
-                properties = new UInt32Map<(JSProperty, JSPrototype)>();
-                elements = new UInt32Map<(JSProperty, JSPrototype)>();
-                symbols = new UInt32Map<(JSProperty, JSPrototype)>();
+                ps.properties = new UInt32Map<(JSProperty, JSPrototype)>();
+                ps.elements = new UInt32Map<(JSProperty, JSPrototype)>();
+                ps.symbols = new UInt32Map<(JSProperty, JSPrototype)>();
 
-                Build(this);
+                Build(ps, this);
                 dirty = false;
+                this.propertySet = ps;
             }
         }
 
-        private void Build(JSPrototype target)
+        private void Build(JSPropertySet ps, JSPrototype target)
         {
             // first build the base class for correct inheritance...
 
             var @object = target.@object;
 
-            // if(@object.prototypeChain)
-            var @base = @object.prototypeChain?.@object;
-            if (@base != null && @base.prototypeChain != null && @base.prototypeChain != this)
-                this.Build(@base.prototypeChain);
-
-            if (@object.prototypeChain == null)
-                return;
-            this.Build(@object.prototypeChain);
+            var @base = @object.prototypeChain;
+            if (@base != null && @base != this)
+                this.Build(ps, @base);
 
             @object.PropertyChanged += @object_PropertyChanged;
             ref var objectProperties = ref @object.GetOwnProperties(false);
@@ -63,17 +68,9 @@ namespace YantraJS.Core.Core
                 {
                     if (!ep.Value.IsEmpty)
                     {
-                        properties[ep.Key] = (ep.Value.ToNotReadOnly(),target);
+                        ps.properties[ep.Key] = (ep.Value.ToNotReadOnly(),target);
                     }
                 }
-                //for (int i = 0; i < objectProperties.properties.Length; i++)
-                //{
-                //    ref var ep = ref objectProperties.properties[i];
-                //    if (!ep.IsEmpty)
-                //    {
-                //        properties[ep.key.Key] = (ep.ToNotReadOnly(), target);
-                //    }
-                //}
             }
 
             ref var objectElements = ref @object.GetElements(false);
@@ -83,7 +80,7 @@ namespace YantraJS.Core.Core
                 {
                     if (!e.Value.IsEmpty)
                     {
-                        elements[e.Key] = (e.Value.ToNotReadOnly(), target);
+                        ps.elements[e.Key] = (e.Value.ToNotReadOnly(), target);
                     }
                 }
             }
@@ -95,10 +92,15 @@ namespace YantraJS.Core.Core
                 {
                     if (!e.Value.IsEmpty)
                     {
-                        symbols[e.Key] = (e.Value.ToNotReadOnly(), target);
+                        ps.symbols[e.Key] = (e.Value.ToNotReadOnly(), target);
                     }
                 }
             }
+        }
+
+        internal void Dirty()
+        {
+            this.dirty = true;
         }
 
         private void @object_PropertyChanged(JSObject sender, (uint keyString, uint index, JSSymbol symbol) index)
@@ -109,26 +111,26 @@ namespace YantraJS.Core.Core
         internal JSProperty GetInternalProperty(in KeyString name)
         {
             this.Build();
-            var (p, owner) = properties[name.Key];
+            var (p, owner) = propertySet.properties[name.Key];
             return p;
         }
 
         internal JSProperty GetInternalProperty(uint name)
         {
             this.Build();
-            return elements[name].property;
+            return propertySet.elements[name].property;
         }
 
         internal JSProperty GetInternalProperty(JSSymbol symbol)
         {
             this.Build();
-            return symbols[symbol.Key.Key].property;
+            return propertySet.symbols[symbol.Key.Key].property;
         }
 
         internal JSFunctionDelegate GetMethod(in KeyString key)
         {
             this.Build();
-            var (p, _) = properties[key.Key];
+            var (p, _) = propertySet.properties[key.Key];
             if(p.IsValue)
             {
                 if (p.get != null)
@@ -143,7 +145,7 @@ namespace YantraJS.Core.Core
 
         internal bool TryRemove(uint i, out JSProperty p)
         {
-            if(elements.TryGetValue(i, out var ee))
+            if(propertySet.elements.TryGetValue(i, out var ee))
             {
                 var @object = ee.owner.@object;
                 ref var elements = ref @object.GetElements(false);

@@ -62,7 +62,7 @@ namespace YantraJS.Core
         {
             JSValue obj = new JSObject
             {
-                prototypeChain = prototype.PrototypeObject
+                BasePrototypeObject = prototype
             };
             var a1 = a.OverrideThis(obj, this);
             var r = cf(script, closures, in a1);
@@ -225,7 +225,7 @@ namespace YantraJS.Core
         {
             JSValue obj = new JSObject
             {
-                prototypeChain = prototype.PrototypeObject
+                BasePrototypeObject = prototype
             };
             var a1 = a.OverrideThis(obj, constructor);
             var r = f(a1);
@@ -276,7 +276,7 @@ namespace YantraJS.Core
             })
             {
                 // need to set prototypeChain...
-                prototypeChain = (fOriginal as JSFunction).prototypeChain,
+                BasePrototypeObject = (fOriginal as JSFunction),
                 prototype = (fOriginal as JSFunction).prototype,
                 constructor = fOriginal.constructor
             };

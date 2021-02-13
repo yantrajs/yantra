@@ -12,7 +12,7 @@ namespace YantraJS.Core.Clr
     {
         public JSClrObject()
         {
-            this.prototypeChain = ClrType.From(typeof(T)).PrototypeObject;
+            this.BasePrototypeObject = ClrType.From(typeof(T));
         }
     }
 

@@ -20,10 +20,8 @@ namespace YantraJS.Core
             : base(script, closures, GetFactory(fx,super), name, code)
         {
             this.super = super;
-            this.prototypeChain = super.PrototypeObject;
-            this.Dirty();
-            this.prototype.prototypeChain = super.prototype.PrototypeObject;
-            this.prototype.Dirty();
+            this.BasePrototypeObject = super;
+            this.prototype.BasePrototypeObject = super.prototype;
         }
 
         private static JSClosureFunctionDelegate GetFactory(JSClosureFunctionDelegate fx, JSFunction super)
@@ -54,7 +52,7 @@ namespace YantraJS.Core
         {
             var @object = new JSObject()
             {
-                prototypeChain = this.prototype.PrototypeObject
+                BasePrototypeObject = this.prototype
             };
             var ao = a.OverrideThis(@object, this);
             var @this = f(ao);

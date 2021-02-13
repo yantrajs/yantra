@@ -22,7 +22,14 @@ namespace YantraJS.Core
     {
         private JSPrototype currentPrototype;
 
-        
+        internal override JSObject BasePrototypeObject {
+            set {
+                prototypeChain = value?.PrototypeObject;
+                PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
+                currentPrototype?.Dirty();
+            }
+        }
+
         internal JSPrototype PrototypeObject
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,11 +63,6 @@ namespace YantraJS.Core
 
 
         internal bool IsSealedOrFrozenOrNonExtensible() => ((this.status & ObjectStatus.SealedFrozenNonExtensible) > 0);
-
-        internal void Dirty()
-        {
-            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsFrozen() => (this.status & ObjectStatus.Frozen) > 0;
