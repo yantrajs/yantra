@@ -62,6 +62,9 @@ namespace YantraJS.Core.Core
                 this.Build(ps, @base);
             }
 
+            // if it is registered, remove it first
+            @object.PropertyChanged -= @object_PropertyChanged;
+
             @object.PropertyChanged += @object_PropertyChanged;
             ref var objectProperties = ref @object.GetOwnProperties(false);
             if (objectProperties.properties != null)
@@ -107,7 +110,7 @@ namespace YantraJS.Core.Core
 
         private void @object_PropertyChanged(JSObject sender, (uint keyString, uint index, JSSymbol symbol) index)
         {
-            dirty = false;
+            dirty = true;
         }
 
         internal JSProperty GetInternalProperty(in KeyString name)

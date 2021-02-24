@@ -90,6 +90,7 @@ namespace YantraJS.Core.Tests.Imported
                 Assert.AreEqual(true, Evaluate("array.hasOwnProperty(2)"));
                 Assert.AreEqual(false, Evaluate("array.hasOwnProperty(20)"));
                 Assert.AreEqual(1, Evaluate("array[0]"));
+                var a = Evaluate("array");
                 Assert.AreEqual("two", Evaluate("array[1]"));
                 Assert.AreEqual(3, Evaluate("array[2]"));
                 Assert.AreEqual("twenty", Evaluate("array[20]"));
@@ -1110,7 +1111,8 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("1,2,3,1,2,3,1,2,3", Evaluate("var output = []; [1, 2, 3].filter(function(value, index, array) { output.push(array); return false; }); output.toString()"));
 
             Assert.AreEqual("ho", Evaluate("var output = 'hi'; [1, 2, 3].filter(function(value, index, array) { output = this; return false; }, 'ho'); output.toString()"));
-            Assert.AreEqual(Evaluate("this"), Evaluate("var output = 5; [1, 2, 3].filter(function(value, index, array) { output = this; return false; }); output"));
+            // Strict Mode
+            Assert.AreEqual(JSUndefined.Value, Evaluate("var output = 5; [1, 2, 3].filter(function(value, index, array) { output = this; return false; }); output"));
 
             // TypeError should be thrown if the callback is not a function.
             Assert.AreEqual("TypeError", EvaluateExceptionType("[1, 2, 3].filter(true)"));
@@ -1132,7 +1134,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("1,2,3,1,2,3,1,2,3", Evaluate("var output = []; [1, 2, 3].find(function(value, index, array) { output.push(array); return false; }); output.toString()"));
 
             Assert.AreEqual("ho", Evaluate("var output = 'hi'; [1, 2, 3].find(function(value, index, array) { output = this; return false; }, 'ho'); output.toString()"));
-            Assert.AreEqual(Evaluate("this"), Evaluate("var output = 5; [1, 2, 3].find(function(value, index, array) { output = this; return false; }); output"));
+            Assert.AreEqual(JSUndefined.Value, Evaluate("var output = 5; [1, 2, 3].find(function(value, index, array) { output = this; return false; }); output"));
 
             // TypeError should be thrown if the callback is not a function.
             Assert.AreEqual("TypeError", EvaluateExceptionType("[1, 2, 3].find(true)"));
@@ -1286,7 +1288,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("1,2,3,1,2,3,1,2,3", Evaluate("var output = []; [1, 2, 3].findIndex(function(value, index, array) { output.push(array); return false; }); output.toString()"));
 
             Assert.AreEqual("ho", Evaluate("var output = 'hi'; [1, 2, 3].findIndex(function(value, index, array) { output = this; return false; }, 'ho'); output.toString()"));
-            Assert.AreEqual(Evaluate("this"), Evaluate("var output = 5; [1, 2, 3].findIndex(function(value, index, array) { output = this; return false; }); output"));
+            Assert.AreEqual(JSUndefined.Value, Evaluate("var output = 5; [1, 2, 3].findIndex(function(value, index, array) { output = this; return false; }); output"));
 
             // TypeError should be thrown if the callback is not a function.
             Assert.AreEqual("TypeError", EvaluateExceptionType("[1, 2, 3].findIndex(true)"));
