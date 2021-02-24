@@ -241,10 +241,10 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject jobj))
                 return value;
-            ref var p = ref jobj.GetInternalProperty(KeyStrings.toJSON);
-            if (p.IsEmpty)
+            var p = jobj.GetMethod(KeyStrings.toJSON);
+            if (p == null)
                 return value;
-            return (jobj.GetValue(p) as JSFunction).f(new Arguments(value));
+            return p(new Arguments(value));
         }
 
 

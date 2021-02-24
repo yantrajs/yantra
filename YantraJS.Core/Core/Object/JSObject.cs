@@ -39,7 +39,10 @@ namespace YantraJS.Core
             }
         }
         
-
+        internal void Dirty()
+        {
+            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
+        }
 
         internal ObjectStatus status = ObjectStatus.None;
 
@@ -229,16 +232,16 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ref JSProperty GetInternalProperty(in KeyString key, bool inherited = true)
+        internal JSProperty GetInternalProperty(in KeyString key, bool inherited = true)
         {
-            ref var r = ref ownProperties.GetValue(key.Key);
+            var r = ownProperties.GetValue(key.Key);
             if (!r.IsEmpty)
-                return ref r;
+                return r;
             if (inherited && prototypeChain != null)
             {
                 r = prototypeChain.GetInternalProperty(key);
             }
-            return ref r;
+            return r;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -278,14 +281,14 @@ namespace YantraJS.Core
                 if(p.IsProperty)
                     return p.get.f;
             }
-            return prototypeChain?.GetMethod(key) ?? throw JSContext.Current.NewError($"Method {key} not found");
+            return prototypeChain?.GetMethod(key);
         }
 
         public override JSValue this[KeyString name] { 
             get => this.GetValue(GetInternalProperty(name)); 
             set {
                 var start = this;
-                ref var p = ref GetInternalProperty(name, true);
+                var p = GetInternalProperty(name, true);
                 if (p.IsProperty)
                 {
                     if (p.set != null)
@@ -409,15 +412,14 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            ref var px = ref GetInternalProperty(KeyStrings.toString);
-            if (!px.IsEmpty)
+            var px = GetMethod(KeyStrings.toString);
+            if (px != null)
             {
-                var v = this.GetValue(px);
-                if (v.IsFunction)
-                    v = v.InvokeFunction(new Arguments(this));
-                if (v == this)
-                    return "Stack overflow ...";
-                return v.ToString();
+                var v = px(new Arguments(this));
+                if (v != this)
+                {
+                    return v.ToString();
+                }
             }
             return "[object Object]";
         }

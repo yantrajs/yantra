@@ -193,7 +193,7 @@ namespace YantraJS.Core
             JSFunctionDelegate d,
             JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableValue, int length = 0)
         {
-            var fx = new JSFunction(d, null, null, length);
+            var fx = new JSFunction(d, key.ToString(), null, length);
             return new JSProperty(key, fx, null, attributes);
         }
 
@@ -223,8 +223,8 @@ namespace YantraJS.Core
             JSFunctionDelegate set = null,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            var fget = new JSFunction(get);
-            var fset = new JSFunction(set);
+            var fget = new JSFunction(get, "get " + key.ToString());
+            var fset = new JSFunction(set, "set " + key.ToString());
             return new JSProperty(key, fget, fset, attributes);
         }
         public JSProperty With(in KeyString key)

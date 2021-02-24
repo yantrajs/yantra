@@ -88,6 +88,7 @@ namespace YantraJS.Core
                     this._length = name + 1;
                 ref var elements = ref CreateElements();
                 elements[name] = JSProperty.Property(value);
+                Dirty();
             }
         }
 

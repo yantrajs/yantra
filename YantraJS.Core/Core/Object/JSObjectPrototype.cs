@@ -22,7 +22,7 @@ namespace YantraJS.Core
             if (a.Length > 0)
             {
                 var text = a.Get1().ToString();
-                ref var px = ref @object.GetInternalProperty(text, false);
+                var px = @object.GetInternalProperty(text, false);
                 if (!px.IsEmpty && px.IsEnumerable)
                     return JSBoolean.True;
             }

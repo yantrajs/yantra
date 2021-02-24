@@ -51,6 +51,8 @@ namespace YantraJS.Core
         public static JSValue InvokeMethod(this JSValue @this, in KeyString name, in Arguments a)
         {
             var fx = @this.GetMethod(name);
+            if (fx == null)
+                throw JSContext.Current.NewTypeError($"Method {name} not found in {@this}");
             return fx(a.OverrideThis(@this));
         }
 
@@ -321,7 +323,7 @@ namespace YantraJS.Core
                 if (p.IsEnumerable)
                     return JSBoolean.True;
             }
-            ref var p1 = ref tx.GetInternalProperty(key);
+            var p1 = tx.GetInternalProperty(key);
             if (p1.IsEnumerable)
                 return JSBoolean.True;
             return JSBoolean.False;

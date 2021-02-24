@@ -252,6 +252,11 @@ namespace YantraJS.Core
             return new JSString(f.source);
         }
 
+        public override string ToString()
+        {
+            return source.Value;
+        }
+
         [Prototype("call", Length = 1)]
         public static JSValue Call(in Arguments a)
         {

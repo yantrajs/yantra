@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -21,6 +22,14 @@ namespace YantraJS.Core.Core.Storage
     /// </summary>
     public struct UInt32Map<T>
     {
+
+        [DebuggerDisplay("{Key}: {Value}")]
+        public struct KeyValue
+        {
+            public uint Key;
+            public T Value;
+        }
+
 
         public static UInt32Map<T> Null = new UInt32Map<T>() { State = MapValueState.Null };
 
@@ -77,6 +86,15 @@ namespace YantraJS.Core.Core.Storage
             get
             {
                 return (State & MapValueState.HasDefaultValue) > 0 && State != MapValueState.Null;
+            }
+        }
+
+        public IEnumerable<KeyValue> All
+        {
+            get
+            {
+                foreach (var (k,v) in AllValues())
+                    yield return new KeyValue { Key = k, Value = v };
             }
         }
 

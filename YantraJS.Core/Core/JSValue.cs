@@ -236,7 +236,7 @@ namespace YantraJS.Core {
             get => this.GetValue(super.GetInternalProperty(name));
             set
             {
-                ref var p = ref super.GetInternalProperty(name);
+                var p = super.GetInternalProperty(name);
                 if (p.IsProperty)
                 {
                     if (p.set != null)

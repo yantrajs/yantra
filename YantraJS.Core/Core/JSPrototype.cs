@@ -58,7 +58,9 @@ namespace YantraJS.Core.Core
 
             var @base = @object.prototypeChain;
             if (@base != null && @base != this)
+            {
                 this.Build(ps, @base);
+            }
 
             @object.PropertyChanged += @object_PropertyChanged;
             ref var objectProperties = ref @object.GetOwnProperties(false);
