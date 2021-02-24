@@ -1678,10 +1678,9 @@ namespace YantraJS
                 : VisitExpression(memberExpression.Object);
             var super = isSuper ? this.scope.Top.Super : null;
             var mp = memberExpression.Property;
-            switch (mp.Type)
+            switch ((mp.Type, mp))
             {
-                case Nodes.Identifier:
-                    Identifier id = mp as Identifier;
+                case (Nodes.Identifier, Identifier id):
                     if (!memberExpression.Computed)
                     {
                         return ExpHelper.JSValueBuilder.Index(
@@ -1693,27 +1692,35 @@ namespace YantraJS
                         target,
                         super,
                         VisitIdentifier(id));
-                case Nodes.Literal:
-                    Literal l = mp as Literal;
-                    if(l.TokenType == Esprima.TokenType.BooleanLiteral)
-                        return ExpHelper.JSValueBuilder.Index(
+                case (Nodes.Literal, Literal l):
+                    switch (l.TokenType)
+                    {
+                        case TokenType.BooleanLiteral:
+                            return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
                             l.BooleanValue ? (uint)0 : (uint)1);
-                    if(l.TokenType == Esprima.TokenType.StringLiteral)
-                        return ExpHelper.JSValueBuilder.Index(
+                        case TokenType.StringLiteral:
+                            return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
                             KeyOfName(l.StringValue));
-                    if(l.TokenType == Esprima.TokenType.NumericLiteral 
-                        && l.NumericValue >= 0 && (l.NumericValue % 1 == 0))
-                        return ExpHelper.JSValueBuilder.Index(
+                        case TokenType.NumericLiteral:
+                            var number = l.NumericValue;
+                            if (number >= 0 && number < uint.MaxValue && (number % 1) == 0) {
+                                return ExpHelper.JSValueBuilder.Index(
+                                    target,
+                                    super,
+                                    (uint)l.NumericValue);
+                            }
+                            return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            (uint)l.NumericValue);
-                    break;
-                case Nodes.MemberExpression:
-                    MemberExpression se = mp as MemberExpression;
+                            KeyOfName(l.NumericValue.ToString()));
+                        default:
+                            throw new NotImplementedException();
+                    }
+                case (Nodes.MemberExpression, MemberExpression se):
                     return JSValueBuilder.Index( target,super, VisitExpression(se));
 
             }

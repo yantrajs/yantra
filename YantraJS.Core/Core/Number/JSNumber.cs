@@ -94,7 +94,7 @@ namespace YantraJS.Core
                 return KeyStrings.NaN;
             if (n == 0)
                 return new KeyString(0);
-            if (n > 0 && ((int)n) == n)
+            if (n > 0 && ((uint)n) == n)
                 return new KeyString((uint)n);
             if (!create)
             {

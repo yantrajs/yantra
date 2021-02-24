@@ -510,20 +510,30 @@ namespace YantraJS.Core
             {
 
                 var i = ta._length;
+                var l = (long)i;
+                var max = (long)uint.MaxValue;
                 al = a.Length;
                 ref var taElements = ref ta.GetElements();
                 for(ai = 0; ai < al; ai++)
                 {
                     var item = a.GetAt(ai);
-                    taElements[i++] = JSProperty.Property(item);
-                    
+                    if (l < max)
+                    {
+                        taElements[i++] = JSProperty.Property(item);
+                        ta._length = i;
+                    } else {
+                        ta[l.ToString()] = item;
+                    }
+                    l++;
                 }
+                if (l > max)
+                    throw JSContext.Current.NewTypeError($"Invalid array length");
                 ta._length = i;
                 return new JSNumber(ta._length);
             }
 
-            int ln1 = t.Length;
-            uint ln = ln1 == -1 ? 0 : (uint)ln1;
+            var oldLength = t[KeyStrings.length];
+            uint ln = oldLength.IsUndefined ? 0 : (uint)oldLength.DoubleValue;
             al = a.Length;
             for(ai = 0; ai <al; ai++)
             {
