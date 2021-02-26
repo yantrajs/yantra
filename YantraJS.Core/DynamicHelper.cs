@@ -17,16 +17,28 @@ namespace YantraJS.Core
         {
             // return Microsoft.Scripting.Generation.CompilerHelpers.Compile<T>(exp, true);
             var fx = exp.Compile();
-
-            // may be this way we can move out from
-            // here and move to different assembly...
+            return fx;
+            //// may be this way we can move out from
+            //// here and move to different assembly...
             //var d = (Delegate)(object)fx;
             //var type = typeof(System.Reflection.Emit.DynamicMethod);
             //var rtd = type.GetNestedType("RTDynamicMethod", System.Reflection.BindingFlags.NonPublic);
             //var field = rtd.GetTypeInfo().DeclaredFields.FirstOrDefault(x => x.Name == "m_owner");
             //DynamicMethod dm = field?.GetValue(d.Method) as DynamicMethod;
             //var il = dm.GetILGenerator();
-            return fx;
+
+            //var newMethod = new DynamicMethod(exp.Name ?? "tail_call", 
+            //    dm.ReturnType, 
+            //    exp.Parameters.Select(x => x.IsByRef ? (x.Type.IsByRef ? x.Type : x.Type.MakeByRefType()) : x.Type).ToArray(), true);
+            //var newIL = newMethod.GetILGenerator();
+
+            //newIL.Emit(OpCodes.Ldnull);
+            //newIL.Emit(OpCodes.Ldarg_0);
+            //// newIL.Emit(OpCodes.Tailcall, dm);
+            //newIL.Emit(OpCodes.Call, dm);
+            //newIL.Emit(OpCodes.Ret);
+            //var newDelegate = newMethod.CreateDelegate(typeof(T));
+            //return (T)(object)newDelegate;
         }
 
     }
