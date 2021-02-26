@@ -407,6 +407,12 @@ namespace YantraJS
                 node.Range.Start,
                 node.Range.End - node.Range.Start);
 
+            if(super != null)
+            {
+                var _super = this.scope.Top.CreateVariable("super", super, fal);
+                super = _super.Expression;
+            }
+
             using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis, super)))
             {
                 var lexicalScopeVar = cs.Context;
@@ -574,6 +580,11 @@ namespace YantraJS
 
                 functionName = (functionName ?? "inline")+ "_"  + point.Line;
 
+                Exp ToDelegate(System.Linq.Expressions.LambdaExpression e1)
+                {
+                    return Core.Emit.MethodProvider.Current.Compile(e1);
+                }
+
                 System.Linq.Expressions.LambdaExpression lambda;
                 Exp jsf;
                 if (functionDeclaration.Generator)
@@ -587,23 +598,23 @@ namespace YantraJS
 
                     // lambda.Compile();
 
-                    jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
+                    jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
 
                 } else if (functionDeclaration.Async)
                 {
                     lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, functionName, new ParameterExpression[] {
                         cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
                     });
-                    jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code);
+                    jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
                 } else
                 {
                     lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, functionName ,new ParameterExpression[] { cs.ScriptInfo, cs.Closures, cs.Arguments });
                     if (createClass)
                     {
-                        jsf = JSClassBuilder.New(parentScriptInfo, closureArray, lambda, super, className ?? "Unnamed");
+                        jsf = JSClassBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), super, className ?? "Unnamed");
                     } else
                     {
-                        jsf = JSClosureFunctionBuilder.New(parentScriptInfo, closureArray, lambda, fxName, code, functionDeclaration.Params.Count);
+                        jsf = JSClosureFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code, functionDeclaration.Params.Count);
                     }
                 }
 
