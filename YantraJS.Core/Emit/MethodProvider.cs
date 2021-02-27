@@ -27,7 +27,9 @@ namespace YantraJS.Core.Emit
 
         public override Expression Compile(LambdaExpression expression)
         {
-            var d = expression.Compile().ToTailDelegate(expression.Type, expression.Name ?? "native");
+            var d = expression.Compile()
+              //.ToTailDelegate(expression.Type, expression.Name ?? "native")
+              ;
             int index = 0;
             lock (this)
             {

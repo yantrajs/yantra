@@ -132,9 +132,10 @@ namespace YantraJS
 
                 var scriptInfo = fx.ScriptInfo;
 
-                var te = fx.ThisExpression;
 
                 var args = fx.ArgumentsExpression;
+
+                var te = ArgumentsBuilder.This(args);
 
                 var stackItem = fx.StackItem;
 
@@ -407,12 +408,6 @@ namespace YantraJS
                 node.Range.Start,
                 node.Range.End - node.Range.Start);
 
-            if(super != null)
-            {
-                var _super = this.scope.Top.CreateVariable("super", super, fal);
-                super = _super.Expression;
-            }
-
             using (var cs = scope.Push(new FunctionScope(functionDeclaration, previousThis, super)))
             {
                 var lexicalScopeVar = cs.Context;
@@ -428,10 +423,9 @@ namespace YantraJS
 
                 var s = cs;
                 // use this to create variables...
-                var t = s.ThisExpression;
+                // var t = s.ThisExpression;
                 var args = s.ArgumentsExpression;
                 var stackItem = s.StackItem;
-
                 var r = s.ReturnLabel;
 
                 var sList = new List<Exp>();
@@ -582,6 +576,8 @@ namespace YantraJS
 
                 Exp ToDelegate(System.Linq.Expressions.LambdaExpression e1)
                 {
+                    if (super != null)
+                        return e1;
                     return Core.Emit.MethodProvider.Current.Compile(e1);
                 }
 
@@ -1858,10 +1854,10 @@ namespace YantraJS
                 return JSUndefinedBuilder.Value;
             }
 
-            if (identifier.Name == "this")
-            {
-                return this.scope.Top.ThisExpression;
-            }
+            //if (identifier.Name == "this")
+            //{
+            //    return this.scope.Top.ThisExpression;
+            //}
 
             var var = this.scope.Top.GetVariable(identifier.Name, true);
             if (var != null)

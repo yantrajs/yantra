@@ -98,7 +98,7 @@ namespace YantraJS
 
         public Esprima.Ast.IFunction Function { get; }
 
-        public Expression ThisExpression { get; }
+        public Expression ThisExpression => this.GetVariable("this", true).Expression;
 
         public Expression ArgumentsExpression { get; }
 
@@ -239,16 +239,16 @@ namespace YantraJS
             this.ArgumentsExpression = Arguments;
             if (previousThis != null)
             {
-                this.ThisExpression = previousThis;
+                // this.ThisExpression = previousThis;
             }
             else
             {
                 // this.ThisExpression = Expression.Parameter(typeof(JSValue));
-                
+
                 // this is needed to fix closure over lambda
                 // this can be improved
-                var _this = this.CreateVariable("this", ArgumentsBuilder.This(Arguments) );
-                this.ThisExpression = _this.Expression;
+                this.CreateVariable("this", ArgumentsBuilder.This(Arguments));
+                // this.ThisExpression = _this.Expression;
             }
 
             this.Context = Expression.Parameter(typeof(JSContext), $"{nameof(Context)}{sID}");
@@ -265,7 +265,7 @@ namespace YantraJS
             )
         {
             this.Function = p.Function;
-            this.ThisExpression = p.ThisExpression;
+            // this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
             this.Generator = p.Generator;
             this.Awaiter = p.Awaiter;
