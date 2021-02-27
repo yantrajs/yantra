@@ -98,7 +98,8 @@ namespace YantraJS
 
         public Esprima.Ast.IFunction Function { get; }
 
-        public Expression ThisExpression => this.GetVariable("this", true).Expression;
+        private Expression _this;
+        public Expression ThisExpression => _this ?? (_this = this.GetVariable("this", true).Expression);
 
         public Expression ArgumentsExpression { get; }
 
@@ -247,7 +248,8 @@ namespace YantraJS
 
                 // this is needed to fix closure over lambda
                 // this can be improved
-                this.CreateVariable("this", ArgumentsBuilder.This(Arguments));
+                var t = this.CreateVariable("this", ArgumentsBuilder.This(Arguments));
+                _this = t.Expression;
                 // this.ThisExpression = _this.Expression;
             }
 

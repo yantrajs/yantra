@@ -26,6 +26,22 @@ namespace YantraJS.Core.LinqExpressions
         private static readonly FieldInfo _indices =
             type.GetField(nameof(ScriptInfo.Indices));
 
+        private static readonly FieldInfo _functions =
+            type.GetField(nameof(ScriptInfo.Functions));
+
+        public static Expression Functions(Expression info)
+        {
+            return Expression.Field(info, _functions);
+        }
+
+        public static Expression Function(Expression info, int index, Type type)
+        {
+            var fs = Expression.Field(info, _functions);
+            var fi = Expression.ArrayIndex(fs, Expression.Constant(index));
+            return Expression.TypeAs(fi, type);
+        }
+
+
         public static Expression New(string fileName, string code)
         {
             return
@@ -56,7 +72,7 @@ namespace YantraJS.Core.LinqExpressions
 
         public static Expression Build(Expression scriptInfo, StringArray keyStrings)
         {
-            List<Expression> list = new List<Expression>();
+            List<Expression> list = new List<Expression>(keyStrings.List.Count);
             foreach(var item in keyStrings.List)
             {
                 var code = Code(scriptInfo);

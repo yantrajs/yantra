@@ -21,6 +21,13 @@ namespace YantraJS.Core
             this.Name = name;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public JSVariable(in Arguments a, int i, string name)
+        {
+            this.Value = a.GetAt(i);
+            this.Name = name;
+        }
+
         public JSValue GlobalValue
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,11 +58,11 @@ namespace YantraJS.Core
 
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSVariable New(in Arguments a, int i, string name)
-        {
-            return new JSVariable(a.GetAt(i), name);
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static JSVariable New(in Arguments a, int i, string name)
+        //{
+        //    return new JSVariable(a.GetAt(i), name);
+        //}
 
         internal static Expression ValueExpression(Expression exp)
         {

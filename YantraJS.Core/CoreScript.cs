@@ -46,15 +46,13 @@ namespace YantraJS
 
         private StringArray _keyStrings = new StringArray();
 
+        private List<object> _innerFunctions = new List<object>();
 
         public Exp KeyOfName(string name)
         {
             // search for variable...
-            var fx = typeof(KeyStrings).GetField(name);
-            if (fx != null)
-            {
-                return Exp.Field(null, fx);
-            }
+            if (KeyStringsBuilder.Fields.TryGetValue(name, out var fx))
+                return fx;
 
             var i = _keyStrings.GetOrAdd(name);
             return ScriptInfoBuilder.KeyString(this.scope.Top.ScriptInfo,(int)i);
@@ -166,10 +164,13 @@ namespace YantraJS
 
                 var script = Visit(jScript);
 
-                var sList = new List<Exp>() {
+                var sList = new List<Exp>(_innerFunctions.Count) {
                     Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
                     Exp.Assign(lScope, JSContextBuilder.Current)
                 };
+
+                sList.Add(Exp.Assign(ScriptInfoBuilder.Functions(scriptInfo),
+                    Exp.Constant(_innerFunctions.ToArray())));
 
                 JSContextStackBuilder.Push(sList, lScope, stackItem, Exp.Constant(location), StringSpanBuilder.Empty, 0, 0);
 
@@ -275,8 +276,8 @@ namespace YantraJS
             }
 
             Exp constructor = null;
-            Dictionary<string, ExpressionHolder> cache = new Dictionary<string, ExpressionHolder>();
-            List<ExpressionHolder> members = new List<ExpressionHolder>();
+            Dictionary<string, ExpressionHolder> cache = new Dictionary<string, ExpressionHolder>(body.Body.Count);
+            List<ExpressionHolder> members = new List<ExpressionHolder>(body.Body.Count);
             ExpressionHolder expHolder;
 
             var superVar = Exp.Parameter(typeof(JSFunction));
@@ -450,9 +451,7 @@ namespace YantraJS
                     localFxName = StringSpanBuilder.Empty;
                 }
 
-                var functionStatement = functionDeclaration as Node;
-
-                var point = functionStatement.Location.Start; // this.Code.Position(functionDeclaration.Range);
+                var point = node.Location.Start; // this.Code.Position(functionDeclaration.Range);
 
                 var fn = ScriptInfoBuilder.FileName(s.ScriptInfo);
                 
@@ -578,7 +577,9 @@ namespace YantraJS
                 {
                     if (super != null)
                         return e1;
-                    return Core.Emit.MethodProvider.Current.Compile(e1);
+                    int index = _innerFunctions.Count;
+                    _innerFunctions.Add(e1.Compile());
+                    return ScriptInfoBuilder.Function(scriptInfo ,index, e1.Type);
                 }
 
                 System.Linq.Expressions.LambdaExpression lambda;
@@ -639,43 +640,6 @@ namespace YantraJS
             }
         }
 
-        public override Exp DebugNode(Node node, Exp result)
-        {
-            return result;
-            //var topStack = this.scope.Top;
-            //var si = topStack.StackItem;
-            //var p = node.Location.Start;
-            //return JSContextStackBuilder.Update(si, p.Line, p.Column,
-            //        result);
-        }
-
-        private Exp DebugExpression<T, TR>(T ast, Func<TR> exp)
-            where T: Node
-            where TR: Exp
-        {
-            //if (System.Diagnostics.Debugger.IsAttached)
-            //{
-            //    return exp();
-            //}
-            var topStack = this.scope.Top;
-            var s = topStack.Context;
-            var si = topStack.StackItem;
-            var p = ast.Location.Start;
-            try
-            {
-                return JSContextStackBuilder.Update(si, p.Line, p.Column,
-                    exp());
-            }
-            catch (Exception ex) when (!(ex is CompilerException))
-            {
-                throw new CompilerException($"Failed to parse at {p.Line},{p.Column} {ex}", ex);
-            }
-        }
-
-        //protected override Exp VisitStatement(Statement statement)
-        //{
-        //    return DebugExpression(statement, () => base.VisitStatement(statement));
-        //}
 
         protected override Exp VisitWithStatement(Esprima.Ast.WithStatement withStatement)
         {
@@ -942,7 +906,7 @@ namespace YantraJS
             // lets add variable...
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
-            var inits = new List<Exp>();
+            var inits = new List<Exp>(variableDeclaration.Declarators.Count);
             bool newScope = variableDeclaration.NewScope;
 
             foreach (var sDeclarator in variableDeclaration.Declarators)
@@ -1054,7 +1018,7 @@ namespace YantraJS
             var @continue = this.scope.Top.Loop?.Top?.Continue;
             var @break = Exp.Label();
             var ls = new LoopScope(@break ,@continue, true);
-            List<SwitchInfo> cases = new List<SwitchInfo>();
+            List<SwitchInfo> cases = new List<SwitchInfo>(switchStatement.Cases.Count + 2);
             using (var bt = this.scope.Top.Loop.Push(ls))
             {
                 SwitchInfo lastCase = new SwitchInfo();
@@ -1578,8 +1542,8 @@ namespace YantraJS
 
         protected override Exp VisitObjectExpression(Esprima.Ast.ObjectExpression objectExpression)
         {
-            var keys = new List<ExpressionHolder>();
-            var properties = new Dictionary<string, ExpressionHolder>();
+            var keys = new List<ExpressionHolder>(objectExpression.Properties.Count);
+            var properties = new Dictionary<string, ExpressionHolder>(objectExpression.Properties.Count);
             foreach(Property p in objectExpression.Properties)
             {
                 Exp key = null;
@@ -1807,58 +1771,44 @@ namespace YantraJS
         protected override Exp VisitLiteral(Esprima.Ast.Literal literal)
         {
 
-            (Exp exp, string name) GetLiteral()
+            switch (literal.TokenType)
             {
-                switch (literal.TokenType)
-                {
-                    case Esprima.TokenType.BooleanLiteral:
-                        return literal.BooleanValue
-                            ? (ExpHelper.JSBooleanBuilder.True, "true")
-                            : (ExpHelper.JSBooleanBuilder.False, "false");
-                    case Esprima.TokenType.StringLiteral:
-                        return (ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)), literal.StringValue.Left(5));
-                    case Esprima.TokenType.RegularExpression:
-                        return (ExpHelper.JSRegExpBuilder.New(
-                            Exp.Constant(literal.Regex.Pattern),
-                            Exp.Constant(literal.Regex.Flags)), (literal.Regex.Pattern + literal.Regex.Flags).Left(10));
-                    case Esprima.TokenType.Template:
-                        break;
-                    case Esprima.TokenType.NullLiteral:
-                        return (ExpHelper.JSNullBuilder.Value, "null");
-                    case Esprima.TokenType.NumericLiteral:
-                        return (ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue)), literal.NumericValue.ToString());
-                }
-                throw new NotImplementedException();
+                case Esprima.TokenType.BooleanLiteral:
+                    return literal.BooleanValue
+                        ? ExpHelper.JSBooleanBuilder.True
+                        : ExpHelper.JSBooleanBuilder.False;
+                case Esprima.TokenType.StringLiteral:
+                    return ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue));
+                case Esprima.TokenType.RegularExpression:
+                    return ExpHelper.JSRegExpBuilder.New(
+                        Exp.Constant(literal.Regex.Pattern),
+                        Exp.Constant(literal.Regex.Flags));
+                case Esprima.TokenType.Template:
+                    break;
+                case Esprima.TokenType.NullLiteral:
+                    return ExpHelper.JSNullBuilder.Value;
+                case Esprima.TokenType.NumericLiteral:
+                    return ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue));
             }
-            // var (exp, name) = GetLiteral();
-            // var pe = Exp.Variable(typeof(JSValue), name);
-            // this.scope.Top.AddVariable(null, pe, pe, exp);
-            // return pe;
-            return GetLiteral().exp;
+            throw new NotImplementedException();
 
         }
 
         protected override Exp VisitIdentifier(Esprima.Ast.Identifier identifier)
         {
             // if this is null, fetch from global...
-            if (identifier.Name == "arguments")
+            switch(identifier.Name)
             {
-                var functionScope = this.scope.Top.TopScope;
-                var vs = functionScope.CreateVariable("arguments",
-                    JSArgumentsBuilder.New(functionScope.ArgumentsExpression));
-                return vs.Expression;
+                case "undefined":
+                    return JSUndefinedBuilder.Value;
+                case "this":
+                    return this.scope.Top.ThisExpression;
+                case "arguments":
+                    var functionScope = this.scope.Top.TopScope;
+                    var vs = functionScope.CreateVariable("arguments",
+                        JSArgumentsBuilder.New(functionScope.ArgumentsExpression));
+                    return vs.Expression;
             }
-
-            if (identifier.Name == "undefined")
-            {
-                return JSUndefinedBuilder.Value;
-            }
-
-            //if (identifier.Name == "this")
-            //{
-            //    return this.scope.Top.ThisExpression;
-            //}
-
             var var = this.scope.Top.GetVariable(identifier.Name, true);
             if (var != null)
                 return var.Expression;
@@ -1869,8 +1819,6 @@ namespace YantraJS
         protected override Exp VisitFunctionExpression(Esprima.Ast.IFunction function)
         {
             var a = CreateFunction(function);
-            // var pe = Exp.Parameter(typeof(JSValue));
-            // this.scope.Top.CreateVariable(null, pe, pe, a);
             return a;
         }
 
@@ -2079,8 +2027,8 @@ namespace YantraJS
         protected override Exp VisitTaggedTemplateExpression(Esprima.Ast.TaggedTemplateExpression taggedTemplateExpression)
         {
             var tag = taggedTemplateExpression.Tag;
-            var args = new List<Expression>();
-            var strings = new List<Expression>();
+            var args = new List<Expression>(taggedTemplateExpression.Quasi.Quasis.Count);
+            var strings = new List<Expression>(taggedTemplateExpression.Quasi.Quasis.Count);
             foreach (var a in taggedTemplateExpression.Quasi.Quasis) {
                 strings.Add(new Literal(a.Value.Raw));
             }
@@ -2142,7 +2090,7 @@ namespace YantraJS
 
         protected override Exp VisitTemplateLiteral(Esprima.Ast.TemplateLiteral templateLiteral)
         {
-            var quasis = new List<string>();
+            var quasis = new List<string>(templateLiteral.Quasis.Count);
             foreach(var quasi in templateLiteral.Quasis)
             {
                 quasis.Add(quasi.Value.Cooked);
@@ -2266,7 +2214,7 @@ namespace YantraJS
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
                 }
 
-                return DebugNode( node, JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray));
+                return JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray);
 
             } else {
 
@@ -2283,7 +2231,7 @@ namespace YantraJS
                     ? ArgumentsBuilder.New(JSUndefinedBuilder.Value, args, hasSpread)
                     : ArgumentsBuilder.Empty();
                 var callee = VisitExpression(callExpression.Callee);
-                return DebugNode( node, JSFunctionBuilder.InvokeFunction(callee, paramArray));
+                return JSFunctionBuilder.InvokeFunction(callee, paramArray);
             }
         }
 
@@ -2302,7 +2250,7 @@ namespace YantraJS
 
         protected override Exp VisitArrayExpression(Esprima.Ast.ArrayExpression arrayExpression)
         {
-            List<Exp> list = new List<Exp>();
+            List<Exp> list = new List<Exp>(arrayExpression.Elements.Count);
             foreach(var e in arrayExpression.Elements)
             {
                 if (e == null)
@@ -2451,7 +2399,7 @@ namespace YantraJS
             {
                 var t = this.scope.Top;
                 var st = t.StackItem;
-                List<Exp> r = new List<Exp>();
+                List<Exp> r = new List<Exp>(list.Count*2);
                 foreach(var s in list)
                 {
                     LexicalScopeBuilder.Update(r, st, s.Location.Start.Line, s.Location.Start.Column);
