@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.ExpHelper
 {
@@ -17,5 +19,20 @@ namespace YantraJS.ExpHelper
         {
             return Expression.Call(null, _GetOrAdd, text);
         }
+
+        public readonly static StringMap<MemberExpression> Fields =
+            ToStringMap(typeof(KeyStrings).GetFields());
+
+        private static StringMap<MemberExpression> ToStringMap(FieldInfo[] fields)
+        {
+            StringMap<MemberExpression> map = new StringMap<MemberExpression>();
+            foreach(var field in fields)
+            {
+                map[field.Name] = Expression.Field(null, field);
+            }
+            return map;
+        }
     }
+
+
 }

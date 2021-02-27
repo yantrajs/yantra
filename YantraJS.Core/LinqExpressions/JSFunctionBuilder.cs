@@ -33,7 +33,7 @@ namespace YantraJS.ExpHelper
         internal static Expression New(
             Expression scriptInfo,
             Expression closureArray, 
-            LambdaExpression lambda, 
+            Expression lambda, 
             Expression fxName, 
             Expression code, 
             int count)

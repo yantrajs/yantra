@@ -26,15 +26,15 @@ namespace YantraJS.ExpHelper
             return Expression.New(_NewFromException, value, Expression.Constant(name, typeof(string)));
         }
 
-        static readonly MethodInfo _NewFromArgument
-            = type.InternalMethod(nameof(JSVariable.New), typeof(Arguments).MakeByRefType(), typeof(int), typeof(string));
+        static readonly ConstructorInfo _NewFromArgument
+            = type.Constructor(ArgumentsBuilder.refType, typeof(int), typeof(string));
 
         static readonly PropertyInfo _GlobalValue
             = type.Property(nameof(JSVariable.GlobalValue));
 
         public static Expression FromArgument(Expression args, int i, string name)
         {
-            return Expression.Call(null, _NewFromArgument, args, Expression.Constant(i), Expression.Constant(name));
+            return Expression.New(_NewFromArgument, args, Expression.Constant(i), Expression.Constant(name));
         }
 
         public static Expression FromArgumentOptional(Expression args, int i, Expression optional)

@@ -13,5 +13,9 @@ namespace YantraJS.Core.CodeGen
 
         public KeyString[] Indices;
 
+        public object[] Functions;
+
+
+
     }
 }

@@ -13,7 +13,7 @@ namespace YantraJS.Tests.Core
         [TestMethod]
         public void Function()
         {
-            this.context.Eval("[1, 2, 3].find(function(value, index, array) { return value > 1; }).toString()");
+            this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
         }
 
     }
