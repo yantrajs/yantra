@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -41,7 +42,7 @@ namespace YantraJS.Core
             this.dirPath = System.IO.Path.GetDirectoryName(filePath);
             this.exports = new JSObject();
 
-            Console.WriteLine($"Compiling module {filePath}");
+            Console.WriteLine($"{DateTime.Now} - Compiling module {filePath}");
 
             // if this is a json file... then pad with module.exports = 
 
@@ -57,7 +58,7 @@ namespace YantraJS.Core
                 "__filename",
                 "__dirname"
             });
-            Console.WriteLine($"Compiling module {filePath} finished ..");
+            Console.WriteLine($"{DateTime.Now} Compiling module {filePath} finished ..");
             var require = Require = new JSFunction((in Arguments a1) => { 
                 var r = context.LoadModule(this, a1);
                 return r;

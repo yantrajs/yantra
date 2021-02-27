@@ -41,6 +41,7 @@ namespace Yantra
                 });
             if (!r.IsUndefined)
                 Console.WriteLine(r);
+            Console.WriteLine(DateTime.Now);
         }
     }
 
