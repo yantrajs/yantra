@@ -44,6 +44,7 @@ namespace YantraJS.Parser.Tests
             var a = list.ToArray();
             Assert.AreEqual(10, a.Length);
 
+            // Assert.AreEqual("1,0,0,0,0,0,0,0,0,1", list.ToCSV());
             Assert.AreEqual("1,0,0,0,0,0,0,0,0,1", a.ToCSV());
         }
 
@@ -73,6 +74,16 @@ namespace YantraJS.Parser.Tests
                 2,3
             };
             list.Insert(0, 1);
+            Assert.AreEqual("1,2,3", list.ToCSV());
+        }
+
+        [TestMethod]
+        public void InsertAtEnd()
+        {
+            var list = new SparseList<int>() {
+                1,2
+            };
+            list.Insert(2, 3);
             Assert.AreEqual("1,2,3", list.ToCSV());
         }
     }

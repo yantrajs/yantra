@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core
@@ -14,8 +15,86 @@ namespace YantraJS.Core
         
     {
 
-        private T[][] pages;
-        private readonly int pageSize = 8;
+        public struct Page
+        {
+            private T Item0;
+            private T Item1;
+            private T Item2;
+            private T Item3;
+            private T Item4;
+            private T Item5;
+            private T Item6;
+            private T Item7;
+
+            public T this[int index]
+            {
+                get
+                {
+                    switch (index)
+                    {
+                        case 0: return Item0;
+                        case 1: return Item1;
+                        case 2: return Item2;
+                        case 3: return Item3;
+                        case 4: return Item4;
+                        case 5: return Item5;
+                        case 6: return Item6;
+                        case 7: return Item7;
+                        default:
+                            throw new IndexOutOfRangeException();
+                    }
+                }
+                set
+                {
+                    switch (index)
+                    {
+                        case 0: 
+                            Item0 = value;
+                            break;
+                        case 1:
+                            Item1 = value;
+                            break;
+                        case 2:
+                            Item2 = value;
+                            break;
+                        case 3:
+                            Item3 = value;
+                            break;
+                        case 4:
+                            Item4 = value;
+                            break;
+                        case 5:
+                            Item5 = value;
+                            break;
+                        case 6:
+                            Item6 = value;
+                            break;
+                        case 7:
+                            Item7 = value;
+                            break;
+                        default:
+                            throw new IndexOutOfRangeException();
+                    }
+
+                }
+            }
+
+            internal void Clear()
+            {
+                Item0 = default;
+                Item1 = default;
+                Item2 = default;
+                Item3 = default;
+                Item4 = default;
+                Item5 = default;
+                Item6 = default;
+                Item7 = default;
+            }
+        }
+
+
+        private Page[] pages;
+        private const int pageSize = 8;
         private int length;
 
         public int Count => length;
@@ -29,31 +108,52 @@ namespace YantraJS.Core
                 {
                     throw new ArgumentOutOfRangeException($"Item does not exist at {index}");
                 }
-                ref var item = ref GetItem(index, out var hasValue, false);
-                if (!hasValue)
+                if (!TryGetValue(index, out var item))
                 {
                     throw new ArgumentOutOfRangeException($"Item does not exist at {index}");
                 }
                 return item;
             }
             set {
-                ref var location = ref GetItem(index, out var hasValue, true);
-                location = value;
-
+                SetValue(index, value);
             }
         }
 
-        public SparseList(int capacity = 0, int pageSize = 8)
+        public SparseList(int capacity = 0)
         {
-            if (pageSize % 8 != 0)
-                throw new ArgumentOutOfRangeException($"PageSize should be multiple of 8");
-            this.pageSize = pageSize;
             Resize(capacity);
         }
 
-        private static T defaultItem = default(T);
+        private static Page defaultItem;
 
-        private ref T GetItem(int index, out bool hasValue, bool create = false)
+        private bool TryGetValue(int index, out T value)
+        {
+            if (index >= length)
+            {
+                value = default;
+                return false;
+            }
+            ref var Page = ref GetPage(index, out var hasValue, false);
+            if (!hasValue) {
+                value = default;
+                return false;
+            }
+            value = Page[index & 0x7];
+            return true;
+        }
+
+        private void SetValue(int index,in T item)
+        {
+            if(index >= length)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            ref var page = ref GetPage(index, out var hasValue, true);
+            page[index & 0x7] = item;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ref Page GetPage(int index, out bool hasValue, bool create = false)
         {
             if (create)
             {
@@ -68,19 +168,9 @@ namespace YantraJS.Core
                 }
             }
             int page = index >> 3;
-            ref T[] items = ref pages[page];
-            if(items == null)
-            {
-                if (!create)
-                {
-                    hasValue = false;
-                    return ref defaultItem;
-                }
-                items = new T[pageSize];
-            }
-            ref T item = ref items[index & 0x07];
+            ref Page items = ref pages[page];
             hasValue = true;
-            return ref item;
+            return ref items;
         }
 
         private void Resize(int capacity)
@@ -93,7 +183,7 @@ namespace YantraJS.Core
             int pageLength = ((requiredPageLength / 4) + 1) * 4;
             if(pages == null)
             {
-                pages = new T[pageLength][];
+                pages = new Page[pageLength];
             } else
             {
                 if (pageLength <= pages.Length)
@@ -104,20 +194,19 @@ namespace YantraJS.Core
 
         public int IndexOf(T item)
         {
-            int index = 0;
-            foreach (var page in pages)
+            if (pages == null)
+                return -1;
+            for (int i = 0; i < pages.Length; i++)
             {
-                if (page == null)
-                {
-                    index += pageSize;
-                    continue;
-                }
-                foreach (var value in page)
+                ref var page = ref pages[i];
+                var index = i << 3;
+                for (int j = 0; j < 7; j++)
                 {
                     if (index >= length)
                         return -1;
-                    if (Equals(item,value))
+                    if (Equals(page[j],item)) {
                         return index;
+                    }
                     index++;
                 }
             }
@@ -135,8 +224,8 @@ namespace YantraJS.Core
                 // move..
                 MoveRight(index);
             }
-            ref var location = ref GetItem(index, out var hasValue, true);
-            location = item;
+            ref var location = ref GetPage(index, out var hasValue, true);
+            location[index & 7] = item;
         }
 
         private void MoveRight(int index)
@@ -184,14 +273,10 @@ namespace YantraJS.Core
             length = 0;
             if (pages == null)
                 return;
-            foreach(var page in pages)
+            for (int i = 0; i < pages.Length; i++)
             {
-                if (page == null)
-                    continue;
-                for (int i = 0; i < page.Length; i++)
-                {
-                    page[i] = defaultItem;
-                }
+                ref var page = ref pages[i];
+                page.Clear();
             }
         }
 
@@ -215,29 +300,8 @@ namespace YantraJS.Core
         {
             if (pages == null)
                 return false;
-            int index = 0;
-            bool found = false;
-            foreach (var page in pages)
-            {
-                if (page == null)
-                {
-                    index += pageSize;
-                    continue;
-                }
-                foreach(var value in page)
-                {
-                    if (!Equals(value, item))
-                    {
-                        index++;
-                        continue;
-                    }
-                    found = true;
-                    break;
-                }
-                if (found)
-                    break;
-            }
-            if (!found)
+            int index = IndexOf(item);
+            if (index == -1)
                 return false;
             MoveLeft(index);
             this.length--;
@@ -246,25 +310,12 @@ namespace YantraJS.Core
 
         public IEnumerator<T> GetEnumerator()
         {
-            int index = 0;
-            if (length == 0)
+            if (length == 0 || pages == null)
                 yield break;
-            foreach(var page in pages)
+            for (int i = 0; i < length; i++)
             {
-                if (page == null)
-                {
-                    index++;
-                    continue;
-                }
-                if (index >= length)
-                    yield break;
-                foreach (var value in page)
-                {
-                    if (index >= length)
-                        yield break;
-                    yield return value;
-                    index++;
-                }
+                if (TryGetValue(i, out var item))
+                    yield return item;
             }
         }
 
