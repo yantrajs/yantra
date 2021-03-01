@@ -258,7 +258,7 @@ namespace YantraJS
             this.Closures = Expression.Parameter(typeof(JSVariable[]), $"{nameof(Closures)}{sID}");
             this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), $"{nameof(ScriptInfo)}{sID}");
             this.Loop = new LinkedStack<LoopScope>();
-            TempVariables = new List<VariableScope>();
+            TempVariables = new SparseList<VariableScope>();
             ReturnLabel = Expression.Label(typeof(Core.JSValue));
         }
 
@@ -300,7 +300,7 @@ namespace YantraJS
             return v;
         }
 
-        private List<VariableScope> TempVariables;
+        private SparseList<VariableScope> TempVariables;
 
         public VariableScope GetTempVariable(Type type = null)
         {
@@ -380,7 +380,7 @@ namespace YantraJS
         //    return v;
         //}
 
-        public List<VariableScope> ClosureList
+        public SparseList<VariableScope> ClosureList
         {
             get; private set;
         }
@@ -417,7 +417,7 @@ namespace YantraJS
             var v = p.GetVariable(name);
             if (v == null)
                 return null;
-            ClosureList = ClosureList ?? new List<VariableScope>() ;
+            ClosureList = ClosureList ?? new SparseList<VariableScope>() ;
             var v1 = new VariableScope() { 
                 Variable = Expression.Parameter(typeof(JSVariable), name.Value),
                 Name = name.Value

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using YantraJS.Core;
 using Exp = System.Linq.Expressions.Expression;
 
 namespace YantraJS
@@ -8,8 +9,8 @@ namespace YantraJS
         public bool NewScope { get; private set; }
 
         public bool Copy { get; set; }
-        public List<ScopedVariableDeclarator> Declarators { get; }
-            = new List<ScopedVariableDeclarator>();
+        public SparseList<ScopedVariableDeclarator> Declarators { get; }
+            = new SparseList<ScopedVariableDeclarator>();
 
         public ScopedVariableDeclaration(IEnumerable<ScopedVariableDeclarator> list)
         {

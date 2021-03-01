@@ -5,15 +5,16 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using YantraJS.Core;
 using YantraJS.ExpHelper;
 
 namespace YantraJS
 {
     internal static class ListOfExpressionsExtensions
     {
-        internal static List<Expression> ConvertToInteger(this List<Expression> source)
+        internal static SparseList<Expression> ConvertToInteger(this IList<Expression> source)
         {
-            List<Expression> result = new List<Expression>(source.Count);
+            var result = new SparseList<Expression>(source.Count);
             foreach(var exp in source)
             {
                 if (!(exp is ConstantExpression ce))
@@ -28,9 +29,9 @@ namespace YantraJS
             return result;
         }
 
-        internal static List<Expression> ConvertToNumber(this List<Expression> source)
+        internal static SparseList<Expression> ConvertToNumber(this IList<Expression> source)
         {
-            List<Expression> result = new List<Expression>(source.Count);
+            var result = new SparseList<Expression>(source.Count);
             foreach (var exp in source)
             {
                 if (!(exp is ConstantExpression ce))
@@ -45,9 +46,9 @@ namespace YantraJS
             return result;
         }
 
-        internal static List<Expression> ConvertToString(this List<Expression> source)
+        internal static SparseList<Expression> ConvertToString(this IList<Expression> source)
         {
-            List<Expression> result = new List<Expression>(source.Count);
+            var result = new SparseList<Expression>(source.Count);
             foreach (var exp in source)
             {
                 if (!(exp is ConstantExpression ce))
@@ -62,9 +63,9 @@ namespace YantraJS
             return result;
         }
 
-        internal static List<Expression> ConvertToJSValue(this List<Expression> source)
+        internal static SparseList<Expression> ConvertToJSValue(this IList<Expression> source)
         {
-            List<Expression> result = new List<Expression>(source.Count);
+            SparseList<Expression> result = new SparseList<Expression>(source.Count);
             foreach (var exp in source)
             {
                 if (!(exp is ConstantExpression ce))

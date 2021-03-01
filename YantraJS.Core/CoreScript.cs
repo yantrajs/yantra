@@ -46,7 +46,7 @@ namespace YantraJS
 
         private StringArray _keyStrings = new StringArray();
 
-        private List<object> _innerFunctions = new List<object>();
+        private SparseList<object> _innerFunctions = new SparseList<object>();
 
         public Exp KeyOfName(string name)
         {
@@ -137,7 +137,7 @@ namespace YantraJS
 
                 var stackItem = fx.StackItem;
 
-                var vList = new List<ParameterExpression>() {
+                var vList = new SparseList<ParameterExpression>() {
                     scriptInfo,
                     lScope,
                     stackItem
@@ -164,7 +164,7 @@ namespace YantraJS
 
                 var script = Visit(jScript);
 
-                var sList = new List<Exp>(_innerFunctions.Count) {
+                var sList = new SparseList<Exp>(_innerFunctions.Count) {
                     Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
                     Exp.Assign(lScope, JSContextBuilder.Current)
                 };
@@ -277,13 +277,13 @@ namespace YantraJS
 
             Exp constructor = null;
             Dictionary<string, ExpressionHolder> cache = new Dictionary<string, ExpressionHolder>(body.Body.Count);
-            List<ExpressionHolder> members = new List<ExpressionHolder>(body.Body.Count);
+            SparseList<ExpressionHolder> members = new SparseList<ExpressionHolder>(body.Body.Count);
             ExpressionHolder expHolder;
 
             var superVar = Exp.Parameter(typeof(JSFunction));
             var superPrototypeVar = Exp.Parameter(typeof(JSObject));
 
-            List<Exp> stmts = new List<Exp>
+            var stmts = new SparseList<Exp>
             {
                 Exp.Assign(superVar, Exp.TypeAs(superExp, typeof(JSFunction))),
                 Exp.Assign(superPrototypeVar, JSFunctionBuilder.Prototype(superVar))
@@ -429,7 +429,7 @@ namespace YantraJS
                 var stackItem = s.StackItem;
                 var r = s.ReturnLabel;
 
-                var sList = new List<Exp>();
+                var sList = new SparseList<Exp>();
 
                 Exp fxName;
                 Exp localFxName;
@@ -457,14 +457,14 @@ namespace YantraJS
                 
                 JSContextStackBuilder.Push(sList, s.Context, stackItem, fn, localFxName, point.Line, point.Column);
 
-                var vList = new List<ParameterExpression>();
+                var vList = new SparseList<ParameterExpression>();
 
                 // var pList = functionDeclaration.Params.OfType<Identifier>();
                 int i = 0;
 
                 var argumentElements = args;
 
-                List<Exp> bodyInits = new List<Exp>();
+                var bodyInits = new SparseList<Exp>();
 
                 foreach (var v in functionDeclaration.Params)
                 {
@@ -656,7 +656,7 @@ namespace YantraJS
 
                 var body = VisitStatement(whileStatement.Body);
 
-                var list = new List<Exp>();
+                var list = new SparseList<Exp>();
 
                 var test = Exp.Not( ExpHelper.JSValueBuilder.BooleanValue(VisitExpression(whileStatement.Test)));
 
@@ -753,11 +753,11 @@ namespace YantraJS
             bool createVariable = false,
             bool newScope = false) {
             Exp target;
-            List<Exp> inits;
+            SparseList<Exp> inits;
             switch (pattern)
             {
                 case Identifier id:
-                    inits = new List<Exp>();
+                    inits = new SparseList<Exp>();
                     if (createVariable)
                     {
                         var v = this.scope.Top.CreateVariable(id.Name, null, newScope);
@@ -770,7 +770,7 @@ namespace YantraJS
                     inits.Add(Exp.Assign(target, init));
                     return Exp.Block(inits);
                 case ObjectPattern objectPattern:
-                    inits = new List<Exp>();
+                    inits = new SparseList<Exp>();
                     foreach(var prop in objectPattern.Properties)
                     {
                         Exp start = null;
@@ -816,7 +816,7 @@ namespace YantraJS
                     }
                     return Exp.Block(inits);
                 case ArrayPattern arrayPattern:
-                    inits = new List<Exp>();
+                    inits = new SparseList<Exp>();
                     using (var enVar = this.scope.Top.GetTempVariable(typeof(IElementEnumerator)))
                     {
                         var en = enVar.Expression;
@@ -900,13 +900,13 @@ namespace YantraJS
         // for updae and test...
 
         // Run variable declaration twice !!? Try it..
-        protected List<Exp> VisitVariableDeclaration(
+        protected IList<Exp> VisitVariableDeclaration(
             ScopedVariableDeclaration variableDeclaration)
         {
             // lets add variable...
             // forget about const... compiler like typescript should take care of it...
             // let will be implemented in future...
-            var inits = new List<Exp>(variableDeclaration.Declarators.Count);
+            var inits = new SparseList<Exp>(variableDeclaration.Declarators.Count);
             bool newScope = variableDeclaration.NewScope;
 
             foreach (var sDeclarator in variableDeclaration.Declarators)
@@ -1001,8 +1001,8 @@ namespace YantraJS
 
         class SwitchInfo
         {
-            public List<Exp> Tests = new List<Exp>();
-            public List<Exp> Body;
+            public SparseList<Exp> Tests = new SparseList<Exp>();
+            public SparseList<Exp> Body;
             public readonly System.Linq.Expressions.LabelTarget Label = Exp.Label("case-start");
         }
 
@@ -1014,17 +1014,17 @@ namespace YantraJS
             bool allIntegers = true;
 
 
-            List<Exp> defBody = null;
+            SparseList<Exp> defBody = null;
             var @continue = this.scope.Top.Loop?.Top?.Continue;
             var @break = Exp.Label();
             var ls = new LoopScope(@break ,@continue, true);
-            List<SwitchInfo> cases = new List<SwitchInfo>(switchStatement.Cases.Count + 2);
+            SparseList<SwitchInfo> cases = new SparseList<SwitchInfo>(switchStatement.Cases.Count + 2);
             using (var bt = this.scope.Top.Loop.Push(ls))
             {
                 SwitchInfo lastCase = new SwitchInfo();
                 foreach (var c in switchStatement.Cases)
                 {
-                    List<Exp> body = new List<Exp>();
+                    SparseList<Exp> body = new SparseList<Exp>();
                     foreach (var es in c.Consequent)
                     {
                         switch (es)
@@ -1263,7 +1263,7 @@ namespace YantraJS
             var continueTarget = Exp.Label();
             ScopedVariableDeclaration varDec = null;
             var paramList = new List<ParameterExpression>();
-            var blockList = new List<Exp>();
+            var blockList = new SparseList<Exp>();
             var init = JSUndefinedBuilder.Value;
 
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
@@ -1310,7 +1310,7 @@ namespace YantraJS
 
                         
 
-                        var scopedDeclarator = new List<ScopedVariableDeclarator>();
+                        var scopedDeclarator = new SparseList<ScopedVariableDeclarator>();
                         foreach (var v in this.scope.Top.Variables) {
                             scopedDeclarator.Add(new ScopedVariableDeclarator() {
                                 Declarator = new VariableDeclarator(new Identifier(v.Name), null),
@@ -1324,7 +1324,7 @@ namespace YantraJS
                         }
                     }
 
-                    var list = new List<Exp>();
+                    var list = new SparseList<Exp>();
                     var body = VisitStatement(forStatement.Body);
 
 

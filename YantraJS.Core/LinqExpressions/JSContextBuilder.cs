@@ -35,7 +35,7 @@ namespace YantraJS.ExpHelper
             itemType.InternalField(nameof(CallStackItem.Column));
 
 
-        public static void Push(List<Expression> stmtList, Expression context,  Expression stack, 
+        public static void Push(IList<Expression> stmtList, Expression context,  Expression stack, 
             Expression fileName, 
             Expression  function,
             int line,
