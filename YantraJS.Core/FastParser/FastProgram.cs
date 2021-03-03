@@ -9,8 +9,32 @@ namespace YantraJS.Core.FastParser
 
     }
 
-    public enum FastNodeType
+    public readonly struct FastTokenType
     {
+
+        public readonly int Id;
+
+        
+
+    }
+
+    public readonly struct FastToken
+    {
+        public readonly FastTokenType Type;
+
+        public readonly StringSpan Span;
+
+        public FastToken(FastTokenType type, StringSpan span)
+        {
+            this.Type = type;
+            this.Span = span;
+        }
+
+        public FastToken(FastTokenType type, string source, int start, int length)
+        {
+            this.Type = type;
+            this.Span = new StringSpan(source, start, length);
+        }
 
     }
 
