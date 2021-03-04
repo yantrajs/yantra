@@ -9,10 +9,18 @@ namespace YantraJS.Core.FastParser
     {
         public readonly StringSpan Text;
 
+        private int position;
+
+        private int line;
+
+        private int column;
+
         public FastScanner(in StringSpan text)
         {
             this.Text = text;
         }
+
+
     }
 
     public delegate bool ParseToken(FastScanner scanner, out FastToken token);
@@ -58,11 +66,33 @@ namespace YantraJS.Core.FastParser
 
     public static class TokenTypes
     {
-        // public static FastTokenType Identifier = (ParseToken) (scanner, out bool success) => { };
+        public static ParseToken Keyword = Tokenizer.ParseKeyword;
+
+        public static ParseToken Identifier = Tokenizer.ParseIdentifier;
+
+        public static ParseToken[] Scanner = new ParseToken[] { 
+            Keyword,
+            Identifier
+        };
+    }
+
+    public static class Tokenizer
+    {
+        public static bool ParseKeyword(FastScanner scanner, out FastToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool ParseIdentifier(FastScanner scanner, out FastToken token)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public readonly struct FastToken
     {
+        public static FastToken Empty;
+
         public readonly FastTokenType Type;
 
         public readonly StringSpan Span;
