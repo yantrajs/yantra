@@ -6,94 +6,35 @@ using System.Text;
 
 namespace YantraJS.Core
 {
+    public class SparseStack<T>
+    {
+        private SparseList<T> list = new SparseList<T>();
+
+        public void Push(T item)
+        {
+            list.Add(item);
+        }
+
+        public int Count => list.Count;
+
+        public T Pop()
+        {
+            if (list.Count == 0)
+                throw new IndexOutOfRangeException();
+            return list.RemoveLast();
+        }
+
+        public T Peek => list[list.Count - 1];
+    }
+
     /// <summary>
     /// Difference between List and SparseList, each item is not stored in continuous array,
     /// instead it is stored as an Array of Array. Making growth easier.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SparseList<T> : IList<T>
-        
-    {
+    public class SparseList<T> : IList<T> {
 
-        public struct Page
-        {
-            private T Item0;
-            private T Item1;
-            private T Item2;
-            private T Item3;
-            private T Item4;
-            private T Item5;
-            private T Item6;
-            private T Item7;
-
-            public T this[int index]
-            {
-                get
-                {
-                    switch (index)
-                    {
-                        case 0: return Item0;
-                        case 1: return Item1;
-                        case 2: return Item2;
-                        case 3: return Item3;
-                        case 4: return Item4;
-                        case 5: return Item5;
-                        case 6: return Item6;
-                        case 7: return Item7;
-                        default:
-                            throw new IndexOutOfRangeException();
-                    }
-                }
-                set
-                {
-                    switch (index)
-                    {
-                        case 0: 
-                            Item0 = value;
-                            break;
-                        case 1:
-                            Item1 = value;
-                            break;
-                        case 2:
-                            Item2 = value;
-                            break;
-                        case 3:
-                            Item3 = value;
-                            break;
-                        case 4:
-                            Item4 = value;
-                            break;
-                        case 5:
-                            Item5 = value;
-                            break;
-                        case 6:
-                            Item6 = value;
-                            break;
-                        case 7:
-                            Item7 = value;
-                            break;
-                        default:
-                            throw new IndexOutOfRangeException();
-                    }
-
-                }
-            }
-
-            internal void Clear()
-            {
-                Item0 = default;
-                Item1 = default;
-                Item2 = default;
-                Item3 = default;
-                Item4 = default;
-                Item5 = default;
-                Item6 = default;
-                Item7 = default;
-            }
-        }
-
-
-        private Page[] pages;
+        private T[][] pages;
         private const int pageSize = 8;
         private int length;
 
@@ -124,7 +65,7 @@ namespace YantraJS.Core
             Resize(capacity);
         }
 
-        private static Page defaultItem;
+        // private static Page defaultItem;
 
         private bool TryGetValue(int index, out T value)
         {
@@ -133,12 +74,12 @@ namespace YantraJS.Core
                 value = default;
                 return false;
             }
-            ref var Page = ref GetPage(index, out var hasValue, false);
-            if (!hasValue) {
+            var page = GetPage(index, false);
+            if (page == null) {
                 value = default;
                 return false;
             }
-            value = Page[index & 0x7];
+            value = page[index & 0x7];
             return true;
         }
 
@@ -148,12 +89,12 @@ namespace YantraJS.Core
             {
                 throw new IndexOutOfRangeException();
             }
-            ref var page = ref GetPage(index, out var hasValue, true);
+            var page = GetPage(index, true);
             page[index & 0x7] = item;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private ref Page GetPage(int index, out bool hasValue, bool create = false)
+        private T[] GetPage(int index, bool create = false)
         {
             if (create)
             {
@@ -163,14 +104,16 @@ namespace YantraJS.Core
             {
                 if (pages == null)
                 {
-                    hasValue = false;
-                    return ref defaultItem;
+                    return null;
                 }
             }
             int page = index >> 3;
-            ref Page items = ref pages[page];
-            hasValue = true;
-            return ref items;
+            var items = pages[page];
+            if(items == null && create)
+            {
+                return pages[page] = new T[pageSize];
+            }
+            return items;
         }
 
         private void Resize(int capacity)
@@ -183,7 +126,7 @@ namespace YantraJS.Core
             int pageLength = ((requiredPageLength / 4) + 1) * 4;
             if(pages == null)
             {
-                pages = new Page[pageLength];
+                pages = new T[pageLength][];
             } else
             {
                 if (pageLength <= pages.Length)
@@ -224,7 +167,7 @@ namespace YantraJS.Core
                 // move..
                 MoveRight(index);
             }
-            ref var location = ref GetPage(index, out var hasValue, true);
+            var location = GetPage(index, true);
             location[index & 7] = item;
         }
 
@@ -255,6 +198,16 @@ namespace YantraJS.Core
             this.length--;
         }
 
+        public T RemoveLast()
+        {
+            var index = length - 1;
+            var page = GetPage(index);
+            var item = page[index & 0x7];
+            page[index & 0x7] = default;
+            this.length--;
+            return item;
+        }
+
         public void Add(T item)
         {
             Insert(length, item);
@@ -275,8 +228,11 @@ namespace YantraJS.Core
                 return;
             for (int i = 0; i < pages.Length; i++)
             {
-                ref var page = ref pages[i];
-                page.Clear();
+                var page = pages[i];
+                for (int j = 0; j < pageSize; j++)
+                {
+                    page[j] = default;
+                }
             }
         }
 
@@ -308,20 +264,60 @@ namespace YantraJS.Core
             return true;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public SparseEnumerator GetEnumerator()
         {
-            if (length == 0 || pages == null)
-                yield break;
-            for (int i = 0; i < length; i++)
-            {
-                if (TryGetValue(i, out var item))
-                    yield return item;
-            }
+            return new SparseEnumerator(this.pages, this.length);
         }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public struct SparseEnumerator : IEnumerator<T>
+        {
+            private readonly T[][] pages;
+            private readonly int length;
+            private int index;
+
+            public SparseEnumerator(T[][] pages, int length)
+            {
+                this.pages = pages;
+                this.length = length;
+                index = -1;
+            }
+
+            public T Current
+            {
+                get
+                {
+                    var page = index >> 3;
+                    return pages[page][index & 0x7];
+                }
+            }
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            {
+                
+            }
+
+            public bool MoveNext()
+            {
+                return (++index) < length;
+            }
+
+            public void Reset()
+            {
+                
+            }
         }
     }
 }
