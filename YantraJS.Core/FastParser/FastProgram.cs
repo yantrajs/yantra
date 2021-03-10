@@ -111,9 +111,19 @@ namespace YantraJS.Core.FastParser
 
     }
 
+    public enum FastNodeType
+    {
+        Program
+    }
+
     public class FastNode
     {
+        public readonly FastNodeType NodeType;
 
+        protected FastNode(FastNodeType nodeType)
+        {
+            this.NodeType = nodeType;
+        }
     }
 
     public class FastExpression
@@ -131,15 +141,20 @@ namespace YantraJS.Core.FastParser
 
     }
 
-    public class FastBlock
+    public class FastBlock: FastNode
     {
         public List<FastStatement> Statements;
+
+        protected FastBlock(FastNodeType type): base(type)
+        {
+
+        }
     }
 
-    public class FastProgram
-    {
+    public class FastProgram: FastBlock {
+        public FastProgram(): base(FastNodeType.Program)
+        {
 
-
-
+        }    
     }
 }
