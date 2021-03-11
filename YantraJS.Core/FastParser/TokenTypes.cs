@@ -13,6 +13,14 @@
         StrictlyEqual,
         Equal,
         Lambda,
-        Assign
+        Assign,
+        StrictlyNotEqual,
+        NotEqual,
+        Negate,
+        AssignRightShift,
+        RightShift,
+        UnsignedRightShift,
+        GreaterOrEqual,
+        Greater
     }
 }

@@ -48,6 +48,7 @@ namespace YantraJS.Parser.Tests
             ScanTypes("12_12").SequenceEqual(TokenTypes.Number);
             ScanTypes(" 12_12 ").SequenceEqual(TokenTypes.Number);
             ScanTypes(" 12.1_12 ").SequenceEqual(TokenTypes.Number);
+            ScanTypes(" /* asdfd */ 12.1_12 ").SequenceEqual(TokenTypes.Number);
         }
 
     }

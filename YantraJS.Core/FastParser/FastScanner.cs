@@ -65,8 +65,38 @@ namespace YantraJS.Core.FastParser
             return ch;
         }
 
+        private FastToken Match(
+            State state, 
+            TokenTypes def, 
+            char ch1, 
+            TokenTypes type1, 
+            char ch2, 
+            TokenTypes type2)
+        {
+            char ch = Consume();
+            if (ch == ch1)
+            {
+                ch = Consume();
+                if (ch == ch2)
+                {
+                    Consume();
+                    return state.Commit(type2);
+                }
+                return state.Commit(type1);
+            }
+            return state.Commit(def);
+        }
 
-
+        private bool PeekConsume(char ch)
+        {
+            var c = Peek();
+            if(ch == c)
+            {
+                Consume();
+                return true;
+            }
+            return false;            
+        }
 
         private FastToken ReadToken()
         {
@@ -112,21 +142,35 @@ namespace YantraJS.Core.FastParser
                         return ReadSymbol(state, TokenTypes.BracketStart);
                     case ')':
                         return ReadSymbol(state, TokenTypes.BracketEnd);
-                    case '=':
-                        first = Consume();
-                        if(first == '=')
+                    case '!':
+                        return Match(state, TokenTypes.Negate, 
+                            '=', TokenTypes.NotEqual, 
+                            '=', TokenTypes.StrictlyNotEqual);
+                    case '>':
+                        Consume();
+                        if(PeekConsume('>'))
                         {
-                            first = Consume();
-                            if(first == '=')
+                            if (PeekConsume('>'))
+                                return state.Commit(TokenTypes.UnsignedRightShift);
+                            if (PeekConsume('='))
+                                return state.Commit(TokenTypes.AssignRightShift);
+                            return state.Commit(TokenTypes.RightShift);
+                        }
+                        if (PeekConsume('='))
+                            return state.Commit(TokenTypes.GreaterOrEqual);
+                        return state.Commit(TokenTypes.Greater);
+                    case '=':
+                        Consume();
+                        if(PeekConsume('='))
+                        {
+                            if(PeekConsume('='))
                             {
-                                Consume();
                                 return state.Commit(TokenTypes.StrictlyEqual);
                             }
                             return state.Commit(TokenTypes.Equal);
                         }
-                        if(first == '>')
+                        if(PeekConsume('>'))
                         {
-                            Consume();
                             return state.Commit(TokenTypes.Lambda);
                         }
                         return state.Commit(TokenTypes.Assign);
@@ -147,17 +191,58 @@ namespace YantraJS.Core.FastParser
         private FastToken ReadCommentsOrRegExOrSymbol(State state, char first)
         {
             first = Consume();
-            if(first == '/')
+            bool mayBeLambda = false;
+            switch (first)
             {
-                // comment start for single line...
-                do
-                {
-                    first = Consume();
-                } while (first != '\n');
-                state.Reset();
-                return ReadToken();
+                case '/': 
+                    return SkipSingleLineComment(state);
+                case '*':
+                    return SkipMultilineComment(state);
+                case '=':
+                    // this case should first consider if it is part of Regex or not..
+                    mayBeLambda = true;
+                    break;
             }
-            throw new NotImplementedException();
+
+            if(mayBeLambda)
+            {
+                Consume();
+                return state.Commit(TokenTypes.Lambda);
+            }
+
+            throw new NotImplementedException($"{first} not supported");
+        }
+
+        private FastToken SkipMultilineComment(State state)
+        {
+            char ch;
+            do
+            {
+                ch = Consume();
+                if (ch == char.MaxValue)
+                    break;
+                if (ch == '*')
+                {
+                    ch = Consume();
+                    if (ch == char.MaxValue || ch == '/')
+                        break;
+                }
+            } while (true);
+            Consume();
+            state.Reset();
+            return ReadToken();
+        }
+
+        private FastToken SkipSingleLineComment(State state)
+        {
+            char ch;
+            do
+            {
+                ch = Consume();
+            } while (ch != '\n' && ch != char.MaxValue);
+            Consume();
+            state.Reset();
+            return ReadToken();
         }
 
         private FastToken ReadString(State state, char first)
