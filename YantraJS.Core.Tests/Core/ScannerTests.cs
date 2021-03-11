@@ -51,5 +51,11 @@ namespace YantraJS.Parser.Tests
             ScanTypes(" /* asdfd */ 12.1_12 ").SequenceEqual(TokenTypes.Number);
         }
 
+        [TestMethod]
+        public void Operators()
+        {
+            ScanTypes("1+1").SequenceEqual(TokenTypes.Number, TokenTypes.Plus, TokenTypes.Number);
+            ScanTypes("1++").SequenceEqual(TokenTypes.Number, TokenTypes.Increment);
+        }
     }
 }

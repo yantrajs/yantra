@@ -143,22 +143,98 @@ namespace YantraJS.Core.FastParser
                     case ')':
                         return ReadSymbol(state, TokenTypes.BracketEnd);
                     case '!':
-                        return Match(state, TokenTypes.Negate, 
-                            '=', TokenTypes.NotEqual, 
-                            '=', TokenTypes.StrictlyNotEqual);
+                        Consume();
+                        // !=
+                        if (PeekConsume('='))
+                        {
+                            // !==
+                            if (PeekConsume('='))
+                                return state.Commit(TokenTypes.StrictlyNotEqual);
+                            return state.Commit(TokenTypes.NotEqual);
+                        }
+                        return state.Commit(TokenTypes.Negate);
                     case '>':
                         Consume();
+                        // >>
                         if(PeekConsume('>'))
                         {
+                            // >>>
                             if (PeekConsume('>'))
                                 return state.Commit(TokenTypes.UnsignedRightShift);
+                            // >>=
                             if (PeekConsume('='))
                                 return state.Commit(TokenTypes.AssignRightShift);
                             return state.Commit(TokenTypes.RightShift);
                         }
+                        // >=
                         if (PeekConsume('='))
                             return state.Commit(TokenTypes.GreaterOrEqual);
                         return state.Commit(TokenTypes.Greater);
+                    case '<':
+                        Consume();
+                        // <<
+                        if(PeekConsume('<'))
+                        {
+                            // <<=
+                            if (PeekConsume('='))
+                                return state.Commit(TokenTypes.AssignLeftShift);
+                            return state.Commit(TokenTypes.LeftShift);
+                        }
+                        // <<=
+                        if (PeekConsume('='))
+                            return state.Commit(TokenTypes.LessOrEqual);
+                        return state.Commit(TokenTypes.Less);
+                    case '*':
+                        Consume();
+                        // **
+                        if (PeekConsume('*'))
+                        {
+                            // **=
+                            if (PeekConsume('='))
+                                return state.Commit(TokenTypes.AssignPower);
+                            return state.Commit(TokenTypes.Power);
+                        }
+                        return state.Commit(TokenTypes.Multiply);
+                    case '&':
+                        Consume();
+                        if(PeekConsume('&'))
+                        {
+                            return state.Commit(TokenTypes.BooleanAnd);
+                        }
+                        return state.Commit(TokenTypes.BitwiseAnd);
+                    case '|':
+                        Consume();
+                        if (PeekConsume('|'))
+                            return state.Commit(TokenTypes.BooleanOr);
+                        return state.Commit(TokenTypes.BitwiseOr);
+                    case '+':
+                        Consume();
+                        if (PeekConsume('+'))
+                            return state.Commit(TokenTypes.Increment);
+                        return state.Commit(TokenTypes.Plus);
+                    case '-':
+                        Consume();
+                        if (PeekConsume('-'))
+                            return state.Commit(TokenTypes.Decrement);
+                        return state.Commit(TokenTypes.Minus);
+                    case '^':
+                        Consume();
+                        if (PeekConsume('='))
+                            return state.Commit(TokenTypes.AssignXor);
+                        return state.Commit(TokenTypes.Xor);
+                    case '?':
+                        return ReadSymbol(state, TokenTypes.QuestionMark);
+                    case ':':
+                        return ReadSymbol(state, TokenTypes.Colon);
+                    case ';':
+                        return ReadSymbol(state, TokenTypes.SemiColon);
+                    case '~':
+                        return ReadSymbol(state, TokenTypes.BitwiseNot);
+                    case '%':
+                        Consume();
+                        if (PeekConsume('='))
+                            return state.Commit(TokenTypes.AssignMod);
+                        return state.Commit(TokenTypes.Mod);
                     case '=':
                         Consume();
                         if(PeekConsume('='))
