@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.FastParser
 {
@@ -45,6 +46,7 @@ namespace YantraJS.Core.FastParser
             nextToken = ReadToken();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char Peek()
         {
             if (position >= Text.Length)
@@ -67,11 +69,10 @@ namespace YantraJS.Core.FastParser
             return ch;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanConsume(char ch)
         {
-            var c = Peek();
-            if(ch == c)
-            {
+            if(ch == Peek()) { 
                 Consume();
                 return true;
             }
@@ -269,7 +270,7 @@ namespace YantraJS.Core.FastParser
                 }
                 if (ch == char.MaxValue)
                     break;
-                if (ch == '`')
+                if (CanConsume('`'))
                     return state.Commit(TokenTypes.TemplateEnd);
             } while (true);
             throw new InvalidOperationException();
@@ -423,7 +424,7 @@ namespace YantraJS.Core.FastParser
             return new State(this, position, line, column);
         }
         
-        public struct State: IDisposable
+        public class State: IDisposable
         {
             private FastScanner scanner;
             private int position;
