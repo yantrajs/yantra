@@ -13,6 +13,8 @@ namespace YantraJS.Core.FastParser
 
         private int column = 1;
 
+        private int templateParts = 0;
+
         public FastScanner(in StringSpan text)
         {
             this.Text = text;
@@ -65,29 +67,7 @@ namespace YantraJS.Core.FastParser
             return ch;
         }
 
-        private FastToken Match(
-            State state, 
-            TokenTypes def, 
-            char ch1, 
-            TokenTypes type1, 
-            char ch2, 
-            TokenTypes type2)
-        {
-            char ch = Consume();
-            if (ch == ch1)
-            {
-                ch = Consume();
-                if (ch == ch2)
-                {
-                    Consume();
-                    return state.Commit(type2);
-                }
-                return state.Commit(type1);
-            }
-            return state.Commit(def);
-        }
-
-        private bool PeekConsume(char ch)
+        private bool CanConsume(char ch)
         {
             var c = Peek();
             if(ch == c)
@@ -122,6 +102,8 @@ namespace YantraJS.Core.FastParser
                     case '\'':
                     case '"':
                         return ReadString(state, first);
+                    case '`':
+                        return ReadTemplateString(state);
                     case '0':
                     case '1':
                     case '2':
@@ -142,13 +124,26 @@ namespace YantraJS.Core.FastParser
                         return ReadSymbol(state, TokenTypes.BracketStart);
                     case ')':
                         return ReadSymbol(state, TokenTypes.BracketEnd);
+                    case '[':
+                        return ReadSymbol(state, TokenTypes.SquareBracketStart);
+                    case ']':
+                        return ReadSymbol(state, TokenTypes.SquareBracketEnd);
+                    case '{':
+                        return ReadSymbol(state, TokenTypes.CurlyBracketStart);
+                    case '}':
+                        if (templateParts > 0)
+                        {
+                            templateParts--;
+                            return ReadTemplateString(state);
+                        }
+                        return ReadSymbol(state, TokenTypes.CurlyBracketEnd);
                     case '!':
                         Consume();
                         // !=
-                        if (PeekConsume('='))
+                        if (CanConsume('='))
                         {
                             // !==
-                            if (PeekConsume('='))
+                            if (CanConsume('='))
                                 return state.Commit(TokenTypes.StrictlyNotEqual);
                             return state.Commit(TokenTypes.NotEqual);
                         }
@@ -156,70 +151,70 @@ namespace YantraJS.Core.FastParser
                     case '>':
                         Consume();
                         // >>
-                        if(PeekConsume('>'))
+                        if(CanConsume('>'))
                         {
                             // >>>
-                            if (PeekConsume('>'))
+                            if (CanConsume('>'))
                                 return state.Commit(TokenTypes.UnsignedRightShift);
                             // >>=
-                            if (PeekConsume('='))
+                            if (CanConsume('='))
                                 return state.Commit(TokenTypes.AssignRightShift);
                             return state.Commit(TokenTypes.RightShift);
                         }
                         // >=
-                        if (PeekConsume('='))
+                        if (CanConsume('='))
                             return state.Commit(TokenTypes.GreaterOrEqual);
                         return state.Commit(TokenTypes.Greater);
                     case '<':
                         Consume();
                         // <<
-                        if(PeekConsume('<'))
+                        if(CanConsume('<'))
                         {
                             // <<=
-                            if (PeekConsume('='))
+                            if (CanConsume('='))
                                 return state.Commit(TokenTypes.AssignLeftShift);
                             return state.Commit(TokenTypes.LeftShift);
                         }
                         // <<=
-                        if (PeekConsume('='))
+                        if (CanConsume('='))
                             return state.Commit(TokenTypes.LessOrEqual);
                         return state.Commit(TokenTypes.Less);
                     case '*':
                         Consume();
                         // **
-                        if (PeekConsume('*'))
+                        if (CanConsume('*'))
                         {
                             // **=
-                            if (PeekConsume('='))
+                            if (CanConsume('='))
                                 return state.Commit(TokenTypes.AssignPower);
                             return state.Commit(TokenTypes.Power);
                         }
                         return state.Commit(TokenTypes.Multiply);
                     case '&':
                         Consume();
-                        if(PeekConsume('&'))
+                        if(CanConsume('&'))
                         {
                             return state.Commit(TokenTypes.BooleanAnd);
                         }
                         return state.Commit(TokenTypes.BitwiseAnd);
                     case '|':
                         Consume();
-                        if (PeekConsume('|'))
+                        if (CanConsume('|'))
                             return state.Commit(TokenTypes.BooleanOr);
                         return state.Commit(TokenTypes.BitwiseOr);
                     case '+':
                         Consume();
-                        if (PeekConsume('+'))
+                        if (CanConsume('+'))
                             return state.Commit(TokenTypes.Increment);
                         return state.Commit(TokenTypes.Plus);
                     case '-':
                         Consume();
-                        if (PeekConsume('-'))
+                        if (CanConsume('-'))
                             return state.Commit(TokenTypes.Decrement);
                         return state.Commit(TokenTypes.Minus);
                     case '^':
                         Consume();
-                        if (PeekConsume('='))
+                        if (CanConsume('='))
                             return state.Commit(TokenTypes.AssignXor);
                         return state.Commit(TokenTypes.Xor);
                     case '?':
@@ -232,20 +227,20 @@ namespace YantraJS.Core.FastParser
                         return ReadSymbol(state, TokenTypes.BitwiseNot);
                     case '%':
                         Consume();
-                        if (PeekConsume('='))
+                        if (CanConsume('='))
                             return state.Commit(TokenTypes.AssignMod);
                         return state.Commit(TokenTypes.Mod);
                     case '=':
                         Consume();
-                        if(PeekConsume('='))
+                        if(CanConsume('='))
                         {
-                            if(PeekConsume('='))
+                            if(CanConsume('='))
                             {
                                 return state.Commit(TokenTypes.StrictlyEqual);
                             }
                             return state.Commit(TokenTypes.Equal);
                         }
-                        if(PeekConsume('>'))
+                        if(CanConsume('>'))
                         {
                             return state.Commit(TokenTypes.Lambda);
                         }
@@ -256,6 +251,28 @@ namespace YantraJS.Core.FastParser
             }
 
             return EOF;
+        }
+
+        private FastToken ReadTemplateString(State state)
+        {
+            do {
+                char ch = Consume();
+                if(ch == '$')
+                {
+                    if(CanConsume('{'))
+                    {
+                        // template part begin...
+                        if(templateParts++ == 0)
+                            return state.Commit(TokenTypes.TemplateBegin);
+                        return state.Commit(TokenTypes.TemplatePart);
+                    }
+                }
+                if (ch == char.MaxValue)
+                    break;
+                if (ch == '`')
+                    return state.Commit(TokenTypes.TemplateEnd);
+            } while (true);
+            throw new InvalidOperationException();
         }
 
         private FastToken ReadSymbol(State state, TokenTypes type)

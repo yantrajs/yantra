@@ -44,6 +44,13 @@
         SemiColon,
         BitwiseNot,
         AssignMod,
-        Mod
+        Mod,
+        SquareBracketStart,
+        SquareBracketEnd,
+        CurlyBracketStart,
+        CurlyBracketEnd,
+        TemplateBegin,
+        TemplatePart,
+        TemplateEnd
     }
 }

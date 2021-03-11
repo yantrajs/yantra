@@ -57,5 +57,12 @@ namespace YantraJS.Parser.Tests
             ScanTypes("1+1").SequenceEqual(TokenTypes.Number, TokenTypes.Plus, TokenTypes.Number);
             ScanTypes("1++").SequenceEqual(TokenTypes.Number, TokenTypes.Increment);
         }
+
+        [TestMethod]
+        public void Template()
+        {
+            ScanTypes("`a`").SequenceEqual(TokenTypes.TemplateEnd);
+            ScanTypes("`a${1}`").SequenceEqual(TokenTypes.TemplateBegin, TokenTypes.Number,  TokenTypes.TemplateEnd);
+        }
     }
 }
