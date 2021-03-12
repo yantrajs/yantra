@@ -608,7 +608,7 @@ namespace YantraJS.Core
             for (int i = start; i >= 0; i--)
             {
                 var item = @this[(uint)i];
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(i), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
