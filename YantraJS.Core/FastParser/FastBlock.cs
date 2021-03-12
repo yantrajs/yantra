@@ -7,41 +7,17 @@ namespace YantraJS.Core.FastParser
     {
         public readonly SparseList<FastStatement> Body = new SparseList<FastStatement>();
 
-        protected FastBlock(FastNode parent, FastNodeType type) : base(parent, type) { }
+        protected FastBlock(FastNode parent, FastNodeType type, FastTokenStream stream) : base(parent, type, stream) { }
 
-        public FastBlock(FastNode parent): base(parent, FastNodeType.Block)
+        public FastBlock(FastNode parent, FastTokenStream stream): base(parent, FastNodeType.Block, stream)
         {
 
         }
 
         internal override void Read(FastTokenStream stream)
         {
-            do
-            {
-                var token = stream.Current;
-                if(stream.Keywords.IsKeyword(in token.Span, out var keyword))
-                {
-                    stream.Consume();
-                    switch (keyword)
-                    {
-
-                        /**
-                         * Variable Declarations
-                         */
-                        case FastKeywords.let:
-                            Body.Add(new FastVariableDeclaration(this, stream, isLet: true));
-                            continue;
-                        case FastKeywords.var:
-                            Body.Add(new FastVariableDeclaration(this, stream));
-                            continue;
-                        case FastKeywords.@const:
-                            Body.Add(new FastVariableDeclaration(this, stream, isConst: true));
-                            continue;
-
-
-                    }
-                }
-            } while (true);
+            while (ParseStatement(this, stream, out FastStatement statement))
+                Body.Add(statement);
         }
     }
 }

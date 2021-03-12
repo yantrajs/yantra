@@ -52,6 +52,9 @@
         TemplateBegin,
         TemplatePart,
         TemplateEnd,
-        Comma
+        Comma,
+        QuestionDot,
+        Dot,
+        TripleDots
     }
 }

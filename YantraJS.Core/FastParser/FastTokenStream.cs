@@ -1,0 +1,131 @@
+﻿using System;
+
+namespace YantraJS.Core.FastParser
+{
+    /// <summary>
+    /// This class will provide stream of tokens, we are using this instead of
+    /// scanner directly as we can move scanning process in different thread
+    /// in future.
+    /// </summary>
+    public class FastTokenStream
+    {
+        private readonly FastScanner scanner;
+
+        internal Exception Unexpected()
+        {
+            var c = Current;
+            return new FastParseException(c, $"Unexpected token {c.Type}: {c.Span} at {scanner.Location}");
+        }
+
+        public readonly FastKeywordMap Keywords;
+        private SparseList<FastToken> tokens;
+        private int index;
+
+        public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
+        {
+            this.scanner = new FastScanner(text);
+            tokens = new SparseList<FastToken>();
+            index = 0;
+            this.Keywords = keywords ?? new FastKeywordMap();
+        }
+
+        private FastToken this[int index]
+        {
+            get
+            {
+                while (tokens.Count <= index)
+                {
+                    tokens.Add(scanner.Token);
+                    scanner.ConsumeToken();
+                }
+                return tokens[index];
+            }
+        }
+
+        public FastToken Current => this[index];
+
+        public FastToken Next => this[index + 1];
+
+        public FastToken Previous => this[index > 0 ? index - 1 : index];
+
+        public FastToken Expect(TokenTypes type)
+        {
+            var c = this[index];
+            if (c.Type != type)
+                throw new InvalidOperationException();
+            Consume();
+            return c;
+        }
+
+        public bool CheckAndConsumeKeywords(out FastKeywords keyword)
+        {
+            var c = this[index];
+            if(c.Type == TokenTypes.Identifier)
+            {
+                if(Keywords.IsKeyword(in c.Span,out keyword))
+                {
+                    Consume();
+                    return true;
+                }
+            }
+            keyword = FastKeywords.none;
+            return false;
+        }
+
+        public bool CheckAndConsume(TokenTypes type)
+        {
+            var c = this[index];
+            if (c.Type == type)
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
+        public bool CheckAndConsume(FastKeywords keywords)
+        {
+            var c = this[index];
+            if (c.Type == TokenTypes.Identifier)
+            {
+                if (Keywords.IsKeyword(in c.Span, out var k))
+                {
+                    if (k == keywords)
+                    {
+                        Consume();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool CheckAndConsume(TokenTypes type, out FastToken token)
+        {
+            var c = this[index];
+            if (c.Type == type)
+            {
+                token = c;
+                Consume();
+                return true;
+            }
+            token = null;
+            return false;
+        }
+
+        public FastToken Consume()
+        {
+            index++;
+            return this[index];
+        }
+
+        public CancellableDisposableAction UndoMark()
+        {
+            var i = index;
+            return new CancellableDisposableAction(() => {
+                index = i;
+            });
+        }
+    }
+}

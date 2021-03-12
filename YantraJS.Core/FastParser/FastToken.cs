@@ -5,12 +5,33 @@
         public static FastToken Empty;
 
         public readonly TokenTypes Type;
-
+        public readonly int StartLine;
+        public readonly int StartColumn;
         public readonly StringSpan Span;
 
-        public FastToken(TokenTypes type, string source, int start, int length)
+        public readonly int EndLine;
+
+        public readonly int EndColumn;
+
+        public SpanLocation StartLocation => new SpanLocation(StartLine, StartColumn);
+
+        public SpanLocation EndLocation => new SpanLocation(EndLine, EndColumn);
+
+        public FastToken(
+            TokenTypes type, 
+            string source, 
+            int start, 
+            int length,
+            int startLine,
+            int startColumn,
+            int endLine,
+            int endColumn)
         {
             this.Type = type;
+            this.StartLine = startLine;
+            this.StartColumn = startColumn;
+            this.EndLine = endLine;
+            this.EndColumn = endColumn;
             this.Span = new StringSpan(source, start, length);
         }
 

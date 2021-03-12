@@ -19,16 +19,16 @@
 
         public readonly SparseList<FastDeclarator> Declarators = new SparseList<FastDeclarator>();
 
-        public FastVariableDeclaration(FastBlock parent, FastTokenStream stream, bool isLet = false, bool isConst = false)
-            : base(parent, FastNodeType.VariableDeclaration)
+        public FastVariableDeclaration(FastNode parent, FastTokenStream stream, bool isLet = false, bool isConst = false)
+            : base(parent, FastNodeType.VariableDeclaration, stream)
         {
             this.isLet = isLet;
             this.isConst = isConst;
-            Read(stream);
         }
 
         internal override void Read(FastTokenStream stream)
         {
+            stream.Consume();
             while (true)
             {
                 var id = stream.Expect(TokenTypes.Identifier);

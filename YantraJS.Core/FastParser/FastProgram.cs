@@ -8,17 +8,15 @@ namespace YantraJS.Core.FastParser
 
     public class FastProgram: FastBlock {
 
-        public FastProgram(): base(null, FastNodeType.Program)
+        public FastProgram(FastTokenStream stream): base(null, FastNodeType.Program, stream)
         {
-
+            
         }
 
         public static FastProgram Compile(in StringSpan text)
         {
             var tokenStream = new FastTokenStream(text);
-            var program = new FastProgram();
-            program.Read(tokenStream);
-            return program;
+            return new FastProgram(tokenStream);
         }
 
     }
