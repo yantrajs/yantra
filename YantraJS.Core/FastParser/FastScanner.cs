@@ -1,8 +1,162 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core.FastParser
 {
+
+    public enum FastKeywords
+    {
+        none,
+        let,
+        var,
+        @const,
+        @for,
+        @while,
+        @do,
+        @function,
+        @if
+    }
+
+    public class FastKeywordMap
+    {
+        private static ConcurrentStringMap<FastKeywords> list = new ConcurrentStringMap<FastKeywords>();
+
+        static FastKeywordMap()
+        {
+            foreach (var name in Enum.GetNames(typeof(FastKeywords)))
+            {
+                var value = (FastKeywords)Enum.Parse(typeof(FastKeywords), name);
+                list[name] = value;
+            }
+        }
+
+        public bool IsKeyword(in StringSpan k, out FastKeywords keyword)
+        {
+            return list.TryGetValue(k, out keyword);
+        }
+    }
+
+
+    /// <summary>
+    /// This class will provide stream of tokens, we are using this instead of
+    /// scanner directly as we can move scanning process in different thread
+    /// in future.
+    /// </summary>
+    public class FastTokenStream
+    {
+        private readonly FastScanner scanner;
+        public readonly FastKeywordMap Keywords;
+        private SparseList<FastToken> tokens;
+        private int index;
+        
+
+        public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
+        {
+            this.scanner = new FastScanner(text);
+            tokens = new SparseList<FastToken>();
+            index = 0;
+            this.Keywords = keywords ?? new FastKeywordMap();
+        }
+
+        private FastToken this[int index]
+        {
+            get
+            {
+                while (tokens.Count <= index)
+                {
+                    tokens.Add(scanner.Token);
+                    scanner.ConsumeToken();
+                }
+                return tokens[index];
+            }
+        }
+
+        public FastToken Current => this[index];
+
+        public FastToken Next => this[index + 1];
+
+        public FastToken Expect(TokenTypes type)
+        {
+            var c = this[index];
+            if (c.Type != type)
+                throw new InvalidOperationException();
+            Consume();
+            return c;
+        }
+
+        public bool CheckAndConsumeKeywords(out FastKeywords keyword)
+        {
+            var c = this[index];
+            if(c.Type == TokenTypes.Identifier)
+            {
+                if(Keywords.IsKeyword(in c.Span,out keyword))
+                {
+                    Consume();
+                    return true;
+                }
+            }
+            keyword = FastKeywords.none;
+            return false;
+        }
+
+        public bool CheckAndConsume(TokenTypes type)
+        {
+            var c = this[index];
+            if (c.Type == type)
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
+        public bool CheckAndConsume(FastKeywords keywords)
+        {
+            var c = this[index];
+            if (c.Type == TokenTypes.Identifier)
+            {
+                if (Keywords.IsKeyword(in c.Span, out var k))
+                {
+                    if (k == keywords)
+                    {
+                        Consume();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool CheckAndConsume(TokenTypes type, out FastToken token)
+        {
+            var c = this[index];
+            if (c.Type == type)
+            {
+                token = c;
+                Consume();
+                return true;
+            }
+            token = null;
+            return false;
+        }
+
+        public FastToken Consume()
+        {
+            index++;
+            return this[index];
+        }
+
+        public CancellableDisposableAction UndoMark()
+        {
+            var i = index;
+            return new CancellableDisposableAction(() => {
+                index = i;
+            });
+        }
+    }
 
     public class FastScanner
     {
@@ -20,6 +174,8 @@ namespace YantraJS.Core.FastParser
         {
             this.Text = text;
         }
+
+        
 
         private static FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, 0, 0);
         private static FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, 0, 0);
@@ -121,6 +277,8 @@ namespace YantraJS.Core.FastParser
                         // Read Regex
                         // Read /=
                         return ReadCommentsOrRegExOrSymbol(state, first);
+                    case ',':
+                        return ReadSymbol(state, TokenTypes.Comma);
                     case '(':
                         return ReadSymbol(state, TokenTypes.BracketStart);
                     case ')':

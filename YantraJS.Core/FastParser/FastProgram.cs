@@ -6,15 +6,20 @@ namespace YantraJS.Core.FastParser
 
     public delegate bool ParseToken(FastScanner scanner, out FastToken token);
 
-    public class FastProgram: FastStatement {
+    public class FastProgram: FastBlock {
 
-        public readonly SparseList<FastStatement> Body = new SparseList<FastStatement>();
-        public FastProgram(): base(FastNodeType.Program)
+        public FastProgram(): base(null, FastNodeType.Program)
         {
 
         }
 
-        
+        public static FastProgram Compile(in StringSpan text)
+        {
+            var tokenStream = new FastTokenStream(text);
+            var program = new FastProgram();
+            program.Read(tokenStream);
+            return program;
+        }
 
     }
 }

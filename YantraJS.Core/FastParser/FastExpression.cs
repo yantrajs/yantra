@@ -1,9 +1,15 @@
-﻿namespace YantraJS.Core.FastParser
+﻿using System;
+namespace YantraJS.Core.FastParser
 {
-    public class FastExpression : FastNode
+    public abstract class FastExpression : FastNode
     {
-        protected FastExpression(FastNodeType nodeType) : base(nodeType)
+        protected FastExpression(FastNode parent, FastNodeType nodeType) : base(parent, nodeType)
         {
+        }
+
+        public static FastExpression Read(FastNode parent, FastTokenStream stream)
+        {
+            throw new NotImplementedException();
         }
     }
 }

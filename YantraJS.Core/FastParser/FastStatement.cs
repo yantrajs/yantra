@@ -1,8 +1,8 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    public class FastStatement: FastNode
+    public abstract class FastStatement: FastNode
     {
-        protected FastStatement(FastNodeType type): base(type, true)
+        protected FastStatement(FastNode parent, FastNodeType type): base(parent, type, true)
         {
 
         }

@@ -51,6 +51,7 @@
         CurlyBracketEnd,
         TemplateBegin,
         TemplatePart,
-        TemplateEnd
+        TemplateEnd,
+        Comma
     }
 }

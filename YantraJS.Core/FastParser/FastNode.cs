@@ -1,14 +1,19 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    public class FastNode
+    public abstract class FastNode
     {
         public readonly FastNodeType NodeType;
 
         public readonly bool IsStatement;
 
-        protected FastNode(FastNodeType nodeType, bool isStatement = false)
+        public readonly FastNode Parent;
+
+        protected FastNode(FastNode parent, FastNodeType nodeType, bool isStatement = false)
         {
+            this.Parent = parent;
             this.NodeType = nodeType;
         }
+
+        internal abstract void Read(FastTokenStream stream);
     }
 }

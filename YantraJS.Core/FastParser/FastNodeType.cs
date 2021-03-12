@@ -8,6 +8,7 @@ namespace YantraJS.Core.FastParser
         Node,
         Block,
         Program,
-        BinaryExpression
+        BinaryExpression,
+        VariableDeclaration
     }
 }
