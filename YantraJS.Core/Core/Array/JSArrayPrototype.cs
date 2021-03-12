@@ -583,7 +583,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
