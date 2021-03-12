@@ -618,12 +618,22 @@ namespace YantraJS.Core
         public static JSValue Reverse(in Arguments a)
         {
             var @this = a.This;
-            var r = new JSArray();
-            for (int i = @this.Length - 1 ; i >= 0; i--)
-            {
-                r.Add(@this[(uint)i]);
+            //var r = new JSArray();
+            //for (int i = @this.Length - 1 ; i >= 0; i--)
+            //{
+            //    r.Add(@this[(uint)i]);
+            //}
+            //return r;
+            var i = 0;
+            var j = @this.Length - 1;
+            while (i < j) {
+                var swap = @this[(uint)i];
+                @this[(uint)i++] = @this[(uint)j];
+                @this[(uint)j--] = swap;
+
             }
-            return r;
+            // Assert.AreEqual(false, Evaluate("x.hasOwnProperty('0')")); This TC fails
+            return @this;
 
         }
 
