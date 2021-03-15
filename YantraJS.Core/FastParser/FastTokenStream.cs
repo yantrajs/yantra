@@ -23,10 +23,10 @@ namespace YantraJS.Core.FastParser
 
         public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
         {
-            this.scanner = new FastScanner(text);
             tokens = new SparseList<FastToken>();
             index = 0;
-            this.Keywords = keywords ?? new FastKeywordMap();
+            this.Keywords = keywords ?? FastKeywordMap.Instance;
+            this.scanner = new FastScanner(text, Keywords);
         }
 
         private FastToken this[int index]
@@ -57,21 +57,6 @@ namespace YantraJS.Core.FastParser
             return c;
         }
 
-        public bool CheckAndConsumeKeywords(out FastKeywords keyword)
-        {
-            var c = this[index];
-            if(c.Type == TokenTypes.Identifier)
-            {
-                if(Keywords.IsKeyword(in c.Span,out keyword))
-                {
-                    Consume();
-                    return true;
-                }
-            }
-            keyword = FastKeywords.none;
-            return false;
-        }
-
         public bool CheckAndConsume(TokenTypes type)
         {
             var c = this[index];
@@ -79,24 +64,6 @@ namespace YantraJS.Core.FastParser
             {
                 Consume();
                 return true;
-            }
-            return false;
-        }
-
-
-        public bool CheckAndConsume(FastKeywords keywords)
-        {
-            var c = this[index];
-            if (c.Type == TokenTypes.Identifier)
-            {
-                if (Keywords.IsKeyword(in c.Span, out var k))
-                {
-                    if (k == keywords)
-                    {
-                        Consume();
-                        return true;
-                    }
-                }
             }
             return false;
         }

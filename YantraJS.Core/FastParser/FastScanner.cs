@@ -21,7 +21,10 @@ namespace YantraJS.Core.FastParser
 
     public class FastKeywordMap
     {
-        private static ConcurrentStringMap<FastKeywords> list = new ConcurrentStringMap<FastKeywords>();
+
+        public static FastKeywordMap Instance = new FastKeywordMap();
+
+        private static ConcurrentStringMap<FastKeywords> list = ConcurrentStringMap<FastKeywords>.Create();
 
         static FastKeywordMap()
         {
@@ -31,6 +34,8 @@ namespace YantraJS.Core.FastParser
                 list[name] = value;
             }
         }
+
+        private FastKeywordMap() { }
 
         public bool IsKeyword(in StringSpan k, out FastKeywords keyword)
         {
@@ -53,7 +58,7 @@ namespace YantraJS.Core.FastParser
 
 
         public readonly StringSpan Text;
-
+        private readonly FastKeywordMap keywords;
         private int position = 0;
 
         private int line = 1;
@@ -70,9 +75,10 @@ namespace YantraJS.Core.FastParser
             return new FastParseException(c, $"Unexpected token {c.Type}: {c.Span} at {Location}");
         }
 
-        public FastScanner(in StringSpan text)
+        public FastScanner(in StringSpan text, FastKeywordMap keywords = null)
         {
             this.Text = text;
+            this.keywords = keywords ?? FastKeywordMap.Instance;
         }
 
         
@@ -452,7 +458,8 @@ namespace YantraJS.Core.FastParser
                 first = Peek();
 
             } while (first.IsIdentifierPart());
-            return state.Commit(TokenTypes.Identifier);
+            var token = state.CommitIdentifier(keywords);
+            return token;
         }
 
         private FastToken ReadNumber(State state, char first)
@@ -542,6 +549,22 @@ namespace YantraJS.Core.FastParser
                     scanner.line = line;
                     scanner.column = column;
                 }
+            }
+
+            internal FastToken CommitIdentifier(FastKeywordMap keywords)
+            {
+                var cp = scanner.position;
+                var start = scanner.Text.Offset + position;
+                var token = new FastToken(
+                    TokenTypes.Identifier,
+                    scanner.Text.Source,
+                    start, cp - start,
+                    line,
+                    column,
+                    scanner.line,
+                    scanner.column, keywords);
+                scanner = null;
+                return token;
             }
         }
 

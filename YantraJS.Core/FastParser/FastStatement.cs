@@ -43,8 +43,8 @@ namespace YantraJS.Core.FastParser
                     return null;
 
                 case TokenTypes.Identifier:
-                    if (stream.Keywords.IsKeyword(in token.Span, out var keyword))
-                        return ReadKeyword(keyword, parent, stream);
+                    if (token.IsKeyword)
+                        return ReadKeyword(token.Keyword, parent, stream);
                     break;
 
                     // IIFE

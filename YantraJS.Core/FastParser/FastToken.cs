@@ -1,4 +1,6 @@
-﻿namespace YantraJS.Core.FastParser
+﻿using System;
+
+namespace YantraJS.Core.FastParser
 {
     public class FastToken
     {
@@ -12,6 +14,8 @@
         public readonly int EndLine;
 
         public readonly int EndColumn;
+        public readonly bool IsKeyword;
+        public readonly FastKeywords Keyword;
 
         public SpanLocation StartLocation => new SpanLocation(StartLine, StartColumn);
 
@@ -25,7 +29,8 @@
             int startLine,
             int startColumn,
             int endLine,
-            int endColumn)
+            int endColumn,
+            FastKeywordMap keywords = null)
         {
             this.Type = type;
             this.StartLine = startLine;
@@ -33,7 +38,11 @@
             this.EndLine = endLine;
             this.EndColumn = endColumn;
             this.Span = new StringSpan(source, start, length);
+            if(keywords != null)
+            {
+                this.IsKeyword = keywords.IsKeyword(Span, out var k);
+                this.Keyword = k;
+            }
         }
-
     }
 }
