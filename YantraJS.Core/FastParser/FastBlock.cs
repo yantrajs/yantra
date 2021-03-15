@@ -3,7 +3,7 @@
 namespace YantraJS.Core.FastParser
 {
 
-    public class FastBlock: FastStatement
+    public class FastBlock: FastStatement, IVariableScope
     {
         public readonly SparseList<FastStatement> Body = new SparseList<FastStatement>();
 
@@ -18,6 +18,16 @@ namespace YantraJS.Core.FastParser
         {
             while (ParseStatement(this, stream, out FastStatement statement))
                 Body.Add(statement);
+        }
+
+        public FastVariable CreateVariable(string name, bool scoped)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public FastVariable GetVariable(string alias)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

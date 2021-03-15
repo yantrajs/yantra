@@ -4,7 +4,6 @@ using System.Text;
 namespace YantraJS.Core.FastParser
 {
 
-    public delegate bool ParseToken(FastScanner scanner, out FastToken token);
 
     public class FastProgram: FastBlock {
 
