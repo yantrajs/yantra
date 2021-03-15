@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace YantraJS.Core.FastParser
 {
     public abstract class FastExpression : FastNode
@@ -15,6 +17,39 @@ namespace YantraJS.Core.FastParser
                 // when hint is not none, token is already consumed...
                 return ReadKeyword(parent, stream, hint);
             }
+
+            var current = stream.Current;
+            if (current.IsKeyword)
+            {
+                return ReadKeyword(parent, stream, current.Keyword);
+            }
+
+            switch (current.Type)
+            {
+                // (
+                case TokenTypes.BracketStart:
+                    stream.Consume();
+                    List<FastNode> nodes = new List<FastNode>();
+                    do
+                    {
+                        nodes.Add(Read(parent, stream));
+                        if (stream.CheckAndConsume(TokenTypes.BracketEnd))
+                            break;
+                        if (stream.CheckAndConsume(TokenTypes.Comma))
+                            continue;
+                    }
+                    while (true);
+
+                    if (stream.CheckAndConsume(TokenTypes.Lambda))
+                    {
+                        // lambda function..
+                    }
+
+                    break;
+
+            }
+
+
             throw new NotImplementedException();
         }
 
@@ -24,6 +59,9 @@ namespace YantraJS.Core.FastParser
             {
                 case FastKeywords.function:
                     return new FastFunctionExpression(parent, stream);
+                case FastKeywords.async:
+                    stream.Consume();
+                    return new FastFunctionExpression(parent, stream, true);
             }
             return null;
         }

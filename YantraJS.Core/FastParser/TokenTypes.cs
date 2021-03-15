@@ -55,6 +55,17 @@
         Comma,
         QuestionDot,
         Dot,
-        TripleDots
+        TripleDots,
+        LineTerminator,
+        Null,
+        False,
+        True,
+        AssignMultiply,
+        AssignDivide,
+        AssignAdd,
+        AssignSubtract,
+        AssignUnsignedRightShift,
+        AssignBitwideAnd,
+        AssignBitwideOr
     }
 }

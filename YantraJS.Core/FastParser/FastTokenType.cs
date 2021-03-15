@@ -8,11 +8,6 @@ namespace YantraJS.Core.FastParser
 
         private static int nextId = 0;
 
-        public FastTokenType(ParseToken parser)
-        {
-            this.Id = Interlocked.Increment(ref nextId);
-        }
-
         public static bool operator == (in FastTokenType left, in FastTokenType right)
         {
             return left.Id == right.Id;

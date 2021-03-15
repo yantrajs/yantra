@@ -1,57 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core.FastParser
 {
-
-    public enum FastKeywords
-    {
-        none,
-        let,
-        var,
-        @const,
-        @for,
-        @while,
-        @do,
-        @function,
-        @if
-    }
-
-    public class FastKeywordMap
-    {
-
-        public static FastKeywordMap Instance = new FastKeywordMap();
-
-        private static ConcurrentStringMap<FastKeywords> list = ConcurrentStringMap<FastKeywords>.Create();
-
-        static FastKeywordMap()
-        {
-            foreach (var name in Enum.GetNames(typeof(FastKeywords)))
-            {
-                var value = (FastKeywords)Enum.Parse(typeof(FastKeywords), name);
-                list[name] = value;
-            }
-        }
-
-        private FastKeywordMap() { }
-
-        public bool IsKeyword(in StringSpan k, out FastKeywords keyword)
-        {
-            return list.TryGetValue(k, out keyword);
-        }
-    }
-
-    public class FastParseException: Exception
-    {
-
-        public readonly FastToken Token;
-        public FastParseException(FastToken token, string message): base(message)
-        {
-            Token = token;
-        }
-    }
 
     public class FastScanner
     {
@@ -220,7 +172,11 @@ namespace YantraJS.Core.FastParser
                         {
                             // >>>
                             if (CanConsume('>'))
+                            {
+                                if (CanConsume('='))
+                                    return state.Commit(TokenTypes.AssignUnsignedRightShift);
                                 return state.Commit(TokenTypes.UnsignedRightShift);
+                            }
                             // >>=
                             if (CanConsume('='))
                                 return state.Commit(TokenTypes.AssignRightShift);
@@ -254,6 +210,8 @@ namespace YantraJS.Core.FastParser
                                 return state.Commit(TokenTypes.AssignPower);
                             return state.Commit(TokenTypes.Power);
                         }
+                        if (CanConsume('='))
+                            return state.Commit(TokenTypes.AssignMultiply);
                         return state.Commit(TokenTypes.Multiply);
                     case '&':
                         Consume();
@@ -261,21 +219,29 @@ namespace YantraJS.Core.FastParser
                         {
                             return state.Commit(TokenTypes.BooleanAnd);
                         }
+                        if (CanConsume('='))
+                            return state.Commit(TokenTypes.AssignBitwideAnd);
                         return state.Commit(TokenTypes.BitwiseAnd);
                     case '|':
                         Consume();
                         if (CanConsume('|'))
                             return state.Commit(TokenTypes.BooleanOr);
+                        if (CanConsume('='))
+                            return state.Commit(TokenTypes.AssignBitwideOr);
                         return state.Commit(TokenTypes.BitwiseOr);
                     case '+':
                         Consume();
                         if (CanConsume('+'))
                             return state.Commit(TokenTypes.Increment);
+                        if (CanConsume('='))
+                            return state.Commit(TokenTypes.AssignAdd);
                         return state.Commit(TokenTypes.Plus);
                     case '-':
                         Consume();
                         if (CanConsume('-'))
                             return state.Commit(TokenTypes.Decrement);
+                        if (CanConsume('='))
+                            return state.Commit(TokenTypes.AssignSubtract);
                         return state.Commit(TokenTypes.Minus);
                     case '^':
                         Consume();
@@ -309,6 +275,8 @@ namespace YantraJS.Core.FastParser
                         if (CanConsume('='))
                             return state.Commit(TokenTypes.AssignMod);
                         return state.Commit(TokenTypes.Mod);
+                    case '\n':
+                        return ReadSymbol(state, TokenTypes.LineTerminator);
                     case '=':
                         Consume();
                         if(CanConsume('='))

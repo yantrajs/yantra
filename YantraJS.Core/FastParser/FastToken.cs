@@ -16,6 +16,7 @@ namespace YantraJS.Core.FastParser
         public readonly int EndColumn;
         public readonly bool IsKeyword;
         public readonly FastKeywords Keyword;
+        public readonly FastKeywords ContextualKeyword;
 
         public SpanLocation StartLocation => new SpanLocation(StartLine, StartColumn);
 
@@ -42,6 +43,32 @@ namespace YantraJS.Core.FastParser
             {
                 this.IsKeyword = keywords.IsKeyword(Span, out var k);
                 this.Keyword = k;
+
+                switch(k)
+                {
+                    case FastKeywords.@null:
+                        IsKeyword = false;
+                        Type = TokenTypes.Null;
+                        break;
+                    case FastKeywords.@true:
+                        IsKeyword = false;
+                        Type = TokenTypes.True;
+                        break;
+                    case FastKeywords.@false:
+                        IsKeyword = false;
+                        Type = TokenTypes.False;
+                        break;
+                    case FastKeywords.get:
+                        IsKeyword = false;
+                        Type = TokenTypes.Identifier;
+                        ContextualKeyword = FastKeywords.get;
+                        break;
+                    case FastKeywords.set:
+                        IsKeyword = false;
+                        Type = TokenTypes.Identifier;
+                        ContextualKeyword = FastKeywords.set;
+                        break;
+                }
             }
         }
     }
