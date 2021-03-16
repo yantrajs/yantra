@@ -94,5 +94,13 @@ namespace YantraJS.Core.FastParser
                 index = i;
             });
         }
+
+        public int Position => index;
+
+        public bool Reset(int position)
+        {
+            index = position;
+            return false;
+        }
     }
 }
