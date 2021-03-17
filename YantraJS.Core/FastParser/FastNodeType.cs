@@ -14,6 +14,9 @@ namespace YantraJS.Core.FastParser
         FunctionExpression,
         AssignmentPattern,
         VariableReference,
-        Identifier
+        Identifier,
+        ObjectPattern,
+        SpreadElement,
+        IfStatement
     }
 }

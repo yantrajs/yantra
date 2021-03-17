@@ -12,17 +12,23 @@ namespace YantraJS.Core.FastParser
         bool Block(out AstBlock node)
         {
             var begin = Location;
-            SparseList<AstStatement> list = new SparseList<AstStatement>();
-            do
+            var list = Pool.AllocateList<AstStatement>();
+            try
             {
-                if (Statement(out var stmt))
+                do
                 {
-                    list.Add(stmt);
-                }
-                if (EndOfStatement())
-                    break;
-            } while (true);
-            node = new AstBlock(begin.Token, PreviousToken, list);
+                    if (Statement(out var stmt))
+                    {
+                        list.Add(stmt);
+                    }
+                    if (EndOfStatement())
+                        break;
+                } while (true);
+                node = new AstBlock(begin.Token, PreviousToken, list.Release());
+            } finally
+            {
+                list.Clear();
+            }
             return true;
         }
 

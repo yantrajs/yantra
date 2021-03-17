@@ -38,6 +38,10 @@ namespace YantraJS.Core.FastParser
                         return VariableDeclaration(out node, isLet: true);
                     case FastKeywords.@const:
                         return VariableDeclaration(out node, isConst: true);
+                    case FastKeywords.@if:
+                        return IfStatement(out node);
+                    case FastKeywords.@while:
+                        return WhileStatement(out node);
                 }
             }
 

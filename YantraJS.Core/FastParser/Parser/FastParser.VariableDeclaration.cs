@@ -16,41 +16,32 @@ namespace YantraJS.Core.FastParser
             node = default;
 
             stream.Consume();
-            List<VariableDeclarator> declarators = new List<VariableDeclarator>();
-
-            do
+            var declarators = Pool.AllocateList<VariableDeclarator>();
+            try
             {
-                if (stream.CheckAndConsume(TokenTypes.Identifier, out var id))
+                do
                 {
-                    // simple... variable declaration with identifier.. var a;
-                    var identifier = new AstIdentifier(id);
-                    if (stream.CheckAndConsume(TokenTypes.Assign))
+                    if (AssignmentLeftPattern(out var pattern))
                     {
-                        if (!Expression(out var init))
+                        if (stream.CheckAndConsume(TokenTypes.Assign))
                         {
-                            throw new FastParseException(stream.Current, $"Init expression expected");
+                            if (!Expression(out var init))
+                            {
+                                throw new FastParseException(stream.Current, $"Init expression expected");
+                            }
+                            declarators.Add(new VariableDeclarator(pattern, init));
+                            continue;
                         }
-                        declarators.Add(new VariableDeclarator(identifier, init));
-                        return true;
                     }
-                }
+                    if (!stream.CheckAndConsume(TokenTypes.Comma))
+                        break;
 
-                if(stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
-                {
-                    // read pattern ...
-                }
+                } while (true);
 
-                if(stream.CheckAndConsume(TokenTypes.SquareBracketStart))
-                {
-                    // read pattern ...
-                }
-
-                if (!stream.CheckAndConsume(TokenTypes.Comma))
-                    break;
-
-            } while (true);
-
-            node = new AstVariableDeclaration(begin.Token, stream.Previous, declarators, isLet, isConst);
+                node = new AstVariableDeclaration(begin.Token, stream.Previous, declarators.Release(), isLet, isConst);
+            } finally {
+                declarators.Clear();
+            }
 
             return begin.Reset();
         }

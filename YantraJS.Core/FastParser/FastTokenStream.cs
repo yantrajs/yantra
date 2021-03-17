@@ -57,6 +57,18 @@ namespace YantraJS.Core.FastParser
             return c;
         }
 
+        public bool CheckAndConsume(FastKeywords keyword)
+        {
+            var c = this[index];
+            if (c.IsKeyword && c.Keyword == keyword)
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
         public bool CheckAndConsume(TokenTypes type)
         {
             var c = this[index];

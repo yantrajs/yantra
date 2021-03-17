@@ -1,12 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
 {
+
     public partial class FastParser
     {
         private readonly FastTokenStream stream;
+
+        public readonly FastPool Pool = new FastPool();
 
 
         public StreamLocation Location => new StreamLocation(this, stream.Position, stream.Current);
