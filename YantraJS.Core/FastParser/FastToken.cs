@@ -68,6 +68,11 @@ namespace YantraJS.Core.FastParser
                         Type = TokenTypes.Identifier;
                         ContextualKeyword = FastKeywords.set;
                         break;
+                    case FastKeywords.of:
+                        IsKeyword = false;
+                        Type = TokenTypes.Identifier;
+                        ContextualKeyword = FastKeywords.of;
+                        break;
                 }
             }
         }

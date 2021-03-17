@@ -2,7 +2,7 @@
 {
     public class AstBindingPattern : AstExpression
     {
-        public AstBindingPattern(FastToken start, FastNodeType type, FastToken end) : base(start, type, end)
+        public AstBindingPattern(FastToken start, FastNodeType type, FastToken end) : base(start, type, end, true)
         {
         }
     }

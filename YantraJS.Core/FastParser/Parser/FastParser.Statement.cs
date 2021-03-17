@@ -42,6 +42,23 @@ namespace YantraJS.Core.FastParser
                         return IfStatement(out node);
                     case FastKeywords.@while:
                         return WhileStatement(out node);
+                    case FastKeywords.@do:
+                        return DoWhileStatement(out node);
+                    case FastKeywords.@for:
+                        return ForStatement(out node);
+                    case FastKeywords.@continue:
+                        return Continue(out node);
+                    case FastKeywords.@break:
+                        return Break(out node);
+                    case FastKeywords.@return:
+                        return Return(out node);
+                    case FastKeywords.yield:
+                        return Yield(out node);
+                    case FastKeywords.with:
+                        throw stream.Unexpected();
+                    //case FastKeywords.@switch:
+                    //    return Switch(out node);
+
                 }
             }
 
@@ -52,6 +69,67 @@ namespace YantraJS.Core.FastParser
             }
 
             return begin.Reset();
+
+            bool Continue(out AstStatement statement)
+            {
+                var begin = Location;
+                stream.Consume();
+
+                Identitifer(out var id);
+
+                EndOfStatement();
+                statement = new AstContinueStatement(begin.Token, PreviousToken, id);
+                return true;
+            }
+
+            bool Break(out AstStatement statement)
+            {
+                var begin = Location;
+                stream.Consume();
+
+                Identitifer(out var id);
+
+                EndOfStatement();
+                statement = new AstBreakStatement(begin.Token, PreviousToken, id);
+                return true;
+            }
+
+            bool Return(out AstStatement statement)
+            {
+                var begin = Location;
+                stream.Consume();
+                if (EndOfStatement())
+                {
+                    statement = new AstReturnStatement(begin.Token, PreviousToken);
+                    return true;
+                }
+
+                if(Expression(out var target))
+                {
+                    statement = new AstReturnStatement(begin.Token, PreviousToken, target);
+                    EndOfStatement();
+                    return true;
+                }
+                throw stream.Unexpected();
+            }
+
+            bool Yield(out AstStatement statement)
+            {
+                var begin = Location;
+                stream.Consume();
+                bool star = false;
+                if(stream.CheckAndConsume(TokenTypes.Multiply))
+                {
+                    star = true;
+                }
+                if (Expression(out var target))
+                {
+                    statement = new AstYieldStatement(begin.Token, PreviousToken, target, star);
+                    EndOfStatement();
+                    return true;
+                }
+                throw stream.Unexpected();
+            }
         }
 
 

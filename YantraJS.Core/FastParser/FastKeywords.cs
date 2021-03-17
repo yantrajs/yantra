@@ -60,6 +60,7 @@
 
         // contextual...
         @get,
-        @set
+        @set,
+        @of
     }
 }

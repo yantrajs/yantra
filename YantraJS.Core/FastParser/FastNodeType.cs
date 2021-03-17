@@ -17,6 +17,13 @@ namespace YantraJS.Core.FastParser
         Identifier,
         ObjectPattern,
         SpreadElement,
-        IfStatement
+        IfStatement,
+        WhileStatement,
+        DoWhileStatement,
+        SequenceExpression,
+        ForStatement,
+        ForInStatement,
+        ForOfStatement,
+        ContinueStatement
     }
 }

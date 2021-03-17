@@ -5,25 +5,56 @@ using System.Text;
 namespace YantraJS.Core.FastParser
 {
 
-    public class AstWhileStatement : AstStatement
-    {
-        public readonly AstExpression Test;
-
-        public AstWhileStatement(FastToken start, FastToken end, AstExpression test)
-            : base(start, FastNodeType.IfStatement, end)
-        {
-            this.Test = test;
-        }
-    }
-
     partial class FastParser
     {
 
+        bool ExpressionSequence(out AstExpression expressions, TokenTypes endWith = TokenTypes.BracketEnd)
+        {
+            var begin = Location;
+            var nodes = Pool.AllocateList<AstExpression>();
+            try
+            {
+                do
+                {
+                    if (Expression(out var node))
+                        nodes.Add(node);
+                    if (stream.CheckAndConsume(TokenTypes.Comma))
+                        continue;
+                    if (stream.CheckAndConsume(endWith))
+                        break;
+                    throw stream.Unexpected();
+                } while (true);
+                if (nodes.Count == 1)
+                {
+                    expressions = nodes[0];
+                } else
+                {
+                    expressions = new AstSequenceExpression(begin.Token, PreviousToken, nodes.Release());
+                }
+                return true;
+            } finally
+            {
+                nodes.Clear();
+            }
+        }
 
 
         bool WhileStatement(out AstStatement node)
         {
-            throw new NotImplementedException();
+            var begin = Location;
+            stream.Consume();
+
+            stream.Expect(TokenTypes.BracketStart);
+
+            ExpressionSequence(out var test);
+
+            stream.Expect(TokenTypes.BracketEnd);
+
+            if (!Statement(out var statement))
+                throw stream.Unexpected();
+
+            node = new AstWhileStatement(begin.Token, PreviousToken, test, statement);
+            return true;
         }
 
 

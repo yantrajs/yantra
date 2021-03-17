@@ -8,19 +8,15 @@
 
         public readonly bool IsStatement;
 
-        public AstNode(FastToken start, FastNodeType type, FastToken end)
-        {
-            this.Start = start;
-            this.Type = type;
-            this.End = end;
-        }
+        public readonly bool IsBinding;
 
-        public AstNode(FastToken start, FastNodeType type, FastToken end, bool isStatement)
+        public AstNode(FastToken start, FastNodeType type, FastToken end, bool isStatement = false, bool isBinding = false)
         {
             this.Start = start;
             this.Type = type;
             this.End = end;
             this.IsStatement = isStatement;
+            this.IsBinding = isBinding;
         }
 
     }

@@ -57,10 +57,32 @@ namespace YantraJS.Core.FastParser
             return c;
         }
 
+        public FastToken Expect(FastKeywords type)
+        {
+            var c = this[index];
+            if (c.Keyword != type)
+                throw new FastParseException(c, $"Expecting keyword {type}");
+            Consume();
+            return c;
+        }
+
+
+        public bool CheckAndConsumeContextualKeyword(FastKeywords keyword)
+        {
+            var c = this[index];
+            if (c.ContextualKeyword == keyword)
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
         public bool CheckAndConsume(FastKeywords keyword)
         {
             var c = this[index];
-            if (c.IsKeyword && c.Keyword == keyword)
+            if (c.Keyword == keyword)
             {
                 Consume();
                 return true;
