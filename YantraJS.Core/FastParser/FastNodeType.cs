@@ -13,6 +13,7 @@ namespace YantraJS.Core.FastParser
         ExpressionStatement,
         FunctionExpression,
         AssignmentPattern,
-        VariableReference
+        VariableReference,
+        Identifier
     }
 }

@@ -8,6 +8,31 @@ namespace YantraJS.Core.FastParser
     {
         private readonly FastTokenStream stream;
 
+
+        public StreamLocation Location => new StreamLocation(this, stream.Position, stream.Current);
+
+        public FastToken PreviousToken => stream.Previous;
+
+        public readonly struct StreamLocation
+        {
+            private readonly FastParser parser;
+            private readonly int position;
+            public readonly FastToken Token;
+
+            public StreamLocation(FastParser parser, int index, FastToken token)
+            {
+                this.parser = parser;
+                this.position = index;
+                this.Token = token;
+            }
+
+            public bool Reset()
+            {
+                parser.stream.Reset(position);
+                return false;
+            }
+        }
+
         public FastParser(FastTokenStream stream)
         {
             this.stream = stream;
@@ -20,6 +45,21 @@ namespace YantraJS.Core.FastParser
                 stream.Consume();
                 return func();
             };
+        }
+
+        bool EndOfStatement()
+        {
+            var token = stream.Current;
+            switch (token.Type)
+            {
+                case TokenTypes.SemiColon:
+                case TokenTypes.EOF:
+                case TokenTypes.LineTerminator:
+                case TokenTypes.CurlyBracketEnd:
+                    stream.Consume();
+                    return true;
+            }
+            return false;
         }
 
     }
