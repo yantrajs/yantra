@@ -58,6 +58,12 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     //case FastKeywords.@switch:
                     //    return Switch(out node);
+                    case FastKeywords.@throw:
+                    case FastKeywords.@try:
+                    case FastKeywords.debugger:
+                    case FastKeywords.@class:
+                    case FastKeywords.function:
+                        throw stream.Unexpected();
 
                 }
             }
