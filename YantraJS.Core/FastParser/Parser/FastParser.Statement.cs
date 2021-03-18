@@ -56,8 +56,8 @@ namespace YantraJS.Core.FastParser
                         return Yield(out node);
                     case FastKeywords.with:
                         throw stream.Unexpected();
-                    //case FastKeywords.@switch:
-                    //    return Switch(out node);
+                    case FastKeywords.@switch:
+                        return Switch(out node);
                     case FastKeywords.@throw:
                         return Throw(out node);
                     case FastKeywords.@try:
@@ -110,13 +110,36 @@ namespace YantraJS.Core.FastParser
                 if (!Identitifer(out var id))
                     throw stream.Unexpected();
                 stream.Expect(TokenTypes.BracketEnd);
+                if (stream.CheckAndConsume(FastKeywords.@catch))
+                {
+                    stream.Expect(TokenTypes.CurlyBracketStart);
+                    if (!Statement(out var @catch))
+                        throw stream.Unexpected();
+                    stream.Expect(TokenTypes.CurlyBracketEnd);
+                    Finally(out var @finally);
+                    statement = new AstTryStatement(begin.Token, PreviousToken, body, id, @catch, @finally);
+                    return true;
+                }
+                else if (Finally(out var @finally))
+                {
+                    statement = new AstTryStatement(begin.Token, PreviousToken, body, null, null, @finally);
+                    return true;
+                }
+                else
+                    throw stream.Unexpected();
+
+            }
+
+            bool Finally(out AstStatement statement)
+            {
+                statement = null;
+                if (!stream.CheckAndConsume(FastKeywords.@finally))
+                    return false;
                 stream.Expect(TokenTypes.CurlyBracketStart);
-                if (!Statement(out var @catch))
+                if (!Statement(out statement))
                     throw stream.Unexpected();
                 stream.Expect(TokenTypes.CurlyBracketEnd);
-                statement = new AstTryStatement(begin.Token, PreviousToken, body, id, @catch);
                 return true;
-
             }
 
             bool Throw(out AstStatement statement)

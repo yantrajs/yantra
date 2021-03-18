@@ -30,6 +30,7 @@ namespace YantraJS.Core.FastParser
         DebuggerStatement,
         Literal,
         MemberExpression,
-        ClassStatement
+        ClassStatement,
+        SwitchStatement
     }
 }
