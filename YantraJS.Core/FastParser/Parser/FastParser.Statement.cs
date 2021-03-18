@@ -59,8 +59,11 @@ namespace YantraJS.Core.FastParser
                     //case FastKeywords.@switch:
                     //    return Switch(out node);
                     case FastKeywords.@throw:
+                        return Throw(out node);
                     case FastKeywords.@try:
+                        return Try(out node);
                     case FastKeywords.debugger:
+                        return Debugger(out node);
                     case FastKeywords.@class:
                     case FastKeywords.function:
                         throw stream.Unexpected();
@@ -75,6 +78,52 @@ namespace YantraJS.Core.FastParser
             }
 
             return begin.Reset();
+
+            bool Debugger(out AstStatement statement)
+            {
+                var begin = Location;
+                stream.Consume();
+                statement = new AstDebuggerStatement(begin.Token);
+                EndOfStatement();
+                return true;
+            }
+
+            bool Try(out  AstStatement statement)
+            {
+                var begin = Location;
+                stream.Consume();
+
+                stream.Expect(TokenTypes.CurlyBracketStart);
+
+                if (!Statement(out var body))
+                    throw stream.Unexpected();
+
+                stream.Expect(TokenTypes.CurlyBracketEnd);
+                stream.Expect(FastKeywords.@catch);
+                stream.Expect(TokenTypes.BracketStart);
+                if (!Identitifer(out var id))
+                    throw stream.Unexpected();
+                stream.Expect(TokenTypes.BracketEnd);
+                stream.Expect(TokenTypes.CurlyBracketStart);
+                if (!Statement(out var @catch))
+                    throw stream.Unexpected();
+                stream.Expect(TokenTypes.CurlyBracketEnd);
+                statement = new AstTryStatement(begin.Token, PreviousToken, body, id, @catch);
+                return true;
+
+            }
+
+            bool Throw(out AstStatement statement)
+            {
+                var begin = Location;
+                stream.Consume();
+
+                if (!Expression(out var target))
+                    stream.Unexpected();
+
+                statement = new AstThrowStatement(begin.Token, PreviousToken, target);
+                return true;
+            }
 
             bool Continue(out AstStatement statement)
             {

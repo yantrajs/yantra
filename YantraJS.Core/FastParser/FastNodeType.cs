@@ -24,6 +24,9 @@ namespace YantraJS.Core.FastParser
         ForStatement,
         ForInStatement,
         ForOfStatement,
-        ContinueStatement
+        ContinueStatement,
+        ThrowStatement,
+        TryStatement,
+        DebuggerStatement
     }
 }
