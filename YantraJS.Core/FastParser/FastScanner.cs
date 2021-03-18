@@ -130,6 +130,8 @@ namespace YantraJS.Core.FastParser
                     case '8':
                     case '9':
                         return ReadNumber(state, first);
+                    case '#':
+                        return ReadSymbol(state, TokenTypes.Hash);
                     case '/':
                         // Read comments
                         // Read Regex

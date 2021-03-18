@@ -14,36 +14,13 @@ namespace YantraJS.Core.FastParser
         {
             var begin = Location;
             node = default;
-
             stream.Consume();
-            var declarators = Pool.AllocateList<VariableDeclarator>();
-            try
-            {
-                do
-                {
-                    if (AssignmentLeftPattern(out var pattern))
-                    {
-                        if (stream.CheckAndConsume(TokenTypes.Assign))
-                        {
-                            if (!Expression(out var init))
-                            {
-                                throw new FastParseException(stream.Current, $"Init expression expected");
-                            }
-                            declarators.Add(new VariableDeclarator(pattern, init));
-                            continue;
-                        }
-                    }
-                    if (!stream.CheckAndConsume(TokenTypes.Comma))
-                        break;
 
-                } while (true);
+            if (!Parameters(out var declarators))
+                throw stream.Unexpected();
 
-                node = new AstVariableDeclaration(begin.Token, stream.Previous, declarators.Release(), isLet, isConst);
-            } finally {
-                declarators.Clear();
-            }
-
-            return begin.Reset();
+            node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, isLet, isConst);
+            return true;
         }
 
 

@@ -61,6 +61,7 @@
         // contextual...
         @get,
         @set,
-        @of
+        @of,
+        @constructor
     }
 }

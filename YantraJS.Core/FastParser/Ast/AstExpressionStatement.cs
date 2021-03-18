@@ -9,6 +9,13 @@
         {
             this.Expression = expression;
         }
+
+        public AstExpressionStatement(AstExpression expression)
+            : base(expression.Start, FastNodeType.ExpressionStatement, expression.End)
+        {
+            this.Expression = expression;
+        }
+
     }
 
 }

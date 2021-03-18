@@ -65,8 +65,14 @@ namespace YantraJS.Core.FastParser
                     case FastKeywords.debugger:
                         return Debugger(out node);
                     case FastKeywords.@class:
+                        return Class(out node);
+                    case FastKeywords.async:
+                        stream.Consume();
+                        if (stream.Current.Keyword != FastKeywords.function)
+                            throw stream.Unexpected();
+                        return Function(out node, true);
                     case FastKeywords.function:
-                        throw stream.Unexpected();
+                        return Function(out node);
 
                 }
             }

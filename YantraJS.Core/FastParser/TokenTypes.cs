@@ -66,6 +66,7 @@
         AssignSubtract,
         AssignUnsignedRightShift,
         AssignBitwideAnd,
-        AssignBitwideOr
+        AssignBitwideOr,
+        Hash
     }
 }
