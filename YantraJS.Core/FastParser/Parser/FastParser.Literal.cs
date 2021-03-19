@@ -10,7 +10,35 @@ namespace YantraJS.Core.FastParser
     {
 
 
-
+        bool Literal(out AstExpression node)
+        {
+            var token = stream.Current;
+            switch (token.Type)
+            {
+                case TokenTypes.True:
+                    stream.Consume();
+                    node = new AstLiteral(TokenTypes.True, token);
+                    return true;
+                case TokenTypes.False:
+                    stream.Consume();
+                    node = new AstLiteral(TokenTypes.True, token);
+                    return true;
+                case TokenTypes.String:
+                    stream.Consume();
+                    node = new AstLiteral(TokenTypes.String, token);
+                    return true;
+                case TokenTypes.Number:
+                    stream.Consume();
+                    node = new AstLiteral(TokenTypes.Number, token);
+                    return true;
+                case TokenTypes.Null:
+                    stream.Consume();
+                    node = new AstLiteral(TokenTypes.Null, token);
+                    return true;
+            }
+            node = null;
+            return false;
+        }
 
         bool StringLiteral(out AstExpression node)
         {

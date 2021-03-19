@@ -16,6 +16,9 @@ namespace YantraJS.Core.FastParser
             var begin = Location;
             node = default;
 
+            if (SingleExpression(out node))
+                return true;
+
             return begin.Reset();
         }
 
