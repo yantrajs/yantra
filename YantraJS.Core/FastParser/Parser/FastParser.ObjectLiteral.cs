@@ -31,6 +31,11 @@ namespace YantraJS.Core.FastParser
                         if (key.Type != FastNodeType.Identifier)
                             throw stream.Unexpected();
 
+                        if (!stream.CheckAndConsume(TokenTypes.Comma))
+                            throw stream.Unexpected();
+
+                        nodes.Add(new ObjectProperty(key, key));
+                        continue;
 
                     }
 
@@ -40,15 +45,20 @@ namespace YantraJS.Core.FastParser
                     {
                         spread = true;
                     }
+
+                    if (!Expression(out var right))
+                        throw stream.Unexpected();
+
+                    nodes.Add(new ObjectProperty(key, right, spread));
                 }
 
-
+                node = new AstObjectLiteral(begin.Token, PreviousToken, nodes.Release());
 
             } finally {
                 nodes.Clear();
             }
 
-            return begin.Reset();
+            return true;
         }
 
 
