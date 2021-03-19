@@ -637,7 +637,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("shift")]
+        [Prototype("shift", Length = 0)]
         public static JSValue Shift(in Arguments a)
         {
             var @this = a.This;
@@ -647,6 +647,12 @@ namespace YantraJS.Core
             {
                 if (ary.IsSealedOrFrozen())
                     throw JSContext.Current.NewTypeError("Cannot modify property length");
+
+                //Return undefined if the array is empty
+                if (ary.Length == 0) { 
+                    @this.Length = 0;
+                    return first;
+                }
 
                 var en = ary.GetElementEnumerator();
                 ref var elements = ref ary.GetElements();
@@ -684,10 +690,13 @@ namespace YantraJS.Core
             ref var oe = ref @object.GetElements();
             if (oe.IsNull)
                 return first;
-            for(uint i = 1; i < n - 1; i++)
+            first = @this[0];
+            for(uint i = 1; i <= n - 1; i++)
             {
                 if (oe.TryRemove(i, out var p))
+                { 
                     oe[i - 1] = p;
+                }
             }
             @this.Length = n - 1;
             return first;
