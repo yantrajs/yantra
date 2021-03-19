@@ -5,14 +5,6 @@ using System.Text;
 namespace YantraJS.Core.FastParser
 {
 
-    public class AstEmptyExpression : AstExpression
-    {
-        public AstEmptyExpression(FastToken start, bool isBinding = false)
-            : base(start, FastNodeType.EmptyExpression, start, isBinding)
-        {
-        }
-    }
-
     partial class FastParser
     {
 
@@ -49,14 +41,62 @@ namespace YantraJS.Core.FastParser
                     return ArrayExpression(out node);
                 case TokenTypes.CurlyBracketStart:
                     return ObjectLiteral(out node);
+                case TokenTypes.TemplateBegin:
+                    return Template(out node);
+            }
+
+            switch(token.Keyword)
+            {
+                case FastKeywords.async:
+                    stream.Consume();
+                    if (!Expression(out var fx))
+                        throw stream.Unexpected();
+                    if (!(fx is AstFunctionExpression func))
+                        throw stream.Unexpected();
+                    func.Async = true;
+                    node = func;
+                    return true;
+                case FastKeywords.function:
+                    return FunctionExpression(out node);
+                case FastKeywords.@class:
+                    return ClassExpression(out node);
             }
             
             throw new NotImplementedException();
 
+            bool Template(out AstExpression node)
+            {
+                var begin = Location;
+                stream.Consume();
+                var nodes = Pool.AllocateList<AstExpression>();
+                try
+                {
+                    nodes.Add(new AstLiteral(TokenTypes.String, begin.Token));
+                    while (!stream.CheckAndConsume(TokenTypes.TemplateEnd))
+                    {
+                        if (stream.CheckAndConsume(TokenTypes.TemplatePart, out var token))
+                        {
+                            nodes.Add(new AstLiteral(TokenTypes.String, token));
+                        }
+                        if (SingleExpression(out var exp))
+                        {
+                            nodes.Add(exp);
+                            continue;
+                        }
+                        throw stream.Unexpected();
+                    }
+                    node = new AstTemplateExpression(begin.Token, PreviousToken, nodes.Release());
+                } finally
+                {
+                    nodes.Clear();
+                }
+                return true;
+            }
+
             bool BracketExpression(out AstExpression node)
             {
                 node = default;
-                if(ExpressionList(out var nodes, out var start, out var end, TokenTypes.BracketEnd) {
+                if(ExpressionList(out var nodes, out var start, out var end, TokenTypes.BracketEnd)) {
                     if(nodes.Length == 0)
                     {
                         node = new AstEmptyExpression(PreviousToken);
@@ -75,7 +115,7 @@ namespace YantraJS.Core.FastParser
             bool ArrayExpression(out AstExpression node)
             {
                 node = default;
-                if (ExpressionList(out var nodes, out var start, out var end, TokenTypes.SquareBracketEnd) {
+                if (ExpressionList(out var nodes, out var start, out var end, TokenTypes.SquareBracketEnd)) {
                     node = new AstArrayExpression(start, end, nodes);
                     return true;
                 }

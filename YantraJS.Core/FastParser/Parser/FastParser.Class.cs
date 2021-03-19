@@ -10,9 +10,19 @@ namespace YantraJS.Core.FastParser
     {
 
 
-
-
         bool Class(out AstStatement statement)
+        {
+            statement = default;
+            if(ClassExpression(out var node))
+            {
+                statement = new AstExpressionStatement(node);
+                return true;
+            }
+            return false;
+                
+        }
+
+        bool ClassExpression(out AstExpression statement)
         {
             var begin = Location;
             statement = default;
@@ -106,7 +116,7 @@ namespace YantraJS.Core.FastParser
                         continue;
 
                 }
-                statement = new AstClassStatement(begin.Token, PreviousToken, identifier, @base, nodes.Release());
+                statement = new AstClassExpression(begin.Token, PreviousToken, identifier, @base, nodes.Release());
             }
             finally {
                 nodes.Clear();

@@ -2,7 +2,7 @@
 {
     internal class AstFunctionExpression : AstExpression
     {
-        public readonly bool Async;
+        public bool Async;
         public readonly bool Generator;
         public readonly AstIdentifier Identifier;
         public readonly VariableDeclarator[] Parameters;

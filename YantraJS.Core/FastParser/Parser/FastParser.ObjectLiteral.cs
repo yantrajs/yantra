@@ -15,6 +15,7 @@ namespace YantraJS.Core.FastParser
         {
             var begin = Location;
             node = default;
+            stream.Consume();
             var nodes = Pool.AllocateList<ObjectProperty>();
             try
             {

@@ -34,6 +34,8 @@ namespace YantraJS.Core.FastParser
         SwitchStatement,
         EmptyExpression,
         ArrayExpression,
-        ObjectLiteral
+        ObjectLiteral,
+        TemplateExpression,
+        UnaryExpression
     }
 }
