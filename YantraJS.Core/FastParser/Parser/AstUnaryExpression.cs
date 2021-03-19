@@ -3,10 +3,10 @@
     internal class AstUnaryExpression : AstExpression
     {
         public readonly AstExpression Argument;
-        public readonly TokenTypes Operator;
+        public readonly UnaryOperator Operator;
         public readonly bool Prefix;
 
-        public AstUnaryExpression(FastToken token, AstExpression argument, TokenTypes tokenType, bool prefix = true)
+        public AstUnaryExpression(FastToken token, AstExpression argument, UnaryOperator tokenType, bool prefix = true)
             : base(token, FastNodeType.UnaryExpression, argument.End)
         {
             this.Argument = argument;
