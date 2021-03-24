@@ -3,7 +3,8 @@
     public enum TokenTypes
     {
         Empty = 0,
-
+        // Operator       = 0b0100000,
+        // AssignOperator = 0b1000000,
         Identifier,
         Number,
         String,
@@ -27,6 +28,7 @@
         LessOrEqual,
         Less,
         Multiply,
+        Divide,
         AssignPower,
         Power,
         BitwiseAnd,

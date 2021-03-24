@@ -12,6 +12,11 @@ namespace YantraJS.Core.FastParser
             return new FastList<T>(this);
         }
 
+        public FastStack<T> AllocateStack<T>()
+        {
+            return new FastStack<T>(this);
+        }
+
         public void Free<T>(FastList<T> list)
         {
             list.Clear();
