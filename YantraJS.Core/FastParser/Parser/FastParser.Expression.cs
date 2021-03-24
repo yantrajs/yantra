@@ -9,13 +9,13 @@ namespace YantraJS.Core.FastParser
     {
 
         bool NextExpression(
-            AstExpression current, TokenTypes currentType,
+            AstExpression previous, TokenTypes previousType,
             out AstExpression node, out TokenTypes type)
         {
             AstExpression right = null;
             TokenTypes rightType = TokenTypes.None;
 
-            switch(currentType)
+            switch(previousType)
             {
                 // Associate right...
                 case TokenTypes.Assign:
@@ -33,7 +33,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.AssignXor:
                     if (!Expression(out right))
                         throw stream.Unexpected();
-                    node = new AstBinaryExpression(current, currentType, right);
+                    node = new AstBinaryExpression(previous, previousType, right);
                     type = TokenTypes.SemiColon;
                     return true;
             }
@@ -63,10 +63,17 @@ namespace YantraJS.Core.FastParser
                 node = new AstUnaryExpression(node.Start, node, postUnaryOperator, false);
             }
 
+            if(EndOfStatement())
+            {
+                type = TokenTypes.SemiColon;
+                return true;
+            }
+
             var begin = Location;
             type = begin.Token.Type;
             switch (type)
             {
+
                 // associate right...
                 case TokenTypes.Assign:
                 case TokenTypes.AssignAdd:
@@ -99,7 +106,7 @@ namespace YantraJS.Core.FastParser
                         type = rightType;
                         return true;
                     }
-                    node = new AstBinaryExpression(current, currentType, node);
+                    node = new AstBinaryExpression(previous, previousType, node);
                     type = rightType;
                     return true;
 
