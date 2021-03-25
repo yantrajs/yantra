@@ -177,10 +177,30 @@ namespace YantraJS.Core.FastParser
                     {
                         if (!Block(out var block))
                             throw stream.Unexpected();
-                        node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, null, block);
+                        node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(nodes), block);
                         return true;
                     }
+                    if (!Expression(out var r))
+                        throw stream.Unexpected();
+                    node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(nodes), new AstExpressionStatement( r));
+                    return true;
                 }
+            }
+
+            if(stream.CheckAndConsume(TokenTypes.Lambda))
+            {
+                if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
+                {
+                    if (!Block(out var block))
+                        throw stream.Unexpected();
+                    node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(node), block);
+                    return true;
+                }
+                if (!Expression(out var r))
+                    throw stream.Unexpected();
+                node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(node), new AstExpressionStatement(r));
+                return true;
+
             }
 
             if (prefixUnaryToken != UnaryOperator.None)

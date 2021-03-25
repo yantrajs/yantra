@@ -2,17 +2,6 @@
 
 namespace YantraJS.Core.FastParser
 {
-    public readonly struct VariableDeclarator
-    {
-        public readonly AstExpression Identifier;
-        public readonly AstExpression Init;
-
-        public VariableDeclarator(AstExpression identifier, AstExpression init)
-        {
-            Identifier = identifier;
-            Init = init;
-        }
-    }
 
     internal class AstVariableDeclaration: AstStatement
     {
