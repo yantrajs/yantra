@@ -26,6 +26,19 @@ namespace YantraJS.Core.FastParser
 
             switch(previousType)
             {
+
+                case TokenTypes.LineTerminator:
+                case TokenTypes.SemiColon:
+                    node = null;
+                    type = TokenTypes.SemiColon;
+                    stream.Reset(stream.Position - 1);
+                    return true;
+                case TokenTypes.Colon:
+                    node = null;
+                    type = TokenTypes.SemiColon;
+                    stream.Reset(stream.Position - 1);
+                    return true;
+
                 // Associate right...
                 case TokenTypes.Assign:
                 case TokenTypes.AssignAdd:
@@ -50,9 +63,9 @@ namespace YantraJS.Core.FastParser
                     if (!ExpressionArray(out var plist))
                         throw stream.Unexpected();
                     previous = new AstCallExpression(previous, plist);
-                    node = null;
-                    type = TokenTypes.SemiColon;
-                    return true;
+                    previousType = stream.Current.Type;
+                    stream.Consume();
+                    return NextExpression(ref previous, ref previousType, out node, out type);
 
                 case TokenTypes.QuestionMark:
                     if (!Expression(out var @true))
@@ -61,9 +74,9 @@ namespace YantraJS.Core.FastParser
                     if (!Expression(out var @false))
                         throw stream.Unexpected();
                     previous = new AstConditionalExpression(previous, @true, @false);
-                    node = null;
-                    type = TokenTypes.SemiColon;
-                    return true;
+                    previousType = stream.Current.Type;
+                    stream.Consume();
+                    return NextExpression(ref previous, ref previousType, out node, out type);
             }
             var preUnaryOperator = GetUnaryOperator(stream.Current);
 
