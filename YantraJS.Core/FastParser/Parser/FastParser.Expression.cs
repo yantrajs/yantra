@@ -9,7 +9,7 @@ namespace YantraJS.Core.FastParser
     {
 
         bool NextExpression(
-            AstExpression previous, TokenTypes previousType,
+            ref AstExpression previous, ref TokenTypes previousType,
             out AstExpression node, out TokenTypes type)
         {
             AstExpression right = null;
@@ -92,21 +92,23 @@ namespace YantraJS.Core.FastParser
 
                 case TokenTypes.Multiply:
                 case TokenTypes.Divide:
-                    if (!NextExpression(node, type, out right, out rightType))
+                    if (!NextExpression(ref node, ref type, out right, out rightType))
                         throw stream.Unexpected();
                     node = new AstBinaryExpression(node, type, right);
                     type = rightType;
                     return true;
                 case TokenTypes.Plus:
                 case TokenTypes.Minus:
-                    if (!NextExpression(node, type, out right, out rightType))
+                    if (!NextExpression(ref node, ref type, out right, out rightType))
                         throw stream.Unexpected();
                     if (Precedes(rightType, type)) {
                         node = new AstBinaryExpression(node, type, right);
                         type = rightType;
                         return true;
                     }
-                    node = new AstBinaryExpression(previous, previousType, node);
+                    previous = new AstBinaryExpression(previous, previousType, node);
+                    previousType = type;
+                    node = right;
                     type = rightType;
                     return true;
 
@@ -152,7 +154,8 @@ namespace YantraJS.Core.FastParser
             }
 
             var current = stream.Current;
-            if(NextExpression(node, current.Type, out var next, out var nextToken))
+            var currentType = current.Type;
+            if(NextExpression(ref node, ref currentType, out var next, out var nextToken))
             {
                 if(next == null)
                 {
