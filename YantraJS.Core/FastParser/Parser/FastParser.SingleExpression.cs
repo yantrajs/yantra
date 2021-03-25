@@ -61,8 +61,8 @@ namespace YantraJS.Core.FastParser
                 case FastKeywords.@class:
                     return ClassExpression(out node);
             }
-            
-            throw new NotImplementedException();
+
+            return begin.Reset();
 
             bool Template(out AstExpression node)
             {

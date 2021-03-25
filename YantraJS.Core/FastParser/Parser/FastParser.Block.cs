@@ -21,8 +21,13 @@ namespace YantraJS.Core.FastParser
                     {
                         list.Add(stmt);
                     }
-                    if (EndOfStatement())
+                    if (stream.CheckAndConsume(TokenTypes.LineTerminator))
+                        continue;
+                    if (stream.CheckAndConsume(TokenTypes.SemiColon))
+                        continue;
+                    if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
                         break;
+                    throw stream.Unexpected();
                 } while (true);
                 node = new AstBlock(begin.Token, PreviousToken, list.Release());
             } finally

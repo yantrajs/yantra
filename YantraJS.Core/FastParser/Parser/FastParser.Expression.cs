@@ -12,6 +12,15 @@ namespace YantraJS.Core.FastParser
             ref AstExpression previous, ref TokenTypes previousType,
             out AstExpression node, out TokenTypes type)
         {
+
+            if (EndOfStatement())
+            {
+                node = null;
+                type = TokenTypes.SemiColon;
+                return true;
+            }
+
+
             AstExpression right = null;
             TokenTypes rightType = TokenTypes.None;
 
@@ -44,14 +53,6 @@ namespace YantraJS.Core.FastParser
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
-
-                case TokenTypes.Dot:
-                    if (!Expression(out right))
-                        throw stream.Unexpected();
-                    previous = new AstMemberExpression(previous, right);
-                    node = null;
-                    type = TokenTypes.SemiColon;
-                    return true;
             }
             var preUnaryOperator = GetUnaryOperator(stream.Current);
 
@@ -76,6 +77,13 @@ namespace YantraJS.Core.FastParser
             if(postUnaryOperator != UnaryOperator.None)
             {
                 node = new AstUnaryExpression(node.Start, node, postUnaryOperator, false);
+            }
+
+            switch(previousType)
+            {
+                case TokenTypes.Dot:
+                    previous = new AstMemberExpression(previous, node);
+                    return NextExpression(ref previous, ref previousType, out node, out type);
             }
 
             if(EndOfStatement())
@@ -150,8 +158,30 @@ namespace YantraJS.Core.FastParser
 
             var prefixUnaryToken = GetUnaryOperator(token);
 
+            var isAsync = false;
+            var isGenerator = false;
+            if (stream.CheckAndConsume(FastKeywords.async))
+                isAsync = true;
+            if (stream.CheckAndConsume(TokenTypes.Multiply))
+                isGenerator = true;
+
             if (!SingleExpression(out node))
-                return begin.Reset();
+            {
+                // lets check if we have expression sequence
+                if(!ExpressionArray(out var nodes))
+                    return begin.Reset();
+                if(stream.CheckAndConsume(TokenTypes.Lambda))
+                {
+                    // array function...
+                    if(stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
+                    {
+                        if (!Block(out var block))
+                            throw stream.Unexpected();
+                        node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, null, block);
+                        return true;
+                    }
+                }
+            }
 
             if (prefixUnaryToken != UnaryOperator.None)
             {
