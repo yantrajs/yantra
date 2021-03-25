@@ -126,13 +126,19 @@ namespace YantraJS.Core.FastParser
 
                 case TokenTypes.Multiply:
                 case TokenTypes.Divide:
-                    if (!NextExpression(ref node, ref type, out right, out rightType))
-                        throw stream.Unexpected();
-                    node = new AstBinaryExpression(node, type, right);
-                    type = rightType;
-                    return true;
                 case TokenTypes.Plus:
                 case TokenTypes.Minus:
+                case TokenTypes.BitwiseAnd:
+                case TokenTypes.BitwiseNot:
+                case TokenTypes.BooleanAnd:
+                case TokenTypes.BooleanOr:
+                case TokenTypes.Xor:
+                case TokenTypes.LeftShift:
+                case TokenTypes.RightShift:
+                case TokenTypes.Less:
+                case TokenTypes.LessOrEqual:
+                case TokenTypes.Greater:
+                case TokenTypes.GreaterOrEqual:
                     if (!NextExpression(ref node, ref type, out right, out rightType))
                         throw stream.Unexpected();
                     if (Precedes(rightType, type)) {
