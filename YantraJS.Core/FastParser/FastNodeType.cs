@@ -2,7 +2,6 @@
 
 namespace YantraJS.Core.FastParser
 {
-    [Flags]
     public enum FastNodeType
     {
         Node,
@@ -37,6 +36,7 @@ namespace YantraJS.Core.FastParser
         ObjectLiteral,
         TemplateExpression,
         UnaryExpression,
-        CallExpression
+        CallExpression,
+        ConditionalExpression
     }
 }

@@ -53,6 +53,17 @@ namespace YantraJS.Core.FastParser
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
+
+                case TokenTypes.QuestionMark:
+                    if (!Expression(out var @true))
+                        throw stream.Unexpected();
+                    stream.Expect(TokenTypes.Colon);
+                    if (!Expression(out var @false))
+                        throw stream.Unexpected();
+                    previous = new AstConditionalExpression(previous, @true, @false);
+                    node = null;
+                    type = TokenTypes.SemiColon;
+                    return true;
             }
             var preUnaryOperator = GetUnaryOperator(stream.Current);
 
