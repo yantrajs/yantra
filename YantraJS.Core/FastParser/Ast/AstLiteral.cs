@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstLiteral : AstExpression
+    public class AstLiteral : AstExpression
     {
         public readonly TokenTypes TokenType;
 

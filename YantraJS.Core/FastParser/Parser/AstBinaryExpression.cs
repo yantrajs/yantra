@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstBinaryExpression : AstExpression
+    public class AstBinaryExpression : AstExpression
     {
         public readonly AstExpression Left;
         public readonly TokenTypes Operator;

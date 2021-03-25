@@ -3,7 +3,7 @@
 namespace YantraJS.Core.FastParser
 {
 
-    internal class AstVariableDeclaration: AstStatement
+    public class AstVariableDeclaration: AstStatement
     {
         public readonly VariableDeclarator[] Declarators;
 

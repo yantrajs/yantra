@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstSwitchStatement : AstStatement
+    public class AstSwitchStatement : AstStatement
     {
         public readonly AstExpression Target;
         public readonly AstCase[] Cases;

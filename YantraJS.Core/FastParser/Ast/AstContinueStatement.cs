@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstContinueStatement : AstStatement
+    public class AstContinueStatement : AstStatement
     {
         public readonly AstIdentifier Label;
 

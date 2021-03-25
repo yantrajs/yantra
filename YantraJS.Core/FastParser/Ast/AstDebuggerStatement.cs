@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstDebuggerStatement : AstStatement
+    public class AstDebuggerStatement : AstStatement
     {
 
         public AstDebuggerStatement(FastToken token):

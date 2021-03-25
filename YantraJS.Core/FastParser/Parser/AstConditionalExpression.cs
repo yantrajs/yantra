@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstConditionalExpression : AstExpression
+    public class AstConditionalExpression : AstExpression
     {
         public readonly AstExpression Test;
         public readonly AstExpression True;

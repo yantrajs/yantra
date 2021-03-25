@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstFunctionExpression : AstExpression
+    public class AstFunctionExpression : AstExpression
     {
         public bool Async;
         public readonly bool Generator;

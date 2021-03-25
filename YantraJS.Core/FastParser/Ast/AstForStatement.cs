@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstForStatement : AstStatement
+    public class AstForStatement : AstStatement
     {
         public readonly AstNode Init;
         public readonly AstExpression Test;
@@ -17,7 +17,7 @@
         }
     }
 
-    internal class AstForInStatement : AstStatement
+    public class AstForInStatement : AstStatement
     {
         public readonly AstNode Init;
         public readonly AstExpression Target;
@@ -32,7 +32,7 @@
         }
     }
 
-    internal class AstForOfStatement : AstStatement
+    public class AstForOfStatement : AstStatement
     {
         public readonly AstNode Init;
         public readonly AstExpression Target;

@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstClassExpression : AstExpression
+    public class AstClassExpression : AstExpression
     {
         public readonly AstIdentifier Identifier;
         public readonly AstExpression Base;
