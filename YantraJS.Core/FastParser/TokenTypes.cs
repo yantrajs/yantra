@@ -1,5 +1,8 @@
 ﻿namespace YantraJS.Core.FastParser
 {
+    /// <summary>
+    /// Tokens should be arranged in order of precedence
+    /// </summary>
     public enum TokenTypes
     {
         Empty = 0,
@@ -8,28 +11,34 @@
         Identifier,
         Number,
         String,
-        EOF,
         BracketEnd,
         BracketStart,
         StrictlyEqual,
         Equal,
         Lambda,
         Assign,
+        AssignMultiply,
+        AssignDivide,
+        AssignAdd,
+        AssignSubtract,
+        AssignUnsignedRightShift,
+        AssignBitwideAnd,
+        AssignBitwideOr,
+        AssignRightShift,
+        AssignLeftShift,
+        AssignPower,
         StrictlyNotEqual,
         NotEqual,
         Negate,
-        AssignRightShift,
         RightShift,
         UnsignedRightShift,
         GreaterOrEqual,
         Greater,
-        AssignLeftShift,
         LeftShift,
         LessOrEqual,
         Less,
         Multiply,
         Divide,
-        AssignPower,
         Power,
         BitwiseAnd,
         BooleanAnd,
@@ -43,7 +52,6 @@
         Xor,
         QuestionMark,
         Colon,
-        SemiColon,
         BitwiseNot,
         AssignMod,
         Mod,
@@ -62,14 +70,9 @@
         Null,
         False,
         True,
-        AssignMultiply,
-        AssignDivide,
-        AssignAdd,
-        AssignSubtract,
-        AssignUnsignedRightShift,
-        AssignBitwideAnd,
-        AssignBitwideOr,
         Hash,
-        None
+        None,
+        SemiColon,
+        EOF,
     }
 }

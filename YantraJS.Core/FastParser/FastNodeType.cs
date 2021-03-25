@@ -36,6 +36,7 @@ namespace YantraJS.Core.FastParser
         ArrayExpression,
         ObjectLiteral,
         TemplateExpression,
-        UnaryExpression
+        UnaryExpression,
+        CallExpression
     }
 }

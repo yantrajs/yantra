@@ -8,6 +8,31 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        bool ExpressionArray(out  AstExpression[] nodes, TokenTypes endsWith = TokenTypes.BracketEnd)
+        {
+            var begin = Location;
+            var list = Pool.AllocateList<AstExpression>();
+            try
+            {
+                do
+                {
+                    if (Expression(out var node))
+                        list.Add(node);
+                    if (stream.CheckAndConsume(TokenTypes.Comma))
+                        continue;
+                    if (stream.CheckAndConsume(endsWith))
+                        break;
+                    throw stream.Unexpected();
+                } while (true);
+                nodes = list.Release();
+                return true;
+            }
+            finally
+            {
+                list.Clear();
+            }
+        }
+
         bool ExpressionSequence(out AstExpression expressions, TokenTypes endWith = TokenTypes.BracketEnd)
         {
             var begin = Location;

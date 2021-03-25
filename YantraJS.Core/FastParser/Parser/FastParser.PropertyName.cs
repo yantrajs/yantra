@@ -33,7 +33,7 @@ namespace YantraJS.Core.FastParser
                 if (!SingleExpression(out node))
                     throw stream.Unexpected();
                 stream.Expect(TokenTypes.SquareBracketEnd);
-                node = new AstMemberExpression(begin.Token, PreviousToken, node, true);
+                node = new AstMemberExpression(null, node, true);
                 return true;
             }
             throw stream.Unexpected();

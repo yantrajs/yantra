@@ -2,14 +2,15 @@
 {
     internal class AstMemberExpression : AstExpression
     {
+        public readonly AstExpression Target;
         public readonly AstExpression Member;
         public readonly bool Computed;
 
-        public AstMemberExpression(FastToken token, FastToken previousToken, AstExpression node, bool v):
-            base(token, FastNodeType.MemberExpression, previousToken)
+        public AstMemberExpression(AstExpression target, AstExpression node, bool computed = false):
+            base(target.End, FastNodeType.MemberExpression, node.End)
         {
             this.Member = node;
-            this.Computed = v;
+            this.Computed = computed;
         }
     }
 }

@@ -36,8 +36,23 @@ namespace YantraJS.Core.FastParser
                     node = new AstBinaryExpression(previous, previousType, right);
                     type = TokenTypes.SemiColon;
                     return true;
-            }
 
+                case TokenTypes.BracketStart:
+                    if (!ExpressionArray(out var plist))
+                        throw stream.Unexpected();
+                    previous = new AstCallExpression(previous, plist);
+                    node = null;
+                    type = TokenTypes.SemiColon;
+                    return true;
+
+                case TokenTypes.Dot:
+                    if (!Expression(out right))
+                        throw stream.Unexpected();
+                    previous = new AstMemberExpression(previous, right);
+                    node = null;
+                    type = TokenTypes.SemiColon;
+                    return true;
+            }
             var preUnaryOperator = GetUnaryOperator(stream.Current);
 
             if (!SingleExpression(out node))
@@ -121,11 +136,8 @@ namespace YantraJS.Core.FastParser
 
         bool Precedes(TokenTypes left, TokenTypes right)
         {
-            switch(left)
-            {
-                case TokenTypes.Multiply:
-                case TokenTypes.Divide:
-                    return true;
+            if (left != TokenTypes.SemiColon && left != TokenTypes.EOF) {
+                return left < right;
             }
             return false;
         }
