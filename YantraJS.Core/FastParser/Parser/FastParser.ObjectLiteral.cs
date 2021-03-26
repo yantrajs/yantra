@@ -22,17 +22,28 @@ namespace YantraJS.Core.FastParser
                 while (!stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                 {
 
-                    if (!PropertyName(out var key))
-                        throw stream.Unexpected();
+                    var spread = false;
+                    AstExpression key;
+                    if (stream.CheckAndConsume(TokenTypes.TripleDots))
+                    {
+                        spread = true;
+                        if (!SingleExpression(out key))
+                            throw stream.Unexpected();
+                    }
+                    else
+                    {
+                        if (!PropertyName(out key))
+                            throw stream.Unexpected();
+                    }
 
                     if (!stream.CheckAndConsume(TokenTypes.Colon))
                     {
                         // it is short circuit property name..
                         // only if the property name is an identifier...
-                        if (key.Type != FastNodeType.Identifier)
+                        if (!spread && key.Type != FastNodeType.Identifier)
                             throw stream.Unexpected();
 
-                        nodes.Add(new ObjectProperty(key, key));
+                        nodes.Add(new ObjectProperty(key, key, spread));
 
                         if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
                             break;
@@ -43,7 +54,6 @@ namespace YantraJS.Core.FastParser
 
                     }
 
-                    var spread = false;
                     // check for spread operator ...
                     if (stream.CheckAndConsume(TokenTypes.TripleDots))
                     {

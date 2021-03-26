@@ -43,6 +43,10 @@ namespace YantraJS.Core.Tests.Parser
             Parse("({ a: 1 })");
             Parse("({ a: 1, b: 1})");
             Parse("({ a })");
+            Parse("({ ...a })");
+            Parse("({ ...a,...b })");
+            Parse("({ ...a,... {c} })");
+            Parse("({ ...a,... {c}, ... [d] })");
         }
 
     }
