@@ -66,7 +66,7 @@ namespace YantraJS.Core.FastParser
                     nodes.Add(new AstCase(test, last));
                 }
 
-                node = new AstSwitchStatement(begin.Token, PreviousToken, target, nodes.Release());
+                node = new AstSwitchStatement(begin.Token, PreviousToken, target, nodes);
 
             } finally
             {

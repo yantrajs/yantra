@@ -81,6 +81,15 @@ namespace YantraJS.Core.FastParser
             Array.Copy(items, copy, length);
             return copy;
         }
+
+        public ArraySpan<T> ToSpan()
+        {
+            var array = items;
+            var length = this.length;
+            Clear();
+            return new ArraySpan<T>(array, length);
+        }
+
         public bool Contains(T item)
         {
             if (items == null)

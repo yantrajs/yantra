@@ -29,7 +29,7 @@ namespace YantraJS.Core.FastParser
                         break;
                     throw stream.Unexpected();
                 } while (true);
-                node = new AstBlock(begin.Token, PreviousToken, list.Release());
+                node = new AstBlock(begin.Token, PreviousToken, list);
             } finally
             {
                 list.Clear();

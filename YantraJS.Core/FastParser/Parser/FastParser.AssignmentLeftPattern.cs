@@ -58,7 +58,7 @@ namespace YantraJS.Core.FastParser
                             break;
                         throw stream.Unexpected();
                     } while (true);
-                    objectPattern = new AstObjectPattern(begin.Token, PreviousToken, nodes.Release());
+                    objectPattern = new AstObjectPattern(begin.Token, PreviousToken, nodes);
                     return true;
                 } finally {
                     nodes.Clear();
@@ -92,7 +92,7 @@ namespace YantraJS.Core.FastParser
                         if (stream.CheckAndConsume(TokenTypes.SquareBracketEnd))
                             break;
                     } while (true);
-                    arrayPattern = new AstArrayPattern(begin.Token, PreviousToken, nodes.Release());
+                    arrayPattern = new AstArrayPattern(begin.Token, PreviousToken, nodes);
                     return true;
                 }
                 finally

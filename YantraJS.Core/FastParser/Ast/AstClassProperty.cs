@@ -9,7 +9,7 @@
         public readonly AstPropertyKind PropertyKind;
         public readonly AstExpression Key;
         public readonly AstExpression Init;
-        public readonly VariableDeclarator[] Parameters;
+        public readonly ArraySpan<VariableDeclarator> Parameters;
         public readonly AstStatement Body;
 
         public AstClassProperty(AstPropertyKind propertyKind, 
@@ -35,7 +35,7 @@
             bool @async,
             bool generator,
             AstExpression propertyName,
-            VariableDeclarator[] parameters,
+            ArraySpan<VariableDeclarator> parameters,
             AstStatement body)
         {
             this.IsStatic = isStatic;

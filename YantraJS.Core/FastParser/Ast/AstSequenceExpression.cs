@@ -2,9 +2,9 @@
 {
     public class AstSequenceExpression : AstExpression
     {
-        public readonly AstExpression[] Expressions;
+        public readonly ArraySpan<AstExpression> Expressions;
 
-        public AstSequenceExpression(FastToken start, FastToken end, AstExpression[] expressions) : base(start, FastNodeType.SequenceExpression, end)
+        public AstSequenceExpression(FastToken start, FastToken end, ArraySpan<AstExpression> expressions) : base(start, FastNodeType.SequenceExpression, end)
         {
             this.Expressions = expressions;
         }

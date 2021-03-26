@@ -4,9 +4,10 @@
     {
         public readonly AstIdentifier Identifier;
         public readonly AstExpression Base;
-        public readonly AstClassProperty[] Members;
+        public readonly ArraySpan<AstClassProperty> Members;
 
-        public AstClassExpression(FastToken token, FastToken previousToken, AstIdentifier identifier, AstExpression @base, AstClassProperty[] astClassProperties)
+        public AstClassExpression(FastToken token, FastToken previousToken, AstIdentifier identifier, AstExpression @base, 
+            ArraySpan<AstClassProperty> astClassProperties)
             : base(token,  FastNodeType.ClassStatement, previousToken)
         {
             this.Identifier = identifier;

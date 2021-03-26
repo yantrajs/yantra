@@ -116,7 +116,7 @@ namespace YantraJS.Core.FastParser
                         continue;
 
                 }
-                statement = new AstClassExpression(begin.Token, PreviousToken, identifier, @base, nodes.Release());
+                statement = new AstClassExpression(begin.Token, PreviousToken, identifier, @base, nodes);
             }
             finally {
                 nodes.Clear();

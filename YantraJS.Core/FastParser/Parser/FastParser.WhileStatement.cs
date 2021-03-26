@@ -8,7 +8,7 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
-        bool ExpressionArray(out  AstExpression[] nodes, TokenTypes endsWith = TokenTypes.BracketEnd)
+        bool ExpressionArray(out ArraySpan<AstExpression> nodes, TokenTypes endsWith = TokenTypes.BracketEnd)
         {
             var begin = Location;
             var list = Pool.AllocateList<AstExpression>();
@@ -24,7 +24,7 @@ namespace YantraJS.Core.FastParser
                         break;
                     throw stream.Unexpected();
                 } while (true);
-                nodes = list.Release();
+                nodes = list;
                 return true;
             }
             finally
@@ -54,7 +54,7 @@ namespace YantraJS.Core.FastParser
                     expressions = nodes[0];
                 } else
                 {
-                    expressions = new AstSequenceExpression(begin.Token, PreviousToken, nodes.Release());
+                    expressions = new AstSequenceExpression(begin.Token, PreviousToken, nodes);
                 }
                 return true;
             } finally

@@ -29,22 +29,22 @@
             }
         }
 
-        public static VariableDeclarator[] From(AstExpression node)
+        public static ArraySpan<VariableDeclarator> From(AstExpression node)
         {
-            var r = new VariableDeclarator[1];
+            var r = new VariableDeclarator[4];
             r[0] = FromNode(node);
-            return r;
+            return r.ToArraySpan(1);
         }
 
 
-        public static VariableDeclarator[] From(AstExpression[] nodes)
+        public static ArraySpan<VariableDeclarator> From(ArraySpan<AstExpression> nodes)
         {
             var r = new VariableDeclarator[nodes.Length];
             for (int i = 0; i < nodes.Length; i++)
             {
                 r[i] = FromNode(nodes[i]);
             }
-            return r;
+            return r.ToArraySpan();
         }
     }
 }

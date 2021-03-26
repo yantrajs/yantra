@@ -9,7 +9,7 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
-        bool Parameters(out VariableDeclarator[] node)
+        bool Parameters(out ArraySpan<VariableDeclarator> node)
         {
             node = null;
             if (!stream.CheckAndConsume(TokenTypes.BracketStart))
@@ -33,7 +33,7 @@ namespace YantraJS.Core.FastParser
                     if (!stream.CheckAndConsume(TokenTypes.Comma))
                         throw stream.Unexpected();
                 }
-                node = list.Release();
+                node = list;
                 return true;
             } finally
             {

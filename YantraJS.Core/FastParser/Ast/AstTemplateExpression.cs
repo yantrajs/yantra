@@ -2,9 +2,9 @@
 {
     public class AstTemplateExpression : AstExpression
     {
-        public readonly AstExpression[] Parts;
+        public readonly ArraySpan<AstExpression> Parts;
 
-        public AstTemplateExpression(FastToken token, FastToken previousToken, AstExpression[] astExpressions)
+        public AstTemplateExpression(FastToken token, FastToken previousToken, ArraySpan<AstExpression> astExpressions)
             : base(token, FastNodeType.TemplateExpression, previousToken)
         {
             this.Parts = astExpressions;

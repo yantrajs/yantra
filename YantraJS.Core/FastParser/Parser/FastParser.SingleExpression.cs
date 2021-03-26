@@ -85,7 +85,7 @@ namespace YantraJS.Core.FastParser
                         }
                         throw stream.Unexpected();
                     }
-                    node = new AstTemplateExpression(begin.Token, PreviousToken, nodes.Release());
+                    node = new AstTemplateExpression(begin.Token, PreviousToken, nodes);
                 } finally
                 {
                     nodes.Clear();
@@ -122,7 +122,7 @@ namespace YantraJS.Core.FastParser
                 return false;
             }
 
-            bool ExpressionList(out AstExpression[] node, out FastToken start, out FastToken end, TokenTypes endType)
+            bool ExpressionList(out ArraySpan<AstExpression> node, out FastToken start, out FastToken end, TokenTypes endType)
             {
                 var begin = Location;
                 start = begin.Token;
@@ -139,12 +139,7 @@ namespace YantraJS.Core.FastParser
                             continue;
                         throw stream.Unexpected();
                     }
-
-                    if(nodes.Count == 0) {
-                        node = Array.Empty<AstExpression>();
-                    } else {
-                        node = nodes.Release();
-                    }
+                    node = nodes;
                     end = PreviousToken;
                     return true;
 

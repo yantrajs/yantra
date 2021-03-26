@@ -5,12 +5,12 @@ namespace YantraJS.Core.FastParser
 
     public class AstVariableDeclaration: AstStatement
     {
-        public readonly VariableDeclarator[] Declarators;
+        public readonly ArraySpan<VariableDeclarator> Declarators;
 
         public readonly bool IsLet;
         public readonly bool IsConst;
 
-        public AstVariableDeclaration(FastToken begin, FastToken previousToken, VariableDeclarator[] declarators, bool isLet, bool isConst)
+        public AstVariableDeclaration(FastToken begin, FastToken previousToken, ArraySpan<VariableDeclarator> declarators, bool isLet, bool isConst)
             :base(begin, FastNodeType.VariableDeclaration, previousToken)
         {
             this.Declarators = declarators;

@@ -3,9 +3,9 @@
     public class AstSwitchStatement : AstStatement
     {
         public readonly AstExpression Target;
-        public readonly AstCase[] Cases;
+        public readonly ArraySpan<AstCase> Cases;
 
-        public AstSwitchStatement(FastToken start, FastToken end, AstExpression target, AstCase[] astCases)
+        public AstSwitchStatement(FastToken start, FastToken end, AstExpression target, ArraySpan<AstCase> astCases)
             : base(start, FastNodeType.SwitchStatement, end)
         {
             this.Target = target;

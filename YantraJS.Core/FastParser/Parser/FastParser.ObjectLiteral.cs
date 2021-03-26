@@ -53,7 +53,7 @@ namespace YantraJS.Core.FastParser
                     nodes.Add(new ObjectProperty(key, right, spread));
                 }
 
-                node = new AstObjectLiteral(begin.Token, PreviousToken, nodes.Release());
+                node = new AstObjectLiteral(begin.Token, PreviousToken, nodes);
 
             } finally {
                 nodes.Clear();

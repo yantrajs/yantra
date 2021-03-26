@@ -5,10 +5,10 @@
         public bool Async;
         public readonly bool Generator;
         public readonly AstIdentifier Identifier;
-        public readonly VariableDeclarator[] Parameters;
+        public readonly ArraySpan<VariableDeclarator> Parameters;
         public readonly AstStatement Body;
 
-        public AstFunctionExpression(FastToken token, FastToken previousToken, bool isAsync, bool generator, AstIdentifier id, VariableDeclarator[] declarators, AstStatement body)
+        public AstFunctionExpression(FastToken token, FastToken previousToken, bool isAsync, bool generator, AstIdentifier id, ArraySpan<VariableDeclarator> declarators, AstStatement body)
             : base(token, FastNodeType.FunctionExpression, previousToken)
         {
             this.Async = isAsync;
