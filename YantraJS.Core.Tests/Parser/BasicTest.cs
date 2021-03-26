@@ -34,6 +34,7 @@ namespace YantraJS.Core.Tests.Parser
             Parse("[1]");
             Parse("[1,3]");
             Parse("var a = [1,3]");
+            Parse("var a = [1,,3]");
         }
 
         [TestMethod]
@@ -49,5 +50,13 @@ namespace YantraJS.Core.Tests.Parser
             Parse("({ ...a,... {c}, ... [d] })");
         }
 
+        [TestMethod]
+        public void Fail()
+        {
+            Fail("for");
+            Fail("for;;");
+            Fail("{,}");
+            Fail("{a,}");
+        }
     }
 }

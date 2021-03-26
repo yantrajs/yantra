@@ -62,9 +62,9 @@ namespace YantraJS.Core.FastParser
                     return ObjectLiteral(out node);
                 case TokenTypes.TemplateBegin:
                     return Template(out node);
+                default:
+                    throw stream.Unexpected();
             }
-
-            return begin.Reset();
 
             bool Template(out AstExpression node)
             {
@@ -117,14 +117,22 @@ namespace YantraJS.Core.FastParser
             bool ArrayExpression(out AstExpression node)
             {
                 node = default;
-                if (ExpressionList(out var nodes, out var start, out var end, TokenTypes.SquareBracketEnd)) {
+                if (ExpressionList(
+                    out var nodes, 
+                    out var start, 
+                    out var end, TokenTypes.SquareBracketEnd, true)) {
                     node = new AstArrayExpression(start, end, nodes);
                     return true;
                 }
                 return false;
             }
 
-            bool ExpressionList(out ArraySpan<AstExpression> node, out FastToken start, out FastToken end, TokenTypes endType)
+            bool ExpressionList(
+                out ArraySpan<AstExpression> node, 
+                out FastToken start, 
+                out FastToken end, 
+                TokenTypes endType,
+                bool allowEmpty = false)
             {
                 var begin = Location;
                 start = begin.Token;
@@ -135,6 +143,15 @@ namespace YantraJS.Core.FastParser
 
                     while (!stream.CheckAndConsumeAny(endType, TokenTypes.EOF))
                     {
+                        if(stream.CheckAndConsume(TokenTypes.Comma))
+                        {
+                            if (allowEmpty)
+                            {
+                                nodes.Add(null);
+                                continue;
+                            }
+                            throw stream.Unexpected();
+                        }
                         if (!Expression(out var n))
                             throw stream.Unexpected();
                         if (stream.CheckAndConsume(TokenTypes.Comma))

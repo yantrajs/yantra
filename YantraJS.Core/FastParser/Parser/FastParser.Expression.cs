@@ -27,16 +27,15 @@ namespace YantraJS.Core.FastParser
             switch(previousType)
             {
 
+                case TokenTypes.Comma:
                 case TokenTypes.LineTerminator:
                 case TokenTypes.SemiColon:
-                    node = null;
-                    type = TokenTypes.SemiColon;
-                    stream.Reset(stream.Position - 1);
-                    return true;
+                case TokenTypes.SquareBracketEnd:
+                case TokenTypes.BracketEnd:
+                case TokenTypes.CurlyBracketEnd:
                 case TokenTypes.Colon:
                     node = null;
                     type = TokenTypes.SemiColon;
-                    stream.Reset(stream.Position - 1);
                     return true;
 
                 // Associate right...

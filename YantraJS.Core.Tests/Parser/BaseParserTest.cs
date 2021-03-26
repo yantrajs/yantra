@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.FastParser;
@@ -18,6 +19,17 @@ namespace YantraJS.Core.Tests.Parser
             var stream = new FastTokenStream(text);
             FastParser.FastParser parser = new FastParser.FastParser(stream);
             return parser.ParseProgram();
+        }
+
+        public void Fail(string text)
+        {
+            try {
+                Parse(text);
+                Assert.Fail($"Expected failure for {text}");
+            } catch
+            {
+
+            }
         }
 
     }
