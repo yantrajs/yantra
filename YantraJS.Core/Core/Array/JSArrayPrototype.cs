@@ -583,7 +583,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -608,7 +608,7 @@ namespace YantraJS.Core
             for (int i = start; i >= 0; i--)
             {
                 var item = @this[(uint)i];
-                var itemArgs = new Arguments(@this, initialValue, item, new JSNumber(i), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -618,16 +618,26 @@ namespace YantraJS.Core
         public static JSValue Reverse(in Arguments a)
         {
             var @this = a.This;
-            var r = new JSArray();
-            for (int i = @this.Length - 1 ; i >= 0; i--)
-            {
-                r.Add(@this[(uint)i]);
+            //var r = new JSArray();
+            //for (int i = @this.Length - 1 ; i >= 0; i--)
+            //{
+            //    r.Add(@this[(uint)i]);
+            //}
+            //return r;
+            var i = 0;
+            var j = @this.Length - 1;
+            while (i < j) {
+                var swap = @this[(uint)i];
+                @this[(uint)i++] = @this[(uint)j];
+                @this[(uint)j--] = swap;
+
             }
-            return r;
+            // Assert.AreEqual(false, Evaluate("x.hasOwnProperty('0')")); This TC fails
+            return @this;
 
         }
 
-        [Prototype("shift")]
+        [Prototype("shift", Length = 0)]
         public static JSValue Shift(in Arguments a)
         {
             var @this = a.This;
@@ -637,6 +647,12 @@ namespace YantraJS.Core
             {
                 if (ary.IsSealedOrFrozen())
                     throw JSContext.Current.NewTypeError("Cannot modify property length");
+
+                //Return undefined if the array is empty
+                if (ary.Length == 0) { 
+                    @this.Length = 0;
+                    return first;
+                }
 
                 var en = ary.GetElementEnumerator();
                 ref var elements = ref ary.GetElements();
@@ -674,10 +690,13 @@ namespace YantraJS.Core
             ref var oe = ref @object.GetElements();
             if (oe.IsNull)
                 return first;
-            for(uint i = 1; i < n - 1; i++)
+            first = @this[0];
+            for(uint i = 1; i <= n - 1; i++)
             {
                 if (oe.TryRemove(i, out var p))
+                { 
                     oe[i - 1] = p;
+                }
             }
             @this.Length = n - 1;
             return first;
