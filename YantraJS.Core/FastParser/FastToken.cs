@@ -81,5 +81,10 @@ namespace YantraJS.Core.FastParser
                 }
             }
         }
+
+        public override string ToString()
+        {
+            return $"{Type} {Span}";
+        }
     }
 }

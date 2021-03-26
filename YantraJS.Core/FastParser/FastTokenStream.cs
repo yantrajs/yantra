@@ -8,6 +8,7 @@ namespace YantraJS.Core.FastParser
     /// scanner directly as we can move scanning process in different thread
     /// in future.
     /// </summary>
+    
     public class FastTokenStream
     {
         private readonly FastScanner scanner;
@@ -16,6 +17,11 @@ namespace YantraJS.Core.FastParser
         {
             var c = Current;
             return new FastParseException(c, $"Unexpected token {c.Type}: {c.Span} at {scanner.Location}");
+        }
+
+        public override string ToString()
+        {
+            return $"{Current} {Next}";
         }
 
         public readonly FastKeywordMap Keywords;

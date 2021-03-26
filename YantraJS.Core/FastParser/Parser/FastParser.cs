@@ -65,8 +65,11 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.SemiColon:
                 case TokenTypes.EOF:
                 case TokenTypes.LineTerminator:
-                case TokenTypes.CurlyBracketEnd:
                     stream.Consume();
+                    return true;
+                // since Block will expect curly bracket
+                // to be present, we will not consume this..
+                case TokenTypes.CurlyBracketEnd:
                     return true;
             }
             return false;

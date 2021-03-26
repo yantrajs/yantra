@@ -19,7 +19,7 @@ namespace YantraJS.Core.FastParser
             var nodes = Pool.AllocateList<ObjectProperty>();
             try
             {
-                while (!stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
+                while (!stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                 {
 
                     if (!PropertyName(out var key))
@@ -54,6 +54,9 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
 
                     nodes.Add(new ObjectProperty(key, right, spread));
+
+                    if (stream.CheckAndConsume(TokenTypes.Comma))
+                        continue;
                 }
 
                 node = new AstObjectLiteral(begin.Token, PreviousToken, nodes);

@@ -24,6 +24,25 @@ namespace YantraJS.Core.Tests.Parser
             Parse("var a = ({b}) => true;");
 
             Parse("var a = function(b) { return 4; }");
+            Parse("var a = (function(b) { return 4; })()");
+        }
+
+        [TestMethod]
+        public void Array()
+        {
+            Parse("[]");
+            Parse("[1]");
+            Parse("[1,3]");
+            Parse("var a = [1,3]");
+        }
+
+        [TestMethod]
+        public void Object()
+        {
+            Parse("({})");
+            Parse("({ a: 1 })");
+            Parse("({ a: 1, b: 1})");
+            Parse("({ a })");
         }
 
     }

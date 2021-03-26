@@ -131,13 +131,13 @@ namespace YantraJS.Core.FastParser
                 try
                 {
 
-                    while (!stream.CheckAndConsume(TokenTypes.BracketEnd))
+                    while (!stream.CheckAndConsumeAny(endType, TokenTypes.EOF))
                     {
                         if (!Expression(out var n))
                             throw stream.Unexpected();
                         if (stream.CheckAndConsume(TokenTypes.Comma))
                             continue;
-                        if (stream.CheckAndConsume(TokenTypes.BracketEnd))
+                        if (stream.CheckAndConsumeAny(endType, TokenTypes.EOF))
                             break;
                         throw stream.Unexpected();
                     }

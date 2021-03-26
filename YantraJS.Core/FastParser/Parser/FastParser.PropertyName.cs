@@ -36,7 +36,8 @@ namespace YantraJS.Core.FastParser
                 node = new AstMemberExpression(null, node, true);
                 return true;
             }
-            throw stream.Unexpected();
+            node = null;
+            return false;
         }
 
 

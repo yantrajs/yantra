@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser
                         list.Add(node);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsume(endsWith))
+                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF))
                         break;
                     throw stream.Unexpected();
                 } while (true);

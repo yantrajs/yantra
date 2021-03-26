@@ -17,17 +17,15 @@ namespace YantraJS.Core.FastParser
             {
                 do
                 {
+                    if (stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
+                        break;
                     if (Statement(out var stmt))
                     {
                         list.Add(stmt);
                     }
-                    if (stream.CheckAndConsume(TokenTypes.LineTerminator))
+                    if (stream.CheckAndConsumeAny(TokenTypes.LineTerminator,TokenTypes.SemiColon))
                         continue;
-                    if (stream.CheckAndConsume(TokenTypes.SemiColon))
-                        continue;
-                    if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
-                        break;
-                    if (stream.CheckAndConsume(TokenTypes.EOF))
+                    if (stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                         break;
                     throw stream.Unexpected();
                 } while (true);
