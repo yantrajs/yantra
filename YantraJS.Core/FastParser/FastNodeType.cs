@@ -37,6 +37,7 @@ namespace YantraJS.Core.FastParser
         TemplateExpression,
         UnaryExpression,
         CallExpression,
-        ConditionalExpression
+        ConditionalExpression,
+        YieldExpression
     }
 }

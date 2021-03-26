@@ -45,6 +45,8 @@ namespace YantraJS.Core.FastParser
                     return FunctionExpression(out node);
                 case FastKeywords.@class:
                     return ClassExpression(out node);
+                case FastKeywords.yield:
+                    return YieldExpression(out node);
             }
             if (Identitifer(out var id))
             {
@@ -150,6 +152,25 @@ namespace YantraJS.Core.FastParser
                     nodes.Clear();
                 }
             }
+
+            bool YieldExpression(out AstExpression statement)
+            {
+                var begin = Location;
+                stream.Consume();
+                bool star = false;
+                if (stream.CheckAndConsume(TokenTypes.Multiply))
+                {
+                    star = true;
+                }
+                if (Expression(out var target))
+                {
+                    statement = new AstYieldExpression(begin.Token, PreviousToken, target, star);
+                    EndOfStatement();
+                    return true;
+                }
+                throw stream.Unexpected();
+            }
+
         }
 
     }

@@ -52,8 +52,6 @@ namespace YantraJS.Core.FastParser
                         return Break(out node);
                     case FastKeywords.@return:
                         return Return(out node);
-                    case FastKeywords.yield:
-                        return Yield(out node);
                     case FastKeywords.with:
                         throw stream.Unexpected();
                     case FastKeywords.@switch:
@@ -191,24 +189,6 @@ namespace YantraJS.Core.FastParser
                 if(Expression(out var target))
                 {
                     statement = new AstReturnStatement(begin.Token, PreviousToken, target);
-                    EndOfStatement();
-                    return true;
-                }
-                throw stream.Unexpected();
-            }
-
-            bool Yield(out AstStatement statement)
-            {
-                var begin = Location;
-                stream.Consume();
-                bool star = false;
-                if(stream.CheckAndConsume(TokenTypes.Multiply))
-                {
-                    star = true;
-                }
-                if (Expression(out var target))
-                {
-                    statement = new AstYieldStatement(begin.Token, PreviousToken, target, star);
                     EndOfStatement();
                     return true;
                 }

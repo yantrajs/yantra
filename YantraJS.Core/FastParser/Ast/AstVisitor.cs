@@ -80,11 +80,14 @@ namespace YantraJS.Utils
                     return VisitCallExpression(CallExpression);
                 case (FastNodeType.ConditionalExpression, AstConditionalExpression ConditionalExpression):
                     return VisitConditionalExpression(ConditionalExpression);
+                case (FastNodeType.YieldExpression, AstYieldExpression yieldExpression):
+                    return VisitYieldExpression(yieldExpression);
                 default:
                     throw new NotImplementedException();
             }
         }
 
+        protected abstract T VisitYieldExpression(AstYieldExpression yieldExpression);
         protected abstract T VisitCallExpression(AstCallExpression callExpression);
         protected abstract T VisitUnaryExpression(AstUnaryExpression unaryExpression);
         protected abstract T VisitTemplateExpression(AstTemplateExpression templateExpression);
