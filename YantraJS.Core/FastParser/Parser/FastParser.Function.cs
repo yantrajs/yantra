@@ -30,10 +30,10 @@ namespace YantraJS.Core.FastParser
                 generator = true;
             }
 
-            if (!Identitifer(out var id))
-                throw stream.Unexpected();
+            Identitifer(out var id);
 
-            if (!Parameters(out var declarators))
+            stream.Expect(TokenTypes.BracketStart);
+            if (!Parameters(out var declarators, false))
                 throw stream.Unexpected();
 
             if (stream.Current.Type != TokenTypes.CurlyBracketStart)

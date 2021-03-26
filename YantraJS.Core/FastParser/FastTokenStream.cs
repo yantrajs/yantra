@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.FastParser
 {
@@ -79,6 +80,7 @@ namespace YantraJS.Core.FastParser
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(FastKeywords keyword)
         {
             var c = this[index];
@@ -90,7 +92,7 @@ namespace YantraJS.Core.FastParser
             return false;
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(TokenTypes type)
         {
             var c = this[index];
@@ -102,6 +104,20 @@ namespace YantraJS.Core.FastParser
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2)
+        {
+            var c = this[index];
+            if (c.Type == type1 ||  c.Type == type2)
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(TokenTypes type, out FastToken token)
         {
             var c = this[index];

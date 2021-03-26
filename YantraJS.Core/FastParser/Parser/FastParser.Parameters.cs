@@ -33,8 +33,10 @@ namespace YantraJS.Core.FastParser
                     {
                         list.Add(new VariableDeclarator(left, null));
                     }
-                    if (!stream.CheckAndConsume(TokenTypes.Comma))
+                    if (stream.CheckAndConsumeAny(TokenTypes.BracketEnd, TokenTypes.EOF))
                         break;
+                    if (!stream.CheckAndConsume(TokenTypes.Comma))
+                        throw stream.Unexpected();
                 }
                 node = list;
                 return true;

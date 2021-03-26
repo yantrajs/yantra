@@ -27,25 +27,10 @@ namespace YantraJS.Core.FastParser
         {
             if (Literal(out node))
                 return true;
-            if (Identitifer(out var id))
-            {
-                node = id;
-                return true;
-            }
             var begin = Location;
             var token = begin.Token;
-            switch (token.Type) {
-                case TokenTypes.BracketStart:
-                    return BracketExpression(out node);
-                case TokenTypes.SquareBracketStart:
-                    return ArrayExpression(out node);
-                case TokenTypes.CurlyBracketStart:
-                    return ObjectLiteral(out node);
-                case TokenTypes.TemplateBegin:
-                    return Template(out node);
-            }
 
-            switch(token.Keyword)
+            switch (token.Keyword)
             {
                 case FastKeywords.async:
                     stream.Consume();
@@ -60,6 +45,21 @@ namespace YantraJS.Core.FastParser
                     return FunctionExpression(out node);
                 case FastKeywords.@class:
                     return ClassExpression(out node);
+            }
+            if (Identitifer(out var id))
+            {
+                node = id;
+                return true;
+            }
+            switch (token.Type) {
+                case TokenTypes.BracketStart:
+                    return BracketExpression(out node);
+                case TokenTypes.SquareBracketStart:
+                    return ArrayExpression(out node);
+                case TokenTypes.CurlyBracketStart:
+                    return ObjectLiteral(out node);
+                case TokenTypes.TemplateBegin:
+                    return Template(out node);
             }
 
             return begin.Reset();

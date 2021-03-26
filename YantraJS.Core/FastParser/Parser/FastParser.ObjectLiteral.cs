@@ -32,10 +32,13 @@ namespace YantraJS.Core.FastParser
                         if (key.Type != FastNodeType.Identifier)
                             throw stream.Unexpected();
 
+                        nodes.Add(new ObjectProperty(key, key));
+
+                        if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
+                            break;
                         if (!stream.CheckAndConsume(TokenTypes.Comma))
                             throw stream.Unexpected();
 
-                        nodes.Add(new ObjectProperty(key, key));
                         continue;
 
                     }

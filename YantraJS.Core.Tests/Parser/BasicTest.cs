@@ -19,6 +19,11 @@ namespace YantraJS.Core.Tests.Parser
             Parse("var a = (c = d);");
             Parse("var a = c + d;");
             Parse("var a = c + d * e;");
+            Parse("var a = () => true;");
+            Parse("var a = (b) => true;");
+            Parse("var a = ({b}) => true;");
+
+            Parse("var a = function(b) { return 4; }");
         }
 
     }

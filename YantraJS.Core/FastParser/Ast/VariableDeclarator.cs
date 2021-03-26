@@ -25,12 +25,14 @@
                 case FastNodeType.Identifier:
                     return new VariableDeclarator(node, null);
                 default:
-                    throw new FastParseException(node.Start, "Identifier expected");
+                    throw new FastParseException(node.Start, $"Identifier expected and not {node.Type}");
             }
         }
 
         public static ArraySpan<VariableDeclarator> From(AstExpression node)
         {
+            if (node.Type == FastNodeType.EmptyExpression)
+                return ArraySpan<VariableDeclarator>.Empty;
             var r = new VariableDeclarator[4];
             r[0] = FromNode(node);
             return r.ToArraySpan(1);
