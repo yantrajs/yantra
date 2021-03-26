@@ -27,6 +27,8 @@ namespace YantraJS.Core.FastParser
                         continue;
                     if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
                         break;
+                    if (stream.CheckAndConsume(TokenTypes.EOF))
+                        break;
                     throw stream.Unexpected();
                 } while (true);
                 node = new AstBlock(begin.Token, PreviousToken, list);

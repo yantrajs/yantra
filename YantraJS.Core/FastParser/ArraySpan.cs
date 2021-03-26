@@ -25,6 +25,8 @@ namespace YantraJS.Core.FastParser
         private readonly T[] items;
         public readonly int Length;
 
+        public static ArraySpan<T> Empty;
+
         public ArraySpan(T[] items, int length)
         {
             this.items = items;
@@ -35,7 +37,7 @@ namespace YantraJS.Core.FastParser
 
         public static implicit operator ArraySpan<T>(FastList<T> source)
         {
-            return source.ToSpan();
+            return source?.ToSpan() ?? Empty;
         }
 
         public Enumerator GetEnumerator()

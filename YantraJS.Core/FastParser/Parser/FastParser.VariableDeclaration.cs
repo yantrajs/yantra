@@ -16,7 +16,7 @@ namespace YantraJS.Core.FastParser
             node = default;
             stream.Consume();
 
-            if (!Parameters(out var declarators))
+            if (!Parameters(out var declarators, false))
                 throw stream.Unexpected();
 
             node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, isLet, isConst);

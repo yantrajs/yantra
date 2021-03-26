@@ -137,6 +137,8 @@ namespace YantraJS.Core.FastParser
                             throw stream.Unexpected();
                         if (stream.CheckAndConsume(TokenTypes.Comma))
                             continue;
+                        if (stream.CheckAndConsume(TokenTypes.BracketEnd))
+                            break;
                         throw stream.Unexpected();
                     }
                     node = nodes;

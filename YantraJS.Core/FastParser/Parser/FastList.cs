@@ -38,10 +38,9 @@ namespace YantraJS.Core.FastParser
             size = ((capacity / 4)+1) * 4;
             items = pool.AllocateArray<T>(size);
 
-            Array.Copy(release, 0, items, 0, release.Length);
-
             if (release!=null)
             {
+                Array.Copy(release, 0, items, 0, release.Length);
                 pool.ReleaseArray(release);
             }
         }

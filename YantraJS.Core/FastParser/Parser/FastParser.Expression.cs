@@ -53,6 +53,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.AssignSubtract:
                 case TokenTypes.AssignUnsignedRightShift:
                 case TokenTypes.AssignXor:
+                    stream.Consume();
                     if (!Expression(out right))
                         throw stream.Unexpected();
                     node = new AstBinaryExpression(previous, previousType, right);
@@ -152,6 +153,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.LessOrEqual:
                 case TokenTypes.Greater:
                 case TokenTypes.GreaterOrEqual:
+                    stream.Consume();
                     if (!NextExpression(ref node, ref type, out right, out rightType))
                         throw stream.Unexpected();
                     if (Precedes(rightType, type)) {
@@ -257,7 +259,7 @@ namespace YantraJS.Core.FastParser
                 return true;
             }
 
-            return begin.Reset();
+            return true;
         }
 
         private UnaryOperator GetUnaryOperator(FastToken token, bool prefix = true)

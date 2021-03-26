@@ -42,6 +42,13 @@ namespace YantraJS.Core.FastParser
 
         }
 
+        public AstProgram ParseProgram()
+        {
+            if (Program(out var p))
+                return p;
+            throw stream.Unexpected();
+        }
+
         private Func<T> Consume<T>(Func<T> func)
         {
             return () => {
