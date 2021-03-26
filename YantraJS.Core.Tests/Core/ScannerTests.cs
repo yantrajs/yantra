@@ -19,7 +19,8 @@ namespace YantraJS.Parser.Tests
     {
         public IList<TokenTypes> ScanTypes(string text)
         {
-            var s = new FastScanner(text);
+            var pool = new FastPool();
+            var s = new FastScanner(pool, text);
             var list = new SparseList<TokenTypes>();
             FastToken token;
             do {

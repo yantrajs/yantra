@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace YantraJS.Core.FastParser
 {
 
     public class FastScanner
     {
-
-
+        private readonly FastPool pool;
         public readonly StringSpan Text;
         private readonly FastKeywordMap keywords;
         private int position = 0;
@@ -27,16 +27,17 @@ namespace YantraJS.Core.FastParser
             return new FastParseException(c, $"Unexpected token {c.Type}: {c.Span} at {Location}");
         }
 
-        public FastScanner(in StringSpan text, FastKeywordMap keywords = null)
+        public FastScanner(FastPool pool, in StringSpan text, FastKeywordMap keywords = null)
         {
+            this.pool = pool;
             this.Text = text;
             this.keywords = keywords ?? FastKeywordMap.Instance;
         }
 
         
 
-        private static FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, 0, 0, 0, 0, 0, 0);
-        private static FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, 0, 0, 0, 0, 0, 0);
+        private static FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, null, 0, 0, 0, 0, 0, 0);
+        private static FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, null, 0, 0, 0, 0, 0, 0);
 
         private FastToken token = EmptyToken;
         private FastToken nextToken = EOF;
@@ -390,34 +391,43 @@ namespace YantraJS.Core.FastParser
         private FastToken ReadString(State state, char first)
         {
             var start = first;
-            do
+            var sb = pool.AllocateStringBuilder();
+            var t = sb.Builder;
+            try
             {
-                Consume();
-                first = Peek();
-                if (first == '\\')
+                do
                 {
-                    Consume();
-                    var next = Peek();
-                    if (next == first)
+                    first = Consume();
+                    if (first == '\\')
                     {
-                        continue;
+                        var next = Consume();
+                        if (next == first)
+                        {
+                            t.Append(first);
+                            continue;
+                        }
+                        t.Append(first);
+                        t.Append(next);
                     }
-                }
-                if (first == start)
-                {
-                    Consume();
-                    var next = Peek();
-                    if (next == first)
+                    if (first == start)
                     {
-                        continue;
+                        var next = Consume();
+                        if (next == first)
+                        {
+                            t.Append(first);
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                    else
-                    {
-                        break;
-                    }
-                }
-            } while (first != start);
-            return state.Commit(TokenTypes.String);
+                    t.Append(first);
+                } while (first != start);
+                return state.Commit(TokenTypes.String, sb.Builder);
+            } finally {
+                sb.Clear();
+            }
         }
 
         private FastToken ReadIdentifier(State state, char first)
@@ -488,13 +498,14 @@ namespace YantraJS.Core.FastParser
                 this.position = position;
             }
 
-            public FastToken Commit(TokenTypes type)
+            public FastToken Commit(TokenTypes type, StringBuilder builder = null)
             {
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
                 var token = new FastToken(
                     type, 
                     scanner.Text.Source, 
+                    builder,
                     start, cp - start, 
                     line,
                     column,
@@ -528,6 +539,7 @@ namespace YantraJS.Core.FastParser
                 var token = new FastToken(
                     TokenTypes.Identifier,
                     scanner.Text.Source,
+                    null,
                     start, cp - start,
                     line,
                     column,

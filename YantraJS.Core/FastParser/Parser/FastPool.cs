@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace YantraJS.Core.FastParser
 {
@@ -119,6 +120,42 @@ namespace YantraJS.Core.FastParser
 
                 }
             }
+        }
+
+        private Queue<StringBuilder> fastStringBuilders = new Queue<StringBuilder>();
+
+        internal FastStringBuilder AllocateStringBuilder()
+        {
+            if (fastStringBuilders.TryDequeue(out var sb))
+                return new FastStringBuilder(this, sb);
+            return new FastStringBuilder(this, new StringBuilder());
+        }
+
+        internal void Release(in FastStringBuilder sb)
+        {
+            fastStringBuilders.Enqueue(sb.Builder);
+        }
+    }
+
+    public readonly struct FastStringBuilder
+    {
+        public readonly StringBuilder Builder;
+        private readonly FastPool pool;
+
+        public FastStringBuilder(FastPool pool, StringBuilder sb)
+        {
+            this.pool = pool;
+            this.Builder = sb;
+        }
+
+        public override string ToString()
+        {
+            return Builder.ToString();
+        }
+
+        public void Clear()
+        {
+            pool.Release(in this);
         }
     }
 }

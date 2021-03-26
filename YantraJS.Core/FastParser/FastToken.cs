@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace YantraJS.Core.FastParser
 {
@@ -10,7 +11,7 @@ namespace YantraJS.Core.FastParser
         public readonly int StartLine;
         public readonly int StartColumn;
         public readonly StringSpan Span;
-
+        public readonly string CookedText;
         public readonly int EndLine;
 
         public readonly int EndColumn;
@@ -25,6 +26,7 @@ namespace YantraJS.Core.FastParser
         public FastToken(
             TokenTypes type, 
             string source, 
+            StringBuilder sb,
             int start, 
             int length,
             int startLine,
@@ -39,6 +41,7 @@ namespace YantraJS.Core.FastParser
             this.EndLine = endLine;
             this.EndColumn = endColumn;
             this.Span = new StringSpan(source, start, length);
+            this.CookedText = sb?.ToString();
             if(keywords != null)
             {
                 this.IsKeyword = keywords.IsKeyword(Span, out var k);

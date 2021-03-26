@@ -9,7 +9,7 @@ namespace YantraJS.Core.FastParser
     {
         private readonly FastTokenStream stream;
 
-        public readonly FastPool Pool = new FastPool();
+        public readonly FastPool Pool;
 
 
         public StreamLocation Location => new StreamLocation(this, stream.Position, stream.Current);
@@ -39,7 +39,7 @@ namespace YantraJS.Core.FastParser
         public FastParser(FastTokenStream stream)
         {
             this.stream = stream;
-
+            this.Pool = stream.Pool;
         }
 
         public AstProgram ParseProgram()

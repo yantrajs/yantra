@@ -27,6 +27,10 @@ namespace YantraJS.Core.FastParser
             switch(previousType)
             {
 
+                /**
+                 * Following are single expression terminators
+                 */
+                
                 case TokenTypes.Comma:
                 case TokenTypes.LineTerminator:
                 case TokenTypes.SemiColon:
@@ -34,6 +38,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.BracketEnd:
                 case TokenTypes.CurlyBracketEnd:
                 case TokenTypes.Colon:
+                case TokenTypes.EOF:
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;

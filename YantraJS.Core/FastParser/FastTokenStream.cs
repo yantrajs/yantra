@@ -12,6 +12,7 @@ namespace YantraJS.Core.FastParser
     public class FastTokenStream
     {
         private readonly FastScanner scanner;
+        public readonly FastPool Pool;
 
         internal Exception Unexpected()
         {
@@ -30,10 +31,21 @@ namespace YantraJS.Core.FastParser
 
         public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
         {
+            this.Pool = new FastPool();
             tokens = new SparseList<FastToken>();
             index = 0;
             this.Keywords = keywords ?? FastKeywordMap.Instance;
-            this.scanner = new FastScanner(text, Keywords);
+            this.scanner = new FastScanner(Pool, text, Keywords);
+        }
+
+
+        public FastTokenStream(FastPool pool, in StringSpan text, FastKeywordMap keywords = null)
+        {
+            this.Pool = pool;
+            tokens = new SparseList<FastToken>();
+            index = 0;
+            this.Keywords = keywords ?? FastKeywordMap.Instance;
+            this.scanner = new FastScanner(pool, text, Keywords);
         }
 
         private FastToken this[int index]
