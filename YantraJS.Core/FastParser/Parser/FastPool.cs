@@ -146,6 +146,7 @@ namespace YantraJS.Core.FastParser
         {
             this.pool = pool;
             this.Builder = sb;
+            sb.Length = 0;
         }
 
         public override string ToString()

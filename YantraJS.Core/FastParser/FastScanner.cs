@@ -36,8 +36,8 @@ namespace YantraJS.Core.FastParser
 
         
 
-        private static FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, null, 0, 0, 0, 0, 0, 0);
-        private static FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, null, 0, 0, 0, 0, 0, 0);
+        private static FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
+        private static FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
 
         private FastToken token = EmptyToken;
         private FastToken nextToken = EOF;
@@ -457,26 +457,166 @@ namespace YantraJS.Core.FastParser
         private FastToken ReadCommentsOrRegExOrSymbol(State state, char first)
         {
             first = Consume();
-            bool mayBeLambda = false;
+            bool divideAndAssign = false;
             switch (first)
             {
+                /**
+                 * '//'
+                 */
                 case '/': 
                     return SkipSingleLineComment(state);
+                /**
+                 * '/*'
+                 */
                 case '*':
                     return SkipMultilineComment(state);
+                /**
+                 * '/='
+                 */
                 case '=':
                     // this case should first consider if it is part of Regex or not..
-                    mayBeLambda = true;
+                    divideAndAssign = true;
                     break;
             }
 
-            if(mayBeLambda)
+            if (ScanRegEx(first, out var token))
+                return token;
+
+            if(divideAndAssign)
             {
                 Consume();
-                return state.Commit(TokenTypes.Lambda);
+                return state.Commit(TokenTypes.AssignDivide);
             }
 
-            throw new NotImplementedException($"{first} not supported");
+            throw Unexpected();
+
+            bool ScanRegEx(char first , out FastToken token)
+            {
+                var state = this.Push();
+                var sb = pool.AllocateStringBuilder();
+                var t = sb.Builder;
+                var classMarker = false;
+                var terminated = false;
+                token = null;
+                string regExp = null;
+                try
+                {
+                    t.Append(first);
+                    do
+                    {
+                        first = Consume();
+                        if (first == char.MaxValue)
+                        {
+                            return false;
+                        }
+                        switch (first)
+                        {
+                            case '\n':
+                                return false;
+                            case '/':
+                                if(classMarker)
+                                {
+                                    t.Append(first);
+                                    continue;
+                                }
+                                if (ScanEscaped(first, t))
+                                    continue;
+                                terminated = true;
+                                break;
+                            case '[':
+                                classMarker = true;
+                                t.Append(first);
+                                continue;
+                            case ']':
+                                classMarker = false;
+                                t.Append(first);
+                                continue;
+                            case '\\':
+                                if (CanConsume('\n'))
+                                {
+                                    return false;
+                                }
+                                t.Append(first);
+                                break;
+                        }
+                    } while (!terminated);
+
+                    regExp = t.ToString();
+                }
+                finally
+                {
+                    sb.Clear();
+                    state.Dispose();
+                }
+
+                var flags = ScanFlags();
+
+                token = state.Commit(TokenTypes.RegExLiteral, regExp, flags);
+
+                return true;
+            }
+
+            string ScanFlags()
+            {
+                var sb = pool.AllocateStringBuilder();
+                var t = sb.Builder;
+                var d = false;
+                var g = false;
+                var i = false;
+                var m = false;
+                var s = false;
+                var u = false;
+                var y = false;
+                try
+                {
+                    do
+                    {
+                        var ch = Consume();
+                        switch(ch)
+                        {
+                            case 'd':
+                                if (d) throw Unexpected();
+                                d = true;
+                                t.Append(ch);
+                                continue;
+                            case 'g':
+                                if (g) throw Unexpected();
+                                g = true;
+                                t.Append(ch);
+                                continue;
+                            case 'i':
+                                if (i) throw Unexpected();
+                                i = true;
+                                t.Append(ch);
+                                continue;
+                            case 'm':
+                                if (m) throw Unexpected();
+                                m = true;
+                                t.Append(ch);
+                                continue;
+                            case 's':
+                                if (s) throw Unexpected();
+                                s = true;
+                                t.Append(ch);
+                                continue;
+                            case 'u':
+                                if (u) throw Unexpected();
+                                u = true;
+                                t.Append(ch);
+                                continue;
+                            case 'y':
+                                if (y) throw Unexpected();
+                                y = true;
+                                t.Append(ch);
+                                continue;
+                        }
+                    } while (false);
+                    return sb.ToString();
+                } finally
+                {
+                    sb.Clear();
+                }
+            }
         }
 
         private FastToken SkipMultilineComment(State state)
@@ -612,6 +752,25 @@ namespace YantraJS.Core.FastParser
                 this.position = position;
             }
 
+            public FastToken Commit(TokenTypes type, string cooked, string flags)
+            {
+                var cp = scanner.position;
+                var start = scanner.Text.Offset + position;
+                var token = new FastToken(
+                    type,
+                    scanner.Text.Source,
+                    cooked,
+                    flags,
+                    start, cp - start,
+                    line,
+                    column,
+                    scanner.line,
+                    scanner.column);
+                scanner = null;
+                return token;
+            }
+
+
             public FastToken Commit(TokenTypes type, StringBuilder builder = null)
             {
                 var cp = scanner.position;
@@ -619,7 +778,8 @@ namespace YantraJS.Core.FastParser
                 var token = new FastToken(
                     type, 
                     scanner.Text.Source, 
-                    builder,
+                    builder?.ToString(),
+                    null,
                     start, cp - start, 
                     line,
                     column,
@@ -653,6 +813,7 @@ namespace YantraJS.Core.FastParser
                 var token = new FastToken(
                     TokenTypes.Identifier,
                     scanner.Text.Source,
+                    null,
                     null,
                     start, cp - start,
                     line,
