@@ -44,6 +44,7 @@ namespace YantraJS.Core.FastParser
 
         public FastToken Token
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if(token.Type == 0)
@@ -69,6 +70,7 @@ namespace YantraJS.Core.FastParser
             return Text[position];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char Consume()
         {
             position++;
@@ -428,29 +430,33 @@ namespace YantraJS.Core.FastParser
                 do
                 {
                     char ch = Consume();
-                    if (ch == '$')
+                    switch(ch)
                     {
-                        if (CanConsume('{'))
-                        {
-                            // template part begin...
-                            if (templateParts++ == 0)
-                                return state.Commit(TokenTypes.TemplateBegin, t);
-                            return state.Commit(TokenTypes.TemplatePart, t);
-                        }
+                        case '$':
+                                if (CanConsume('{')) {
+                                    // template part begin...
+                                    if (templateParts++ == 0)
+                                        return state.Commit(TokenTypes.TemplateBegin, t);
+                                    return state.Commit(TokenTypes.TemplatePart, t);
+                                }
+                                t.Append(ch);
+                                continue;
+                        case '`':
+                            Consume();
+                            return state.Commit(TokenTypes.TemplateEnd, t);
+                        case char.MaxValue:
+                            break;
                     }
                     if (ch == char.MaxValue)
-                        break;
+                        throw Unexpected();
                     if (ScanEscaped(ch, t))
                         continue;
-                    if (CanConsume('`'))
-                        return state.Commit(TokenTypes.TemplateEnd, t);
                     t.Append(ch);
                 } while (true);
             } finally
             {
                 sb.Clear();
             }
-            throw new InvalidOperationException();
         }
 
         private FastToken ReadSymbol(State state, TokenTypes type)

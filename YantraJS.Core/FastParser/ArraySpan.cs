@@ -40,6 +40,11 @@ namespace YantraJS.Core.FastParser
             return source?.ToSpan() ?? Empty;
         }
 
+        public static ArraySpan<T> From(params T[] items)
+        {
+            return new ArraySpan<T>(items, items.Length);
+        }
+
         public Enumerator GetEnumerator()
         {
             return new Enumerator(items, Length);

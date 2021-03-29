@@ -16,24 +16,13 @@ namespace YantraJS.Core.FastParser
             switch (token.Type)
             {
                 case TokenTypes.True:
-                    stream.Consume();
-                    node = new AstLiteral(TokenTypes.True, token);
-                    return true;
                 case TokenTypes.False:
-                    stream.Consume();
-                    node = new AstLiteral(TokenTypes.True, token);
-                    return true;
                 case TokenTypes.String:
-                    stream.Consume();
-                    node = new AstLiteral(TokenTypes.String, token);
-                    return true;
                 case TokenTypes.Number:
-                    stream.Consume();
-                    node = new AstLiteral(TokenTypes.Number, token);
-                    return true;
                 case TokenTypes.Null:
+                case TokenTypes.RegExLiteral:
                     stream.Consume();
-                    node = new AstLiteral(TokenTypes.Null, token);
+                    node = new AstLiteral(token.Type, token);
                     return true;
             }
             node = null;

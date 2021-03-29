@@ -62,6 +62,9 @@ namespace YantraJS.Core.FastParser
                     return ObjectLiteral(out node);
                 case TokenTypes.TemplateBegin:
                     return Template(out node);
+                case TokenTypes.TemplateEnd:
+                    node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(node));
+                    return true;
                 default:
                     throw stream.Unexpected();
             }
