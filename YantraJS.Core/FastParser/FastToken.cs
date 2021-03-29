@@ -42,7 +42,7 @@ namespace YantraJS.Core.FastParser
             this.StartColumn = startColumn;
             this.EndLine = endLine;
             this.EndColumn = endColumn;
-            this.Span = new StringSpan(source, start, length);
+            this.Span = new StringSpan(source, start, Math.Min(source.Length-start, length));
             this.CookedText = cooked;
             this.Flags = flags;
             if(keywords != null)

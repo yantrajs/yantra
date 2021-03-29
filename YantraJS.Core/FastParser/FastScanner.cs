@@ -99,6 +99,11 @@ namespace YantraJS.Core.FastParser
             using (var state = Push())
             {
                 char first = Peek();
+                if (first == char.MaxValue)
+                {
+                    state.CommitEOF();
+                    return EOF;
+                }
 
                 // if it is whitespace...
                 // read all whitespace...
@@ -479,7 +484,7 @@ namespace YantraJS.Core.FastParser
                     break;
             }
 
-            if (ScanRegEx(first, out var token))
+            if (ScanRegEx(state, first, out var token))
                 return token;
 
             if(divideAndAssign)
@@ -490,9 +495,8 @@ namespace YantraJS.Core.FastParser
 
             throw Unexpected();
 
-            bool ScanRegEx(char first , out FastToken token)
-            {
-                var state = this.Push();
+            bool ScanRegEx(State state, char first , out FastToken token)
+            {                
                 var sb = pool.AllocateStringBuilder();
                 var t = sb.Builder;
                 var classMarker = false;
@@ -519,9 +523,8 @@ namespace YantraJS.Core.FastParser
                                     t.Append(first);
                                     continue;
                                 }
-                                if (ScanEscaped(first, t))
-                                    continue;
                                 terminated = true;
+                                Consume();
                                 break;
                             case '[':
                                 classMarker = true;
@@ -532,6 +535,8 @@ namespace YantraJS.Core.FastParser
                                 t.Append(first);
                                 continue;
                             case '\\':
+                                if (ScanEscaped(first, t))
+                                    continue;
                                 if (CanConsume('\n'))
                                 {
                                     return false;
@@ -546,7 +551,6 @@ namespace YantraJS.Core.FastParser
                 finally
                 {
                     sb.Clear();
-                    state.Dispose();
                 }
 
                 var flags = ScanFlags();
@@ -787,6 +791,10 @@ namespace YantraJS.Core.FastParser
                     scanner.column);
                 scanner = null;
                 return token;
+            }
+
+            public void CommitEOF() {
+                scanner = null;
             }
 
             public void Reset()

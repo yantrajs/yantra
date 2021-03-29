@@ -4,7 +4,7 @@ using System.Linq;
 using YantraJS.Core;
 using YantraJS.Core.FastParser;
 
-namespace YantraJS.Parser.Tests
+namespace YantraJS.Core.Tests.Parser
 {
     internal static class ListExtensions
     {
@@ -27,7 +27,7 @@ namespace YantraJS.Parser.Tests
                 token = s.Token;
                 list.Add(token.Type);
                 s.ConsumeToken();
-            } while (token.Type == TokenTypes.EOF);
+            } while (token.Type != TokenTypes.EOF);
             return list;
         }
 
@@ -65,5 +65,15 @@ namespace YantraJS.Parser.Tests
             ScanTypes("`a`").SequenceEqual(TokenTypes.TemplateEnd);
             ScanTypes("`a${1}`").SequenceEqual(TokenTypes.TemplateBegin, TokenTypes.Number,  TokenTypes.TemplateEnd);
         }
+
+        [TestMethod]
+        public void RegExp()
+        {
+            ScanTypes("/a/").SequenceEqual(TokenTypes.RegExLiteral);
+            ScanTypes("/=a/").SequenceEqual(TokenTypes.RegExLiteral);
+            ScanTypes("a/=a").SequenceEqual(TokenTypes.Identifier, TokenTypes.AssignDivide ,  TokenTypes.Identifier);
+            ScanTypes("//a/").SequenceEqual(TokenTypes.EOF);
+        }
+
     }
 }
