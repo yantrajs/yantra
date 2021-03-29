@@ -14,6 +14,35 @@ namespace YantraJS.Core.FastParser
             return char.IsDigit(ch);
         }
 
+        internal static string FromCodePoint(this int cp)
+        {
+            return Char.ConvertFromUtf32(cp);
+        }
+
+        internal static int HexValue(this char ch)
+        {
+            if (ch >= 'A')
+            {
+                if (ch >= 'a')
+                {
+                    if (ch <= 'h')
+                    {
+                        return ch - 'a' + 10;
+                    }
+                }
+                else if (ch <= 'H')
+                {
+                    return ch - 'A' + 10;
+                }
+            }
+            else if (ch <= '9')
+            {
+                return ch - '0';
+            }
+
+            return 0;
+        }
+
         internal static bool IsDigitPart(this char ch, bool hex, bool binary, bool readDecimal)
         {
             switch (ch)

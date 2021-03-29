@@ -303,25 +303,148 @@ namespace YantraJS.Core.FastParser
             return EOF;
         }
 
-        private FastToken ReadTemplateString(State state)
+        private bool ScanEscaped(char next, StringBuilder t)
         {
-            do {
-                char ch = Consume();
-                if(ch == '$')
-                {
+            if (next != '\\')
+                return false;
+            next = Consume();
+            switch (next)
+            {
+                /**
+                 * This is special case, slash followed by a single line terminator is
+                 * only used to break the string starting at next line
+                 */
+                case '\n':
+                    return true;
+                case 'u':
                     if(CanConsume('{'))
                     {
-                        // template part begin...
-                        if(templateParts++ == 0)
-                            return state.Commit(TokenTypes.TemplateBegin);
-                        return state.Commit(TokenTypes.TemplatePart);
+                        t.Append(ScanUnicodeCodePointEscape());
+                        return true;
+                    }
+                    if(ScanHexEscape(next, out var n))
+                    {
+                        t.Append(n);
+                        return true;
+                    }
+                    throw Unexpected();
+                case 'n':
+                    next = '\n';
+                    break;
+                case 'r':
+                    next = '\r';
+                    break;
+                case 't':
+                    next = '\t';
+                    break;
+                case 'b':
+                    next = '\b';
+                    break;
+                case 'f':
+                    next = '\f';
+                    break;
+                case 'v':
+                    next = '\v';
+                    break;
+                default:
+                    t.Append(next);
+                    return true;
+            }
+            t.Append(next);
+            return true;
+
+            string ScanUnicodeCodePointEscape()
+            {
+                var ch = Consume();
+                int code = 0;
+
+                // At least, one hex digit is required.
+                if (ch == '}')
+                {
+                    throw Unexpected();
+                }
+
+                while (ch != char.MaxValue)
+                {
+                    if (!ch.IsDigitPart(true,false,false))
+                    {
+                        break;
+                    }
+                    code = code * 16 + ch.HexValue();
+                    ch = Consume();
+                }
+
+                if (code > 0x10FFFF || ch != '}')
+                {
+                    throw Unexpected();
+                }
+
+                return code.FromCodePoint();
+            }
+
+            bool ScanHexEscape(char prefix, out char result)
+            {
+                var len = (prefix == 'u') ? 4 : 2;
+                var code = 0;
+
+                for (var i = 0; i < len; ++i)
+                {
+                    char ch = Consume();
+                    if (ch != char.MaxValue)
+                    {
+                        if (ch.IsDigitPart(true, false, false))
+                        {
+                            code = code * 16 + ch.HexValue();
+                        }
+                        else
+                        {
+                            result = char.MinValue;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        result = char.MinValue;
+                        return false;
                     }
                 }
-                if (ch == char.MaxValue)
-                    break;
-                if (CanConsume('`'))
-                    return state.Commit(TokenTypes.TemplateEnd);
-            } while (true);
+
+                result = (char)code;
+                return true;
+            }
+        }
+
+        private FastToken ReadTemplateString(State state)
+        {
+            var sb = pool.AllocateStringBuilder();
+            var t = sb.Builder;
+            try
+            {
+                do
+                {
+                    char ch = Consume();
+                    if (ch == '$')
+                    {
+                        if (CanConsume('{'))
+                        {
+                            // template part begin...
+                            if (templateParts++ == 0)
+                                return state.Commit(TokenTypes.TemplateBegin, t);
+                            return state.Commit(TokenTypes.TemplatePart, t);
+                        }
+                    }
+                    if (ch == char.MaxValue)
+                        break;
+                    if (ScanEscaped(ch, t))
+                        continue;
+                    if (CanConsume('`'))
+                        return state.Commit(TokenTypes.TemplateEnd, t);
+                    t.Append(ch);
+                } while (true);
+            } finally
+            {
+                sb.Clear();
+            }
             throw new InvalidOperationException();
         }
 
@@ -398,17 +521,8 @@ namespace YantraJS.Core.FastParser
                 do
                 {
                     first = Consume();
-                    if (first == '\\')
-                    {
-                        var next = Consume();
-                        if (next == first)
-                        {
-                            t.Append(first);
-                            continue;
-                        }
-                        t.Append(first);
-                        t.Append(next);
-                    }
+                    if (ScanEscaped(first, t))
+                        continue;
                     if (first == start)
                     {
                         var next = Consume();
