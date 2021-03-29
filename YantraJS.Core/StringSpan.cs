@@ -136,7 +136,7 @@ namespace YantraJS.Core
         }
 
 
-        public bool Equals(StringSpan other) => Equals(other, StringComparison.Ordinal);
+        public bool Equals(StringSpan other) => Equals(in other, StringComparison.Ordinal);
 
         public bool Equals(in StringSpan other, StringComparison comparisonType)
         {
@@ -150,7 +150,7 @@ namespace YantraJS.Core
 
         public static bool Equals(in StringSpan a, in StringSpan b, StringComparison comparisonType)
         {
-            return a.Equals(b, comparisonType);
+            return a.Equals(in b, comparisonType);
         }
         public bool Equals(string other)
         {
@@ -257,7 +257,7 @@ namespace YantraJS.Core
 
         public struct CharEnumerator: IEnumerator<char>
         {
-            private StringSpan span;
+            private readonly StringSpan span;
             private int index;
 
             public CharEnumerator(in StringSpan span)

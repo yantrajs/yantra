@@ -36,8 +36,8 @@ namespace YantraJS.Core.FastParser
 
         
 
-        private static FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
-        private static FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
+        private static readonly FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
+        private static readonly FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
 
         private FastToken token = EmptyToken;
         private FastToken nextToken = EOF;
@@ -117,7 +117,7 @@ namespace YantraJS.Core.FastParser
 
                 if (first.IsIdentifierStart())
                 {
-                    return ReadIdentifier(state, first);
+                    return ReadIdentifier(state);
                 }
 
                 switch (first)
@@ -144,7 +144,7 @@ namespace YantraJS.Core.FastParser
                         // Read comments
                         // Read Regex
                         // Read /=
-                        return ReadCommentsOrRegExOrSymbol(state, first);
+                        return ReadCommentsOrRegExOrSymbol(state);
                     case ',':
                         return ReadSymbol(state, TokenTypes.Comma);
                     case '(':
@@ -465,9 +465,9 @@ namespace YantraJS.Core.FastParser
             return state.Commit(type);
         }
 
-        private FastToken ReadCommentsOrRegExOrSymbol(State state, char first)
+        private FastToken ReadCommentsOrRegExOrSymbol(State state)
         {
-            first = Consume();
+            var first = Consume();
             bool divideAndAssign = false;
             switch (first)
             {
@@ -694,8 +694,9 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        private FastToken ReadIdentifier(State state, char first)
+        private FastToken ReadIdentifier(State state)
         {
+            char first;
             do
             {
                 Consume();
