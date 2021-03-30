@@ -23,6 +23,19 @@ namespace YantraJS.Core.FastParser
             return true;
         }
 
+        bool VariableDeclarationStatement(out AstVariableDeclaration node, bool isLet = false, bool isConst = false)
+        {
+            var begin = Location;
+            node = default;
+            stream.Consume();
+
+            if (!Parameters(out var declarators, false))
+                throw stream.Unexpected();
+
+            node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, isLet, isConst);
+            return true;
+        }
+
 
     }
 

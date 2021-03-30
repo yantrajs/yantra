@@ -6,11 +6,17 @@ namespace YantraJS.Core.FastParser
 {
     public class AstIdentifier : AstExpression
     {
-        public readonly FastToken Identifier;
+        public readonly StringSpan Identifier;
 
         public AstIdentifier(FastToken identifier) : base(identifier,  FastNodeType.Identifier, identifier)
         {
-            this.Identifier = identifier;
+            this.Identifier = identifier.Span;
         }
+
+        public AstIdentifier(FastToken token, string id) : base(token, FastNodeType.Identifier, token)
+        {
+            this.Identifier = id;
+        }
+
     }
 }

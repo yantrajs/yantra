@@ -33,7 +33,7 @@ namespace YantraJS.Core.FastParser
             this.Length = length;
         }
 
-        public T this[int index] => this.items[index];
+        public ref T this[int index] => ref this.items[index];
 
         public static implicit operator ArraySpan<T>(FastList<T> source)
         {
@@ -104,5 +104,9 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        internal void Copy(T[] copy, int start)
+        {
+            Array.Copy(items, 0, copy, start, Length);
+        }
     }
 }
