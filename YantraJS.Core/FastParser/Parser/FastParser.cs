@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
@@ -12,9 +13,23 @@ namespace YantraJS.Core.FastParser
         public readonly FastPool Pool;
 
 
-        public StreamLocation Location => new StreamLocation(this, stream.Position, stream.Current);
+        public StreamLocation Location
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return new StreamLocation(this, stream.Position, stream.Current);
+            }
+        }
 
-        public FastToken PreviousToken => stream.Previous;
+        public FastToken PreviousToken
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return stream.Previous;
+            }
+        }
 
         public readonly struct StreamLocation
         {
@@ -47,14 +62,6 @@ namespace YantraJS.Core.FastParser
             if (Program(out var p))
                 return p;
             throw stream.Unexpected();
-        }
-
-        private Func<T> Consume<T>(Func<T> func)
-        {
-            return () => {
-                stream.Consume();
-                return func();
-            };
         }
 
         bool EndOfStatement()

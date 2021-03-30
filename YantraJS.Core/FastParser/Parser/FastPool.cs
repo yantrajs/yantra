@@ -1,46 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
 {
     public class FastPool
     {
-        Dictionary<Type, object> pools = new Dictionary<Type, object>();
+        readonly Dictionary<Type, object> pools = new Dictionary<Type, object>();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastList<T> AllocateList<T>()
         {
             return new FastList<T>(this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastStack<T> AllocateStack<T>()
         {
             return new FastStack<T>(this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Free<T>(FastList<T> list)
         {
             list.Clear();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Allocate<T>()
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
             return pool.Allocate();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T[] AllocateArray<T>(int size)
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
             return pool.AllocateArray(size);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Release<T>(T item)
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
             pool.Release(item);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReleaseArray<T>(T[] item)
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
@@ -50,7 +58,7 @@ namespace YantraJS.Core.FastParser
 
         class Pool<T>
         {
-            private Queue<T> queue = new Queue<T>();
+            private readonly Queue<T> queue = new Queue<T>();
 
             internal T Allocate()
             {
@@ -64,7 +72,7 @@ namespace YantraJS.Core.FastParser
                 queue.Enqueue(item);
             }
 
-            private Queue<T[]>[] Queues = new Queue<T[]>[] {
+            private readonly Queue<T[]>[] Queues = new Queue<T[]>[] {
                 new Queue<T[]>(),
                 new Queue<T[]>(),
                 new Queue<T[]>(),
@@ -122,7 +130,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        private Queue<StringBuilder> fastStringBuilders = new Queue<StringBuilder>();
+        private readonly Queue<StringBuilder> fastStringBuilders = new Queue<StringBuilder>();
 
         internal FastStringBuilder AllocateStringBuilder()
         {

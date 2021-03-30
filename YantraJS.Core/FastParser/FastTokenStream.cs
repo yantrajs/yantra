@@ -26,7 +26,7 @@ namespace YantraJS.Core.FastParser
         }
 
         public readonly FastKeywordMap Keywords;
-        private SparseList<FastToken> tokens;
+        private readonly SparseList<FastToken> tokens;
         private int index;
 
         public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
@@ -67,6 +67,7 @@ namespace YantraJS.Core.FastParser
 
         public FastToken Previous => this[index > 0 ? index - 1 : index];
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastToken Expect(TokenTypes type)
         {
             var c = this[index];
@@ -76,6 +77,7 @@ namespace YantraJS.Core.FastParser
             return c;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastToken Expect(FastKeywords type)
         {
             var c = this[index];
@@ -86,6 +88,7 @@ namespace YantraJS.Core.FastParser
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeContextualKeyword(FastKeywords keyword)
         {
             var c = this[index];
@@ -149,6 +152,7 @@ namespace YantraJS.Core.FastParser
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastToken Consume()
         {
             index++;
@@ -163,7 +167,14 @@ namespace YantraJS.Core.FastParser
             });
         }
 
-        public int Position => index;
+        public int Position
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return index;
+            }
+        }
 
         public bool Reset(int position)
         {
