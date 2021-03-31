@@ -79,6 +79,10 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
+            // goto....
+            if (Goto(out node))
+                return true;
+
             if(Expression(out var expression))
             {
                 node = new AstExpressionStatement(begin.Token, PreviousToken, expression);
@@ -86,6 +90,33 @@ namespace YantraJS.Core.FastParser
             }
 
             return begin.Reset();
+
+            bool Goto(out AstStatement statement)
+            {
+                var begin = Location;
+
+                if(stream.CheckAndConsume(TokenTypes.Identifier))
+                {
+                    if (stream.CheckAndConsume(TokenTypes.Colon))
+                    {
+                        // has to be do/while/for...
+                        var current = stream.Current;
+                        switch (current.Keyword)
+                        {
+                            case FastKeywords.@do:
+                                return DoWhileStatement(out statement);
+                            case FastKeywords.@for:
+                                return ForStatement(out statement);
+                            case FastKeywords.@while:
+                                return WhileStatement(out statement);
+                            default:
+                                throw stream.Unexpected();
+                        }
+                    }
+                }
+                statement = null;
+                return begin.Reset();
+            }
 
             bool Debugger(out AstStatement statement)
             {
