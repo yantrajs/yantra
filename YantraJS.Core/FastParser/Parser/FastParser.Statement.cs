@@ -80,7 +80,7 @@ namespace YantraJS.Core.FastParser
             }
 
             // goto....
-            if (Goto(out node))
+            if (LabeledLoop(out node))
                 return true;
 
             if(Expression(out var expression))
@@ -91,11 +91,11 @@ namespace YantraJS.Core.FastParser
 
             return begin.Reset();
 
-            bool Goto(out AstStatement statement)
+            bool LabeledLoop(out AstStatement statement)
             {
                 var begin = Location;
 
-                if(stream.CheckAndConsume(TokenTypes.Identifier))
+                if(stream.CheckAndConsume(TokenTypes.Identifier, out var id))
                 {
                     if (stream.CheckAndConsume(TokenTypes.Colon))
                     {
@@ -104,14 +104,23 @@ namespace YantraJS.Core.FastParser
                         switch (current.Keyword)
                         {
                             case FastKeywords.@do:
-                                return DoWhileStatement(out statement);
+                                if (!DoWhileStatement(out statement))
+                                    throw stream.Unexpected();
+                                break;
                             case FastKeywords.@for:
-                                return ForStatement(out statement);
+                                if (!ForStatement(out statement))
+                                    throw stream.Unexpected();
+                                break;
                             case FastKeywords.@while:
-                                return WhileStatement(out statement);
+                                if (!WhileStatement(out statement))
+                                    throw stream.Unexpected();
+                                break;
                             default:
                                 throw stream.Unexpected();
                         }
+
+                        statement = new AstLabeledStatement(id, statement);
+                        return true;
                     }
                 }
                 statement = null;

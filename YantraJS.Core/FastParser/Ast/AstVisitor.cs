@@ -58,6 +58,8 @@ namespace YantraJS.Utils
                     return VisitTryStatement(TryStatement);
                 case (FastNodeType.DebuggerStatement, AstDebuggerStatement DebuggerStatement):
                     return VisitDebuggerStatement(DebuggerStatement);
+                case (FastNodeType.LabeledStatement, AstLabeledStatement labeledStatement):
+                    return VisitLabeledStatement(labeledStatement);
                 case (FastNodeType.Literal, AstLiteral Literal):
                     return VisitLiteral(Literal);
                 case (FastNodeType.MemberExpression, AstMemberExpression MemberExpression):
@@ -83,10 +85,11 @@ namespace YantraJS.Utils
                 case (FastNodeType.YieldExpression, AstYieldExpression yieldExpression):
                     return VisitYieldExpression(yieldExpression);
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException($"No implementation for {node.Type}");
             }
         }
 
+        protected abstract T VisitLabeledStatement(AstLabeledStatement labeledStatement);
         protected abstract T VisitYieldExpression(AstYieldExpression yieldExpression);
         protected abstract T VisitCallExpression(AstCallExpression callExpression);
         protected abstract T VisitUnaryExpression(AstUnaryExpression unaryExpression);
