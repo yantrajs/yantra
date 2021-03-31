@@ -11,5 +11,10 @@
             this.Target = previous;
             this.Arguments = plist;
         }
+
+        public override string ToString()
+        {
+            return $"{Target}({Arguments.Join()})";
+        }
     }
 }

@@ -7,5 +7,10 @@
             base(token, FastNodeType.DebuggerStatement, token)
         {
         }
+
+        public override string ToString()
+        {
+            return "debugger;";
+        }
     }
 }

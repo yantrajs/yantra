@@ -22,6 +22,7 @@ namespace YantraJS.Core.FastParser
                     if (Statement(out var stmt))
                     {
                         list.Add(stmt);
+                        continue;
                     }
                     if (stream.CheckAndConsumeAny(TokenTypes.LineTerminator,TokenTypes.SemiColon))
                         continue;

@@ -22,5 +22,18 @@ namespace YantraJS.Core.FastParser
             this.IsLet = isLet;
             this.IsConst = isConst;
         }
+
+        public override string ToString()
+        {
+            if(IsLet)
+            {
+                return $"let {Declarators.Join()}";
+            }
+            if (IsConst)
+            {
+                return $"const {Declarators.Join()}";
+            }
+            return $"var {Declarators.Join()}";
+        }
     }
 }

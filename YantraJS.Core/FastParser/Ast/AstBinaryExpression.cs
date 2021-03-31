@@ -13,5 +13,10 @@
             this.Operator = type;
             this.Right = right;
         }
+
+        public override string ToString()
+        {
+            return $"({Left} {Operator} {Right})";
+        }
     }
 }

@@ -8,6 +8,11 @@
         {
             this.Elements = elements;
         }
+
+        public override string ToString()
+        {
+            return $"Array Pattern [{Elements.Join()}]";
+        }
     }
 
 }

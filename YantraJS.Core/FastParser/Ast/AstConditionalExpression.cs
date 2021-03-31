@@ -1,4 +1,5 @@
-﻿namespace YantraJS.Core.FastParser
+﻿#nullable enable
+namespace YantraJS.Core.FastParser
 {
     public class AstConditionalExpression : AstExpression
     {
@@ -12,6 +13,11 @@
             this.Test = previous;
             this.True = @true;
             this.False = @false;
+        }
+
+        public override string ToString()
+        {
+            return $"{Test} ? {True} : {False}";
         }
     }
 }

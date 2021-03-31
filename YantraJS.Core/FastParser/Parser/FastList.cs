@@ -53,7 +53,7 @@ namespace YantraJS.Core.FastParser
 
         public void Add(T item)
         {
-            SetItem(length + 1, item);
+            SetItem(length++, item);
         }
 
         public void Clear()

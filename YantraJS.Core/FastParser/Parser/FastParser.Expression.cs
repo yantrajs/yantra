@@ -83,6 +83,10 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     return NextExpression(ref previous, ref previousType, out node, out type);
             }
+
+            stream.CheckAndConsume(previousType);
+
+
             var preUnaryOperator = GetUnaryOperator(stream.Current);
 
             if (!SingleExpression(out node))
@@ -115,16 +119,25 @@ namespace YantraJS.Core.FastParser
                     return NextExpression(ref previous, ref previousType, out node, out type);
             }
 
-            if(EndOfStatement())
-            {
-                type = TokenTypes.SemiColon;
-                return true;
-            }
 
             var begin = Location;
             type = begin.Token.Type;
             switch (type)
             {
+
+                case TokenTypes.Comma:
+                case TokenTypes.LineTerminator:
+                case TokenTypes.SemiColon:
+                case TokenTypes.SquareBracketEnd:
+                case TokenTypes.BracketEnd:
+                case TokenTypes.CurlyBracketEnd:
+                case TokenTypes.Colon:
+                case TokenTypes.EOF:
+                    previous = new AstBinaryExpression(previous, previousType, node);
+                    node = null;
+                    type = TokenTypes.SemiColon;
+                    return true;
+
 
                 // associate right...
                 case TokenTypes.Assign:
@@ -244,7 +257,7 @@ namespace YantraJS.Core.FastParser
             }
             begin = Location;
             token = begin.Token;
-            var postFixUnaryOperator = GetUnaryOperator(token);
+            var postFixUnaryOperator = GetUnaryOperator(token, false);
             if (postFixUnaryOperator != UnaryOperator.None)
             {
                 node = new AstUnaryExpression(token, node, postFixUnaryOperator, false);
@@ -271,12 +284,18 @@ namespace YantraJS.Core.FastParser
             switch (token.Type)
             {
                 case TokenTypes.Plus:
-                    stream.Consume();
-                    prefixUnaryToken = UnaryOperator.Plus;
+                    if (prefix)
+                    {
+                        stream.Consume();
+                        prefixUnaryToken = UnaryOperator.Plus;
+                    }
                     break;
                 case TokenTypes.Minus:
-                    stream.Consume();
-                    prefixUnaryToken = UnaryOperator.Minus;
+                    if (prefix)
+                    {
+                        stream.Consume();
+                        prefixUnaryToken = UnaryOperator.Minus;
+                    }
                     break;
                 case TokenTypes.Increment:
                     stream.Consume();

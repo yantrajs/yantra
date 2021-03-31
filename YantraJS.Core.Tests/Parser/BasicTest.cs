@@ -74,6 +74,14 @@ namespace YantraJS.Core.Tests.Parser
             Parse("for(var a = 1;;);");
             Parse("for(var a = 1,b=2;;);");
             Parse("for(var a = 1,b=2;c;d++);");
+            Parse(@"let str = '';
+loop1:
+for (let i = 0; i < 5; i++) {
+  if (i === 1) {
+    continue loop1;
+  }
+  str = str + i;
+}");
         }
     }
 }

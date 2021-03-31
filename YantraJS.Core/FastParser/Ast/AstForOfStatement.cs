@@ -13,5 +13,11 @@
             this.Target = target;
             this.Body = statement;
         }
+
+        public override string ToString()
+        {
+            return $"for ({Init} of {Target}) {{ {Body} }}";
+        }
+
     }
 }

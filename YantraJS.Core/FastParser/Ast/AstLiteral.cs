@@ -8,5 +8,10 @@
         {
             this.TokenType = tokenType;
         }
+
+        public override string ToString()
+        {
+            return TokenType.ToString();
+        }
     }
 }

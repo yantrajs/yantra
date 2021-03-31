@@ -1,4 +1,5 @@
-﻿namespace YantraJS.Core.FastParser
+﻿#nullable enable
+namespace YantraJS.Core.FastParser
 {
     public class AstArrayExpression : AstExpression
     {
@@ -8,6 +9,11 @@
             : base(start, FastNodeType.ArrayExpression, end)
         {
             this.Elements = nodes;
+        }
+
+        public override string ToString()
+        {
+            return $"[{Elements.Join()}]";
         }
     }
 }

@@ -18,5 +18,11 @@ namespace YantraJS.Core.FastParser
             this.Identifier = id;
         }
 
+
+        public override string ToString()
+        {
+            return Identifier.Value ;
+        }
+
     }
 }

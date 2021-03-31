@@ -35,6 +35,21 @@ namespace YantraJS.Core.FastParser
 
         public ref T this[int index] => ref this.items[index];
 
+        public string Join()
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < Length; i++)
+            {
+                ref var item = ref this[i];
+                if(i>0)
+                {
+                    sb.Append(',');
+                }
+                sb.Append(item);
+            }
+            return sb.ToString();
+        }
+
         public static implicit operator ArraySpan<T>(FastList<T> source)
         {
             return source?.ToSpan() ?? Empty;

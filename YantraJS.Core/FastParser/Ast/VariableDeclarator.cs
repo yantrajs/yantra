@@ -1,14 +1,22 @@
-﻿namespace YantraJS.Core.FastParser
+﻿#nullable enable
+namespace YantraJS.Core.FastParser
 {
     public readonly struct VariableDeclarator
     {
         public readonly AstExpression Identifier;
-        public readonly AstExpression Init;
+        public readonly AstExpression? Init;
 
-        public VariableDeclarator(AstExpression identifier, AstExpression init)
+        public VariableDeclarator(AstExpression identifier, AstExpression? init = null)
         {
             Identifier = identifier;
             Init = init;
+        }
+
+        public override string ToString()
+        {
+            if (Init == null)
+                return Identifier.ToString();
+            return $"{Identifier} = {Init}";
         }
 
         public static VariableDeclarator FromNode(AstExpression node)

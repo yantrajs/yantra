@@ -13,5 +13,14 @@
             this.Operator = tokenType;
             this.Prefix = prefix;
         }
+
+        public override string ToString()
+        {
+            if (Prefix)
+            {
+                return $"{Operator} {Argument}";
+            }
+            return $"{Argument} {Operator}";
+        }
     }
 }

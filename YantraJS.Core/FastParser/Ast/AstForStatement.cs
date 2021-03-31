@@ -15,5 +15,10 @@
             this.Update = preTest;
             this.Body = statement;
         }
+
+        public override string ToString()
+        {
+            return $"for ({Init};{Update};{Test}) {{ {Body} }}";
+        }
     }
 }

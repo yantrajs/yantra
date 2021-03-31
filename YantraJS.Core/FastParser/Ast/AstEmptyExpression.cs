@@ -6,6 +6,11 @@
             : base(start, FastNodeType.EmptyExpression, start, isBinding)
         {
         }
+
+        public override string ToString()
+        {
+            return "<<Empty>>";
+        }
     }
 
 }
