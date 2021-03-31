@@ -60,7 +60,8 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     if (!Expression(out right))
                         throw stream.Unexpected();
-                    node = new AstBinaryExpression(previous, previousType, right);
+                    previous = new AstBinaryExpression(previous, previousType, right);
+                    node = null;
                     type = TokenTypes.SemiColon;
                     return true;
 
