@@ -1,6 +1,8 @@
-﻿namespace YantraJS.Core.FastParser
+﻿using YantraJS.Utils;
+
+namespace YantraJS.Core.FastParser
 {
-    public class AstNode
+    public abstract class AstNode
     {
         public readonly FastNodeType Type;
         public readonly FastToken Start;
@@ -18,7 +20,6 @@
             this.IsStatement = isStatement;
             this.IsBinding = isBinding;
         }
-
     }
 
 }
