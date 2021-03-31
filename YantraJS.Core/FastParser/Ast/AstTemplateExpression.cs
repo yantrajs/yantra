@@ -4,7 +4,7 @@
     {
         public readonly ArraySpan<AstExpression> Parts;
 
-        public AstTemplateExpression(FastToken token, FastToken previousToken, ArraySpan<AstExpression> astExpressions)
+        public AstTemplateExpression(FastToken token, FastToken previousToken, in ArraySpan<AstExpression> astExpressions)
             : base(token, FastNodeType.TemplateExpression, previousToken)
         {
             this.Parts = astExpressions;

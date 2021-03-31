@@ -35,7 +35,7 @@
             bool @async,
             bool generator,
             AstExpression propertyName,
-            ArraySpan<VariableDeclarator> parameters,
+            in ArraySpan<VariableDeclarator> parameters,
             AstStatement body)
         {
             this.IsStatic = isStatic;

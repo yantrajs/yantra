@@ -6,8 +6,12 @@
         public readonly AstExpression Base;
         public readonly ArraySpan<AstClassProperty> Members;
 
-        public AstClassExpression(FastToken token, FastToken previousToken, AstIdentifier identifier, AstExpression @base, 
-            ArraySpan<AstClassProperty> astClassProperties)
+        public AstClassExpression(
+            FastToken token, 
+            FastToken previousToken, 
+            AstIdentifier identifier, 
+            AstExpression @base, 
+            in ArraySpan<AstClassProperty> astClassProperties)
             : base(token,  FastNodeType.ClassStatement, previousToken)
         {
             this.Identifier = identifier;

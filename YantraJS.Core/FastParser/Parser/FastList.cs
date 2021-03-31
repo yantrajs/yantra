@@ -115,9 +115,9 @@ namespace YantraJS.Core.FastParser
 
         public struct FastEnumerator : IEnumerator<T>
         {
-            private T[] items;
+            private readonly T[] items;
             private int index;
-            private int length;
+            private readonly int length;
 
             public FastEnumerator(T[] items)
             {

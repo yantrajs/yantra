@@ -28,6 +28,14 @@ namespace YantraJS.Core.Tests.Parser
         }
 
         [TestMethod]
+        public void TemplateExpressions()
+        {
+            Parse("``");
+            Parse("`ab`");
+            Parse("`ab ${n} dfdfsd ${m}`");
+        }
+
+        [TestMethod]
         public void Array()
         {
             Parse("[]");

@@ -4,7 +4,10 @@
     {
         public readonly ArraySpan<AstExpression> Expressions;
 
-        public AstSequenceExpression(FastToken start, FastToken end, ArraySpan<AstExpression> expressions) : base(start, FastNodeType.SequenceExpression, end)
+        public AstSequenceExpression(
+            FastToken start, 
+            FastToken end, 
+            in ArraySpan<AstExpression> expressions) : base(start, FastNodeType.SequenceExpression, end)
         {
             this.Expressions = expressions;
         }

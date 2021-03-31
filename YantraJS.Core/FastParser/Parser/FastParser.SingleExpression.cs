@@ -63,6 +63,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.TemplateBegin:
                     return Template(out node);
                 case TokenTypes.TemplateEnd:
+                    stream.Consume();
                     node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(node));
                     return true;
                 default:

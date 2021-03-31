@@ -39,7 +39,7 @@
         }
 
 
-        public static ArraySpan<VariableDeclarator> From(ArraySpan<AstExpression> nodes)
+        public static ArraySpan<VariableDeclarator> From(in ArraySpan<AstExpression> nodes)
         {
             var r = new VariableDeclarator[nodes.Length];
             for (int i = 0; i < nodes.Length; i++)
