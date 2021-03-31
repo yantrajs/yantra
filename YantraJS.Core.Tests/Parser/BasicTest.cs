@@ -58,5 +58,14 @@ namespace YantraJS.Core.Tests.Parser
             Fail("{,}");
             Fail("{a,}");
         }
+
+        [TestMethod]
+        public void For()
+        {
+            Parse("for(;;);");
+            Parse("for(var a = 1;;);");
+            Parse("for(var a = 1,b=2;;);");
+            Parse("for(var a = 1,b=2;c;d++);");
+        }
     }
 }

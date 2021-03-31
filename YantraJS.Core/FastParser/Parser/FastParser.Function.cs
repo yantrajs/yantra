@@ -33,7 +33,7 @@ namespace YantraJS.Core.FastParser
             Identitifer(out var id);
 
             stream.Expect(TokenTypes.BracketStart);
-            if (!Parameters(out var declarators, false))
+            if (!Parameters(out var declarators, TokenTypes.BracketEnd, false))
                 throw stream.Unexpected();
 
             if (stream.Current.Type != TokenTypes.CurlyBracketStart)

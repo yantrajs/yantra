@@ -13,16 +13,16 @@ namespace YantraJS.Core.FastParser
             out AstExpression node, out TokenTypes type)
         {
 
-            if (EndOfStatement())
-            {
-                node = null;
-                type = TokenTypes.SemiColon;
-                return true;
-            }
+            //if (EndOfStatement())
+            //{
+            //    node = null;
+            //    type = TokenTypes.SemiColon;
+            //    return true;
+            //}
 
 
-            AstExpression right = null;
-            TokenTypes rightType = TokenTypes.None;
+            AstExpression right;
+            TokenTypes rightType;
 
             switch(previousType)
             {
@@ -189,7 +189,6 @@ namespace YantraJS.Core.FastParser
         bool Expression(out AstExpression node)
         {
             var begin = Location;
-            node = default;
             var token = begin.Token;
 
             var prefixUnaryToken = GetUnaryOperator(token);

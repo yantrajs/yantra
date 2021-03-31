@@ -9,7 +9,9 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
-        bool Parameters(out ArraySpan<VariableDeclarator> node, bool checkForBracketStart = true)
+        bool Parameters(out ArraySpan<VariableDeclarator> node, 
+            TokenTypes endsWith = TokenTypes.BracketEnd,
+            bool checkForBracketStart = true)
         {
             node = null;
             if (!stream.CheckAndConsume(TokenTypes.BracketStart))
@@ -20,7 +22,7 @@ namespace YantraJS.Core.FastParser
             var list = Pool.AllocateList<VariableDeclarator>();
             try
             {
-                while(!stream.CheckAndConsume(TokenTypes.BracketEnd)) {
+                while(!stream.CheckAndConsume(endsWith)) {
 
                     if (!AssignmentLeftPattern(out var left))
                         throw stream.Unexpected();
@@ -33,7 +35,7 @@ namespace YantraJS.Core.FastParser
                     {
                         list.Add(new VariableDeclarator(left, null));
                     }
-                    if (stream.CheckAndConsumeAny(TokenTypes.BracketEnd, TokenTypes.EOF))
+                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF))
                         break;
                     if (!stream.CheckAndConsume(TokenTypes.Comma))
                         throw stream.Unexpected();

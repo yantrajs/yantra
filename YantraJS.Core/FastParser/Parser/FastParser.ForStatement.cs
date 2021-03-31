@@ -28,7 +28,7 @@ namespace YantraJS.Core.FastParser
 
             stream.Expect(TokenTypes.BracketStart);
 
-            AstNode beginNode = null;
+            AstNode beginNode;
 
             // desugar let/const in following scope
             bool newScope = false;
@@ -60,7 +60,7 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                 }
             }
-            else if (ExpressionSequence(out var expressions))
+            else if (ExpressionSequence(out var expressions, TokenTypes.SemiColon, true))
             {
                 beginNode = expressions;
             } else throw stream.Unexpected();
@@ -78,24 +78,23 @@ namespace YantraJS.Core.FastParser
                 @in = true;
                 if (!Expression(out inTarget))
                     throw stream.Unexpected();
+                stream.Expect(TokenTypes.BracketEnd);
             }
             else if (stream.CheckAndConsumeContextualKeyword(FastKeywords.of))
             {
                 of = true;
                 if (!Expression(out ofTarget))
                     throw stream.Unexpected();
+                stream.Expect(TokenTypes.BracketEnd);
             }
-            else if (stream.CheckAndConsume(TokenTypes.SemiColon))
+            else if (ExpressionSequence(out test, TokenTypes.SemiColon, true))
             {
-                if (!Expression(out test))
-                    throw stream.Unexpected();
-                stream.Expect(TokenTypes.SemiColon);
-                if (!Expression(out preTest))
+                if (!ExpressionSequence(out preTest, TokenTypes.BracketEnd, true))
                     throw stream.Unexpected();
             }
             else stream.Unexpected();
 
-            stream.Expect(TokenTypes.BracketEnd);
+            
             AstStatement statement;
             if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
             {
@@ -103,7 +102,7 @@ namespace YantraJS.Core.FastParser
                     throw stream.Unexpected();
                 if (newScope)
                 {
-                    (beginNode, statement) = Desugar(declaration, block.Statements);
+                    (beginNode, statement) = Desugar(declaration, in block.Statements);
                 }
                 else
                 {

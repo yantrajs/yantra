@@ -10,7 +10,6 @@ namespace YantraJS.Core.FastParser
 
         bool ExpressionArray(out ArraySpan<AstExpression> nodes, TokenTypes endsWith = TokenTypes.BracketEnd)
         {
-            var begin = Location;
             var list = Pool.AllocateList<AstExpression>();
             try
             {
@@ -33,7 +32,10 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        bool ExpressionSequence(out AstExpression expressions, TokenTypes endWith = TokenTypes.BracketEnd)
+        bool ExpressionSequence(
+            out AstExpression expressions, 
+            TokenTypes endWith = TokenTypes.BracketEnd,
+            bool allowEmpty = false)
         {
             var begin = Location;
             var nodes = Pool.AllocateList<AstExpression>();
@@ -41,6 +43,9 @@ namespace YantraJS.Core.FastParser
             {
                 do
                 {
+                    if (allowEmpty && stream.CheckAndConsume(endWith))
+                        break;
+                    allowEmpty = false;
                     if (Expression(out var node))
                         nodes.Add(node);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
@@ -49,12 +54,17 @@ namespace YantraJS.Core.FastParser
                         break;
                     throw stream.Unexpected();
                 } while (true);
-                if (nodes.Count == 1)
+                switch(nodes.Count)
                 {
-                    expressions = nodes[0];
-                } else
-                {
-                    expressions = new AstSequenceExpression(begin.Token, PreviousToken, nodes);
+                    case 0:
+                        expressions = new AstEmptyExpression(begin.Token);
+                        break;
+                    case 1:
+                        expressions = nodes[0];
+                        break;
+                    default:
+                        expressions = new AstSequenceExpression(begin.Token, PreviousToken, nodes);
+                        break;
                 }
                 return true;
             } finally

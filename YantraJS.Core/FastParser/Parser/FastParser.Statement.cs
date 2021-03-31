@@ -26,6 +26,10 @@ namespace YantraJS.Core.FastParser
                         return true;
                     }
                     break;
+                case TokenTypes.SemiColon:
+                    stream.Consume();
+                    node = new AstExpressionStatement(new AstEmptyExpression(begin.Token));
+                    return true;
             }
 
             if(token.IsKeyword)

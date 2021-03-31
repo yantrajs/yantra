@@ -12,7 +12,6 @@ namespace YantraJS.Core.FastParser
 
         bool AssignmentLeftPattern(out AstExpression node)
         {
-            var begin = Location;
             node = default;
 
             var token = stream.Current;
