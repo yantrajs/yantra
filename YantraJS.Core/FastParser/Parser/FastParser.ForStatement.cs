@@ -1,7 +1,9 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using YantraJS.Core.FastParser.Ast;
 
 namespace YantraJS.Core.FastParser
 {
@@ -32,7 +34,7 @@ namespace YantraJS.Core.FastParser
 
             // desugar let/const in following scope
             bool newScope = false;
-            AstVariableDeclaration declaration = null;
+            AstVariableDeclaration? declaration = null;
 
             var current = stream.Current;
             if (current.IsKeyword)
@@ -68,10 +70,10 @@ namespace YantraJS.Core.FastParser
             var @in = false;
             var of = false;
 
-            AstExpression inTarget = null;
-            AstExpression ofTarget = null;
-            AstExpression test = null;
-            AstExpression preTest = null;
+            AstExpression? inTarget = null;
+            AstExpression? ofTarget = null;
+            AstExpression? test = null;
+            AstExpression? update = null;
 
             if (stream.CheckAndConsume(FastKeywords.@in))
             {
@@ -89,7 +91,7 @@ namespace YantraJS.Core.FastParser
             }
             else if (ExpressionSequence(out test, TokenTypes.SemiColon, true))
             {
-                if (!ExpressionSequence(out preTest, TokenTypes.BracketEnd, true))
+                if (!ExpressionSequence(out update, TokenTypes.BracketEnd, true))
                     throw stream.Unexpected();
             }
             else stream.Unexpected();
@@ -100,9 +102,9 @@ namespace YantraJS.Core.FastParser
             {
                 if (!Block(out var block))
                     throw stream.Unexpected();
-                if (newScope)
+                if (newScope && declaration != null)
                 {
-                    (beginNode, statement) = Desugar(declaration, in block.Statements);
+                    (beginNode, statement, update) = Desugar(declaration, in block.Statements, update);
                 }
                 else
                 {
@@ -110,9 +112,9 @@ namespace YantraJS.Core.FastParser
                 }
             } else if (Statement(out statement))
             {
-                if(newScope)
+                if(newScope && declaration != null)
                 {
-                    (beginNode, statement) = Desugar(declaration, ArraySpan<AstStatement>.From(statement));
+                    (beginNode, statement, update) = Desugar(declaration, ArraySpan<AstStatement>.From(statement), update);
                 }
             } else throw stream.Unexpected();
 
@@ -127,15 +129,17 @@ namespace YantraJS.Core.FastParser
                 return true;
             }
 
-            node = new AstForStatement(begin.Token, PreviousToken, beginNode, test, preTest, statement);
+            node = new AstForStatement(begin.Token, PreviousToken, beginNode, test, update, statement);
             return true;
 
-            (AstNode beginNode, AstStatement statement) Desugar(
+            (AstNode beginNode, AstStatement statement, AstExpression? update) Desugar(
                 AstVariableDeclaration declaration, 
-                in ArraySpan<AstStatement> body)
+                in ArraySpan<AstStatement> body,
+                AstExpression? update)
             {
                 var statementList = new AstStatement[body.Length + 1];
                 body.Copy(statementList, 1);
+
 
                 var tempDeclarations = Pool.AllocateList<VariableDeclarator>();
                 var scopedDeclarations = Pool.AllocateList<VariableDeclarator>();
@@ -148,6 +152,13 @@ namespace YantraJS.Core.FastParser
                         var id = new AstIdentifier(d.Identifier.Start, tempID.ToString());
                         tempDeclarations.Add(new VariableDeclarator(id, d.Init));
                         scopedDeclarations.Add(new VariableDeclarator(d.Identifier, id));
+
+                        if (update != null)
+                        {
+                            update = AstIdentifierReplacer.Replace(update, (d.Identifier as AstIdentifier)!.Name.Value, tempID.ToString())
+                                as AstExpression;
+                        }
+
                     }
 
                     statementList[0] = new AstVariableDeclaration(declaration.Start, declaration.End, scopedDeclarations, FastVariableKind.Let);
@@ -155,7 +166,7 @@ namespace YantraJS.Core.FastParser
                     var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations);
 
                     var last = body.Length == 0 ? declaration :  body[body.Length - 1];
-                    return (r, new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList)));
+                    return (r, new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList)), update);
 
                 } finally {
                     tempDeclarations.Clear();
