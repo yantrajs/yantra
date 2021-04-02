@@ -30,6 +30,13 @@ namespace YantraJS.Core.Tests.Parser
             var exp = (x.Statements[0] as AstExpressionStatement).Expression;
         }
 
+        [TestMethod]
+        public void Computed()
+        {
+            var x = Expression("a[1]");
+            x = Expression("a * a[1] + a[2]");
+        }
+
 
         [TestMethod()]
         public void Expressions()

@@ -12,10 +12,20 @@
 
     internal static class AstExpressionExtensions
     {
+
+        public static AstExpression Computed(this AstExpression left, AstExpression right)
+            => new AstMemberExpression(left, right, true);
+
+        public static AstExpression Member(this AstExpression left, AstExpression right, bool computed = false)
+            => left == null ? right : new AstMemberExpression(left, right, computed);
+
+
         public static AstExpression Combine(this AstExpression left, 
             TokenTypes type, 
             AstExpression right)
         {
+            if (right == null)
+                return left;
             switch(type)
             {
                 case TokenTypes.SemiColon:

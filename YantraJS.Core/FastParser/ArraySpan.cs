@@ -75,6 +75,13 @@ namespace YantraJS.Core.FastParser
             return new Enumerator(items, Length);
         }
 
+        public T FirstOrDefault()
+        {
+            if (Length == 0)
+                return default;
+            return items[0];
+        }
+
         public struct Enumerator : IEnumerator<T>
         {
             private readonly T[] items;

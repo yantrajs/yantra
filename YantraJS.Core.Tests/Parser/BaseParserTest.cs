@@ -21,6 +21,14 @@ namespace YantraJS.Core.Tests.Parser
             return parser.ParseProgram();
         }
 
+        public AstExpression Expression(string text)
+        {
+            var stream = new FastTokenStream(text);
+            FastParser.FastParser parser = new FastParser.FastParser(stream);
+            return (parser.ParseProgram().Statements.FirstOrDefault() as AstExpressionStatement)?.Expression;
+        }
+
+
         public void Fail(string text)
         {
             try {
