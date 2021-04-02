@@ -21,6 +21,11 @@ namespace YantraJS.Core.FastParser
                         break;
                     if (Statement(out var stmt))
                     {
+                        // ignore empty expression statement...
+                        if (stmt.Type == FastNodeType.ExpressionStatement
+                            && stmt is AstExpressionStatement exp
+                            && exp.Expression.Type == FastNodeType.EmptyExpression)
+                            continue;
                         list.Add(stmt);
                         continue;
                     }

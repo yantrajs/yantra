@@ -2,14 +2,14 @@
 {
     public readonly struct ObjectProperty
     {
-        public readonly AstExpression Left;
-        public readonly AstExpression Right;
+        public readonly AstExpression Key;
+        public readonly AstExpression Value;
         public readonly bool Spread;
 
         public ObjectProperty(AstExpression left, AstExpression right, bool spread = false)
         {
-            this.Left = left;
-            this.Right = right;
+            this.Key = left;
+            this.Value = right;
             this.Spread = spread;
         }
     }

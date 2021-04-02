@@ -40,13 +40,13 @@ namespace YantraJS.Core.FastParser
                 switch (current.Keyword)
                 {
                     case FastKeywords.let:
-                        if (!VariableDeclarationStatement(out declaration, isLet: true))
+                        if (!VariableDeclarationStatement(out declaration, FastVariableKind.Let))
                             throw stream.Unexpected();
                         beginNode = declaration;
                         newScope = true;
                         break;
                     case FastKeywords.@const:
-                        if (!VariableDeclarationStatement(out declaration, isConst: true))
+                        if (!VariableDeclarationStatement(out declaration, FastVariableKind.Const))
                             throw stream.Unexpected();
                         beginNode = declaration;
                         newScope = true;
@@ -150,9 +150,9 @@ namespace YantraJS.Core.FastParser
                         scopedDeclarations.Add(new VariableDeclarator(d.Identifier, id));
                     }
 
-                    statementList[0] = new AstVariableDeclaration(declaration.Start, declaration.End, scopedDeclarations, declaration.IsLet, declaration.IsConst);
+                    statementList[0] = new AstVariableDeclaration(declaration.Start, declaration.End, scopedDeclarations, FastVariableKind.Let);
 
-                    var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations, false, false);
+                    var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations);
 
                     var last = body.Length == 0 ? declaration :  body[body.Length - 1];
                     return (r, new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList)));

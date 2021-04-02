@@ -10,7 +10,7 @@ namespace YantraJS.Core.FastParser
 
 
 
-        bool VariableDeclaration(out AstStatement node, bool isLet = false, bool isConst = false)
+        bool VariableDeclaration(out AstStatement node, FastVariableKind kind = FastVariableKind.Var)
         {
             var begin = Location;
             node = default;
@@ -19,11 +19,11 @@ namespace YantraJS.Core.FastParser
             if (!Parameters(out var declarators, TokenTypes.SemiColon, false))
                 throw stream.Unexpected();
 
-            node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, isLet, isConst);
+            node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, kind);
             return true;
         }
 
-        bool VariableDeclarationStatement(out AstVariableDeclaration node, bool isLet = false, bool isConst = false)
+        bool VariableDeclarationStatement(out AstVariableDeclaration node, FastVariableKind kind = FastVariableKind.Var)
         {
             var begin = Location;
             node = default;
@@ -32,7 +32,7 @@ namespace YantraJS.Core.FastParser
             if (!Parameters(out var declarators, TokenTypes.SemiColon, false))
                 throw stream.Unexpected();
 
-            node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, isLet, isConst);
+            node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, kind);
             return true;
         }
 

@@ -12,7 +12,6 @@ namespace YantraJS.Core.FastParser
 
         public readonly FastPool Pool;
 
-
         public StreamLocation Location
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
