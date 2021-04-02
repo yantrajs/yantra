@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.FastParser;
 
 namespace YantraJS.Core.Tests.Parser
 {
@@ -9,6 +10,19 @@ namespace YantraJS.Core.Tests.Parser
     [TestClass]
     public class BasicTest: BaseParserTest
     {
+        [TestMethod]
+        public void Invoke()
+        {
+            var program = Parse("a()");
+            var fx = (program.Statements[0] as AstExpressionStatement)?.Expression;
+            Assert.AreEqual(fx.Type, FastParser.FastNodeType.CallExpression);
+
+            Parse("a.b()");
+            Parse("a.b(a)");
+            Parse("a.b(a.b)");
+            Parse("a.b(a.b())");
+        }
+
 
         [TestMethod()]
         public void Expressions()
