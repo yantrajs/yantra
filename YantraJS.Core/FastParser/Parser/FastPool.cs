@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,28 +32,28 @@ namespace YantraJS.Core.FastParser
         public T Allocate<T>()
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
-            return pool.Allocate();
+            return pool!.Allocate();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T[] AllocateArray<T>(int size)
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
-            return pool.AllocateArray(size);
+            return pool!.AllocateArray(size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Release<T>(T item)
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
-            pool.Release(item);
+            pool!.Release(item);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReleaseArray<T>(T[] item)
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
-            pool.ReleaseArray(item);
+            pool!.ReleaseArray(item);
         }
 
 

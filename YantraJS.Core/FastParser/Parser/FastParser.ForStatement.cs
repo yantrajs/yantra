@@ -132,6 +132,40 @@ namespace YantraJS.Core.FastParser
             node = new AstForStatement(begin.Token, PreviousToken, beginNode, test, update, statement);
             return true;
 
+
+
+            // modify the node as well...
+            AstExpression AssignTempNames(FastList<(string id, string temp)> list, AstExpression e)
+            {
+                switch ((e.Type,e))
+                {
+                    case (FastNodeType.Identifier, AstIdentifier id):
+                        var tempID = Interlocked.Increment(ref TempVarID).ToString();
+                        list.Add((id.Name.Value!, tempID));
+                        return new AstIdentifier(id.Start, tempID);
+                    case (FastNodeType.SpreadElement, AstSpreadElement spreadElement):
+                        return new AstSpreadElement(spreadElement.Start,spreadElement.End, AssignTempNames(list, spreadElement.Argument));
+                    case (FastNodeType.ObjectPattern, AstObjectPattern pattern):
+                        for (int i = 0; i < pattern.Properties.Length; i++)
+                        {
+                            ref var property = ref pattern.Properties[i];
+                            pattern.Properties[i] = new ObjectProperty(property.Key, AssignTempNames(list, property.Value), property.Spread);
+                        }
+                        return pattern;
+                    case (FastNodeType.ArrayPattern, AstArrayPattern pattern):
+                        for (int i = 0; i < pattern.Elements.Length; i++)
+                        {
+                            ref var property = ref pattern.Elements[i];
+                            pattern.Elements[i] = AssignTempNames(list, e);
+                        }
+                        return pattern;
+                    default:
+                        throw new FastParseException(e.Start, $"Unknown token");
+                }
+            }
+            
+
+
             (AstNode beginNode, AstStatement statement, AstExpression? update) Desugar(
                 AstVariableDeclaration declaration, 
                 in ArraySpan<AstStatement> body,
@@ -143,23 +177,23 @@ namespace YantraJS.Core.FastParser
 
                 var tempDeclarations = Pool.AllocateList<VariableDeclarator>();
                 var scopedDeclarations = Pool.AllocateList<VariableDeclarator>();
+                var list = Pool.AllocateList<(string id, string temp)>();
                 try {
 
                     for (int i = 0; i < declaration.Declarators.Length; i++)
                     {
                         ref var d = ref declaration.Declarators[i];
-                        var tempID = Interlocked.Increment(ref TempVarID);
-                        var id = new AstIdentifier(d.Identifier.Start, tempID.ToString());
+                        var id = AssignTempNames(list, d.Identifier);
                         tempDeclarations.Add(new VariableDeclarator(id, d.Init));
                         scopedDeclarations.Add(new VariableDeclarator(d.Identifier, id));
-
-                        if (update != null)
-                        {
-                            update = AstIdentifierReplacer.Replace(update, (d.Identifier as AstIdentifier)!.Name.Value, tempID.ToString())
-                                as AstExpression;
-                        }
-
                     }
+
+                    if (update != null)
+                    {
+                        update = AstIdentifierReplacer.Replace(update, list)
+                            as AstExpression;
+                    }
+
 
                     statementList[0] = new AstVariableDeclaration(declaration.Start, declaration.End, scopedDeclarations, FastVariableKind.Let);
 

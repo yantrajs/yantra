@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -19,6 +20,7 @@ namespace YantraJS.Core.FastParser
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static bool TryDequeue<T>(this Queue<T> queue, out T value)
         {
             if (queue.Count > 0)
@@ -26,7 +28,9 @@ namespace YantraJS.Core.FastParser
                 value = queue.Dequeue();
                 return true;
             }
+#pragma warning disable CS8601 // Possible null reference assignment.
             value = default;
+#pragma warning restore CS8601 // Possible null reference assignment.
             return false;
         }
     }
