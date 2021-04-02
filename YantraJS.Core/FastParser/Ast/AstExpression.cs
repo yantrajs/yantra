@@ -6,6 +6,30 @@
             : base(start, type, end, false, isBinding)
         {
         }
+
+    }
+
+
+    internal static class AstExpressionExtensions
+    {
+        public static AstExpression Combine(this AstExpression left, 
+            TokenTypes type, 
+            AstExpression right)
+        {
+            switch(type)
+            {
+                case TokenTypes.SemiColon:
+                case TokenTypes.EOF:
+                case TokenTypes.BracketEnd:
+                case TokenTypes.SquareBracketEnd:
+                case TokenTypes.CurlyBracketEnd:
+                case TokenTypes.LineTerminator:
+                    return left;
+            }
+            if (type == TokenTypes.Dot)
+                return new AstMemberExpression(left, right);
+            return new AstBinaryExpression(left, type, right);
+        }
     }
 
 }

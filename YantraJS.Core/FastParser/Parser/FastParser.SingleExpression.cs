@@ -66,6 +66,14 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(node));
                     return true;
+                case TokenTypes.EOF:
+                case TokenTypes.BracketEnd:
+                case TokenTypes.SquareBracketEnd:
+                case TokenTypes.CurlyBracketEnd:
+                case TokenTypes.LineTerminator:
+                case TokenTypes.SemiColon:
+                    return false;
+
                 default:
                     throw stream.Unexpected();
             }

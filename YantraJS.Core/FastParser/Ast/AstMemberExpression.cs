@@ -1,4 +1,5 @@
-﻿namespace YantraJS.Core.FastParser
+﻿#nullable enable
+namespace YantraJS.Core.FastParser
 {
     public class AstMemberExpression : AstExpression
     {
@@ -9,8 +10,16 @@
         public AstMemberExpression(AstExpression target, AstExpression node, bool computed = false):
             base(target.End, FastNodeType.MemberExpression, node.End)
         {
+            this.Target = target;
             this.Member = node;
             this.Computed = computed;
+        }
+
+        public override string ToString()
+        {
+            if(Computed)
+                return $"{Target}[{Member}]";
+            return $"{Target}.{Member}";
         }
     }
 }

@@ -60,7 +60,7 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     if (!Expression(out right))
                         throw stream.Unexpected();
-                    previous = new AstBinaryExpression(previous, previousType, right);
+                    previous = previous.Combine(previousType, right);
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
@@ -113,12 +113,12 @@ namespace YantraJS.Core.FastParser
                 node = new AstUnaryExpression(node.Start, node, postUnaryOperator, false);
             }
 
-            switch(previousType)
-            {
-                case TokenTypes.Dot:
-                    previous = new AstMemberExpression(previous, node);
-                    return NextExpression(ref previous, ref previousType, out node, out type);
-            }
+            //switch(previousType)
+            //{
+            //    case TokenTypes.Dot:
+            //        previous = new AstMemberExpression(previous, node);
+            //        return NextExpression(ref previous, ref previousType, out node, out type);
+            //}
 
 
             var begin = Location;
@@ -134,7 +134,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.CurlyBracketEnd:
                 case TokenTypes.Colon:
                 case TokenTypes.EOF:
-                    previous = new AstBinaryExpression(previous, previousType, node);
+                    previous = previous.Combine(previousType, node);
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
@@ -175,15 +175,50 @@ namespace YantraJS.Core.FastParser
                     if (!NextExpression(ref node, ref type, out right, out rightType))
                         throw stream.Unexpected();
                     if (Precedes(rightType, type)) {
-                        node = new AstBinaryExpression(node, type, right);
+                        node = node.Combine(type, right);
                         type = rightType;
                         return true;
                     }
-                    previous = new AstBinaryExpression(previous, previousType, node);
+                    previous = previous.Combine(previousType, node);
                     previousType = type;
                     node = right;
                     type = rightType;
                     return true;
+                case TokenTypes.BracketStart:
+                    stream.Consume();
+                    // method call..
+                    if (!ExpressionArray(out var arguments))
+                        throw stream.Unexpected();
+                    if(previousType == TokenTypes.Dot)
+                    {
+                        previous = new AstCallExpression( new AstMemberExpression(previous, node), arguments);
+                        previousType = stream.Current.Type;
+                        return NextExpression(ref previous, ref previousType, out node, out type);
+                    }
+                    node = new AstCallExpression(node, arguments);
+                    type = stream.Current.Type;
+                    if (!NextExpression(ref node, ref type, out right, out rightType))
+                        return true;
+                    previous = previous.Combine(previousType, node);
+                    previousType = type;
+                    node = right;
+                    type = rightType;
+                    return true;
+                case TokenTypes.Dot:
+                    stream.Consume();
+                    if(previousType == TokenTypes.Dot)
+                    {
+                        previous = new AstMemberExpression(previous, node);
+                        previousType = type;
+                        return NextExpression(ref previous, ref previousType, out node, out type);
+                    }
+                    if (!NextExpression(ref node, ref type, out right, out rightType))
+                        throw stream.Unexpected();
+                    node = new AstMemberExpression(node, right);
+                    type = rightType;
+                    return true;
+                default:
+                    throw stream.Unexpected();
 
 
             }
@@ -272,7 +307,7 @@ namespace YantraJS.Core.FastParser
                 {
                     return true;
                 }
-                node = new AstBinaryExpression(node, nextToken, next);
+                node = node.Combine(nextToken, next);
                 return true;
             }
 

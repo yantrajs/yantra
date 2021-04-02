@@ -13,14 +13,21 @@ namespace YantraJS.Core.Tests.Parser
         [TestMethod]
         public void Invoke()
         {
-            var program = Parse("a()");
-            var fx = (program.Statements[0] as AstExpressionStatement)?.Expression;
-            Assert.AreEqual(fx.Type, FastParser.FastNodeType.CallExpression);
+            //var program = Parse("a()");
+            //var fx = (program.Statements[0] as AstExpressionStatement)?.Expression;
+            //Assert.AreEqual(fx.Type, FastParser.FastNodeType.CallExpression);
 
-            Parse("a.b()");
-            Parse("a.b(a)");
-            Parse("a.b(a.b)");
-            Parse("a.b(a.b())");
+            //Parse("a.b()");
+            //Parse("a.b(a)");
+            //Parse("a.b(a.b)");
+            //Parse("a.b(a.b())");
+
+            //Parse("a.b.c()");
+
+            //Parse("a + c()");
+            //Parse("a() + c()");
+            var x = Parse("a.a() + c().m");
+            var exp = (x.Statements[0] as AstExpressionStatement).Expression;
         }
 
 

@@ -11,7 +11,7 @@ namespace YantraJS.Core.Tests.Parser
         {
             var p = Parse(@"
 for(let i = 0;i<10;i++) {
-    a = a+i;
+    console.log(i);
 }
 ");
             Assert.IsTrue(true);

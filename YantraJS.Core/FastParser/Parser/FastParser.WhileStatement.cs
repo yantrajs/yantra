@@ -15,6 +15,11 @@ namespace YantraJS.Core.FastParser
             {
                 do
                 {
+                    if(stream.CheckAndConsume(endsWith))
+                    {
+                        // empty...
+                        break;
+                    }
                     if (Expression(out var node))
                         list.Add(node);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
