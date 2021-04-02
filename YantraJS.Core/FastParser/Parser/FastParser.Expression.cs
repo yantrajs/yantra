@@ -300,20 +300,16 @@ namespace YantraJS.Core.FastParser
                     break;
                 case TokenTypes.Increment:
                     stream.Consume();
-                    prefixUnaryToken = UnaryOperator.Increment;
-                    break;
+                    return UnaryOperator.Increment;
                 case TokenTypes.Decrement:
                     stream.Consume();
-                    prefixUnaryToken = UnaryOperator.Decrement;
-                    break;
+                    return UnaryOperator.Decrement;
                 case TokenTypes.Negate:
                     stream.Consume();
-                    prefixUnaryToken = UnaryOperator.Negate;
-                    break;
+                    return UnaryOperator.Negate;
                 case TokenTypes.BitwiseNot:
                     stream.Consume();
-                    prefixUnaryToken = UnaryOperator.BitwiseNot;
-                    break;
+                    return UnaryOperator.BitwiseNot;
             }
             if (!prefix)
                 return UnaryOperator.None;
@@ -321,16 +317,13 @@ namespace YantraJS.Core.FastParser
             {
                 case FastKeywords.@typeof:
                     stream.Consume();
-                    prefixUnaryToken = UnaryOperator.@typeof;
-                    break;
+                    return UnaryOperator.@typeof;
                 case FastKeywords.delete:
                     stream.Consume();
-                    prefixUnaryToken = UnaryOperator.delete;
-                    break;
+                    return UnaryOperator.delete;
                 case FastKeywords.@void:
                     stream.Consume();
-                    prefixUnaryToken = UnaryOperator.@void;
-                    break;
+                    return UnaryOperator.@void;
             }
 
             return prefixUnaryToken;

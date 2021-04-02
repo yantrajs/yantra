@@ -23,10 +23,10 @@ namespace YantraJS.Core.FastParser
                     return true;
                 case TokenTypes.SquareBracketStart:
                     stream.Consume();
-                    return ReadObjectPattern(out node);
+                    return ReadArrayPattern(out node);
                 case TokenTypes.CurlyBracketStart:
                     stream.Consume();
-                    return ReadArrayPattern(out node);
+                    return ReadObjectPattern(out node);
                 default:
                     throw stream.Unexpected();
             }

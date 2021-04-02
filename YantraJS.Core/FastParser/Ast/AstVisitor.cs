@@ -9,9 +9,9 @@ namespace YantraJS.Core.FastParser.Ast
 
     public class AstIdentifierReplacer: AstReduce
     {
-        private readonly ArraySpan<(string from, string to)> changes;
+        private readonly ArraySpan<(string from, AstIdentifier temp)> changes;
 
-        private AstIdentifierReplacer(in ArraySpan<(string from, string to)> changes)
+        private AstIdentifierReplacer(in ArraySpan<(string from, AstIdentifier temp)> changes)
         {
             this.changes = changes;
         }
@@ -22,13 +22,13 @@ namespace YantraJS.Core.FastParser.Ast
             {
                 if (identifier.Name.Equals(from))
                 {
-                    return new AstIdentifier(identifier.Start, to);
+                    return to;
                 }
             }
             return identifier;
         }
 
-        public static AstNode Replace(AstNode node,in ArraySpan<(string from, string to)> changes)
+        public static AstNode Replace(AstNode node,in ArraySpan<(string from, AstIdentifier temp)> changes)
         {
             var ast = new AstIdentifierReplacer(in changes);
             return ast.Visit(node);

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace YantraJS.Core.Tests.Parser
 {
+
     [TestClass]
     public class BasicTest: BaseParserTest
     {
