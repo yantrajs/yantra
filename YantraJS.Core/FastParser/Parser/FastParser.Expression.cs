@@ -71,7 +71,7 @@ namespace YantraJS.Core.FastParser
 
             stream.CheckAndConsume(previousType);
 
-            if (!SingleComputedExpression(out node))
+            if (!SingleMemberExpression(out node))
             {
                 if (EndOfStatement())
                 {
@@ -159,90 +159,6 @@ namespace YantraJS.Core.FastParser
             return false;
         }
 
-        /// <summary>
-        /// a[]
-        /// a.a
-        /// a()
-        /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        bool SingleComputedExpression(out AstExpression node)
-        {
-            AstExpression prev = null;
-            bool computed = false;
-            do
-            {
-
-                var begin = Location;
-                if (!SingleExpression(out node))
-                    return false;
-                node = prev.Member(node, computed);
-
-                begin = Location;
-                var token = begin.Token;
-                switch (token.Type)
-                {
-                    case TokenTypes.SquareBracketStart:
-                        stream.Consume();
-                        if (!ExpressionSequence(out var index, TokenTypes.SquareBracketEnd))
-                            throw stream.Unexpected();
-                        node = node.Member(index, true);
-                        break;
-                    case TokenTypes.BracketStart:
-                        stream.Consume();
-                        if (!ExpressionArray(out var arguments))
-                            throw stream.Unexpected();
-                        node = new AstCallExpression(node, arguments);
-                        break;
-                }
-
-                begin = Location;
-                token = begin.Token;
-                switch (token.Type)
-                {
-                    case TokenTypes.Dot:
-                        prev = node;
-                        stream.Consume();
-                        continue;
-                    default:
-                        return true;
-                }
-            } while (true);
-
-        }
-
-        bool SinglePrefixPostfixExpression(out AstExpression node, out bool hasAsync, out bool hasGenerator)
-        {
-            var begin = Location;
-            var token = begin.Token;
-            var prefix = GetUnaryOperator(token);
-            hasAsync = false;
-            hasGenerator = false;
-
-            if (stream.CheckAndConsume(FastKeywords.async))
-                hasAsync = true;
-
-            if (stream.CheckAndConsume(TokenTypes.Multiply))
-                hasGenerator = true;
-
-            if (!SingleComputedExpression(out node))
-                return begin.Reset();
-
-            if(prefix != UnaryOperator.None)
-            {
-                node = new AstUnaryExpression(token, node, prefix);
-            }
-            begin = Location;
-            token = begin.Token;
-            var postfix = GetUnaryOperator(token, false);
-            if(postfix != UnaryOperator.None)
-            {
-                node = new AstUnaryExpression(token, node, postfix, false);
-            }
-
-            return true;
-        }
-
         bool Expression(out AstExpression node)
         {
             var begin = Location;
@@ -303,55 +219,7 @@ namespace YantraJS.Core.FastParser
             return true;
         }
 
-        private UnaryOperator GetUnaryOperator(FastToken token, bool prefix = true)
-        {
-            UnaryOperator prefixUnaryToken = UnaryOperator.None;
-            switch (token.Type)
-            {
-                case TokenTypes.Plus:
-                    if (prefix)
-                    {
-                        stream.Consume();
-                        prefixUnaryToken = UnaryOperator.Plus;
-                    }
-                    break;
-                case TokenTypes.Minus:
-                    if (prefix)
-                    {
-                        stream.Consume();
-                        prefixUnaryToken = UnaryOperator.Minus;
-                    }
-                    break;
-                case TokenTypes.Increment:
-                    stream.Consume();
-                    return UnaryOperator.Increment;
-                case TokenTypes.Decrement:
-                    stream.Consume();
-                    return UnaryOperator.Decrement;
-                case TokenTypes.Negate:
-                    stream.Consume();
-                    return UnaryOperator.Negate;
-                case TokenTypes.BitwiseNot:
-                    stream.Consume();
-                    return UnaryOperator.BitwiseNot;
-            }
-            if (!prefix)
-                return UnaryOperator.None;
-            switch (token.Keyword)
-            {
-                case FastKeywords.@typeof:
-                    stream.Consume();
-                    return UnaryOperator.@typeof;
-                case FastKeywords.delete:
-                    stream.Consume();
-                    return UnaryOperator.delete;
-                case FastKeywords.@void:
-                    stream.Consume();
-                    return UnaryOperator.@void;
-            }
-
-            return prefixUnaryToken;
-        }
+        
     }
 
 }
