@@ -164,8 +164,13 @@ namespace YantraJS.Core.FastParser
                             }
                             throw stream.Unexpected();
                         }
+                        var spread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
                         if (!Expression(out var n))
                             throw stream.Unexpected();
+                        if(spread)
+                        {
+                            n = new AstSpreadElement(token, n.End, n);
+                        }
                         if (stream.CheckAndConsume(TokenTypes.Comma))
                             continue;
                         if (stream.CheckAndConsumeAny(endType, TokenTypes.EOF))
