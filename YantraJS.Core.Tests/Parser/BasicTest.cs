@@ -33,8 +33,8 @@ namespace YantraJS.Core.Tests.Parser
         [TestMethod]
         public void Computed()
         {
-            var x = Expression("a[1]");
-            x = Expression("a * a[1] + a[2]");
+            // var x = Expression("a[1]");
+            var x1 = Expression("a + a[1] * a[2]");
         }
 
 

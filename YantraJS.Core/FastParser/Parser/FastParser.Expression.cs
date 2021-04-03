@@ -13,14 +13,6 @@ namespace YantraJS.Core.FastParser
             out AstExpression node, out TokenTypes type)
         {
 
-            //if (EndOfStatement())
-            //{
-            //    node = null;
-            //    type = TokenTypes.SemiColon;
-            //    return true;
-            //}
-
-
             AstExpression right;
             TokenTypes rightType;
 
@@ -65,14 +57,6 @@ namespace YantraJS.Core.FastParser
                     type = TokenTypes.SemiColon;
                     return true;
 
-                case TokenTypes.BracketStart:
-                    stream.CheckAndConsume(previousType);
-                    if (!ExpressionArray(out var plist))
-                        throw stream.Unexpected();
-                    previous = new AstCallExpression(previous, plist);
-                    previousType = stream.Current.Type;
-                    return NextExpression(ref previous, ref previousType, out node, out type);
-
                 case TokenTypes.QuestionMark:
                     stream.CheckAndConsume(previousType);
                     if (!Expression(out var @true))
@@ -83,21 +67,9 @@ namespace YantraJS.Core.FastParser
                     previous = new AstConditionalExpression(previous, @true, @false);
                     previousType = stream.Current.Type;
                     return NextExpression(ref previous, ref previousType, out node, out type);
-
-                //case TokenTypes.SquareBracketStart:
-                //    stream.CheckAndConsume(previousType);
-                //    if (!ExpressionSequence(out var list, TokenTypes.SquareBracketEnd))
-                //        throw stream.Unexpected();
-                //    previous = new AstMemberExpression(previous, list, true);
-                //    previousType = stream.Current.Type;
-                //    return NextExpression(ref previous, ref previousType, out node, out type);
-
             }
 
             stream.CheckAndConsume(previousType);
-
-
-            var preUnaryOperator = GetUnaryOperator(stream.Current);
 
             if (!SingleComputedExpression(out node))
             {
@@ -110,40 +82,8 @@ namespace YantraJS.Core.FastParser
                 return false;
             }
 
-            if(preUnaryOperator != UnaryOperator.None)
-            {
-                node = new AstUnaryExpression(node.Start, node, preUnaryOperator);
-            }
-
-            var postUnaryOperator = GetUnaryOperator(stream.Current, false);
-
-            if(postUnaryOperator != UnaryOperator.None)
-            {
-                node = new AstUnaryExpression(node.Start, node, postUnaryOperator, false);
-            }
-
-            //switch(previousType)
-            //{
-            //    case TokenTypes.Dot:
-            //        previous = new AstMemberExpression(previous, node);
-            //        return NextExpression(ref previous, ref previousType, out node, out type);
-            //}
-
-
             var begin = Location;
             type = begin.Token.Type;
-
-            //switch (type)
-            //{
-            //    case TokenTypes.SquareBracketStart:
-            //        stream.Consume();
-            //        if (!ExpressionSequence(out var arguments, TokenTypes.SquareBracketEnd))
-            //            throw stream.Unexpected();
-            //        node = node.Computed(arguments);
-            //        begin = Location;
-            //        type = begin.Token.Type;
-            //        break;
-            //}
 
             switch (type)
             {
@@ -156,8 +96,8 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.CurlyBracketEnd:
                 case TokenTypes.Colon:
                 case TokenTypes.EOF:
-                    previous = previous.Combine(previousType, node);
-                    node = null;
+                    // previous = previous.Combine(previousType, node);
+                    // node = null;
                     type = TokenTypes.SemiColon;
                     return true;
 
@@ -194,79 +134,21 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.Greater:
                 case TokenTypes.GreaterOrEqual:
                     stream.Consume();
-                    if (!NextExpression(ref node, ref type, out right, out rightType))
-                        throw stream.Unexpected();
-                    if (Precedes(rightType, type)) {
+                    if (Precedes(type, previousType)) {
+                        if (!NextExpression(ref node, ref type, out right, out rightType))
+                            return true;
+                        if (type == TokenTypes.SemiColon)
+                            return true;
                         node = node.Combine(type, right);
                         type = rightType;
                         return true;
                     }
                     previous = previous.Combine(previousType, node);
                     previousType = type;
-                    node = right;
-                    type = rightType;
-                    return true;
-                //case TokenTypes.BracketStart:
-                //    stream.Consume();
-                //    // method call..
-                //    if (!ExpressionArray(out var arguments))
-                //        throw stream.Unexpected();
-                //    if(previousType == TokenTypes.Dot)
-                //    {
-                //        previous = new AstCallExpression( new AstMemberExpression(previous, node), arguments);
-                //        previousType = stream.Current.Type;
-                //        return NextExpression(ref previous, ref previousType, out node, out type);
-                //    }
-                //    node = new AstCallExpression(node, arguments);
-                //    type = stream.Current.Type;
-                //    if (!NextExpression(ref node, ref type, out right, out rightType))
-                //        return true;
-                //    previous = previous.Combine(previousType, node);
-                //    previousType = type;
-                //    node = right;
-                //    type = rightType;
-                //    return true;
-                //case TokenTypes.Dot:
-                //    stream.Consume();
-                //    if(previousType == TokenTypes.Dot)
-                //    {
-                //        previous = new AstMemberExpression(previous, node);
-                //        previousType = type;
-                //        return NextExpression(ref previous, ref previousType, out node, out type);
-                //    }
-                //    if (!NextExpression(ref node, ref type, out right, out rightType))
-                //        throw stream.Unexpected();
-                //    node = node.Combine(rightType, right);
-                //    type = rightType;
-                //    return true;
-                //case TokenTypes.SquareBracketStart:
-                //    stream.Consume();
-                //    if (!ExpressionSequence(out var index, TokenTypes.SquareBracketEnd))
-                //        throw stream.Unexpected();
-                //    node = new AstMemberExpression(node, index, true);
-                //    type = stream.Current.Type;
-                //    if (!NextExpression(ref node, ref type, out right, out rightType))
-                //        return true;
-                    //// combine... based on what...
-                    //if(Precedes(previousType, type))
-                    //{
-                    //    previous = previous.Combine(previousType, node);
-                    //    previousType = type;
-                    //    node = right;
-                    //    type = rightType;
-                    //    return true;
-                    //}
-                    //node = node.Combine(type, right);
-                    //type = rightType;
-                    // return true;
+                    return NextExpression(ref previous, ref previousType, out node, out type);
                 default:
                     throw stream.Unexpected();
-
-
             }
-            type = TokenTypes.None;
-            node = null;
-            return false;
         }
 
         bool Precedes(TokenTypes left, TokenTypes right)
@@ -290,14 +172,14 @@ namespace YantraJS.Core.FastParser
             bool computed = false;
             do
             {
+
                 var begin = Location;
-                var token = begin.Token;
                 if (!SingleExpression(out node))
                     return false;
                 node = prev.Member(node, computed);
 
                 begin = Location;
-                token = begin.Token;
+                var token = begin.Token;
                 switch (token.Type)
                 {
                     case TokenTypes.SquareBracketStart:
@@ -329,21 +211,44 @@ namespace YantraJS.Core.FastParser
 
         }
 
+        bool SinglePrefixPostfixExpression(out AstExpression node, out bool hasAsync, out bool hasGenerator)
+        {
+            var begin = Location;
+            var token = begin.Token;
+            var prefix = GetUnaryOperator(token);
+            hasAsync = false;
+            hasGenerator = false;
+
+            if (stream.CheckAndConsume(FastKeywords.async))
+                hasAsync = true;
+
+            if (stream.CheckAndConsume(TokenTypes.Multiply))
+                hasGenerator = true;
+
+            if (!SingleComputedExpression(out node))
+                return begin.Reset();
+
+            if(prefix != UnaryOperator.None)
+            {
+                node = new AstUnaryExpression(token, node, prefix);
+            }
+            begin = Location;
+            token = begin.Token;
+            var postfix = GetUnaryOperator(token, false);
+            if(postfix != UnaryOperator.None)
+            {
+                node = new AstUnaryExpression(token, node, postfix, false);
+            }
+
+            return true;
+        }
+
         bool Expression(out AstExpression node)
         {
             var begin = Location;
             var token = begin.Token;
 
-            var prefixUnaryToken = GetUnaryOperator(token);
-
-            var isAsync = false;
-            var isGenerator = false;
-            if (stream.CheckAndConsume(FastKeywords.async))
-                isAsync = true;
-            if (stream.CheckAndConsume(TokenTypes.Multiply))
-                isGenerator = true;
-
-            if (!SingleComputedExpression(out node))
+            if (!SinglePrefixPostfixExpression(out node, out var isAsync, out var isGenerator))
             {
                 // lets check if we have expression sequence
                 if(!ExpressionArray(out var nodes))
@@ -381,17 +286,7 @@ namespace YantraJS.Core.FastParser
 
             }
 
-            if (prefixUnaryToken != UnaryOperator.None)
-            {
-                node = new AstUnaryExpression(token, node, prefixUnaryToken);
-            }
             begin = Location;
-            token = begin.Token;
-            var postFixUnaryOperator = GetUnaryOperator(token, false);
-            if (postFixUnaryOperator != UnaryOperator.None)
-            {
-                node = new AstUnaryExpression(token, node, postFixUnaryOperator, false);
-            }
 
             var current = stream.Current;
             var currentType = current.Type;
@@ -401,7 +296,7 @@ namespace YantraJS.Core.FastParser
                 {
                     return true;
                 }
-                node = node.Combine(nextToken, next);
+                node = node.Combine(currentType, next);
                 return true;
             }
 
