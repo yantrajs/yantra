@@ -74,7 +74,7 @@ namespace YantraJS.Core.FastParser
                     do
                     {
                         var spread = stream.Current;
-                        if(stream.CheckAndConsume(TokenTypes.TripleDots))
+                        if(!stream.CheckAndConsume(TokenTypes.TripleDots))
                         {
                             spread = null;
                         }
