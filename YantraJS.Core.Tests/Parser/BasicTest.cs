@@ -54,6 +54,8 @@ namespace YantraJS.Core.Tests.Parser
 
             Parse("var a = function(b) { return 4; }");
             Parse("var a = (function(b) { return 4; })()");
+
+            var r = Parse("var a = b = c = d;");
         }
 
         [TestMethod]
