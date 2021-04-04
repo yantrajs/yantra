@@ -18,6 +18,8 @@ namespace YantraJS.Core.FastParser
             switch (token.Type)
             {
                 case TokenTypes.Identifier:
+                    if (token.IsKeyword)
+                        throw stream.Unexpected();
                     stream.Consume();
                     if (kind != FastVariableKind.None)
                         variableScope.Top.AddVariable(token, token.Span);
