@@ -21,8 +21,6 @@ namespace YantraJS.Core.FastParser
                     if (token.IsKeyword)
                         throw stream.Unexpected();
                     stream.Consume();
-                    if (kind != FastVariableKind.None)
-                        variableScope.Top.AddVariable(token, token.Span);
                     node = new AstIdentifier(token);
                     return true;
                 case TokenTypes.SquareBracketStart:
