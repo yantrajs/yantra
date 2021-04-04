@@ -35,101 +35,114 @@ namespace YantraJS.Core.FastParser
             // desugar let/const in following scope
             bool newScope = false;
             AstVariableDeclaration? declaration = null;
-
-            var current = stream.Current;
-            if (current.IsKeyword)
+            var scope = variableScope.Push(begin.Token, FastNodeType.ForStatement);
+            try
             {
-                switch (current.Keyword)
+
+                var current = stream.Current;
+                if (current.IsKeyword)
                 {
-                    case FastKeywords.let:
-                        if (!VariableDeclarationStatement(out declaration, FastVariableKind.Let))
+                    switch (current.Keyword)
+                    {
+                        case FastKeywords.let:
+                            if (!VariableDeclarationStatement(out declaration, FastVariableKind.Let))
+                                throw stream.Unexpected();
+                            beginNode = declaration;
+                            newScope = true;
+                            break;
+                        case FastKeywords.@const:
+                            if (!VariableDeclarationStatement(out declaration, FastVariableKind.Const))
+                                throw stream.Unexpected();
+                            beginNode = declaration;
+                            newScope = true;
+                            break;
+                        case FastKeywords.var:
+                            if (!VariableDeclarationStatement(out declaration))
+                                throw stream.Unexpected();
+                            beginNode = declaration;
+                            break;
+                        default:
                             throw stream.Unexpected();
-                        beginNode = declaration;
-                        newScope = true;
-                        break;
-                    case FastKeywords.@const:
-                        if (!VariableDeclarationStatement(out declaration, FastVariableKind.Const))
-                            throw stream.Unexpected();
-                        beginNode = declaration;
-                        newScope = true;
-                        break;
-                    case FastKeywords.var:
-                        if (!VariableDeclarationStatement(out declaration))
-                            throw stream.Unexpected();
-                        beginNode = declaration;
-                        break;
-                    default:
+                    }
+                }
+                else if (ExpressionSequence(out var expressions, TokenTypes.SemiColon, true))
+                {
+                    beginNode = expressions;
+                }
+                else throw stream.Unexpected();
+
+                var @in = false;
+                var of = false;
+
+                AstExpression? inTarget = null;
+                AstExpression? ofTarget = null;
+                AstExpression? test = null;
+                AstExpression? update = null;
+
+                if (stream.CheckAndConsume(FastKeywords.@in))
+                {
+                    @in = true;
+                    if (!Expression(out inTarget))
+                        throw stream.Unexpected();
+                    stream.Expect(TokenTypes.BracketEnd);
+                }
+                else if (stream.CheckAndConsumeContextualKeyword(FastKeywords.of))
+                {
+                    of = true;
+                    if (!Expression(out ofTarget))
+                        throw stream.Unexpected();
+                    stream.Expect(TokenTypes.BracketEnd);
+                }
+                else if (ExpressionSequence(out test, TokenTypes.SemiColon, true))
+                {
+                    if (!ExpressionSequence(out update, TokenTypes.BracketEnd, true))
                         throw stream.Unexpected();
                 }
-            }
-            else if (ExpressionSequence(out var expressions, TokenTypes.SemiColon, true))
-            {
-                beginNode = expressions;
-            } else throw stream.Unexpected();
+                else stream.Unexpected();
 
-            var @in = false;
-            var of = false;
 
-            AstExpression? inTarget = null;
-            AstExpression? ofTarget = null;
-            AstExpression? test = null;
-            AstExpression? update = null;
-
-            if (stream.CheckAndConsume(FastKeywords.@in))
-            {
-                @in = true;
-                if (!Expression(out inTarget))
-                    throw stream.Unexpected();
-                stream.Expect(TokenTypes.BracketEnd);
-            }
-            else if (stream.CheckAndConsumeContextualKeyword(FastKeywords.of))
-            {
-                of = true;
-                if (!Expression(out ofTarget))
-                    throw stream.Unexpected();
-                stream.Expect(TokenTypes.BracketEnd);
-            }
-            else if (ExpressionSequence(out test, TokenTypes.SemiColon, true))
-            {
-                if (!ExpressionSequence(out update, TokenTypes.BracketEnd, true))
-                    throw stream.Unexpected();
-            }
-            else stream.Unexpected();
-
-            
-            AstStatement statement;
-            if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
-            {
-                if (!Block(out var block))
-                    throw stream.Unexpected();
-                if (newScope && declaration != null)
+                AstStatement statement;
+                if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
                 {
-                    (beginNode, statement, update, test) = Desugar(declaration, in block.Statements, update, test);
+                    if (!Block(out var block))
+                        throw stream.Unexpected();
+                    if (newScope && declaration != null)
+                    {
+                        (beginNode, statement, update, test) = Desugar(declaration, in block.Statements, update, test);
+                    }
+                    else
+                    {
+                        statement = block;
+                    }
                 }
-                else
+                else if (Statement(out statement))
                 {
-                    statement = block;
+                    if (newScope && declaration != null)
+                    {
+                        (beginNode, statement, update, test) = Desugar(declaration, ArraySpan<AstStatement>.From(statement), update, test);
+                    }
                 }
-            } else if (Statement(out statement))
-            {
-                if(newScope && declaration != null)
+                else throw stream.Unexpected();
+
+                if (@in)
                 {
-                    (beginNode, statement, update, test) = Desugar(declaration, ArraySpan<AstStatement>.From(statement), update, test);
+                    node = new AstForInStatement(begin.Token, PreviousToken, beginNode, inTarget, statement);
+                    scope.GetVariables();
+                    return true;
                 }
-            } else throw stream.Unexpected();
+                if (of)
+                {
+                    node = new AstForOfStatement(begin.Token, PreviousToken, beginNode, ofTarget, statement);
+                    scope.GetVariables();
+                    return true;
+                }
 
-            if(@in)
+                node = new AstForStatement(begin.Token, PreviousToken, beginNode, test, update, statement);
+                scope.GetVariables();
+            } finally
             {
-                node = new AstForInStatement(begin.Token, PreviousToken, beginNode, inTarget, statement);
-                return true;
+                scope.Dispose();
             }
-            if (of)
-            {
-                node = new AstForOfStatement(begin.Token, PreviousToken, beginNode, ofTarget, statement);
-                return true;
-            }
-
-            node = new AstForStatement(begin.Token, PreviousToken, beginNode, test, update, statement);
             return true;
 
 

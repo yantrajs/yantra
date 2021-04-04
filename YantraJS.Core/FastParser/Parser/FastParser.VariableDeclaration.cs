@@ -16,9 +16,8 @@ namespace YantraJS.Core.FastParser
             node = default;
             stream.Consume();
 
-            if (!Parameters(out var declarators, TokenTypes.SemiColon, false))
+            if (!Parameters(out var declarators, TokenTypes.SemiColon, false, kind))
                 throw stream.Unexpected();
-
             node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, kind);
             return true;
         }
@@ -29,7 +28,7 @@ namespace YantraJS.Core.FastParser
             node = default;
             stream.Consume();
 
-            if (!Parameters(out var declarators, TokenTypes.SemiColon, false))
+            if (!Parameters(out var declarators, TokenTypes.SemiColon, false, kind))
                 throw stream.Unexpected();
 
             node = new AstVariableDeclaration(begin.Token, PreviousToken, declarators, kind);

@@ -12,6 +12,8 @@ namespace YantraJS.Core.FastParser
 
         public readonly FastPool Pool;
 
+        public readonly FastScope variableScope;
+
         public StreamLocation Location
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,6 +56,7 @@ namespace YantraJS.Core.FastParser
         {
             this.stream = stream;
             this.Pool = stream.Pool;
+            this.variableScope = new FastScope(Pool);
         }
 
         public AstProgram ParseProgram()

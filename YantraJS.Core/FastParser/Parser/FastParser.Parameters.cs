@@ -11,7 +11,8 @@ namespace YantraJS.Core.FastParser
 
         bool Parameters(out ArraySpan<VariableDeclarator> node, 
             TokenTypes endsWith = TokenTypes.BracketEnd,
-            bool checkForBracketStart = true)
+            bool checkForBracketStart = true, 
+            FastVariableKind kind = FastVariableKind.Var)
         {
             node = null;
             if (!stream.CheckAndConsume(TokenTypes.BracketStart))
@@ -24,7 +25,7 @@ namespace YantraJS.Core.FastParser
             {
                 while(!stream.CheckAndConsume(endsWith)) {
 
-                    if (!AssignmentLeftPattern(out var left))
+                    if (!AssignmentLeftPattern(out var left, kind))
                         throw stream.Unexpected();
                     if (stream.CheckAndConsume(TokenTypes.Assign))
                     {

@@ -5,6 +5,7 @@ namespace YantraJS.Core.FastParser
 
     public enum FastVariableKind
     {
+        None,
         Let,
         Const,
         Var

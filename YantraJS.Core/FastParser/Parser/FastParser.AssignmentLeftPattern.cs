@@ -10,7 +10,7 @@ namespace YantraJS.Core.FastParser
 
 
 
-        bool AssignmentLeftPattern(out AstExpression node)
+        bool AssignmentLeftPattern(out AstExpression node, FastVariableKind kind)
         {
             node = default;
 
@@ -19,19 +19,21 @@ namespace YantraJS.Core.FastParser
             {
                 case TokenTypes.Identifier:
                     stream.Consume();
+                    if (kind != FastVariableKind.None)
+                        variableScope.Top.AddVariable(token, token.Span);
                     node = new AstIdentifier(token);
                     return true;
                 case TokenTypes.SquareBracketStart:
                     stream.Consume();
-                    return ReadArrayPattern(out node);
+                    return ReadArrayPattern(out node, kind);
                 case TokenTypes.CurlyBracketStart:
                     stream.Consume();
-                    return ReadObjectPattern(out node);
+                    return ReadObjectPattern(out node, kind);
                 default:
                     throw stream.Unexpected();
             }
 
-            bool ReadObjectPattern(out AstExpression objectPattern)
+            bool ReadObjectPattern(out AstExpression objectPattern, FastVariableKind kind)
             {
                 var begin = Location;
                 objectPattern = default;
@@ -40,11 +42,11 @@ namespace YantraJS.Core.FastParser
                 {
                     do
                     {
-                        if (!AssignmentLeftPattern(out var left))
+                        if (!AssignmentLeftPattern(out var left, kind))
                             throw stream.Unexpected();
                         if(stream.CheckAndConsume(TokenTypes.Colon))
                         {
-                            if (!AssignmentLeftPattern(out var right))
+                            if (!AssignmentLeftPattern(out var right, kind))
                                 throw stream.Unexpected();
                             nodes.Add(new ObjectProperty(left, right));
                         } else
@@ -64,7 +66,7 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
-            bool ReadArrayPattern(out AstExpression arrayPattern)
+            bool ReadArrayPattern(out AstExpression arrayPattern, FastVariableKind kind)
             {
                 var begin = Location;
                 arrayPattern = default;
@@ -78,7 +80,7 @@ namespace YantraJS.Core.FastParser
                         {
                             spread = null;
                         }
-                        if (!AssignmentLeftPattern(out var left))
+                        if (!AssignmentLeftPattern(out var left, kind))
                             throw stream.Unexpected();
                         if (spread != null)
                             left = new AstSpreadElement(spread, left.End, left);

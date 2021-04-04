@@ -13,6 +13,7 @@ namespace YantraJS.Core.FastParser
         {
             var begin = Location;
             var list = Pool.AllocateList<AstStatement>();
+            var scope = variableScope.Push(begin.Token, FastNodeType.Block);
             try
             {
                 do
@@ -36,9 +37,11 @@ namespace YantraJS.Core.FastParser
                     throw stream.Unexpected();
                 } while (true);
                 node = new AstBlock(begin.Token, PreviousToken, list);
+                node.HoistingScope = scope.GetVariables();
             } finally
             {
                 list.Clear();
+                scope.Dispose();
             }
             return true;
         }

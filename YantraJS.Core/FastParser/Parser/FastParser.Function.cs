@@ -33,16 +33,24 @@ namespace YantraJS.Core.FastParser
             Identitifer(out var id);
 
             stream.Expect(TokenTypes.BracketStart);
-            if (!Parameters(out var declarators, TokenTypes.BracketEnd, false))
+            var scope = variableScope.Push(begin.Token, FastNodeType.FunctionExpression);
+            if (!Parameters(out var declarators, TokenTypes.BracketEnd, false, FastVariableKind.Let))
                 throw stream.Unexpected();
 
             if (stream.Current.Type != TokenTypes.CurlyBracketStart)
                 throw stream.Unexpected();
+            try
+            {
 
-            if (!Statement(out var body))
-                throw stream.Unexpected();
+                if (!Statement(out var body))
+                    throw stream.Unexpected();
 
-            node = new AstFunctionExpression(begin.Token, PreviousToken, isAsync, generator, id, declarators, body);
+                node = new AstFunctionExpression(begin.Token, PreviousToken, isAsync, generator, id, declarators, body);
+            } finally
+            {
+                scope.GetVariables();
+                scope.Dispose();
+            }
 
             return true;
         }
