@@ -67,6 +67,7 @@ namespace YantraJS.Core.FastParser
                     node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(node));
                     return true;
                 case TokenTypes.EOF:
+                case TokenTypes.Comma:
                 case TokenTypes.BracketEnd:
                 case TokenTypes.SquareBracketEnd:
                 case TokenTypes.CurlyBracketEnd:
