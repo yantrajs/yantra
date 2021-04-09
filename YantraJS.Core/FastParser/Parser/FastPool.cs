@@ -17,6 +17,13 @@ namespace YantraJS.Core.FastParser
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public FastList<T> AllocateList<T>(int size)
+        {
+            return new FastList<T>(this, size);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastStack<T> AllocateStack<T>()
         {
             return new FastStack<T>(this);

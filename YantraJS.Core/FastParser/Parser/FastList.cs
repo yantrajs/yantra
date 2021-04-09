@@ -17,6 +17,13 @@ namespace YantraJS.Core.FastParser
             this.pool = pool;
         }
 
+        public FastList(FastPool pool, int size)
+        {
+            this.pool = pool;
+            SetCapacity(size);
+        }
+
+
         public T this[int index] { get => items[index]; set => items[index] = value; }
 
         public int Count => length;
