@@ -52,37 +52,58 @@ namespace YantraJS.Core.FastParser
 
                 switch(k)
                 {
+                    /*
+                     * instnaceof is an operator used in binary expression
+                     *
+                     */
+                    case FastKeywords.instanceof:
+                        IsKeyword = false;
+                        this.Keyword = FastKeywords.none;
+                        Type = TokenTypes.InstanceOf;
+                        break;
+                    case FastKeywords.@in:
+                        IsKeyword = false;
+                        this.Keyword = FastKeywords.none;
+                        Type = TokenTypes.In;
+                        break;
                     case FastKeywords.@null:
                         IsKeyword = false;
                         Type = TokenTypes.Null;
+                        this.Keyword = FastKeywords.none;
                         break;
                     case FastKeywords.@true:
                         IsKeyword = false;
                         Type = TokenTypes.True;
+                        this.Keyword = FastKeywords.none;
                         break;
                     case FastKeywords.@false:
                         IsKeyword = false;
                         Type = TokenTypes.False;
+                        this.Keyword = FastKeywords.none;
                         break;
                     case FastKeywords.get:
                         IsKeyword = false;
                         Type = TokenTypes.Identifier;
                         ContextualKeyword = FastKeywords.get;
+                        this.Keyword = FastKeywords.none;
                         break;
                     case FastKeywords.set:
                         IsKeyword = false;
                         Type = TokenTypes.Identifier;
                         ContextualKeyword = FastKeywords.set;
+                        this.Keyword = FastKeywords.none;
                         break;
                     case FastKeywords.of:
                         IsKeyword = false;
                         Type = TokenTypes.Identifier;
                         ContextualKeyword = FastKeywords.of;
+                        this.Keyword = FastKeywords.none;
                         break;
                     case FastKeywords.constructor:
                         IsKeyword = false;
                         Type = TokenTypes.Identifier;
                         ContextualKeyword = FastKeywords.constructor;
+                        this.Keyword = FastKeywords.none;
                         break;
                 }
             }

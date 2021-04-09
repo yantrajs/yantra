@@ -75,5 +75,7 @@
         SemiColon,
         EOF,
         RegExLiteral,
+        InstanceOf,
+        In,
     }
 }

@@ -166,7 +166,7 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitCallExpression(AstCallExpression callExpression)
         {
-            var t = Modified(callExpression.Target, out var target);
+            var t = Modified(callExpression.Callee, out var target);
             var a = Modified(callExpression.Arguments, out var arguments);
             if(t || a)
             {
@@ -250,8 +250,8 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitFunctionExpression(AstFunctionExpression functionExpression)
         {
-            var argsModified = Modified(functionExpression.Parameters, VisitVariableDeclarator, out var parameters);
-            if(Modified(functionExpression.Identifier, functionExpression.Body, out var id, out var body) || argsModified)
+            var argsModified = Modified(functionExpression.Params, VisitVariableDeclarator, out var parameters);
+            if(Modified(functionExpression.Id, functionExpression.Body, out var id, out var body) || argsModified)
                 return new AstFunctionExpression(functionExpression.Start, functionExpression.End, functionExpression.Async, functionExpression.Generator, id, parameters, body);
             return functionExpression;
         }
@@ -283,7 +283,7 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitMemberExpression(AstMemberExpression memberExpression)
         {
-            if (Modified(memberExpression.Target, memberExpression.Member, out var target, out var member))
+            if (Modified(memberExpression.Object, memberExpression.Property, out var target, out var member))
                 return new AstMemberExpression(target, member, memberExpression.Computed);
             return memberExpression;
         }
@@ -360,9 +360,9 @@ namespace YantraJS.Core.FastParser.Ast
             return variableDeclaration;
         }
 
-        protected override AstNode VisitWhileStatement(AstWhileStatement whileStatement)
+        protected override AstNode VisitWhileStatement(AstWhileStatement whileStatement, string label = null)
         {
-            if (Modified(whileStatement.Test, whileStatement.Statement, out var test, out var body))
+            if (Modified(whileStatement.Test, whileStatement.Body, out var test, out var body))
                 return new AstWhileStatement(whileStatement.Start, whileStatement.End, test, body);
             return whileStatement;
         }

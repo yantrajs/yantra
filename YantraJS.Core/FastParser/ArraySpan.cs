@@ -25,6 +25,8 @@ namespace YantraJS.Core.FastParser
         private readonly T[] items;
         public readonly int Length;
 
+        public int Count => Length;
+
         public static ArraySpan<T> Empty;
 
         public ArraySpan(T[] items, int length)

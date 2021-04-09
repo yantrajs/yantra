@@ -66,7 +66,7 @@ namespace YantraJS.ExpHelper
         }
 
 
-        public static Expression New(Expression @this, List<Expression> args, bool hasSpread = false)
+        public static Expression New(Expression @this, IList<Expression> args, bool hasSpread = false)
         {
             if (hasSpread)
             {

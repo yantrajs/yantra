@@ -4,13 +4,19 @@
     {
         public readonly AstExpression Key;
         public readonly AstExpression Value;
+        public readonly bool Computed;
         public readonly bool Spread;
 
-        public ObjectProperty(AstExpression left, AstExpression right, bool spread = false)
+        public ObjectProperty(
+            AstExpression left, 
+            AstExpression right, 
+            bool spread = false,
+            bool computed = false)
         {
             this.Key = left;
             this.Value = right;
             this.Spread = spread;
+            this.Computed = computed;
         }
     }
 

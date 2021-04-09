@@ -25,12 +25,12 @@ namespace YantraJS.Core.FastParser
                     {
                         if (!Block(out var block))
                             throw stream.Unexpected();
-                        node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(in nodes), block);
+                        node = new AstFunctionExpression(token, PreviousToken, true,  isAsync, isGenerator, null, VariableDeclarator.From(in nodes), block);
                         return true;
                     }
                     if (!Expression(out var r))
                         throw stream.Unexpected();
-                    node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(in nodes), new AstExpressionStatement( r));
+                    node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null, VariableDeclarator.From(in nodes), new AstExpressionStatement( r));
                     return true;
                 }
             }
@@ -41,12 +41,12 @@ namespace YantraJS.Core.FastParser
                 {
                     if (!Block(out var block))
                         throw stream.Unexpected();
-                    node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(node), block);
+                    node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null, VariableDeclarator.From(node), block);
                     return true;
                 }
                 if (!Expression(out var r))
                     throw stream.Unexpected();
-                node = new AstFunctionExpression(token, PreviousToken, isAsync, isGenerator, null, VariableDeclarator.From(node), new AstExpressionStatement(r));
+                node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null, VariableDeclarator.From(node), new AstExpressionStatement(r));
                 return true;
 
             }

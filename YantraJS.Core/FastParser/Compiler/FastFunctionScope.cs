@@ -324,7 +324,7 @@ namespace YantraJS.Core.FastParser.Compiler
         public bool IsFunctionScope => this.Parent?.Function != this.Function;
 
         public VariableScope CreateVariable(
-            string name,
+            in StringSpan name,
             Exp init = null,
             bool newScope = false,
             Type type = null)
@@ -347,11 +347,11 @@ namespace YantraJS.Core.FastParser.Compiler
             }
 
             // we need to move variable in top scope...
-            var pe = Expression.Parameter(type ?? typeof(JSVariable), name);
+            var pe = Expression.Parameter(type ?? typeof(JSVariable), name.Value);
             var ve = JSVariable.ValueExpression(pe);
             v = new VariableScope
             {
-                Name = name,
+                Name = name.Value,
                 Expression = ve,
                 Variable = pe,
                 Create = true

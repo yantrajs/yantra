@@ -47,6 +47,9 @@ namespace YantraJS.Core.FastParser
                     return ClassExpression(out node);
                 case FastKeywords.yield:
                     return YieldExpression(out node);
+                case FastKeywords.super:
+                    node = new AstSuper(token);
+                    return true;
             }
             if (Identitifer(out var id))
             {

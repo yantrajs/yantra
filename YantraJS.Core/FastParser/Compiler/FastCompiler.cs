@@ -5,6 +5,7 @@ using System.Text;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.ExpHelper;
 using YantraJS.Utils;
+using Exp = System.Linq.Expressions.Expression;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -28,18 +29,13 @@ namespace YantraJS.Core.FastParser.Compiler
 
         }
 
+        private Expression VisitExpression(AstExpression exp) => Visit(exp);
 
-
-
+        private Expression VisitStatement(AstStatement exp) => Visit(exp);
 
         protected override Expression VisitBlock(AstBlock block)
         {
             return VisitStatements(block.HoistingScope, in block.Statements);
-        }
-
-        protected override Expression VisitCallExpression(AstCallExpression callExpression)
-        {
-            throw new NotImplementedException();
         }
 
         protected override Expression VisitClassStatement(AstClassExpression classStatement)
@@ -54,7 +50,15 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitContinueStatement(AstContinueStatement continueStatement)
         {
-            throw new NotImplementedException();
+            string name = continueStatement.Label?.Name.Value;
+            if (name != null)
+            {
+                var target = this.LoopScope.Get(name);
+                if (target == null)
+                    throw JSContext.Current.NewSyntaxError($"No label found for {name}");
+                return Exp.Continue(target.Break);
+            }
+            return Exp.Continue(this.scope.Top.Loop.Top.Continue);
         }
 
         protected override Expression VisitDebuggerStatement(AstDebuggerStatement debuggerStatement)
@@ -74,7 +78,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitExpressionStatement(AstExpressionStatement expressionStatement)
         {
-            throw new NotImplementedException();
+            return Visit(expressionStatement.Expression);
         }
 
         protected override Expression VisitForInStatement(AstForInStatement forInStatement)
@@ -177,10 +181,6 @@ namespace YantraJS.Core.FastParser.Compiler
             throw new NotImplementedException();
         }
 
-        protected override Expression VisitWhileStatement(AstWhileStatement whileStatement)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override Expression VisitYieldExpression(AstYieldExpression yieldExpression)
         {

@@ -24,6 +24,8 @@ namespace YantraJS.Utils
                     return VisitBlock(Block);
                 case (FastNodeType.Program, AstProgram Program):
                     return VisitProgram(Program);
+                case (FastNodeType.BreakStatement, AstBreakStatement breakStatement):
+                    return VisitBreakStatement(breakStatement);
                 case (FastNodeType.BinaryExpression, AstBinaryExpression BinaryExpression):
                     return VisitBinaryExpression(BinaryExpression);
                 case (FastNodeType.VariableDeclaration, AstVariableDeclaration VariableDeclaration):
@@ -91,6 +93,7 @@ namespace YantraJS.Utils
             }
         }
 
+        protected abstract T VisitBreakStatement(AstBreakStatement breakStatement);
         protected abstract T VisitLabeledStatement(AstLabeledStatement labeledStatement);
         protected abstract T VisitYieldExpression(AstYieldExpression yieldExpression);
         protected abstract T VisitCallExpression(AstCallExpression callExpression);
@@ -112,7 +115,7 @@ namespace YantraJS.Utils
         protected abstract T VisitForStatement(AstForStatement forStatement);
         protected abstract T VisitSequenceExpression(AstSequenceExpression sequenceExpression);
         protected abstract T VisitDoWhileStatement(AstDoWhileStatement doWhileStatement);
-        protected abstract T VisitWhileStatement(AstWhileStatement whileStatement);
+        protected abstract T VisitWhileStatement(AstWhileStatement whileStatement, string label = null);
         protected abstract T VisitIfStatement(AstIfStatement ifStatement);
         protected abstract T VisitSpreadElement(AstSpreadElement spreadElement);
         protected abstract T VisitObjectPattern(AstObjectPattern objectPattern);

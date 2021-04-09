@@ -40,6 +40,8 @@ namespace YantraJS.Core.FastParser
         ConditionalExpression,
         YieldExpression,
         LabeledStatement,
-        ArrayPattern
+        ArrayPattern,
+        Super,
+        BreakStatement
     }
 }

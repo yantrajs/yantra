@@ -157,6 +157,8 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.LessOrEqual:
                 case TokenTypes.Greater:
                 case TokenTypes.GreaterOrEqual:
+                case TokenTypes.In:
+                case TokenTypes.InstanceOf:
                     stream.Consume();
                     if (Precedes(type, previousType)) {
                         if (!NextExpression(ref node, ref type, out right, out rightType))
