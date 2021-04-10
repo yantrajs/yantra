@@ -65,7 +65,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitEmptyExpression(AstEmptyExpression emptyExpression)
         {
-            throw new NotImplementedException();
+            return Exp.Empty();
         }
 
         protected override Expression VisitExpressionStatement(AstExpressionStatement expressionStatement)
@@ -75,28 +75,9 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitFunctionExpression(AstFunctionExpression functionExpression)
         {
-            throw new NotImplementedException();
+            return CreateFunction(functionExpression);
         }
 
-        protected override Expression VisitIdentifier(AstIdentifier identifier)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitIfStatement(AstIfStatement ifStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitLabeledStatement(AstLabeledStatement labeledStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitLiteral(AstLiteral literal)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override Expression VisitMemberExpression(AstMemberExpression memberExpression)
         {
@@ -118,10 +99,7 @@ namespace YantraJS.Core.FastParser.Compiler
             return VisitStatements(program.HoistingScope, in program.Statements);
         }
 
-        protected override Expression VisitSequenceExpression(AstSequenceExpression sequenceExpression)
-        {
-            throw new NotImplementedException();
-        }
+
 
         protected override Expression VisitSpreadElement(AstSpreadElement spreadElement)
         {
@@ -140,17 +118,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitThrowStatement(AstThrowStatement throwStatement)
         {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitTryStatement(AstTryStatement tryStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitUnaryExpression(AstUnaryExpression unaryExpression)
-        {
-            throw new NotImplementedException();
+            return ExpHelper.JSExceptionBuilder.Throw(VisitExpression(throwStatement.Argument));
         }
 
         protected override Expression VisitVariableDeclaration(AstVariableDeclaration variableDeclaration)
@@ -161,7 +129,15 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitYieldExpression(AstYieldExpression yieldExpression)
         {
-            throw new NotImplementedException();
+            var target = VisitExpression(yieldExpression.Argument);
+            if (yieldExpression.Delegate)
+            {
+                throw new NotSupportedException();
+                // return JSGeneratorBuilder.Delegate(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
+            }
+            // return JSGeneratorBuilder.Yield(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
+            return YantraJS.Core.LinqExpressions.Generators.YieldExpression.New(target);
+
         }
     }
 }

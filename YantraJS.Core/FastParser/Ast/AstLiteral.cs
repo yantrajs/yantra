@@ -8,6 +8,8 @@
 
         public string StringValue => Start.CookedText;
 
+        public (string Pattern, string Flags) Regex => (this.Start.CookedText, this.Start.Flags);
+
         public AstLiteral(TokenTypes tokenType, FastToken token): base(token, FastNodeType.Literal, token)
         {
             this.TokenType = tokenType;

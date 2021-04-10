@@ -2,14 +2,14 @@
 {
     public class AstLabeledStatement : AstStatement
     {
-        public readonly FastToken Identifier;
-        public readonly AstStatement Statement;
+        public readonly FastToken Label;
+        public readonly AstStatement Body;
 
         public AstLabeledStatement(FastToken id, AstStatement statement)
             : base (id, FastNodeType.LabeledStatement, statement.End)
         {
-            this.Identifier = id;
-            this.Statement = statement;
+            this.Label = id;
+            this.Body = statement;
         }
     }
 }

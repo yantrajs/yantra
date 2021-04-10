@@ -280,8 +280,8 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitLabeledStatement(AstLabeledStatement labeledStatement)
         {
-            if (Modified(labeledStatement.Statement, out var statement))
-                return new AstLabeledStatement(labeledStatement.Identifier, statement);
+            if (Modified(labeledStatement.Body, out var statement))
+                return new AstLabeledStatement(labeledStatement.Label, statement);
             return labeledStatement;
         }
 
@@ -349,7 +349,7 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitTryStatement(AstTryStatement tryStatement)
         {
-            if (Modified(tryStatement.Body, tryStatement.Catch, tryStatement.Finally,
+            if (Modified(tryStatement.Block, tryStatement.Catch, tryStatement.Finally,
                 out var @try, out var @catch, out var @finally))
                 return new AstTryStatement(tryStatement.Start, tryStatement.End, @try, tryStatement.Identifier, @catch, @finally);
             return tryStatement;
