@@ -11,24 +11,25 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private Expression VisitStatements(ArraySpan<string>? hoistingScope, in ArraySpan<AstStatement> statements)
         {
-            if (hoistingScope != null)
-            {
-                var en = hoistingScope.Value.GetEnumerator();
-                var top = this.scope.Top;
-                while (en.MoveNext(out var v))
-                {
-                    var g = JSValueBuilder.Index(top.Context, KeyOfName(v));
-
-                    var vs = this.scope.Top.CreateVariable(v);
-                    vs.Expression = JSVariableBuilder.Property(vs.Variable);
-                    vs.SetInit(JSVariableBuilder.New(g, v));
-                }
-            }
-
-            var se = statements.GetEnumerator();
             var blockList = pool.AllocateList<Expression>();
+            var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
             try
             {
+                if (hoistingScope != null)
+                {
+                    var en = hoistingScope.Value.GetEnumerator();
+                    var top = this.scope.Top;
+                    while (en.MoveNext(out var v))
+                    {
+                        var g = JSValueBuilder.Index(top.Context, KeyOfName(v));
+
+                        var vs = this.scope.Top.CreateVariable(v);
+                        vs.Expression = JSVariableBuilder.Property(vs.Variable);
+                        vs.SetInit(JSVariableBuilder.New(g, v));
+                    }
+                }
+
+                var se = statements.GetEnumerator();
                 while (se.MoveNext(out var stmt))
                 {
                     var exp = Visit(stmt);
@@ -41,6 +42,7 @@ namespace YantraJS.Core.FastParser.Compiler
             finally
             {
                 blockList.Clear();
+                scope.Dispose();
             }
         }
     }

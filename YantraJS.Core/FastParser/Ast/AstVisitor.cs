@@ -156,6 +156,11 @@ namespace YantraJS.Core.FastParser.Ast
             return arrayExpression;
         }
 
+        protected override AstNode VisitBreakStatement(AstBreakStatement breakStatement)
+        {
+            return breakStatement;
+        }
+
         protected override AstNode VisitBinaryExpression(AstBinaryExpression binaryExpression)
         {
             
@@ -200,10 +205,10 @@ namespace YantraJS.Core.FastParser.Ast
             return debuggerStatement;
         }
 
-        protected override AstNode VisitDoWhileStatement(AstDoWhileStatement doWhileStatement)
+        protected override AstNode VisitDoWhileStatement(AstDoWhileStatement doWhileStatement, string label = null)
         {
 
-            if (Modified(doWhileStatement.Statement, doWhileStatement.Test, out var statement, out var test))
+            if (Modified(doWhileStatement.Body, doWhileStatement.Test, out var statement, out var test))
                 return new AstDoWhileStatement(doWhileStatement.Start, doWhileStatement.End, test, statement);
             return doWhileStatement;
         }
@@ -220,7 +225,7 @@ namespace YantraJS.Core.FastParser.Ast
             return expressionStatement;
         }
 
-        protected override AstNode VisitForInStatement(AstForInStatement forInStatement)
+        protected override AstNode VisitForInStatement(AstForInStatement forInStatement, string label = null)
         {
             if(Modified(forInStatement.Init, forInStatement.Target, forInStatement.Body, 
                 out var init, out var target, out var body))
@@ -230,7 +235,7 @@ namespace YantraJS.Core.FastParser.Ast
             return forInStatement;
         }
 
-        protected override AstNode VisitForOfStatement(AstForOfStatement forOfStatement)
+        protected override AstNode VisitForOfStatement(AstForOfStatement forOfStatement, string label = null)
         {
             if (Modified(forOfStatement.Init, forOfStatement.Target, forOfStatement.Body,
                 out var init, out var target, out var body))
@@ -240,7 +245,7 @@ namespace YantraJS.Core.FastParser.Ast
             return forOfStatement;
         }
 
-        protected override AstNode VisitForStatement(AstForStatement forStatement)
+        protected override AstNode VisitForStatement(AstForStatement forStatement, string label = null)
         {
             if (Modified(forStatement.Init, forStatement.Test, forStatement.Update, forStatement.Body,
                 out var init, out var test, out var update, out var body))
@@ -252,7 +257,11 @@ namespace YantraJS.Core.FastParser.Ast
         {
             var argsModified = Modified(functionExpression.Params, VisitVariableDeclarator, out var parameters);
             if(Modified(functionExpression.Id, functionExpression.Body, out var id, out var body) || argsModified)
-                return new AstFunctionExpression(functionExpression.Start, functionExpression.End, functionExpression.Async, functionExpression.Generator, id, parameters, body);
+                return new AstFunctionExpression(functionExpression.Start, functionExpression.End, 
+                    functionExpression.IsArrowFunction, 
+                    functionExpression.Async, 
+                    functionExpression.Generator, 
+                    id, parameters, body);
             return functionExpression;
         }
 

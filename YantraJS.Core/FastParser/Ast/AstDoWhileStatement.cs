@@ -3,7 +3,7 @@
     public class AstDoWhileStatement : AstStatement
     {
         public readonly AstExpression Test;
-        public readonly AstStatement Statement;
+        public readonly AstStatement Body;
 
         public AstDoWhileStatement(
             FastToken start, 
@@ -12,13 +12,13 @@
             AstStatement statement) : base(start, FastNodeType.DoWhileStatement, end)
         {
             this.Test = test;
-            this.Statement = statement;
+            this.Body = statement;
         }
 
         public override string ToString()
         {
             return @$"do {{
-    {Statement} 
+    {Body} 
 }} while ({Test})";
         }
     }

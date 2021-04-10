@@ -40,12 +40,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitClassStatement(AstClassExpression classStatement)
         {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitConditionalExpression(AstConditionalExpression conditionalExpression)
-        {
-            throw new NotImplementedException();
+            return CreateClass(classStatement.Identifier, classStatement.Base, classStatement);
         }
 
         protected override Expression VisitContinueStatement(AstContinueStatement continueStatement)
@@ -63,13 +58,10 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitDebuggerStatement(AstDebuggerStatement debuggerStatement)
         {
-            throw new NotImplementedException();
+            return ExpHelper.JSDebuggerBuilder.RaiseBreak();
         }
 
-        protected override Expression VisitDoWhileStatement(AstDoWhileStatement doWhileStatement)
-        {
-            throw new NotImplementedException();
-        }
+
 
         protected override Expression VisitEmptyExpression(AstEmptyExpression emptyExpression)
         {
@@ -79,21 +71,6 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override Expression VisitExpressionStatement(AstExpressionStatement expressionStatement)
         {
             return Visit(expressionStatement.Expression);
-        }
-
-        protected override Expression VisitForInStatement(AstForInStatement forInStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitForOfStatement(AstForOfStatement forOfStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitForStatement(AstForStatement forStatement)
-        {
-            throw new NotImplementedException();
         }
 
         protected override Expression VisitFunctionExpression(AstFunctionExpression functionExpression)

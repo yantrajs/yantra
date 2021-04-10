@@ -14,8 +14,26 @@ namespace YantraJS.Utils
 
         public bool Debug { get; set; } = true;
 
-        public virtual T Visit(AstNode node)
-        {
+        public T Visit(AstNode node) { 
+        //    if(node.IsStatement)
+        //    {
+        //        return VisitStatement(node as AstStatement);
+        //    }
+        //    return VisitExpression(node as AstExpression);
+        //}
+
+        //protected virtual T VisitStatement(AstStatement node)
+        //{
+        //    return InternalVisit(node);
+        //}
+
+        //protected virtual T VisitExpression(AstExpression node)
+        //{
+        //    return InternalVisit(node);
+        //}
+
+        //private T InternalVisit(AstNode node)
+        //{
             if (node == null)
                 return default;
             switch ((node.Type,node))
@@ -110,11 +128,11 @@ namespace YantraJS.Utils
         protected abstract T VisitTryStatement(AstTryStatement tryStatement);
         protected abstract T VisitThrowStatement(AstThrowStatement throwStatement);
         protected abstract T VisitContinueStatement(AstContinueStatement continueStatement);
-        protected abstract T VisitForOfStatement(AstForOfStatement forOfStatement);
-        protected abstract T VisitForInStatement(AstForInStatement forInStatement);
-        protected abstract T VisitForStatement(AstForStatement forStatement);
+        protected abstract T VisitForOfStatement(AstForOfStatement forOfStatement, string label = null);
+        protected abstract T VisitForInStatement(AstForInStatement forInStatement, string label = null);
+        protected abstract T VisitForStatement(AstForStatement forStatement, string label = null);
         protected abstract T VisitSequenceExpression(AstSequenceExpression sequenceExpression);
-        protected abstract T VisitDoWhileStatement(AstDoWhileStatement doWhileStatement);
+        protected abstract T VisitDoWhileStatement(AstDoWhileStatement doWhileStatement, string label = null);
         protected abstract T VisitWhileStatement(AstWhileStatement whileStatement, string label = null);
         protected abstract T VisitIfStatement(AstIfStatement ifStatement);
         protected abstract T VisitSpreadElement(AstSpreadElement spreadElement);
