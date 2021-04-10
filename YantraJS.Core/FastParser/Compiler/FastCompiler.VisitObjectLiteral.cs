@@ -15,8 +15,15 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             var keys = new List<ExpressionHolder>(objectExpression.Properties.Count);
             var properties = new Dictionary<string, ExpressionHolder>(objectExpression.Properties.Count);
-            foreach (ObjectProperty p in objectExpression.Properties)
+            foreach (AstNode pn in objectExpression.Properties)
             {
+                if(pn.Type == FastNodeType.SpreadElement)
+                {
+                    throw new NotImplementedException();
+                }
+
+                AstClassProperty p = pn as AstClassProperty;
+
                 Exp key = null;
                 Exp value = null;
                 string name = null;
@@ -59,15 +66,15 @@ namespace YantraJS.Core.FastParser.Compiler
                     default:
                         throw new NotSupportedException();
                 }
-                if (p.Shorthand)
-                {
-                    value = this.scope.Top[name];
-                }
-                else
-                {
-                    value = VisitExpression(p.Value);
-                }
-                if (p.Kind == PropertyKind.Get || p.Kind == PropertyKind.Set)
+                //if (p.Shorthand)
+                //{
+                //    value = this.scope.Top[name];
+                //}
+                //else
+                //{
+                    value = VisitExpression(p.Init);
+                // }
+                if (p.Kind == AstPropertyKind.Get || p.Kind == AstPropertyKind.Set)
                 {
                     if (!properties.TryGetValue(name, out var m))
                     {
@@ -80,7 +87,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         properties[name] = m;
                         keys.Add(m);
                     }
-                    if (p.Kind == PropertyKind.Get)
+                    if (p.Kind == AstPropertyKind.Get)
                     {
                         m.Getter = value;
                     }

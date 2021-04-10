@@ -12,32 +12,36 @@ namespace YantraJS.Core.FastParser
 
 
 
-        bool PropertyName(out AstExpression node)
+        bool PropertyName(out AstExpression node, out bool computed)
         {
             var begin = Location;
 
             if (Identitifer(out var id)) {
                 node = id;
+                computed = false;
                 return true;
             }
             if (StringLiteral(out node)) {
+                computed = false;
                 return true;
             }
 
             if(NumberLiteral(out node))
             {
+                computed = false;
                 return true;
             }
             if(stream.CheckAndConsume(TokenTypes.SquareBracketStart))
             {
-                if (!SingleExpression(out node))
+                if (!Expression(out node))
                     throw stream.Unexpected();
                 stream.Expect(TokenTypes.SquareBracketEnd);
-                node = new AstMemberExpression(null, node, true);
+                computed = true;
                 return true;
             }
             node = null;
-            return false;
+            computed = false;
+            return begin.Reset();
         }
 
 

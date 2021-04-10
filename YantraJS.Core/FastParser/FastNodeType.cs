@@ -43,6 +43,7 @@ namespace YantraJS.Core.FastParser
         ArrayPattern,
         Super,
         BreakStatement,
-        NewExpression
+        NewExpression,
+        ClassProperty
     }
 }

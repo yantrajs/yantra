@@ -182,13 +182,14 @@ namespace YantraJS.Core.FastParser
                         {
                             n = new AstSpreadElement(token, n.End, n);
                         }
+                        nodes.Add(n);
                         if (stream.CheckAndConsume(TokenTypes.Comma))
                             continue;
                         if (stream.CheckAndConsumeAny(endType, TokenTypes.EOF))
                             break;
                         throw stream.Unexpected();
                     }
-                    node = nodes;
+                    node = nodes.ToSpan();
                     end = PreviousToken;
                     return true;
 

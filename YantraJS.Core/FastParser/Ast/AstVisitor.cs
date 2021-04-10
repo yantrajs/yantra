@@ -183,7 +183,7 @@ namespace YantraJS.Core.FastParser.Ast
         protected override AstNode VisitClassStatement(AstClassExpression classStatement)
         {
             var pc = Modified(classStatement.Identifier, classStatement.Base, out var id, out var @base);
-            if (Modified(classStatement.Members, VisitClassProperty, out var members) || pc)
+            if (Modified(classStatement.Members, out var members) || pc)
                 return new AstClassExpression(classStatement.Start, classStatement.End, id, @base, members);
             return classStatement;
         }
@@ -299,7 +299,7 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitObjectLiteral(AstObjectLiteral objectLiteral)
         {
-            if (Modified(objectLiteral.Properties, VisitObjectProperty, out var members))
+            if (Modified(objectLiteral.Properties, out var members))
                 return new AstObjectLiteral(objectLiteral.Start, objectLiteral.End, members);
             return objectLiteral;
         }
@@ -383,15 +383,18 @@ namespace YantraJS.Core.FastParser.Ast
             return yieldExpression;
         }
 
+        protected override AstNode VisitClassProperty(AstClassProperty property)
+        {
+            var km = Modified(property.Key, out var key);
+            var im = Modified(property.Init, out var init);
+            if (km || im)
+                return property.Reduce(key, init);
+            return property;
+        }
 
 #pragma warning disable EPS05 // Use in-modifier for a readonly struct
 
         protected virtual AstCase VisitCase(AstCase property)
-        {
-            return property;
-        }
-
-        protected virtual AstClassProperty VisitClassProperty(AstClassProperty property)
         {
             return property;
         }

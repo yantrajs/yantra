@@ -9,6 +9,105 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        bool ObjectProperty(
+            out AstClassProperty property, 
+            bool checkContextualKeyword = true,
+            bool isAsync = false,
+            bool isStatic = false)
+        {
+            var begin = Location;
+            var current = begin.Token;
+            var isGet = current.ContextualKeyword == FastKeywords.get;
+            var isSet = current.ContextualKeyword == FastKeywords.set;
+
+            // check for async method.. async getter/setter are not supported yet...
+            if(stream.CheckAndConsume(FastKeywords.async))
+            {
+                if(ObjectProperty(out property, false, true))
+                {
+                    if (property.Kind == AstPropertyKind.Get || property.Kind == AstPropertyKind.Set)
+                        throw stream.Unexpected();
+                    property = new AstClassProperty(
+                        current,
+                        property.End,
+                        AstPropertyKind.Method,
+                        isAsync,
+                        isStatic,
+                        property.Key,
+                        property.Computed,
+                        property.Init);
+                    return true;
+                }
+                begin.Reset();
+            }
+
+            bool isGenerator = stream.CheckAndConsume(TokenTypes.Multiply);
+            if(PropertyName(out var key, out var computed))
+            {
+                if(checkContextualKeyword && ( isSet || isGet))
+                {
+                    if (!ObjectProperty(out property))
+                        return false;
+                    property = new AstClassProperty(
+                        current,
+                        property.End,
+                        isSet ? AstPropertyKind.Set : AstPropertyKind.Get,
+                        false,
+                        isStatic,
+                        property.Key,
+                        property.Computed,
+                        property.Init);
+                    return true;
+                }
+
+                if (stream.CheckAndConsume(TokenTypes.Colon))
+                {
+                    if (!checkContextualKeyword)
+                        throw stream.Unexpected();
+                    if (!Expression(out var value))
+                        throw stream.Unexpected();
+
+                    property = new AstClassProperty(
+                        current,
+                        PreviousToken,
+                        AstPropertyKind.Data,
+                        false,
+                        false,
+                        key,
+                        computed,
+                        value);
+                    return true;
+                } else if (stream.CheckAndConsume(TokenTypes.BracketStart))
+                {
+                    if (!Parameters(out var parameters))
+                        throw stream.Unexpected();
+                    if (!Statement(out var body))
+                        throw stream.Unexpected();
+
+                    var fx = new AstFunctionExpression(current, PreviousToken, false, isAsync, isGenerator, null, parameters, body);
+
+                    property = new AstClassProperty(
+                        current,
+                        PreviousToken,
+                        AstPropertyKind.Method,
+                        false,
+                        isStatic,
+                        key,
+                        computed,fx);
+                    return true;
+                } else if (stream.Current.Type == TokenTypes.Comma
+                            || stream.Current.Type == TokenTypes.CurlyBracketEnd
+                            || stream.Current.Type == TokenTypes.EOF) {
+                    property = new AstClassProperty(current, PreviousToken, AstPropertyKind.Data, false, isStatic, 
+                        key, computed,
+                        key);
+                    return true;
+                } else throw stream.Unexpected();
+
+            }
+            property = default;
+            return begin.Reset();
+        }
 
 
         bool ObjectLiteral(out AstExpression node)
@@ -16,60 +115,27 @@ namespace YantraJS.Core.FastParser
             var begin = Location;
             node = default;
             stream.Consume();
-            var nodes = Pool.AllocateList<ObjectProperty>();
+            var nodes = Pool.AllocateList<AstNode>();
             try
             {
                 while (!stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                 {
 
-                    var spread = false;
-                    AstExpression key;
+                    var current = this.stream.Current;
                     if (stream.CheckAndConsume(TokenTypes.TripleDots))
                     {
-                        spread = true;
-                        if (!SingleExpression(out key))
+                        if (!Expression(out var exp))
                             throw stream.Unexpected();
-                    }
-                    else
-                    {
-                        if (!PropertyName(out key))
-                            throw stream.Unexpected();
-                    }
-
-                    if (!stream.CheckAndConsume(TokenTypes.Colon))
-                    {
-                        // it is short circuit property name..
-                        // only if the property name is an identifier...
-                        if (!spread && key.Type != FastNodeType.Identifier)
-                            throw stream.Unexpected();
-
-                        nodes.Add(new ObjectProperty(key, key, spread));
-
-                        if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
-                            break;
-                        if (!stream.CheckAndConsume(TokenTypes.Comma))
-                            throw stream.Unexpected();
-
+                        nodes.Add(new AstSpreadElement(current, exp.End, exp));
                         continue;
-
                     }
-
-                    // check for spread operator ...
-                    if (stream.CheckAndConsume(TokenTypes.TripleDots))
-                    {
-                        spread = true;
-                    }
-
-                    if (!Expression(out var right))
-                        throw stream.Unexpected();
-
-                    nodes.Add(new ObjectProperty(key, right, spread));
-
+                    if (ObjectProperty(out var property))
+                        nodes.Add(property);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
                 }
 
-                node = new AstObjectLiteral(begin.Token, PreviousToken, nodes);
+                node = new AstObjectLiteral(begin.Token, PreviousToken, nodes.ToSpan());
 
             } finally {
                 nodes.Clear();

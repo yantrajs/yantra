@@ -73,7 +73,7 @@ namespace YantraJS.Core.FastParser.Compiler
                             members.Add(expHolder);
                             expHolder.Static = property.IsStatic;
                         }
-                        expHolder.Getter = CreateFunction(property.Value as AstFunctionExpression, superPrototypeVar);
+                        expHolder.Getter = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
                         break;
                     case AstPropertyKind.Set:
                         if (!cache.TryGetValue(name, out expHolder))
@@ -86,16 +86,16 @@ namespace YantraJS.Core.FastParser.Compiler
                             members.Add(expHolder);
                             expHolder.Static = property.IsStatic;
                         }
-                        expHolder.Setter = CreateFunction(property.Value as AstFunctionExpression, superPrototypeVar);
+                        expHolder.Setter = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
                         break;
                     case AstPropertyKind.Constructor:
-                        retValue = CreateFunction(property.Value as AstFunctionExpression, superVar, true, id?.Name.Value);
+                        retValue = CreateFunction(property.Init as AstFunctionExpression, superVar, true, id?.Name.Value);
                         break;
                     case AstPropertyKind.Method:
                         members.Add(new ExpressionHolder()
                         {
                             Key = nameExp,
-                            Value = CreateFunction(property.Value as AstFunctionExpression, superPrototypeVar),
+                            Value = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar),
                             Static = property.IsStatic
                         });
                         break;

@@ -2,12 +2,12 @@
 {
     public class AstObjectLiteral : AstExpression
     {
-        public readonly ArraySpan<ObjectProperty> Properties;
+        public readonly ArraySpan<AstNode> Properties;
 
         public AstObjectLiteral(
             FastToken token, 
             FastToken previousToken, 
-            in ArraySpan<ObjectProperty> objectProperties)
+            in ArraySpan<AstNode> objectProperties)
             : base (token, FastNodeType.ObjectLiteral, previousToken)
         {
             this.Properties = objectProperties;
