@@ -12,7 +12,7 @@ namespace YantraJS.Core.FastParser.Compiler
     public partial class FastCompiler : AstMapVisitor<Expression>
     {
 
-        private FastPool pool;
+        private readonly FastPool pool;
 
         readonly LinkedStack<FastFunctionScope> scope = new LinkedStack<FastFunctionScope>();
 
@@ -24,9 +24,9 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public Expression<JSFunctionDelegate> Method { get; }
 
-        public FastCompiler()
+        public FastCompiler(FastPool pool)
         {
-
+            this.pool = pool;
         }
 
         private Expression VisitExpression(AstExpression exp) => Visit(exp);
@@ -79,20 +79,7 @@ namespace YantraJS.Core.FastParser.Compiler
         }
 
 
-        protected override Expression VisitMemberExpression(AstMemberExpression memberExpression)
-        {
-            throw new NotImplementedException();
-        }
 
-        protected override Expression VisitObjectLiteral(AstObjectLiteral objectLiteral)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Expression VisitObjectPattern(AstObjectPattern objectPattern)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override Expression VisitProgram(AstProgram program)
         {

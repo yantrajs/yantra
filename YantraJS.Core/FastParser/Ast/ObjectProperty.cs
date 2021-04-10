@@ -15,7 +15,7 @@
         {
             this.Key = left;
             this.Value = right;
-            this.Spread = spread;
+            this.Spread = spread;                  
             this.Computed = computed;
         }
     }

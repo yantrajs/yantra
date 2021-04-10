@@ -2,7 +2,7 @@
 {
     public class AstObjectLiteral : AstExpression
     {
-        public readonly ArraySpan<ObjectProperty> Members;
+        public readonly ArraySpan<ObjectProperty> Properties;
 
         public AstObjectLiteral(
             FastToken token, 
@@ -10,7 +10,7 @@
             in ArraySpan<ObjectProperty> objectProperties)
             : base (token, FastNodeType.ObjectLiteral, previousToken)
         {
-            this.Members = objectProperties;
+            this.Properties = objectProperties;
         }
     }
 }

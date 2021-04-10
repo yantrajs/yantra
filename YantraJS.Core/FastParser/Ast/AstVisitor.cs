@@ -299,7 +299,7 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitObjectLiteral(AstObjectLiteral objectLiteral)
         {
-            if (Modified(objectLiteral.Members, VisitObjectProperty, out var members))
+            if (Modified(objectLiteral.Properties, VisitObjectProperty, out var members))
                 return new AstObjectLiteral(objectLiteral.Start, objectLiteral.End, members);
             return objectLiteral;
         }
