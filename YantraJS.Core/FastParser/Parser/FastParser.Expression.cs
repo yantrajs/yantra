@@ -8,10 +8,27 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        /// <summary>
+        /// While parsing expression, it can never start from same
+        /// position of token, any nested Expression must consume
+        /// the current token.
+        /// </summary>
+        private int lastExpressionIndex = 0;
+
         bool Expression(out AstExpression node)
         {
+            if(lastExpressionIndex > 0)
+            {
+                if (lastExpressionIndex == stream.Position)
+                    throw stream.Unexpected();
+            }
+            lastExpressionIndex = stream.Position;
+
             var begin = Location;
             var token = begin.Token;
+
+            if (token.Type == TokenTypes.EOF)
+                throw stream.Unexpected();
 
             if (!SinglePrefixPostfixExpression(out node, out var isAsync, out var isGenerator))
             {
