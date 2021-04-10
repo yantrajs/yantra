@@ -5,10 +5,8 @@ namespace YantraJS.Core.FastParser
     internal static class ExpressionPatternExtensions
     {
 
-        public static AstExpression ToPattern(this AstExpression? exp)
+        public static AstExpression ToPattern(this AstExpression exp)
         {
-            if (exp == null)
-                throw new FastParseException(null, "Invalid Pattern");
             switch ((exp.Type, exp))
             {
                 case (FastNodeType.SpreadElement, AstSpreadElement spe):
