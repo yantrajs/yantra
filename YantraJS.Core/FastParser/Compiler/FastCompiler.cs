@@ -98,11 +98,6 @@ namespace YantraJS.Core.FastParser.Compiler
             throw new NotImplementedException();
         }
 
-        protected override Expression VisitTemplateExpression(AstTemplateExpression templateExpression)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override Expression VisitThrowStatement(AstThrowStatement throwStatement)
         {
             return ExpHelper.JSExceptionBuilder.Throw(VisitExpression(throwStatement.Argument));

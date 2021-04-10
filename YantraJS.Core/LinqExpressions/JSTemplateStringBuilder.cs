@@ -23,6 +23,23 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _toJSString =
             type.GetMethod(nameof(JSTemplateString.ToJSString));
 
+        public static Expression New(IEnumerable<Expression> select, int total)
+        {
+            Expression exp = Expression.New(_new, Expression.Constant(total));
+            var en = select.GetEnumerator();
+            while (en.MoveNext())
+            {
+                var current = en.Current;
+                if (current.NodeType == ExpressionType.Constant)
+                {
+                    exp = Expression.Call(exp, _addQuasi, current);
+                    continue;
+                }
+                exp = Expression.Call(exp, _addExpression, current);
+            }
+            return Expression.Call(exp, _toJSString);
+        }
+
         public static Expression New(List<string> quasis, IEnumerable<Expression> select)
         {
             var total = quasis.Sum(x => x.Length);
