@@ -11,6 +11,7 @@ namespace YantraJS.Core.FastParser
         public readonly int StartLine;
         public readonly int StartColumn;
         public readonly StringSpan Span;
+        public readonly double Number;
         public readonly string CookedText;
         public readonly string Flags;
         public readonly int EndLine;
@@ -35,6 +36,7 @@ namespace YantraJS.Core.FastParser
             int startColumn,
             int endLine,
             int endColumn,
+            bool parseNumber = false,
             FastKeywordMap keywords = null)
         {
             this.Type = type;
@@ -45,7 +47,12 @@ namespace YantraJS.Core.FastParser
             this.Span = new StringSpan(source, start, Math.Min(source.Length-start, length));
             this.CookedText = cooked;
             this.Flags = flags;
-            if(keywords != null)
+            if (parseNumber) {
+                this.Number = Utils.NumberParser.CoerceToNumber(Span);
+            } else {
+                this.Number = 0;
+            }
+            if (keywords != null)
             {
                 this.IsKeyword = keywords.IsKeyword(Span, out var k);
                 this.Keyword = k;

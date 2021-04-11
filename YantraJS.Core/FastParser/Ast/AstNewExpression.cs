@@ -1,12 +1,16 @@
 ﻿namespace YantraJS.Core.FastParser
 {
-    internal class AstNewExpression : AstExpression
+    public class AstNewExpression : AstExpression
     {
-        public readonly AstExpression Argument;
+        public readonly AstExpression Callee;
+        public readonly ArraySpan<AstExpression> Arguments;
 
-        public AstNewExpression(FastToken begin, AstExpression node): base(begin, FastNodeType.NewExpression, node.End)
+        public AstNewExpression(FastToken begin, 
+            AstExpression node,
+            in ArraySpan<AstExpression> arguments): base(begin, FastNodeType.NewExpression, node.End)
         {
-            this.Argument = node;
+            this.Callee = node;
+            this.Arguments = arguments;
         }
     }
 }

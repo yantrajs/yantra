@@ -297,6 +297,14 @@ namespace YantraJS.Core.FastParser.Ast
             return memberExpression;
         }
 
+        protected override AstNode VisitNewExpression(AstNewExpression newExpression) {
+            var cm = Modified(newExpression.Callee, out var callee);
+            var am = Modified(newExpression.Arguments, out var args);
+            if (cm || am)
+                return new AstNewExpression(newExpression.Start, callee, args);
+            return newExpression;
+        }
+
         protected override AstNode VisitObjectLiteral(AstObjectLiteral objectLiteral)
         {
             if (Modified(objectLiteral.Properties, out var members))

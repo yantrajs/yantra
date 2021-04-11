@@ -66,11 +66,12 @@ namespace YantraJS.Core.FastParser
                         return false;
                     }
                     return true;
+                case 'e':
+                    return hex || !readDecimal;
                 case 'a':
                 case 'b':
                 case 'c':
                 case 'd':
-                case 'e':
                 case 'f':
                 case 'A':
                 case 'B':

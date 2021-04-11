@@ -4,7 +4,7 @@
     {
         public readonly TokenTypes TokenType;
 
-        public readonly double NumericValue;
+        public double NumericValue => Start.Number;
 
         public string StringValue => Start.CookedText;
 
@@ -13,7 +13,6 @@
         public AstLiteral(TokenTypes tokenType, FastToken token): base(token, FastNodeType.Literal, token)
         {
             this.TokenType = tokenType;
-            NumericValue = 0;
         }
 
         public override string ToString()

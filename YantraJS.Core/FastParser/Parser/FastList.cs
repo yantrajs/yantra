@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.FastParser
 {
@@ -63,6 +64,7 @@ namespace YantraJS.Core.FastParser
             SetItem(length++, item);
         }
 
+        public bool Any() => length > 0;
         public void Clear()
         {
             if (items != null)
@@ -145,6 +147,16 @@ namespace YantraJS.Core.FastParser
             public bool MoveNext()
             {
                 return ++index < length;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext(out T item) {
+                if(++index < length) {
+                    item = items[index];
+                    return true;
+                }
+                item = default;
+                return false;
             }
 
             public void Reset()

@@ -715,8 +715,7 @@ namespace YantraJS.Core.FastParser
             var readDecimal = true;
             do
             {
-                Consume();
-                first = Peek();
+                first = Consume();
                 if (isZero)
                 {
                     isZero = false;
@@ -725,7 +724,6 @@ namespace YantraJS.Core.FastParser
                     if (isHex || isBinary)
                     {
                         Consume();
-                        first = Peek();
                         continue;
                     }
                     else
@@ -738,8 +736,10 @@ namespace YantraJS.Core.FastParser
                     readDecimal = false;
                     continue;
                 }
-            } while (first.IsDigitPart(isHex, isBinary, readDecimal));
-            return state.Commit(TokenTypes.Number);
+                if (!first.IsDigitPart(isHex, isBinary, readDecimal))
+                    break;
+            } while (true);
+            return state.Commit(TokenTypes.Number, true);
         }
 
 
@@ -777,6 +777,24 @@ namespace YantraJS.Core.FastParser
                     column,
                     scanner.line,
                     scanner.column);
+                scanner = null;
+                return token;
+            }
+
+            public FastToken Commit(TokenTypes type, bool number) {
+                var cp = scanner.position;
+                var start = scanner.Text.Offset + position;
+                var token = new FastToken(
+                    type,
+                    scanner.Text.Source,
+                    null,
+                    null,
+                    start, cp - start,
+                    line,
+                    column,
+                    scanner.line,
+                    scanner.column,
+                    number);
                 scanner = null;
                 return token;
             }
@@ -834,7 +852,7 @@ namespace YantraJS.Core.FastParser
                     line,
                     column,
                     scanner.line,
-                    scanner.column, keywords);
+                    scanner.column, false, keywords);
                 scanner = null;
                 return token;
             }

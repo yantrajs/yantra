@@ -22,7 +22,9 @@ namespace YantraJS.Core.FastParser.Compiler
                     list.Add(item);
                 }
                 return Exp.Block(scope.VariableParameters, list);
-            } finally { }
+            } finally {
+                list.Clear();
+            }
         }
 
 
