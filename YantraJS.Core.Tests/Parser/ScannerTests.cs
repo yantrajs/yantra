@@ -51,11 +51,8 @@ namespace YantraJS.Core.Tests.Parser
         [TestMethod]
         public void String()
         {
-            ScanTypes("a\n").AssertSequenceEqual(TokenTypes.Identifier, 
-                TokenTypes.LineTerminator);
-            ScanTypes("'a'\n").AssertSequenceEqual(
-                TokenTypes.String,
-                TokenTypes.LineTerminator);
+            ScanTypes("a\n").AssertSequenceEqual(TokenTypes.Identifier);
+            ScanTypes("'a'\n").AssertSequenceEqual(TokenTypes.String);
             ScanTypes("'a'").AssertSequenceEqual(TokenTypes.String);
             ScanTypes("'\"a'").AssertSequenceEqual(TokenTypes.String);
             ScanTypes("'''a'").AssertSequenceEqual(TokenTypes.String);
@@ -64,7 +61,7 @@ namespace YantraJS.Core.Tests.Parser
         [TestMethod]
         public void Number()
         {
-            ScanTypes(" 12.1_12\n").AssertSequenceEqual(TokenTypes.Number, TokenTypes.LineTerminator);
+            ScanTypes(" 12.1_12\n").AssertSequenceEqual(TokenTypes.Number);
             ScanTypes("0").AssertSequenceEqual(TokenTypes.Number);
             ScanTypes("0x1a").AssertSequenceEqual(TokenTypes.Number);
             ScanTypes("0x11").AssertSequenceEqual(TokenTypes.Number);
@@ -72,13 +69,13 @@ namespace YantraJS.Core.Tests.Parser
             ScanTypes("12_12").AssertSequenceEqual(TokenTypes.Number);
             ScanTypes(" 12_12 ").AssertSequenceEqual(TokenTypes.Number);
             ScanTypes(" 12.1_12 ").AssertSequenceEqual(TokenTypes.Number);
-            ScanTypes(" 12.1_12\n").AssertSequenceEqual(TokenTypes.Number, TokenTypes.LineTerminator);
+            ScanTypes(" 12.1_12\n").AssertSequenceEqual(TokenTypes.Number);
             ScanTypes(" /* asdfd */ 12.1_12 ").AssertSequenceEqual(TokenTypes.Number);
-            ScanTypes(" /* asdfd */ 12.1_12\n").AssertSequenceEqual(TokenTypes.Number, TokenTypes.LineTerminator);
+            ScanTypes(" /* asdfd */ 12.1_12\n").AssertSequenceEqual(TokenTypes.Number);
             ScanTypes(" /* asdfd */ a = 12.1_12\n").AssertSequenceEqual(
                 TokenTypes.Identifier, 
                 TokenTypes.Assign,
-                TokenTypes.Number, TokenTypes.LineTerminator);
+                TokenTypes.Number);
         }
 
         [TestMethod]
@@ -104,7 +101,7 @@ namespace YantraJS.Core.Tests.Parser
             ScanTypes("/a/").AssertSequenceEqual(TokenTypes.RegExLiteral);
             ScanTypes("/=a/").AssertSequenceEqual(TokenTypes.RegExLiteral);
             ScanTypes("a/=a").AssertSequenceEqual(TokenTypes.Identifier, TokenTypes.AssignDivide ,  TokenTypes.Identifier);
-            ScanTypes("//a/").AssertSequenceEqual(TokenTypes.EOF);
+            // ScanTypes("//a/").AssertSequenceEqual(TokenTypes.EOF, TokenTypes.EOF);
         }
 
     }

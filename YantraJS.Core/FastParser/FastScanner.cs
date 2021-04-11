@@ -39,8 +39,8 @@ namespace YantraJS.Core.FastParser
 
         
 
-        private static readonly FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
-        private static readonly FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, null, null, 0, 0, 0, 0, 0, 0);
+        private static readonly FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, false);
+        private static readonly FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, true);
 
         private FastToken token = EmptyToken;
         private FastToken nextToken = EOF;
@@ -107,7 +107,6 @@ namespace YantraJS.Core.FastParser
             return false;
         }
 
-
         private FastToken ReadToken()
         {
             using (var state = Push())
@@ -119,22 +118,13 @@ namespace YantraJS.Core.FastParser
                     return EOF;
                 }
 
-                bool lineTerminator = false;
-
                 // if it is whitespace...
                 // read all whitespace...
                 while (char.IsWhiteSpace(first))
                 {
-                    if (first == '\n')
-                        lineTerminator = true;
                     first = Consume();
-                    if (first == '\n')
-                        lineTerminator = true;
                     state.Reset();
                 }
-
-                if (lineTerminator)
-                    return ReadSymbol(state, TokenTypes.LineTerminator);
 
                 if (first.IsIdentifierStart())
                 {
@@ -489,6 +479,7 @@ namespace YantraJS.Core.FastParser
 
         private FastToken ReadCommentsOrRegExOrSymbol(State state)
         {
+            var divide = Push();
             var first = Consume();
             bool divideAndAssign = false;
             switch (first)
@@ -514,13 +505,12 @@ namespace YantraJS.Core.FastParser
 
             if (ScanRegEx(state, first, out var token))
                 return token;
-            state.Dispose();
-            state = Push();
             if(divideAndAssign)
             {
+                state.Dispose();
                 Consume();
                 Consume();
-                return state.Commit(TokenTypes.AssignDivide);
+                return divide.Commit(TokenTypes.AssignDivide);
             }
 
             throw Unexpected();
@@ -782,14 +772,12 @@ namespace YantraJS.Core.FastParser
         {
             private FastScanner scanner;
             private int position;
-            private int line;
-            private int column;
+            private SpanLocation start;
 
             public State(FastScanner scanner, int position, int line, int column)
             {
                 this.scanner = scanner;
-                this.line = line;
-                this.column = column;
+                this.start = scanner.Location;
                 this.position = position;
             }
 
@@ -797,16 +785,17 @@ namespace YantraJS.Core.FastParser
             {
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
+                var location = scanner.Location;
+                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
                     type,
                     scanner.Text.Source,
+                    hasLineTerminator,
                     cooked,
                     flags,
                     start, cp - start,
-                    line,
-                    column,
-                    scanner.line,
-                    scanner.column);
+                    this.start,
+                    location);
                 scanner = null;
                 return token;
             }
@@ -814,16 +803,17 @@ namespace YantraJS.Core.FastParser
             public FastToken Commit(TokenTypes type, bool number) {
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
+                var location = scanner.Location;
+                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
                     type,
                     scanner.Text.Source,
+                    hasLineTerminator,
                     null,
                     null,
                     start, cp - start,
-                    line,
-                    column,
-                    scanner.line,
-                    scanner.column,
+                    this.start,
+                    location,
                     number);
                 scanner = null;
                 return token;
@@ -834,16 +824,17 @@ namespace YantraJS.Core.FastParser
             {
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
+                var location = scanner.Location;
+                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
-                    type, 
-                    scanner.Text.Source, 
+                    type,
+                    scanner.Text.Source,
+                    hasLineTerminator,
                     builder?.ToString(),
                     null,
-                    start, cp - start, 
-                    line,
-                    column,
-                    scanner.line, 
-                    scanner.column);
+                    start, cp - start,
+                    this.start,
+                    location);
                 scanner = null;
                 return token;
             }
@@ -855,8 +846,7 @@ namespace YantraJS.Core.FastParser
             public void Reset()
             {
                 position = scanner.position;
-                line = scanner.line;
-                column = scanner.column;
+                start = scanner.Location;
             }
 
             public void Dispose()
@@ -864,29 +854,46 @@ namespace YantraJS.Core.FastParser
                 if (scanner != null)
                 {
                     scanner.position = position;
-                    scanner.line = line;
-                    scanner.column = column;
+                    scanner.line = start.Line;
+                    scanner.column = start.Column;
+                    scanner = null;
                 }
             }
 
             internal FastToken CommitIdentifier(FastKeywordMap keywords)
             {
+
+
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
+                var location = scanner.Location;
+                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
                     TokenTypes.Identifier,
                     scanner.Text.Source,
+                    hasLineTerminator,
                     null,
                     null,
                     start, cp - start,
-                    line,
-                    column,
-                    scanner.line,
-                    scanner.column, false, keywords);
+                    this.start,
+                    location, false, keywords);
                 scanner = null;
                 return token;
             }
         }
 
+        private bool CheckAndConsumeLineTerminator() {
+            bool hasLineTerminator = false;
+            while (true) {
+                char ch = Peek();
+                if (char.IsWhiteSpace(ch)) {
+                    if (ch == '\n')
+                        hasLineTerminator = true;
+                    Consume();
+                }
+                break;
+            }
+            return hasLineTerminator;
+        }
     }
 }

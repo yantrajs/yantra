@@ -8,42 +8,39 @@ namespace YantraJS.Core.FastParser
         public static FastToken Empty;
 
         public readonly TokenTypes Type;
-        public readonly int StartLine;
-        public readonly int StartColumn;
         public readonly StringSpan Span;
         public readonly double Number;
         public readonly string CookedText;
         public readonly string Flags;
-        public readonly int EndLine;
-
-        public readonly int EndColumn;
         public readonly bool IsKeyword;
         public readonly FastKeywords Keyword;
         public readonly FastKeywords ContextualKeyword;
 
-        public SpanLocation StartLocation => new SpanLocation(StartLine, StartColumn);
+        public readonly SpanLocation Start;
+        public readonly SpanLocation End;
 
-        public SpanLocation EndLocation => new SpanLocation(EndLine, EndColumn);
+        /// <summary>
+        /// Marks current token ends with line
+        /// </summary>
+        public readonly bool LineTerminator;
 
         public FastToken(
             TokenTypes type, 
-            string source, 
-            string cooked,
-            string flags,
-            int start, 
-            int length,
-            int startLine,
-            int startColumn,
-            int endLine,
-            int endColumn,
+            string source = null,
+            bool hasLineTerminator = false,
+            string cooked = null,
+            string flags = null,
+            int start = 0, 
+            int length = 0,
+            in SpanLocation startLocation = default,
+            in SpanLocation endLocation = default,
             bool parseNumber = false,
             FastKeywordMap keywords = null)
         {
+            this.LineTerminator = hasLineTerminator;
             this.Type = type;
-            this.StartLine = startLine;
-            this.StartColumn = startColumn;
-            this.EndLine = endLine;
-            this.EndColumn = endColumn;
+            this.Start = startLocation;
+            this.End = endLocation;
             this.Span = new StringSpan(source, start, Math.Min(source.Length-start, length));
             this.CookedText = cooked;
             this.Flags = flags;

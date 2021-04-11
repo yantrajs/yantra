@@ -100,7 +100,7 @@ namespace YantraJS.Core.FastParser
                 try
                 {
                     nodes.Add(new AstLiteral(TokenTypes.String, begin.Token));
-                    while (!stream.CheckAndConsume(TokenTypes.TemplateEnd))
+                    while (!stream.CheckAndConsumeAny(TokenTypes.TemplateEnd, TokenTypes.EOF))
                     {
                         if (stream.CheckAndConsume(TokenTypes.TemplatePart, out var token))
                         {

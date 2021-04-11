@@ -86,7 +86,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     localFxName = StringSpanBuilder.Empty;
                 }
 
-                var point = (Line: node.Start.StartLine, Column: node.Start.StartColumn); // this.Code.Position(functionDeclaration.Range);
+                var point = node.Start.Start; // this.Code.Position(functionDeclaration.Range);
 
                 var fn = ScriptInfoBuilder.FileName(s.ScriptInfo);
 

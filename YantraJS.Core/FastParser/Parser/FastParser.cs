@@ -69,6 +69,8 @@ namespace YantraJS.Core.FastParser
         bool EndOfStatement()
         {
             var token = stream.Current;
+            if (token.LineTerminator)
+                return true;
             switch (token.Type)
             {
                 case TokenTypes.SemiColon:
