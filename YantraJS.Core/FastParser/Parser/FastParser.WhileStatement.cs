@@ -28,7 +28,7 @@ namespace YantraJS.Core.FastParser
                         break;
                     throw stream.Unexpected();
                 } while (true);
-                nodes = list;
+                nodes = list.ToSpan();
                 return true;
             }
             finally

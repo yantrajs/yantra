@@ -13,7 +13,8 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Exp VisitCallExpression(AstCallExpression callExpression)
         {
-            return VisitCallExpression(callExpression, callExpression);
+            var ce = VisitCallExpression(callExpression, callExpression);
+            return ce;
         }
 
         protected Exp VisitCallExpression(AstCallExpression callExpression, AstCallExpression node)

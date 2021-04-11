@@ -32,7 +32,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         continue;
                     blockList.Add(exp);
                 }
-                return Expression.Block(scope.VariableParameters, blockList.Release());
+                return Scoped(scope, blockList);
             }
             finally
             {

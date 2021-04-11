@@ -117,7 +117,7 @@ namespace YantraJS.Core.FastParser
 
         public FastEnumerator GetEnumerator()
         {
-            return new FastEnumerator(items);
+            return new FastEnumerator(this);
         }
 
         public struct FastEnumerator : IEnumerator<T>
@@ -126,11 +126,11 @@ namespace YantraJS.Core.FastParser
             private int index;
             private readonly int length;
 
-            public FastEnumerator(T[] items)
+            public FastEnumerator(FastList<T> list)
             {
-                this.items = items;
+                this.items = list.items;
                 index = -1;
-                length = items==null ? 0 : items.Length;
+                length = list.length;
             }
 
             public T Current => items[index];
@@ -144,7 +144,7 @@ namespace YantraJS.Core.FastParser
 
             public bool MoveNext()
             {
-                return index++ > length;
+                return ++index < length;
             }
 
             public void Reset()

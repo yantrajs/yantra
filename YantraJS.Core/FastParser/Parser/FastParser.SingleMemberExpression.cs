@@ -30,22 +30,30 @@ namespace YantraJS.Core.FastParser
                     return false;
                 node = prev.Member(node, computed);
 
-                var begin = Location;
-                var token = begin.Token;
-                switch (token.Type)
-                {
-                    case TokenTypes.SquareBracketStart:
-                        stream.Consume();
-                        if (!ExpressionSequence(out var index, TokenTypes.SquareBracketEnd))
-                            throw stream.Unexpected();
-                        node = node.Member(index, true);
-                        break;
-                    case TokenTypes.BracketStart:
-                        stream.Consume();
-                        if (!ExpressionArray(out var arguments))
-                            throw stream.Unexpected();
-                        node = new AstCallExpression(node, arguments);
-                        break;
+                StreamLocation begin;
+                FastToken token;
+
+                while (true) {
+
+                    begin = Location;
+                    token = begin.Token;
+                    switch (token.Type) {
+                        case TokenTypes.SquareBracketStart:
+                            stream.Consume();
+                            if (!ExpressionSequence(out var index, TokenTypes.SquareBracketEnd))
+                                throw stream.Unexpected();
+                            node = node.Member(index, true);
+                            continue;
+                        case TokenTypes.BracketStart:
+                            stream.Consume();
+                            if (!ExpressionArray(out var arguments))
+                                throw stream.Unexpected();
+                            node = new AstCallExpression(node, arguments);
+                            continue;
+                        default:
+                            break;
+                    }
+                    break;
                 }
 
                 begin = Location;
