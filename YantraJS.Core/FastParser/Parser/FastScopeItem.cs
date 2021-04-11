@@ -50,24 +50,25 @@ namespace YantraJS.Core.FastParser
                 return;
 
             var n = this;
+
+            if (n.Variables.TryGetValue(name, out var pn)) {
+                if (pn.kind != FastVariableKind.Var) {
+                    throw new FastParseException(token, $"{name} is already defined in current scope");
+                }
+            }
+
             while (true)
             {
-                if (n.Variables.TryGetValue(name, out var pn))
-                {
-                    if (pn.kind != FastVariableKind.Var)
-                    {
-                        throw new FastParseException(token, $"{name} is already defined in current scope");
-                    }
-                }
-                n = n.Parent;
-                if (n == null)
+                if (n.Parent == null)
                     break;
-                if (n.NodeType == FastNodeType.Block)
+                if (n.NodeType == FastNodeType.Block) {
+                    n = n.Parent;
                     continue;
+                }
                 break;
             }
 
-            Variables[name] = (name.Value, kind);
+            n.Variables[name] = (name.Value, kind);
 
         }
 

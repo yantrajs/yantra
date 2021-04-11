@@ -173,7 +173,7 @@ namespace YantraJS.Core.FastParser
                     previousType = type;
                     return NextExpression(ref previous, ref previousType, out node, out type);
                 default:
-                    throw stream.Unexpected();
+                    return false;
             }
         }
 

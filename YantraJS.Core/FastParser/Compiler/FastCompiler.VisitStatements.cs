@@ -9,27 +9,22 @@ namespace YantraJS.Core.FastParser.Compiler
     partial class FastCompiler
     {
 
-        private Expression VisitStatements(ArraySpan<string>? hoistingScope, in ArraySpan<AstStatement> statements)
-        {
+        protected override Expression VisitBlock(AstBlock block) {
             var blockList = pool.AllocateList<Expression>();
+            var hoistingScope = block.HoistingScope;
             var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
             try
             {
                 if (hoistingScope != null)
                 {
                     var en = hoistingScope.Value.GetEnumerator();
-                    var top = this.scope.Top;
                     while (en.MoveNext(out var v))
                     {
-                        var g = JSValueBuilder.Index(top.Context, KeyOfName(v));
-
-                        var vs = this.scope.Top.CreateVariable(v);
-                        vs.Expression = JSVariableBuilder.Property(vs.Variable);
-                        vs.SetInit(JSVariableBuilder.New(g, v));
+                         scope.CreateVariable(v);
                     }
                 }
 
-                var se = statements.GetEnumerator();
+                var se = block.Statements.GetEnumerator();
                 while (se.MoveNext(out var stmt))
                 {
                     var exp = Visit(stmt);
@@ -37,7 +32,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         continue;
                     blockList.Add(exp);
                 }
-                return Expression.Block(blockList.Release());
+                return Expression.Block(scope.VariableParameters, blockList.Release());
             }
             finally
             {

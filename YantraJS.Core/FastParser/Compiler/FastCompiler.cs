@@ -165,11 +165,6 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private Expression VisitStatement(AstStatement exp) => Visit(exp);
 
-        protected override Expression VisitBlock(AstBlock block)
-        {
-            return VisitStatements(block.HoistingScope, in block.Statements);
-        }
-
         protected override Expression VisitClassStatement(AstClassExpression classStatement)
         {
             return CreateClass(classStatement.Identifier, classStatement.Base, classStatement);
@@ -211,12 +206,6 @@ namespace YantraJS.Core.FastParser.Compiler
         }
 
 
-
-
-        protected override Expression VisitProgram(AstProgram program)
-        {
-            return VisitStatements(program.HoistingScope, in program.Statements);
-        }
 
 
 

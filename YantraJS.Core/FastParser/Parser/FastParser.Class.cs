@@ -58,6 +58,9 @@ namespace YantraJS.Core.FastParser
                         continue;
 
                 }
+                if(identifier != null) {
+                    this.variableScope.Top.AddVariable(identifier.Start, identifier.Name);
+                }
                 statement = new AstClassExpression(begin.Token, PreviousToken, identifier, @base, nodes);
             }
             finally

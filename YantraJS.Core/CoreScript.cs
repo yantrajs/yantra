@@ -63,7 +63,7 @@ namespace YantraJS
             codeCache = codeCache ?? DictionaryCodeCache.Current;
             var script = code;
             var jsc = new JSCode(location, code, args, () => {
-                var cc = new CoreScript(script, location, args, codeCache);
+                var cc = new Core.FastParser.Compiler.FastCompiler(script, location, args, codeCache);
                 return cc.Method;
             });
             return codeCache.GetOrCreate(in jsc);

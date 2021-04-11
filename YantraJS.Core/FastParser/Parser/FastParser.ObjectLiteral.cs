@@ -81,7 +81,7 @@ namespace YantraJS.Core.FastParser
                     return true;
                 } else if (stream.CheckAndConsume(TokenTypes.BracketStart))
                 {
-                    if (!Parameters(out var parameters))
+                    if (!Parameters(out var parameters, checkForBracketStart: false))
                         throw stream.Unexpected();
                     if (!Statement(out var body))
                         throw stream.Unexpected();
