@@ -45,7 +45,7 @@ namespace YantraJS.Core.FastParser
 
             size = ((capacity / 4)+1) * 4;
             items = pool.AllocateArray<T>(size);
-
+            size = items.Length;
             if (release!=null)
             {
                 Array.Copy(release, 0, items, 0, release.Length);
@@ -94,8 +94,10 @@ namespace YantraJS.Core.FastParser
         {
             var array = items;
             var length = this.length;
-            Clear();
-            return new ArraySpan<T>(array, length);
+            var a = new ArraySpan<T>(array, length);
+            items = null;
+            length = 0;
+            return a;
         }
 
         public bool Contains(T item)

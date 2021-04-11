@@ -87,11 +87,30 @@ namespace YantraJS.Core.FastParser
                 new Queue<T[]>()
             };
 
+            private (int index, int size) MapSize(int size) {
+                if (size <= 64) {
+                    if (size <= 32) {
+                        if (size <= 8) {
+                            if (size <= 4) {
+                                return (0, 4);
+                            }
+                            return (1, 8);
+                        }
+                        return (2, 32);
+                    }
+                    return (3, 64);
+                }
+                return (-1, size);
+            }
+
             private T[] AllocateInternal(int i)
             {
-                if (Queues[i].TryDequeue(out var a))
-                    return a;
-                return new T[(i+1)*4];
+                var (index, size) = MapSize(i);
+                if (index >= 0) {
+                    if (Queues[index].TryDequeue(out var a))
+                        return a;
+                }
+                return new T[size];
             }
 
             private void ReleaseInternal(int i, T[] items)
@@ -101,39 +120,14 @@ namespace YantraJS.Core.FastParser
 
             public T[] AllocateArray(int size)
             {
-                if (size < 17) {
-                    if (size < 13) {
-                        if (size < 9) {
-                            if (size < 4) {
-                                return AllocateInternal(0);
-                            }
-                            return AllocateInternal(1);
-                        }
-                        return AllocateInternal(2);
-                    }
-                    return AllocateInternal(3);
-                }
-                return new T[size];
+                return AllocateInternal(size);
             }
 
             public void ReleaseArray(T[] item)
             {
-                var size = item.Length;
-                switch (size)
-                {
-                    case 16:
-                        ReleaseInternal(4, item);
-                        break;
-                    case 12:
-                        ReleaseInternal(3, item);
-                        break;
-                    case 8:
-                        ReleaseInternal(2, item);
-                        break;
-                    case 4:
-                        ReleaseInternal(0, item);
-                        break;
-
+                var (index, size) = MapSize(item.Length);
+                if(index >= 0) {
+                    ReleaseInternal(index, item);
                 }
             }
         }

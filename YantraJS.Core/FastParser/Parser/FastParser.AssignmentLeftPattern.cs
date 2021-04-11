@@ -22,6 +22,7 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     stream.Consume();
                     node = new AstIdentifier(token);
+                    variableScope.Top.AddVariable(token, token.Span, kind);
                     return true;
                 case TokenTypes.SquareBracketStart:
                     stream.Consume();

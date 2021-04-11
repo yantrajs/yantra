@@ -80,10 +80,7 @@ namespace YantraJS.Core.FastParser
                 hoisted = true;
                 foreach (var node in Variables.AllValues())
                 {
-                    if (node.Value.kind == FastVariableKind.Var)
-                    {
-                        list.Add(node.Value.name);
-                    }
+                    list.Add(node.Value.name);
                 }
                 if (list.Count == 0)
                     return ArraySpan<string>.Empty;
@@ -97,8 +94,8 @@ namespace YantraJS.Core.FastParser
 
         public override void Dispose()
         {
-            if(!hoisted && Variables.AllValues().Any())
-                throw new FastParseException(token, $"Hoisting not supported in {NodeType}");
+            //if(!hoisted && Variables.AllValues().Any())
+            //    throw new FastParseException(token, $"Hoisting not supported in {NodeType}");
         }
     }
 }
