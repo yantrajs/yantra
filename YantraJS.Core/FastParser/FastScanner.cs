@@ -32,6 +32,9 @@ namespace YantraJS.Core.FastParser
             this.pool = pool;
             this.Text = text;
             this.keywords = keywords ?? FastKeywordMap.Instance;
+
+            token = ReadToken();
+            nextToken = ReadToken();
         }
 
         
@@ -47,11 +50,6 @@ namespace YantraJS.Core.FastParser
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if(token.Type == 0)
-                {
-                    token = ReadToken();
-                    nextToken = ReadToken();
-                }
                 return token;
             }
         }
@@ -73,16 +71,19 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char Consume()
         {
-            position++;
             if (position >= Text.Length)
                 return char.MaxValue;
             char ch = Text[position];
-            column++;
-            if (ch == '\n')
-            {
+            if(ch == '\n') {
                 line++;
                 column = 0;
+            } else {
+                column++;
             }
+            position++;
+            if (position >= Text.Length)
+                return char.MaxValue;
+            ch = Text[position];
             return ch;
         }
 
@@ -96,6 +97,17 @@ namespace YantraJS.Core.FastParser
             return false;            
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool CanConsume(char ch1, char ch2) {
+            var ch = Peek();
+            if (ch == ch1 || ch == ch2) {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
         private FastToken ReadToken()
         {
             using (var state = Push())
@@ -107,13 +119,22 @@ namespace YantraJS.Core.FastParser
                     return EOF;
                 }
 
+                bool lineTerminator = false;
+
                 // if it is whitespace...
                 // read all whitespace...
                 while (char.IsWhiteSpace(first))
                 {
+                    if (first == '\n')
+                        lineTerminator = true;
                     first = Consume();
+                    if (first == '\n')
+                        lineTerminator = true;
                     state.Reset();
                 }
+
+                if (lineTerminator)
+                    return ReadSymbol(state, TokenTypes.LineTerminator);
 
                 if (first.IsIdentifierStart())
                 {
@@ -373,7 +394,7 @@ namespace YantraJS.Core.FastParser
 
                 while (ch != char.MaxValue)
                 {
-                    if (!ch.IsDigitPart(true,false,false))
+                    if (!ch.IsDigitPart(true,false))
                     {
                         break;
                     }
@@ -399,7 +420,7 @@ namespace YantraJS.Core.FastParser
                     char ch = Consume();
                     if (ch != char.MaxValue)
                     {
-                        if (ch.IsDigitPart(true, false, false))
+                        if (ch.IsDigitPart(true, false))
                         {
                             code = code * 16 + ch.HexValue();
                         }
@@ -433,6 +454,7 @@ namespace YantraJS.Core.FastParser
                     switch(ch)
                     {
                         case '$':
+                                Consume();
                                 if (CanConsume('{')) {
                                     // template part begin...
                                     if (templateParts++ == 0)
@@ -492,9 +514,11 @@ namespace YantraJS.Core.FastParser
 
             if (ScanRegEx(state, first, out var token))
                 return token;
-
+            state.Dispose();
+            state = Push();
             if(divideAndAssign)
             {
+                Consume();
                 Consume();
                 return state.Commit(TokenTypes.AssignDivide);
             }
@@ -640,12 +664,16 @@ namespace YantraJS.Core.FastParser
                 if (ch == '*')
                 {
                     ch = Consume();
-                    if (ch == char.MaxValue || ch == '/')
+                    if (ch == '/') {
+                        Consume();
                         break;
+                    }
+                    if (ch == char.MaxValue) {
+                        break;
+                    }
                 }
             } while (true);
-            Consume();
-            state.Reset();
+            state.CommitEOF();
             return ReadToken();
         }
 
@@ -657,7 +685,7 @@ namespace YantraJS.Core.FastParser
                 ch = Consume();
             } while (ch != '\n' && ch != char.MaxValue);
             Consume();
-            state.Reset();
+            state.CommitEOF();
             return ReadToken();
         }
 
@@ -671,8 +699,6 @@ namespace YantraJS.Core.FastParser
                 do
                 {
                     first = Consume();
-                    if (ScanEscaped(first, t))
-                        continue;
                     if (first == start)
                     {
                         var next = Consume();
@@ -686,8 +712,12 @@ namespace YantraJS.Core.FastParser
                             break;
                         }
                     }
+                    if (ScanEscaped(first, t))
+                        continue;
                     t.Append(first);
-                } while (first != start);
+                    if (first == start)
+                        break;
+                } while (true);
                 return state.Commit(TokenTypes.String, sb.Builder);
             } finally {
                 sb.Clear();
@@ -699,8 +729,7 @@ namespace YantraJS.Core.FastParser
             char first;
             do
             {
-                Consume();
-                first = Peek();
+                first = Consume();
 
             } while (first.IsIdentifierPart());
             var token = state.CommitIdentifier(keywords);
@@ -709,36 +738,37 @@ namespace YantraJS.Core.FastParser
 
         private FastToken ReadNumber(State state, char first)
         {
-            var isZero = first == '0';
-            var isHex = false;
-            var isBinary = false;
-            var readDecimal = true;
-            do
-            {
-                first = Consume();
-                if (isZero)
-                {
-                    isZero = false;
-                    isHex = first == 'x';
-                    isBinary = first == 'b';
-                    if (isHex || isBinary)
-                    {
-                        Consume();
-                        continue;
-                    }
-                    else
-                    {
-                        break;
-                    }
+            void ConsumeDigits(bool hex = false, bool binary = false) {
+                char peek = Peek();
+                if (!peek.IsDigitPart(hex, binary))
+                    return;
+                do {
+                    peek = Consume();
+                } while (peek.IsDigitPart(hex, binary));
+            }
+            if(CanConsume('0')) {
+                if(CanConsume('x', 'X')) {
+                    ConsumeDigits(hex: true);
+                    return state.Commit(TokenTypes.Number, true);
                 }
-                if(first == '.')
-                {
-                    readDecimal = false;
-                    continue;
+                if(CanConsume('b','B')) {
+                    ConsumeDigits(binary: true);
+                    return state.Commit(TokenTypes.Number, true);
                 }
-                if (!first.IsDigitPart(isHex, isBinary, readDecimal))
-                    break;
-            } while (true);
+            }
+            ConsumeDigits();
+            if (CanConsume('.')) {
+                ConsumeDigits();
+            }
+            if (CanConsume('e','E')) {
+                if (CanConsume('+', '-')) {
+                    ConsumeDigits();
+                    return state.Commit(TokenTypes.Number, true);
+                }
+                ConsumeDigits();
+                return state.Commit(TokenTypes.Number, true);
+            }
+            ConsumeDigits();
             return state.Commit(TokenTypes.Number, true);
         }
 

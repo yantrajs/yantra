@@ -43,7 +43,8 @@ namespace YantraJS.Core.FastParser
             return 0;
         }
 
-        internal static bool IsDigitPart(this char ch, bool hex, bool binary, bool readDecimal)
+        internal static bool IsDigitPart(
+            this char ch, bool hex, bool binary)
         {
             switch (ch)
             {
@@ -51,8 +52,6 @@ namespace YantraJS.Core.FastParser
                 case '0':
                 case '1':
                     return true;
-                case '.':
-                    return readDecimal;
                 case '2':
                 case '3':
                 case '4':
@@ -66,12 +65,11 @@ namespace YantraJS.Core.FastParser
                         return false;
                     }
                     return true;
-                case 'e':
-                    return hex || !readDecimal;
                 case 'a':
                 case 'b':
                 case 'c':
                 case 'd':
+                case 'e':
                 case 'f':
                 case 'A':
                 case 'B':

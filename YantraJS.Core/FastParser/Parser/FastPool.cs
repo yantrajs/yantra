@@ -115,6 +115,11 @@ namespace YantraJS.Core.FastParser
 
             private void ReleaseInternal(int i, T[] items)
             {
+                for (int index = 0; index < items.Length; index++) {
+#pragma warning disable CS8601 // Possible null reference assignment.
+                    items[index] = default;
+#pragma warning restore CS8601 // Possible null reference assignment.
+                }
                 Queues[i].Enqueue(items);
             }
 
