@@ -103,12 +103,6 @@ namespace YantraJS.Core.FastParser.Compiler
             return ExpHelper.JSExceptionBuilder.Throw(VisitExpression(throwStatement.Argument));
         }
 
-        protected override Expression VisitVariableDeclaration(AstVariableDeclaration variableDeclaration)
-        {
-            throw new NotImplementedException();
-        }
-
-
         protected override Expression VisitYieldExpression(AstYieldExpression yieldExpression)
         {
             var target = VisitExpression(yieldExpression.Argument);
