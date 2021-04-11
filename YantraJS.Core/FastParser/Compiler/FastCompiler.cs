@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using YantraJS.Core.LinqExpressions;
+using YantraJS.Emit;
 using YantraJS.ExpHelper;
 using YantraJS.Utils;
 using Exp = System.Linq.Expressions.Expression;
@@ -20,13 +22,143 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private StringArray _keyStrings = new StringArray();
 
-        private SparseList<object> _innerFunctions = new SparseList<object>();
+        private FastList<object> _innerFunctions;
 
         public Expression<JSFunctionDelegate> Method { get; }
 
-        public FastCompiler(FastPool pool)
-        {
-            this.pool = pool;
+        public FastCompiler(
+            in StringSpan code,
+            string location = null,
+            IList<string> argsList = null,
+            ICodeCache codeCache = null) {
+            this.pool = new FastPool();
+
+            location = location ?? "vm.js";
+
+            // FileNameExpression = Exp.Variable(typeof(string), "_fileName");
+            // CodeStringExpression = Exp.Variable(typeof(string), "code");
+
+
+            // this.Code = new ParsedScript(code);
+
+            var parser = new FastParser(new FastTokenStream(pool, code));
+
+            _innerFunctions = pool.AllocateList<object>();
+
+            // add top level...
+
+            using (var fx = this.scope.Push(new FastFunctionScope((AstFunctionExpression)null))) {
+
+                var jScript = parser.ParseProgram();
+
+                var lScope = fx.Context;
+
+                if (jScript.HoistingScope != null && argsList != null) {
+                    var list = new List<string>(jScript.HoistingScope);
+                    foreach (var a in argsList) {
+                        list.Remove(a);
+                    }
+                    jScript.HoistingScope = ArraySpan<string>.From(list.ToArray());
+                }
+
+                var scriptInfo = fx.ScriptInfo;
+
+
+                var args = fx.ArgumentsExpression;
+
+                var te = ArgumentsBuilder.This(args);
+
+                var stackItem = fx.StackItem;
+
+                var vList = new SparseList<ParameterExpression>() {
+                    scriptInfo,
+                    lScope,
+                    stackItem
+                };
+
+
+
+
+
+                if (argsList != null) {
+                    int i = 0;
+                    foreach (var arg in argsList) {
+
+                        // global arguments are set here for FunctionConstructor
+
+                        fx.CreateVariable(arg,
+                            JSVariableBuilder.FromArgument(fx.ArgumentsExpression, i++, arg));
+                    }
+                }
+
+                var l = fx.ReturnLabel;
+
+                var script = Visit(jScript);
+
+                var sList = new SparseList<Exp>(_innerFunctions.Count) {
+                    Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
+                    Exp.Assign(lScope, JSContextBuilder.Current)
+                };
+
+                sList.Add(Exp.Assign(ScriptInfoBuilder.Functions(scriptInfo),
+                    Exp.Constant(_innerFunctions.ToArray())));
+
+                JSContextStackBuilder.Push(sList, lScope, stackItem, Exp.Constant(location), StringSpanBuilder.Empty, 0, 0);
+
+                sList.Add(ScriptInfoBuilder.Build(scriptInfo, _keyStrings));
+
+                // ref var keyStrings = ref _keyStrings;
+                //foreach (var ks in keyStrings.AllValues())
+                //{
+                //    var v = ks.Value;
+                //    vList.Add(v);
+                //    sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
+                //}
+
+                vList.AddRange(fx.VariableParameters);
+                sList.AddRange(fx.InitList);
+                // register globals..
+                foreach (var v in fx.Variables) {
+                    if (v.Variable != null && v.Variable.Type == typeof(JSVariable)) {
+                        if (argsList?.Contains(v.Name) ?? false)
+                            continue;
+                        if (v.Name == "this")
+                            continue;
+                        sList.Add(JSContextBuilder.Register(lScope, v.Variable));
+                    }
+                }
+
+
+                sList.Add(Exp.Return(l, script.ToJSValue()));
+                sList.Add(Exp.Label(l, JSUndefinedBuilder.Value));
+
+                //script = Exp.Block(vList,
+                //    Exp.TryFinally(
+                //        Exp.Block(sList),
+                //        ExpHelper.IDisposableBuilder.Dispose(lScope))
+                //);
+                //var catchExp = Exp.Parameter(typeof(Exception));
+                //vList.Add(catchExp);
+
+                //var catchWithFilter = Exp.Catch(
+                //    catchExp,
+                //    Exp.Throw(JSExceptionBuilder.From(catchExp), typeof(JSValue)),
+                //    Exp.Not(Exp.TypeIs(catchExp, typeof(JSException))));
+                //script = Exp.Block(vList,
+                //    Exp.TryCatchFinally(
+                //        Exp.Block(sList),
+                //        JSContextStackBuilder.Pop(stackItem),
+                //        catchWithFilter)
+
+                // sList.Add(JSContextStackBuilder.Pop(stackItem));
+
+                script = Exp.Block(vList, Exp.TryFinally(Exp.Block(sList), JSContextStackBuilder.Pop(stackItem, lScope)));
+
+
+                var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
+
+                this.Method = lambda;
+            }
         }
 
         private Expression VisitExpression(AstExpression exp) => Visit(exp);

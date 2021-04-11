@@ -2,12 +2,12 @@
 {
     public class AstReturnStatement : AstStatement
     {
-        public readonly AstExpression Target;
+        public readonly AstExpression Argument;
 
         public AstReturnStatement(FastToken token, FastToken previousToken, AstExpression target = null)
-            : base(token, FastNodeType.ContinueStatement, previousToken)
+            : base(token, FastNodeType.ReturnStatement, previousToken)
         {
-            this.Target = target;
+            this.Argument = target;
         }
     }
 }

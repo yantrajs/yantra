@@ -311,6 +311,12 @@ namespace YantraJS.Core.FastParser.Ast
             return objectPattern;
         }
 
+        protected override AstNode VisitReturnStatement(AstReturnStatement returnStatement) {
+            if (Modified(returnStatement.Argument, out var target))
+                return new AstReturnStatement(returnStatement.Start, returnStatement.End, target);
+            return returnStatement;
+        }
+
         protected override AstNode VisitSequenceExpression(AstSequenceExpression sequenceExpression)
         {
             if (Modified(sequenceExpression.Expressions, out var expressions))

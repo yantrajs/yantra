@@ -108,11 +108,14 @@ namespace YantraJS.Utils
                     return VisitYieldExpression(yieldExpression);
                 case (FastNodeType.ClassProperty, AstClassProperty property):
                     return VisitClassProperty(property);
+                case (FastNodeType.ReturnStatement, AstReturnStatement returnStatement):
+                    return VisitReturnStatement(returnStatement);
                 default:
                     throw new NotImplementedException($"No implementation for {node.Type}");
             }
         }
 
+        protected abstract T VisitReturnStatement(AstReturnStatement returnStatement);
         protected virtual T VisitClassProperty(AstClassProperty property) => default;
         protected abstract T VisitBreakStatement(AstBreakStatement breakStatement);
         protected abstract T VisitLabeledStatement(AstLabeledStatement labeledStatement);
