@@ -890,6 +890,7 @@ namespace YantraJS.Core.FastParser
                     if (ch == '\n')
                         hasLineTerminator = true;
                     Consume();
+                    continue;
                 }
                 break;
             }

@@ -40,6 +40,12 @@ namespace YantraJS.Core.FastParser
             AstExpression right;
             TokenTypes rightType;
 
+            if(previous.End.LineTerminator) {
+                node = null;
+                type = TokenTypes.SemiColon;
+                return true;
+            }
+
             switch(previousType)
             {
 
