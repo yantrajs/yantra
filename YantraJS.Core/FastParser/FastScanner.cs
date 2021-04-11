@@ -536,7 +536,9 @@ namespace YantraJS.Core.FastParser
                 return divide.Commit(TokenTypes.AssignDivide);
             }
 
-            throw Unexpected();
+            state.Dispose();
+            Consume();
+            return divide.Commit(TokenTypes.Divide);
 
             bool ScanRegEx(State state, char first , out FastToken token)
             {                

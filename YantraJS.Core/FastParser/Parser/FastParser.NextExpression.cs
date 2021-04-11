@@ -151,6 +151,18 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.AssignXor:
                     throw new FastParseException(begin.Token, "Invalid left hand side assignemnt");
 
+                case TokenTypes.QuestionMark:
+                    stream.Consume();
+                    previous = previous.Combine(previousType, node);
+                    if (!Expression(out var @true))
+                        throw stream.Unexpected();
+                    stream.Expect(TokenTypes.Colon);
+                    if (!Expression(out var @false))
+                        throw stream.Unexpected();
+                    previous = new AstConditionalExpression(previous, @true, @false);
+                    previousType = stream.Current.Type;
+                    return NextExpression(ref previous, ref previousType, out node, out type);
+
                 case TokenTypes.Multiply:
                 case TokenTypes.Divide:
                 case TokenTypes.Plus:

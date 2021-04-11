@@ -65,7 +65,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(Undefined.Value, Evaluate("'abc'[3]"));
 
             // The array indices are enumerable.
-            Assert.AreEqual("01234", Evaluate("y = ''; for (var x in 'hello') { y += x } y"));
+            Assert.AreEqual("01234", Evaluate("var y = ''; for (var x in 'hello') { y += x } y"));
 
             // Array elements cannot be modified within the range of the string, but can be modified otherwise.
             Assert.AreEqual("a", Evaluate("var x = new String('abc'); x[0] = 'c'; x[0]"));

@@ -45,7 +45,7 @@ namespace YantraJS.Core.FastParser.Compiler
                             throw new FastParseException(d.Identifier.Start, $"Invalid pattern {d.Identifier.Type}");
                     }
                 }
-                if (list.Count == 0)
+                if (list.Count == 1)
                     return list[0];
                 return Exp.Block(list);
             } finally {
