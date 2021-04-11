@@ -13,12 +13,14 @@ namespace YantraJS.Core.FastParser
             out AstClassProperty property, 
             bool checkContextualKeyword = true,
             bool isAsync = false,
-            bool isStatic = false)
+            bool isClass = false)
         {
             var begin = Location;
             var current = begin.Token;
             var isGet = current.ContextualKeyword == FastKeywords.get;
             var isSet = current.ContextualKeyword == FastKeywords.set;
+
+            var isStatic = isClass ? stream.CheckAndConsume(FastKeywords.@static) : false;
 
             // check for async method.. async getter/setter are not supported yet...
             if(stream.CheckAndConsume(FastKeywords.async))
@@ -89,7 +91,9 @@ namespace YantraJS.Core.FastParser
                     property = new AstClassProperty(
                         current,
                         PreviousToken,
-                        AstPropertyKind.Method,
+                        key.Start.Keyword == FastKeywords.constructor 
+                            ? AstPropertyKind.Constructor
+                            : AstPropertyKind.Method,
                         false,
                         isStatic,
                         key,

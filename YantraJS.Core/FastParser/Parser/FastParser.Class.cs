@@ -49,7 +49,7 @@ namespace YantraJS.Core.FastParser
                 while (!stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
                 {
 
-                    if(ObjectProperty(out var property))
+                    if(ObjectProperty(out var property, true, true))
                     {
                         nodes.Add(property);
                     }
