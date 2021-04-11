@@ -141,23 +141,19 @@ namespace YantraJS.Core.FastParser
                 var begin = Location;
                 stream.Consume();
 
-                stream.Expect(TokenTypes.CurlyBracketStart);
-
                 if (!Statement(out var body))
                     throw stream.Unexpected();
 
-                stream.Expect(TokenTypes.CurlyBracketEnd);
-                stream.Expect(FastKeywords.@catch);
-                stream.Expect(TokenTypes.BracketStart);
-                if (!Identitifer(out var id))
-                    throw stream.Unexpected();
-                stream.Expect(TokenTypes.BracketEnd);
-                if (stream.CheckAndConsume(FastKeywords.@catch))
-                {
-                    stream.Expect(TokenTypes.CurlyBracketStart);
+                // we may not have catch...
+                if(stream.CheckAndConsume(FastKeywords.@catch)) {
+
+                    stream.Expect(TokenTypes.BracketStart);
+                    if (!Identitifer(out var id))
+                        throw stream.Unexpected();
+                    stream.Expect(TokenTypes.BracketEnd);
+
                     if (!Statement(out var @catch))
                         throw stream.Unexpected();
-                    stream.Expect(TokenTypes.CurlyBracketEnd);
                     Finally(out var @finally);
                     statement = new AstTryStatement(begin.Token, PreviousToken, body, id, @catch, @finally);
                     return true;

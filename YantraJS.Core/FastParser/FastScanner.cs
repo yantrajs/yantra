@@ -6,6 +6,29 @@ using System.Text;
 namespace YantraJS.Core.FastParser
 {
 
+    /// <summary>
+    /// Scanner Features.
+    /// 
+    /// 1.  Scanner ignores whitespace and comments
+    ///     but a token is marked as LineTerminated if it is
+    ///     followed by a line terminator.
+    ///     
+    ///     This is useful in the case when expression needs
+    ///     a line terminator as a expression end marker.
+    ///     
+    ///     Ignoring line terminator and whitespace makes
+    ///     parsing rules simple as everything else are pure
+    ///     tokens.
+    ///     
+    /// 2.  Scanner parses first token and keeps next token 
+    ///     ready. Only when you consume current token, next 
+    ///     token is read. This is to avoid in case of failure.
+    ///     
+    /// 3.  Never read beyond EOF, because once you encounter
+    ///     EOF, scanner will endlessly send you EOF. It is 
+    ///     responsibility of the Parser to detect end of program.
+    /// 
+    /// </summary>
     public class FastScanner
     {
         private readonly FastPool pool;
@@ -563,6 +586,9 @@ namespace YantraJS.Core.FastParser
                                 }
                                 t.Append(first);
                                 break;
+                            default:
+                                t.Append(first);
+                                break;
                         }
                     } while (!terminated);
 
@@ -595,46 +621,54 @@ namespace YantraJS.Core.FastParser
                 {
                     do
                     {
-                        var ch = Consume();
+                        var ch = Peek();
                         switch(ch)
                         {
                             case 'd':
                                 if (d) throw Unexpected();
                                 d = true;
                                 t.Append(ch);
+                                Consume();
                                 continue;
                             case 'g':
                                 if (g) throw Unexpected();
                                 g = true;
                                 t.Append(ch);
+                                Consume();
                                 continue;
                             case 'i':
                                 if (i) throw Unexpected();
                                 i = true;
                                 t.Append(ch);
+                                Consume();
                                 continue;
                             case 'm':
                                 if (m) throw Unexpected();
                                 m = true;
                                 t.Append(ch);
+                                Consume();
                                 continue;
                             case 's':
                                 if (s) throw Unexpected();
                                 s = true;
                                 t.Append(ch);
+                                Consume();
                                 continue;
                             case 'u':
                                 if (u) throw Unexpected();
                                 u = true;
                                 t.Append(ch);
+                                Consume();
                                 continue;
                             case 'y':
                                 if (y) throw Unexpected();
                                 y = true;
                                 t.Append(ch);
+                                Consume();
                                 continue;
                         }
-                    } while (false);
+                        break;
+                    } while (true);
                     return sb.ToString();
                 } finally
                 {

@@ -79,7 +79,7 @@ namespace YantraJS.Core.FastParser
                 AstExpression? test = null;
                 AstExpression? update = null;
 
-                if (stream.CheckAndConsume(FastKeywords.@in))
+                if (stream.CheckAndConsume(TokenTypes.In))
                 {
                     @in = true;
                     if (!Expression(out inTarget))
