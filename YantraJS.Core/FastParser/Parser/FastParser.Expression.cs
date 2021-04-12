@@ -59,6 +59,8 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
+            bool lastExpressionLineTerminated = stream.Previous.LineTerminator;
+
             if(stream.CheckAndConsume(TokenTypes.Lambda))
             {
                 var scope = this.variableScope.Push(token, FastNodeType.FunctionExpression);
@@ -81,6 +83,14 @@ namespace YantraJS.Core.FastParser
                     scope.Dispose();
                 }
 
+            }
+
+            /*
+             * In case previous expression did finish on previous line
+             * and that did not have semi colon
+             */
+            if (lastExpressionLineTerminated) {
+                return true;
             }
 
             begin = Location;

@@ -179,14 +179,6 @@ namespace YantraJS.Core.FastParser.Compiler
                     Exp.Block(new ParameterExpression[] { lexicalScopeVar, stackItem },
                     Exp.Assign(lexicalScopeVar,
                         JSContextBuilder.Current),
-                    //Exp.Assign(stackItem, 
-                    //    JSContextBuilder.Push(
-                    //        lexicalScopeVar,
-                    //        FileNameExpression,
-                    //        fxName,
-                    //        point.Line,
-                    //        point.Column
-                    //        )),
                     Exp.TryFinally(
                         block
                          , JSContextStackBuilder.Pop(stackItem, lexicalScopeVar))
@@ -248,22 +240,6 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                 }
 
-                //// create new JSFunction instance...
-                //var jfs = functionDeclaration.Generator 
-                //    ? JSGeneratorFunctionBuilder.New(lambda, fxName, code)
-                //    : ( createClass 
-                //        ? JSClassBuilder.New(lambda, super, className ?? "Unnamed")
-                //        : JSFunctionBuilder.New(lambda, fxName, code, functionDeclaration.Params.Count));
-
-                if (functionDeclaration.IsArrowFunction)
-                {
-                    if (jsFVarScope != null)
-                    {
-                        jsFVarScope.SetPostInit(jsf);
-                        return jsFVarScope.Expression;
-                    }
-                    return jsf;
-                }
                 if (jsFVarScope != null)
                 {
                     jsFVarScope.SetPostInit(jsf);
