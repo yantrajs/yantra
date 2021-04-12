@@ -48,18 +48,18 @@ namespace YantraJS.Core.FastParser
             {
                 if(checkContextualKeyword && ( isSet || isGet))
                 {
-                    if (!ObjectProperty(out property))
-                        return false;
-                    property = new AstClassProperty(
-                        current,
-                        property.End,
-                        isSet ? AstPropertyKind.Set : AstPropertyKind.Get,
-                        false,
-                        isStatic,
-                        property.Key,
-                        property.Computed,
-                        property.Init);
-                    return true;
+                    if (ObjectProperty(out property)) {
+                        property = new AstClassProperty(
+                            current,
+                            property.End,
+                            isSet ? AstPropertyKind.Set : AstPropertyKind.Get,
+                            false,
+                            isStatic,
+                            property.Key,
+                            property.Computed,
+                            property.Init);
+                        return true;
+                    }
                 }
 
                 if (stream.CheckAndConsume(TokenTypes.Colon))
@@ -95,7 +95,7 @@ namespace YantraJS.Core.FastParser
                         property = new AstClassProperty(
                             current,
                             PreviousToken,
-                            key.Start.Keyword == FastKeywords.constructor
+                            key.Start.ContextualKeyword == FastKeywords.constructor
                                 ? AstPropertyKind.Constructor
                                 : AstPropertyKind.Method,
                             false,

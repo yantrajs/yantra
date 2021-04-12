@@ -59,6 +59,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.SquareBracketEnd:
                 case TokenTypes.BracketEnd:
                 case TokenTypes.CurlyBracketEnd:
+                case TokenTypes.CurlyBracketStart:
                 case TokenTypes.Colon:
                 case TokenTypes.EOF:
                     node = null;
