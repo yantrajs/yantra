@@ -40,6 +40,8 @@ namespace YantraJS.ExpHelper
         public static Expression FromArgumentOptional(Expression args, int i, Expression optional)
         {
             // check if is undefined...
+            if (optional == null)
+                return ArgumentsBuilder.GetAt(args, i);
             var argAt = ArgumentsBuilder.GetAt(args, i);
             return Expression.Coalesce(JSValueExtensionsBuilder.NullIfUndefined(argAt), optional);
         }

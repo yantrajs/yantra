@@ -107,8 +107,12 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         case FastNodeType.Identifier:
                             var id = v.Identifier as AstIdentifier;
-                            s.CreateVariable(id.Name,
-                                ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, id.Name.Value));
+                            // s.CreateVariable(id.Name,
+                            //     ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, id.Name.Value));
+                            bodyInits.Add(CreateAssignment(id,
+                                ExpHelper.JSVariableBuilder.FromArgumentOptional(argumentElements, i, VisitExpression(v.Init)),
+                                true,
+                                true));
                             break;
                         case FastNodeType.ArrayPattern:
                         case FastNodeType.ObjectPattern:

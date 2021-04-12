@@ -34,7 +34,7 @@ namespace YantraJS.Core.FastParser
 
             stream.Expect(TokenTypes.BracketStart);
             var scope = variableScope.Push(begin.Token, FastNodeType.FunctionExpression);
-            if (!Parameters(out var declarators, TokenTypes.BracketEnd, false, FastVariableKind.Let))
+            if (!Parameters(out var declarators, TokenTypes.BracketEnd, false, FastVariableKind.Var))
                 throw stream.Unexpected();
 
             if (stream.Current.Type != TokenTypes.CurlyBracketStart)
