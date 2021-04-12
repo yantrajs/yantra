@@ -110,6 +110,18 @@ namespace YantraJS.Core.FastParser
                 return false;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext(out T item, out int i) {
+                if (++index < length) {
+                    i = index;
+                    item = items[index];
+                    return true;
+                }
+                i = -1;
+                item = default;
+                return false;
+            }
+
             public T Current => items[index];
 
             object IEnumerator.Current => items[index];

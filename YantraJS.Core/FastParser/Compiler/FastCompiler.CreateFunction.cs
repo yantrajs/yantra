@@ -95,58 +95,17 @@ namespace YantraJS.Core.FastParser.Compiler
                 var vList = new SparseList<ParameterExpression>();
 
                 // var pList = functionDeclaration.Params.OfType<Identifier>();
-                int i = 0;
 
                 var argumentElements = args;
 
                 var bodyInits = new SparseList<Exp>();
-
-                foreach (var v in functionDeclaration.Params)
+                var pe = functionDeclaration.Params.GetEnumerator();
+                while(pe.MoveNext(out var v, out var i))
                 {
-                    switch (v.Identifier.Type)
-                    {
-                        case FastNodeType.Identifier:
-                            var id = v.Identifier as AstIdentifier;
-                            // s.CreateVariable(id.Name,
-                            //     ExpHelper.JSVariableBuilder.FromArgument(argumentElements, i, id.Name.Value));
-                            bodyInits.Add(CreateAssignment(id,
-                                ExpHelper.JSVariableBuilder.FromArgumentOptional(argumentElements, i, VisitExpression(v.Init)),
-                                true,
-                                true));
-                            break;
-                        case FastNodeType.ArrayPattern:
-                        case FastNodeType.ObjectPattern:
-                            var ap = v.Identifier;
-                            var inits = CreateAssignment(
-                                ap,
-                                ExpHelper.JSVariableBuilder.FromArgumentOptional(argumentElements, i, VisitExpression(v.Init)),
-                                true,
-                                true);
-                            bodyInits.Add(inits);
-                            break;
-                        case FastNodeType.SpreadElement:
-                            var re = v.Identifier as AstSpreadElement;
-                            id = re.Argument as AstIdentifier;
-                            inits = CreateAssignment(re.Argument,
-                                ArgumentsBuilder.RestFrom(argumentElements, (uint)i)
-                                , true,
-                                true);
-                            bodyInits.Add(inits);
-                            break;
-                        //case ArrayPattern aap:
-                        //    bodyInits.Add(CreateAssignment(v, argumentElements, true, true));
-                        //    break;
-                        default:
-                            bodyInits.Add(CreateAssignment(v.Identifier, ArgumentsBuilder.GetAt(argumentElements, i), true, true));
-                            break;
-                            //case AssignmentPattern asp:
-                            //    break;
-                            //case ObjectPattern op:
-                            //    break;
-                            //case ArrayPattern ap:
-                            //    break;
-                    }
-                    i++;
+                    bodyInits.Add(CreateAssignment(v.Identifier,
+                        ExpHelper.JSVariableBuilder.FromArgumentOptional(argumentElements, i, VisitExpression(v.Init)),
+                        true,
+                        true));
                 }
 
                 Exp lambdaBody = VisitStatement(functionDeclaration.Body);

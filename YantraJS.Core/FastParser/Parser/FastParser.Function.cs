@@ -50,7 +50,6 @@ namespace YantraJS.Core.FastParser
                 node = new AstFunctionExpression(begin.Token, PreviousToken, false, isAsync, generator, id, declarators, body);
             } finally
             {
-                scope.GetVariables();
                 scope.Dispose();
             }
 

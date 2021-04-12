@@ -17,6 +17,8 @@ namespace YantraJS.Core
             stack._Top = Parent;
         }
 
+        
+
         public void Pop()
         {
             stack._Top = Parent;

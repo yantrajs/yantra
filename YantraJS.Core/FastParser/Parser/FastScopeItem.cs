@@ -57,15 +57,19 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
-            while (true)
-            {
-                if (n.Parent == null)
+            // all `var` variables must be hoisted to
+            // to top most scope
+            if (kind == FastVariableKind.Var) {
+                while (true) {
+                    if (n.Parent == null)
+                        break;
+                    if (n.NodeType == FastNodeType.Block
+                        && n.Parent.NodeType == FastNodeType.Block) {
+                        n = n.Parent;
+                        continue;
+                    }
                     break;
-                if (n.NodeType == FastNodeType.Block) {
-                    n = n.Parent;
-                    continue;
                 }
-                break;
             }
 
             n.Variables[name] = (name.Value, kind);
@@ -90,12 +94,6 @@ namespace YantraJS.Core.FastParser
                 list.Clear();
             }
 
-        }
-
-        public override void Dispose()
-        {
-            //if(!hoisted && Variables.AllValues().Any())
-            //    throw new FastParseException(token, $"Hoisting not supported in {NodeType}");
         }
     }
 }

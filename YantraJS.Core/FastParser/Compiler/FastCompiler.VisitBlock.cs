@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     var en = hoistingScope.Value.GetEnumerator();
                     while (en.MoveNext(out var v))
                     {
-                         scope.CreateVariable(v);
+                         scope.CreateVariable(v, null, true);
                     }
                 }
 
