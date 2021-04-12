@@ -41,7 +41,7 @@ namespace YantraJS.Core.FastParser.Compiler
                             //    body.Add(VisitExpression(exp));
                             //    break;
                             default:
-                                throw new InvalidOperationException();
+                                throw new FastParseException(es.Start, $"Invalid statement {es.Type}");
                         }
                     }
 

@@ -8,9 +8,9 @@ namespace YantraJS.Core.FastParser
     public readonly struct AstCase
     {
         public readonly AstExpression Test;
-        public readonly AstStatement[] Statements;
+        public readonly ArraySpan<AstStatement> Statements;
 
-        public AstCase(AstExpression test, AstStatement[] last)
+        public AstCase(AstExpression test, in ArraySpan<AstStatement> last)
         {
             this.Test = test;
             this.Statements = last;
@@ -36,18 +36,17 @@ namespace YantraJS.Core.FastParser
             stream.Expect(TokenTypes.CurlyBracketStart);
             var nodes = Pool.AllocateList<AstCase>();
             var statements = Pool.AllocateList<AstStatement>();
-            AstStatement[] last = null;
             AstExpression test = null;
+            bool hasDefault = false;
             try
             {
                 while (!stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
                 {
                     if(stream.CheckAndConsume(FastKeywords.@case))
                     {
-                        if(last != null)
+                        if (test != null)
                         {
-                            last = statements.Release();
-                            nodes.Add(new AstCase(test, last));
+                            nodes.Add(new AstCase(test, statements.ToSpan()));
                         }
                         if (!Expression(out test))
                             throw stream.Unexpected();
@@ -55,15 +54,18 @@ namespace YantraJS.Core.FastParser
                     } else if(stream.CheckAndConsume(FastKeywords.@default))
                     {
                         stream.Expect(TokenTypes.Colon);
+                        if (test != null) {
+                            nodes.Add(new AstCase(test, statements.ToSpan()));
+                        }
                         test = null;
-                        last = statements.Release();
+                        hasDefault = true;
                     } else if (Statement(out var stmt))
                         statements.Add(stmt);
                 }
 
-                if(last != null)
+                if(test != null || hasDefault)
                 {
-                    nodes.Add(new AstCase(test, last));
+                    nodes.Add(new AstCase(test, statements.ToSpan()));
                 }
 
                 node = new AstSwitchStatement(begin.Token, PreviousToken, target, nodes);

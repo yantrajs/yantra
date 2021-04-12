@@ -83,6 +83,7 @@ namespace YantraJS.Core.FastParser
                 var r = items;
                 items = null;
                 size = 0;
+                length = 0;
                 return r;
             }
             var copy = new T[length];
@@ -96,7 +97,8 @@ namespace YantraJS.Core.FastParser
             var length = this.length;
             var a = new ArraySpan<T>(array, length);
             items = null;
-            length = 0;
+            this.length = 0;
+            this.size = 0;
             return a;
         }
 

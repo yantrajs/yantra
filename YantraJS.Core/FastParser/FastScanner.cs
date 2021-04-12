@@ -593,8 +593,8 @@ namespace YantraJS.Core.FastParser
                                 t.Append(first);
                                 continue;
                             case '\\':
-                                if (ScanEscaped(first, t))
-                                    continue;
+                                //if (ScanEscaped(first, t))
+                                //    continue;
                                 if (CanConsume('\n'))
                                 {
                                     return false;
