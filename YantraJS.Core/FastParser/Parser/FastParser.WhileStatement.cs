@@ -88,7 +88,7 @@ namespace YantraJS.Core.FastParser
 
             ExpressionSequence(out var test);
 
-            stream.Expect(TokenTypes.BracketEnd);
+            // stream.Expect(TokenTypes.BracketEnd);
 
             if (!Statement(out var statement))
                 throw stream.Unexpected();

@@ -54,10 +54,10 @@ namespace YantraJS.Core.FastParser
                         stream.Expect(TokenTypes.Colon);
                     } else if(stream.CheckAndConsume(FastKeywords.@default))
                     {
+                        stream.Expect(TokenTypes.Colon);
                         test = null;
                         last = statements.Release();
-                    }
-                    if (Statement(out var stmt))
+                    } else if (Statement(out var stmt))
                         statements.Add(stmt);
                 }
 
@@ -67,14 +67,13 @@ namespace YantraJS.Core.FastParser
                 }
 
                 node = new AstSwitchStatement(begin.Token, PreviousToken, target, nodes);
+                return true;
 
             } finally
             {
                 nodes.Clear();
                 statements.Clear();
             }
-
-            return false;
         }
 
 
