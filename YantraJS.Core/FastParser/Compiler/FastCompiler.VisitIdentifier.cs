@@ -12,11 +12,11 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Expression VisitIdentifier(AstIdentifier identifier)
         {
-            if (identifier.Equals("undefined"))
+            if (identifier.Name.Equals("undefined"))
                 return JSUndefinedBuilder.Value;
-            if (identifier.Equals("this"))
+            if (identifier.Name.Equals("this"))
                 return this.scope.Top.ThisExpression;
-            if (identifier.Equals("arguments"))
+            if (identifier.Name.Equals("arguments"))
             {
                 var functionScope = this.scope.Top.TopScope;
                 var vs = functionScope.CreateVariable("arguments",
