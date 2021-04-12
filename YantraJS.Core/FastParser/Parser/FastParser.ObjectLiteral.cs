@@ -81,24 +81,31 @@ namespace YantraJS.Core.FastParser
                     return true;
                 } else if (stream.CheckAndConsume(TokenTypes.BracketStart))
                 {
-                    if (!Parameters(out var parameters, checkForBracketStart: false))
-                        throw stream.Unexpected();
-                    if (!Statement(out var body))
-                        throw stream.Unexpected();
+                    // add the scope...
+                    var scope = this.variableScope.Push(PreviousToken, FastNodeType.FunctionExpression);
+                    try {
 
-                    var fx = new AstFunctionExpression(current, PreviousToken, false, isAsync, isGenerator, null, parameters, body);
+                        if (!Parameters(out var parameters, checkForBracketStart: false))
+                            throw stream.Unexpected();
+                        if (!Statement(out var body))
+                            throw stream.Unexpected();
 
-                    property = new AstClassProperty(
-                        current,
-                        PreviousToken,
-                        key.Start.Keyword == FastKeywords.constructor 
-                            ? AstPropertyKind.Constructor
-                            : AstPropertyKind.Method,
-                        false,
-                        isStatic,
-                        key,
-                        computed,fx);
-                    return true;
+                        var fx = new AstFunctionExpression(current, PreviousToken, false, isAsync, isGenerator, null, parameters, body);
+
+                        property = new AstClassProperty(
+                            current,
+                            PreviousToken,
+                            key.Start.Keyword == FastKeywords.constructor
+                                ? AstPropertyKind.Constructor
+                                : AstPropertyKind.Method,
+                            false,
+                            isStatic,
+                            key,
+                            computed, fx);
+                        return true;
+                    } finally {
+                        scope.Dispose();
+                    }
                 } else if (stream.Current.Type == TokenTypes.Comma
                             || stream.Current.Type == TokenTypes.CurlyBracketEnd
                             || stream.Current.Type == TokenTypes.EOF) {

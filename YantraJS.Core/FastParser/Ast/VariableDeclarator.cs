@@ -22,7 +22,8 @@ namespace YantraJS.Core.FastParser
                 case (FastNodeType.ArrayExpression, AstArrayExpression ae):
                     return ArrayToPattern(ae);
                 default:
-                    throw new FastParseException(exp.Start, "Invalid pattern");
+                    throw new FastParseException(exp.Start, 
+                        $"Invalid pattern of {exp.Type}");
             }
             
             static AstExpression ArrayToPattern(AstArrayExpression array)
@@ -83,17 +84,32 @@ namespace YantraJS.Core.FastParser
             return $"{Identifier} = {Init}";
         }
 
-        public static ArraySpan<VariableDeclarator> From(AstExpression node)
+        private static void Fill(FastList<VariableDeclarator> args, AstExpression exp) {
+            if(exp.Type == FastNodeType.SequenceExpression && exp is AstSequenceExpression se) {
+                var e = se.Expressions.GetEnumerator();
+                while(e.MoveNext(out var item)) {
+                    args.Add(new VariableDeclarator(item.ToPattern()));
+                }
+            } else {
+                args.Add(new VariableDeclarator(exp.ToPattern()));
+            }
+        }
+
+        public static ArraySpan<VariableDeclarator> From(FastPool pool, AstExpression node)
         {
             if (node.Type == FastNodeType.EmptyExpression)
                 return ArraySpan<VariableDeclarator>.Empty;
-            var r = new VariableDeclarator[4];
-            r[0] = new VariableDeclarator(node.ToPattern());
-            return r.ToArraySpan(1);
+            var list = pool.AllocateList<VariableDeclarator>();
+            try {
+                Fill(list, node);
+                return list.ToSpan();
+            } finally {
+                list.Clear();
+            }
         }
 
 
-        public static ArraySpan<VariableDeclarator> From(in ArraySpan<AstExpression> nodes)
+        public static ArraySpan<VariableDeclarator> From(FastPool pool, in ArraySpan<AstExpression> nodes)
         {
             var r = new VariableDeclarator[nodes.Length];
             for (int i = 0; i < nodes.Length; i++)

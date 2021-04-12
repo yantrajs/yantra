@@ -149,16 +149,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     i++;
                 }
 
-                Exp lambdaBody = null;
-                switch (functionDeclaration.Body.IsStatement)
-                {
-                    case true:
-                        lambdaBody = VisitStatement(functionDeclaration.Body);
-                        break;
-                    case false:
-                        lambdaBody = Exp.Return(s.ReturnLabel, VisitStatement(functionDeclaration.Body));
-                        break;
-                }
+                Exp lambdaBody = VisitStatement(functionDeclaration.Body);
 
                 vList.AddRange(s.VariableParameters);
                 sList.AddRange(s.InitList);
@@ -213,11 +204,12 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 Exp ToDelegate(System.Linq.Expressions.LambdaExpression e1)
                 {
-                    if (super != null)
-                        return e1;
-                    int index = _innerFunctions.Count;
-                    _innerFunctions.Add(e1.Compile());
-                    return ScriptInfoBuilder.Function(scriptInfo, index, e1.Type);
+                    //if (super != null)
+                    //    return e1;
+                    //int index = _innerFunctions.Count;
+                    //_innerFunctions.Add(e1.Compile());
+                    //return ScriptInfoBuilder.Function(scriptInfo, index, e1.Type);
+                    return e1;
                 }
 
                 System.Linq.Expressions.LambdaExpression lambda;

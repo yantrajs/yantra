@@ -15,11 +15,11 @@ namespace YantraJS.Tests.Core
         {
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
 
-            this.context.Eval(@"const isBelowThreshold = (currentValue) => currentValue < 40;
+            this.context.Eval(@"const isBelowThreshold = (currentValue) => currentValue < 10;
 
 const array1 = [1, 30, 39, 29, 10, 13];
 
-assert.strictEqual(array1.every(isBelowThreshold), true);");
+assert.strictEqual(array1.some(isBelowThreshold), true);");
         }
 
     }
