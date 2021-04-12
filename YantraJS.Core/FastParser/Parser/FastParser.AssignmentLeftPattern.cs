@@ -17,6 +17,12 @@ namespace YantraJS.Core.FastParser
             var token = stream.Current;
             switch (token.Type)
             {
+                case TokenTypes.TripleDots:
+                    stream.Consume();
+                    if (!AssignmentLeftPattern(out var p, kind))
+                        throw stream.Unexpected();
+                    node = new AstSpreadElement(token, p.End, p);
+                    return true;
                 case TokenTypes.Identifier:
                     if (token.IsKeyword)
                         throw stream.Unexpected();
@@ -76,19 +82,14 @@ namespace YantraJS.Core.FastParser
                 {
                     do
                     {
-                        var spread = stream.Current;
-                        if(!stream.CheckAndConsume(TokenTypes.TripleDots))
-                        {
-                            spread = null;
-                        }
+                        var spread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
                         if (!AssignmentLeftPattern(out var left, kind))
                             throw stream.Unexpected();
-                        if (spread != null)
-                            left = new AstSpreadElement(spread, left.End, left);
+                        if (spread)
+                            left = new AstSpreadElement(token, left.End, left);
+                        nodes.Add(left);
                         if (stream.CheckAndConsume(TokenTypes.Comma))
                         {
-                            if (spread != null)
-                                throw stream.Unexpected();
                             continue;
                         }
                         if (stream.CheckAndConsume(TokenTypes.SquareBracketEnd))

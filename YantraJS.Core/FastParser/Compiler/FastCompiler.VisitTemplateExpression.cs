@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 {
                     if(item.Type == FastNodeType.Literal) {
                         var l = item as AstLiteral;
-                        var txt = l.StringValue;
+                        var txt = l.Start.CookedText;
                         size += txt.Length;
                         items.Add(Exp.Constant(txt));
                     } else {

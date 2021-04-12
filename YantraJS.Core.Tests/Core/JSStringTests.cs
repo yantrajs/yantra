@@ -15,33 +15,25 @@ namespace YantraJS.Tests.Core
         {
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
 
-            this.context.Eval(@"var a = {};
-var n = 1;
+            this.context.Eval(@"
+function a(a, ...c) {
+    return c.join(',');
+}
 
-Object.defineProperties(a, {
-    b: {
-        value: 1
-    },
-    c: {
-        set: function (v) {
-            n = v;
-        },
-        get: function () {
-            return n;
-        }
-    }
-});
-assert.strictEqual(a.b, 1);
+assert.strictEqual('', a(1));
+assert.strictEqual('2', a(1, 2));
+assert.strictEqual('2,3', a(1, 2, 3));
 
+function b(a, b, ...c) {
+    return c.join(',');
+}
 
-assert.strictEqual(a.c, 1);
-
-n = 2;
-
-assert.strictEqual(a.c, 2);
-a.c = 4;
-assert.strictEqual(n, 4);
-assert.strictEqual(a.c, 4);
+assert.strictEqual('', b(1));
+assert.strictEqual('', b(1, 2));
+assert.strictEqual('3', b(1, 2, 3));
+assert.strictEqual('3,4', b(1, 2, 3, 4));
+var cc = [3,4];
+assert.strictEqual('3,4', b(1, 2, ... cc));
 ");
         }
 

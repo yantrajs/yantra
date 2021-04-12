@@ -77,7 +77,7 @@ namespace YantraJS.Core.FastParser
                     return Template(out node);
                 case TokenTypes.TemplateEnd:
                     stream.Consume();
-                    node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(node));
+                    node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(new AstLiteral(token.Type, token)));
                     return true;
                 case TokenTypes.EOF:
                 case TokenTypes.Comma:
@@ -100,20 +100,24 @@ namespace YantraJS.Core.FastParser
                 try
                 {
                     nodes.Add(new AstLiteral(TokenTypes.String, begin.Token));
-                    while (!stream.CheckAndConsumeAny(TokenTypes.TemplateEnd, TokenTypes.EOF))
+                    while (!stream.CheckAndConsume(TokenTypes.EOF))
                     {
+                        if(stream.CheckAndConsume(TokenTypes.TemplateEnd, out var end)) {
+                            nodes.Add(new AstLiteral(TokenTypes.StrictlyEqual, end));
+                            break;
+                        }
                         if (stream.CheckAndConsume(TokenTypes.TemplatePart, out var token))
                         {
                             nodes.Add(new AstLiteral(TokenTypes.String, token));
                         }
-                        if (SingleExpression(out var exp))
+                        if (Expression(out var exp))
                         {
                             nodes.Add(exp);
                             continue;
                         }
                         throw stream.Unexpected();
                     }
-                    node = new AstTemplateExpression(begin.Token, PreviousToken, nodes);
+                    node = new AstTemplateExpression(begin.Token, PreviousToken, nodes.ToSpan());
                 } finally
                 {
                     nodes.Clear();

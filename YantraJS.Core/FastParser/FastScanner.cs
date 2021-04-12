@@ -203,7 +203,7 @@ namespace YantraJS.Core.FastParser
                         if (templateParts > 0)
                         {
                             templateParts--;
-                            return ReadTemplateString(state);
+                            return ReadTemplateString(state, TokenTypes.TemplatePart);
                         }
                         return ReadSymbol(state, TokenTypes.CurlyBracketEnd);
                     case '!':
@@ -468,7 +468,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        private FastToken ReadTemplateString(State state)
+        private FastToken ReadTemplateString(State state, TokenTypes part = TokenTypes.TemplateBegin)
         {
             var sb = pool.AllocateStringBuilder();
             var t = sb.Builder;
@@ -483,9 +483,9 @@ namespace YantraJS.Core.FastParser
                                 Consume();
                                 if (CanConsume('{')) {
                                     // template part begin...
-                                    if (templateParts++ == 0)
-                                        return state.Commit(TokenTypes.TemplateBegin, t);
-                                    return state.Commit(TokenTypes.TemplatePart, t);
+                                    templateParts++;
+                                    return state.Commit(part, t);
+                                    // return state.Commit(TokenTypes.TemplatePart, t);
                                 }
                                 t.Append(ch);
                                 continue;

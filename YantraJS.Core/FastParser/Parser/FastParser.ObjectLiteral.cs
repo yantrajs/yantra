@@ -17,13 +17,15 @@ namespace YantraJS.Core.FastParser
         {
             var begin = Location;
             var current = begin.Token;
-            var isGet = current.ContextualKeyword == FastKeywords.get;
-            var isSet = current.ContextualKeyword == FastKeywords.set;
 
             var isStatic = isClass ? stream.CheckAndConsume(FastKeywords.@static) : false;
 
+            var sc = stream.Current;
+            var isGet = sc.ContextualKeyword == FastKeywords.get;
+            var isSet = sc.ContextualKeyword == FastKeywords.set;
+
             // check for async method.. async getter/setter are not supported yet...
-            if(stream.CheckAndConsume(FastKeywords.async))
+            if (stream.CheckAndConsume(FastKeywords.async))
             {
                 if(ObjectProperty(out property, false, true))
                 {

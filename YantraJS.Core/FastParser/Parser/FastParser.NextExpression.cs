@@ -62,6 +62,9 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.CurlyBracketStart:
                 case TokenTypes.Colon:
                 case TokenTypes.EOF:
+                case TokenTypes.TemplateBegin:
+                case TokenTypes.TemplatePart:
+                case TokenTypes.TemplateEnd:
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
