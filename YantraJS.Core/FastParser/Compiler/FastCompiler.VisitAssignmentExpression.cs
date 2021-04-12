@@ -39,8 +39,8 @@ namespace YantraJS.Core.FastParser.Compiler
                     inits = new SparseList<Exp>();
                     if (createVariable)
                     {
-                        var v = this.scope.Top.CreateVariable(id.Name.Value, null, newScope);
-                        inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
+                        var v = this.scope.Top.CreateVariable(id.Name.Value, JSVariableBuilder.New(id.Name.Value), newScope);
+                        // inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
                         target = v.Expression;
                     }
                     else

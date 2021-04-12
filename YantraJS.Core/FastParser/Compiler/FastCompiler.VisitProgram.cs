@@ -47,6 +47,11 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var se = program.Statements.GetEnumerator();
                 while (se.MoveNext(out var stmt)) {
+                    LexicalScopeBuilder.Update(
+                        blockList,
+                        scope.StackItem,
+                        stmt.Start.Start.Line,
+                        stmt.Start.Start.Column);
                     var exp = Visit(stmt);
                     if (exp == null)
                         continue;

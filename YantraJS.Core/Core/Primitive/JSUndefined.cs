@@ -85,7 +85,7 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            throw JSContext.Current.NewTypeError("undefined is not a function");
+            throw JSContext.Current.NewTypeError("undefined is not a function", null);
         }
 
         internal override IElementEnumerator GetElementEnumerator()

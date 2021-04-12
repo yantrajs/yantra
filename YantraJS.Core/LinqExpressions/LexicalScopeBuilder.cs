@@ -58,7 +58,7 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _Update =
             type.InternalMethod(nameof(CallStackItem.Update));
 
-        public static void Update(List<Expression> result, Expression exp, int line, int column)
+        public static void Update(IList<Expression> result, Expression exp, int line, int column)
         {
             result.Add(Expression.Assign(Expression.Field(exp, _Line), Expression.Constant(line)));
             result.Add(Expression.Assign(Expression.Field(exp, _Column), Expression.Constant(column)));
