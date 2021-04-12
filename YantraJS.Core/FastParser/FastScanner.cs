@@ -92,6 +92,14 @@ namespace YantraJS.Core.FastParser
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private char Next() {
+            var next = position + 1;
+            if (next >= Text.Length)
+                return char.MaxValue;
+            return Text[next];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char Consume()
         {
             if (position >= Text.Length)
@@ -298,8 +306,13 @@ namespace YantraJS.Core.FastParser
                             return state.Commit(TokenTypes.QuestionDot);
                         return state.Commit(TokenTypes.QuestionMark);
                     case '.':
+                        var peek = Next();
+                        if (char.IsDigit(peek)) {
+                            Consume();
+                            return ReadNumber(state, first);
+                        }
                         Consume();
-                        if(CanConsume('.'))
+                        if (CanConsume('.'))
                         {
                             if(CanConsume('.'))
                             {
