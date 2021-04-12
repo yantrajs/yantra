@@ -20,8 +20,13 @@ namespace YantraJS.Core.FastParser
                         // empty...
                         break;
                     }
-                    if (Expression(out var node))
+                    var isSpread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
+                    if (Expression(out var node)) {
+                        if(isSpread) {
+                            node = new AstSpreadElement(token, node.End, node);
+                        }
                         list.Add(node);
+                    }
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
                     if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF))
