@@ -25,70 +25,67 @@ namespace YantraJS.Core.FastParser
         /// <param name="hasAsync"></param>
         /// <param name="hasGenerator"></param>
         /// <returns></returns>
-        bool SinglePrefixPostfixExpression(out AstExpression node, out bool hasAsync, out bool hasGenerator)
+        bool SinglePrefixPostfixExpression(
+            out AstExpression node, 
+            out bool hasAsync, 
+            out bool hasGenerator,
+            UnaryOperator previous = UnaryOperator.None,
+            FastToken previousToken = null)
         {
             var begin = Location;
-            var unaryList = Pool.AllocateList<(UnaryOperator prefix, FastToken token)>();
-            try
+            var (prefix, token) = GetUnaryOperator();
+            if (prefix != UnaryOperator.None)
             {
-                while (true)
-                {
-                    var (prefix, token) = GetUnaryOperator();
-                    if (prefix == UnaryOperator.None)
-                        break;
-                    unaryList.Add((prefix, token));
-                }
-
-                hasAsync = false;
-                hasGenerator = false;
-
-                if (stream.CheckAndConsume(FastKeywords.async))
-                    hasAsync = true;
-
-                if (stream.CheckAndConsume(TokenTypes.Multiply))
-                    hasGenerator = true;
-
-                if (!SingleMemberExpression(out node))
+                if (!SinglePrefixPostfixExpression(out node, out hasAsync, out hasGenerator, prefix, token))
                     return begin.Reset();
-
-                if (unaryList.Any())
-                {
-                    var e = unaryList.GetReverseEnumerator();
-                    while (e.MoveNext(out var item))
-                    {
-                        if (item.prefix == UnaryOperator.@new)
-                        {
-
-                        }
-                        else
-                        {
-                            node = new AstUnaryExpression(item.token, node, item.prefix);
-                        }
-                    }
+                if(previous!= UnaryOperator.None && previous != UnaryOperator.@new) {
+                    node = new AstUnaryExpression(previousToken, node, previous);
                 }
-
-                while (true)
-                {
-
-                    var (postfix, postFixToken) = GetUnaryOperator(false);
-                    if (postfix != UnaryOperator.None)
-                    {
-                        node = new AstUnaryExpression(postFixToken, node, postfix, false);
-                    }
-                    else break;
-                }
-
                 return true;
-            } finally
-            {
-                unaryList.Clear();
             }
+
+            hasAsync = false;
+            hasGenerator = false;
+
+            if (stream.CheckAndConsume(FastKeywords.async))
+                hasAsync = true;
+
+            if (stream.CheckAndConsume(TokenTypes.Multiply))
+                hasGenerator = true;
+
+            if (!SingleMemberExpression(out node, previous == UnaryOperator.@new))
+            {
+                return begin.Reset();
+            }
+
+            if (previous != UnaryOperator.None)
+            {
+                if (previous != UnaryOperator.@new)
+                {
+                    node = new AstUnaryExpression(previousToken, node, previous);
+                }
+                return true;
+            }
+
+            while (true)
+            {
+                var (postfix, postFixToken) = GetUnaryOperator(false);
+                if (postfix != UnaryOperator.None)
+                {
+                    node = new AstUnaryExpression(postFixToken, node, postfix, false);
+                }
+                else break;
+            }
+
+            return true;
 
             (UnaryOperator, FastToken) GetUnaryOperator(bool prefix = true)
             {
                 var token = stream.Current;
-                if (token.Keyword == FastKeywords.@new)
+                if (token.Keyword == FastKeywords.@new) {
+                    stream.Consume();
                     return (UnaryOperator.@new, token);
+                }
                 switch (token.Type)
                 {
                     case TokenTypes.Plus:

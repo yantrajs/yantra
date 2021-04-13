@@ -18,7 +18,7 @@ namespace YantraJS.Core.FastParser
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        bool SingleMemberExpression(out AstExpression node)
+        bool SingleMemberExpression(out AstExpression node, bool asNew = false)
         {
             AstExpression prev = null;
             bool computed = false;
@@ -48,7 +48,13 @@ namespace YantraJS.Core.FastParser
                             stream.Consume();
                             if (!ExpressionArray(out var arguments))
                                 throw stream.Unexpected();
-                            node = new AstCallExpression(node, arguments);
+                            if (asNew)
+                            {
+                                node = new AstNewExpression(token, node, arguments);
+                                asNew = false;
+                            }
+                            else
+                                node = new AstCallExpression(node, arguments);
                             continue;
                         default:
                             break;
