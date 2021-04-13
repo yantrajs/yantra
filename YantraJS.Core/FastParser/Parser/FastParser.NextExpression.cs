@@ -8,6 +8,8 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        int lastNextExpressionPosition = 0;
+
         /// <summary>
         /// NextExpression evaluates and reads next set of tokens,
         /// It decides precedence of right side expression and combines
@@ -36,6 +38,8 @@ namespace YantraJS.Core.FastParser
             ref AstExpression previous, ref TokenTypes previousType,
             out AstExpression node, out TokenTypes type)
         {
+
+            PreventStackoverFlow(ref lastNextExpressionPosition);
 
             AstExpression right;
             TokenTypes rightType;

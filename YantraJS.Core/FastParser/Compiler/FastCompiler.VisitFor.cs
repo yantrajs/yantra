@@ -84,11 +84,12 @@ namespace YantraJS.Core.FastParser.Compiler
                     body);
 
                 var right = VisitExpression(forOfStatement.Target);
-                return Exp.Block(
+                var r = Exp.Block(
                     pList,
                     Exp.Assign(en, IElementEnumeratorBuilder.Get(right)),
                     Exp.Loop(bodyList, s.Break, s.Continue)
                     );
+                return r;
             }
         }
 

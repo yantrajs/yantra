@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using YantraJS.Core.FastParser.Ast;
@@ -170,7 +171,7 @@ namespace YantraJS.Core.FastParser
                         for (int i = 0; i < pattern.Elements.Length; i++)
                         {
                             ref var property = ref pattern.Elements[i];
-                            pattern.Elements[i] = AssignTempNames(list, e);
+                            pattern.Elements[i] = AssignTempNames(list, property);
                         }
                         return pattern;
                     default:
@@ -227,7 +228,9 @@ namespace YantraJS.Core.FastParser
                     var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations);
 
                     var last = body.Length == 0 ? declaration :  body[body.Length - 1];
-                    return (r, new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList)), update, test);
+                    var block = new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList));
+                    block.HoistingScope = changes.Select(x => x.id).ToList().ToArraySpan();
+                    return (r, block, update, test);
 
                 } finally {
                     tempDeclarations.Clear();

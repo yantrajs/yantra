@@ -31,13 +31,15 @@ namespace YantraJS.Core.FastParser.Compiler
                             break;
                         case (FastNodeType.ObjectPattern, AstObjectPattern objectPattern):
                             using (var temp = top.GetTempVariable()) {
-                                list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
+                                if (d.Init != null)
+                                    list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
                                 list.Add(CreateAssignment(objectPattern, temp.Expression, true, newScope));
                             }
                             break;
                         case (FastNodeType.ArrayPattern, AstArrayPattern arrayPattern):
                             using (var temp = this.scope.Top.GetTempVariable()) {
-                                list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
+                                if(d.Init != null )
+                                    list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
                                 list.Add(CreateAssignment(arrayPattern, temp.Expression, true, newScope));
                             }
                             break;

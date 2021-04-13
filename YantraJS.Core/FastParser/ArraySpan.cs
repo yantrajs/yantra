@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -8,6 +9,12 @@ namespace YantraJS.Core.FastParser
 {
     public static class ArraySpanHelper
     {
+
+        public static ArraySpan<T> ToArraySpan<T>(this IList<T> items) {
+            var a = items.ToArray();
+            return new ArraySpan<T>(a, a.Length);
+        }
+
         public static ArraySpan<T> ToArraySpan<T>(this T[] items)
         {
             return new ArraySpan<T>(items, items.Length);

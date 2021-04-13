@@ -9,12 +9,17 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        int lastObjectPropertyIndex = 0;
+
         bool ObjectProperty(
             out AstClassProperty property, 
             bool checkContextualKeyword = true,
             bool isAsync = false,
             bool isClass = false)
         {
+
+            PreventStackoverFlow(ref lastObjectPropertyIndex);
+
             var begin = Location;
             var current = begin.Token;
 

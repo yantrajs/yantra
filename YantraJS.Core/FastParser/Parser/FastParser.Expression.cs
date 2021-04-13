@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
@@ -7,6 +8,14 @@ namespace YantraJS.Core.FastParser
 
     partial class FastParser
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void PreventStackoverFlow(ref int id) {
+            if (id > 0) {
+                if (id == stream.Position)
+                    throw stream.Unexpected();
+            }
+            id = stream.Position;
+        }
 
         /// <summary>
         /// While parsing expression, it can never start from same
@@ -17,12 +26,7 @@ namespace YantraJS.Core.FastParser
 
         bool Expression(out AstExpression node)
         {
-            if(lastExpressionIndex > 0)
-            {
-                if (lastExpressionIndex == stream.Position)
-                    throw stream.Unexpected();
-            }
-            lastExpressionIndex = stream.Position;
+            PreventStackoverFlow(ref lastExpressionIndex);
 
             var begin = Location;
             var token = begin.Token;

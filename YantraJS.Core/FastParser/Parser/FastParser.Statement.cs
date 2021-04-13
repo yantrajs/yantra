@@ -9,9 +9,12 @@ namespace YantraJS.Core.FastParser
     {
 
 
-
+        int lastStatementPosition = 0;
         bool Statement(out AstStatement node)
         {
+
+            PreventStackoverFlow(ref lastStatementPosition);
+
             var begin = Location;
             node = default;
 

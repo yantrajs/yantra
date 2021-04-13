@@ -40,6 +40,12 @@ namespace YantraJS.Tests.Generator
             {
                 var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
                 var r = await Task.WhenAll(tasks);
+                //var r = new TestResult[taskList.Count];
+                //int i = 0;
+                //foreach(var x in taskList) {
+                //    Debug.WriteLine($"Executing {x.FullName}");
+                //    r[i++] = await RunAsyncTest(x);
+                //}
                 int resultIndex = 0;
                 foreach (var ri in r)
                 {
@@ -86,6 +92,7 @@ namespace YantraJS.Tests.Generator
             // watch.Start();
             var start = watch.ElapsedTicks;
             Exception lastError = null;
+            Debug.WriteLine($"Processing {file.FullName}");
             StringBuilder sb = new StringBuilder();
             try
             {
