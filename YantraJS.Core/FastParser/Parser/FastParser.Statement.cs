@@ -176,10 +176,8 @@ namespace YantraJS.Core.FastParser
                 statement = null;
                 if (!stream.CheckAndConsume(FastKeywords.@finally))
                     return false;
-                stream.Expect(TokenTypes.CurlyBracketStart);
                 if (!Statement(out statement))
                     throw stream.Unexpected();
-                stream.Expect(TokenTypes.CurlyBracketEnd);
                 return true;
             }
 

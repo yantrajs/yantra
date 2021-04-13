@@ -89,18 +89,20 @@ namespace YantraJS.Core.FastParser
 
             }
 
+            begin = Location;
+
+            var current = stream.Current;
+            var currentType = current.Type;
+
             /*
              * In case previous expression did finish on previous line
              * and that did not have semi colon
              */
             if (lastExpressionLineTerminated) {
-                return true;
+                if(currentType == TokenTypes.Identifier)
+                    return true;
             }
 
-            begin = Location;
-
-            var current = stream.Current;
-            var currentType = current.Type;
 
             if(NextExpression(ref node, ref currentType, out var next, out var nextToken))
             {
