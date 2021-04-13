@@ -128,8 +128,11 @@ namespace YantraJS.Core.FastParser
             var begin = Location;
             type = begin.Token.Type;
             if (node.End.LineTerminator) {
-                type = TokenTypes.SemiColon;
-                return true;
+                if (type != TokenTypes.QuestionMark)
+                {
+                    type = TokenTypes.SemiColon;
+                    return true;
+                }
             }
             switch (type)
             {

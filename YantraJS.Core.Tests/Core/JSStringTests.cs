@@ -15,7 +15,11 @@ namespace YantraJS.Tests.Core
         {
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
 
-            this.context.Eval(@"delete new Int8Array([1, 2])[1];");
+            this.context.Eval(@"    function singleOrUndefined(array) {
+        return array && array.length === 1
+            ? array[0]
+            : undefined;
+    }");
         }
 
     }

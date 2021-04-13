@@ -51,8 +51,6 @@
         @yield,
         @async,
         @await,
-        @from,
-        @as,
         @null,
         @true,
         @false,
