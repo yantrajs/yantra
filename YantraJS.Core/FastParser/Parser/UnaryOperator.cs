@@ -11,6 +11,7 @@
         @typeof,
         @delete,
         @void,
+        @new,
         None
     }
 

@@ -8,9 +8,19 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        bool Statement(out AstStatement node)
+        {
+            if(SingleStatement(out node))
+            {
+                stream.CheckAndConsume(TokenTypes.SemiColon);
+                return true;
+            }
+            return false;
+        }
+
 
         int lastStatementPosition = 0;
-        bool Statement(out AstStatement node)
+        bool SingleStatement(out AstStatement node)
         {
 
             PreventStackoverFlow(ref lastStatementPosition);

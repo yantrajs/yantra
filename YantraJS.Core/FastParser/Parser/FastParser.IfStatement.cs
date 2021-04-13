@@ -17,10 +17,10 @@ namespace YantraJS.Core.FastParser
             stream.Consume();
 
             stream.Expect(TokenTypes.BracketStart);
-            if (!Expression(out var test))
+            if (!ExpressionSequence(out var test))
                 throw stream.Unexpected();
 
-            stream.Expect(TokenTypes.BracketEnd);
+            // stream.Expect(TokenTypes.BracketEnd);
 
             if (!Statement(out var @true))
                 throw stream.Unexpected();

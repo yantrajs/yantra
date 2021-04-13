@@ -42,6 +42,14 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        /// <summary>
+        /// Expression Sequence represents a comma separated expressions
+        /// terminated by new line or semi colon
+        /// </summary>
+        /// <param name="expressions"></param>
+        /// <param name="endWith"></param>
+        /// <param name="allowEmpty"></param>
+        /// <returns></returns>
         bool ExpressionSequence(
             out AstExpression expressions, 
             TokenTypes endWith = TokenTypes.BracketEnd,
@@ -60,7 +68,11 @@ namespace YantraJS.Core.FastParser
                         nodes.Add(node);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.CurlyBracketEnd))
+                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF))
+                        break;
+                    if (stream.Current.Type == TokenTypes.CurlyBracketEnd)
+                        break;
+                    if (PreviousToken.LineTerminator)
                         break;
                     throw stream.Unexpected();
                 } while (true);

@@ -17,7 +17,7 @@ namespace YantraJS.Core.FastParser
         internal Exception Unexpected()
         {
             var c = Current;
-            return new FastParseException(c, $"Unexpected token {c.Type}: {c.Span} at {scanner.Location}");
+            return new FastParseException(c, $"Unexpected token {c.Type}: {c.Span} at {c.Start}");
         }
 
         public override string ToString()

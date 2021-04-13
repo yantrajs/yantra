@@ -598,6 +598,7 @@ namespace YantraJS.Core.FastParser
                                 first = Consume();
                                 if (first == '/')
                                 {
+                                    t.Append('\\');
                                     t.Append('/');
                                     continue;
                                 }
@@ -605,8 +606,10 @@ namespace YantraJS.Core.FastParser
                                 {
                                     return false;
                                 }
+
+                                t.Append('\\');
                                 t.Append(first);
-                                break;
+                                continue;
                             default:
                                 t.Append(first);
                                 break;

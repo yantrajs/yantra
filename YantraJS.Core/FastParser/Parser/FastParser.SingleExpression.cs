@@ -51,15 +51,15 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     node = new AstSuper(token);
                     return true;
-                case FastKeywords.@new:
-                    stream.Consume();
-                    if (!SingleExpression(out var target))
-                        throw stream.Unexpected();
-                    stream.Expect(TokenTypes.BracketStart);
-                    if (!ExpressionArray(out var arguments))
-                        throw stream.Unexpected();
-                    node = new AstNewExpression(begin.Token, target, arguments);
-                    return true;
+                //case FastKeywords.@new:
+                //    stream.Consume();
+                //    if (!Expression(out var target))
+                //        throw stream.Unexpected();
+                //    //stream.Expect(TokenTypes.BracketStart);
+                //    //if (!ExpressionArray(out var arguments))
+                //    //    throw stream.Unexpected();
+                //    node = new AstNewExpression(begin.Token, target, arguments);
+                //    return true;
             }
             if (Identitifer(out var id))
             {

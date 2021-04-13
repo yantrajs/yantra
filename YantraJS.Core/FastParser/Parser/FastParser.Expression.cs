@@ -94,13 +94,21 @@ namespace YantraJS.Core.FastParser
             var current = stream.Current;
             var currentType = current.Type;
 
+            switch (currentType)
+            {
+                case TokenTypes.Plus:
+                case TokenTypes.QuestionMark:
+                    lastExpressionLineTerminated = false;
+                    break;
+            }
+
+
             /*
              * In case previous expression did finish on previous line
              * and that did not have semi colon
              */
             if (lastExpressionLineTerminated) {
-                if(currentType == TokenTypes.Identifier)
-                    return true;
+                return true;                    
             }
 
 

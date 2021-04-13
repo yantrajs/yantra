@@ -56,7 +56,14 @@ namespace YantraJS.Core.FastParser
                     var e = unaryList.GetReverseEnumerator();
                     while (e.MoveNext(out var item))
                     {
-                        node = new AstUnaryExpression(item.token, node, item.prefix);
+                        if (item.prefix == UnaryOperator.@new)
+                        {
+
+                        }
+                        else
+                        {
+                            node = new AstUnaryExpression(item.token, node, item.prefix);
+                        }
                     }
                 }
 
@@ -80,6 +87,8 @@ namespace YantraJS.Core.FastParser
             (UnaryOperator, FastToken) GetUnaryOperator(bool prefix = true)
             {
                 var token = stream.Current;
+                if (token.Keyword == FastKeywords.@new)
+                    return (UnaryOperator.@new, token);
                 switch (token.Type)
                 {
                     case TokenTypes.Plus:

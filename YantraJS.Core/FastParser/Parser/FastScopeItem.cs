@@ -44,7 +44,10 @@ namespace YantraJS.Core.FastParser
 
         //}
 
-        public void AddVariable(FastToken token, in StringSpan name, FastVariableKind kind = FastVariableKind.Var)
+        public void AddVariable(FastToken token, 
+            in StringSpan name, 
+            FastVariableKind kind = FastVariableKind.Var, 
+            bool throwError = true)
         {
             if (name.IsNullOrWhiteSpace())
                 return;
@@ -53,7 +56,11 @@ namespace YantraJS.Core.FastParser
 
             if (n.Variables.TryGetValue(name, out var pn)) {
                 if (pn.kind != FastVariableKind.Var) {
-                    throw new FastParseException(token, $"{name} is already defined in current scope");
+                    if (throwError)
+                    {
+                        throw new FastParseException(token, $"{name} is already defined in current scope at {token.Start}");
+                    }
+                    return;
                 }
             }
 
