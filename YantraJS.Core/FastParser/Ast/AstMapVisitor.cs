@@ -38,6 +38,8 @@ namespace YantraJS.Utils
                 return default;
             switch ((node.Type,node))
             {
+                case (FastNodeType.ArrayPattern, AstArrayPattern arrayPattern):
+                    return VisitArrayPattern(arrayPattern);
                 case (FastNodeType.Block, AstBlock Block):
                     return VisitBlock(Block);
                 case (FastNodeType.Program, AstProgram Program):
@@ -117,6 +119,7 @@ namespace YantraJS.Utils
             }
         }
 
+        protected abstract T VisitArrayPattern(AstArrayPattern arrayPattern);
         protected abstract T VisitNewExpression(AstNewExpression newExpression);
         protected abstract T VisitReturnStatement(AstReturnStatement returnStatement);
         protected virtual T VisitClassProperty(AstClassProperty property) => default;

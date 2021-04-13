@@ -190,6 +190,12 @@ namespace YantraJS.Core.FastParser
                 var statementList = new AstStatement[body.Length + 1];
                 body.Copy(statementList, 1);
 
+                // for-of and for-in does not require identifier replacement
+                // instead they need single identifier as a temp variable
+
+                // both test/update are null for for-of and for-in
+
+                var requiresReplacement = update != null || test != null;
 
                 var tempDeclarations = Pool.AllocateList<VariableDeclarator>();
                 var scopedDeclarations = Pool.AllocateList<VariableDeclarator>();
@@ -199,27 +205,39 @@ namespace YantraJS.Core.FastParser
                     for (int i = 0; i < declaration.Declarators.Length; i++)
                     {
                         ref var d = ref declaration.Declarators[i];
-                        var id = AssignTempNames(list, d.Identifier);
-                        tempDeclarations.Add(new VariableDeclarator(id, d.Init));
+                        if (requiresReplacement)
+                        {
+                            var id = AssignTempNames(list, d.Identifier);
+                            tempDeclarations.Add(new VariableDeclarator(id, d.Init));
+                        } else
+                        {
+                            var tid = Interlocked.Increment(ref TempVarID).ToString();
+                            var id = new AstIdentifier(d.Identifier.Start, tid);
+                            tempDeclarations.Add(new VariableDeclarator(id));
+                            scopedDeclarations.Add(new VariableDeclarator(d.Identifier, id));
+                        }
                     }
-
 
                     var changes = list.ToSpan();
 
-                    foreach(var (id, temp) in changes)
+                    if (requiresReplacement)
                     {
-                        scopedDeclarations.Add(new VariableDeclarator(new AstIdentifier(temp.Start, id), temp));
-                    }
 
-                    if (update != null)
-                    {
-                        update = AstIdentifierReplacer.Replace(update, in changes)
-                            as AstExpression;
-                    }
-                    if (test != null)
-                    {
-                        test = AstIdentifierReplacer.Replace(test, in changes)
-                            as AstExpression;
+                        foreach (var (id, temp) in changes)
+                        {
+                            scopedDeclarations.Add(new VariableDeclarator(new AstIdentifier(temp.Start, id), temp));
+                        }
+
+                        if (update != null)
+                        {
+                            update = AstIdentifierReplacer.Replace(update, in changes)
+                                as AstExpression;
+                        }
+                        if (test != null)
+                        {
+                            test = AstIdentifierReplacer.Replace(test, in changes)
+                                as AstExpression;
+                        }
                     }
 
 
@@ -229,7 +247,10 @@ namespace YantraJS.Core.FastParser
 
                     var last = body.Length == 0 ? declaration :  body[body.Length - 1];
                     var block = new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList));
-                    block.HoistingScope = changes.Select(x => x.id).ToList().ToArraySpan();
+                    if (requiresReplacement)
+                    {
+                        block.HoistingScope = changes.Select(x => x.id).ToList().ToArraySpan();
+                    }
                     return (r, block, update, test);
 
                 } finally {

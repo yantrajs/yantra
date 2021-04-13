@@ -7,7 +7,7 @@ using YantraJS.Utils;
 namespace YantraJS.Core.FastParser.Ast
 {
 
-    public class AstIdentifierReplacer: AstReduce
+    public class AstIdentifierReplacer : AstReduce
     {
         private readonly ArraySpan<(string from, AstIdentifier temp)> changes;
 
@@ -18,7 +18,7 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitIdentifier(AstIdentifier identifier)
         {
-            foreach(var (from, to) in changes)
+            foreach (var (from, to) in changes)
             {
                 if (identifier.Name.Equals(from))
                 {
@@ -28,7 +28,7 @@ namespace YantraJS.Core.FastParser.Ast
             return identifier;
         }
 
-        public static AstNode Replace(AstNode node,in ArraySpan<(string from, AstIdentifier temp)> changes)
+        public static AstNode Replace(AstNode node, in ArraySpan<(string from, AstIdentifier temp)> changes)
         {
             var ast = new AstIdentifierReplacer(in changes);
             return ast.Visit(node);
@@ -133,6 +133,13 @@ namespace YantraJS.Core.FastParser.Ast
             }
             list = new ArraySpan<T>(r, r.Length);
             return true;
+        }
+
+        protected override AstNode VisitArrayPattern(AstArrayPattern arrayPattern)
+        {
+            if (Modified(arrayPattern.Elements, out var elements))
+                return new AstArrayPattern(arrayPattern.Start, arrayPattern.End, elements);
+            return arrayPattern;
         }
 
         protected override AstNode VisitProgram(AstProgram program)

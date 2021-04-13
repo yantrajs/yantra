@@ -39,24 +39,12 @@ namespace YantraJS.Core.FastParser
             out AstExpression node, out TokenTypes type)
         {
 
-            PreventStackoverFlow(ref lastNextExpressionPosition);
-
-            AstExpression right;
-            TokenTypes rightType;
-
-            if(previous.End.LineTerminator) {
-                node = null;
-                type = TokenTypes.SemiColon;
-                return true;
-            }
-
             switch(previousType)
             {
-
                 /**
                  * Following are single expression terminators
                  */
-                
+
                 case TokenTypes.Comma:
                 case TokenTypes.LineTerminator:
                 case TokenTypes.SemiColon:
@@ -72,6 +60,22 @@ namespace YantraJS.Core.FastParser
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
+
+            }
+
+            PreventStackoverFlow(ref lastNextExpressionPosition);
+
+            AstExpression right;
+            TokenTypes rightType;
+
+            if(previous.End.LineTerminator) {
+                node = null;
+                type = TokenTypes.SemiColon;
+                return true;
+            }
+
+            switch(previousType)
+            {
 
                 // Associate right...
                 case TokenTypes.Assign:
@@ -109,7 +113,7 @@ namespace YantraJS.Core.FastParser
 
             stream.CheckAndConsume(previousType);
 
-            if (!SingleMemberExpression(out node))
+            if (!SinglePrefixPostfixExpression(out node, out var x, out var b))
             {
                 if (EndOfStatement())
                 {

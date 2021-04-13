@@ -101,6 +101,7 @@ namespace YantraJS.Core.FastParser
 
             var current = stream.Current;
             var currentType = current.Type;
+
             if(NextExpression(ref node, ref currentType, out var next, out var nextToken))
             {
                 if(next == null)
