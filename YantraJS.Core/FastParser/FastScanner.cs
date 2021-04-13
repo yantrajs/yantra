@@ -563,23 +563,20 @@ namespace YantraJS.Core.FastParser
                 string regExp = null;
                 try
                 {
-                    t.Append(first);
                     do
                     {
-                        first = Consume();
-                        if (first == char.MaxValue)
-                        {
-                            return false;
-                        }
+                        // first = Consume();
                         switch (first)
                         {
+                            case char.MaxValue:
+                                return false; 
                             case '\n':
                                 return false;
                             case '/':
                                 if(classMarker)
                                 {
                                     t.Append(first);
-                                    continue;
+                                    break;
                                 }
                                 terminated = true;
                                 Consume();
@@ -587,11 +584,11 @@ namespace YantraJS.Core.FastParser
                             case '[':
                                 classMarker = true;
                                 t.Append(first);
-                                continue;
+                                break;
                             case ']':
                                 classMarker = false;
                                 t.Append(first);
-                                continue;
+                                break;
                             case '\\':
                                 //if (ScanEscaped(first, t))
                                 //    continue;
@@ -600,7 +597,7 @@ namespace YantraJS.Core.FastParser
                                 {
                                     t.Append('\\');
                                     t.Append('/');
-                                    continue;
+                                    break;
                                 }
                                 if (CanConsume('\n'))
                                 {
@@ -609,12 +606,15 @@ namespace YantraJS.Core.FastParser
 
                                 t.Append('\\');
                                 t.Append(first);
-                                continue;
+                                break;
                             default:
                                 t.Append(first);
                                 break;
                         }
-                    } while (!terminated);
+                        if (terminated)
+                            break;
+                        first = Consume();
+                    } while (true);
 
                     regExp = t.ToString();
                 }

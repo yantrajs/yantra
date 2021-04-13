@@ -96,9 +96,13 @@ namespace YantraJS.Core.FastParser
 
             switch (currentType)
             {
-                case TokenTypes.Plus:
-                case TokenTypes.QuestionMark:
-                    lastExpressionLineTerminated = false;
+                case TokenTypes.Colon:
+                    return true;
+                default:
+                    if (currentType > TokenTypes.String)
+                    {
+                        lastExpressionLineTerminated = false;
+                    }
                     break;
             }
 

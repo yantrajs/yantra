@@ -1,5 +1,10 @@
 ﻿namespace YantraJS.Core.FastParser
 {
+    public static class HiddenTokens
+    {
+        public const int Operator = 0b0100000;
+    }
+
     /// <summary>
     /// Tokens should be arranged in order of precedence
     /// </summary>
@@ -8,6 +13,17 @@
         Empty = 0,
         // Operator       = 0b0100000,
         // AssignOperator = 0b1000000,
+        SquareBracketStart,
+        SquareBracketEnd,
+        CurlyBracketStart,
+        CurlyBracketEnd,
+        TemplateBegin,
+        TemplatePart,
+        TemplateEnd,
+        LineTerminator,
+        None,
+        SemiColon,
+        EOF,
         Identifier,
         Number,
         String,
@@ -55,25 +71,14 @@
         BitwiseNot,
         AssignMod,
         Mod,
-        SquareBracketStart,
-        SquareBracketEnd,
-        CurlyBracketStart,
-        CurlyBracketEnd,
-        TemplateBegin,
-        TemplatePart,
-        TemplateEnd,
         Comma,
         QuestionDot,
         Dot,
         TripleDots,
-        LineTerminator,
         Null,
         False,
         True,
         Hash,
-        None,
-        SemiColon,
-        EOF,
         RegExLiteral,
         InstanceOf,
         In,

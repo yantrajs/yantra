@@ -128,7 +128,7 @@ namespace YantraJS.Core.FastParser
             var begin = Location;
             type = begin.Token.Type;
             if (node.End.LineTerminator) {
-                if (type != TokenTypes.QuestionMark)
+                if (type <= TokenTypes.String)
                 {
                     type = TokenTypes.SemiColon;
                     return true;
@@ -176,8 +176,12 @@ namespace YantraJS.Core.FastParser
                     if (!Expression(out var @false))
                         throw stream.Unexpected();
                     previous = new AstConditionalExpression(previous, @true, @false);
-                    previousType = stream.Current.Type;
-                    return NextExpression(ref previous, ref previousType, out node, out type);
+                    // end of expression ??
+                    // previousType = stream.Current.Type;
+                    // return NextExpression(ref previous, ref previousType, out node, out type);
+                    node = null;
+                    type = TokenTypes.SemiColon;
+                    return true;
 
                 case TokenTypes.Multiply:
                 case TokenTypes.Divide:

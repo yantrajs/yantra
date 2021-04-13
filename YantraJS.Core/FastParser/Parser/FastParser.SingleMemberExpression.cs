@@ -8,7 +8,6 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
-
         /// <summary>
         /// SingleExpression
         /// SingleExpression[]
@@ -22,11 +21,13 @@ namespace YantraJS.Core.FastParser
         {
             AstExpression prev = null;
             bool computed = false;
+            bool afterDot = false;
             do
             {
 
                 // var begin = Location;
-                if (!SingleExpression(out node))
+
+                if (!SingleExpression(out node, afterDot))
                     return false;
                 node = prev.Member(node, computed);
 
@@ -69,6 +70,7 @@ namespace YantraJS.Core.FastParser
                     case TokenTypes.Dot:
                         prev = node;
                         stream.Consume();
+                        afterDot = true;
                         continue;
                     default:
                         return true;

@@ -23,12 +23,27 @@ namespace YantraJS.Core.FastParser
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        bool SingleExpression(out AstExpression node)
+        bool SingleExpression(out AstExpression node, bool afterDot = false)
         {
             if (Literal(out node))
                 return true;
             var begin = Location;
             var token = begin.Token;
+
+            if (afterDot)
+            {
+                // after .
+                // even keywords are accepted as a member name
+                switch (token.Type)
+                {
+                    case TokenTypes.Identifier:
+                    case TokenTypes.In:
+                    case TokenTypes.InstanceOf:
+                        node = new AstIdentifier(token);
+                        stream.Consume();
+                        return true;
+                }
+            }
 
             switch (token.Keyword)
             {
