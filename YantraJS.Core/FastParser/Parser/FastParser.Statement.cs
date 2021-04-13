@@ -227,7 +227,7 @@ namespace YantraJS.Core.FastParser
                     return true;
                 }
 
-                if(Expression(out var target))
+                if(ExpressionSequence(out var target, TokenTypes.SemiColon))
                 {
                     statement = new AstReturnStatement(begin.Token, PreviousToken, target);
                     EndOfStatement();

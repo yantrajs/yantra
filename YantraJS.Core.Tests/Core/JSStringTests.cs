@@ -15,19 +15,10 @@ namespace YantraJS.Tests.Core
         {
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
 
-            this.context.Eval(@"const HashMap = {
-            create: supportsCreate
-                ? () => MakeDictionary(Object.create(null))
-                : supportsProto
-                    ? () => MakeDictionary({ __proto__: null })
-                    : () => MakeDictionary({}),
-            has: downLevel
-                ? (map, key) => hasOwn.call(map, key)
-                : (map, key) => key in map,
-            get: downLevel
-                ? (map, key) => hasOwn.call(map, key) ? map[key] : undefined
-                : (map, key) => map[key],
-        };");
+            this.context.Eval(@"
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};");
         }
 
     }

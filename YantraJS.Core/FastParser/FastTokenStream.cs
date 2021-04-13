@@ -82,7 +82,7 @@ namespace YantraJS.Core.FastParser
         {
             var c = this[index];
             if (c.Keyword != type)
-                throw new FastParseException(c, $"Expecting keyword {type}");
+                throw new FastParseException(c, $"Expecting keyword {type} at {c.Start.Line}, {c.Start.Column}");
             Consume();
             return c;
         }

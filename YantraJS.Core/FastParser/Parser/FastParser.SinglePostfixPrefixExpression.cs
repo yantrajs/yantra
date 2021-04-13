@@ -28,30 +28,54 @@ namespace YantraJS.Core.FastParser
         bool SinglePrefixPostfixExpression(out AstExpression node, out bool hasAsync, out bool hasGenerator)
         {
             var begin = Location;
-            var (prefix, token) = GetUnaryOperator();
-            hasAsync = false;
-            hasGenerator = false;
-
-            if (stream.CheckAndConsume(FastKeywords.async))
-                hasAsync = true;
-
-            if (stream.CheckAndConsume(TokenTypes.Multiply))
-                hasGenerator = true;
-
-            if (!SingleMemberExpression(out node))
-                return begin.Reset();
-
-            if(prefix != UnaryOperator.None)
+            var unaryList = Pool.AllocateList<(UnaryOperator prefix, FastToken token)>();
+            try
             {
-                node = new AstUnaryExpression(token, node, prefix);
-            }
-            var (postfix, postFixToken) = GetUnaryOperator(false);
-            if(postfix != UnaryOperator.None)
-            {
-                node = new AstUnaryExpression(postFixToken, node, postfix, false);
-            }
+                while (true)
+                {
+                    var (prefix, token) = GetUnaryOperator();
+                    if (prefix == UnaryOperator.None)
+                        break;
+                    unaryList.Add((prefix, token));
+                }
 
-            return true;
+                hasAsync = false;
+                hasGenerator = false;
+
+                if (stream.CheckAndConsume(FastKeywords.async))
+                    hasAsync = true;
+
+                if (stream.CheckAndConsume(TokenTypes.Multiply))
+                    hasGenerator = true;
+
+                if (!SingleMemberExpression(out node))
+                    return begin.Reset();
+
+                if (unaryList.Any())
+                {
+                    var e = unaryList.GetReverseEnumerator();
+                    while (e.MoveNext(out var item))
+                    {
+                        node = new AstUnaryExpression(item.token, node, item.prefix);
+                    }
+                }
+
+                while (true)
+                {
+
+                    var (postfix, postFixToken) = GetUnaryOperator(false);
+                    if (postfix != UnaryOperator.None)
+                    {
+                        node = new AstUnaryExpression(postFixToken, node, postfix, false);
+                    }
+                    else break;
+                }
+
+                return true;
+            } finally
+            {
+                unaryList.Clear();
+            }
 
             (UnaryOperator, FastToken) GetUnaryOperator(bool prefix = true)
             {

@@ -72,6 +72,7 @@ namespace YantraJS.Core.FastParser
                 pool.ReleaseArray(items);
 
                 items = null;
+                length = 0;
                 size = 0;
             }
         }
@@ -124,6 +125,32 @@ namespace YantraJS.Core.FastParser
         public FastEnumerator GetEnumerator()
         {
             return new FastEnumerator(this);
+        }
+
+        public ReverseEnumerator GetReverseEnumerator() => new ReverseEnumerator(this);
+
+        public struct ReverseEnumerator
+        {
+            private readonly T[] items;
+            private int index;
+
+            public ReverseEnumerator(FastList<T> list)
+            {
+                this.items = list.items;
+                this.index = list.length;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext(out T item)
+            {
+                if(--index >= 0)
+                {
+                    item = items[index];
+                    return true;
+                }
+                item = default;
+                return false;
+            }
         }
 
         public struct FastEnumerator : IEnumerator<T>

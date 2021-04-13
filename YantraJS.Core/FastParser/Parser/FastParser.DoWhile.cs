@@ -18,11 +18,12 @@ namespace YantraJS.Core.FastParser
             if (!Statement(out var statement))
                 throw stream.Unexpected();
 
+            stream.CheckAndConsume(TokenTypes.SemiColon);
+
             stream.Expect(FastKeywords.@while);
 
             stream.Expect(TokenTypes.BracketStart);
             ExpressionSequence(out var test);
-            stream.Expect(TokenTypes.BracketEnd);
             
             EndOfStatement();
 

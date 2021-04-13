@@ -60,7 +60,7 @@ namespace YantraJS.Core.FastParser
                         nodes.Add(node);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsume(endWith))
+                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.CurlyBracketEnd))
                         break;
                     throw stream.Unexpected();
                 } while (true);

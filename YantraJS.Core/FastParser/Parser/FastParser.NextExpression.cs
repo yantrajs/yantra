@@ -174,6 +174,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.Plus:
                 case TokenTypes.Minus:
                 case TokenTypes.BitwiseAnd:
+                case TokenTypes.BitwiseOr:
                 case TokenTypes.BitwiseNot:
                 case TokenTypes.BooleanAnd:
                 case TokenTypes.BooleanOr:
