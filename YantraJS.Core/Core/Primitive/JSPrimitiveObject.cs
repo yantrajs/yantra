@@ -40,6 +40,11 @@ namespace YantraJS.Core.Core.Primitive
             return value.CreateInstance(a);
         }
 
+        public override JSValue AddValue(JSValue value)
+        {
+            return this.value.AddValue(value);
+        }
+
         public override JSValue this[uint name] {
             get {
                 ref var elements = ref GetElements();

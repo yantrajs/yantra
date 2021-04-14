@@ -68,7 +68,7 @@ namespace YantraJS.Core.FastParser
                         nodes.Add(node);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF))
+                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF, TokenTypes.SemiColon))
                         break;
                     if (stream.Current.Type == TokenTypes.CurlyBracketEnd)
                         break;

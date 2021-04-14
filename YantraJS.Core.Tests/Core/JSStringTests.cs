@@ -16,7 +16,7 @@ namespace YantraJS.Tests.Core
 
             this.context.Eval(@"
 
-var currentNode = bundle ? i < numPrepends ? bundle.prepends[i] : bundle.sourceFiles[i - numPrepends] : node;
+  ((_a = jsBundle.sources) === null || _a === void 0 ? void 0 : _a.prologues)
 ");
         }
 

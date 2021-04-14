@@ -52,7 +52,7 @@ namespace YantraJS.Core.FastParser
             var isSet = sc.ContextualKeyword == FastKeywords.set;
 
             bool isGenerator = stream.CheckAndConsume(TokenTypes.Multiply);
-            if(PropertyName(out var key, out var computed))
+            if(PropertyName(out var key, out var computed, acceptKeywords: true))
             {
                 if(checkContextualKeyword && ( isSet || isGet))
                 {

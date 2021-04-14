@@ -112,13 +112,13 @@ namespace YantraJS.Utils
             var leftUInt = Expression.Convert(leftDouble, typeof(uint));
             var rightInt = Expression.Convert(rightDouble, typeof(int));
 
-            // var rightUInt = Expression.Convert(rightDouble, typeof(uint));
+            var rightUInt = Expression.Convert(rightDouble, typeof(uint));
 
             // convert to double...
             switch (assignmentOperator)
             {
                 case AssignmentOperator.MinusAssign:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Add(leftDouble, rightDouble)));
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Subtract(leftDouble, rightDouble)));
                 case AssignmentOperator.TimesAssign:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Multiply(leftDouble, rightDouble)));
                 case AssignmentOperator.DivideAssign:
@@ -138,7 +138,7 @@ namespace YantraJS.Utils
                 case AssignmentOperator.UnsignedRightShiftAssign:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
                 case AssignmentOperator.ExponentiationAssign:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Power(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Power(leftDouble, rightDouble)));
             }
 
             throw new NotSupportedException();

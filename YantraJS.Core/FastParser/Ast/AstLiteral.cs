@@ -6,7 +6,7 @@
 
         public double NumericValue => Start.Number;
 
-        public string StringValue => Start.CookedText;
+        public string StringValue => Start.CookedText ?? Start.Span.Value;
 
         public (string Pattern, string Flags) Regex => (this.Start.CookedText, this.Start.Flags);
 

@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Transactions;
 using System.Xml.Schema;
+using YantraJS.Core.Core.Primitive;
 using YantraJS.Core.Runtime;
 using YantraJS.ExpHelper;
 using YantraJS.Extensions;
@@ -233,8 +234,12 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(JSValue value)
         {
+            if (value is JSPrimitiveObject po)
+                value = po.value;
             if (value is JSString @string)
                 return new JSString(this.value + @string.value);
+            if(value is JSObject @object)
+                return new JSString(this.value + @object.ToString());
             return new JSNumber(this.value + value.DoubleValue);
         }
 
@@ -289,12 +294,19 @@ namespace YantraJS.Core
         public override JSBoolean Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
+            {
+                if (double.IsNaN(this.value))
+                    return JSBoolean.False;
                 return JSBoolean.True;
+            }
             switch (value)
             {
-                case JSNumber number
-                    when (this.value == number.value):
-                    return JSBoolean.True;
+                case JSNumber number:
+                    if (double.IsNaN(this.value) || double.IsNaN(number.value))
+                        return JSBoolean.False;
+                    if(this.value == number.value)
+                        return JSBoolean.True;
+                    return JSBoolean.False;
                 case JSString @string
                     when (this.value == @string.DoubleValue):
                     return JSBoolean.True;

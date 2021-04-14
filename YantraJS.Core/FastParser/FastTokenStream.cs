@@ -139,6 +139,19 @@ namespace YantraJS.Core.FastParser
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2, TokenTypes type3)
+        {
+            var c = this[index];
+            if (c.Type == type1 || c.Type == type2 || c.Type == type3)
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(TokenTypes type, out FastToken token)
         {
             var c = this[index];

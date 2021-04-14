@@ -177,10 +177,10 @@ namespace YantraJS.Core
                 return JSBoolean.True;
             switch (value)
             {
-                case JSString strValue
-                    when ((this.value == strValue.value)
-                    || (this.DoubleValue == value.DoubleValue)):
-                    return JSBoolean.True;
+                case JSString strValue:
+                    if(this.value == strValue.value)
+                        return JSBoolean.True;
+                    return JSBoolean.False;
                 case JSNumber number
                     when ((this.DoubleValue == number.value)
                         || (this.value.CompareTo(number.value.ToString()) == 0)):

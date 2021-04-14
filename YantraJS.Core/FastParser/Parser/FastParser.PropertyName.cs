@@ -12,9 +12,27 @@ namespace YantraJS.Core.FastParser
 
 
 
-        bool PropertyName(out AstExpression node, out bool computed)
+        bool PropertyName(out AstExpression node, out bool computed, bool acceptKeywords = false)
         {
             var begin = Location;
+
+            if (acceptKeywords)
+            {
+                var token = begin.Token;
+                switch (token.Type)
+                {
+                    case TokenTypes.True:
+                    case TokenTypes.False:
+                    case TokenTypes.In:
+                    case TokenTypes.InstanceOf:
+                    case TokenTypes.Null:
+                    case TokenTypes.Identifier:
+                        stream.Consume();
+                        node = new AstIdentifier(token.AsString());
+                        computed = false;
+                        return true;
+                }
+            }
 
             if (Identitifer(out var id)) {
                 node = id;

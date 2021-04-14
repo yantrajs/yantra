@@ -26,7 +26,7 @@ namespace YantraJS.Core.FastParser
 
         public FastToken AsString()
         {
-            return new FastToken(TokenTypes.String, Span.Source, LineTerminator, CookedText, Flags, Span.Offset, Span.Length, Start, End, false);
+            return new FastToken(TokenTypes.String, Span.Source, LineTerminator, CookedText ?? Span.Value, Flags, Span.Offset, Span.Length, Start, End, false);
         }
 
         public FastToken(

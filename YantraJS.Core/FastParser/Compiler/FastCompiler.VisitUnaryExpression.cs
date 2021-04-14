@@ -43,6 +43,8 @@ namespace YantraJS.Core.FastParser.Compiler
                 case UnaryOperator.delete:
                     // delete expression...
                     var me = target as AstMemberExpression;
+                    if (me == null)
+                        return JSBooleanBuilder.False;
                     var targetObj = VisitExpression(me.Object);
                     if (me.Computed)
                     {

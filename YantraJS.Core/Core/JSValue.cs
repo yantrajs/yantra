@@ -435,11 +435,11 @@ namespace YantraJS.Core {
 
         public virtual JSValue Delete(KeyString key)
         {
-            return JSBoolean.False;
+            return JSBoolean.True;
         }
         public virtual JSValue Delete(uint key)
         {
-            return JSBoolean.False;
+            return JSBoolean.True;
         }
 
         public JSValue Delete(JSValue index)

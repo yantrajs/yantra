@@ -41,12 +41,12 @@ namespace YantraJS.Core.FastParser.Compiler
                             return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            (uint)1);
+                            KeyOfName(l.StringValue));
                         case TokenTypes.False:
                             return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            (uint)0);
+                            KeyOfName(l.StringValue));
                         case TokenTypes.String:
                             return ExpHelper.JSValueBuilder.Index(
                             target,
