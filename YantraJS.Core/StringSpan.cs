@@ -63,6 +63,7 @@ namespace YantraJS.Core
 
         public unsafe char this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (Source == null || (uint)index >= (uint)Length)
@@ -153,6 +154,7 @@ namespace YantraJS.Core
         {
             return a.Equals(in b, comparisonType);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(string other)
         {
             return Equals(other, StringComparison.Ordinal);
