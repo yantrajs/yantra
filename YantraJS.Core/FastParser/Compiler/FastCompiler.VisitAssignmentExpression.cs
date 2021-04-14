@@ -31,12 +31,27 @@ namespace YantraJS.Core.FastParser.Compiler
             bool createVariable = false,
             bool newScope = false)
         {
+            var inits = pool.AllocateList<Exp>();
+            try {
+                CreateAssignment(inits, pattern, init, createVariable, newScope);
+                return Exp.Block(inits);
+            } finally
+            {
+                inits.Clear();
+            }
+        }
+
+        private void CreateAssignment(
+            FastList<Exp> inits,
+            AstExpression pattern,
+            Exp init,
+            bool createVariable = false,
+            bool newScope = false)
+        {
             Exp target;
-            SparseList<Exp> inits;
             switch ((pattern.Type,pattern))
             {
                 case (FastNodeType.Identifier, AstIdentifier id):
-                    inits = new SparseList<Exp>();
                     if (createVariable)
                     {
                         var v = this.scope.Top.CreateVariable(id.Name.Value, JSVariableBuilder.New(id.Name.Value), newScope);
@@ -48,9 +63,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         target = this.VisitIdentifier(id);
                     }
                     inits.Add(Exp.Assign(target, init));
-                    return Exp.Block(inits);
+                    return;
                 case (FastNodeType.ObjectPattern, AstObjectPattern objectPattern):
-                    inits = new SparseList<Exp>();
                     foreach (var property in objectPattern.Properties)
                     {
                         Exp start = null;
@@ -67,24 +81,23 @@ namespace YantraJS.Core.FastParser.Compiler
                             case FastNodeType.Identifier:
                             case FastNodeType.ArrayPattern:
                             case FastNodeType.ObjectPattern:
-                                inits.Add(CreateAssignment(property.Value, start, true, newScope));
+                                CreateAssignment(inits, property.Value, start, true, newScope);
                                 break;
                             // TODO
                             case FastNodeType.BinaryExpression:
                                 var ap = property.Value as AstBinaryExpression;
-                                inits.Add(CreateAssignment(ap.Left,
+                                CreateAssignment(inits, ap.Left,
                                     Exp.Coalesce(
                                         JSValueExtensionsBuilder.NullIfUndefined(start),
                                         Visit(ap.Right))
-                                ));
+                                );
                                 break;
                             default:
                                 throw new NotImplementedException();
                         }
                     }
-                    return Exp.Block(inits);
+                    return;
                 case (FastNodeType.ArrayPattern, AstArrayPattern arrayPattern):
-                    inits = new SparseList<Exp>();
                     using (var enVar = this.scope.Top.GetTempVariable(typeof(IElementEnumerator)))
                     {
                         var en = enVar.Expression;
@@ -141,7 +154,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                         // nested object ...
                                         var check = IElementEnumeratorBuilder.MoveNext(en, item.Expression);
                                         inits.Add(check);
-                                        inits.Add(CreateAssignment(ape, item.Expression, true, newScope));
+                                        CreateAssignment(inits, ape, item.Expression, true, newScope);
                                         break;
                                     default:
                                         inits.Add(IElementEnumeratorBuilder.MoveNext(en, item.Expression));
@@ -150,7 +163,7 @@ namespace YantraJS.Core.FastParser.Compiler
                             }
                         }
                     }
-                    return Exp.Block(inits);
+                    return;
             }
             throw new NotImplementedException();
         }

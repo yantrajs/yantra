@@ -56,7 +56,7 @@ namespace YantraJS.Core
                 return item;
             }
             set {
-                SetValue(index, value);
+                SetValue(index, in value);
             }
         }
 

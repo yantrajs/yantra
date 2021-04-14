@@ -8,6 +8,13 @@ namespace YantraJS.Core.FastParser
 {
     public class FastPool
     {
+
+        public void Dispose()
+        {
+            pools.Clear();
+        }
+
+
         readonly Dictionary<Type, object> pools = new Dictionary<Type, object>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -116,8 +123,11 @@ namespace YantraJS.Core.FastParser
             private void ReleaseInternal(int i, T[] items)
             {
                 ref var q = ref Queues[i];
-                if(q.Count < 5)
+                if (q.Count < 5)
+                {
+                    Array.Clear(items, 0, items.Length);
                     q.Enqueue(items);
+                }
             }
 
             public T[] AllocateArray(int size)

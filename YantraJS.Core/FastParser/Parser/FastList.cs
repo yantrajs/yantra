@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.FastParser
@@ -194,6 +195,20 @@ namespace YantraJS.Core.FastParser
             {
                 
             }
+        }
+
+        internal void AddRange(FastList<T> initList)
+        {
+            var e = initList.GetEnumerator();
+            while (e.MoveNext(out var item))
+                Add(item);
+        }
+
+
+        internal void AddRange(IEnumerable<T> initList)
+        {
+            foreach (var exp in initList)
+                Add(exp);
         }
 
         public int IndexOf(T item)

@@ -14,13 +14,9 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private Expression Scoped(FastFunctionScope scope, FastList<Expression> body) {
             var list = pool.AllocateList<Exp>();
-            try { 
-                foreach(var item in scope.InitList) {
-                    list.Add(item);
-                }
-                foreach(var item in body) {
-                    list.Add(item);
-                }
+            try {
+                list.AddRange(scope.InitList);
+                list.AddRange(body);
                 return Exp.Block(scope.VariableParameters, list);
             } finally {
                 list.Clear();

@@ -41,7 +41,6 @@ namespace YantraJS.Core.FastParser.Compiler
 
             // this.Code = new ParsedScript(code);
 
-            var parser = new FastParser(new FastTokenStream(pool, code));
 
             _innerFunctions = pool.AllocateList<object>();
 
@@ -49,7 +48,15 @@ namespace YantraJS.Core.FastParser.Compiler
 
             using (var fx = this.scope.Push(new FastFunctionScope((AstFunctionExpression)null))) {
 
+                var parserPool = new FastPool();
+                var parser = new FastParser(new FastTokenStream(parserPool, code));
                 var jScript = parser.ParseProgram();
+
+                parser = null;
+                parserPool.Dispose();
+                parserPool = null;
+
+                System.Console.WriteLine($"Parsing done...");
 
                 var lScope = fx.Context;
 
@@ -156,6 +163,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
+
+                System.Console.WriteLine($"Code Generation done...");
 
                 this.Method = lambda;
             }
