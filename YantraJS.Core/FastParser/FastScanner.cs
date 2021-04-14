@@ -68,7 +68,7 @@ namespace YantraJS.Core.FastParser
         private FastToken token = EmptyToken;
         private FastToken nextToken = EOF;
 
-        private FastToken lastToken = null;
+        private FastToken lastToken = EmptyToken;
 
         public FastToken Token
         {
@@ -564,27 +564,24 @@ namespace YantraJS.Core.FastParser
 
             bool ScanRegEx(State state, char first , out FastToken token)
             {
-                if(lastToken != null)
+                /**
+                    * Regex will never be followed by 
+                    * `)`, `]` and `keyword or identifier`
+                    */
+                switch (lastToken.Type)
                 {
-                    /**
-                     * Regex will never be followed by 
-                     * `)`, `]` and `keyword or identifier`
-                     */
-                    switch (lastToken.Type)
-                    {
 
-                        case TokenTypes.Identifier:
-                            if(!lastToken.IsKeyword)
-                            {
-                                token = null;
-                                return false;
-                            }
-                            break;
-                        case TokenTypes.BracketEnd:
-                        case TokenTypes.SquareBracketEnd:
+                    case TokenTypes.Identifier:
+                        if(!lastToken.IsKeyword)
+                        {
                             token = null;
                             return false;
-                    }
+                        }
+                        break;
+                    case TokenTypes.BracketEnd:
+                    case TokenTypes.SquareBracketEnd:
+                        token = null;
+                        return false;
                 }
 
                 var sb = pool.AllocateStringBuilder();
@@ -869,6 +866,7 @@ namespace YantraJS.Core.FastParser
             private int position;
             private SpanLocation start;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public State(FastScanner scanner, int position, int line, int column)
             {
                 this.scanner = scanner;
@@ -876,6 +874,7 @@ namespace YantraJS.Core.FastParser
                 this.position = position;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public FastToken Commit(TokenTypes type, string cooked, string flags)
             {
                 var cp = scanner.position;
@@ -895,6 +894,7 @@ namespace YantraJS.Core.FastParser
                 return token;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public FastToken Commit(TokenTypes type, bool number) {
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
@@ -915,6 +915,7 @@ namespace YantraJS.Core.FastParser
             }
 
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public FastToken Commit(TokenTypes type, StringBuilder builder = null)
             {
                 var cp = scanner.position;
@@ -934,16 +935,19 @@ namespace YantraJS.Core.FastParser
                 return token;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void CommitEOF() {
                 scanner = null;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset()
             {
                 position = scanner.position;
                 start = scanner.Location;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose()
             {
                 if (scanner != null)
@@ -955,6 +959,7 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal FastToken CommitIdentifier(FastKeywordMap keywords)
             {
 
@@ -977,6 +982,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CheckAndConsumeLineTerminator() {
             bool hasLineTerminator = false;
             while (true) {

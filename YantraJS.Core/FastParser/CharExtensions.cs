@@ -1,24 +1,18 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+
 namespace YantraJS.Core.FastParser
 {
     internal static class CharExtensions
     {
 
-        internal static bool IsStringStart(this char ch)
-        {
-            return ch == '\'' || ch == '"';
-        }
-
-        internal static bool IsDigitStart(this char ch)
-        {
-            return char.IsDigit(ch);
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string FromCodePoint(this int cp)
         {
             return Char.ConvertFromUtf32(cp);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int HexValue(this char ch)
         {
             if (ch >= 'A')
@@ -43,6 +37,7 @@ namespace YantraJS.Core.FastParser
             return 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDigitPart(
             this char ch, bool hex, bool binary)
         {
@@ -83,6 +78,7 @@ namespace YantraJS.Core.FastParser
 
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsIdentifierStart(this char ch)
         {
             switch (ch)
@@ -95,6 +91,7 @@ namespace YantraJS.Core.FastParser
             return char.IsLetter(ch);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsIdentifierPart(this char ch)
         {
             switch (ch)
