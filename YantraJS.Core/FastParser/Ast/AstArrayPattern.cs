@@ -12,7 +12,7 @@
 
         public override string ToString()
         {
-            return $"Array Pattern [{Elements.Join()}]";
+            return $"[{Elements.Join()}]";
         }
     }
 

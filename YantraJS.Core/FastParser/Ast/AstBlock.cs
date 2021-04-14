@@ -16,6 +16,11 @@
             this.Statements = list;
         }
 
+        public override string ToString()
+        {
+            return Statements.Join("\n\t");
+        }
+
     }
 
 }

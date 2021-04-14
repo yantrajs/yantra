@@ -12,5 +12,10 @@
             this.Callee = node;
             this.Arguments = arguments;
         }
+
+        public override string ToString()
+        {
+            return $"new {Callee}({Arguments.Join()})";
+        }
     }
 }

@@ -11,5 +11,10 @@
             this.Label = id;
             this.Body = statement;
         }
+
+        public override string ToString()
+        {
+            return $"{Label}: {Body}";
+        }
     }
 }

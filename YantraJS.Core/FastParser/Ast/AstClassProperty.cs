@@ -33,6 +33,38 @@ namespace YantraJS.Core.FastParser
         {
             return new AstClassProperty(Start,End, Kind, IsPrivate, IsStatic, key, Computed, init);
         }
+
+        public override string ToString()
+        {
+            if (Kind == AstPropertyKind.Constructor)
+                return $"constructor: {Init}";
+            if(IsStatic)
+            {
+                if (Kind == AstPropertyKind.Get)
+                    return $"static get {Key} {Init}";
+                if (Kind == AstPropertyKind.Set)
+                    return $"static set {Key} {Init}";
+                if (this.Computed)
+                {
+                    if (Kind == AstPropertyKind.Data)
+                        return $"static [{Key}]: {Init}";
+                }
+                if (Kind == AstPropertyKind.Data)
+                    return $"static {Key}: {Init}";
+            }
+            if (Kind == AstPropertyKind.Get)
+                return $"get {Key} {Init}";
+            if (Kind == AstPropertyKind.Set)
+                return $"set {Key} {Init}";
+            if (Kind == AstPropertyKind.Data)
+                return $"{Key}: {Init}";
+            if (this.Computed)
+            {
+                if (Kind == AstPropertyKind.Data)
+                    return $"[{Key}]: {Init}";
+            }
+            return "AstClassProperty";
+        }
     }
 
 }

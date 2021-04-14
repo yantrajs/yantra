@@ -45,7 +45,7 @@ namespace YantraJS.Core.FastParser
 
         public ref T this[int index] => ref this.items[index];
 
-        public string Join()
+        public string Join(string separator = ", ")
         {
             var sb = new StringBuilder();
             for (int i = 0; i < Length; i++)
@@ -53,7 +53,7 @@ namespace YantraJS.Core.FastParser
                 ref var item = ref this[i];
                 if(i>0)
                 {
-                    sb.Append(',');
+                    sb.Append(separator);
                 }
                 sb.Append(item);
             }

@@ -1,4 +1,7 @@
-﻿namespace YantraJS.Core.FastParser
+﻿#nullable enable
+using System.Text;
+
+namespace YantraJS.Core.FastParser
 {
     public class AstSequenceExpression : AstExpression
     {
@@ -10,6 +13,11 @@
             in ArraySpan<AstExpression> expressions) : base(start, FastNodeType.SequenceExpression, end)
         {
             this.Expressions = expressions;
+        }
+
+        public override string ToString()
+        {
+            return Expressions.Join();
         }
     }
 
