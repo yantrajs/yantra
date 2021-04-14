@@ -125,7 +125,7 @@ namespace YantraJS.Core.FastParser
                 {
                     return true;
                 }
-                node = node.Combine(currentType, next);
+                node = Combine(node, currentType, next);
                 return true;
             }
 

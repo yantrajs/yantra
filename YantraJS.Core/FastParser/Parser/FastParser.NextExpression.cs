@@ -8,6 +8,36 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+
+
+        public AstExpression Combine(AstExpression left,
+            TokenTypes type,
+            AstExpression right, TokenTypes next = TokenTypes.SemiColon)
+        {
+            if (right == null)
+                return left;
+            switch (type)
+            {
+                case TokenTypes.SemiColon:
+                case TokenTypes.EOF:
+                case TokenTypes.BracketEnd:
+                case TokenTypes.SquareBracketEnd:
+                case TokenTypes.CurlyBracketEnd:
+                case TokenTypes.LineTerminator:
+                    return left;
+                case TokenTypes.QuestionMark:
+                    if (next != TokenTypes.Colon)
+                        throw stream.Unexpected();
+                    if (!Expression(out var @false))
+                        throw stream.Unexpected();
+                    return new AstConditionalExpression(left, right, @false);
+            }
+            if (type == TokenTypes.Dot)
+                return new AstMemberExpression(left, right);
+            return new AstBinaryExpression(left, type, right);
+        }
+
+
         int lastNextExpressionPosition = 0;
 
         /// <summary>
@@ -36,7 +66,7 @@ namespace YantraJS.Core.FastParser
         /// <returns></returns>
         bool NextExpression(
             ref AstExpression previous, ref TokenTypes previousType,
-            out AstExpression node, out TokenTypes type)
+            out AstExpression node, out TokenTypes type, int depth = 0)
         {
 
             switch(previousType)
@@ -102,7 +132,7 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     if (!Expression(out right))
                         throw stream.Unexpected();
-                    previous = previous.Combine(previousType, right);
+                    previous = Combine(previous, previousType, right);
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
@@ -116,7 +146,7 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     previous = new AstConditionalExpression(previous, @true, @false);
                     previousType = stream.Current.Type;
-                    return NextExpression(ref previous, ref previousType, out node, out type);
+                    return NextExpression(ref previous, ref previousType, out node, out type, depth+1);
             }
 
             stream.CheckAndConsume(previousType);
@@ -180,19 +210,26 @@ namespace YantraJS.Core.FastParser
                     throw new FastParseException(begin.Token, "Invalid left hand side assignemnt");
 
                 case TokenTypes.QuestionMark:
+
+                    // we should not take a decision here
+                    // pass it on to previous expression...
+
                     stream.Consume();
-                    previous = previous.Combine(previousType, node);
-                    if (!Expression(out var @true))
-                        throw stream.Unexpected();
-                    stream.Expect(TokenTypes.Colon);
-                    if (!Expression(out var @false))
-                        throw stream.Unexpected();
-                    previous = new AstConditionalExpression(previous, @true, @false);
-                    // end of expression ??
-                    // previousType = stream.Current.Type;
-                    // return NextExpression(ref previous, ref previousType, out node, out type);
-                    node = null;
-                    type = TokenTypes.SemiColon;
+                    if (depth == 0)
+                    {
+                        previous = Combine(previous, previousType, node);
+                        if (!Expression(out var @true))
+                            throw stream.Unexpected();
+                        stream.Expect(TokenTypes.Colon);
+                        if (!Expression(out var @false))
+                            throw stream.Unexpected();
+                        previous = new AstConditionalExpression(previous, @true, @false);
+                        // end of expression ??
+                        // previousType = stream.Current.Type;
+                        // return NextExpression(ref previous, ref previousType, out node, out type);
+                        node = null;
+                        type = TokenTypes.SemiColon;
+                    }
                     return true;
 
                 case TokenTypes.Multiply:
@@ -219,18 +256,28 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.Equal:
                 case TokenTypes.NotEqual:
                     stream.Consume();
-                    if (Precedes(type, previousType)) {
-                        if (!NextExpression(ref node, ref type, out right, out rightType))
-                            return true;
+                    do
+                    {
+                        if (Precedes(type, previousType))
+                        {
+                            if (!NextExpression(ref node, ref type, out right, out rightType, depth + 1))
+                                break;
+                            if (type == TokenTypes.SemiColon)
+                                return true;
+                            node = Combine(node, type, right);
+                            type = rightType;
+                            if (type == TokenTypes.SemiColon)
+                                break;
+                            continue;
+                        }
+                        previous = Combine(previous, previousType, node);
+                        previousType = type;
+                        if (!NextExpression(ref previous, ref previousType, out node, out type, depth + 1))
+                            break;
                         if (type == TokenTypes.SemiColon)
                             return true;
-                        node = node.Combine(type, right);
-                        type = rightType;
-                        return true;
-                    }
-                    previous = previous.Combine(previousType, node);
-                    previousType = type;
-                    return NextExpression(ref previous, ref previousType, out node, out type);
+                    } while (true);
+                    return true;
                 default:
                     return false;
             }
