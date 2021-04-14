@@ -106,38 +106,33 @@ namespace YantraJS.Core.FastParser
 
             bool LabeledLoop(out AstStatement statement)
             {
-                var begin = Location;
-
-                if(stream.CheckAndConsume(TokenTypes.Identifier, out var id))
+                if(stream.CheckAndConsume(TokenTypes.Identifier, TokenTypes.Colon, out var id, out var _))
                 {
-                    if (stream.CheckAndConsume(TokenTypes.Colon))
+                    // has to be do/while/for...
+                    var current = stream.Current;
+                    switch (current.Keyword)
                     {
-                        // has to be do/while/for...
-                        var current = stream.Current;
-                        switch (current.Keyword)
-                        {
-                            case FastKeywords.@do:
-                                if (!DoWhileStatement(out statement))
-                                    throw stream.Unexpected();
-                                break;
-                            case FastKeywords.@for:
-                                if (!ForStatement(out statement))
-                                    throw stream.Unexpected();
-                                break;
-                            case FastKeywords.@while:
-                                if (!WhileStatement(out statement))
-                                    throw stream.Unexpected();
-                                break;
-                            default:
+                        case FastKeywords.@do:
+                            if (!DoWhileStatement(out statement))
                                 throw stream.Unexpected();
-                        }
-
-                        statement = new AstLabeledStatement(id, statement);
-                        return true;
+                            break;
+                        case FastKeywords.@for:
+                            if (!ForStatement(out statement))
+                                throw stream.Unexpected();
+                            break;
+                        case FastKeywords.@while:
+                            if (!WhileStatement(out statement))
+                                throw stream.Unexpected();
+                            break;
+                        default:
+                            throw stream.Unexpected();
                     }
+
+                    statement = new AstLabeledStatement(id, statement);
+                    return true;
                 }
                 statement = null;
-                return begin.Reset();
+                return false;
             }
 
             bool Debugger(out AstStatement statement)

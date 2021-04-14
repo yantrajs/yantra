@@ -153,6 +153,28 @@ namespace YantraJS.Core.FastParser
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckAndConsume(TokenTypes type1, TokenTypes type2, out FastToken token1, out FastToken token2)
+        {
+            var c = this[index];
+            if (c.Type == type1)
+            {
+                token1 = c;
+                c = this[index + 1];
+                if(c.Type == type2)
+                {
+                    Consume();
+                    Consume();
+                    token2 = c;
+                    return true;
+                }
+            }
+            token1 = null;
+            token2 = null;
+            return false;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastToken Consume()
         {
             index++;
@@ -176,6 +198,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Reset(int position)
         {
             index = position;

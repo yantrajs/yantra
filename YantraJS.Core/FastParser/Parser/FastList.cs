@@ -32,6 +32,7 @@ namespace YantraJS.Core.FastParser
 
         public bool IsReadOnly => false;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SetCapacity(int capacity)
         {
             if (size >= capacity)
@@ -44,7 +45,7 @@ namespace YantraJS.Core.FastParser
                 release = items;
             }
 
-            size = ((capacity / 4)+1) * 4;
+            size = capacity;
             items = pool.AllocateArray<T>(size);
             size = items.Length;
             if (release!=null)
@@ -54,15 +55,11 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        private void SetItem(int index, T item)
-        {
-            SetCapacity(index + 1);
-            items[index] = item;
-        }
-
         public void Add(T item)
         {
-            SetItem(length++, item);
+            var i = length++;
+            SetCapacity(length);
+            items[i] = item;
         }
 
         public bool Any() => length > 0;
