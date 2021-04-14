@@ -15,18 +15,10 @@ namespace YantraJS.Core.FastParser.Compiler
             var continueTarget = Exp.Label();
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {
-
                 var body = VisitStatement(doWhileStatement.Body);
-
-                var list = new List<Exp>();
-
                 var test = Exp.Not(JSValueBuilder.BooleanValue(VisitExpression(doWhileStatement.Test)));
-
-                list.Add(body);
-                list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
-
                 return Exp.Loop(
-                    Exp.Block(list),
+                    Exp.Block(body, Exp.IfThen(test, Exp.Goto(breakTarget))),
                     breakTarget,
                     continueTarget);
             }

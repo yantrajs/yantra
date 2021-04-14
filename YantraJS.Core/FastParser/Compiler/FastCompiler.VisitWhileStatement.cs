@@ -19,15 +19,10 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var body = Visit(whileStatement.Body);
 
-                var list = new SparseList<Exp>();
-
                 var test = Exp.Not(ExpHelper.JSValueBuilder.BooleanValue(Visit(whileStatement.Test)));
 
-                list.Add(Exp.IfThen(test, Exp.Goto(breakTarget)));
-                list.Add(body);
-
                 return Exp.Loop(
-                    Exp.Block(list),
+                    Exp.Block(Exp.IfThen(test, Exp.Goto(breakTarget)), body),
                     breakTarget,
                     continueTarget);
             }

@@ -9,20 +9,20 @@ namespace YantraJS.Tests.Core
     [TestClass]
     public class CodeTest: BaseTest
     {
-
         [TestMethod]
         public void Function()
         {
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
 
-            this.context.Eval(@"    function getCollectionImplementation(name, nativeFactory, shimFactory) {
-        var _a;
-        // NOTE: ts.ShimCollections will be defined for typescriptServices.js but not for tsc.js, so we must test for it.
-        var constructor = (_a = ts.NativeCollections[nativeFactory]()) !== null && _a !== void 0 ? _a : ts.ShimCollections === null || ts.ShimCollections === void 0 ? void 0 : ts.ShimCollections[shimFactory](getIterator);
-        if (constructor)
-            return constructor;
-        throw new Error('TypeScript requires an environment that provides a compatible native ' + name + ' implementation.');
-    }");
+            this.context.Eval(@"
+var a = [];
+function b() { return 1 }
+for(var i =0, j=b();i<10;i++,j++) {
+    a.push(j);
+}
+console.log(a.toString());
+assert.strictEqual(a.toString(), '1,2,3,4,5,6,7,8,9,10');
+");
         }
 
     }

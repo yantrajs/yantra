@@ -56,7 +56,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 parserPool.Dispose();
                 parserPool = null;
 
-                System.Console.WriteLine($"Parsing done...");
+                // System.Console.WriteLine($"Parsing done...");
 
                 var lScope = fx.Context;
 
@@ -164,7 +164,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
 
-                System.Console.WriteLine($"Code Generation done...");
+                // System.Console.WriteLine($"Code Generation done...");
 
                 this.Method = lambda;
             }

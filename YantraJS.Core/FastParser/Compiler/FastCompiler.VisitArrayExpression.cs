@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         ? Expression.Constant(null, typeof(JSValue))
                         : Visit(item));
                 }
-                return JSArrayBuilder.New(list.ToSpan());
+                return JSArrayBuilder.New(list);
             } finally {
                 list.Clear();
             }
