@@ -74,6 +74,11 @@ namespace YantraJS.Core.FastParser
         class Pool<T>
         {
             private readonly Queue<T> queue = new Queue<T>();
+            private bool clear = false;
+            public Pool()
+            {
+                clear = !typeof(T).IsValueType;
+            }
 
             internal T Allocate()
             {
@@ -129,7 +134,8 @@ namespace YantraJS.Core.FastParser
                 ref var q = ref Queues[i];
                 if (q.Count < 5)
                 {
-                    Array.Clear(items, 0, items.Length);
+                    if(clear)
+                        Array.Clear(items, 0, items.Length);
                     q.Enqueue(items);
                 }
             }
