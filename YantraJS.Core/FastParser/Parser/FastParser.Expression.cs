@@ -89,6 +89,9 @@ namespace YantraJS.Core.FastParser
 
             }
 
+            if (node.End.Type == TokenTypes.SemiColon)
+                return true;
+
             begin = Location;
 
             var current = stream.Current;

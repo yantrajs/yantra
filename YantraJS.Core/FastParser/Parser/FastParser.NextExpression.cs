@@ -63,6 +63,13 @@ namespace YantraJS.Core.FastParser
 
             }
 
+            if(previous.End.Type == TokenTypes.SemiColon)
+            {
+                node = null;
+                type = TokenTypes.SemiColon;
+                return true;
+            }
+
             PreventStackoverFlow(ref lastNextExpressionPosition);
 
             AstExpression right;
@@ -127,6 +134,11 @@ namespace YantraJS.Core.FastParser
 
             var begin = Location;
             type = begin.Token.Type;
+            if(node.End.Type == TokenTypes.SemiColon)
+            {
+                type = TokenTypes.SemiColon;
+                return true;
+            }
             if (node.End.LineTerminator) {
                 if (type <= TokenTypes.String)
                 {
@@ -185,6 +197,7 @@ namespace YantraJS.Core.FastParser
 
                 case TokenTypes.Multiply:
                 case TokenTypes.Divide:
+                case TokenTypes.Mod:
                 case TokenTypes.Plus:
                 case TokenTypes.Minus:
                 case TokenTypes.BitwiseAnd:

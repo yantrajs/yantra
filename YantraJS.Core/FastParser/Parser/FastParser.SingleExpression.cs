@@ -39,7 +39,7 @@ namespace YantraJS.Core.FastParser
                     case TokenTypes.Identifier:
                     case TokenTypes.In:
                     case TokenTypes.InstanceOf:
-                        node = new AstIdentifier(token);
+                        node = new AstIdentifier(token.AsString());
                         stream.Consume();
                         return true;
                 }

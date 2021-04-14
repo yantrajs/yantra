@@ -24,6 +24,11 @@ namespace YantraJS.Core.FastParser
         /// </summary>
         public readonly bool LineTerminator;
 
+        public FastToken AsString()
+        {
+            return new FastToken(TokenTypes.String, Span.Source, LineTerminator, CookedText, Flags, Span.Offset, Span.Length, Start, End, false);
+        }
+
         public FastToken(
             TokenTypes type, 
             string source = null,
