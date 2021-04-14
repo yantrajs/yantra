@@ -253,7 +253,9 @@ namespace YantraJS.Core.FastParser
                     var block = new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList));
                     if (requiresReplacement)
                     {
-                        block.HoistingScope = changes.Select(x => x.id).ToList().ToArraySpan();
+                        block.HoistingScope = changes.Select(x => new StringSpan(x.id))
+                            .ToList()
+                            .ToArraySpan();
                     }
                     return (r, block, update, test);
 

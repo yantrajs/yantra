@@ -22,6 +22,15 @@ namespace YantraJS.ExpHelper
             return Expression.New(_new, code, Expression.Constant(start), Expression.Constant(v));
         }
 
+        internal static Expression New(in StringSpan code)
+        {
+            return Expression.New(_new, 
+                Expression.Constant(code.Source), 
+                Expression.Constant(code.Offset), 
+                Expression.Constant(code.Length));
+        }
+
+
         public static readonly Expression Empty = 
             Expression.Field(null, type.GetField(nameof(StringSpan.Empty)));
     }

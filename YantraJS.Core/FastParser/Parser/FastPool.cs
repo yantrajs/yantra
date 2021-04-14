@@ -95,18 +95,22 @@ namespace YantraJS.Core.FastParser
             };
 
             private (int index, int size) MapSize(int size) {
-                if (size <= 48) {
-                    if (size <= 32) {
+                if (size <= 32) {
+                    if (size <= 24) {
                         if (size <= 16) {
                             if (size <= 8) {
                                 return (0, 8);
                             }
                             return (1, 16);
                         }
-                        return (2, 32);
+                        return (2, 24);
                     }
-                    return (3, 48);
+                    return (3, 32);
                 }
+
+                // change size to multiple of 8 to avoid single allocation..
+                size = ((size >> 2) + 1) << 2;
+
                 return (-1, size);
             }
 

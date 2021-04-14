@@ -6,7 +6,7 @@ namespace YantraJS.Core.FastParser
 {
     public partial class FastScopeItem: LinkedStackItem<FastScopeItem>
     {
-        private StringMap<(string name, FastVariableKind kind)> Variables;
+        private StringMap<(StringSpan name, FastVariableKind kind)> Variables;
         private readonly FastToken token;
         public readonly FastNodeType NodeType;
         private readonly FastPool pool;
@@ -79,13 +79,13 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
-            n.Variables[name] = (name.Value, kind);
+            n.Variables[name] = (name, kind);
 
         }
 
-        public ArraySpan<string> GetVariables()
+        public ArraySpan<StringSpan> GetVariables()
         {
-            var list = pool.AllocateList<string>();
+            var list = pool.AllocateList<StringSpan>();
             try
             {
                 hoisted = true;
@@ -94,7 +94,7 @@ namespace YantraJS.Core.FastParser
                     list.Add(node.Value.name);
                 }
                 if (list.Count == 0)
-                    return ArraySpan<string>.Empty;
+                    return ArraySpan<StringSpan>.Empty;
                 return list.ToSpan();
             } finally
             {

@@ -6,7 +6,7 @@ namespace YantraJS.Core.FastParser
         /// <summary>
         /// 
         /// </summary>
-        public ArraySpan<string>? HoistingScope;
+        public ArraySpan<StringSpan>? HoistingScope;
 
         public AstStatement(FastToken start, FastNodeType type, FastToken end) : base(start, type, end, isStatement: true)
         {

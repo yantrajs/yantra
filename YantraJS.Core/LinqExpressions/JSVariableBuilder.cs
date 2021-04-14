@@ -13,10 +13,20 @@ namespace YantraJS.ExpHelper
         static readonly ConstructorInfo _New
             = type.Constructor(typeof(JSValue), typeof(string));
 
+        static readonly ConstructorInfo _NewWithStringSpan
+    = type.Constructor(typeof(JSValue), StringSpanBuilder.RefType);
+
+
         public static Expression New(Expression value, string name)
         {
             return Expression.New(_New, value, Expression.Constant(name, typeof(string)));
         }
+
+        public static Expression New(Expression value, in StringSpan name)
+        {
+            return Expression.New(_NewWithStringSpan, value, StringSpanBuilder.New(in name));
+        }
+
 
         static readonly ConstructorInfo _NewFromException
             = type.Constructor(typeof(Exception), typeof(string));
