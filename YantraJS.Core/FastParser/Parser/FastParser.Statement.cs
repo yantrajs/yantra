@@ -96,7 +96,7 @@ namespace YantraJS.Core.FastParser
             if (LabeledLoop(out node))
                 return true;
 
-            if(Expression(out var expression))
+            if(ExpressionSequence(out var expression, TokenTypes.SemiColon))
             {
                 node = new AstExpressionStatement(begin.Token, PreviousToken, expression);
                 return true;

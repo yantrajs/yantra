@@ -140,219 +140,219 @@ namespace YantraJS.Core.FastParser
 
         private FastToken ReadToken()
         {
-            using (var state = Push())
+            var state = Push();
+            
+            char first = Peek();
+            if (first == char.MaxValue)
             {
-                char first = Peek();
-                if (first == char.MaxValue)
-                {
-                    state.CommitEOF();
-                    return EOF;
-                }
+                state.CommitEOF();
+                return EOF;
+            }
 
-                // if it is whitespace...
-                // read all whitespace...
-                while (char.IsWhiteSpace(first))
-                {
-                    first = Consume();
-                    state.Reset();
-                }
+            // if it is whitespace...
+            // read all whitespace...
+            while (char.IsWhiteSpace(first))
+            {
+                first = Consume();
+                state.Reset();
+            }
 
-                if (first.IsIdentifierStart())
-                {
-                    return ReadIdentifier(state);
-                }
+            if (first.IsIdentifierStart())
+            {
+                return ReadIdentifier(state);
+            }
 
-                switch (first)
-                {
-                    case '\'':
-                    case '"':
-                        return ReadString(state, first);
-                    case '`':
-                        return ReadTemplateString(state);
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                        return ReadNumber(state, first);
-                    case '#':
-                        return ReadSymbol(state, TokenTypes.Hash);
-                    case '/':
-                        // Read comments
-                        // Read Regex
-                        // Read /=
-                        return ReadCommentsOrRegExOrSymbol(state);
-                    case ',':
-                        return ReadSymbol(state, TokenTypes.Comma);
-                    case '(':
-                        return ReadSymbol(state, TokenTypes.BracketStart);
-                    case ')':
-                        return ReadSymbol(state, TokenTypes.BracketEnd);
-                    case '[':
-                        return ReadSymbol(state, TokenTypes.SquareBracketStart);
-                    case ']':
-                        return ReadSymbol(state, TokenTypes.SquareBracketEnd);
-                    case '{':
-                        return ReadSymbol(state, TokenTypes.CurlyBracketStart);
-                    case '}':
-                        if (templateParts > 0)
-                        {
-                            templateParts--;
-                            return ReadTemplateString(state, TokenTypes.TemplatePart);
-                        }
-                        return ReadSymbol(state, TokenTypes.CurlyBracketEnd);
-                    case '!':
-                        Consume();
-                        // !=
+            switch (first)
+            {
+                case '\'':
+                case '"':
+                    return ReadString(state, first);
+                case '`':
+                    return ReadTemplateString(state);
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    return ReadNumber(state, first);
+                case '#':
+                    return ReadSymbol(state, TokenTypes.Hash);
+                case '/':
+                    // Read comments
+                    // Read Regex
+                    // Read /=
+                    return ReadCommentsOrRegExOrSymbol(state);
+                case ',':
+                    return ReadSymbol(state, TokenTypes.Comma);
+                case '(':
+                    return ReadSymbol(state, TokenTypes.BracketStart);
+                case ')':
+                    return ReadSymbol(state, TokenTypes.BracketEnd);
+                case '[':
+                    return ReadSymbol(state, TokenTypes.SquareBracketStart);
+                case ']':
+                    return ReadSymbol(state, TokenTypes.SquareBracketEnd);
+                case '{':
+                    return ReadSymbol(state, TokenTypes.CurlyBracketStart);
+                case '}':
+                    if (templateParts > 0)
+                    {
+                        templateParts--;
+                        return ReadTemplateString(state, TokenTypes.TemplatePart);
+                    }
+                    return ReadSymbol(state, TokenTypes.CurlyBracketEnd);
+                case '!':
+                    Consume();
+                    // !=
+                    if (CanConsume('='))
+                    {
+                        // !==
                         if (CanConsume('='))
+                            return state.Commit(TokenTypes.StrictlyNotEqual);
+                        return state.Commit(TokenTypes.NotEqual);
+                    }
+                    return state.Commit(TokenTypes.Negate);
+                case '>':
+                    Consume();
+                    // >>
+                    if(CanConsume('>'))
+                    {
+                        // >>>
+                        if (CanConsume('>'))
                         {
-                            // !==
                             if (CanConsume('='))
-                                return state.Commit(TokenTypes.StrictlyNotEqual);
-                            return state.Commit(TokenTypes.NotEqual);
+                                return state.Commit(TokenTypes.AssignUnsignedRightShift);
+                            return state.Commit(TokenTypes.UnsignedRightShift);
                         }
-                        return state.Commit(TokenTypes.Negate);
-                    case '>':
-                        Consume();
-                        // >>
-                        if(CanConsume('>'))
-                        {
-                            // >>>
-                            if (CanConsume('>'))
-                            {
-                                if (CanConsume('='))
-                                    return state.Commit(TokenTypes.AssignUnsignedRightShift);
-                                return state.Commit(TokenTypes.UnsignedRightShift);
-                            }
-                            // >>=
-                            if (CanConsume('='))
-                                return state.Commit(TokenTypes.AssignRightShift);
-                            return state.Commit(TokenTypes.RightShift);
-                        }
-                        // >=
+                        // >>=
                         if (CanConsume('='))
-                            return state.Commit(TokenTypes.GreaterOrEqual);
-                        return state.Commit(TokenTypes.Greater);
-                    case '<':
-                        Consume();
-                        // <<
-                        if(CanConsume('<'))
-                        {
-                            // <<=
-                            if (CanConsume('='))
-                                return state.Commit(TokenTypes.AssignLeftShift);
-                            return state.Commit(TokenTypes.LeftShift);
-                        }
+                            return state.Commit(TokenTypes.AssignRightShift);
+                        return state.Commit(TokenTypes.RightShift);
+                    }
+                    // >=
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.GreaterOrEqual);
+                    return state.Commit(TokenTypes.Greater);
+                case '<':
+                    Consume();
+                    // <<
+                    if(CanConsume('<'))
+                    {
                         // <<=
                         if (CanConsume('='))
-                            return state.Commit(TokenTypes.LessOrEqual);
-                        return state.Commit(TokenTypes.Less);
-                    case '*':
+                            return state.Commit(TokenTypes.AssignLeftShift);
+                        return state.Commit(TokenTypes.LeftShift);
+                    }
+                    // <<=
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.LessOrEqual);
+                    return state.Commit(TokenTypes.Less);
+                case '*':
+                    Consume();
+                    // **
+                    if (CanConsume('*'))
+                    {
+                        // **=
+                        if (CanConsume('='))
+                            return state.Commit(TokenTypes.AssignPower);
+                        return state.Commit(TokenTypes.Power);
+                    }
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.AssignMultiply);
+                    return state.Commit(TokenTypes.Multiply);
+                case '&':
+                    Consume();
+                    if(CanConsume('&'))
+                    {
+                        return state.Commit(TokenTypes.BooleanAnd);
+                    }
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.AssignBitwideAnd);
+                    return state.Commit(TokenTypes.BitwiseAnd);
+                case '|':
+                    Consume();
+                    if (CanConsume('|'))
+                        return state.Commit(TokenTypes.BooleanOr);
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.AssignBitwideOr);
+                    return state.Commit(TokenTypes.BitwiseOr);
+                case '+':
+                    Consume();
+                    if (CanConsume('+'))
+                        return state.Commit(TokenTypes.Increment);
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.AssignAdd);
+                    return state.Commit(TokenTypes.Plus);
+                case '-':
+                    Consume();
+                    if (CanConsume('-'))
+                        return state.Commit(TokenTypes.Decrement);
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.AssignSubtract);
+                    return state.Commit(TokenTypes.Minus);
+                case '^':
+                    Consume();
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.AssignXor);
+                    return state.Commit(TokenTypes.Xor);
+                case '?':
+                    Consume();
+                    if (CanConsume('.'))
+                        return state.Commit(TokenTypes.QuestionDot);
+                    return state.Commit(TokenTypes.QuestionMark);
+                case '.':
+                    var peek = Next();
+                    if (char.IsDigit(peek)) {
                         Consume();
-                        // **
-                        if (CanConsume('*'))
+                        return ReadNumber(state, first);
+                    }
+                    Consume();
+                    if (CanConsume('.'))
+                    {
+                        if(CanConsume('.'))
                         {
-                            // **=
-                            if (CanConsume('='))
-                                return state.Commit(TokenTypes.AssignPower);
-                            return state.Commit(TokenTypes.Power);
+                            return state.Commit(TokenTypes.TripleDots);
                         }
-                        if (CanConsume('='))
-                            return state.Commit(TokenTypes.AssignMultiply);
-                        return state.Commit(TokenTypes.Multiply);
-                    case '&':
-                        Consume();
-                        if(CanConsume('&'))
-                        {
-                            return state.Commit(TokenTypes.BooleanAnd);
-                        }
-                        if (CanConsume('='))
-                            return state.Commit(TokenTypes.AssignBitwideAnd);
-                        return state.Commit(TokenTypes.BitwiseAnd);
-                    case '|':
-                        Consume();
-                        if (CanConsume('|'))
-                            return state.Commit(TokenTypes.BooleanOr);
-                        if (CanConsume('='))
-                            return state.Commit(TokenTypes.AssignBitwideOr);
-                        return state.Commit(TokenTypes.BitwiseOr);
-                    case '+':
-                        Consume();
-                        if (CanConsume('+'))
-                            return state.Commit(TokenTypes.Increment);
-                        if (CanConsume('='))
-                            return state.Commit(TokenTypes.AssignAdd);
-                        return state.Commit(TokenTypes.Plus);
-                    case '-':
-                        Consume();
-                        if (CanConsume('-'))
-                            return state.Commit(TokenTypes.Decrement);
-                        if (CanConsume('='))
-                            return state.Commit(TokenTypes.AssignSubtract);
-                        return state.Commit(TokenTypes.Minus);
-                    case '^':
-                        Consume();
-                        if (CanConsume('='))
-                            return state.Commit(TokenTypes.AssignXor);
-                        return state.Commit(TokenTypes.Xor);
-                    case '?':
-                        Consume();
-                        if (CanConsume('.'))
-                            return state.Commit(TokenTypes.QuestionDot);
-                        return state.Commit(TokenTypes.QuestionMark);
-                    case '.':
-                        var peek = Next();
-                        if (char.IsDigit(peek)) {
-                            Consume();
-                            return ReadNumber(state, first);
-                        }
-                        Consume();
-                        if (CanConsume('.'))
-                        {
-                            if(CanConsume('.'))
-                            {
-                                return state.Commit(TokenTypes.TripleDots);
-                            }
-                            throw Unexpected();
-                        }
-                        return state.Commit(TokenTypes.Dot);
-                    case ':':
-                        return ReadSymbol(state, TokenTypes.Colon);
-                    case ';':
-                        return ReadSymbol(state, TokenTypes.SemiColon);
-                    case '~':
-                        return ReadSymbol(state, TokenTypes.BitwiseNot);
-                    case '%':
-                        Consume();
-                        if (CanConsume('='))
-                            return state.Commit(TokenTypes.AssignMod);
-                        return state.Commit(TokenTypes.Mod);
-                    case '\n':
-                        return ReadSymbol(state, TokenTypes.LineTerminator);
-                    case '=':
-                        Consume();
+                        throw Unexpected();
+                    }
+                    return state.Commit(TokenTypes.Dot);
+                case ':':
+                    return ReadSymbol(state, TokenTypes.Colon);
+                case ';':
+                    return ReadSymbol(state, TokenTypes.SemiColon);
+                case '~':
+                    return ReadSymbol(state, TokenTypes.BitwiseNot);
+                case '%':
+                    Consume();
+                    if (CanConsume('='))
+                        return state.Commit(TokenTypes.AssignMod);
+                    return state.Commit(TokenTypes.Mod);
+                case '\n':
+                    return ReadSymbol(state, TokenTypes.LineTerminator);
+                case '=':
+                    Consume();
+                    if(CanConsume('='))
+                    {
                         if(CanConsume('='))
                         {
-                            if(CanConsume('='))
-                            {
-                                return state.Commit(TokenTypes.StrictlyEqual);
-                            }
-                            return state.Commit(TokenTypes.Equal);
+                            return state.Commit(TokenTypes.StrictlyEqual);
                         }
-                        if(CanConsume('>'))
-                        {
-                            return state.Commit(TokenTypes.Lambda);
-                        }
-                        return state.Commit(TokenTypes.Assign);
+                        return state.Commit(TokenTypes.Equal);
+                    }
+                    if(CanConsume('>'))
+                    {
+                        return state.Commit(TokenTypes.Lambda);
+                    }
+                    return state.Commit(TokenTypes.Assign);
                         
-                }
-                
             }
+                
+            
 
             return EOF;
         }
@@ -826,7 +826,7 @@ namespace YantraJS.Core.FastParser
             return new State(this, position, line, column);
         }
         
-        public class State: IDisposable
+        public struct State: IDisposable
         {
             private FastScanner scanner;
             private int position;
