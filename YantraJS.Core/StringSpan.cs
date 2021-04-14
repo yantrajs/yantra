@@ -50,6 +50,7 @@ namespace YantraJS.Core
 
         public string? Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (Source == null)

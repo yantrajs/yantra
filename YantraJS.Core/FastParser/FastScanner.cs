@@ -154,7 +154,6 @@ namespace YantraJS.Core.FastParser
             char first = Peek();
             if (first == char.MaxValue)
             {
-                state.CommitEOF();
                 return EOF;
             }
 
@@ -163,7 +162,7 @@ namespace YantraJS.Core.FastParser
             while (char.IsWhiteSpace(first))
             {
                 first = Consume();
-                state.Reset();
+                state = Push();
             }
 
             if (first.IsIdentifierStart())
@@ -755,7 +754,6 @@ namespace YantraJS.Core.FastParser
                     }
                 }
             } while (true);
-            state.CommitEOF();
             return ReadToken();
         }
 
@@ -767,7 +765,6 @@ namespace YantraJS.Core.FastParser
                 ch = Consume();
             } while (ch != '\n' && ch != char.MaxValue);
             Consume();
-            state.CommitEOF();
             return ReadToken();
         }
 
@@ -860,7 +857,7 @@ namespace YantraJS.Core.FastParser
             return new State(this, position, line, column);
         }
         
-        public struct State: IDisposable
+        public struct State
         {
             private FastScanner scanner;
             private int position;
@@ -933,11 +930,6 @@ namespace YantraJS.Core.FastParser
                     location);
                 scanner = null;
                 return token;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void CommitEOF() {
-                scanner = null;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -33,7 +33,11 @@ namespace YantraJS.Core.FastParser
         private readonly T[] items;
         public readonly int Length;
 
-        public int Count => Length;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Length;
+        }
 
         public static ArraySpan<T> Empty;
 
@@ -43,7 +47,10 @@ namespace YantraJS.Core.FastParser
             this.Length = length;
         }
 
-        public ref T this[int index] => ref this.items[index];
+        public ref T this[int index] {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get =>ref this.items[index];
+        }
 
         public string Join(string separator = ", ")
         {
