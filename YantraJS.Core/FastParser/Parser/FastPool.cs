@@ -88,17 +88,17 @@ namespace YantraJS.Core.FastParser
             };
 
             private (int index, int size) MapSize(int size) {
-                if (size <= 64) {
+                if (size <= 48) {
                     if (size <= 32) {
-                        if (size <= 8) {
-                            if (size <= 4) {
-                                return (0, 4);
+                        if (size <= 16) {
+                            if (size <= 8) {
+                                return (0, 8);
                             }
-                            return (1, 8);
+                            return (1, 16);
                         }
                         return (2, 32);
                     }
-                    return (3, 64);
+                    return (3, 48);
                 }
                 return (-1, size);
             }
@@ -115,12 +115,9 @@ namespace YantraJS.Core.FastParser
 
             private void ReleaseInternal(int i, T[] items)
             {
-                for (int index = 0; index < items.Length; index++) {
-#pragma warning disable CS8601 // Possible null reference assignment.
-                    items[index] = default;
-#pragma warning restore CS8601 // Possible null reference assignment.
-                }
-                Queues[i].Enqueue(items);
+                ref var q = ref Queues[i];
+                if(q.Count < 5)
+                    q.Enqueue(items);
             }
 
             public T[] AllocateArray(int size)
@@ -148,7 +145,8 @@ namespace YantraJS.Core.FastParser
 
         internal void Release(in FastStringBuilder sb)
         {
-            fastStringBuilders.Enqueue(sb.Builder);
+            if(fastStringBuilders.Count < 5)
+                fastStringBuilders.Enqueue(sb.Builder);
         }
     }
 

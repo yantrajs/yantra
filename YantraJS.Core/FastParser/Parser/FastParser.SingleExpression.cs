@@ -25,8 +25,6 @@ namespace YantraJS.Core.FastParser
         /// <returns></returns>
         bool SingleExpression(out AstExpression node, bool afterDot = false)
         {
-            if (Literal(out node))
-                return true;
             var begin = Location;
             var token = begin.Token;
 
@@ -39,11 +37,17 @@ namespace YantraJS.Core.FastParser
                     case TokenTypes.Identifier:
                     case TokenTypes.In:
                     case TokenTypes.InstanceOf:
+                    case TokenTypes.Null:
+                    case TokenTypes.True:
+                    case TokenTypes.False:
                         node = new AstIdentifier(token.AsString());
                         stream.Consume();
                         return true;
                 }
             }
+
+            if (Literal(out node))
+                return true;
 
             switch (token.Keyword)
             {

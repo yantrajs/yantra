@@ -68,6 +68,8 @@ namespace YantraJS.Core.FastParser
         private FastToken token = EmptyToken;
         private FastToken nextToken = EOF;
 
+        private FastToken lastToken = null;
+
         public FastToken Token
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -138,7 +140,14 @@ namespace YantraJS.Core.FastParser
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private FastToken ReadToken()
+        {
+            lastToken = _ReadToken();
+            return lastToken;
+        }
+
+        private FastToken _ReadToken()
         {
             var state = Push();
             
@@ -554,7 +563,30 @@ namespace YantraJS.Core.FastParser
             return divide.Commit(TokenTypes.Divide);
 
             bool ScanRegEx(State state, char first , out FastToken token)
-            {                
+            {
+                if(lastToken != null)
+                {
+                    /**
+                     * Regex will never be followed by 
+                     * `)`, `]` and `keyword or identifier`
+                     */
+                    switch (lastToken.Type)
+                    {
+
+                        case TokenTypes.Identifier:
+                            if(!lastToken.IsKeyword)
+                            {
+                                token = null;
+                                return false;
+                            }
+                            break;
+                        case TokenTypes.BracketEnd:
+                        case TokenTypes.SquareBracketEnd:
+                            token = null;
+                            return false;
+                    }
+                }
+
                 var sb = pool.AllocateStringBuilder();
                 var t = sb.Builder;
                 var classMarker = false;
@@ -565,7 +597,6 @@ namespace YantraJS.Core.FastParser
                 {
                     do
                     {
-                        // first = Consume();
                         switch (first)
                         {
                             case char.MaxValue:
@@ -624,6 +655,12 @@ namespace YantraJS.Core.FastParser
                 }
 
                 var flags = ScanFlags();
+
+                // we should test if it is a valid JSRegEx
+                var (r,_,_,_) = JSRegExp.CreateRegex(regExp, flags);
+                if (r == null)
+                    return false;
+
 
                 token = state.Commit(TokenTypes.RegExLiteral, regExp, flags);
 
