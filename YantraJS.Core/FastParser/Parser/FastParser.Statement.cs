@@ -10,7 +10,29 @@ namespace YantraJS.Core.FastParser
 
         bool Statement(out AstStatement node)
         {
-            if(SingleStatement(out node))
+
+            PreventStackoverFlow(ref lastStatementPosition);
+
+            var begin = Location;
+
+            var token = begin.Token;
+            switch (token.Type)
+            {
+                case TokenTypes.CurlyBracketStart:
+                    stream.Consume();
+                    if (Block(out var block))
+                    {
+                        node = block;
+                        return true;
+                    }
+                    break;
+                case TokenTypes.SemiColon:
+                    stream.Consume();
+                    node = new AstExpressionStatement(new AstEmptyExpression(token));
+                    return true;
+            }
+
+            if (SingleStatement(begin, out node))
             {
                 stream.CheckAndConsume(TokenTypes.SemiColon);
                 return true;
@@ -20,31 +42,9 @@ namespace YantraJS.Core.FastParser
 
 
         int lastStatementPosition = 0;
-        bool SingleStatement(out AstStatement node)
+        bool SingleStatement(in StreamLocation begin, out AstStatement node)
         {
-
-            PreventStackoverFlow(ref lastStatementPosition);
-
-            var begin = Location;
-            node = default;
-
-            var token = stream.Current;
-            switch (token.Type)
-            {
-                case TokenTypes.CurlyBracketStart:
-                    stream.Consume();
-                    if(Block(out var block))
-                    {
-                        node = block;
-                        return true;
-                    }
-                    break;
-                case TokenTypes.SemiColon:
-                    stream.Consume();
-                    node = new AstExpressionStatement(new AstEmptyExpression(begin.Token));
-                    return true;
-            }
-
+            var token = begin.Token;
             if(token.IsKeyword)
             {
                 switch (token.Keyword)
@@ -98,7 +98,7 @@ namespace YantraJS.Core.FastParser
 
             if(ExpressionSequence(out var expression, TokenTypes.SemiColon))
             {
-                node = new AstExpressionStatement(begin.Token, PreviousToken, expression);
+                node = new AstExpressionStatement(token, PreviousToken, expression);
                 return true;
             }
 
