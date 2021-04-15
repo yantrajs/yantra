@@ -103,9 +103,7 @@ namespace YantraJS.Core
         [Prototype("toString")]
         public static JSValue ToString(in Arguments a)
         {
-            if(!(a.This is JSString))
-                throw JSContext.Current.NewTypeError("String.prototype.toString requires that 'this' be a String");
-            return a.This;
+            return a.This.AsJSString();
         }
 
 

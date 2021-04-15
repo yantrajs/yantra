@@ -37,7 +37,8 @@ namespace YantraJS.Core.Core.Primitive
 
         public override JSValue CreateInstance(in Arguments a)
         {
-            return value.CreateInstance(a);
+            // return value.CreateInstance(a);
+            throw JSContext.Current.NewTypeError($"Cannot create instance of {this}");
         }
 
         public override JSValue AddValue(JSValue value)

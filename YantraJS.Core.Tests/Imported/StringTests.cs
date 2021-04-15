@@ -54,7 +54,7 @@ namespace YantraJS.Core.Tests.Imported
             // length is enumerable, non-configurable, non-writable
             Assert.AreEqual(3, Evaluate("'abc'.length"));
             Assert.AreEqual(0, Evaluate("var x = ''; x.length = 5; x.length"));
-            Assert.AreEqual(false, Evaluate("var x = 'abc'; delete x.length"));
+            Assert.AreEqual(true, Evaluate("var x = 'abc'; delete x.length"));
             Assert.AreEqual(3, Evaluate("var x = 'abc'; delete x.length; x.length"));
 
             // String can be indexed like arrays.

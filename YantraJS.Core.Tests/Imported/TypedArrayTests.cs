@@ -152,7 +152,8 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(false, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').configurable"));
 
             // delete
-            Assert.AreEqual(false, Evaluate("delete new Int8Array([1, 2])[1]"));
+            // false is returned only in non strict mode
+            Assert.AreEqual(true, Evaluate("delete new Int8Array([1, 2])[1]"));
             Assert.AreEqual("1,2", Evaluate("x = new Int8Array([1, 2]); delete x[1]; x.toString()"));
 
             // toString and valueOf.

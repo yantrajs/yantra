@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
@@ -8,6 +9,7 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        int lastStatementPosition = 0;
         bool Statement(out AstStatement node)
         {
 
@@ -40,8 +42,7 @@ namespace YantraJS.Core.FastParser
             return false;
         }
 
-
-        int lastStatementPosition = 0;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool SingleStatement(in StreamLocation begin, out AstStatement node)
         {
             var token = begin.Token;
