@@ -28,6 +28,12 @@ namespace YantraJS.Core.FastParser
                     case TokenTypes.Null:
                     case TokenTypes.Identifier:
                         stream.Consume();
+                        if (token.ContextualKeyword != FastKeywords.none)
+                        {
+                            node = new AstIdentifier(token);
+                            computed = false;
+                            return true;
+                        }
                         node = new AstIdentifier(token.AsString());
                         computed = false;
                         return true;

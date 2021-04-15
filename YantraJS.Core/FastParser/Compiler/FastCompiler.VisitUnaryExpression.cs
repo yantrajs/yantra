@@ -70,6 +70,12 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     break;
                 case UnaryOperator.@void:
+                    if (target != null && target.Type != FastNodeType.Literal)
+                        return Exp.Condition(
+                            Exp.Equal(
+                                Exp.Constant(null, typeof(JSValue)), Visit(target)), 
+                            JSUndefinedBuilder.Value, 
+                            JSUndefinedBuilder.Value);
                     return ExpHelper.JSUndefinedBuilder.Value;
                 case UnaryOperator.@typeof:
                     return ExpHelper.JSValueBuilder.TypeOf(VisitExpression(target));

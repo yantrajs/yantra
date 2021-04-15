@@ -26,7 +26,36 @@ namespace YantraJS.Core.FastParser
 
         public FastToken AsString()
         {
-            return new FastToken(TokenTypes.String, Span.Source, LineTerminator, CookedText ?? Span.Value, Flags, Span.Offset, Span.Length, Start, End, false);
+            return new FastToken(
+                TokenTypes.String,
+                Span.Source,
+                LineTerminator,
+                CookedText ?? Span.Value,
+                Flags, Span.Offset,
+                Span.Length, Start, End, ContextualKeyword);
+        }
+
+        private FastToken(
+            TokenTypes type,
+            string source = null,
+            bool hasLineTerminator = false,
+            string cooked = null,
+            string flags = null,
+            int start = 0,
+            int length = 0,
+            in SpanLocation startLocation = default,
+            in SpanLocation endLocation = default,
+            FastKeywords contextualKeyword = FastKeywords.none)
+        {
+            this.LineTerminator = hasLineTerminator;
+            this.Type = type;
+            this.Start = startLocation;
+            this.End = endLocation;
+            this.Span = new StringSpan(source, start, Math.Min(source.Length - start, length));
+            this.CookedText = cooked;
+            this.Flags = flags;
+            this.Number = 0;
+            this.ContextualKeyword = contextualKeyword;
         }
 
         public FastToken(
