@@ -3,6 +3,12 @@
     public class AstBlock : AstStatement
     {
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public ArraySpan<StringSpan>? HoistingScope;
+
+
         public readonly ArraySpan<AstStatement> Statements;
 
         protected AstBlock(FastToken start, FastNodeType type, FastToken end, in ArraySpan<AstStatement> statements) : base(start, type, end)

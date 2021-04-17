@@ -26,13 +26,15 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitProgram(AstProgram program) {
             var blockList = pool.AllocateList<Expression>();
-            var hoistingScope = program.HoistingScope;
+            ref var hoistingScope = ref program.HoistingScope;
             var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
             try {
-                if (hoistingScope != null) {
+                if (hoistingScope != null)
+                {
                     var en = hoistingScope.Value.GetEnumerator();
                     var top = this.scope.Top;
-                    while (en.MoveNext(out var v)) {
+                    while (en.MoveNext(out var v))
+                    {
                         var g = JSValueBuilder.Index(top.Context, KeyOfName(v));
 
                         var vs = scope.CreateVariable(v, null, true);

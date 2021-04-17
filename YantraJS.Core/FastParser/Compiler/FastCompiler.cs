@@ -60,7 +60,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var lScope = fx.Context;
 
-                if (jScript.HoistingScope != null && argsList != null) {
+                if (argsList != null) {
                     var list = new List<StringSpan>(jScript.HoistingScope);
                     foreach (var a in argsList) {
                         list.Remove(a);

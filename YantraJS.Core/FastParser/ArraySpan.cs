@@ -99,6 +99,11 @@ namespace YantraJS.Core.FastParser
             return items[0];
         }
 
+        public bool Any()
+        {
+            return Length > 0;
+        }
+
         public struct Enumerator : IEnumerator<T>
         {
             private readonly T[] items;
