@@ -46,6 +46,7 @@ namespace YantraJS.Core.FastParser
         NewExpression,
         ClassProperty,
         ReturnStatement,
-        ExportStatement
+        ExportStatement,
+        ImportStatement
     }
 }

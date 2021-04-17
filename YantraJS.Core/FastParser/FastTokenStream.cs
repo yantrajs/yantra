@@ -87,6 +87,16 @@ namespace YantraJS.Core.FastParser
             return c;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public FastToken ExpectContextualKeyword(FastKeywords type)
+        {
+            var c = this[index];
+            if (c.ContextualKeyword != type)
+                throw new FastParseException(c, $"Expecting keyword {type} at {c.Start.Line}, {c.Start.Column}");
+            Consume();
+            return c;
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeContextualKeyword(FastKeywords keyword)

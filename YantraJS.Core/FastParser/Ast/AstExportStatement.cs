@@ -3,14 +3,27 @@ namespace YantraJS.Core.FastParser
 {
     internal class AstExportStatement : AstStatement
     {
-        public readonly AstExpression? Name;
-        public readonly AstExpression Expression;
+        public readonly AstNode? Declaration;
+        public readonly bool IsDefault;
+        public readonly bool ExportAll;
+        public readonly AstNode? Source;
 
-        public AstExportStatement(FastToken token, AstExpression? name, AstExpression argument)
+        public AstExportStatement(FastToken token, AstNode argument, bool IsDefault = false)
             : base(token, FastNodeType.ExportStatement, argument.End)
         {
-            this.Name = name;
-            this.Expression = argument;
+            this.Declaration = argument;
+            this.IsDefault = IsDefault;
+            this.Source = null;
         }
+
+        public AstExportStatement(FastToken token, AstNode? argument, AstNode source)
+            : base(token, FastNodeType.ExportStatement, source.End)
+        {
+            this.Declaration = argument;
+            this.IsDefault = false;
+            this.ExportAll = argument == null;
+            this.Source = source;
+        }
+
     }
 }

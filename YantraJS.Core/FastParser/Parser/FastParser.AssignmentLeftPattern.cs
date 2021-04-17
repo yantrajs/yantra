@@ -60,9 +60,11 @@ namespace YantraJS.Core.FastParser
                         } else if (!AssignmentLeftPattern(out left, kind, modulePattern))
                             throw stream.Unexpected();
 
+                        bool renamed = modulePattern
+                            ? stream.CheckAndConsumeContextualKeyword(FastKeywords.@as)
+                            : stream.CheckAndConsume(TokenTypes.Colon);
 
-
-                        if(stream.CheckAndConsume(TokenTypes.Colon))
+                        if(renamed)
                         {
                             if (Identitifer(out var rid))
                             {

@@ -60,6 +60,8 @@
         @get,
         @set,
         @of,
-        @constructor
+        @constructor,
+        @from,
+        @as
     }
 }
