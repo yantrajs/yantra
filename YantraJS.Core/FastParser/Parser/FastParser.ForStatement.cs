@@ -153,7 +153,10 @@ namespace YantraJS.Core.FastParser
 
 
             // modify the node as well...
-            AstExpression AssignTempNames(FastList<(string id, AstIdentifier temp)> list, AstExpression e)
+            AstExpression AssignTempNames(
+                FastList<(string id, AstIdentifier temp)> list, 
+                FastList<StringSpan> hoisted,
+                AstExpression e)
             {
                 switch (e.Type)
                 {
@@ -161,17 +164,18 @@ namespace YantraJS.Core.FastParser
                         var id = e as AstIdentifier;
                         var tempID = Interlocked.Increment(ref TempVarID).ToString();
                         var temp = new AstIdentifier(id!.Start, tempID);
+                        hoisted.Add(id.Name);
                         list.Add((id.Name.Value!, temp));
                         return temp;
                     case FastNodeType.SpreadElement:
                         var spreadElement = e as AstSpreadElement;
-                        return new AstSpreadElement(spreadElement!.Start,spreadElement.End, AssignTempNames(list, spreadElement.Argument));
+                        return new AstSpreadElement(spreadElement!.Start,spreadElement.End, AssignTempNames(list, hoisted, spreadElement.Argument));
                     case FastNodeType.ObjectPattern: 
                         var pattern = e as AstObjectPattern;
                         for (int i = 0; i < pattern!.Properties.Length; i++)
                         {
                             ref var property = ref pattern.Properties[i];
-                            pattern.Properties[i] = new ObjectProperty(property.Key, AssignTempNames(list, property.Value), property.Spread);
+                            pattern.Properties[i] = new ObjectProperty(property.Key, AssignTempNames(list, hoisted, property.Value), property.Spread);
                         }
                         return pattern;
                     case FastNodeType.ArrayPattern:
@@ -179,7 +183,7 @@ namespace YantraJS.Core.FastParser
                         for (int i = 0; i < arrayPattern!.Elements.Length; i++)
                         {
                             ref var property = ref arrayPattern.Elements[i];
-                            arrayPattern.Elements[i] = AssignTempNames(list, property);
+                            arrayPattern.Elements[i] = AssignTempNames(list, hoisted, property);
                         }
                         return arrayPattern;
                     default:
@@ -208,6 +212,7 @@ namespace YantraJS.Core.FastParser
                 var tempDeclarations = Pool.AllocateList<VariableDeclarator>();
                 var scopedDeclarations = Pool.AllocateList<VariableDeclarator>();
                 var list = Pool.AllocateList<(string id, AstIdentifier temp)>();
+                var hoisted = Pool.AllocateList<StringSpan>();
                 try {
 
                     for (int i = 0; i < declaration.Declarators.Length; i++)
@@ -215,7 +220,7 @@ namespace YantraJS.Core.FastParser
                         ref var d = ref declaration.Declarators[i];
                         if (requiresReplacement)
                         {
-                            var id = AssignTempNames(list, d.Identifier);
+                            var id = AssignTempNames(list , hoisted, d.Identifier);
                             tempDeclarations.Add(new VariableDeclarator(id, d.Init));
                         } else
                         {
@@ -257,15 +262,15 @@ namespace YantraJS.Core.FastParser
                     var block = new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList));
                     if (requiresReplacement)
                     {
-                        block.HoistingScope = changes.Select(x => new StringSpan(x.id))
-                            .ToList()
-                            .ToArraySpan();
+                        block.HoistingScope = hoisted.ToSpan();
                     }
                     return (r, block, update, test);
 
                 } finally {
                     tempDeclarations.Clear();
                     scopedDeclarations.Clear();
+                    list.Clear();
+                    hoisted.Clear();
                 }
             }
         }

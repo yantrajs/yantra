@@ -27,7 +27,8 @@ namespace YantraJS.Core.FastParser
 
     }
 
-    public readonly struct ArraySpan<T>: IEnumerable<T>
+    public readonly struct ArraySpan<T>
+        : IEnumerable<T>
     {
 
         private readonly T[] items;

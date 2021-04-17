@@ -43,24 +43,10 @@ namespace YantraJS.Core.FastParser
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T Allocate<T>()
-        {
-            var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
-            return pool!.Allocate();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T[] AllocateArray<T>(int size)
         {
             var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
             return pool!.AllocateArray(size);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Release<T>(T item)
-        {
-            var pool = pools.GetOrCreate(typeof(T), x => new Pool<T>()) as Pool<T>;
-            pool!.Release(item);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -73,30 +59,17 @@ namespace YantraJS.Core.FastParser
 
         class Pool<T>
         {
-            private readonly Queue<T> queue = new Queue<T>();
             private bool clear = false;
             public Pool()
             {
                 clear = !typeof(T).IsValueType;
             }
 
-            internal T Allocate()
-            {
-                if (queue.TryDequeue(out var r))
-                    return r;
-                return Activator.CreateInstance<T>();
-            }
-
-            internal void Release(T item)
-            {
-                queue.Enqueue(item);
-            }
-
             private readonly Queue<T[]>[] Queues = new Queue<T[]>[] {
-                new Queue<T[]>(),
-                new Queue<T[]>(),
-                new Queue<T[]>(),
-                new Queue<T[]>()
+                new Queue<T[]>(8),
+                new Queue<T[]>(8),
+                new Queue<T[]>(8),
+                new Queue<T[]>(8)
             };
 
             private (int index, int size) MapSize(int size) {
@@ -132,7 +105,7 @@ namespace YantraJS.Core.FastParser
             private void ReleaseInternal(int i, T[] items)
             {
                 ref var q = ref Queues[i];
-                if (q.Count < 5)
+                if (q.Count < 8)
                 {
                     if(clear)
                         Array.Clear(items, 0, items.Length);

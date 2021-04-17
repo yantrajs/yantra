@@ -122,8 +122,13 @@ namespace YantraJS.Core
             {
                 return;
             }
-            int requiredPageLength = (capacity / pageSize) + 1;
-            int pageLength = ((requiredPageLength / 4) + 1) * 4;
+
+            capacity = ((capacity >> 4) + 1) << 4;
+
+            // int requiredPageLength = (capacity / pageSize) + 1;
+            // int pageLength = ((requiredPageLength / 4) + 1) * 4;
+            int pageLength = (capacity / pageSize) + 1;
+            pageLength = ((pageLength >> 2) + 1) << 2;
             if(pages == null)
             {
                 pages = new T[pageLength][];
