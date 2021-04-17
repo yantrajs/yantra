@@ -10,7 +10,9 @@ namespace YantraJS.Core.FastParser
 
 
 
-        bool AssignmentLeftPattern(out AstExpression node, FastVariableKind kind)
+        bool AssignmentLeftPattern(
+            out AstExpression node, 
+            FastVariableKind kind)
         {
             node = default;
 
