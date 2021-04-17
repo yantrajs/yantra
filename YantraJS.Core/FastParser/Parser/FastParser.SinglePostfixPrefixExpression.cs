@@ -33,8 +33,7 @@ namespace YantraJS.Core.FastParser
             FastToken previousToken = null)
         {
             var begin = Location;
-            var (prefix, token) = GetUnaryOperator();
-            if (prefix != UnaryOperator.None)
+            if (HasUnaryOperator(out var prefix, out var token))
             {
                 if (!SinglePrefixPostfixExpression(out node, out hasAsync, out hasGenerator, prefix, token))
                     return begin.Reset();
@@ -69,8 +68,7 @@ namespace YantraJS.Core.FastParser
 
             while (true)
             {
-                var (postfix, postFixToken) = GetUnaryOperator(false);
-                if (postfix != UnaryOperator.None)
+                if (HasUnaryOperator(out var postfix, out var postFixToken, false))
                 {
                     node = new AstUnaryExpression(postFixToken, node, postfix, false);
                 }
@@ -79,12 +77,18 @@ namespace YantraJS.Core.FastParser
 
             return true;
 
-            (UnaryOperator, FastToken) GetUnaryOperator(bool prefix = true)
+            bool HasUnaryOperator(
+                out UnaryOperator unaryOperator,
+                out FastToken token, 
+                bool prefix = true)
             {
-                var token = stream.Current;
-                if (token.Keyword == FastKeywords.@new) {
+                unaryOperator = UnaryOperator.None;
+                token = stream.Current;
+                if (token.Keyword == FastKeywords.@new)
+                {
                     stream.Consume();
-                    return (UnaryOperator.@new, token);
+                    unaryOperator = UnaryOperator.@new;
+                    return true;
                 }
                 switch (token.Type)
                 {
@@ -92,46 +96,110 @@ namespace YantraJS.Core.FastParser
                         if (prefix)
                         {
                             stream.Consume();
-                            return (UnaryOperator.Plus, token);
+                            unaryOperator = UnaryOperator.Plus;
+                            return true;
                         }
-                        return (UnaryOperator.None, token);
+
+                        return false;
                     case TokenTypes.Minus:
                         if (prefix)
                         {
                             stream.Consume();
-                            return (UnaryOperator.Minus, token);
+                            unaryOperator = UnaryOperator.Minus;
+                            return true;
                         }
-                        return (UnaryOperator.None, token);
+                        return false;
                     case TokenTypes.Increment:
                         stream.Consume();
-                        return (UnaryOperator.Increment, token);
+                        unaryOperator = UnaryOperator.Increment; 
+                        return true;
                     case TokenTypes.Decrement:
                         stream.Consume();
-                        return (UnaryOperator.Decrement, token);
+                        unaryOperator = UnaryOperator.Decrement;
+                        return true;
                     case TokenTypes.Negate:
                         stream.Consume();
-                        return (UnaryOperator.Negate, token);
+                        unaryOperator = UnaryOperator.Negate;
+                        return true;
                     case TokenTypes.BitwiseNot:
                         stream.Consume();
-                        return (UnaryOperator.BitwiseNot, token);
+                        unaryOperator = UnaryOperator.BitwiseNot;
+                        return true;
                 }
                 if (!prefix)
-                    return (UnaryOperator.None, token);
+                    return false;
                 switch (token.Keyword)
                 {
                     case FastKeywords.@typeof:
                         stream.Consume();
-                        return (UnaryOperator.@typeof, token);
+                        unaryOperator = UnaryOperator.@typeof;
+                        return true;
                     case FastKeywords.delete:
                         stream.Consume();
-                        return (UnaryOperator.delete, token);
+                        unaryOperator = UnaryOperator.delete;
+                        return true;
                     case FastKeywords.@void:
                         stream.Consume();
-                        return (UnaryOperator.@void, token);
+                        unaryOperator = UnaryOperator.@void;
+                        return true;
                     default:
-                        return (UnaryOperator.None, token);
+                        return false;
                 }
             }
+
+            //(UnaryOperator, FastToken) GetUnaryOperator(bool prefix = true)
+            //{
+            //    var token = stream.Current;
+            //    if (token.Keyword == FastKeywords.@new) {
+            //        stream.Consume();
+            //        return (UnaryOperator.@new, token);
+            //    }
+            //    switch (token.Type)
+            //    {
+            //        case TokenTypes.Plus:
+            //            if (prefix)
+            //            {
+            //                stream.Consume();
+            //                return (UnaryOperator.Plus, token);
+            //            }
+            //            return (UnaryOperator.None, token);
+            //        case TokenTypes.Minus:
+            //            if (prefix)
+            //            {
+            //                stream.Consume();
+            //                return (UnaryOperator.Minus, token);
+            //            }
+            //            return (UnaryOperator.None, token);
+            //        case TokenTypes.Increment:
+            //            stream.Consume();
+            //            return (UnaryOperator.Increment, token);
+            //        case TokenTypes.Decrement:
+            //            stream.Consume();
+            //            return (UnaryOperator.Decrement, token);
+            //        case TokenTypes.Negate:
+            //            stream.Consume();
+            //            return (UnaryOperator.Negate, token);
+            //        case TokenTypes.BitwiseNot:
+            //            stream.Consume();
+            //            return (UnaryOperator.BitwiseNot, token);
+            //    }
+            //    if (!prefix)
+            //        return (UnaryOperator.None, token);
+            //    switch (token.Keyword)
+            //    {
+            //        case FastKeywords.@typeof:
+            //            stream.Consume();
+            //            return (UnaryOperator.@typeof, token);
+            //        case FastKeywords.delete:
+            //            stream.Consume();
+            //            return (UnaryOperator.delete, token);
+            //        case FastKeywords.@void:
+            //            stream.Consume();
+            //            return (UnaryOperator.@void, token);
+            //        default:
+            //            return (UnaryOperator.None, token);
+            //    }
+            //}
         }
         
     }

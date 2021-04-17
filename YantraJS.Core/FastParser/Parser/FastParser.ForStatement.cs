@@ -155,29 +155,33 @@ namespace YantraJS.Core.FastParser
             // modify the node as well...
             AstExpression AssignTempNames(FastList<(string id, AstIdentifier temp)> list, AstExpression e)
             {
-                switch ((e.Type,e))
+                switch (e.Type)
                 {
-                    case (FastNodeType.Identifier, AstIdentifier id):
+                    case FastNodeType.Identifier:
+                        var id = e as AstIdentifier;
                         var tempID = Interlocked.Increment(ref TempVarID).ToString();
-                        var temp = new AstIdentifier(id.Start, tempID);
+                        var temp = new AstIdentifier(id!.Start, tempID);
                         list.Add((id.Name.Value!, temp));
                         return temp;
-                    case (FastNodeType.SpreadElement, AstSpreadElement spreadElement):
-                        return new AstSpreadElement(spreadElement.Start,spreadElement.End, AssignTempNames(list, spreadElement.Argument));
-                    case (FastNodeType.ObjectPattern, AstObjectPattern pattern):
-                        for (int i = 0; i < pattern.Properties.Length; i++)
+                    case FastNodeType.SpreadElement:
+                        var spreadElement = e as AstSpreadElement;
+                        return new AstSpreadElement(spreadElement!.Start,spreadElement.End, AssignTempNames(list, spreadElement.Argument));
+                    case FastNodeType.ObjectPattern: 
+                        var pattern = e as AstObjectPattern;
+                        for (int i = 0; i < pattern!.Properties.Length; i++)
                         {
                             ref var property = ref pattern.Properties[i];
                             pattern.Properties[i] = new ObjectProperty(property.Key, AssignTempNames(list, property.Value), property.Spread);
                         }
                         return pattern;
-                    case (FastNodeType.ArrayPattern, AstArrayPattern pattern):
-                        for (int i = 0; i < pattern.Elements.Length; i++)
+                    case FastNodeType.ArrayPattern:
+                        var arrayPattern = e as AstArrayPattern;
+                        for (int i = 0; i < arrayPattern!.Elements.Length; i++)
                         {
-                            ref var property = ref pattern.Elements[i];
-                            pattern.Elements[i] = AssignTempNames(list, property);
+                            ref var property = ref arrayPattern.Elements[i];
+                            arrayPattern.Elements[i] = AssignTempNames(list, property);
                         }
-                        return pattern;
+                        return arrayPattern;
                     default:
                         throw new FastParseException(e.Start, $"Unknown token");
                 }
