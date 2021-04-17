@@ -20,9 +20,10 @@ namespace YantraJS.Core.FastParser.Compiler
                 : VisitExpression(memberExpression.Object);
             var super = isSuper ? this.scope.Top.Super : null;
             var mp = memberExpression.Property;
-            switch ((mp.Type, mp))
+            switch (mp.Type)
             {
-                case (FastNodeType.Identifier, AstIdentifier id):
+                case FastNodeType.Identifier: 
+                    var  id = mp as AstIdentifier;
                     if (!memberExpression.Computed)
                     {
                         return ExpHelper.JSValueBuilder.Index(
@@ -34,7 +35,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         target,
                         super,
                         VisitIdentifier(id));
-                case (FastNodeType.Literal, AstLiteral l):
+                case FastNodeType.Literal:
+                    var l = mp as AstLiteral;
                     switch (l.TokenType)
                     {
                         case TokenTypes.True:
@@ -68,7 +70,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         default:
                             throw new NotImplementedException();
                     }
-                case (FastNodeType.MemberExpression, AstMemberExpression se):
+                case FastNodeType.MemberExpression:
+                    var se = mp as AstMemberExpression;
                     return JSValueBuilder.Index(target, super, VisitExpression(se));
 
             }

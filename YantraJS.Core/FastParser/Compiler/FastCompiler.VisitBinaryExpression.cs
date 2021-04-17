@@ -10,91 +10,228 @@ namespace YantraJS.Core.FastParser.Compiler
 {
     internal static class TokenTypesExtensions
     {
-        public static (Esprima.Ast.BinaryOperator? binary, Esprima.Ast.AssignmentOperator? assign) 
-            ToOperator(this TokenTypes tokenType)
+        /// <summary>
+        /// returns one if it is binary operator
+        /// returns two if it is assignment operator
+        /// returns zero if none
+        /// </summary>
+        /// <param name="tokenType"></param>
+        /// <param name="binary"></param>
+        /// <param name="assign"></param>
+        /// <returns></returns>
+        public static int
+            IsOperator(
+                this TokenTypes tokenType, 
+                out Esprima.Ast.BinaryOperator binary, 
+                out Esprima.Ast.AssignmentOperator assign)
         {
+            binary = default;
+            assign = default;
             switch (tokenType)
             {
                 case TokenTypes.Assign:
-                    return (null, Esprima.Ast.AssignmentOperator.Assign);
+                    assign = Esprima.Ast.AssignmentOperator.Assign;
+                    return 2;
                 case TokenTypes.AssignAdd:
-                    return (null, Esprima.Ast.AssignmentOperator.PlusAssign);
+                    assign = Esprima.Ast.AssignmentOperator.PlusAssign;
+                    return 2;
                 case TokenTypes.AssignBitwideAnd:
-                    return (null, Esprima.Ast.AssignmentOperator.BitwiseAndAssign) ;
+                    assign = Esprima.Ast.AssignmentOperator.BitwiseAndAssign;
+                    return 2;
                 case TokenTypes.AssignBitwideOr:
-                    return (null, Esprima.Ast.AssignmentOperator.BitwiseOrAssign) ;
+                    assign = Esprima.Ast.AssignmentOperator.BitwiseOrAssign;
+                    return 2;
                 case TokenTypes.AssignDivide:
-                    return (null, Esprima.Ast.AssignmentOperator.DivideAssign);
+                    assign = Esprima.Ast.AssignmentOperator.DivideAssign;
+                    return 2;
                 case TokenTypes.AssignLeftShift:
-                    return (null, Esprima.Ast.AssignmentOperator.LeftShiftAssign);
+                    assign = Esprima.Ast.AssignmentOperator.LeftShiftAssign;
+                    return 2;
                 case TokenTypes.AssignMod:
-                    return (null, Esprima.Ast.AssignmentOperator.ModuloAssign);
+                    assign = Esprima.Ast.AssignmentOperator.ModuloAssign;
+                    return 2;
                 case TokenTypes.AssignMultiply:
-                    return (null, Esprima.Ast.AssignmentOperator.TimesAssign);
+                    assign = Esprima.Ast.AssignmentOperator.TimesAssign;
+                    return 2;
                 case TokenTypes.AssignPower:
-                    return (null, Esprima.Ast.AssignmentOperator.ExponentiationAssign);
+                    assign = Esprima.Ast.AssignmentOperator.ExponentiationAssign;
+                    return 2;
                 case TokenTypes.AssignRightShift:
-                    return (null, Esprima.Ast.AssignmentOperator.RightShiftAssign);
+                    assign = Esprima.Ast.AssignmentOperator.RightShiftAssign;
+                    return 2;
                 case TokenTypes.AssignSubtract:
-                    return (null, Esprima.Ast.AssignmentOperator.MinusAssign);
+                    assign = Esprima.Ast.AssignmentOperator.MinusAssign;
+                    return 2;
                 case TokenTypes.AssignUnsignedRightShift:
-                    return (null, Esprima.Ast.AssignmentOperator.UnsignedRightShiftAssign);
+                    assign = Esprima.Ast.AssignmentOperator.UnsignedRightShiftAssign;
+                    return 2;
                 case TokenTypes.AssignXor:
-                    return (null, Esprima.Ast.AssignmentOperator.BitwiseXOrAssign);
+                    assign = Esprima.Ast.AssignmentOperator.BitwiseXOrAssign;
+                    return 2;
 
                 case TokenTypes.Plus:
-                    return (Esprima.Ast.BinaryOperator.Plus, null);
+                    binary = Esprima.Ast.BinaryOperator.Plus;
+					return 1;
                 case TokenTypes.Minus:
-                    return (Esprima.Ast.BinaryOperator.Minus, null);
+                    binary = Esprima.Ast.BinaryOperator.Minus;
+					return 1;
                 case TokenTypes.Multiply:
-                    return (Esprima.Ast.BinaryOperator.Times, null);
+                    binary = Esprima.Ast.BinaryOperator.Times;
+					return 1;
                 case TokenTypes.Divide:
-                    return (Esprima.Ast.BinaryOperator.Divide, null);
+                    binary = Esprima.Ast.BinaryOperator.Divide;
+					return 1;
                 case TokenTypes.Mod:
-                    return (Esprima.Ast.BinaryOperator.Modulo, null);
+                    binary = Esprima.Ast.BinaryOperator.Modulo;
+					return 1;
                 case TokenTypes.Equal:
-                    return (Esprima.Ast.BinaryOperator.Equal, null);
+                    binary = Esprima.Ast.BinaryOperator.Equal;
+					return 1;
                 case TokenTypes.NotEqual:
-                    return (Esprima.Ast.BinaryOperator.NotEqual, null);
+                    binary = Esprima.Ast.BinaryOperator.NotEqual;
+					return 1;
                 case TokenTypes.Greater:
-                    return (Esprima.Ast.BinaryOperator.Greater, null);
+                    binary = Esprima.Ast.BinaryOperator.Greater;
+					return 1;
                 case TokenTypes.GreaterOrEqual:
-                    return (Esprima.Ast.BinaryOperator.GreaterOrEqual, null);
+                    binary = Esprima.Ast.BinaryOperator.GreaterOrEqual;
+					return 1;
                 case TokenTypes.Less:
-                    return (Esprima.Ast.BinaryOperator.Less, null);
+                    binary = Esprima.Ast.BinaryOperator.Less;
+					return 1;
                 case TokenTypes.LessOrEqual:
-                    return (Esprima.Ast.BinaryOperator.LessOrEqual, null);
+                    binary = Esprima.Ast.BinaryOperator.LessOrEqual;
+					return 1;
                 case TokenTypes.StrictlyEqual:
-                    return (Esprima.Ast.BinaryOperator.StrictlyEqual, null);
+                    binary = Esprima.Ast.BinaryOperator.StrictlyEqual;
+					return 1;
                 case TokenTypes.StrictlyNotEqual:
-                    return (Esprima.Ast.BinaryOperator.StricltyNotEqual, null);
+                    binary = Esprima.Ast.BinaryOperator.StricltyNotEqual;
+					return 1;
                 case TokenTypes.BitwiseAnd:
-                    return (Esprima.Ast.BinaryOperator.BitwiseAnd, null);
+                    binary = Esprima.Ast.BinaryOperator.BitwiseAnd;
+					return 1;
                 case TokenTypes.BitwiseOr:
-                    return (Esprima.Ast.BinaryOperator.BitwiseOr, null);
+                    binary = Esprima.Ast.BinaryOperator.BitwiseOr;
+					return 1;
                 case TokenTypes.Xor:
-                    return (Esprima.Ast.BinaryOperator.BitwiseXOr, null);
+                    binary = Esprima.Ast.BinaryOperator.BitwiseXOr;
+					return 1;
                 case TokenTypes.LeftShift:
-                    return (Esprima.Ast.BinaryOperator.LeftShift, null);
+                    binary = Esprima.Ast.BinaryOperator.LeftShift;
+					return 1;
                 case TokenTypes.RightShift:
-                    return (Esprima.Ast.BinaryOperator.RightShift, null);
+                    binary = Esprima.Ast.BinaryOperator.RightShift;
+					return 1;
                 case TokenTypes.UnsignedRightShift:
-                    return (Esprima.Ast.BinaryOperator.UnsignedRightShift, null);
+                    binary = Esprima.Ast.BinaryOperator.UnsignedRightShift;
+					return 1;
                 case TokenTypes.InstanceOf:
-                    return (Esprima.Ast.BinaryOperator.InstanceOf, null);
+                    binary = Esprima.Ast.BinaryOperator.InstanceOf;
+					return 1;
                 case TokenTypes.In:
-                    return (Esprima.Ast.BinaryOperator.In, null);
+                    binary = Esprima.Ast.BinaryOperator.In;
+					return 1;
                 case TokenTypes.BooleanAnd:
-                    return (Esprima.Ast.BinaryOperator.LogicalAnd, null);
+                    binary = Esprima.Ast.BinaryOperator.LogicalAnd;
+					return 1;
                 case TokenTypes.BooleanOr:
-                    return (Esprima.Ast.BinaryOperator.LogicalOr, null);
+                    binary = Esprima.Ast.BinaryOperator.LogicalOr;
+					return 1;
                 case TokenTypes.Power:
-                    return (Esprima.Ast.BinaryOperator.Exponentiation, null);
+                    binary = Esprima.Ast.BinaryOperator.Exponentiation;
+					return 1;
             }
 
-            return (null, null);
-
+            return 0;
         }
+
+
+        //public static (Esprima.Ast.BinaryOperator? binary, Esprima.Ast.AssignmentOperator? assign) 
+        //    ToOperator(this TokenTypes tokenType)
+        //{
+        //    switch (tokenType)
+        //    {
+        //        case TokenTypes.Assign:
+        //            return (null, Esprima.Ast.AssignmentOperator.Assign);
+        //        case TokenTypes.AssignAdd:
+        //            return (null, Esprima.Ast.AssignmentOperator.PlusAssign);
+        //        case TokenTypes.AssignBitwideAnd:
+        //            return (null, Esprima.Ast.AssignmentOperator.BitwiseAndAssign) ;
+        //        case TokenTypes.AssignBitwideOr:
+        //            return (null, Esprima.Ast.AssignmentOperator.BitwiseOrAssign) ;
+        //        case TokenTypes.AssignDivide:
+        //            return (null, Esprima.Ast.AssignmentOperator.DivideAssign);
+        //        case TokenTypes.AssignLeftShift:
+        //            return (null, Esprima.Ast.AssignmentOperator.LeftShiftAssign);
+        //        case TokenTypes.AssignMod:
+        //            return (null, Esprima.Ast.AssignmentOperator.ModuloAssign);
+        //        case TokenTypes.AssignMultiply:
+        //            return (null, Esprima.Ast.AssignmentOperator.TimesAssign);
+        //        case TokenTypes.AssignPower:
+        //            return (null, Esprima.Ast.AssignmentOperator.ExponentiationAssign);
+        //        case TokenTypes.AssignRightShift:
+        //            return (null, Esprima.Ast.AssignmentOperator.RightShiftAssign);
+        //        case TokenTypes.AssignSubtract:
+        //            return (null, Esprima.Ast.AssignmentOperator.MinusAssign);
+        //        case TokenTypes.AssignUnsignedRightShift:
+        //            return (null, Esprima.Ast.AssignmentOperator.UnsignedRightShiftAssign);
+        //        case TokenTypes.AssignXor:
+        //            return (null, Esprima.Ast.AssignmentOperator.BitwiseXOrAssign);
+
+        //        case TokenTypes.Plus:
+        //            return (Esprima.Ast.BinaryOperator.Plus, null);
+        //        case TokenTypes.Minus:
+        //            return (Esprima.Ast.BinaryOperator.Minus, null);
+        //        case TokenTypes.Multiply:
+        //            return (Esprima.Ast.BinaryOperator.Times, null);
+        //        case TokenTypes.Divide:
+        //            return (Esprima.Ast.BinaryOperator.Divide, null);
+        //        case TokenTypes.Mod:
+        //            return (Esprima.Ast.BinaryOperator.Modulo, null);
+        //        case TokenTypes.Equal:
+        //            return (Esprima.Ast.BinaryOperator.Equal, null);
+        //        case TokenTypes.NotEqual:
+        //            return (Esprima.Ast.BinaryOperator.NotEqual, null);
+        //        case TokenTypes.Greater:
+        //            return (Esprima.Ast.BinaryOperator.Greater, null);
+        //        case TokenTypes.GreaterOrEqual:
+        //            return (Esprima.Ast.BinaryOperator.GreaterOrEqual, null);
+        //        case TokenTypes.Less:
+        //            return (Esprima.Ast.BinaryOperator.Less, null);
+        //        case TokenTypes.LessOrEqual:
+        //            return (Esprima.Ast.BinaryOperator.LessOrEqual, null);
+        //        case TokenTypes.StrictlyEqual:
+        //            return (Esprima.Ast.BinaryOperator.StrictlyEqual, null);
+        //        case TokenTypes.StrictlyNotEqual:
+        //            return (Esprima.Ast.BinaryOperator.StricltyNotEqual, null);
+        //        case TokenTypes.BitwiseAnd:
+        //            return (Esprima.Ast.BinaryOperator.BitwiseAnd, null);
+        //        case TokenTypes.BitwiseOr:
+        //            return (Esprima.Ast.BinaryOperator.BitwiseOr, null);
+        //        case TokenTypes.Xor:
+        //            return (Esprima.Ast.BinaryOperator.BitwiseXOr, null);
+        //        case TokenTypes.LeftShift:
+        //            return (Esprima.Ast.BinaryOperator.LeftShift, null);
+        //        case TokenTypes.RightShift:
+        //            return (Esprima.Ast.BinaryOperator.RightShift, null);
+        //        case TokenTypes.UnsignedRightShift:
+        //            return (Esprima.Ast.BinaryOperator.UnsignedRightShift, null);
+        //        case TokenTypes.InstanceOf:
+        //            return (Esprima.Ast.BinaryOperator.InstanceOf, null);
+        //        case TokenTypes.In:
+        //            return (Esprima.Ast.BinaryOperator.In, null);
+        //        case TokenTypes.BooleanAnd:
+        //            return (Esprima.Ast.BinaryOperator.LogicalAnd, null);
+        //        case TokenTypes.BooleanOr:
+        //            return (Esprima.Ast.BinaryOperator.LogicalOr, null);
+        //        case TokenTypes.Power:
+        //            return (Esprima.Ast.BinaryOperator.Exponentiation, null);
+        //    }
+
+        //    return (null, null);
+
+        //}
 
     }
 
@@ -102,17 +239,17 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Expression VisitBinaryExpression(AstBinaryExpression binaryExpression)
         {
-            var (binary, assign) = binaryExpression.Operator.ToOperator();
-            if(assign != null)
+            int type = binaryExpression.Operator.IsOperator(out  var binary, out  var assign);
+            if(type == 2)
                 return VisitAssignmentExpression(
-                    binaryExpression.Left, assign.Value, binaryExpression.Right);
-            if(binary!=null)
+                    binaryExpression.Left, assign, binaryExpression.Right);
+            if(type == 1)
             {
                 var left = Visit(binaryExpression.Left);
                 var right = Visit(binaryExpression.Right);
-                if (binary.Value == Esprima.Ast.BinaryOperator.Plus)
+                if (binary == Esprima.Ast.BinaryOperator.Plus)
                     return JSValueBuilder.Add(left, right);
-                return BinaryOperation.Operation(left, right, binary.Value);
+                return BinaryOperation.Operation(left, right, binary);
             }
             throw new NotImplementedException();
 

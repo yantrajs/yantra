@@ -52,8 +52,9 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
 
                     Exp test = null;
-                    switch ((c.Test.Type, c.Test)) {
-                        case (FastNodeType.Literal, AstLiteral literal):
+                    switch (c.Test.Type) {
+                        case FastNodeType.Literal:
+                            var literal = c.Test as AstLiteral;
 
                             switch (literal.TokenType) {
                                 case TokenTypes.String:

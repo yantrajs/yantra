@@ -20,8 +20,9 @@ namespace YantraJS.Core.FastParser.Compiler
             try {
                 var ed = variableDeclaration.Declarators.GetEnumerator();
                 while(ed.MoveNext(out var d)) {
-                    switch((d.Identifier.Type, d.Identifier)) {
-                        case (FastNodeType.Identifier, AstIdentifier id):
+                    switch(d.Identifier.Type) {
+                        case FastNodeType.Identifier:
+                            var id = d.Identifier as AstIdentifier;
                             var v = top.CreateVariable(id.Name, JSVariableBuilder.New(id.Name.Value), newScope);
                             if(d.Init==null) {
                                 list.Add(v.Expression);
@@ -29,14 +30,16 @@ namespace YantraJS.Core.FastParser.Compiler
                                 list.Add(Exp.Assign(v.Expression, Visit(d.Init)));
                             }
                             break;
-                        case (FastNodeType.ObjectPattern, AstObjectPattern objectPattern):
+                        case FastNodeType.ObjectPattern:
+                            var objectPattern = d.Identifier as AstObjectPattern;
                             using (var temp = top.GetTempVariable()) {
                                 if (d.Init != null)
                                     list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
                                 list.Add(CreateAssignment(objectPattern, temp.Expression, true, newScope));
                             }
                             break;
-                        case (FastNodeType.ArrayPattern, AstArrayPattern arrayPattern):
+                        case FastNodeType.ArrayPattern: 
+                            var arrayPattern = d.Identifier as AstArrayPattern;
                             using (var temp = this.scope.Top.GetTempVariable()) {
                                 if(d.Init != null )
                                     list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));

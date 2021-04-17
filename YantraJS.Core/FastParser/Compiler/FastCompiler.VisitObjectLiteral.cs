@@ -28,9 +28,10 @@ namespace YantraJS.Core.FastParser.Compiler
                 Exp value = null;
                 string name = null;
                 var pKey = p.Key;
-                switch ((pKey.Type, pKey))
+                switch (pKey.Type)
                 {
-                    case (FastNodeType.Identifier, AstIdentifier id):
+                    case FastNodeType.Identifier: 
+                        var id = pKey as AstIdentifier;
                         if (!p.Computed)
                         {
                             key = KeyOfName(id.Name);
@@ -42,7 +43,8 @@ namespace YantraJS.Core.FastParser.Compiler
                             name = id.Name.Value;
                         }
                         break;
-                    case (FastNodeType.Literal, AstLiteral l):
+                    case FastNodeType.Literal:
+                        var l = pKey as AstLiteral;
                         if (l.TokenType == TokenTypes.String)
                         {
                             if (NumberParser.TryCoerceToUInt32(l.StringValue, out var ui))

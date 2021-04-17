@@ -49,28 +49,33 @@ namespace YantraJS.Core.FastParser.Compiler
             bool newScope = false)
         {
             Exp target;
-            switch ((pattern.Type,pattern))
+            switch (pattern.Type)
             {
-                case (FastNodeType.Identifier, AstIdentifier id):
-                    if (createVariable)
+                case FastNodeType.Identifier:
                     {
-                        var v = this.scope.Top.CreateVariable(id.Name.Value, JSVariableBuilder.New(id.Name.Value), newScope);
-                        // inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
-                        target = v.Expression;
+                        var id = pattern as AstIdentifier;
+                        if (createVariable)
+                        {
+                            var v = this.scope.Top.CreateVariable(id.Name.Value, JSVariableBuilder.New(id.Name.Value), newScope);
+                            // inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
+                            target = v.Expression;
+                        }
+                        else
+                        {
+                            target = this.VisitIdentifier(id);
+                        }
+                        inits.Add(Exp.Assign(target, init));
                     }
-                    else
-                    {
-                        target = this.VisitIdentifier(id);
-                    }
-                    inits.Add(Exp.Assign(target, init));
                     return;
-                case (FastNodeType.ObjectPattern, AstObjectPattern objectPattern):
+                case FastNodeType.ObjectPattern:
+                    var objectPattern = pattern as AstObjectPattern;
                     foreach (var property in objectPattern.Properties)
                     {
                         Exp start = null;
-                        switch ((property.Key.Type, property.Key))
+                        switch (property.Key.Type)
                         {
-                            case (FastNodeType.Identifier, AstIdentifier id):
+                            case FastNodeType.Identifier:
+                                var id = property.Key as AstIdentifier;
                                 start = CreateMemberExpression(init, id, property.Computed);
                                 break;
                             default:
@@ -97,7 +102,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         }
                     }
                     return;
-                case (FastNodeType.ArrayPattern, AstArrayPattern arrayPattern):
+                case FastNodeType.ArrayPattern:
+                    var arrayPattern = pattern as AstArrayPattern;
                     using (var enVar = this.scope.Top.GetTempVariable(typeof(IElementEnumerator)))
                     {
                         var en = enVar.Expression;
