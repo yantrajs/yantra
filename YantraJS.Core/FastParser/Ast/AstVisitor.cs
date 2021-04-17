@@ -202,6 +202,21 @@ namespace YantraJS.Core.FastParser.Ast
             return conditionalExpression;
         }
 
+        protected override AstNode VisitExportStatement(AstExportStatement astExportStatement)
+        {
+            if (Modified(astExportStatement.Declaration, astExportStatement.Source, out var d, out var s))
+                return new AstExportStatement(astExportStatement.Start, d, s);
+            return astExportStatement;
+        }
+
+        protected override AstNode VisitImportStatement(AstImportStatement astImportStatement)
+        {
+            if (Modified(astImportStatement.Default, astImportStatement.Declaration, astImportStatement.Source,
+                out var def, out var dec, out var src))
+                return new AstImportStatement(astImportStatement.Start, def, dec, src);
+            return astImportStatement;
+        }
+
         protected override AstNode VisitContinueStatement(AstContinueStatement continueStatement)
         {
             return continueStatement;

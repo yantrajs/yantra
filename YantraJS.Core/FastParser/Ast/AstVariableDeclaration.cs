@@ -18,6 +18,18 @@ namespace YantraJS.Core.FastParser
         public readonly FastVariableKind Kind;
 
         public AstVariableDeclaration(
+            FastToken begin,
+            FastToken previousToken,
+            in VariableDeclarator declarator,
+            FastVariableKind kind = FastVariableKind.Var)
+            : base(begin, FastNodeType.VariableDeclaration, previousToken)
+        {
+            this.Declarators = ArraySpan<VariableDeclarator>.From(declarator);
+            this.Kind = kind;
+        }
+
+
+        public AstVariableDeclaration(
             FastToken begin, 
             FastToken previousToken, 
             in ArraySpan<VariableDeclarator> declarators, 

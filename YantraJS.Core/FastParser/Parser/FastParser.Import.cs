@@ -27,7 +27,8 @@ namespace YantraJS.Core.FastParser
                 return true;
 
             }
-            AstExpression all = null;
+            AstExpression ap = null;
+            AstNode all = null;
             if(Identitifer(out id))
             {
                 if(stream.CheckAndConsume(TokenTypes.Comma))
@@ -39,8 +40,13 @@ namespace YantraJS.Core.FastParser
                             throw stream.Unexpected();
                         all = allid;
                     }
-                    else if (!AssignmentLeftPattern(out all, FastVariableKind.Var, true))
-                        throw stream.Unexpected();
+                    else if (AssignmentLeftPattern(out ap, FastVariableKind.Var, true)) {
+
+                        var vd = VariableDeclarator.From(Pool, ap);
+                        // convert to vd...
+                        all = new AstVariableDeclaration(token, all.End, vd);
+
+                    } else throw stream.Unexpected();
                 }
 
                 stream.ExpectContextualKeyword(FastKeywords.from);
@@ -50,8 +56,11 @@ namespace YantraJS.Core.FastParser
                 return true;
             }
 
-            if(AssignmentLeftPattern(out all, FastVariableKind.Var, true))
+            if(AssignmentLeftPattern(out ap, FastVariableKind.Var, true))
             {
+                var vd = VariableDeclarator.From(Pool, ap);
+                // convert to vd...
+                all = new AstVariableDeclaration(token, all.End, vd);
                 if (stream.CheckAndConsume(TokenTypes.Comma))
                 {
                     if (!Identitifer(out id))

@@ -76,7 +76,9 @@ namespace YantraJS.Core.FastParser
                 stream.ExpectContextualKeyword(FastKeywords.from);
 
                 var literal = ExpectStringLiteral();
-                statement = new AstExportStatement(token, declaration, literal);
+                var vd = VariableDeclarator.From(Pool, declaration);
+                statement = new AstExportStatement(token, new AstVariableDeclaration(token, literal.End,
+                    vd));
                 return true;
             }
             throw stream.Unexpected();

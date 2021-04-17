@@ -1,7 +1,7 @@
 ﻿#nullable enable
 namespace YantraJS.Core.FastParser
 {
-    internal class AstImportStatement : AstStatement
+    public class AstImportStatement : AstStatement
     {
         public readonly AstIdentifier? Default;
         public readonly AstNode? Declaration;

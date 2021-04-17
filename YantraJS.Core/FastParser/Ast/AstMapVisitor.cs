@@ -114,11 +114,17 @@ namespace YantraJS.Utils
 					return VisitReturnStatement(node as AstReturnStatement);
                 case FastNodeType.NewExpression:
 					return VisitNewExpression(node as AstNewExpression);
+                case FastNodeType.ImportStatement:
+                    return VisitImportStatement(node as AstImportStatement);
+                case FastNodeType.ExportStatement:
+                    return VisitExportStatement(node as AstExportStatement);
                 default:
                     throw new NotImplementedException($"No implementation for {node.Type}");
             }
         }
 
+        protected abstract T VisitExportStatement(AstExportStatement astExportStatement);
+        protected abstract T VisitImportStatement(AstImportStatement astImportStatement);
         protected abstract T VisitArrayPattern(AstArrayPattern arrayPattern);
         protected abstract T VisitNewExpression(AstNewExpression newExpression);
         protected abstract T VisitReturnStatement(AstReturnStatement returnStatement);
