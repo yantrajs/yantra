@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
@@ -9,10 +10,9 @@ namespace YantraJS.Core.FastParser
     {
 
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool Identitifer(out AstIdentifier node)
         {
-            var begin = Location;
             if (stream.CheckAndConsume(TokenTypes.Identifier, out var token))
             {
                 node = new AstIdentifier(token);
