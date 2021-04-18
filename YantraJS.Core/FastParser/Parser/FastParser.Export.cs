@@ -13,10 +13,10 @@ namespace YantraJS.Core.FastParser
             return new AstLiteral(TokenTypes.String, token);
         }
 
-        public bool Export(out AstStatement statement)
+        public bool Export(FastToken start, out AstStatement statement)
         {
-            var token = stream.Current;
             stream.Consume();
+            var token = stream.Current;
 
             if (token.IsKeyword)
             {
@@ -26,7 +26,7 @@ namespace YantraJS.Core.FastParser
                         stream.Consume();
                         if (!Expression(out var argument))
                             throw stream.Unexpected();
-                        statement = new AstExportStatement(token, argument, true);
+                        statement = new AstExportStatement(start, argument, true);
                         return true;
                     case FastKeywords.function:
                         if (!FunctionExpression(out var f))
@@ -34,7 +34,7 @@ namespace YantraJS.Core.FastParser
                         var fn = f as AstFunctionExpression;
                         if (fn.Id == null)
                             throw new FastParseException(f.Start, "exported function must have a name");
-                        statement = new AstExportStatement(token, fn.Id);
+                        statement = new AstExportStatement(start, fn);
                         return true;
                     case FastKeywords.@class:
                         if (!ClassExpression(out var @class))
@@ -42,22 +42,22 @@ namespace YantraJS.Core.FastParser
                         var c = @class as AstClassExpression;
                         if (c.Identifier == null)
                             throw new FastParseException(c.Start, "exported class must have a name");
-                        statement = new AstExportStatement(token, c);
+                        statement = new AstExportStatement(start, c);
                         return true;
                     case FastKeywords.var:
                         if (!VariableDeclaration(out var stmt))
                             throw stream.Unexpected();
-                        statement = new AstExportStatement(token, stmt);
+                        statement = new AstExportStatement(start, stmt);
                         return true;
                     case FastKeywords.let:
                         if (!VariableDeclaration(out stmt, FastVariableKind.Let))
                             throw stream.Unexpected();
-                        statement = new AstExportStatement(token, stmt);
+                        statement = new AstExportStatement(start, stmt);
                         return true;
                     case FastKeywords.@const:
                         if (!VariableDeclaration(out stmt, FastVariableKind.Const))
                             throw stream.Unexpected();
-                        statement = new AstExportStatement(token, stmt);
+                        statement = new AstExportStatement(start, stmt);
                         return true;
                 }
             }
@@ -67,7 +67,7 @@ namespace YantraJS.Core.FastParser
                 stream.ExpectContextualKeyword(FastKeywords.from);
 
                 var literal = ExpectStringLiteral();
-                statement = new AstExportStatement(token, null, literal);
+                statement = new AstExportStatement(start, null, literal);
                 return true;
             }
 
@@ -77,7 +77,7 @@ namespace YantraJS.Core.FastParser
 
                 var literal = ExpectStringLiteral();
                 var vd = VariableDeclarator.From(Pool, declaration);
-                statement = new AstExportStatement(token, new AstVariableDeclaration(token, literal.End,
+                statement = new AstExportStatement(start, new AstVariableDeclaration(token, literal.End,
                     vd));
                 return true;
             }

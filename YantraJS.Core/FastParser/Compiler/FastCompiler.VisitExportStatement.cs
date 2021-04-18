@@ -13,7 +13,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void ExtractName(FastList<StringSpan> list, AstNode node) {
+        void ExtractName(FastList<(StringSpan name, StringSpan asName)> list, AstNode node) {
             switch (node.Type)
             {
                 case FastNodeType.VariableDeclaration:
@@ -24,7 +24,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     return;
                 case FastNodeType.Identifier:
                     var id = node as AstIdentifier;
-                    list.Add(id.Start.Span);
+                    list.Add((id.Start.Span, id.Start.Span));
                     return;
                 case FastNodeType.ArrayPattern:
                     var ap = node as AstArrayPattern;
@@ -88,6 +88,9 @@ namespace YantraJS.Core.FastParser.Compiler
                             list.Add(Exp.Assign(left, right.Expression));
                         }
                         return Exp.Block(list);
+                    case FastNodeType.Identifier:
+                        var id = exportStatement.Declaration as AstIdentifier;
+                        return JSValueBuilder.Index(exports.Expression, KeyOfName(id.Name));
                     case FastNodeType.FunctionExpression:
                         var fe = this.Visit(declaration);
                         var fd = declaration as AstFunctionExpression;

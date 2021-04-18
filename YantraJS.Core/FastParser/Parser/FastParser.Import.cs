@@ -6,9 +6,8 @@ namespace YantraJS.Core.FastParser
 {
     partial class FastParser
     {
-        bool Import(out AstStatement statement)
+        bool Import(FastToken token, out AstStatement statement)
         {
-            var token = stream.Current;
             stream.Consume();
 
             AstIdentifier id;
@@ -60,7 +59,7 @@ namespace YantraJS.Core.FastParser
             {
                 var vd = VariableDeclarator.From(Pool, ap);
                 // convert to vd...
-                all = new AstVariableDeclaration(token, all.End, vd);
+                all = new AstVariableDeclaration(token, ap.End, vd);
                 if (stream.CheckAndConsume(TokenTypes.Comma))
                 {
                     if (!Identitifer(out id))

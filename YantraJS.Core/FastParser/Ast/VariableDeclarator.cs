@@ -7,20 +7,25 @@ namespace YantraJS.Core.FastParser
 
         public static AstExpression ToPattern(this AstExpression exp)
         {
-            switch ((exp.Type, exp))
+            switch (exp.Type)
             {
-                case (FastNodeType.SpreadElement, AstSpreadElement spe):
-                    if(spe.Argument.Type  != FastNodeType.Identifier)
+                case FastNodeType.SpreadElement: 
+                    var spe = exp as AstSpreadElement;
+                    if (spe!.Argument.Type  != FastNodeType.Identifier)
                     {
                         throw new FastParseException(exp.Start, "Invalid spread pattern");
                     }
                     return spe;
-                case (FastNodeType.Identifier, AstIdentifier id):
-                    return id;
-                case (FastNodeType.ObjectLiteral, AstObjectLiteral l):
-                    return LiteralToPattern(l);
-                case (FastNodeType.ArrayExpression, AstArrayExpression ae):
-                    return ArrayToPattern(ae);
+                case FastNodeType.ObjectLiteral: 
+                    var l = exp as AstObjectLiteral;
+                    return LiteralToPattern(l!);
+                case FastNodeType.ArrayExpression: 
+                    var ae = exp as AstArrayExpression;
+                    return ArrayToPattern(ae!);
+                case FastNodeType.Identifier:
+                case FastNodeType.ArrayPattern:
+                case FastNodeType.ObjectPattern:
+                    return exp;
                 default:
                     throw new FastParseException(exp.Start, 
                         $"Invalid pattern of {exp.Type}");

@@ -33,9 +33,14 @@ namespace YantraJS.Core.FastParser.Compiler
                         break;
                     case FastNodeType.VariableDeclaration:
                         var vd = all as AstVariableDeclaration;
-                        stmts.Add(VisitVariableDeclaration(vd));
-                        var d = vd.Declarators[0];
-                        stmts.Add(CreateAssignment(d.Identifier, tempRequire));
+                        var names = Names(vd);
+                        var ne = names.GetEnumerator();
+                        while(ne.MoveNext(out var name))
+                        {
+                            var n = this.scope.Top.CreateVariable(name);
+                            stmts.Add(Exp.Assign(n.Expression, tempRequire));
+                        }
+
                         break;
                     default:
                         throw new NotImplementedException();
@@ -74,9 +79,10 @@ namespace YantraJS.Core.FastParser.Compiler
             //            break;
             //    }
             //}
-            return Exp.Block(
+            var importExp =  Exp.Block(
                 new ParameterExpression[] { tempRequire },
                 stmts);
+            return importExp;
         }
 
     }
