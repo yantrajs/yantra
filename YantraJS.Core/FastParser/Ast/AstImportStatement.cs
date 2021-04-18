@@ -4,19 +4,23 @@ namespace YantraJS.Core.FastParser
     public class AstImportStatement : AstStatement
     {
         public readonly AstIdentifier? Default;
-        public readonly AstNode? Declaration;
+        public readonly AstIdentifier? All;
+        public readonly ArraySpan<(StringSpan name, StringSpan asName)>? Members;
         public readonly AstLiteral Source;
 
         public AstImportStatement(
-            FastToken token, 
-            AstIdentifier? defaultIdentifier, 
-            AstNode? all,
+            FastToken token,
+            AstIdentifier? defaultIdentifier,
+            AstIdentifier? all,
+            ArraySpan<(StringSpan, StringSpan)>? members,
             AstLiteral source)
             : base(token, FastNodeType.ImportStatement, source.End)
         {
             this.Default = defaultIdentifier;
-            this.Declaration = all;
+            this.All = all;
+            this.Members = members;
             this.Source = source;
         }
+
     }
 }

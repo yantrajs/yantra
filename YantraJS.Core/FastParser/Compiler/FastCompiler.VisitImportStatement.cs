@@ -21,31 +21,12 @@ namespace YantraJS.Core.FastParser.Compiler
             stmts.Add(Exp.Assign(tempRequire, JSFunctionBuilder.InvokeFunction(require.Expression, args) ));
             FastFunctionScope.VariableScope imported;
 
-            var all = importStatement.Declaration;
+            var all = importStatement.All;
 
             if (all != null)
             {
-                switch (all.Type) {
-                    case FastNodeType.Identifier:
-                        var id = all as AstIdentifier;
-                        imported = this.scope.Top.CreateVariable(id.Name);
-                        stmts.Add(Exp.Assign(imported.Expression, tempRequire));
-                        break;
-                    case FastNodeType.VariableDeclaration:
-                        var vd = all as AstVariableDeclaration;
-                        var names = Names(vd);
-                        var ne = names.GetEnumerator();
-                        while(ne.MoveNext(out var name))
-                        {
-                            var n = this.scope.Top.CreateVariable(name);
-                            stmts.Add(Exp.Assign(n.Expression, tempRequire));
-                        }
-
-                        break;
-                    default:
-                        throw new NotImplementedException();
-
-                }
+                imported = this.scope.Top.CreateVariable(all.Name);
+                stmts.Add(Exp.Assign(imported.Expression, tempRequire));
             }
 
             if(importStatement.Default != null)
@@ -56,29 +37,16 @@ namespace YantraJS.Core.FastParser.Compiler
 
             }
 
-            //foreach (var d in importDeclaration.Specifiers)
-            //{
-            //    switch (d.Type)
-            //    {
-            //        case Nodes.ImportDefaultSpecifier:
-            //            ImportDefaultSpecifier ids = d as ImportDefaultSpecifier;
-            //            imported = this.scope.Top.CreateVariable(ids.Local.Name);
-            //            prop = JSValueBuilder.Index(tempRequire, KeyOfName("default"));
-            //            stmts.Add(Exp.Assign(imported.Expression, prop));
-            //            break;
-            //        case Nodes.ImportNamespaceSpecifier:
-            //            ImportNamespaceSpecifier ins = d as ImportNamespaceSpecifier;
-            //            imported = this.scope.Top.CreateVariable(ins.Local.Name);
-            //            stmts.Add(Exp.Assign(imported.Expression, tempRequire));
-            //            break;
-            //        case Nodes.ImportSpecifier:
-            //            ImportSpecifier iss = d as ImportSpecifier;
-            //            imported = this.scope.Top.CreateVariable(iss.Local.Name);
-            //            prop = JSValueBuilder.Index(tempRequire, KeyOfName(iss.Imported.Name));
-            //            stmts.Add(Exp.Assign(imported.Expression, prop));
-            //            break;
-            //    }
-            //}
+            if(importStatement.Members != null)
+            {
+                var ve = importStatement.Members.Value.GetEnumerator();
+                while(ve.MoveNext(out var item)) {
+                    imported = this.scope.Top.CreateVariable(item.asName);
+                    var prop = JSValueBuilder.Index(tempRequire, KeyOfName(item.name));
+                    stmts.Add(Exp.Assign(imported.Expression, prop));
+                }
+            }
+
             var importExp =  Exp.Block(
                 new ParameterExpression[] { tempRequire },
                 stmts);

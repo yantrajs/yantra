@@ -211,9 +211,6 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitImportStatement(AstImportStatement astImportStatement)
         {
-            if (Modified(astImportStatement.Default, astImportStatement.Declaration, astImportStatement.Source,
-                out var def, out var dec, out var src))
-                return new AstImportStatement(astImportStatement.Start, def, dec, src);
             return astImportStatement;
         }
 

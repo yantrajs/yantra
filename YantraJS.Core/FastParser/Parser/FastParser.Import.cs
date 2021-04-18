@@ -22,12 +22,12 @@ namespace YantraJS.Core.FastParser
 
                 var literal = ExpectStringLiteral();
 
-                statement = new AstImportStatement(token, null, id, literal);
+                statement = new AstImportStatement(token, null, id, null, literal);
                 return true;
 
             }
-            AstExpression ap = null;
-            AstNode all = null;
+            AstIdentifier all = null;
+            ArraySpan<(StringSpan, StringSpan)>? names = null;
             if(Identitifer(out id))
             {
                 if(stream.CheckAndConsume(TokenTypes.Comma))
@@ -35,31 +35,23 @@ namespace YantraJS.Core.FastParser
                     if (stream.CheckAndConsume(TokenTypes.Multiply))
                     {
                         stream.ExpectContextualKeyword(FastKeywords.@as);
-                        if (!Identitifer(out var allid))
+                        if (!Identitifer(out all))
                             throw stream.Unexpected();
-                        all = allid;
                     }
-                    else if (AssignmentLeftPattern(out ap, FastVariableKind.Var, true)) {
-
-                        var vd = VariableDeclarator.From(Pool, ap);
-                        // convert to vd...
-                        all = new AstVariableDeclaration(token, all.End, vd);
-
+                    else if (ImportNames(out var n)) {
+                        names = n;
                     } else throw stream.Unexpected();
                 }
 
                 stream.ExpectContextualKeyword(FastKeywords.from);
                 var literal = ExpectStringLiteral();
 
-                statement = new AstImportStatement(token, id, all, literal);
+                statement = new AstImportStatement(token, id, all, names, literal);
                 return true;
             }
 
-            if(AssignmentLeftPattern(out ap, FastVariableKind.Var, true))
+            if(ImportNames(out names))
             {
-                var vd = VariableDeclarator.From(Pool, ap);
-                // convert to vd...
-                all = new AstVariableDeclaration(token, ap.End, vd);
                 if (stream.CheckAndConsume(TokenTypes.Comma))
                 {
                     if (!Identitifer(out id))
@@ -67,13 +59,55 @@ namespace YantraJS.Core.FastParser
                 }
                 stream.ExpectContextualKeyword(FastKeywords.from);
                 var literal = ExpectStringLiteral();
-                statement = new AstImportStatement(token, id, all, literal);
+                statement = new AstImportStatement(token, id, all, names, literal);
                 return true;
             }
 
 
 
             throw stream.Unexpected();
+
+            bool ImportNames(out ArraySpan<(StringSpan,StringSpan)>? names)
+            {
+                if (!stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
+                {
+                    names = null;
+                    return false;
+                }
+
+                var list = Pool.AllocateList<(StringSpan, StringSpan)>();
+
+                try {
+
+                    while(!stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
+                    {
+                        if (!Identitifer(out var id))
+                            throw stream.Unexpected();
+
+                        if (stream.CheckAndConsumeContextualKeyword(FastKeywords.@as))
+                        {
+                            if (!Identitifer(out var asName))
+                                throw stream.Unexpected();
+                            list.Add((id.Name, asName.Name));
+                        } else
+                        {
+                            list.Add((id.Name, id.Name));
+                        }
+
+                        if (stream.CheckAndConsume(TokenTypes.Comma))
+                            continue;
+                        if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
+                            break;
+                        throw stream.Unexpected();
+                    }
+
+                    names = list.ToSpan();
+                    return true;
+                } finally
+                {
+                    list.Clear();
+                }
+            }
         }
     }
 
