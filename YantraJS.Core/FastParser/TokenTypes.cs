@@ -30,6 +30,10 @@
         BracketEnd,
         BracketStart,
         Lambda,
+
+        //not used
+        BeginAssignTokens,
+
         Assign,
         AssignMultiply,
         AssignDivide,
@@ -43,6 +47,9 @@
         AssignRightShift,
         AssignLeftShift,
         AssignPower,
+
+        // not used...
+        EndAssignTokens,
         Negate,
         Power,
         Multiply,

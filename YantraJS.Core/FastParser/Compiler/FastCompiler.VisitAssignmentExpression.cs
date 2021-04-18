@@ -13,7 +13,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         private Expression VisitAssignmentExpression(
             AstExpression left, 
-            Esprima.Ast.AssignmentOperator assignmentOperator, 
+            TokenTypes assignmentOperator, 
             AstExpression right)
         {
             switch (left.Type)
