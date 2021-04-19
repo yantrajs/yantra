@@ -15,6 +15,15 @@ namespace YantraJS.Core.FastParser
             this.Expressions = expressions;
         }
 
+        public AstSequenceExpression(
+            in ArraySpan<AstExpression> expressions) : base(
+                expressions.FirstOrDefault().Start, 
+                FastNodeType.SequenceExpression, 
+                expressions.LastOrDefault().End)
+        {
+            this.Expressions = expressions;
+        }
+
         public override string ToString()
         {
             return Expressions.Join();

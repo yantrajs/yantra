@@ -207,10 +207,10 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = Location;
                 stream.Consume();
+                AstIdentifier id = null;
+                if(!begin.Token.LineTerminator)
+                    Identitifer(out id);
 
-                Identitifer(out var id);
-
-                EndOfStatement();
                 statement = new AstContinueStatement(begin.Token, PreviousToken, id);
                 return true;
             }
@@ -220,9 +220,10 @@ namespace YantraJS.Core.FastParser
                 var begin = Location;
                 stream.Consume();
 
-                Identitifer(out var id);
+                AstIdentifier id = null;
+                if (!begin.Token.LineTerminator)
+                    Identitifer(out id);
 
-                EndOfStatement();
                 statement = new AstBreakStatement(begin.Token, PreviousToken, id);
                 return true;
             }
@@ -231,9 +232,11 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = Location;
                 stream.Consume();
-                if (EndOfStatement())
+
+                var current = stream.Current;
+                if(current.Type ==  TokenTypes.SemiColon || begin.Token.LineTerminator)
                 {
-                    statement = new AstReturnStatement(begin.Token, PreviousToken);
+                    statement = new AstReturnStatement(begin.Token, current);
                     return true;
                 }
 

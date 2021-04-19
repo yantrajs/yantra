@@ -979,6 +979,51 @@ namespace YantraJS.Core.FastParser
             bool hasLineTerminator = false;
             while (true) {
                 char ch = Peek();
+                
+                // it may have comment..
+                if(ch == '/')
+                {
+                    var position = this.position;
+                    int line = this.line;
+                    int column = this.column;
+                    ch = Consume();
+                    if(ch == '/')
+                    {
+                        while (true) {
+                            ch = Consume();
+                            if (ch == '\n' || ch == char.MaxValue)
+                                break;
+                        }
+                        hasLineTerminator = true;
+                        Consume();
+                        continue;
+                    }
+                    if (ch == '*') { 
+                        while(true)
+                        {
+                            ch = Consume();
+                            if (ch == '\n')
+                                hasLineTerminator = true;
+                            if (ch == char.MaxValue)
+                                break;
+                            if (ch == '*')
+                            {
+                                ch = Consume();
+                                if (ch == '/')
+                                {
+                                    Consume();
+                                    break;
+                                }
+                            }
+                        }
+                        continue;
+                    }
+                    ch = '/';
+                    this.position = position;
+                    this.line = line;
+                    this.column = column;
+                }
+
                 if (char.IsWhiteSpace(ch)) {
                     if (ch == '\n')
                         hasLineTerminator = true;

@@ -14,6 +14,11 @@ namespace YantraJS.Core.FastParser
 
         public readonly FastScope variableScope;
 
+        /// <summary>
+        /// Disable this inside for brackets...
+        /// </summary>
+        private bool considerInOfAsOperators = true; 
+
         public StreamLocation Location
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

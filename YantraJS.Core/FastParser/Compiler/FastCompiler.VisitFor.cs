@@ -124,6 +124,13 @@ namespace YantraJS.Core.FastParser.Compiler
                         innerBody.Add(update);
                     }
 
+                    if(init == null)
+                    {
+                        return Exp.Loop(
+                            Exp.Block(innerBody.ToSpan()),
+                            breakTarget);
+                    }
+
                     return Exp.Block(
                         init,
                         Exp.Loop(

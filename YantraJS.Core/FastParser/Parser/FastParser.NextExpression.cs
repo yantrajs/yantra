@@ -90,10 +90,19 @@ namespace YantraJS.Core.FastParser
                     node = null;
                     type = TokenTypes.SemiColon;
                     return true;
-
+                case TokenTypes.In:
+                    if (!considerInOfAsOperators)
+                    {
+                        node = null;
+                        type = TokenTypes.SemiColon;
+                        return true;
+                    }
+                    break;
             }
 
-            if(previous.End.Type == TokenTypes.SemiColon)
+            if ((previousType == TokenTypes.Identifier 
+                && previous.End.LineTerminator)
+                || previous.End.Type == TokenTypes.SemiColon)
             {
                 node = null;
                 type = TokenTypes.SemiColon;
@@ -255,6 +264,18 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.StrictlyNotEqual:
                 case TokenTypes.Equal:
                 case TokenTypes.NotEqual:
+
+                    // check type first as it may be in
+                    // recent memory accessed...
+                    if(type == TokenTypes.In)
+                    {
+                        if (!considerInOfAsOperators)
+                        {
+                            type = TokenTypes.SemiColon;
+                            return true;
+                        }
+                    }
+
                     stream.Consume();
                     do
                     {

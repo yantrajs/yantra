@@ -61,6 +61,11 @@ namespace YantraJS.Core.FastParser
                         scope.Dispose();
                     }
                 }
+
+                if (nodes.Length == 0)
+                    return false;
+
+                node = new AstSequenceExpression(nodes);
             }
 
             bool lastExpressionLineTerminated = stream.Previous.LineTerminator;

@@ -40,6 +40,9 @@ namespace YantraJS.Core.FastParser
             try
             {
 
+                var @in = false;
+                var of = false;
+
                 var current = stream.Current;
                 if (current.IsKeyword)
                 {
@@ -66,14 +69,12 @@ namespace YantraJS.Core.FastParser
                             throw stream.Unexpected();
                     }
                 }
-                else if (ExpressionSequence(out var expressions, TokenTypes.SemiColon, true))
+                else if (ExpressionList(out var expressions))
                 {
                     beginNode = expressions;
                 }
                 else throw stream.Unexpected();
 
-                var @in = false;
-                var of = false;
 
                 AstExpression? inTarget = null;
                 AstExpression? ofTarget = null;
@@ -149,6 +150,46 @@ namespace YantraJS.Core.FastParser
                 scope.Dispose();
             }
             return true;
+
+            bool ExpressionList(
+                out AstExpression node)
+            {
+                var list = Pool.AllocateList<AstExpression>();
+                var token = stream.Current;
+                node = null;
+                try
+                {
+                    considerInOfAsOperators = false;
+                    while (true)
+                    {
+                        if (stream.CheckAndConsume(TokenTypes.SemiColon))
+                            break;
+                        if (!Expression(out node))
+                            throw stream.Unexpected();
+
+                        var c = stream.Current;
+                        if (c.Type == TokenTypes.In || c.ContextualKeyword == FastKeywords.of)
+                            break;
+                        if (stream.CheckAndConsume(TokenTypes.SemiColon))
+                            break;
+                        if (stream.CheckAndConsume(TokenTypes.Comma))
+                        {
+                            list.Add(node);
+                            continue;
+                        }
+                    }
+
+                    if (list.Any())
+                    {
+                        node = new AstSequenceExpression(token, list.Last().End, list.ToSpan());
+                    }
+                    return true;
+                } finally
+                {
+                    considerInOfAsOperators = true;
+                    list.Clear();
+                }
+            }
 
 
 

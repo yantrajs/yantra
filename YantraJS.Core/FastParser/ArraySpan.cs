@@ -100,6 +100,14 @@ namespace YantraJS.Core.FastParser
             return items[0];
         }
 
+        public T LastOrDefault()
+        {
+            if (Length == 0)
+                return default;
+            return items[Length-1];
+        }
+
+
         public bool Any()
         {
             return Length > 0;
