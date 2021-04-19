@@ -137,9 +137,11 @@ namespace YantraJS.Core.FastParser
             var nodes = Pool.AllocateList<AstNode>();
             try
             {
+                SkipNewLines();
+
                 while (!stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                 {
-
+                    SkipNewLines();
                     var current = this.stream.Current;
                     if (stream.CheckAndConsume(TokenTypes.TripleDots))
                     {

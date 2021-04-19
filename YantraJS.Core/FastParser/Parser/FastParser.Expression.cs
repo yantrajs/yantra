@@ -26,6 +26,8 @@ namespace YantraJS.Core.FastParser
 
         bool Expression(out AstExpression node)
         {
+            SkipNewLines();
+
             PreventStackoverFlow(ref lastExpressionIndex);
 
             var begin = Location;

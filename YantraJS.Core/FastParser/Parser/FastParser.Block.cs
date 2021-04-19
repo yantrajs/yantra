@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
@@ -9,15 +10,27 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SkipNewLines()
+        {
+            var type = stream.Current.Type;
+            while (type == TokenTypes.LineTerminator)
+            {
+                type = stream.Consume().Type;
+            }
+        }
+
         bool Block(out AstBlock node)
         {
             var begin = Location;
             var list = Pool.AllocateList<AstStatement>();
             var scope = variableScope.Push(begin.Token, FastNodeType.Block);
+
             try
             {
                 do
                 {
+                    SkipNewLines();
                     if (stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                         break;
                     if (Statement(out var stmt))

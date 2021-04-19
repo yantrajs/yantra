@@ -13,6 +13,9 @@ namespace YantraJS.Core.FastParser
         bool Statement(out AstStatement node)
         {
 
+            SkipNewLines();
+
+
             PreventStackoverFlow(ref lastStatementPosition);
 
             var begin = Location;
@@ -111,8 +114,11 @@ namespace YantraJS.Core.FastParser
 
             bool LabeledLoop(out AstStatement statement)
             {
+
                 if(stream.CheckAndConsume(TokenTypes.Identifier, TokenTypes.Colon, out var id, out var _))
                 {
+                    SkipNewLines();
+
                     // has to be do/while/for...
                     var current = stream.Current;
                     switch (current.Keyword)
