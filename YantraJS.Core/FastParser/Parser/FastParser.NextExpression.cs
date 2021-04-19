@@ -200,7 +200,8 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.AssignSubtract:
                 case TokenTypes.AssignUnsignedRightShift:
                 case TokenTypes.AssignXor:
-                    throw new FastParseException(begin.Token, "Invalid left hand side assignemnt");
+                    throw new FastParseException(begin.Token, 
+                        $"Invalid left hand side assignemnt at {begin.Token.Start}");
 
                 case TokenTypes.QuestionMark:
 

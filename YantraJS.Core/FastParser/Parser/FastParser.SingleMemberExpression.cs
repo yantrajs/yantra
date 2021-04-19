@@ -31,6 +31,8 @@ namespace YantraJS.Core.FastParser
 
             while (true) {
 
+                var m = stream.SkipNewLines();
+
                 begin = Location;
                 token = begin.Token;
                 switch (token.Type) {
@@ -39,11 +41,10 @@ namespace YantraJS.Core.FastParser
                         if (!ExpressionSequence(out var index, TokenTypes.SquareBracketEnd))
                             throw stream.Unexpected();
                         node = node.Member(index, true);
-                            
                         continue;
                     case TokenTypes.BracketStart:
                         stream.Consume();
-                        if (!ExpressionArray(out var arguments))
+                        if (!ArrayExpression(out var arguments))
                             throw stream.Unexpected();
                         if (asNew)
                         {
@@ -61,6 +62,7 @@ namespace YantraJS.Core.FastParser
                         }
                         continue;
                     default:
+                        m.Undo();
                         break;
                 }
                 break;

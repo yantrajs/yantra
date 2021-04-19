@@ -39,7 +39,7 @@ namespace YantraJS.Core.FastParser
             if (!SinglePrefixPostfixExpression(out node, out var isAsync, out var isGenerator))
             {
                 // lets check if we have expression sequence
-                if(!ExpressionArray(out var nodes))
+                if(!ArrayExpression(out var nodes))
                     return begin.Reset();
                 if(stream.CheckAndConsume(TokenTypes.Lambda))
                 {

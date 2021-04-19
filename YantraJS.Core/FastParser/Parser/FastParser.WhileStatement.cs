@@ -8,37 +8,6 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
-        bool ExpressionArray(out ArraySpan<AstExpression> nodes, TokenTypes endsWith = TokenTypes.BracketEnd)
-        {
-            var list = Pool.AllocateList<AstExpression>();
-            try
-            {
-                do
-                {
-                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF, TokenTypes.LineTerminator))
-                        break;
-                    var isSpread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
-                    if (Expression(out var node)) {
-                        if(isSpread) {
-                            node = new AstSpreadElement(token, node.End, node);
-                        }
-                        list.Add(node);
-                    }
-                    if (stream.CheckAndConsume(TokenTypes.Comma))
-                        continue;
-                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF, TokenTypes.LineTerminator))
-                        break;
-                    throw stream.Unexpected();
-                } while (true);
-                nodes = list.ToSpan();
-                return true;
-            }
-            finally
-            {
-                list.Clear();
-            }
-        }
-
         /// <summary>
         /// Expression Sequence represents a comma separated expressions
         /// terminated by new line or semi colon
@@ -63,9 +32,11 @@ namespace YantraJS.Core.FastParser
                     allowEmpty = false;
                     if (Expression(out var node))
                         nodes.Add(node);
+                    if (stream.LineTerminator())
+                        break;
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF, TokenTypes.SemiColon, TokenTypes.LineTerminator))
+                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF, TokenTypes.SemiColon))
                         break;
                     if (stream.Current.Type == TokenTypes.CurlyBracketEnd)
                         break;

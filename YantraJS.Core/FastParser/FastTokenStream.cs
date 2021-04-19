@@ -38,6 +38,10 @@ namespace YantraJS.Core.FastParser
             this.scanner = new FastScanner(Pool, text, Keywords);
         }
 
+        internal bool LineTerminator()
+        {
+            return SkipNewLines().LinesSkipped;
+        }
 
         public FastTokenStream(FastPool pool, in StringSpan text, FastKeywordMap keywords = null)
         {
@@ -92,8 +96,9 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastToken ExpectContextualKeyword(FastKeywords type)
         {
+            SkipNewLines();
             var c = this[index];
-            if (c.ContextualKeyword != type)
+            if (c.ContextualKeyword != type) 
                 throw new FastParseException(c, $"Expecting keyword {type} at {c.Start.Line}, {c.Start.Column}");
             Consume();
             return c;
@@ -103,13 +108,14 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeContextualKeyword(FastKeywords keyword)
         {
-            SkipNewLines();
+            var m = SkipNewLines();
             var c = this[index];
             if (c.ContextualKeyword == keyword)
             {
                 Consume();
                 return true;
             }
+            m.Undo();
             return false;
         }
 
@@ -117,39 +123,42 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(FastKeywords keyword)
         {
-            SkipNewLines();
+            var m = SkipNewLines();
             var c = this[index];
             if (c.Keyword == keyword)
             {
                 Consume();
                 return true;
             }
+            m.Undo();
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(TokenTypes type)
         {
-            SkipNewLines();
+            var m = SkipNewLines();
             var c = this[index];
             if (c.Type == type)
             {
                 Consume();
                 return true;
             }
+            m.Undo();
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2)
         {
-            SkipNewLines();
+            var m = SkipNewLines();
             var c = this[index].Type;
             if (c == type1 ||  c == type2)
             {
                 Consume();
                 return true;
             }
+            m.Undo();
             return false;
         }
 
@@ -157,13 +166,14 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2, TokenTypes type3)
         {
-            SkipNewLines();
+            var m = SkipNewLines();
             var c = this[index].Type;
             if (c == type1 || c == type2 || c == type3)
             {
                 Consume();
                 return true;
             }
+            m.Undo();
             return false;
         }
 
@@ -171,13 +181,14 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2, TokenTypes type3, TokenTypes type4)
         {
-            SkipNewLines();
+            var m = SkipNewLines();
             var ct = this[index].Type;
             if (ct == type1 || ct == type2 || ct == type3 || ct == type4)
             {
                 Consume();
                 return true;
             }
+            m.Undo();
             return false;
         }
 
@@ -185,7 +196,7 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(TokenTypes type, out FastToken token)
         {
-            SkipNewLines();
+            var m = SkipNewLines();
             var c = this[index];
             if (c.Type == type)
             {
@@ -193,23 +204,47 @@ namespace YantraJS.Core.FastParser
                 Consume();
                 return true;
             }
+            m.Undo();
             token = null;
             return false;
         }
 
-        public void SkipNewLines()
+        public readonly struct Marker
         {
+            private readonly FastTokenStream stream;
+            private readonly int index;
+            public readonly bool LinesSkipped;
+
+            public Marker(FastTokenStream stream, int index, bool linesSkipped)
+            {
+                this.stream = stream;
+                this.index = index;
+                this.LinesSkipped = linesSkipped;
+            }
+
+            public void Undo()
+            {
+                stream.index = index;
+            }
+        }
+
+        public Marker SkipNewLines()
+        {
+            var index = this.index;
             var c = this[index].Type;
+            bool skipped = false;
             while(c == TokenTypes.LineTerminator)
             {
                 c = Consume().Type;
+                skipped = true;
             }
+            return new Marker(this, index, skipped);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsume(TokenTypes type1, TokenTypes type2, out FastToken token1, out FastToken token2)
         {
-            SkipNewLines();
+            var marker = SkipNewLines();
             var c = this[index];
             if (c.Type == type1)
             {
@@ -224,6 +259,7 @@ namespace YantraJS.Core.FastParser
                     return true;
                 }
             }
+            marker.Undo();
             token1 = null;
             token2 = null;
             return false;
