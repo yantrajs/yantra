@@ -39,7 +39,7 @@ namespace YantraJS.Core.FastParser
             if (!Parameters(out var declarators, TokenTypes.BracketEnd, false, FastVariableKind.Var))
                 throw stream.Unexpected();
 
-            if (stream.Current.Type != TokenTypes.CurlyBracketStart)
+            if (!stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
                 throw stream.Unexpected();
             try
             {

@@ -15,10 +15,7 @@ namespace YantraJS.Tests.Core
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context.Eval(@"
-var x = new Int8Array([1, 2, 3, 4]);
-var y = x.slice(0, 2);
-assert.strictEqual(1, y[0]);
-");
+'abc12 def34'.replace(/([a-z]+)([0-9]+)/, function() { return 'blah' })");
         }
 
     }

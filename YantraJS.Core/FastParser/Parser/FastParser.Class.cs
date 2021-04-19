@@ -48,15 +48,10 @@ namespace YantraJS.Core.FastParser
 
                 while (!stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
                 {
-
                     if(ObjectProperty(out var property, true, isClass: true))
                     {
                         nodes.Add(property);
                     }
-
-                    if (EndOfStatement())
-                        continue;
-
                 }
                 if(identifier != null) {
                     this.variableScope.Top.AddVariable(identifier.Start, identifier.Name, throwError: false);
