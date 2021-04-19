@@ -15,11 +15,8 @@ namespace YantraJS.Core.FastParser
             {
                 do
                 {
-                    if(stream.CheckAndConsume(endsWith))
-                    {
-                        // empty...
+                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF, TokenTypes.LineTerminator))
                         break;
-                    }
                     var isSpread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
                     if (Expression(out var node)) {
                         if(isSpread) {
@@ -29,7 +26,7 @@ namespace YantraJS.Core.FastParser
                     }
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF))
+                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF, TokenTypes.LineTerminator))
                         break;
                     throw stream.Unexpected();
                 } while (true);
@@ -68,11 +65,9 @@ namespace YantraJS.Core.FastParser
                         nodes.Add(node);
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF, TokenTypes.SemiColon))
+                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF, TokenTypes.SemiColon, TokenTypes.LineTerminator))
                         break;
                     if (stream.Current.Type == TokenTypes.CurlyBracketEnd)
-                        break;
-                    if (PreviousToken.LineTerminator)
                         break;
                     throw stream.Unexpected();
                 } while (true);

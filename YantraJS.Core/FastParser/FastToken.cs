@@ -19,17 +19,16 @@ namespace YantraJS.Core.FastParser
         public readonly SpanLocation Start;
         public readonly SpanLocation End;
 
-        /// <summary>
-        /// Marks current token ends with line
-        /// </summary>
-        public readonly bool LineTerminator;
+        ///// <summary>
+        ///// Marks current token ends with line
+        ///// </summary>
+        //public readonly bool LineTerminator;
 
         public FastToken AsString()
         {
             return new FastToken(
                 TokenTypes.String,
                 Span.Source,
-                LineTerminator,
                 CookedText ?? Span.Value,
                 Flags, Span.Offset,
                 Span.Length, Start, End, ContextualKeyword);
@@ -38,7 +37,6 @@ namespace YantraJS.Core.FastParser
         private FastToken(
             TokenTypes type,
             string source = null,
-            bool hasLineTerminator = false,
             string cooked = null,
             string flags = null,
             int start = 0,
@@ -47,7 +45,6 @@ namespace YantraJS.Core.FastParser
             in SpanLocation endLocation = default,
             FastKeywords contextualKeyword = FastKeywords.none)
         {
-            this.LineTerminator = hasLineTerminator;
             this.Type = type;
             this.Start = startLocation;
             this.End = endLocation;
@@ -61,7 +58,6 @@ namespace YantraJS.Core.FastParser
         public FastToken(
             TokenTypes type, 
             string source = null,
-            bool hasLineTerminator = false,
             string cooked = null,
             string flags = null,
             int start = 0, 
@@ -71,7 +67,6 @@ namespace YantraJS.Core.FastParser
             bool parseNumber = false,
             FastKeywordMap keywords = null)
         {
-            this.LineTerminator = hasLineTerminator;
             this.Type = type;
             this.Start = startLocation;
             this.End = endLocation;

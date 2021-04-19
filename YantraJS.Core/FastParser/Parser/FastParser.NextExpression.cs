@@ -100,15 +100,6 @@ namespace YantraJS.Core.FastParser
                     break;
             }
 
-            if ((previousType == TokenTypes.Identifier 
-                && previous.End.LineTerminator)
-                || previous.End.Type == TokenTypes.SemiColon)
-            {
-                node = null;
-                type = TokenTypes.SemiColon;
-                return true;
-            }
-
             PreventStackoverFlow(ref lastNextExpressionPosition);
 
             AstExpression right;
@@ -177,13 +168,6 @@ namespace YantraJS.Core.FastParser
             {
                 type = TokenTypes.SemiColon;
                 return true;
-            }
-            if (node.End.LineTerminator) {
-                if (type <= TokenTypes.String)
-                {
-                    type = TokenTypes.SemiColon;
-                    return true;
-                }
             }
             switch (type)
             {

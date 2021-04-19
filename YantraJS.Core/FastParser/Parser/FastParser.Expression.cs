@@ -68,8 +68,6 @@ namespace YantraJS.Core.FastParser
                 node = new AstSequenceExpression(nodes);
             }
 
-            bool lastExpressionLineTerminated = stream.Previous.LineTerminator;
-
             if(stream.CheckAndConsume(TokenTypes.Lambda))
             {
                 var scope = this.variableScope.Push(token, FastNodeType.FunctionExpression);
@@ -105,24 +103,9 @@ namespace YantraJS.Core.FastParser
             switch (currentType)
             {
                 case TokenTypes.Colon:
+                case TokenTypes.LineTerminator:
                     return true;
-                default:
-                    if (currentType > TokenTypes.String)
-                    {
-                        lastExpressionLineTerminated = false;
-                    }
-                    break;
             }
-
-
-            /*
-             * In case previous expression did finish on previous line
-             * and that did not have semi colon
-             */
-            if (lastExpressionLineTerminated) {
-                return true;                    
-            }
-
 
             if(NextExpression(ref node, ref currentType, out var next, out var nextToken))
             {

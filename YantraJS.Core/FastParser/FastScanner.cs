@@ -62,8 +62,8 @@ namespace YantraJS.Core.FastParser
 
         
 
-        private static readonly FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty, false);
-        private static readonly FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty, true);
+        private static readonly FastToken EmptyToken = new FastToken(TokenTypes.Empty, string.Empty);
+        private static readonly FastToken EOF = new FastToken(TokenTypes.EOF, string.Empty);
 
         private FastToken token = EmptyToken;
         private FastToken nextToken = EOF;
@@ -161,6 +161,10 @@ namespace YantraJS.Core.FastParser
             // read all whitespace...
             while (char.IsWhiteSpace(first))
             {
+                if(first == '\n')
+                {
+                    return ReadSymbol(state, TokenTypes.LineTerminator);
+                }
                 first = Consume();
                 state = Push();
             }
@@ -877,11 +881,9 @@ namespace YantraJS.Core.FastParser
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
                 var location = scanner.Location;
-                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
                     type,
                     scanner.Text.Source,
-                    hasLineTerminator,
                     cooked,
                     flags,
                     start, cp - start,
@@ -896,11 +898,9 @@ namespace YantraJS.Core.FastParser
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
                 var location = scanner.Location;
-                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
                     type,
                     scanner.Text.Source,
-                    hasLineTerminator,
                     null,
                     null,
                     start, cp - start,
@@ -918,11 +918,9 @@ namespace YantraJS.Core.FastParser
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
                 var location = scanner.Location;
-                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
                     type,
                     scanner.Text.Source,
-                    hasLineTerminator,
                     builder?.ToString(),
                     null,
                     start, cp - start,
@@ -959,11 +957,9 @@ namespace YantraJS.Core.FastParser
                 var cp = scanner.position;
                 var start = scanner.Text.Offset + position;
                 var location = scanner.Location;
-                var hasLineTerminator = scanner.CheckAndConsumeLineTerminator();
                 var token = new FastToken(
                     TokenTypes.Identifier,
                     scanner.Text.Source,
-                    hasLineTerminator,
                     null,
                     null,
                     start, cp - start,
@@ -972,67 +968,6 @@ namespace YantraJS.Core.FastParser
                 scanner = null;
                 return token;
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CheckAndConsumeLineTerminator() {
-            bool hasLineTerminator = false;
-            while (true) {
-                char ch = Peek();
-                
-                // it may have comment..
-                if(ch == '/')
-                {
-                    var position = this.position;
-                    int line = this.line;
-                    int column = this.column;
-                    ch = Consume();
-                    if(ch == '/')
-                    {
-                        while (true) {
-                            ch = Consume();
-                            if (ch == '\n' || ch == char.MaxValue)
-                                break;
-                        }
-                        hasLineTerminator = true;
-                        Consume();
-                        continue;
-                    }
-                    if (ch == '*') { 
-                        while(true)
-                        {
-                            ch = Consume();
-                            if (ch == '\n')
-                                hasLineTerminator = true;
-                            if (ch == char.MaxValue)
-                                break;
-                            if (ch == '*')
-                            {
-                                ch = Consume();
-                                if (ch == '/')
-                                {
-                                    Consume();
-                                    break;
-                                }
-                            }
-                        }
-                        continue;
-                    }
-                    ch = '/';
-                    this.position = position;
-                    this.line = line;
-                    this.column = column;
-                }
-
-                if (char.IsWhiteSpace(ch)) {
-                    if (ch == '\n')
-                        hasLineTerminator = true;
-                    Consume();
-                    continue;
-                }
-                break;
-            }
-            return hasLineTerminator;
         }
     }
 }

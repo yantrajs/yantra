@@ -138,8 +138,8 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2)
         {
-            var c = this[index];
-            if (c.Type == type1 ||  c.Type == type2)
+            var c = this[index].Type;
+            if (c == type1 ||  c == type2)
             {
                 Consume();
                 return true;
@@ -151,8 +151,21 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2, TokenTypes type3)
         {
-            var c = this[index];
-            if (c.Type == type1 || c.Type == type2 || c.Type == type3)
+            var c = this[index].Type;
+            if (c == type1 || c == type2 || c == type3)
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2, TokenTypes type3, TokenTypes type4)
+        {
+            var ct = this[index].Type;
+            if (ct == type1 || ct == type2 || ct == type3 || ct == type4)
             {
                 Consume();
                 return true;

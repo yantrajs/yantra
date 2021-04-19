@@ -36,7 +36,7 @@ namespace YantraJS.Core.FastParser
 
             if (SingleStatement(begin, out node))
             {
-                stream.CheckAndConsume(TokenTypes.SemiColon);
+                stream.CheckAndConsumeAny(TokenTypes.SemiColon, TokenTypes.LineTerminator);
                 return true;
             }
             return false;
@@ -207,9 +207,8 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = Location;
                 stream.Consume();
-                AstIdentifier id = null;
-                if(!begin.Token.LineTerminator)
-                    Identitifer(out id);
+                
+                Identitifer(out var id);
 
                 statement = new AstContinueStatement(begin.Token, PreviousToken, id);
                 return true;
@@ -220,9 +219,7 @@ namespace YantraJS.Core.FastParser
                 var begin = Location;
                 stream.Consume();
 
-                AstIdentifier id = null;
-                if (!begin.Token.LineTerminator)
-                    Identitifer(out id);
+                Identitifer(out var id);
 
                 statement = new AstBreakStatement(begin.Token, PreviousToken, id);
                 return true;
@@ -234,7 +231,7 @@ namespace YantraJS.Core.FastParser
                 stream.Consume();
 
                 var current = stream.Current;
-                if(current.Type ==  TokenTypes.SemiColon || begin.Token.LineTerminator)
+                if(current.Type ==  TokenTypes.SemiColon || current.Type == TokenTypes.LineTerminator)
                 {
                     statement = new AstReturnStatement(begin.Token, current);
                     return true;
