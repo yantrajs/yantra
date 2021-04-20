@@ -12,7 +12,7 @@ namespace YantraJS.Core.FastParser
 
         bool IfStatement(out AstStatement node)
         {
-            var begin = Location;
+            var begin = stream.Current;
             node = default;
             stream.Consume();
 
@@ -29,11 +29,11 @@ namespace YantraJS.Core.FastParser
             {
                 if (!Statement(out var @else))
                     throw stream.Unexpected();
-                node = new AstIfStatement(begin.Token, PreviousToken, test, @true, @else);
+                node = new AstIfStatement(begin, PreviousToken, test, @true, @else);
                 return true;
             }
 
-            node = new AstIfStatement(begin.Token, PreviousToken, test, @true);
+            node = new AstIfStatement(begin, PreviousToken, test, @true);
             return true;
         }
 

@@ -23,7 +23,7 @@ namespace YantraJS.Core.FastParser
         /// <returns></returns>
         bool ForStatement(out AstStatement node)
         {
-            var begin = Location;
+            var begin = stream.Current;
             stream.Consume();
 
             if (stream.CheckAndConsume(FastKeywords.await))
@@ -36,7 +36,7 @@ namespace YantraJS.Core.FastParser
             // desugar let/const in following scope
             bool newScope = false;
             AstVariableDeclaration? declaration = null;
-            var scope = variableScope.Push(begin.Token, FastNodeType.ForStatement);
+            var scope = variableScope.Push(begin, FastNodeType.ForStatement);
             try
             {
 
@@ -132,18 +132,18 @@ namespace YantraJS.Core.FastParser
 
                 if (@in)
                 {
-                    node = new AstForInStatement(begin.Token, PreviousToken, beginNode, inTarget, statement);
+                    node = new AstForInStatement(begin, PreviousToken, beginNode, inTarget, statement);
                     scope.GetVariables();
                     return true;
                 }
                 if (of)
                 {
-                    node = new AstForOfStatement(begin.Token, PreviousToken, beginNode, ofTarget, statement);
+                    node = new AstForOfStatement(begin, PreviousToken, beginNode, ofTarget, statement);
                     scope.GetVariables();
                     return true;
                 }
 
-                node = new AstForStatement(begin.Token, PreviousToken, beginNode, test, update, statement);
+                node = new AstForStatement(begin, PreviousToken, beginNode, test, update, statement);
                 scope.GetVariables();
             } finally
             {

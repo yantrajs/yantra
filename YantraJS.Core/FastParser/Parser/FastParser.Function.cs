@@ -21,7 +21,7 @@ namespace YantraJS.Core.FastParser
 
         bool FunctionExpression(out AstExpression node, bool isAsync = false)
         {
-            var begin = Location;
+            var begin = stream.Current;
             node = default;
             stream.Consume();
             var generator = false;
@@ -35,7 +35,7 @@ namespace YantraJS.Core.FastParser
             }
 
             stream.Expect(TokenTypes.BracketStart);
-            var scope = variableScope.Push(begin.Token, FastNodeType.FunctionExpression);
+            var scope = variableScope.Push(begin, FastNodeType.FunctionExpression);
             if (!Parameters(out var declarators, TokenTypes.BracketEnd, false, FastVariableKind.Var))
                 throw stream.Unexpected();
 
@@ -46,7 +46,7 @@ namespace YantraJS.Core.FastParser
                 if(!Block(out var body))
                     throw stream.Unexpected();
 
-                node = new AstFunctionExpression(begin.Token, PreviousToken, false, isAsync, generator, id, declarators, body);
+                node = new AstFunctionExpression(begin, PreviousToken, false, isAsync, generator, id, declarators, body);
             } finally
             {
                 scope.Dispose();
