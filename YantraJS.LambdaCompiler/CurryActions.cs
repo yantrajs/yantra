@@ -1,0 +1,73 @@
+﻿using System;
+using System.Reflection;
+
+namespace YantraJS
+{
+    public class CurryActions
+    {
+
+        public static MethodInfo[] methods = new MethodInfo[] {
+            typeof(CurryActions).GetMethod(nameof(Curry)),
+            typeof(CurryActions).GetMethod(nameof(Curry1)),
+            typeof(CurryActions).GetMethod(nameof(Curry2)),
+            typeof(CurryActions).GetMethod(nameof(Curry3)),
+            typeof(CurryActions).GetMethod(nameof(Curry4)),
+            typeof(CurryActions).GetMethod(nameof(Curry5)),
+            typeof(CurryActions).GetMethod(nameof(Curry6)),
+            typeof(CurryActions).GetMethod(nameof(Curry7)),
+            typeof(CurryActions).GetMethod(nameof(Curry8)),
+            typeof(CurryActions).GetMethod(nameof(Curry9)),
+            typeof(CurryActions).GetMethod(nameof(CurryA))
+        };
+
+        public static Action Curry(Box[] boxes, Action<Box[]> r)
+            => () => r(boxes);
+
+        public static Action<T1> Curry1<T1, T>(Box[] boxes, Action<Box[], T1> r)
+            => (t1) => r(boxes, t1);
+
+        public static Action<T1, T2> Curry2<T1, T2>(Box[] boxes, Action<Box[], T1, T2> r)
+            => (t1, t2) => r(boxes, t1, t2);
+
+
+        public static Action<T1, T2, T3> Curry3<T1, T2, T3>(Box[] boxes, Action<Box[], T1, T2, T3> r)
+            => (t1, t2, t3) => r(boxes, t1, t2, t3);
+
+        public static Action<T1, T2, T3, T4> Curry4<T1, T2, T3, T4>(Box[] boxes, Action<Box[], T1, T2, T3, T4> r)
+            => (t1, t2, t3, t4) => r(boxes, t1, t2, t3, t4);
+
+        public static Action<T1, T2, T3, T4, T5> Curry5<T1, T2, T3, T4, T5>(Box[] boxes, Action<Box[], T1, T2, T3, T4, T5> r)
+            => (t1, t2, t3, t4, t5) => r(boxes, t1, t2, t3, t4, t5);
+
+        public static Action<T1, T2, T3, T4, T5, T6>
+            Curry6<T1, T2, T3, T4, T5, T6>(Box[] boxes,
+            Action<Box[], T1, T2, T3, T4, T5, T6> r)
+            => (t1, t2, t3, t4, t5, t6)
+            => r(boxes, t1, t2, t3, t4, t5, t6);
+
+        public static Action<T1, T2, T3, T4, T5, T6, T7>
+            Curry7<T1, T2, T3, T4, T5, T6, T7>(Box[] boxes,
+            Action<Box[], T1, T2, T3, T4, T5, T6, T7> r)
+            => (t1, t2, t3, t4, t5, t6, t7)
+            => r(boxes, t1, t2, t3, t4, t5, t6, t7);
+
+        public static Action<T1, T2, T3, T4, T5, T6, T7, T8>
+            Curry8<T1, T2, T3, T4, T5, T6, T7, T8>(Box[] boxes,
+            Action<Box[], T1, T2, T3, T4, T5, T6, T7, T8> r)
+            => (t1, t2, t3, t4, t5, t6, t7, t8)
+            => r(boxes, t1, t2, t3, t4, t5, t6, t7, t8);
+
+        public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9>
+            Curry9<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Box[] boxes,
+            Action<Box[], T1, T2, T3, T4, T5, T6, T7, T8, T9> r)
+            => (t1, t2, t3, t4, t5, t6, t7, t8, t9)
+            => r(boxes, t1, t2, t3, t4, t5, t6, t7, t8, t9);
+
+        public static Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, Ta>
+            CurryA<T1, T2, T3, T4, T5, T6, T7, T8, T9, Ta>(Box[] boxes,
+            Action<Box[], T1, T2, T3, T4, T5, T6, T7, T8, T9, Ta> r)
+            => (t1, t2, t3, t4, t5, t6, t7, t8, t9, ta)
+            => r(boxes, t1, t2, t3, t4, t5, t6, t7, t8, t9, ta);
+
+    }
+}

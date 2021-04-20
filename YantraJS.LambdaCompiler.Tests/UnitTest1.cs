@@ -9,7 +9,9 @@ namespace YantraJS.LambdaCompiler.Tests
         [TestMethod]
         public void TestMethod1()
         {
-            LambdaRewriter.Rewrite<string,string>(x => this.Simple<string>(() => x == null ? x : null));
+            var x = LambdaRewriter.Rewrite<string,string>(x => this.Simple<string>(() => x == null ? x : null));
+
+            Assert.IsNotNull(x);
 
         }
 
