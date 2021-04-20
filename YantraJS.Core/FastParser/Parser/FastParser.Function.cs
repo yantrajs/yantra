@@ -43,8 +43,7 @@ namespace YantraJS.Core.FastParser
                 throw stream.Unexpected();
             try
             {
-
-                if (!Statement(out var body))
+                if(!Block(out var body))
                     throw stream.Unexpected();
 
                 node = new AstFunctionExpression(begin.Token, PreviousToken, false, isAsync, generator, id, declarators, body);

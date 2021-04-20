@@ -40,7 +40,11 @@ namespace YantraJS.Core.FastParser
 
         internal bool LineTerminator()
         {
-            return SkipNewLines().LinesSkipped;
+            var m = SkipNewLines();
+            if (m.LinesSkipped)
+                return true;
+            m.Undo();
+            return false;
         }
 
         public FastTokenStream(FastPool pool, in StringSpan text, FastKeywordMap keywords = null)
@@ -156,6 +160,43 @@ namespace YantraJS.Core.FastParser
             if (c == type1 ||  c == type2)
             {
                 Consume();
+                return true;
+            }
+            m.Undo();
+            return false;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckAndConsumeWithLineTerminator(TokenTypes type)
+        {
+            var m = SkipNewLines();
+            var c = this[index].Type;
+            if (c == type)
+            {
+                Consume();
+                return true;
+            }
+            if (m.LinesSkipped)
+            {
+                return true;
+            }
+            m.Undo();
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckAndConsumeWithLineTerminator(TokenTypes type1, TokenTypes type2)
+        {
+            var m = SkipNewLines();
+            var c = this[index].Type;
+            if (c == type1 || c == type2)
+            {
+                Consume();
+                return true;
+            }
+            if (m.LinesSkipped)
+            {
                 return true;
             }
             m.Undo();

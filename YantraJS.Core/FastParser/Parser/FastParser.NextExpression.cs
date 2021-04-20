@@ -151,6 +151,8 @@ namespace YantraJS.Core.FastParser
 
             stream.CheckAndConsume(previousType);
 
+            stream.SkipNewLines();
+
             if (!SinglePrefixPostfixExpression(out node, out var x, out var b))
             {
                 if (EndOfStatement())
@@ -162,6 +164,8 @@ namespace YantraJS.Core.FastParser
                 return false;
             }
 
+            var m = stream.SkipNewLines();
+
             var begin = Location;
             type = begin.Token.Type;
             if(node.End.Type == TokenTypes.SemiColon)
@@ -169,6 +173,13 @@ namespace YantraJS.Core.FastParser
                 type = TokenTypes.SemiColon;
                 return true;
             }
+
+            if(m.LinesSkipped && type != TokenTypes.QuestionMark)
+            {
+                type = TokenTypes.SemiColon;
+                return true;
+            }
+
             switch (type)
             {
 

@@ -30,7 +30,6 @@ namespace YantraJS.Core.FastParser
             {
                 do
                 {
-                    SkipNewLines();
                     if (stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                         break;
                     if (Statement(out var stmt))
@@ -43,7 +42,7 @@ namespace YantraJS.Core.FastParser
                         list.Add(stmt);
                         continue;
                     }
-                    if (stream.CheckAndConsumeAny(TokenTypes.LineTerminator,TokenTypes.SemiColon))
+                    if (stream.CheckAndConsumeWithLineTerminator(TokenTypes.SemiColon))
                         continue;
                     if (stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
                         break;

@@ -26,8 +26,6 @@ namespace YantraJS.Core.FastParser
 
         bool Expression(out AstExpression node)
         {
-            SkipNewLines();
-
             PreventStackoverFlow(ref lastExpressionIndex);
 
             var begin = Location;
@@ -38,36 +36,38 @@ namespace YantraJS.Core.FastParser
 
             if (!SinglePrefixPostfixExpression(out node, out var isAsync, out var isGenerator))
             {
+                node = null;
+                return false;
                 // lets check if we have expression sequence
-                if(!ArrayExpression(out var nodes))
-                    return begin.Reset();
-                if(stream.CheckAndConsume(TokenTypes.Lambda))
-                {
-                    var scope = this.variableScope.Push(token, FastNodeType.FunctionExpression);
-                    try {
-                        var parameters = VariableDeclarator.From(Pool, in nodes);
-                        // array function...
-                        if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart)) {
-                            if (!Block(out var block))
-                                throw stream.Unexpected();
-                            node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
-                                parameters, block);
-                            return true;
-                        }
-                        if (!Expression(out var r))
-                            throw stream.Unexpected();
-                        node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
-                            parameters, new AstReturnStatement(r.Start, r.End, r));
-                        return true;
-                    } finally {
-                        scope.Dispose();
-                    }
-                }
+                //if(!ArrayExpression(out var nodes))
+                //    return begin.Reset();
+                //if(stream.CheckAndConsume(TokenTypes.Lambda))
+                //{
+                //    var scope = this.variableScope.Push(token, FastNodeType.FunctionExpression);
+                //    try {
+                //        var parameters = VariableDeclarator.From(Pool, in nodes);
+                //        // array function...
+                //        if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart)) {
+                //            if (!Block(out var block))
+                //                throw stream.Unexpected();
+                //            node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
+                //                parameters, block);
+                //            return true;
+                //        }
+                //        if (!Expression(out var r))
+                //            throw stream.Unexpected();
+                //        node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
+                //            parameters, new AstReturnStatement(r.Start, r.End, r));
+                //        return true;
+                //    } finally {
+                //        scope.Dispose();
+                //    }
+                //}
 
-                if (nodes.Length == 0)
-                    return false;
+                //if (nodes.Length == 0)
+                //    return false;
 
-                node = new AstSequenceExpression(nodes);
+                //node = new AstSequenceExpression(nodes);
             }
 
             if(stream.CheckAndConsume(TokenTypes.Lambda))
@@ -97,6 +97,8 @@ namespace YantraJS.Core.FastParser
             if (node.End.Type == TokenTypes.SemiColon)
                 return true;
 
+            var m = stream.SkipNewLines();
+
             begin = Location;
 
             var current = stream.Current;
@@ -105,8 +107,15 @@ namespace YantraJS.Core.FastParser
             switch (currentType)
             {
                 case TokenTypes.Colon:
-                case TokenTypes.LineTerminator:
+                case TokenTypes.CurlyBracketEnd:
+                case TokenTypes.BracketEnd:
                     return true;
+            }
+
+            if(m.LinesSkipped && currentType != TokenTypes.QuestionDot)
+            {
+                m.Undo();
+                return true;
             }
 
             if(NextExpression(ref node, ref currentType, out var next, out var nextToken))

@@ -27,7 +27,7 @@ namespace YantraJS.Core.FastParser
             {
                 do
                 {
-                    if (allowEmpty && stream.CheckAndConsume(endWith))
+                    if (allowEmpty && stream.CheckAndConsumeAny(endWith, TokenTypes.CurlyBracketEnd, TokenTypes.EOF, TokenTypes.SemiColon))
                         break;
                     allowEmpty = false;
                     if (Expression(out var node))
@@ -36,9 +36,7 @@ namespace YantraJS.Core.FastParser
                         break;
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
-                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF, TokenTypes.SemiColon))
-                        break;
-                    if (stream.Current.Type == TokenTypes.CurlyBracketEnd)
+                    if (stream.CheckAndConsumeAny(endWith, TokenTypes.CurlyBracketEnd, TokenTypes.EOF, TokenTypes.SemiColon))
                         break;
                     throw stream.Unexpected();
                 } while (true);
