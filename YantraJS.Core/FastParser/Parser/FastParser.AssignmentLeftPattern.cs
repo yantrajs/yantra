@@ -45,7 +45,7 @@ namespace YantraJS.Core.FastParser
 
             bool ReadObjectPattern(out AstExpression objectPattern, FastVariableKind kind, bool modulePattern = false)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 objectPattern = default;
                 AstExpression left;
                 AstExpression right;
@@ -88,7 +88,7 @@ namespace YantraJS.Core.FastParser
                             break;
                         throw stream.Unexpected();
                     } while (true);
-                    objectPattern = new AstObjectPattern(begin.Token, PreviousToken, nodes);
+                    objectPattern = new AstObjectPattern(begin, PreviousToken, nodes);
                     return true;
                 } finally {
                     nodes.Clear();
@@ -97,7 +97,7 @@ namespace YantraJS.Core.FastParser
 
             bool ReadArrayPattern(out AstExpression arrayPattern, FastVariableKind kind, bool modulePattern = false)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 arrayPattern = default;
                 var nodes = Pool.AllocateList<AstExpression>();
                 try
@@ -117,7 +117,7 @@ namespace YantraJS.Core.FastParser
                         if (stream.CheckAndConsume(TokenTypes.SquareBracketEnd))
                             break;
                     } while (true);
-                    arrayPattern = new AstArrayPattern(begin.Token, PreviousToken, nodes);
+                    arrayPattern = new AstArrayPattern(begin, PreviousToken, nodes);
                     return true;
                 }
                 finally

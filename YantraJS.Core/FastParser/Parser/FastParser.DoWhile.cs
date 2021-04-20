@@ -12,7 +12,7 @@ namespace YantraJS.Core.FastParser
 
         bool DoWhileStatement(out AstStatement node)
         {
-            var begin = Location;
+            var begin = stream.Current;
             stream.Consume();
 
             if (!Statement(out var statement))
@@ -27,7 +27,7 @@ namespace YantraJS.Core.FastParser
             
             EndOfStatement();
 
-            node = new AstDoWhileStatement(begin.Token, PreviousToken, test, statement);
+            node = new AstDoWhileStatement(begin, PreviousToken, test, statement);
             return true;
         }
 

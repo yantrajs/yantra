@@ -22,9 +22,9 @@ namespace YantraJS.Core.FastParser
 
         bool Block(out AstBlock node)
         {
-            var begin = Location;
+            var begin = stream.Current;
             var list = Pool.AllocateList<AstStatement>();
-            var scope = variableScope.Push(begin.Token, FastNodeType.Block);
+            var scope = variableScope.Push(begin, FastNodeType.Block);
 
             try
             {
@@ -48,7 +48,7 @@ namespace YantraJS.Core.FastParser
                         break;
                     throw stream.Unexpected();
                 } while (true);
-                node = new AstBlock(begin.Token, PreviousToken, list);
+                node = new AstBlock(begin, PreviousToken, list);
                 node.HoistingScope = scope.GetVariables();
             } finally
             {

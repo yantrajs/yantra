@@ -30,8 +30,7 @@ namespace YantraJS.Core.FastParser
 
             PreventStackoverFlow(ref lastExpressionIndex);
 
-            var begin = Location;
-            var token = begin.Token;
+            var token = stream.Current;
 
             if (token.Type == TokenTypes.EOF)
                 throw stream.Unexpected();
@@ -100,8 +99,6 @@ namespace YantraJS.Core.FastParser
                 return true;
 
             var m = stream.SkipNewLines();
-
-            begin = Location;
 
             var current = stream.Current;
             var currentType = current.Type;

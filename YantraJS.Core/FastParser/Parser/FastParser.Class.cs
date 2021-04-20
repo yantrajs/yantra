@@ -25,7 +25,7 @@ namespace YantraJS.Core.FastParser
 
         bool ClassExpression(out AstExpression statement)
         {
-            var begin = Location;
+            var begin = stream.Current;
             statement = default;
 
             stream.Consume();
@@ -56,7 +56,7 @@ namespace YantraJS.Core.FastParser
                 if(identifier != null) {
                     this.variableScope.Top.AddVariable(identifier.Start, identifier.Name, throwError: false);
                 }
-                statement = new AstClassExpression(begin.Token, PreviousToken, identifier, @base, nodes);
+                statement = new AstClassExpression(begin, PreviousToken, identifier, @base, nodes);
             }
             finally
             {
