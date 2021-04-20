@@ -1,8 +1,21 @@
-﻿namespace YantraJS.Core.FastParser
+﻿using System.Runtime.CompilerServices;
+
+namespace YantraJS.Core.FastParser
 {
     public static class HiddenTokens
     {
         public const int Operator = 0b0100000;
+    }
+
+    public static class TokenTypesExtensions
+    {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsOperator(this TokenTypes type)
+        {
+            return type > TokenTypes.BeginOperators && type < TokenTypes.EndOperators;
+        }
+
     }
 
     /// <summary>
@@ -50,6 +63,9 @@
 
         // not used...
         EndAssignTokens,
+
+        BeginOperators,
+
         Negate,
         Power,
         Multiply,
@@ -80,10 +96,14 @@
         QuestionMark,
         Colon,
         BitwiseNot,
-        Comma,
         QuestionDot,
         Dot,
         TripleDots,
+
+        EndOperators,
+
+        Comma,
+
         Null,
         False,
         True,

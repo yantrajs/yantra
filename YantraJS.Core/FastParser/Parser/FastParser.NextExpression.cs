@@ -174,7 +174,7 @@ namespace YantraJS.Core.FastParser
                 return true;
             }
 
-            if(m.LinesSkipped && type != TokenTypes.QuestionMark)
+            if(m.LinesSkipped && !type.IsOperator())
             {
                 type = TokenTypes.SemiColon;
                 return true;

@@ -55,8 +55,21 @@ namespace YantraJS.Core.FastParser
                         continue;
                     case TokenTypes.Dot:
                         stream.Consume();
-                        if(Identitifer(out var id)) {
-                            node = node.Member(id);
+                        stream.SkipNewLines();
+                        var next = stream.Current;
+                        switch (next.Type)
+                        {
+                            case TokenTypes.Identifier:
+                            case TokenTypes.In:
+                            case TokenTypes.InstanceOf:
+                            case TokenTypes.Null:
+                            case TokenTypes.True:
+                            case TokenTypes.False:
+                                stream.Consume();
+                                node = node.Member(new AstIdentifier(next.AsString()));
+                                break;
+                            default:
+                                throw stream.Unexpected();
                         }
                         continue;
                     default:

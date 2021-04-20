@@ -26,6 +26,8 @@ namespace YantraJS.Core.FastParser
 
         bool Expression(out AstExpression node)
         {
+            SkipNewLines();
+
             PreventStackoverFlow(ref lastExpressionIndex);
 
             var begin = Location;
@@ -112,7 +114,7 @@ namespace YantraJS.Core.FastParser
                     return true;
             }
 
-            if(m.LinesSkipped && currentType != TokenTypes.QuestionMark)
+            if(m.LinesSkipped && !currentType.IsOperator())
             {
                 m.Undo();
                 return true;

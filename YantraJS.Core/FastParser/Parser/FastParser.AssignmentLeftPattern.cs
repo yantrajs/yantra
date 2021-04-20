@@ -16,7 +16,7 @@ namespace YantraJS.Core.FastParser
             bool modulePattern = false)
         {
             node = default;
-
+            stream.SkipNewLines();
             var token = stream.Current;
             switch (token.Type)
             {
