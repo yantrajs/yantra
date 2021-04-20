@@ -60,35 +60,36 @@ namespace YantraJS.Core.FastParser
         class Pool<T>
         {
             private bool clear = false;
-            public Pool()
+
+            public Pool(int buckets = 8)
             {
                 clear = !typeof(T).IsValueType;
+
+                Queues = new Queue<T[]>[buckets];
+                for (int i = 0; i < buckets; i++)
+                {
+                    Queues[i] = new Queue<T[]>(8);
+                }
+                
             }
 
-            private readonly Queue<T[]>[] Queues = new Queue<T[]>[] {
-                new Queue<T[]>(8),
-                new Queue<T[]>(8),
-                new Queue<T[]>(8),
-                new Queue<T[]>(8)
-            };
+            private readonly Queue<T[]>[] Queues;
 
             private (int index, int size) MapSize(int size) {
-                if (size <= 16) {
-                    if (size <= 12) {
-                        if (size <= 8) {
-                            if (size <= 4) {
-                                return (0, 4);
-                            }
-                            return (1, 8);
-                        }
-                        return (2, 12);
+                var begin = 4;
+                int i;
+                for(i = 0; i < Queues.Length ; i++)
+                {
+                    if(size <= begin)
+                    {
+                        break;
                     }
-                    return (3, 16);
+                    begin = begin << 1;
                 }
-
-                // change size to multiple of 8 to avoid single allocation..
-                size = ((size >> 2) + 1) << 2;
-
+                if (i < Queues.Length)
+                {
+                    return (i, begin);
+                }
                 return (-1, size);
             }
 
@@ -98,6 +99,12 @@ namespace YantraJS.Core.FastParser
                 if (index >= 0) {
                     if (Queues[index].TryDequeue(out var a))
                         return a;
+                    // try one higher...
+                    //if(index < Queues.Length)
+                    //{
+                    //    if (Queues[index+1].TryDequeue(out a))
+                    //        return a;
+                    //}
                 }
                 return new T[size];
             }
