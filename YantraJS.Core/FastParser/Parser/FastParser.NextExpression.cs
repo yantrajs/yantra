@@ -166,8 +166,8 @@ namespace YantraJS.Core.FastParser
 
             var m = stream.SkipNewLines();
 
-            var begin = Location;
-            type = begin.Token.Type;
+            var begin = stream.Current;
+            type = begin.Type;
             if(node.End.Type == TokenTypes.SemiColon)
             {
                 type = TokenTypes.SemiColon;
@@ -211,8 +211,8 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.AssignSubtract:
                 case TokenTypes.AssignUnsignedRightShift:
                 case TokenTypes.AssignXor:
-                    throw new FastParseException(begin.Token, 
-                        $"Invalid left hand side assignemnt at {begin.Token.Start}");
+                    throw new FastParseException(begin, 
+                        $"Invalid left hand side assignemnt at {begin.Start}");
 
                 case TokenTypes.QuestionMark:
 

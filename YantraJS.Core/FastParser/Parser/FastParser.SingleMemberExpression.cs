@@ -25,15 +25,15 @@ namespace YantraJS.Core.FastParser
                 return false;
             }
 
-            StreamLocation begin;
+            FastToken begin;
             FastToken token;
 
             while (true) {
 
                 var m = stream.SkipNewLines();
 
-                begin = Location;
-                token = begin.Token;
+                begin = stream.Current;
+                token = begin;
                 switch (token.Type) {
                     case TokenTypes.SquareBracketStart:
                         stream.Consume();

@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser
 
             PreventStackoverFlow(ref lastObjectPropertyIndex);
 
-            var begin = Location;
+            var begin = BeginUndo();
             var current = begin.Token;
 
             var isStatic = isClass ? stream.CheckAndConsume(FastKeywords.@static) : false;
@@ -133,7 +133,7 @@ namespace YantraJS.Core.FastParser
 
         bool ObjectLiteral(out AstExpression node)
         {
-            var begin = Location;
+            var begin = stream.Current;
             node = default;
             stream.Consume();
             var nodes = Pool.AllocateList<AstNode>();
@@ -158,7 +158,7 @@ namespace YantraJS.Core.FastParser
                         continue;
                 }
 
-                node = new AstObjectLiteral(begin.Token, PreviousToken, nodes.ToSpan());
+                node = new AstObjectLiteral(begin, PreviousToken, nodes.ToSpan());
 
             } finally {
                 nodes.Clear();

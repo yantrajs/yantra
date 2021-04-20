@@ -14,7 +14,7 @@ namespace YantraJS.Core.FastParser
 
         bool PropertyName(out AstExpression node, out bool computed, bool acceptKeywords = false)
         {
-            var begin = Location;
+            var begin = BeginUndo();
 
             if (acceptKeywords)
             {

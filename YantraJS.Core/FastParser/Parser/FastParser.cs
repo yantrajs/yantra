@@ -17,7 +17,10 @@ namespace YantraJS.Core.FastParser
         /// <summary>
         /// Disable this inside for brackets...
         /// </summary>
-        private bool considerInOfAsOperators = true; 
+        private bool considerInOfAsOperators = true;
+
+        public StreamLocation BeginUndo() => new StreamLocation(this, stream.Position, stream.Current);
+
 
         public StreamLocation Location
         {

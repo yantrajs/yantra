@@ -24,7 +24,7 @@ namespace YantraJS.Core.FastParser
 
         bool Switch(out AstStatement node)
         {
-            var begin = Location;
+            var begin = stream.Current;
             stream.Consume();
             node = null;
 
@@ -68,7 +68,7 @@ namespace YantraJS.Core.FastParser
                     nodes.Add(new AstCase(test, statements.ToSpan()));
                 }
 
-                node = new AstSwitchStatement(begin.Token, PreviousToken, target, nodes);
+                node = new AstSwitchStatement(begin, PreviousToken, target, nodes);
                 return true;
 
             } finally

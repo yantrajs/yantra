@@ -21,7 +21,7 @@ namespace YantraJS.Core.FastParser
             TokenTypes endWith = TokenTypes.BracketEnd,
             bool allowEmpty = false)
         {
-            var begin = Location;
+            var begin = stream.Current;
             var nodes = Pool.AllocateList<AstExpression>();
             try
             {
@@ -47,13 +47,13 @@ namespace YantraJS.Core.FastParser
                 switch(nodes.Count)
                 {
                     case 0:
-                        expressions = new AstEmptyExpression(begin.Token);
+                        expressions = new AstEmptyExpression(begin);
                         break;
                     case 1:
                         expressions = nodes[0];
                         break;
                     default:
-                        expressions = new AstSequenceExpression(begin.Token, PreviousToken, nodes);
+                        expressions = new AstSequenceExpression(begin, PreviousToken, nodes);
                         break;
                 }
                 return true;
@@ -66,7 +66,7 @@ namespace YantraJS.Core.FastParser
 
         bool WhileStatement(out AstStatement node)
         {
-            var begin = Location;
+            var begin = stream.Current;
             stream.Consume();
 
             stream.Expect(TokenTypes.BracketStart);
@@ -78,7 +78,7 @@ namespace YantraJS.Core.FastParser
             if (!Statement(out var statement))
                 throw stream.Unexpected();
 
-            node = new AstWhileStatement(begin.Token, PreviousToken, test, statement);
+            node = new AstWhileStatement(begin, PreviousToken, test, statement);
             return true;
         }
 

@@ -32,7 +32,7 @@ namespace YantraJS.Core.FastParser
             UnaryOperator previous = UnaryOperator.None,
             FastToken previousToken = null)
         {
-            var begin = Location;
+            var begin = BeginUndo();
             if (HasUnaryOperator(out var prefix, out var token))
             {
                 if (!SinglePrefixPostfixExpression(out node, out hasAsync, out hasGenerator, prefix, token))

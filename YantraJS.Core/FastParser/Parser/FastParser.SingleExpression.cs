@@ -25,8 +25,8 @@ namespace YantraJS.Core.FastParser
         /// <returns></returns>
         bool SingleExpression(out AstExpression node, bool afterDot = false)
         {
-            var begin = Location;
-            var token = begin.Token;
+            var begin = stream.Current;
+            var token = begin;
 
             if (afterDot)
             {
@@ -113,12 +113,12 @@ namespace YantraJS.Core.FastParser
 
             bool Template(out AstExpression node)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
                 var nodes = Pool.AllocateList<AstExpression>();
                 try
                 {
-                    nodes.Add(new AstLiteral(TokenTypes.String, begin.Token));
+                    nodes.Add(new AstLiteral(TokenTypes.String, begin));
                     while (!stream.CheckAndConsume(TokenTypes.EOF))
                     {
                         if(stream.CheckAndConsume(TokenTypes.TemplateEnd, out var end)) {
@@ -136,7 +136,7 @@ namespace YantraJS.Core.FastParser
                         }
                         throw stream.Unexpected();
                     }
-                    node = new AstTemplateExpression(begin.Token, PreviousToken, nodes.ToSpan());
+                    node = new AstTemplateExpression(begin, PreviousToken, nodes.ToSpan());
                 } finally
                 {
                     nodes.Clear();
@@ -183,8 +183,8 @@ namespace YantraJS.Core.FastParser
                 TokenTypes endType,
                 bool allowEmpty = false)
             {
-                var begin = Location;
-                start = begin.Token;
+                var begin = stream.Current;
+                start = begin;
                 stream.Consume();
                 var nodes = Pool.AllocateList<AstExpression>();
                 try
@@ -227,7 +227,7 @@ namespace YantraJS.Core.FastParser
 
             bool YieldExpression(out AstExpression statement)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
                 bool star = false;
                 if (stream.CheckAndConsume(TokenTypes.Multiply))
@@ -236,7 +236,7 @@ namespace YantraJS.Core.FastParser
                 }
                 if (Expression(out var target))
                 {
-                    statement = new AstYieldExpression(begin.Token, PreviousToken, target, star);
+                    statement = new AstYieldExpression(begin, PreviousToken, target, star);
                     EndOfStatement();
                     return true;
                 }

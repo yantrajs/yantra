@@ -18,7 +18,7 @@ namespace YantraJS.Core.FastParser
 
             PreventStackoverFlow(ref lastStatementPosition);
 
-            var begin = Location;
+            var begin = BeginUndo();
 
             var token = begin.Token;
             switch (token.Type)
@@ -148,16 +148,16 @@ namespace YantraJS.Core.FastParser
 
             bool Debugger(out AstStatement statement)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
-                statement = new AstDebuggerStatement(begin.Token);
+                statement = new AstDebuggerStatement(begin);
                 EndOfStatement();
                 return true;
             }
 
             bool Try(out  AstStatement statement)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
 
                 if (!Statement(out var body))
@@ -174,12 +174,12 @@ namespace YantraJS.Core.FastParser
                     if (!Statement(out var @catch))
                         throw stream.Unexpected();
                     Finally(out var @finally);
-                    statement = new AstTryStatement(begin.Token, PreviousToken, body, id, @catch, @finally);
+                    statement = new AstTryStatement(begin, PreviousToken, body, id, @catch, @finally);
                     return true;
                 }
                 else if (Finally(out var @finally))
                 {
-                    statement = new AstTryStatement(begin.Token, PreviousToken, body, null, null, @finally);
+                    statement = new AstTryStatement(begin, PreviousToken, body, null, null, @finally);
                     return true;
                 }
                 else
@@ -199,53 +199,53 @@ namespace YantraJS.Core.FastParser
 
             bool Throw(out AstStatement statement)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
 
                 if (!Expression(out var target))
                     stream.Unexpected();
 
-                statement = new AstThrowStatement(begin.Token, PreviousToken, target);
+                statement = new AstThrowStatement(begin, PreviousToken, target);
                 return true;
             }
 
             bool Continue(out AstStatement statement)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
                 
                 Identitifer(out var id);
 
-                statement = new AstContinueStatement(begin.Token, PreviousToken, id);
+                statement = new AstContinueStatement(begin, PreviousToken, id);
                 return true;
             }
 
             bool Break(out AstStatement statement)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
 
                 Identitifer(out var id);
 
-                statement = new AstBreakStatement(begin.Token, PreviousToken, id);
+                statement = new AstBreakStatement(begin, PreviousToken, id);
                 return true;
             }
 
             bool Return(out AstStatement statement)
             {
-                var begin = Location;
+                var begin = stream.Current;
                 stream.Consume();
 
                 var current = stream.Current;
-                if(current.Type ==  TokenTypes.SemiColon || current.Type == TokenTypes.LineTerminator)
+                if(current.Type == TokenTypes.SemiColon || current.Type == TokenTypes.LineTerminator)
                 {
-                    statement = new AstReturnStatement(begin.Token, current);
+                    statement = new AstReturnStatement(begin, current);
                     return true;
                 }
 
                 if(ExpressionSequence(out var target, TokenTypes.SemiColon))
                 {
-                    statement = new AstReturnStatement(begin.Token, PreviousToken, target);
+                    statement = new AstReturnStatement(begin, PreviousToken, target);
                     EndOfStatement();
                     return true;
                 }
