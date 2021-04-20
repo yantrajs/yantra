@@ -81,8 +81,14 @@ namespace YantraJS.Core.FastParser
 
         public void ConsumeToken()
         {
+            // lets ignore consecutive line terminators
             token = nextToken;
             nextToken = ReadToken();
+            while(token.Type == TokenTypes.LineTerminator && nextToken.Type == TokenTypes.LineTerminator)
+            {
+                token = nextToken;
+                nextToken = ReadToken();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
