@@ -26,7 +26,7 @@ namespace YantraJS.Core.FastParser
                 var end = this.End.Span.Offset;
                 var length = this.End.Span.Length;
 
-                var total = end + length;
+                var total = end + length - 1 - start;
 
                 return new StringSpan(this.Start.Span.Source,
                     start,
