@@ -82,6 +82,7 @@ namespace YantraJS.Core.FastParser
                 out FastToken token, 
                 bool prefix = true)
             {
+                var m = stream.SkipNewLines();
                 unaryOperator = UnaryOperator.None;
                 token = stream.Current;
                 if (token.Keyword == FastKeywords.@new)
@@ -108,6 +109,7 @@ namespace YantraJS.Core.FastParser
                             unaryOperator = UnaryOperator.Minus;
                             return true;
                         }
+                        m.Undo();
                         return false;
                     case TokenTypes.Increment:
                         stream.Consume();
@@ -127,7 +129,10 @@ namespace YantraJS.Core.FastParser
                         return true;
                 }
                 if (!prefix)
+                {
+                    m.Undo();
                     return false;
+                }
                 switch (token.Keyword)
                 {
                     case FastKeywords.@typeof:
@@ -143,6 +148,7 @@ namespace YantraJS.Core.FastParser
                         unaryOperator = UnaryOperator.@void;
                         return true;
                     default:
+                        m.Undo();
                         return false;
                 }
             }

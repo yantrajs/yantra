@@ -77,7 +77,8 @@ namespace YantraJS.Core.FastParser.Compiler
                     if (functionName != null)
                     {
                         var id = functionDeclaration.Id;
-                        fxName = StringSpanBuilder.New(parentScriptInfo,
+                        fxName = StringSpanBuilder.New(
+                            ScriptInfoBuilder.Code(parentScriptInfo),
                             id.Name.Offset,
                             id.Name.Length);
                         localFxName = StringSpanBuilder.New(

@@ -47,6 +47,8 @@ namespace YantraJS.Core.FastParser
                 begin.Reset();
             }
 
+            stream.SkipNewLines();
+
             var sc = stream.Current;
             var isGet = sc.ContextualKeyword == FastKeywords.get;
             var isSet = sc.ContextualKeyword == FastKeywords.set;

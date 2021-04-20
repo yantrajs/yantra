@@ -112,7 +112,7 @@ namespace YantraJS.Core.FastParser
                     return true;
             }
 
-            if(m.LinesSkipped && currentType != TokenTypes.QuestionDot)
+            if(m.LinesSkipped && currentType != TokenTypes.QuestionMark)
             {
                 m.Undo();
                 return true;

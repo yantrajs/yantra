@@ -19,9 +19,10 @@ namespace YantraJS.Core.FastParser
             {
                 do
                 {
-                    if (stream.SkipNewLines().LinesSkipped)
-                        break;
-                    if (stream.CheckAndConsumeWithLineTerminator(endsWith, TokenTypes.EOF))
+
+                    stream.SkipNewLines();
+
+                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF))
                         break;
                     var isSpread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
                     if (Expression(out var node))
@@ -32,9 +33,11 @@ namespace YantraJS.Core.FastParser
                         }
                         list.Add(node);
                     }
-                    if (stream.CheckAndConsumeWithLineTerminator(endsWith, TokenTypes.EOF))
+                    if (stream.CheckAndConsumeAny(endsWith, TokenTypes.EOF))
                         break;
                     if (stream.CheckAndConsume(TokenTypes.Comma))
+                        continue;
+                    if (stream.LineTerminator())
                         continue;
                     throw stream.Unexpected();
                 } while (true);

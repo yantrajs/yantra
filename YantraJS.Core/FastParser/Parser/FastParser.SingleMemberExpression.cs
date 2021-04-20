@@ -20,8 +20,7 @@ namespace YantraJS.Core.FastParser
         /// <returns></returns>
         bool SingleMemberExpression(out AstExpression node, bool asNew = false)
         {
-            bool afterDot = false;
-            if (!SingleExpression(out node, afterDot))
+            if (!SingleExpression(out node))
             {
                 return false;
             }
@@ -56,9 +55,8 @@ namespace YantraJS.Core.FastParser
                         continue;
                     case TokenTypes.Dot:
                         stream.Consume();
-                        afterDot = true;
-                        if(SingleExpression(out index, afterDot)) {
-                            node = node.Member(index);
+                        if(Identitifer(out var id)) {
+                            node = node.Member(id);
                         }
                         continue;
                     default:
