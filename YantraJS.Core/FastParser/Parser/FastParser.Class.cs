@@ -28,9 +28,14 @@ namespace YantraJS.Core.FastParser
             var begin = stream.Current;
             statement = default;
 
-            stream.Consume();
-            if (!Identitifer(out var identifier))
-                throw stream.Unexpected();
+            var next = stream.Consume();
+            AstIdentifier identifier = null;
+
+            if (next.Keyword != FastKeywords.extends)
+            {
+                if (!Identitifer(out identifier))
+                    throw stream.Unexpected();
+            }
 
             AstExpression @base = null;
 
