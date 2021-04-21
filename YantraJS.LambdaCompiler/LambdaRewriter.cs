@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -72,40 +73,74 @@ namespace YantraJS
 
                 ParameterExpression closures = null;
 
-                foreach(var p in n.Parameters)
-                {
-                    if(top.PendingReplacements.Variables.TryGetValue(p, out var bp))
-                    {
-                        if (bp == null)
-                            continue;
-                        if (bp.Create)
-                        {
-                            localBoxes.Add(bp.Parameter);
-                            stmts.Add(Expression.Assign(bp.Parameter, Expression.New(bp.Parameter.Type)));
-                            stmts.Add(Expression.Assign(bp.Expression, p ));
-                        } else
-                        {
-                            // probably closure from parent...
-                            if (bp.Parent != null)
-                            {
-                                if (closures == null)
-                                {
-                                    closures = Expression.Parameter(typeof(Box[]));
-                                    stmts.Add(Expression.Assign(closures, 
-                                        Expression.NewArrayBounds(typeof(Box), Expression.Constant(top.Length))));
-                                }
+                List<Expression> closureSetup = new List<Expression>();
 
-                                stmts.Add(Expression.Assign(bp.Parent, 
-                                        Expression.TypeAs(
-                                            Expression.ArrayIndex(closures, Expression.Constant( bp.Index)),
-                                            bp.Parent.Type)
-                                    ));
+                foreach(var p in top.PendingReplacements.Variables)
+                {
+                    var bp = p.Value;
+                    if (bp == null)
+                        continue;
+                    if (bp.Create || bp.Parameter != null)
+                    {
+
+                        localBoxes.Add(bp.Parameter);
+                        if (bp.Parent != null)
+                        {
+                            if (closures == null)
+                            {
+                                closures = Expression.Parameter(typeof(Box[]));
+                                closureSetup.Add(Expression.Assign(closures,
+                                    Expression.NewArrayBounds(typeof(Box), Expression.Constant(top.Length))));
+                            }
+
+                            closureSetup.Add(Expression.Assign(
+                                Expression.ArrayAccess(closures, Expression.Constant(bp.Index)), 
+                                bp.Parent));
+
+                            stmts.Add(Expression.Assign(bp.Parameter,
+                                    Expression.TypeAs(
+                                        Expression.ArrayIndex(closures, Expression.Constant(bp.Index)),
+                                        bp.Parent.Type)
+                                ));
+                        }
+                        else {
+                            stmts.Add(Expression.Assign(bp.Parameter, Expression.New(bp.Parameter.Type)));
+
+                            var p1 = n.Parameters.FirstOrDefault(x => x == p.Key);
+                            if (p1 != null)
+                            {
+                                stmts.Add(Expression.Assign(bp.Expression, p1));
                             }
                         }
                     }
+
                 }
 
-                return null;
+                var body = Visit(n.Body);
+
+                if(closures == null)
+                {
+                    if(stmts.Count == 0)
+                    {
+                        return n;
+                    }
+
+                    stmts.Add(body);
+
+                    return Expression.Lambda(Expression.Block(localBoxes, body), n.Parameters);
+                }
+
+                List<ParameterExpression> plist = new List<ParameterExpression>(n.Parameters.Count+1) { closures };
+                plist.AddRange(n.Parameters);
+
+                // curry....
+                if (stmts.Count > 0 || localBoxes.Count > 0)
+                {
+                    stmts.Add(body);
+                    body = Expression.Block(localBoxes, stmts);
+                }
+
+                return CurryHelper.Create(closureSetup, closures, plist, body);
             }
         }
 

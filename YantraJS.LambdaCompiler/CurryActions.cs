@@ -1,8 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace YantraJS
 {
+    public static class CurryHelper
+    {
+
+        public static Expression Create(
+            IList<Expression> setup,
+            Expression closure,
+            List<ParameterExpression> parameters,
+            Expression body
+            )
+        {
+            var methods = body.Type == typeof(void)
+                ? CurryActions.methods
+                : CurryFunctions.methods;
+
+            if (parameters.Count > 10)
+                throw new NotSupportedException();
+
+            var method = methods[parameters.Count];
+
+            var lambda = Expression.Lambda(body, parameters);
+
+            setup.Add(Expression.Call(null, method, closure, lambda));
+            return Expression.Block(setup);
+        }
+
+    }
+
     public class CurryActions
     {
 
