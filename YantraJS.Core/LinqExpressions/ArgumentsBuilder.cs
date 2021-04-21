@@ -23,6 +23,9 @@ namespace YantraJS.ExpHelper
         private readonly static MethodInfo _GetAt =
             type.InternalMethod(nameof(Arguments.GetAt), typeof(int));
 
+        private static readonly FieldInfo _newTarget
+            = type.GetField(nameof(Arguments.NewTarget));
+
         private readonly static MethodInfo _RestFrom =
             type.InternalMethod(nameof(Arguments.RestFrom), typeof(uint));
 
@@ -110,6 +113,11 @@ namespace YantraJS.ExpHelper
             }
             var a = Expression.NewArrayInit(typeof(JSValue), args);
             return Expression.New(_New, @this, a);
+        }
+
+        public static Expression NewTarget(Expression exp)
+        {
+            return Expression.Field(exp, _newTarget);
         }
 
         private readonly static FieldInfo _This =

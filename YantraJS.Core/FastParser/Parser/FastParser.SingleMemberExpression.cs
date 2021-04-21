@@ -20,10 +20,26 @@ namespace YantraJS.Core.FastParser
         /// <returns></returns>
         bool SingleMemberExpression(out AstExpression node, bool asNew = false)
         {
-            if (!SingleExpression(out node))
+            node = null;
+            var current = stream.Current;
+            if (current.Keyword == FastKeywords.@new)
+            {
+                // next must be .target...
+                if (stream.Next.Type != TokenTypes.Dot)
+                    throw stream.Unexpected();
+
+                stream.Consume();
+                stream.Consume();
+                if (!stream.CheckAndConsume(TokenTypes.Identifier, out var id))
+                    throw stream.Unexpected();
+
+                node = new AstMeta(new AstIdentifier(current.AsString()), new AstIdentifier(id));
+            }
+            else if (!SingleExpression(out node))
             {
                 return false;
             }
+
 
             FastToken begin;
             FastToken token;

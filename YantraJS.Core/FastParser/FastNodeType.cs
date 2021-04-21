@@ -47,6 +47,7 @@ namespace YantraJS.Core.FastParser
         ClassProperty,
         ReturnStatement,
         ExportStatement,
-        ImportStatement
+        ImportStatement,
+        Meta
     }
 }

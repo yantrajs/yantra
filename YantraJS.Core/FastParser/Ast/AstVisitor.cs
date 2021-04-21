@@ -309,6 +309,11 @@ namespace YantraJS.Core.FastParser.Ast
             return literal;
         }
 
+        protected override AstNode VisitMeta(AstMeta astMeta)
+        {
+            return astMeta;
+        }
+
         protected override AstNode VisitMemberExpression(AstMemberExpression memberExpression)
         {
             if (Modified(memberExpression.Object, memberExpression.Property, out var target, out var member))
