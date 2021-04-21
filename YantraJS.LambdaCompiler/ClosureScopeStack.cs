@@ -36,6 +36,10 @@ namespace YantraJS
                 PendingReplacements = exp.GetPendingReplacements();
             }
 
+            private int index = 0;
+
+            public int Length => index;
+
             internal Expression Access(ParameterExpression node, bool box = false)
             {
                 if(PendingReplacements.Variables.TryGetValue(node, out var be))
@@ -59,6 +63,7 @@ namespace YantraJS
                 var bp = new BoxParamter
                 {
                     Parent = pn,
+                    Index = index++,
                     Parameter = n,
                     Expression = Expression.Field(n, "Value")
                 };

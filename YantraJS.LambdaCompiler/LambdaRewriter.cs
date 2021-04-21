@@ -8,15 +8,6 @@ using System.Text;
 namespace YantraJS
 {
 
-    public class Box
-    {
-
-    }
-
-    public class Box<T>: Box
-    {
-        public T Value;
-    }
 
     public class BoxParamter
     {
@@ -74,20 +65,45 @@ namespace YantraJS
 
             Expression PostVisit(LambdaExpression n, ClosureScopeStack.ClosureScopeItem top)
             {
-                List<ParameterExpression> bp = new List<ParameterExpression>();
                 List<Expression> stmts = new List<Expression>();
-                List<ParameterExpression> localClosures = new List<ParameterExpression>();
-                foreach(var t in top.PendingReplacements.Variables)
+                List<ParameterExpression> localBoxes = new List<ParameterExpression>();
+                var localClosures 
+                    = new List<(ParameterExpression, ParameterExpression)>();
+
+                ParameterExpression closures = null;
+
+                foreach(var p in n.Parameters)
                 {
-                    var bv = t.Value;
-                    if (bv == null)
-                        continue;
-                    if(bv.Create)
+                    if(top.PendingReplacements.Variables.TryGetValue(p, out var bp))
                     {
-                        localClosures.Add(bv.Parameter);
+                        if (bp == null)
+                            continue;
+                        if (bp.Create)
+                        {
+                            localBoxes.Add(bp.Parameter);
+                            stmts.Add(Expression.Assign(bp.Parameter, Expression.New(bp.Parameter.Type)));
+                            stmts.Add(Expression.Assign(bp.Expression, p ));
+                        } else
+                        {
+                            // probably closure from parent...
+                            if (bp.Parent != null)
+                            {
+                                if (closures == null)
+                                {
+                                    closures = Expression.Parameter(typeof(Box[]));
+                                    stmts.Add(Expression.Assign(closures, 
+                                        Expression.NewArrayBounds(typeof(Box), Expression.Constant(top.Length))));
+                                }
+
+                                stmts.Add(Expression.Assign(bp.Parent, 
+                                        Expression.TypeAs(
+                                            Expression.ArrayIndex(closures, Expression.Constant( bp.Index)),
+                                            bp.Parent.Type)
+                                    ));
+                            }
+                        }
                     }
                 }
-
 
                 return null;
             }
