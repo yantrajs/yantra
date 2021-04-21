@@ -87,23 +87,6 @@ namespace YantraJS.Core.FastParser
                 token = stream.Current;
                 switch (token.Type)
                 {
-                    case TokenTypes.Identifier:
-                        if (prefix)
-                        {
-                            if (token.Keyword == FastKeywords.@new)
-                            {
-                                if (stream.Next.Type == TokenTypes.Dot)
-                                {
-                                    m.Undo();
-                                    return false;
-                                }
-                                stream.Consume();
-                                unaryOperator = UnaryOperator.@new;
-                                return true;
-                            }
-                        }
-                        m.Undo();
-                        return false;
                     case TokenTypes.Plus:
                         if (prefix)
                         {
@@ -146,6 +129,15 @@ namespace YantraJS.Core.FastParser
                 }
                 switch (token.Keyword)
                 {
+                    case FastKeywords.@new:
+                        if (stream.Next.Type == TokenTypes.Dot)
+                        {
+                            m.Undo();
+                            return false;
+                        }
+                        stream.Consume();
+                        unaryOperator = UnaryOperator.@new;
+                        return true;
                     case FastKeywords.@typeof:
                         stream.Consume();
                         unaryOperator = UnaryOperator.@typeof;
