@@ -37,7 +37,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
                 case UnaryOperator.BitwiseNot:
-                    return ExpHelper.JSNumberBuilder.New(Exp.Not(Exp.Convert(DoubleValue(target), typeof(int))));
+                    return ExpHelper.JSNumberBuilder.New(Exp.Not(JSValueBuilder.IntValue(Visit(target))));
                 case UnaryOperator.Negate:
                     return Exp.Condition(BooleanValue(target), JSBooleanBuilder.False, JSBooleanBuilder.True);
                 case UnaryOperator.delete:

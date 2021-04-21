@@ -96,6 +96,25 @@ namespace YantraJS.Core {
 
         public virtual int IntValue => (int)(uint)this.DoubleValue;
 
+        /// <summary>
+        /// Integer value restricts value within int.MaxValue and
+        /// more than int.MaxValue is returned as int.MaxValue
+        /// </summary>
+        public virtual int IntegerValue
+        {
+            get
+            {
+                var v = DoubleValue;
+                if (v > 2147483647.0)
+                    return 2147483647;
+#pragma warning disable 1718
+                if (v != v)
+                    return 0;
+#pragma warning restore 1718
+                return (int)v;
+            }
+        }
+
         public virtual long BigIntValue => (long)(ulong)this.DoubleValue;
 
         internal JSPrototype prototypeChain;

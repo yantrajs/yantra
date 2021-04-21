@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using YantraJS.Core;
 using YantraJS.Core.FastParser;
+using YantraJS.ExpHelper;
 using AssignmentOperator = Esprima.Ast.AssignmentOperator;
 
 namespace YantraJS.Utils
@@ -274,8 +275,8 @@ namespace YantraJS.Utils
             var leftDouble = ExpHelper.JSValueBuilder.DoubleValue(left);
             var rightDouble = ExpHelper.JSValueBuilder.DoubleValue(right);
 
-            var leftInt = Expression.Convert(leftDouble, typeof(int));
-            var rightInt = Expression.Convert(rightDouble, typeof(int));
+            var leftInt = JSValueBuilder.IntValue(left);
+            var rightInt = JSValueBuilder.IntValue(right);
 
             var rightUInt = Expression.Convert(rightDouble, typeof(uint));
 

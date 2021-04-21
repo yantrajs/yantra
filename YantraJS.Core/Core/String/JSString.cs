@@ -37,6 +37,8 @@ namespace YantraJS.Core
             }
         }
 
+        
+
         public override bool BooleanValue => value.Length > 0;
 
         public override long BigIntValue => long.TryParse(value.Value, out var n) ? n : 0;
@@ -190,6 +192,68 @@ namespace YantraJS.Core
                     return JSBoolean.True;
             }
             return JSBoolean.False;
+        }
+
+        internal override JSBoolean Less(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue < value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            int n = this.value.CompareTo(value.ToString());
+            return n < 0
+                ? JSBoolean.True
+                : JSBoolean.False;
+
+        }
+
+        internal override JSBoolean LessOrEqual(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue <= value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            return this.value.CompareTo(value.ToString()) <= 0
+                ? JSBoolean.True
+                : JSBoolean.False;
+        }
+
+        internal override JSBoolean Greater(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue > value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            return this.value.CompareTo(value.ToString()) > 0
+                ? JSBoolean.True
+                : JSBoolean.False;
+        }
+
+        internal override JSBoolean GreaterOrEqual(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue >= value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            return this.value.CompareTo(value.ToString()) >= 0
+                ? JSBoolean.True
+                : JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)

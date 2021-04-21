@@ -187,7 +187,11 @@ namespace YantraJS.Core
             }
             if (other.Source == null)
                 return -1;
-            return string.Compare(Source, Offset, other.Source, other.Offset, Length, StringComparison.Ordinal);
+            var n = other.Length;
+            return string.Compare(Source, Offset, other.Source, other.Offset, 
+                Length > n 
+                ? Length
+                : n, StringComparison.Ordinal);
         }
 
         public override int GetHashCode()

@@ -351,7 +351,7 @@ namespace YantraJS.Core
         internal static JSValue Repeat(in Arguments a)
         {
             var @this = a.This.AsString();
-            var c = a.GetIntAt(0, int.MaxValue);
+            var c = a.GetIntegerAt(0, int.MaxValue);
             if (c < 0 || c == int.MaxValue)
                throw JSContext.Current.NewRangeError($"Invalid count value");
             var result = new StringBuilder(c * @this.Length);
@@ -440,9 +440,9 @@ namespace YantraJS.Core
 
             //0th argument, start
             var f = a.Get1(); 
-            var start = f.IntValue;
+            var start = f.IntegerValue;
             //1st argument, end
-            int end = a.GetIntAt(1, int.MaxValue); 
+            int end = a.GetIntegerAt(1, int.MaxValue); 
 
             if (start < 0)
                 start += @this.Length;

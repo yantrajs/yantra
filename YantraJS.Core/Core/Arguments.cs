@@ -560,6 +560,28 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetIntegerAt(int index, int def)
+        {
+            if (Length > index)
+            {
+                switch (index)
+                {
+                    case 0:
+                        return Arg0.IntegerValue;
+                    case 1:
+                        return Arg1.IntegerValue;
+                    case 2:
+                        return Arg2.IntegerValue;
+                    case 3:
+                        return Arg3.IntegerValue;
+                    default:
+                        return Args[index].IntegerValue;
+                }
+            }
+            return def;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double GetDoubleAt(int index, double def)
         {
             if (Length > index)

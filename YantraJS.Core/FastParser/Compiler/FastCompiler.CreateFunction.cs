@@ -167,11 +167,12 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     Exp ToDelegate(System.Linq.Expressions.LambdaExpression e1)
                     {
-                        if (super != null)
-                            return e1;
-                        int index = _innerFunctions.Count;
-                        _innerFunctions.Add(e1.Compile());
-                        return ScriptInfoBuilder.Function(scriptInfo, index, e1.Type);
+                        return e1;
+                        //if (super != null)
+                        //    return e1;
+                        //int index = _innerFunctions.Count;
+                        //_innerFunctions.Add(e1.Compile());
+                        //return ScriptInfoBuilder.Function(scriptInfo, index, e1.Type);
                     }
 
                     System.Linq.Expressions.LambdaExpression lambda;

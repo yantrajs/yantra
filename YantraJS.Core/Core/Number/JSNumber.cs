@@ -115,19 +115,7 @@ namespace YantraJS.Core
             this.value = value;
         }
 
-        //public override int IntValue => (int)(uint)value;
-        public override int IntValue {
-            get
-            {
-                if (value > 2147483647.0)
-                    return 2147483647;
-                #pragma warning disable 1718
-                if (value != value)
-                    return 0;
-                #pragma warning restore 1718
-                return (int)value;
-            }
-        }
+        public override int IntValue => (int)(uint)value;
 
         public override double DoubleValue => value;
 
