@@ -52,13 +52,15 @@ namespace YantraJS.Core.FastParser
                 while (e.MoveNext(out var px))
                 {
                     ObjectProperty property;
-                    switch ((px.Type, px))
+                    switch (px.Type)
                     {
-                        case (FastNodeType.SpreadElement, AstSpreadElement spe):
-                            property = new ObjectProperty(null, spe.Argument, true);
+                        case FastNodeType.SpreadElement:
+                            var spe = (px as AstSpreadElement)!;
+                            property = new ObjectProperty(null, spe.Argument, null, true);
                             break;
-                        case (FastNodeType.ClassProperty, AstClassProperty p):
-                            property = new ObjectProperty(p.Key, p.Init.ToPattern(), false, p.Computed);
+                        case FastNodeType.ClassProperty:
+                            var p = (px as AstClassProperty)!;
+                            property = new ObjectProperty(p.Key, p.Init.ToPattern(), null, false, p.Computed);
                             break;
                         default:
                             throw new NotSupportedException();

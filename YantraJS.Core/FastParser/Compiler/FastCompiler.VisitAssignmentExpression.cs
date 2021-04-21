@@ -76,7 +76,20 @@ namespace YantraJS.Core.FastParser.Compiler
                         {
                             case FastNodeType.Identifier:
                                 var id = property.Key as AstIdentifier;
-                                start = CreateMemberExpression(init, id, property.Computed);
+                                var propertyInit = property.Init;
+                                if (propertyInit != null)
+                                {
+                                    var piTemp = scope.Top.GetTempVariable(typeof(JSValue));
+                                    inits.Add(Exp.Assign(piTemp.Variable, 
+                                        JSValueBuilder.Coalesce(
+                                        CreateMemberExpression(init, id, property.Computed),
+                                        Visit(propertyInit))));
+                                    start = piTemp.Variable;
+                                }
+                                else
+                                {
+                                    start = CreateMemberExpression(init, id, property.Computed);
+                                }
                                 break;
                             default:
                                 throw new NotImplementedException();

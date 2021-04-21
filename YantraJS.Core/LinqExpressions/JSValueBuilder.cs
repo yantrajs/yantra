@@ -15,6 +15,16 @@ namespace YantraJS.ExpHelper
         private static PropertyInfo _DoubleValue =
             type.Property(nameof(Core.JSValue.DoubleValue));
 
+        private static PropertyInfo _IsNullOrUndefined
+            = type.Property(nameof(Core.JSValue.IsNullOrUndefined));
+
+        public static Expression IsNullOrUndefined(Expression target)
+        {
+            if (target.Type == typeof(JSVariable))
+                target = JSVariable.ValueExpression(target);
+            return Expression.Property(target, _IsNullOrUndefined);
+        }
+
         private static PropertyInfo _lengthProperty
             = type.Property(nameof(Core.JSValue.Length));
 
@@ -275,6 +285,12 @@ namespace YantraJS.ExpHelper
         public static Expression ConvertTo(Expression jsValue, Type type, Expression outVar)
         {
             return ConvertTo(jsValue, Expression.Constant(type), outVar);
+        }
+
+        public static Expression Coalesce(Expression target, Expression def)
+        {
+            return Expression.Condition(
+                JSValueBuilder.IsNullOrUndefined(target), def, target);
         }
 
         public static Expression Coalesce(

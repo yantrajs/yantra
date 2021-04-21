@@ -28,6 +28,18 @@ namespace YantraJS.Core.FastParser.Compiler
                 Exp value = null;
                 string name = null;
                 var pKey = p.Key;
+
+                value = VisitExpression(p.Init);
+
+
+                if (p.Computed)
+                {
+
+
+
+                    continue;
+                }
+
                 switch (pKey.Type)
                 {
                     case FastNodeType.Identifier: 
@@ -68,14 +80,6 @@ namespace YantraJS.Core.FastParser.Compiler
                     default:
                         throw new NotSupportedException();
                 }
-                //if (p.Shorthand)
-                //{
-                //    value = this.scope.Top[name];
-                //}
-                //else
-                //{
-                    value = VisitExpression(p.Init);
-                // }
                 if (p.Kind == AstPropertyKind.Get || p.Kind == AstPropertyKind.Set)
                 {
                     if (!properties.TryGetValue(name, out var m))
@@ -97,19 +101,16 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         m.Setter = value;
                     }
-                    // m.Value = ExpHelper.JSPropertyBuilder.Property(key, m.Getter, m.Setter);
                     continue;
                 }
                 else
                 {
-                    // value = ExpHelper.JSPropertyBuilder.Value(key, value);
                     keys.Add(new ExpressionHolder
                     {
                         Key = key,
                         Value = value
                     });
                 }
-                // keys.Add(new ExpressionHolder { Value = value });
             }
 
             return ExpHelper.JSObjectBuilder.New(keys);

@@ -216,7 +216,10 @@ namespace YantraJS.Core.FastParser
                         for (int i = 0; i < pattern!.Properties.Length; i++)
                         {
                             ref var property = ref pattern.Properties[i];
-                            pattern.Properties[i] = new ObjectProperty(property.Key, AssignTempNames(list, hoisted, property.Value), property.Spread);
+                            pattern.Properties[i] = 
+                                new ObjectProperty(
+                                    property.Key, 
+                                    AssignTempNames(list, hoisted, property.Value), property.Init, property.Spread);
                         }
                         return pattern;
                     case FastNodeType.ArrayPattern:

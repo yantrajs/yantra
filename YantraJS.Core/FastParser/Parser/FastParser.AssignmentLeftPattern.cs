@@ -49,6 +49,7 @@ namespace YantraJS.Core.FastParser
                 objectPattern = default;
                 AstExpression left;
                 AstExpression right;
+                AstExpression init = null;
                 var nodes = Pool.AllocateList<ObjectProperty>();
                 try
                 {
@@ -70,18 +71,24 @@ namespace YantraJS.Core.FastParser
                             {
                                 right = rid;
                                 variableScope.Top.AddVariable(right.Start, right.Start.Span, kind);
-                                nodes.Add(new ObjectProperty(left, right));
                             }
                             else if (AssignmentLeftPattern(out right, kind, modulePattern)) {
-                                nodes.Add(new ObjectProperty(left, right));
                             }
                             else throw stream.Unexpected();
                         } else
                         {
                             variableScope.Top.AddVariable(left.Start, left.Start.Span, kind);
-                            nodes.Add(new ObjectProperty(left, left));
+                            right = left;
                         }
-                        
+
+                        if (stream.CheckAndConsume(TokenTypes.Assign))
+                        {
+                            if (!Expression(out init))
+                                throw stream.Unexpected();
+                        }
+
+                        nodes.Add(new ObjectProperty(left, right, init));
+
                         if (stream.CheckAndConsume(TokenTypes.Comma))
                             continue;
                         if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
