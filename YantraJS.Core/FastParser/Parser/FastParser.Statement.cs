@@ -213,8 +213,11 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = stream.Current;
                 stream.Consume();
-                
-                Identitifer(out var id);
+                AstIdentifier id = null;
+                if (!EndOfLine())
+                {
+                    Identitifer(out id);
+                }
 
                 statement = new AstContinueStatement(begin, PreviousToken, id);
                 return true;
@@ -224,8 +227,11 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = stream.Current;
                 stream.Consume();
-
-                Identitifer(out var id);
+                AstIdentifier id = null;
+                if (!EndOfLine())
+                {
+                    Identitifer(out id);
+                }
 
                 statement = new AstBreakStatement(begin, PreviousToken, id);
                 return true;

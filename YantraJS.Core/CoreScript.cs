@@ -60,13 +60,20 @@ namespace YantraJS
 
         internal static JSFunctionDelegate Compile(in StringSpan code, string location = null, IList<string> args = null, ICodeCache codeCache = null)
         {
-            codeCache = codeCache ?? DictionaryCodeCache.Current;
-            var script = code;
-            var jsc = new JSCode(location, code, args, () => {
-                var cc = new Core.FastParser.Compiler.FastCompiler(script, location, args, codeCache);
-                return cc.Method;
-            });
-            return codeCache.GetOrCreate(in jsc);
+            try
+            {
+                codeCache = codeCache ?? DictionaryCodeCache.Current;
+                var script = code;
+                var jsc = new JSCode(location, code, args, () =>
+                {
+                    var cc = new Core.FastParser.Compiler.FastCompiler(script, location, args, codeCache);
+                    return cc.Method;
+                });
+                return codeCache.GetOrCreate(in jsc);
+            } catch (Core.FastParser.FastParseException ex)
+            {
+                throw new JSException(ex.Message, "Compile", location, ex.Token.Start.Line);
+            }
         }
 
         public static JSValue EvaluateWithTasks(string code, string location = null)

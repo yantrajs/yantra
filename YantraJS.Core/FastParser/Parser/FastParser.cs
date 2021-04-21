@@ -74,6 +74,17 @@ namespace YantraJS.Core.FastParser
             throw stream.Unexpected();
         }
 
+        bool EndOfLine()
+        {
+            var token = stream.Current;
+            if(token.Type == TokenTypes.LineTerminator)
+            {
+                stream.Consume();
+                return true;
+            }
+            return false;
+        }
+
         bool EndOfStatement()
         {
             var token = stream.Current;

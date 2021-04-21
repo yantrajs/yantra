@@ -42,7 +42,8 @@ namespace YantraJS.Core.FastParser
                         break;
                     if (stream.Current.Type == TokenTypes.CurlyBracketEnd)
                         break;
-                    throw stream.Unexpected();
+                    //throw stream.Unexpected();
+                    break;
                 } while (true);
                 switch(nodes.Count)
                 {

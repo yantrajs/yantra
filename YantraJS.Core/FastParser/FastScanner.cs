@@ -774,8 +774,8 @@ namespace YantraJS.Core.FastParser
             {
                 ch = Consume();
             } while (ch != '\n' && ch != char.MaxValue);
-            Consume();
-            return ReadToken();
+            // Consume();
+            return ReadSymbol(state, TokenTypes.LineTerminator);
         }
 
         private FastToken ReadString(State state, char first)

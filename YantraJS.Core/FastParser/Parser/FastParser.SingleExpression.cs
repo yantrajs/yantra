@@ -128,6 +128,7 @@ namespace YantraJS.Core.FastParser
                         if (stream.CheckAndConsume(TokenTypes.TemplatePart, out var token))
                         {
                             nodes.Add(new AstLiteral(TokenTypes.String, token));
+                            continue;
                         }
                         if (Expression(out var exp))
                         {

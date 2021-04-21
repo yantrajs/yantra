@@ -260,6 +260,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.StrictlyNotEqual:
                 case TokenTypes.Equal:
                 case TokenTypes.NotEqual:
+                case TokenTypes.Power:
 
                     // check type first as it may be in
                     // recent memory accessed...

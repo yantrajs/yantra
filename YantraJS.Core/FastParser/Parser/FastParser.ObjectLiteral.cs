@@ -72,6 +72,8 @@ namespace YantraJS.Core.FastParser
                     }
                 }
 
+                stream.SkipNewLines();
+
                 if (stream.CheckAndConsume(TokenTypes.Colon))
                 {
                     if (!checkContextualKeyword)

@@ -108,6 +108,8 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.Colon:
                 case TokenTypes.CurlyBracketEnd:
                 case TokenTypes.BracketEnd:
+                case TokenTypes.TemplatePart:
+                case TokenTypes.TemplateEnd:
                     return true;
             }
 
