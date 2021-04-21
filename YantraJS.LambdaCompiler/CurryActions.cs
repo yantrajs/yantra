@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -10,8 +11,8 @@ namespace YantraJS
 
         public static Expression Create(
             IList<Expression> setup,
-            Expression closure,
-            List<ParameterExpression> parameters,
+            ParameterExpression closure,
+            ReadOnlyCollection<ParameterExpression> parameters,
             Expression body
             )
         {
@@ -19,12 +20,30 @@ namespace YantraJS
                 ? CurryActions.methods
                 : CurryFunctions.methods;
 
-            if (parameters.Count > 10)
+            var n = parameters.Count;
+
+            if (n > 10)
                 throw new NotSupportedException();
 
-            var method = methods[parameters.Count];
+            var method = methods[n];
 
-            var lambda = Expression.Lambda(body, parameters);
+            var newParameterList = new List<ParameterExpression> { closure };
+            var parameterTypes = new List<Type>();
+            foreach(var p in parameters)
+            {
+                parameterTypes.Add(p.Type);
+                newParameterList.Add(p);
+            }
+
+            if(body.Type != typeof(void))
+            {
+                parameterTypes.Add(body.Type);
+            }
+
+            if(parameterTypes.Count > 0)
+                method = method.MakeGenericMethod(parameterTypes.ToArray());
+
+            var lambda = Expression.Lambda(body, newParameterList);
 
             setup.Add(Expression.Call(null, method, closure, lambda));
             return Expression.Block(setup);

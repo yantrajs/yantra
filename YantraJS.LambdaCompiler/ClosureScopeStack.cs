@@ -67,7 +67,7 @@ namespace YantraJS
                     Parameter = n,
                     Expression = Expression.Field(n, "Value")
                 };
-                PendingReplacements.Variables[n] = bp;
+                PendingReplacements.Variables[node] = bp;
                 return bp.Expression;
             }
 

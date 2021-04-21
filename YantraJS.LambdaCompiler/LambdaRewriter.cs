@@ -89,18 +89,16 @@ namespace YantraJS
                             if (closures == null)
                             {
                                 closures = Expression.Parameter(typeof(Box[]));
-                                closureSetup.Add(Expression.Assign(closures,
-                                    Expression.NewArrayBounds(typeof(Box), Expression.Constant(top.Length))));
                             }
 
                             closureSetup.Add(Expression.Assign(
                                 Expression.ArrayAccess(closures, Expression.Constant(bp.Index)), 
-                                bp.Parent));
+                                BoxHelper.For(bp.Parent.Type).New(bp.Parent)));
 
                             stmts.Add(Expression.Assign(bp.Parameter,
                                     Expression.TypeAs(
                                         Expression.ArrayIndex(closures, Expression.Constant(bp.Index)),
-                                        bp.Parent.Type)
+                                        bp.Parameter.Type)
                                 ));
                         }
                         else {
@@ -130,9 +128,6 @@ namespace YantraJS
                     return Expression.Lambda(Expression.Block(localBoxes, body), n.Parameters);
                 }
 
-                List<ParameterExpression> plist = new List<ParameterExpression>(n.Parameters.Count+1) { closures };
-                plist.AddRange(n.Parameters);
-
                 // curry....
                 if (stmts.Count > 0 || localBoxes.Count > 0)
                 {
@@ -140,7 +135,11 @@ namespace YantraJS
                     body = Expression.Block(localBoxes, stmts);
                 }
 
-                return CurryHelper.Create(closureSetup, closures, plist, body);
+                closureSetup.Insert(0, Expression.Assign(closures,
+                    Expression.NewArrayBounds(typeof(Box), Expression.Constant(closureSetup.Count))));
+
+
+                return CurryHelper.Create(closureSetup, closures, n.Parameters, body);
             }
         }
 
@@ -148,9 +147,12 @@ namespace YantraJS
         {
             if (Collect)
             {
+                // variables will be pushed.. so we dont need them...
                 stack.Register(node.Variables);
+                return VisitBlock(node);
             }
-            return base.VisitBlock(node);
+
+            return Expression.Block(node.Expressions.Select(x => Visit(x)));
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
@@ -162,12 +164,12 @@ namespace YantraJS
             }
 
             // second phase... replace...
-            if(stack.Top.PendingReplacements.Variables.TryGetValue(node, out var be))
-            {
-                return base.VisitParameter(be.Parameter);
-            }
+            //if(stack.Top.PendingReplacements.Variables.TryGetValue(node, out var be))
+            //{
+            //    return base.VisitParameter(be.Parameter);
+            //}
 
-            return base.VisitParameter(node);
+            return stack.Access(node);
         }
 
         public static Expression Rewrite<T,TR>(Expression<Func<T, TR>> factory)
