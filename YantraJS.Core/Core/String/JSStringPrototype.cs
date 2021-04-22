@@ -55,14 +55,14 @@ namespace YantraJS.Core
             var text = AsString(a.This);
             //int at = a.TryGetAt(0, out var n) ? (!n.IsNullOrUndefined ? n.IntValue : 0) : 0;
             //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
-            var at = a[0]?.IntegerValue ?? 0;
+            var pos = a[0]?.IntegerValue ?? 0;
             //if (double.IsNaN(at))
             //    at = 0;
 
-            if (at < 0 || at >= text.Length)
+            if (pos < 0 || pos >= text.Length)
                 return JSString.Empty;
           
-            return new JSString(new string(text[at], 1));
+            return new JSString(new string(text[pos], 1));
         }
 
         [Prototype("substring", Length =2)]
@@ -125,24 +125,27 @@ namespace YantraJS.Core
         internal static JSValue CharCodeAt(in Arguments a)
         {
             var text = AsString(a.This);
-            var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
-            if (at < 0 || at >= text.Length)
+            //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
+            var pos = a[0]?.IntegerValue ?? 0;
+            if (pos < 0 || pos >= text.Length)
                 return JSNumber.NaN;
 
-            return new JSNumber(text[(int)(uint)at]);
+            //return new JSNumber(text[(int)(uint)at]);
+            return new JSNumber(text[pos]);
         }
 
         [Prototype("codePointAt", Length =1)]
         internal static JSValue CodePointAt(in Arguments a)
         {
             var text = AsString(a.This);
-            var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
-            if (at < 0 || at >= text.Length)
+            //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
+            var pos = a[0]?.IntegerValue ?? 0;
+            if (pos < 0 || pos >= text.Length)
                 return JSNumber.NaN;
-            int firstCodePoint = text[(int)(uint)at];
-            if (firstCodePoint < 0xD800 || firstCodePoint > 0xDBFF || at + 1 == text.Length)
+            int firstCodePoint = text[pos];
+            if (firstCodePoint < 0xD800 || firstCodePoint > 0xDBFF || pos + 1 == text.Length)
                 return new JSNumber(firstCodePoint);
-            int secondCodePoint = text[(int)(uint)(at + 1)];
+            int secondCodePoint = text[(pos + 1)];
             if (secondCodePoint < 0xDC00 || secondCodePoint > 0xDFFF)
                 return new JSNumber(firstCodePoint);
             var output = (double)((firstCodePoint - 0xD800) * 1024 + (secondCodePoint - 0xDC00) + 0x10000);
@@ -184,17 +187,18 @@ namespace YantraJS.Core
             var f = a.Get1();
             if (f is JSRegExp)
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
-            int length = a.GetIntAt(1, int.MaxValue);
+            //int length = a.GetIntAt(1, int.MaxValue);
+            var endPosition = a[1]?.IntegerValue ?? int.MaxValue;
             var fs = f.ToString();
-            if (length == int.MaxValue)
+            if (endPosition == int.MaxValue)
                 return @this.EndsWith(fs) ? JSBoolean.True : JSBoolean.False;
-            length = Math.Min(Math.Max(0, length), @this.Length);
+            endPosition = Math.Min(Math.Max(0, endPosition), @this.Length);
 
-            if (fs.Length > length)
+            if (fs.Length > endPosition)
                 return JSBoolean.False;
             //if (@this.Substring(length - f.Length, f.Length) == f.ToString())
             //    return JSBoolean.True;
-            if (string.Compare(@this, length - fs.Length, fs, 0, fs.Length) == 0)
+            if (string.Compare(@this, endPosition - fs.Length, fs, 0, fs.Length) == 0)
                 return JSBoolean.True;
             return JSBoolean.False;
 
@@ -227,22 +231,26 @@ namespace YantraJS.Core
         internal static JSValue Includes(in Arguments a)
         {
             var @this = a.This.AsString();
-            var (text, start) = a.Get2();
-            if (text is JSRegExp)
+            var searchStr = a[0] ?? JSUndefined.Value;
+            var pos = a[1]?.IntegerValue ?? 0;
+            //var (searchStr, pos) = a.Get2();
+            if (searchStr is JSRegExp)
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
-            var startIndex = start.IsUndefined ? 0 : start.IntValue;
-            startIndex = Math.Min(Math.Max(startIndex, 0), @this.Length);
-            return @this.IndexOf(text.ToString(), startIndex) >= 0 ? JSBoolean.True : JSBoolean.False;
+            // var startIndex = pos.IsUndefined ? 0 : pos.IntValue;
+            pos = Math.Min(Math.Max(pos, 0), @this.Length);
+            return @this.IndexOf(searchStr.ToString(), pos) >= 0 ? JSBoolean.True : JSBoolean.False;
         }
 
         [Prototype("indexOf", Length = 1)]
         internal static JSValue IndexOf(in Arguments a)
         {
             var @this = a.This.AsString();
-            var (text, start) = a.Get2();
-            var startIndex = start.IsUndefined ? 0 : start.IntValue;
-            startIndex = Math.Min(Math.Max(startIndex, 0), @this.Length);
-            var index = @this.IndexOf(text.ToString(), startIndex);
+            //var (searchStr, pos) = a.Get2();
+            var searchStr = a[0] ?? JSUndefined.Value;
+            var pos = a[1]?.IntegerValue ?? 0;
+            //var startIndex = pos.IsUndefined ? 0 : pos.IntValue;
+            pos = Math.Min(Math.Max(pos, 0), @this.Length);
+            var index = @this.IndexOf(searchStr.ToString(), pos);
             return new JSNumber(index);
         }
 
@@ -250,20 +258,22 @@ namespace YantraJS.Core
         internal static JSValue LastIndexOF(in Arguments a)
         {
             var @this = a.This.AsString();
-            var (text, fromIndex) = a.Get2();
-            if (fromIndex.IsUndefined)
-                return new JSNumber(@this.LastIndexOf(text.ToString()));
-            var startIndex = a.TryGetAt(1, out var n) ? (double.IsNaN(n.DoubleValue) ? int.MaxValue : n.IntValue ): n.IntValue;
-            //var startIndex = double.IsNaN(fromIndex) ? int.MaxValue : fromIndex.IntValue
+            //var (text, fromIndex) = a.Get2();
+            var searchStr = a[0] ?? JSUndefined.Value;
+            var fromIndex = a[1]?.DoubleValue ?? int.MaxValue;
+            // if (pos.IsUndefined)
+            //     return new JSNumber(@this.LastIndexOf(searchStr.ToString()));
+            // var startIndex = a.TryGetAt(1, out var n) ? (double.IsNaN(n.DoubleValue) ? int.MaxValue : n.IntValue ): n.IntValue;
+            var startIndex = double.IsNaN(fromIndex) ? int.MaxValue : (int)(uint)fromIndex;
             startIndex = Math.Min(startIndex, @this.Length - 1);
-            startIndex = Math.Min(startIndex + text.Length - 1, @this.Length - 1);
+            startIndex = Math.Min(startIndex + searchStr.Length - 1, @this.Length - 1);
             if (startIndex < 0)
             {
-                if (@this == string.Empty && text == JSString.Empty)
+                if (@this == string.Empty && searchStr.Length == 0)
                     return JSNumber.Zero;
                 return JSNumber.MinusOne;
             }
-            return new JSNumber(@this.LastIndexOf(text.ToString(), startIndex, StringComparison.Ordinal));
+            return new JSNumber(@this.LastIndexOf(searchStr.ToString(), startIndex, StringComparison.Ordinal));
 
             //if (fromIndex.IsUndefined)
             //    return new JSNumber(@this.LastIndexOf(text.ToString()));
