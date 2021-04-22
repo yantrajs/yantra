@@ -54,14 +54,15 @@ namespace YantraJS.Core
         {
             var text = AsString(a.This);
             //int at = a.TryGetAt(0, out var n) ? (!n.IsNullOrUndefined ? n.IntValue : 0) : 0;
-            var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
-            if (double.IsNaN(at))
-                at = 0;
+            //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
+            var at = a[0]?.IntegerValue ?? 0;
+            //if (double.IsNaN(at))
+            //    at = 0;
 
             if (at < 0 || at >= text.Length)
                 return JSString.Empty;
           
-            return new JSString(new string(text[(int)(uint)at], 1));
+            return new JSString(new string(text[at], 1));
         }
 
         [Prototype("substring", Length =2)]
@@ -351,7 +352,7 @@ namespace YantraJS.Core
         internal static JSValue Repeat(in Arguments a)
         {
             var @this = a.This.AsString();
-            var c = a.GetIntegerAt(0, int.MaxValue);
+            var c = a[0]?.IntegerValue ?? int.MaxValue;
             if (c < 0 || c == int.MaxValue)
                throw JSContext.Current.NewRangeError($"Invalid count value");
             var result = new StringBuilder(c * @this.Length);
@@ -442,7 +443,7 @@ namespace YantraJS.Core
             var f = a.Get1(); 
             var start = f.IntegerValue;
             //1st argument, end
-            int end = a.GetIntegerAt(1, int.MaxValue); 
+            int end = a[1]?.IntegerValue ?? int.MaxValue; 
 
             if (start < 0)
                 start += @this.Length;

@@ -268,7 +268,7 @@ namespace YantraJS.Core
         public static JSValue Flat(in Arguments a)
         {
             var result = new JSArray();
-            int depth = a[0]?.IntValue ?? 1;
+            int depth = a[0]?.IntegerValue ?? 1;
             FlattenTo(result, a.This, null, null, depth);
             return result;
             //throw new NotImplementedException();
