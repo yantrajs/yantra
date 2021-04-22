@@ -132,6 +132,13 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     if (!Expression(out right))
                         throw stream.Unexpected();
+
+                    // left must be converted to asssignable...
+                    if (previous.Type == FastNodeType.ArrayExpression || previous.Type == FastNodeType.ObjectLiteral)
+                    {
+                        previous = previous.ToPattern();
+                    }
+
                     previous = Combine(previous, previousType, right);
                     node = null;
                     type = TokenTypes.SemiColon;

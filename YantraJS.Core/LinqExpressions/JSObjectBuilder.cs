@@ -32,13 +32,13 @@ namespace YantraJS.ExpHelper
             type.InternalMethod(nameof(JSObject.AddElement), new Type[] { typeof(uint), typeof(JSValue) });
 
         readonly static MethodInfo _AddProperty =
-            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSValue) });
+            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSValue) });
 
         readonly static MethodInfo _AddExpressionProperty =
             type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSValue) });
 
         readonly static MethodInfo _AddPropertyAccessors =
-            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSFunction), typeof(JSFunction) });
+            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction) });
 
 
         public static Expression New(IList<ExpressionHolder> keyValues)

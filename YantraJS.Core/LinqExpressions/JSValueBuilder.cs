@@ -22,6 +22,14 @@ namespace YantraJS.ExpHelper
         private static PropertyInfo _IsNullOrUndefined
             = type.Property(nameof(Core.JSValue.IsNullOrUndefined));
 
+        private static MethodInfo _ToKey
+            = type.InternalMethod(nameof(Core.JSValue.ToKey), typeof(bool));
+
+        public static Expression ToKey(Expression exp)
+        {
+            return Expression.Call(exp, _ToKey, Expression.Constant(true));
+        }
+
         public static Expression IsNullOrUndefined(Expression target)
         {
             if (target.Type == typeof(JSVariable))

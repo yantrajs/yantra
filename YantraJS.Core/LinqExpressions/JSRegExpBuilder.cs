@@ -12,7 +12,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(Expression exp, Expression exp2)
         {
-            return Expression.New(_New, exp, exp2);
+            return Expression.TypeAs( Expression.New(_New, exp, exp2), typeof(JSValue));
         }
 
     }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,19 +20,19 @@ namespace YantraJS.Core
 
         public readonly int Length;
 
-        public readonly JSValue This;
+        public readonly JSValue? This;
 
-        public readonly JSValue NewTarget;
+        public readonly JSValue? NewTarget;
 
-        private readonly JSValue Arg0;
+        private readonly JSValue? Arg0;
 
-        private readonly JSValue Arg1;
+        private readonly JSValue? Arg1;
 
-        private readonly JSValue Arg2;
+        private readonly JSValue? Arg2;
 
-        private readonly JSValue Arg3;
+        private readonly JSValue? Arg3;
 
-        private readonly JSValue[] Args;
+        private readonly JSValue[]? Args;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments CopyForCall()
@@ -40,26 +42,26 @@ namespace YantraJS.Core
                 case 0:
                     return new Arguments(JSUndefined.Value);
                 case 1:
-                    return new Arguments(Arg0);
+                    return new Arguments(Arg0!);
                 case 2:
-                    return new Arguments(Arg0, Arg1);
+                    return new Arguments(Arg0!, Arg1!);
                 case 3:
-                    return new Arguments(Arg0, Arg1, Arg2);
+                    return new Arguments(Arg0!, Arg1!, Arg2!);
                 case 4:
-                    return new Arguments(Arg0, Arg1, Arg2, Arg3);
+                    return new Arguments(Arg0!, Arg1!, Arg2!, Arg3!);
                 case 5:
-                    return new Arguments(Args[0], Args[1], Args[2], Args[3], Args[4]);
+                    return new Arguments(Args![0], Args[1]!, Args[2]!, Args[3]!, Args[4]!);
                 default:
                     var sa = new JSValue[Length - 1];
                     Array.Copy(Args, 1, sa, 0, sa.Length);
-                    return new Arguments(Args[0], sa);
+                    return new Arguments(Args![0], sa);
             }
         }
 
         public Arguments CopyForBind(in Arguments a)
         {
             // need to append a's parameter to self...
-            var @this = a.NewTarget != null ? a.This : this[0];
+            var @this = a.NewTarget != null ? a.This! : this[0]!;
             var total = this.Length - 1 + a.Length;
             var list = new JSValue[total + a.Length];
             int i;
@@ -72,7 +74,7 @@ namespace YantraJS.Core
             {
                 list[i] = a[i - start];
             }
-            return new Arguments(@this, list, a.NewTarget);
+            return new Arguments(@this, list, a.NewTarget!);
         }
 
         public static Arguments ForApply(JSValue @this, JSValue args)
@@ -85,15 +87,15 @@ namespace YantraJS.Core
                     case 0:
                         return new Arguments(@this);
                     case 1:
-                        return new Arguments(@this, argList.Arg0);
+                        return new Arguments(@this, argList.Arg0!);
                     case 2:
-                        return new Arguments(@this, argList.Arg0, argList.Arg1);
+                        return new Arguments(@this, argList.Arg0!, argList.Arg1!);
                     case 3:
-                        return new Arguments(@this, argList.Arg0, argList.Arg1, argList.Arg2);
+                        return new Arguments(@this, argList.Arg0!, argList.Arg1!, argList.Arg2!);
                     case 4:
-                        return new Arguments(@this, argList.Arg0, argList.Arg1, argList.Arg2, argList.Arg3);
+                        return new Arguments(@this, argList.Arg0!, argList.Arg1!, argList.Arg2!, argList.Arg3!);
                     default:
-                        return new Arguments(@this, argList.Args);
+                        return new Arguments(@this, argList.Args!);
 
                 }
             }
@@ -368,7 +370,7 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Arguments(JSValue @this, Arguments src, JSValue newTarget = null)
+        private Arguments(JSValue @this, Arguments src, JSValue? newTarget = null)
         {
             NewTarget = newTarget;
             Length = src.Length;
@@ -399,8 +401,8 @@ namespace YantraJS.Core
             if (Length == 0)
                 return JSUndefined.Value;
             if (Length < MinArray)
-                return Arg0;
-            return Args[0];
+                return Arg0!;
+            return Args![0];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -409,10 +411,10 @@ namespace YantraJS.Core
             if (Length == 0)
                 return (JSUndefined.Value, JSUndefined.Value);
             if (Length == 1)
-                return (Arg0, JSUndefined.Value);
+                return (Arg0!, JSUndefined.Value);
             if (Length < MinArray)
-                return (Arg0, Arg1);
-            return (Args[0], Args[1]);
+                return (Arg0!, Arg1!);
+            return (Args![0], Args[1]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -421,10 +423,10 @@ namespace YantraJS.Core
             if (Length == 0)
                 return (def1, def2);
             if (Length == 1)
-                return (Arg0, def2);
+                return (Arg0!, def2);
             if (Length < MinArray)
-                return (Arg0, Arg1);
-            return (Args[0], Args[1]);
+                return (Arg0!, Arg1!);
+            return (Args![0], Args[1]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -434,12 +436,12 @@ namespace YantraJS.Core
             if (Length == 0)
                 return (JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
             if (Length == 1)
-                return (Arg0, JSUndefined.Value, JSUndefined.Value);
+                return (Arg0!, JSUndefined.Value, JSUndefined.Value);
             if (Length == 2)
-                return (Arg0, Arg1, JSUndefined.Value);
+                return (Arg0!, Arg1!, JSUndefined.Value);
             if (Length < MinArray)
-                return (Arg0, Arg1, Arg2);
-            return (Args[0], Args[1], Args[2]);
+                return (Arg0!, Arg1!, Arg2!);
+            return (Args![0], Args[1], Args[2]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -448,14 +450,14 @@ namespace YantraJS.Core
             if (Length == 0)
                 return (JSUndefined.Value, JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
             if (Length == 1)
-                return (Arg0, JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
+                return (Arg0!, JSUndefined.Value, JSUndefined.Value, JSUndefined.Value);
             if (Length == 2)
-                return (Arg0, Arg1, JSUndefined.Value, JSUndefined.Value);
+                return (Arg0!, Arg1!, JSUndefined.Value, JSUndefined.Value);
             if (Length == 3)
-                return (Arg0, Arg1, Arg2, JSUndefined.Value);
+                return (Arg0!, Arg1!, Arg2!, JSUndefined.Value);
             if (Length < MinArray)
-                return (Arg0, Arg1, Arg2, Arg3);
-            return (Args[0], Args[1], Args[2], Args[3]);
+                return (Arg0!, Arg1!, Arg2!, Arg3!);
+            return (Args![0], Args[1], Args[2], Args[3]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -464,25 +466,25 @@ namespace YantraJS.Core
             if (Length == 0)
                 return (0, 0, 0, 0, 0, 0, 0);
             if (Length == 1)
-                return (Arg0.IntValue, 0, 0, 0, 0, 0, 0);
+                return (Arg0!.IntValue, 0, 0, 0, 0, 0, 0);
             if (Length == 2)
-                return (Arg0.IntValue, Arg1.IntValue, 0, 0, 0, 0, 0);
+                return (Arg0!.IntValue, Arg1!.IntValue, 0, 0, 0, 0, 0);
             if (Length == 3)
-                return (Arg0.IntValue, Arg1.IntValue, Arg2.IntValue, 0, 0, 0, 0);
+                return (Arg0!.IntValue, Arg1!.IntValue, Arg2!.IntValue, 0, 0, 0, 0);
             if (Length == 4)
-                return (Arg0.IntValue, Arg1.IntValue, Arg2.IntValue, Arg3.IntValue, 0, 0, 0);
+                return (Arg0!.IntValue, Arg1!.IntValue, Arg2!.IntValue, Arg3!.IntValue, 0, 0, 0);
             if (Length == 5)
-                return (Args[0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, 0, 0);
+                return (Args![0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, 0, 0);
             if (Length == 6)
-                return (Args[0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, Args[5].IntValue,0);
+                return (Args![0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, Args[5].IntValue,0);
            
-           return (Args[0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, Args[5].IntValue, Args[6].IntValue);
+           return (Args![0].IntValue, Args[1].IntValue, Args[2].IntValue, Args[3].IntValue, Args[4].IntValue, Args[5].IntValue, Args[6].IntValue);
 
            
         }
 
 
-        public JSValue[] GetArgs()
+        public JSValue[]? GetArgs()
         {
             return Args;
         }
@@ -496,15 +498,15 @@ namespace YantraJS.Core
                 case 0:
                     return _Empty;
                 case 1:
-                    return new JSValue[] { Arg0 };
+                    return new JSValue[] { Arg0! };
                 case 2:
-                    return new JSValue[] { Arg0, Arg1 };
+                    return new JSValue[] { Arg0!, Arg1! };
                 case 3:
-                    return new JSValue[] { Arg0, Arg1, Arg2 };
+                    return new JSValue[] { Arg0!, Arg1!, Arg2! };
                 case 4:
-                    return new JSValue[] { Arg0, Arg1, Arg2, Arg3 };
+                    return new JSValue[] { Arg0!, Arg1!, Arg2!, Arg3! };
             }
-            return Args;
+            return Args!;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -515,24 +517,24 @@ namespace YantraJS.Core
                 switch(index)
                 {
                     case 0:
-                        a = Arg0;
+                        a = Arg0!;
                         break;
                     case 1:
-                        a = Arg1;
+                        a = Arg1!;
                         break;
                     case 2:
-                        a = Arg2;
+                        a = Arg2!;
                         break;
                     case 3:
-                        a = Arg3;
+                        a = Arg3!;
                         break;
                     default:
-                        a = Args[index];
+                        a = Args![index];
                         break;
                 }
                 return true;
             }
-            a = null;
+            a = null!;
             return false;
         }
 
@@ -545,15 +547,15 @@ namespace YantraJS.Core
                 switch (index)
                 {
                     case 0:
-                        return Arg0.IntValue;
+                        return Arg0!.IntValue;
                     case 1:
-                        return Arg1.IntValue;
+                        return Arg1!.IntValue;
                     case 2:
-                        return Arg2.IntValue;
+                        return Arg2!.IntValue;
                     case 3:
-                        return Arg3.IntValue;
+                        return Arg3!.IntValue;
                     default:
-                        return Args[index].IntValue;
+                        return Args![index].IntValue;
                 }
             }
             return def;
@@ -567,15 +569,15 @@ namespace YantraJS.Core
                 switch (index)
                 {
                     case 0:
-                        return Arg0.IntegerValue;
+                        return Arg0!.IntegerValue;
                     case 1:
-                        return Arg1.IntegerValue;
+                        return Arg1!.IntegerValue;
                     case 2:
-                        return Arg2.IntegerValue;
+                        return Arg2!.IntegerValue;
                     case 3:
-                        return Arg3.IntegerValue;
+                        return Arg3!.IntegerValue;
                     default:
-                        return Args[index].IntegerValue;
+                        return Args![index].IntegerValue;
                 }
             }
             return def;
@@ -589,15 +591,15 @@ namespace YantraJS.Core
                 switch (index)
                 {
                     case 0:
-                        return Arg0.DoubleValue;
+                        return Arg0!.DoubleValue;
                     case 1:
-                        return Arg1.DoubleValue;
+                        return Arg1!.DoubleValue;
                     case 2:
-                        return Arg2.DoubleValue;
+                        return Arg2!.DoubleValue;
                     case 3:
-                        return Arg3.DoubleValue;
+                        return Arg3!.DoubleValue;
                     default:
-                        return Args[index].DoubleValue;
+                        return Args![index].DoubleValue;
                 }
             }
             return def;
@@ -605,7 +607,7 @@ namespace YantraJS.Core
 
 
 
-        internal JSValue this[int index]
+        public JSValue? this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -613,7 +615,7 @@ namespace YantraJS.Core
                 if (Length > index)
                 {
                     if (Length >= MinArray)
-                        return Args[index];
+                        return Args![index];
                     switch (index)
                     {
                         case 0:
@@ -625,7 +627,7 @@ namespace YantraJS.Core
                         case 3:
                             return Arg3;
                         default:
-                            return Args[index];
+                            return Args![index];
                     }
                 }
                 return null;
@@ -636,7 +638,7 @@ namespace YantraJS.Core
         public JSValue GetAt(int index)
         {
             if (Length >= MinArray)
-                return index < Length ? Args[index] : JSUndefined.Value;
+                return index < Length ? Args![index] : JSUndefined.Value;
             switch (index)
             {
                 case 0:
@@ -648,7 +650,7 @@ namespace YantraJS.Core
                 case 3:
                     return Arg3 ?? JSUndefined.Value;
                 default:
-                    return index >= Length ? JSUndefined.Value : Args[index];
+                    return index >= Length ? JSUndefined.Value : Args![index];
             }
         }
 
@@ -667,7 +669,8 @@ namespace YantraJS.Core
         }
 
 
-        internal IElementEnumerator GetElementEnumerator()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IElementEnumerator GetElementEnumerator()
         {
             return new ArgumentsElementEnumerator(this);
         }

@@ -193,13 +193,13 @@ namespace YantraJS.Core
             return this;
         }
 
-        internal JSObject AddProperty(KeyString key, JSValue value)
+        internal JSObject AddProperty(in KeyString key, JSValue value)
         {
             ownProperties[key.Key] = JSProperty.Property(key, value);
             return this;
         }
 
-        internal JSObject AddProperty(KeyString key, JSFunction getter, JSFunction setter)
+        internal JSObject AddProperty(in KeyString key, JSFunction getter, JSFunction setter)
         {
             ownProperties[key.Key] = JSProperty.Property(key, getter?.f, setter?.f);
             return this;

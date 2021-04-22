@@ -22,7 +22,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(Expression exp)
         {
-            return Expression.New(_New, exp);
+            return Expression.TypeAs( Expression.New(_New, exp), typeof(JSValue));
         }
 
         public static Expression ConcatBasicStrings(Expression left, Expression right)

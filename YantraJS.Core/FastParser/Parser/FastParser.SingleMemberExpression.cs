@@ -51,6 +51,13 @@ namespace YantraJS.Core.FastParser
                 begin = stream.Current;
                 token = begin;
                 switch (token.Type) {
+
+                    case TokenTypes.TemplateBegin:
+                        if (!Template(out var template))
+                            throw stream.Unexpected();
+                        node = new AstTaggedTemplateExpression(node, template);
+                        continue;
+
                     case TokenTypes.SquareBracketStart:
                         stream.Consume();
                         if (!ExpressionSequence(out var index, TokenTypes.SquareBracketEnd))
