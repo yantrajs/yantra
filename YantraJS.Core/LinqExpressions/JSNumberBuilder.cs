@@ -30,7 +30,7 @@ namespace YantraJS.ExpHelper
             {
                 exp = Expression.Convert(exp, typeof(double));
             }
-            return Expression.New(_NewDouble, exp);
+            return  Expression.TypeAs(Expression.New(_NewDouble, exp), typeof(JSValue));
         }
 
         private static MethodInfo _AddValue =

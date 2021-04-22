@@ -11,10 +11,10 @@ namespace YantraJS.ExpHelper
         static Type type = typeof(JSBoolean);
 
         public static Expression True =
-            Expression.Field(null, type.GetField(nameof(JSBoolean.True)));
+            Expression.TypeAs( Expression.Field(null, type.GetField(nameof(JSBoolean.True))), typeof(JSValue));
 
         public static Expression False =
-            Expression.Field(null, type.GetField(nameof(JSBoolean.False)));
+            Expression.TypeAs( Expression.Field(null, type.GetField(nameof(JSBoolean.False))), typeof(JSValue));
 
         private static FieldInfo _Value =
             type.InternalField(nameof(Core.JSBoolean._value));

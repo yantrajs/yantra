@@ -9,7 +9,11 @@ namespace YantraJS.ExpHelper
     {
 
         public static Expression Value =
-            Expression.Field(null,
-                typeof(JSNull).GetField(nameof(JSNull.Value)));
+             Expression.TypeAs(
+                 Expression.Field(
+                        null, 
+                        typeof(JSNull)
+                            .GetField(nameof(JSNull.Value))), 
+                 typeof(JSValue));
     }
 }
