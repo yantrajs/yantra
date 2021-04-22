@@ -12,7 +12,32 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Exp VisitTaggedTemplateExpression(AstTaggedTemplateExpression astTaggedTemplateExpression)
         {
-            throw new NotImplementedException();
+            var template = astTaggedTemplateExpression.Template;
+            var parts = pool.AllocateList<Expression>(template.Parts.Length);
+            var raw = pool.AllocateList<Expression>(template.Parts.Length);
+            var expressions = pool.AllocateList<Expression>(template.Parts.Length);
+            try
+            {
+                foreach(var p in template.Parts)
+                {
+                    if(p.Type == FastNodeType.Literal)
+                    {
+                        var l = p as AstLiteral;
+                        if(l.TokenType == TokenTypes.TemplatePart)
+                        {
+                            raw.Add(Expression.Constant(l.Start.Span.Value));
+                            parts.Add(Expression.Constant(l.StringValue));
+                            continue;
+                        }
+                    }
+                    expressions.Add(VisitExpression(p));
+                }
+                return JSTemplateArrayBuilder.New(parts, raw, expressions);
+            } finally {
+                parts.Clear();
+                raw.Clear();
+                expressions.Clear();
+            }
         }
     }
 }

@@ -53,8 +53,7 @@ namespace YantraJS.Core.FastParser
                 switch (token.Type) {
 
                     case TokenTypes.TemplateBegin:
-                        if (!Template(out var template))
-                            throw stream.Unexpected();
+                        var template = Template();
                         node = new AstTaggedTemplateExpression(node, template);
                         continue;
 
