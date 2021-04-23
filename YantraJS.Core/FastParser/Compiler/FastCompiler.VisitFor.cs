@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
@@ -8,8 +9,48 @@ using Exp = System.Linq.Expressions.Expression;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
+
     partial class FastCompiler
     {
+
+        internal Exp Loop(
+            IList<ParameterExpression>? parameters,
+            LabelTarget breakTarget,
+            LabelTarget continueTarget,
+            Exp? initialize,
+            IList<Exp> body,
+            Exp? postLoop
+            )
+        {
+            var statements = pool.AllocateList<Exp>();
+            var vars = pool.AllocateList<ParameterExpression>();
+            try
+            {
+                if(parameters!=null)
+                    vars.AddRange(parameters);
+
+                if (initialize != null)
+                {
+                    statements.AddExpanded(vars, initialize);
+                }
+
+                statements.Add(Exp.Label(continueTarget));
+                if (postLoop != null)
+                {
+                    statements.AddExpanded(vars, postLoop);
+                }
+                foreach (var stmt in body)
+                {
+                    statements.AddExpanded(vars, stmt);
+                }
+                statements.Add(Exp.Goto(continueTarget));
+                statements.Add(Exp.Label(breakTarget));
+                return Exp.Block(vars, statements);
+            } finally {
+                statements.Clear();
+                vars.Clear();
+            }
+        }
 
 
         protected override Expression VisitForInStatement(AstForInStatement forInStatement, string label = null)
@@ -18,7 +59,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var continueTarget = Exp.Label();
             // this will create a variable if needed...
             // desugar takes care of let so do not worry
-            Exp identifier = null;
+            Exp? identifier = null;
             switch(forInStatement.Init.Type)
             {
                 case FastNodeType.Identifier:
@@ -35,6 +76,8 @@ namespace YantraJS.Core.FastParser.Compiler
                 var pList = new ParameterExpression[] {
                     en
                 };
+
+                
 
                 var body = VisitStatement(forInStatement.Body);
 
@@ -119,17 +162,19 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     innerBody.Add(body);
                     innerBody.Add(Exp.Label(continueTarget));
-                    if(update != null)
+                    if (update != null)
                     {
                         innerBody.Add(update);
                     }
 
-                    if(init == null)
+                    if (init == null)
                     {
                         return Exp.Loop(
                             Exp.Block(innerBody.ToSpan()),
                             breakTarget);
                     }
+
+                    // return Loop(null, breakTarget, continueTarget, init, innerBody, update);
 
                     return Exp.Block(
                         init,
