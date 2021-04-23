@@ -5,8 +5,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Generator;
 
-namespace YantraJS.LambdaCompiler
+namespace YantraJS
 {
     public class LambdaCompiler
     {
@@ -27,29 +28,8 @@ namespace YantraJS.LambdaCompiler
             NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(builder));
             exp = nw.Visit(exp) as LambdaExpression;
 
-            var fx = exp.Compile();
-
-            var d = (Delegate)(object)fx;
-            var type = typeof(System.Reflection.Emit.DynamicMethod);
-            var rtd = type.GetNestedType("RTDynamicMethod", System.Reflection.BindingFlags.NonPublic);
-            var field = rtd.GetTypeInfo().DeclaredFields.FirstOrDefault(x => x.Name == "m_owner");
-            DynamicMethod dm = field?.GetValue(d.Method) as DynamicMethod;
-
-
-            var il = dm.GetILGenerator();
-
-            var data = typeof(ILGenerator).GetField("m_ILStream", 
-                BindingFlags.NonPublic 
-                | BindingFlags.FlattenHierarchy
-                | BindingFlags.GetField
-                | BindingFlags.Default).GetValue(il);
-
-            var labels = typeof(ILGenerator).GetField("m_labelList", BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).GetValue(il);
-
-
-            var ilDest = builder.GetILGenerator();
-
-            Console.WriteLine("a");
+            ILCodeGenerator icg = new ILCodeGenerator(builder.GetILGenerator());
+            icg.Emit(exp);
         }
 
 

@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
-    <ProjectReference Include="..\YantraJS.LambdaCompiler\YantraJS.LambdaCompiler.csproj" />
+    <ProjectReference Include="..\YantraJS.LambdaCompiler\YantraJS.ExpressionCompiler.csproj" />
   </ItemGroup>
 
 </Project>

@@ -21,14 +21,14 @@ namespace YantraJS
 
             var ptypes = lambdaExpression.Parameters.Select(x => x.Type).ToArray();
 
-            name = LambdaCompiler.LambdaCompiler.GetUniqueName(name);
+            name = LambdaCompiler.GetUniqueName(name);
             var m = typeBuilder.DefineMethod(
                 name, 
                 System.Reflection.MethodAttributes.Static | System.Reflection.MethodAttributes.Public,
                 lambdaExpression.ReturnType,
                 ptypes);
 
-            LambdaCompiler.LambdaCompiler.InternalCompileToMethod(lambdaExpression, m);
+            LambdaCompiler.InternalCompileToMethod(lambdaExpression, m);
 
             var plist = new List<Type>(ptypes);
             plist.Add(m.ReturnType);
@@ -37,7 +37,7 @@ namespace YantraJS
 
             var dt = Expression.GetDelegateType(plist.ToArray());
 
-            var factory = LambdaCompiler.LambdaCompiler.GetUniqueName(name + "_Factory");
+            var factory = LambdaCompiler.GetUniqueName(name + "_Factory");
 
             var fld = typeBuilder.DefineMethod(factory, 
                 System.Reflection.MethodAttributes.Public | System.Reflection.MethodAttributes.Static,
