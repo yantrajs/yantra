@@ -1,6 +1,6 @@
 ﻿namespace YantraJS.Expressions
 {
-    internal class YBinaryExpression : YExpression
+    public class YBinaryExpression : YExpression
     {
         public readonly YExpression Left;
         public readonly YOperator Operator;

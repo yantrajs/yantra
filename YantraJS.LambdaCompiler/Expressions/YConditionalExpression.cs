@@ -3,7 +3,7 @@ using System;
 
 namespace YantraJS.Expressions
 {
-    internal class YConditionalExpression : YExpression
+    public class YConditionalExpression : YExpression
     {
         public readonly YExpression test;
         public readonly YExpression @true;

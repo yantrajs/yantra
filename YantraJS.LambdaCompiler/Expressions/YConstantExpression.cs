@@ -2,7 +2,7 @@
 
 namespace YantraJS.Expressions
 {
-    internal class YConstantExpression : YExpression
+    public class YConstantExpression : YExpression
     {
         public readonly object Value;
 

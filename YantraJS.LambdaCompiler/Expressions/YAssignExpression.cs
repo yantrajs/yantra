@@ -3,7 +3,7 @@ using System;
 
 namespace YantraJS.Expressions
 {
-    internal class YAssignExpression : YExpression
+    public class YAssignExpression : YExpression
     {
         public readonly YExpression left;
         public readonly YExpression right;

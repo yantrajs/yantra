@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace YantraJS.Expressions
@@ -11,7 +12,11 @@ namespace YantraJS.Expressions
         Binary,
         Constant,
         Conditional,
-        Assign
+        Assign,
+        Parameter,
+        Block,
+        Call,
+        New
     }
 
     public enum YOperator
@@ -44,17 +49,17 @@ namespace YantraJS.Expressions
             this.Type = type;
         }
 
-        public static YExpression Binary(YExpression left, YOperator @operator, YExpression right)
+        public static YBinaryExpression Binary(YExpression left, YOperator @operator, YExpression right)
         {
             return new YBinaryExpression(left, @operator, right);
         }
 
-        public static YExpression Constant(object value, Type? type = null)
+        public static YConstantExpression Constant(object value, Type? type = null)
         {
             return new YConstantExpression(value, type ?? value.GetType());
         }
 
-        public static YExpression Conditional(
+        public static YConditionalExpression Conditional(
             YExpression test, 
             YExpression @true, 
             YExpression @false,
@@ -63,9 +68,31 @@ namespace YantraJS.Expressions
             return new YConditionalExpression(test, @true, @false, type);
         }
 
-        public static YExpression Assign(YExpression left, YExpression right, Type? type = null)
+        public static YAssignExpression Assign(YExpression left, YExpression right, Type? type = null)
         {
             return new YAssignExpression(left, right, type);
+        }
+
+        public static YParameterExpression Parameter(Type type, string? name = null)
+        {
+            return new YParameterExpression(type, name);
+        }
+
+        public static YBlockExpression Block(
+            IEnumerable<YParameterExpression> variables,
+            IList<YExpression> expressions)
+        {
+            return new YBlockExpression(variables, expressions);
+        }
+
+        public static YCallExpression Call(YExpression target, MethodInfo method, IList<YExpression> args)
+        {
+            return new YCallExpression(target, method, args);
+        }
+
+        public static YNewExpression New(ConstructorInfo constructor, IList<YExpression> args)
+        {
+            return new YNewExpression(constructor, args);
         }
 
 
