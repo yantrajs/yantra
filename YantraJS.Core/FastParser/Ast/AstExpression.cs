@@ -16,8 +16,12 @@
         public static AstExpression Computed(this AstExpression left, AstExpression right)
             => new AstMemberExpression(left, right, true);
 
-        public static AstExpression Member(this AstExpression left, AstExpression right, bool computed = false)
-            => left == null ? right : new AstMemberExpression(left, right, computed);
+        public static AstExpression Member(
+            this AstExpression left, 
+            AstExpression right, 
+            bool computed = false,
+            bool coalesce = false)
+            => left == null ? right : new AstMemberExpression(left, right, computed, coalesce);
 
     }
 

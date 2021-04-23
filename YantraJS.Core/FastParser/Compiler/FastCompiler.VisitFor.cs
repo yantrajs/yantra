@@ -13,44 +13,44 @@ namespace YantraJS.Core.FastParser.Compiler
     partial class FastCompiler
     {
 
-        internal Exp Loop(
-            IList<ParameterExpression>? parameters,
-            LabelTarget breakTarget,
-            LabelTarget continueTarget,
-            Exp? initialize,
-            IList<Exp> body,
-            Exp? postLoop
-            )
-        {
-            var statements = pool.AllocateList<Exp>();
-            var vars = pool.AllocateList<ParameterExpression>();
-            try
-            {
-                if(parameters!=null)
-                    vars.AddRange(parameters);
+        //internal Exp Loop(
+        //    IList<ParameterExpression>? parameters,
+        //    LabelTarget breakTarget,
+        //    LabelTarget continueTarget,
+        //    Exp? initialize,
+        //    IList<Exp> body,
+        //    Exp? postLoop
+        //    )
+        //{
+        //    var statements = pool.AllocateList<Exp>();
+        //    var vars = pool.AllocateList<ParameterExpression>();
+        //    try
+        //    {
+        //        if(parameters!=null)
+        //            vars.AddRange(parameters);
 
-                if (initialize != null)
-                {
-                    statements.AddExpanded(vars, initialize);
-                }
+        //        if (initialize != null)
+        //        {
+        //            statements.AddExpanded(vars, initialize);
+        //        }
 
-                statements.Add(Exp.Label(continueTarget));
-                if (postLoop != null)
-                {
-                    statements.AddExpanded(vars, postLoop);
-                }
-                foreach (var stmt in body)
-                {
-                    statements.AddExpanded(vars, stmt);
-                }
-                statements.Add(Exp.Goto(continueTarget));
-                statements.Add(Exp.Label(breakTarget));
-                return Exp.Block(vars, statements);
-            } finally {
-                statements.Clear();
-                vars.Clear();
-            }
-        }
+        //        statements.Add(Exp.Label(continueTarget));
+        //        if (postLoop != null)
+        //        {
+        //            statements.AddExpanded(vars, postLoop);
+        //        }
+        //        foreach (var stmt in body)
+        //        {
+        //            statements.AddExpanded(vars, stmt);
+        //        }
+        //        statements.Add(Exp.Goto(continueTarget));
+        //        statements.Add(Exp.Label(breakTarget));
+        //        return Exp.Block(vars, statements);
+        //    } finally {
+        //        statements.Clear();
+        //        vars.Clear();
+        //    }
+        //}
 
 
         protected override Expression VisitForInStatement(AstForInStatement forInStatement, string label = null)
@@ -95,13 +95,13 @@ namespace YantraJS.Core.FastParser.Compiler
             }
         }
 
-        protected override Expression VisitForOfStatement(AstForOfStatement forOfStatement, string label = null)
+        protected override Expression VisitForOfStatement(AstForOfStatement forOfStatement, string? label = null)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
             // this will create a variable if needed...
             // desugar takes care of let so do not worry
-            Exp identifier = null;
+            Exp? identifier = null;
             switch (forOfStatement.Init.Type)
             {
                 case FastNodeType.Identifier:
