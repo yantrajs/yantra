@@ -46,7 +46,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
             // add top level...
 
-            using (var fx = this.scope.Push(new FastFunctionScope((AstFunctionExpression)null))) {
+            using (var fx = this.scope.Push(new FastFunctionScope(pool, (AstFunctionExpression)null))) {
 
                 var parserPool = new FastPool();
                 var parser = new FastParser(new FastTokenStream(parserPool, code));

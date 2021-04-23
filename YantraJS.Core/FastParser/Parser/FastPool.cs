@@ -29,6 +29,8 @@ namespace YantraJS.Core.FastParser
                 return l;
             }
 
+            public Scope NewScope() => pool.NewScope();
+
         }
 
         public Scope NewScope()
