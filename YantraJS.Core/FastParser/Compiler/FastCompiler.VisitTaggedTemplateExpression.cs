@@ -32,7 +32,8 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     expressions.Add(VisitExpression(p));
                 }
-                return JSTemplateArrayBuilder.New(parts, raw, expressions);
+                var a = JSTemplateArrayBuilder.New(parts, raw, expressions);
+                return a;
             } finally {
                 parts.Clear();
                 raw.Clear();
