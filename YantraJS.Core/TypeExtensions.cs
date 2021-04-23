@@ -6,12 +6,34 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using YantraJS.Core;
+using YantraJS.Core.FastParser;
 using YantraJS.ExpHelper;
 
 namespace YantraJS
 {
     internal static class ListOfExpressionsExtensions
     {
+
+
+        internal static Core.FastParser.FastList<Expression> ConvertToInteger(
+            this IList<Expression> source, 
+            Core.FastParser.FastPool.Scope scope)
+        {
+            var result = scope.AllocateList<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (!(exp is ConstantExpression ce))
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(int))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(Convert.ToInt32(ce.Value)));
+            }
+            return result;
+        }
+
         internal static SparseList<Expression> ConvertToInteger(this IList<Expression> source)
         {
             var result = new SparseList<Expression>(source.Count);
@@ -29,6 +51,23 @@ namespace YantraJS
             return result;
         }
 
+        internal static FastList<Expression> ConvertToNumber(this FastList<Expression> source, FastPool.Scope scope)
+        {
+            var result = scope.AllocateList<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (!(exp is ConstantExpression ce))
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(double))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(Convert.ToDouble(ce.Value)));
+            }
+            return result;
+        }
+
         internal static SparseList<Expression> ConvertToNumber(this IList<Expression> source)
         {
             var result = new SparseList<Expression>(source.Count);
@@ -42,6 +81,51 @@ namespace YantraJS
                     continue;
                 }
                 result.Add(Expression.Constant(Convert.ToDouble(ce.Value)));
+            }
+            return result;
+        }
+
+
+        internal static FastList<Expression> ConvertToString(this FastList<Expression> source, FastPool.Scope scope)
+        {
+            var result = scope.AllocateList<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (!(exp is ConstantExpression ce))
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(string))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(ce.Value.ToString()));
+            }
+            return result;
+        }
+
+        internal static FastList<Expression> ConvertToJSValue(this FastList<Expression> source, FastPool.Scope scope)
+        {
+            var result = scope.AllocateList<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (!(exp is ConstantExpression ce))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                Expression item;
+                switch (ce.Value)
+                {
+                    case string @string:
+                        item = JSStringBuilder.New(ce);
+                        break;
+                    case double @double:
+                        item = JSNumberBuilder.New(ce);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                result.Add(item);
             }
             return result;
         }

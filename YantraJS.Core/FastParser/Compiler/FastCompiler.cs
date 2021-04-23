@@ -112,7 +112,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var script = Visit(jScript);
 
-                var sList = new SparseList<Exp>(_innerFunctions.Count) {
+                var sList = new List<Exp>(_innerFunctions.Count) {
                     Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
                     Exp.Assign(lScope, JSContextBuilder.Current)
                 };

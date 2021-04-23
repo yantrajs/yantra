@@ -14,6 +14,28 @@ namespace YantraJS.Core.FastParser
             pools.Clear();
         }
 
+        public class Scope : DisposableList {
+            private readonly FastPool pool;
+
+            public Scope(FastPool pool)
+            {
+                this.pool = pool;
+            }
+
+            public FastList<T> AllocateList<T>(int size = 0)
+            {
+                var l = pool.AllocateList<T>(size);
+                Register(l);
+                return l;
+            }
+
+        }
+
+        public Scope NewScope()
+        {
+            return new Scope(this);
+        }
+
 
         readonly Dictionary<Type, object> pools = new Dictionary<Type, object>();
 

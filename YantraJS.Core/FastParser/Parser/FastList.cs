@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.FastParser
 {
-    public class FastList<T>: IList<T>
+    public class FastList<T>: IList<T>, IDisposable
     {
 
         private T[] items = null;
@@ -263,6 +263,11 @@ namespace YantraJS.Core.FastParser
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public void Dispose()
+        {
+            Clear();
         }
     }
 }
