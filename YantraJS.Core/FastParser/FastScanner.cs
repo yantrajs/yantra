@@ -538,6 +538,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private FastToken ReadSymbol(State state, TokenTypes type)
         {
             Consume();
@@ -757,6 +758,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private FastToken SkipMultilineComment(State state)
         {
             char ch;
@@ -780,6 +782,7 @@ namespace YantraJS.Core.FastParser
             return ReadToken();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private FastToken SkipSingleLineComment(State state)
         {
             char ch;
@@ -826,6 +829,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private FastToken ReadIdentifier(State state)
         {
             char first;
@@ -875,9 +879,10 @@ namespace YantraJS.Core.FastParser
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public State Push()
         {
-            return new State(this, position, line, column);
+            return new State(this, position);
         }
         
         public struct State
@@ -887,7 +892,7 @@ namespace YantraJS.Core.FastParser
             private SpanLocation start;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public State(FastScanner scanner, int position, int line, int column)
+            public State(FastScanner scanner, int position)
             {
                 this.scanner = scanner;
                 this.start = scanner.Location;
