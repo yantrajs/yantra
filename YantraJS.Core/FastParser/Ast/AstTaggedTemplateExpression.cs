@@ -2,14 +2,12 @@
 {
     public class AstTaggedTemplateExpression : AstExpression
     {
-        public readonly AstExpression Tag;
-        public readonly AstTemplateExpression Template;
+        public readonly ArraySpan<AstExpression> Arguments;
 
-        public AstTaggedTemplateExpression(AstExpression tag, AstTemplateExpression template)
-            : base(tag.Start, FastNodeType.TaggedTemplateExpression, template.End)
+        public AstTaggedTemplateExpression(in ArraySpan<AstExpression> arguments)
+            : base(arguments.FirstOrDefault().Start, FastNodeType.TaggedTemplateExpression, arguments.LastOrDefault().End)
         {
-            this.Tag = tag;
-            this.Template = template;
+            this.Arguments = arguments;
         }
     }
 }

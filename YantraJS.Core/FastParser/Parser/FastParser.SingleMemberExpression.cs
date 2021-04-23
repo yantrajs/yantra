@@ -54,7 +54,8 @@ namespace YantraJS.Core.FastParser
 
                     case TokenTypes.TemplateBegin:
                         var template = Template();
-                        node = new AstTaggedTemplateExpression(node, template);
+                        node = new AstCallExpression(node,
+                            ArraySpan<AstExpression>.From(new AstTaggedTemplateExpression(template.Parts)));
                         continue;
 
                     case TokenTypes.SquareBracketStart:

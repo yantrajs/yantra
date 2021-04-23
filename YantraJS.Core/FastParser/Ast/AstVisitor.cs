@@ -373,8 +373,8 @@ namespace YantraJS.Core.FastParser.Ast
 
         protected override AstNode VisitTaggedTemplateExpression(AstTaggedTemplateExpression taggedTemplateExpression)
         {
-            if (Modified(taggedTemplateExpression.Tag, taggedTemplateExpression.Template, out var tag, out var template))
-                return new AstTaggedTemplateExpression(tag, template);
+            if (Modified(taggedTemplateExpression.Arguments, out var arguments))
+                return new AstTaggedTemplateExpression(arguments);
             return taggedTemplateExpression;
         }
 

@@ -10,16 +10,15 @@ namespace YantraJS.Core.FastParser.Compiler
 {
     partial class FastCompiler
     {
-        protected override Exp VisitTaggedTemplateExpression(AstTaggedTemplateExpression astTaggedTemplateExpression)
+        protected override Exp VisitTaggedTemplateExpression(AstTaggedTemplateExpression template)
         {
-            var template = astTaggedTemplateExpression.Template;
-            var parts = pool.AllocateList<Expression>(template.Parts.Length);
-            var raw = pool.AllocateList<Expression>(template.Parts.Length);
-            var expressions = pool.AllocateList<Expression>(template.Parts.Length);
+            var parts = pool.AllocateList<Expression>(template.Arguments.Length);
+            var raw = pool.AllocateList<Expression>(template.Arguments.Length);
+            var expressions = pool.AllocateList<Expression>(template.Arguments.Length);
             try
             {
-                foreach(var p in template.Parts)
-                {
+                var e = template.Arguments.GetEnumerator();
+                while(e.MoveNext(out var p)) {
                     if(p.Type == FastNodeType.Literal)
                     {
                         var l = p as AstLiteral;
