@@ -92,7 +92,8 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.CurlyBracketStart:
                     return ObjectLiteral(out node);
                 case TokenTypes.TemplateBegin:
-                    return Template(out node);
+                    node = Template();
+                    return true;
                 case TokenTypes.TemplateEnd:
                     stream.Consume();
                     node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(new AstLiteral(token.Type, token)));

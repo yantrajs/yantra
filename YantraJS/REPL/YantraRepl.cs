@@ -21,16 +21,22 @@ namespace YantraJS.REPL
 
         public void Run()
         {
-            Console.WriteLine("// Write .exit to stop..");
-            while (true)
-            {
-                string line = Console.ReadLine();
-                if (line == ".exit")
-                    break;
+            InteractivePrompt.Run((command, listCommand, completions) => {
+                if (command == ".exit")
+                    return null;
+                return CoreScript.Evaluate(command).ToString();
+            }, "Yantra:>", "// Write .exit to stop..");
+            //while (true)
+            //{
+            //    string line = Console.ReadLine();
+            //    if (line == ".exit")
+            //        break;
 
-                var v = CoreScript.Evaluate(line);
-                Console.WriteLine(v);
-            }
+            //    Console.KeyAvailable && Console.ReadKey()
+
+            //    var v = CoreScript.Evaluate(line);
+            //    Console.WriteLine(v);
+            //}
 
         }
 

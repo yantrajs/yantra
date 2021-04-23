@@ -53,9 +53,9 @@ namespace YantraJS.Core.FastParser
                 switch (token.Type) {
 
                     case TokenTypes.TemplateBegin:
-                        if (!Template(out var template))
-                            throw stream.Unexpected();
-                        node = new AstTaggedTemplateExpression(node, template);
+                        var template = Template();
+                        node = new AstCallExpression(node,
+                            ArraySpan<AstExpression>.From(new AstTaggedTemplateExpression(template.Parts)));
                         continue;
 
                     case TokenTypes.SquareBracketStart:
@@ -76,6 +76,7 @@ namespace YantraJS.Core.FastParser
                         else
                             node = new AstCallExpression(node, arguments);
                         continue;
+                    case TokenTypes.QuestionDot:
                     case TokenTypes.Dot:
                         stream.Consume();
                         stream.SkipNewLines();
@@ -89,7 +90,10 @@ namespace YantraJS.Core.FastParser
                             case TokenTypes.True:
                             case TokenTypes.False:
                                 stream.Consume();
-                                node = node.Member(new AstIdentifier(next.AsString()));
+                                node = node.Member(
+                                    new AstIdentifier(next.AsString()), 
+                                    false,
+                                    token.Type == TokenTypes.QuestionDot);
                                 break;
                             default:
                                 throw stream.Unexpected();

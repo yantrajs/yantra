@@ -14,8 +14,11 @@ namespace YantraJS
 
         public void Register(ReadOnlyCollection<ParameterExpression> list)
         {
-            foreach(var item in list)
-                Top.PendingReplacements.Variables.Add(item, null);
+            foreach (var item in list)
+            {
+                if(!Top.PendingReplacements.Variables.ContainsKey(item))
+                    Top.PendingReplacements.Variables.Add(item, null);
+            }
         }
 
         public ClosureScopeItem Push(Expression exp)

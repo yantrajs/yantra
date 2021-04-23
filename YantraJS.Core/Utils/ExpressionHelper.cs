@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
@@ -9,6 +10,25 @@ namespace YantraJS
 {
     internal static class ExpressionHelper
     {
+        public static void AddExpanded(
+            this IList<Expression> list, 
+            IList<ParameterExpression> peList,
+            Expression exp)
+        {
+
+            if(exp.NodeType == ExpressionType.Block)
+            {
+                var block = (exp as BlockExpression)!;
+                foreach (var p in block.Variables)
+                    peList.Add(p);
+                foreach (var s in block.Expressions)
+                    list.Add(s);
+                return;
+            }
+
+            list.Add(exp);
+        }
+
 
         public static Expression ToJSValue(this Expression exp)
         {

@@ -151,6 +151,9 @@ namespace YantraJS.Core
 
         public readonly static KeyString @false;
 
+
+        public readonly static KeyString raw;
+
         static KeyStrings()
         {
             lock (typeof(KeyStrings))

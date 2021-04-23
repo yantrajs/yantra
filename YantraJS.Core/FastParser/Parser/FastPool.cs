@@ -14,6 +14,30 @@ namespace YantraJS.Core.FastParser
             pools.Clear();
         }
 
+        public class Scope : DisposableList {
+            private readonly FastPool pool;
+
+            public Scope(FastPool pool)
+            {
+                this.pool = pool;
+            }
+
+            public FastList<T> AllocateList<T>(int size = 0)
+            {
+                var l = pool.AllocateList<T>(size);
+                Register(l);
+                return l;
+            }
+
+            public Scope NewScope() => pool.NewScope();
+
+        }
+
+        public Scope NewScope()
+        {
+            return new Scope(this);
+        }
+
 
         readonly Dictionary<Type, object> pools = new Dictionary<Type, object>();
 
@@ -100,9 +124,9 @@ namespace YantraJS.Core.FastParser
                     if (Queues[index].TryDequeue(out var a))
                         return a;
                     // try one higher...
-                    //if(index < Queues.Length)
+                    //if (index < Queues.Length - 1)
                     //{
-                    //    if (Queues[index+1].TryDequeue(out a))
+                    //    if (Queues[index + 1].TryDequeue(out a))
                     //        return a;
                     //}
                 }

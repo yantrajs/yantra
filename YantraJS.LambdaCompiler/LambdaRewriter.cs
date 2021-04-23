@@ -1,31 +1,15 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace YantraJS
 {
-
-
-    public class BoxParamter
-    {
-        public Type Type;
-        public int Index;
-        public ParameterExpression Parameter;
-        internal bool Create;
-        internal MemberExpression Expression;
-        internal Expression Parent;
-    }
-
-    public class PendingReplacements
-    {
-        public Dictionary<ParameterExpression, BoxParamter> Variables { get; }
-            = new Dictionary<ParameterExpression, BoxParamter>();
-
-    }
 
     public class LambdaRewriter: ExpressionVisitor
     {
@@ -33,6 +17,12 @@ namespace YantraJS
         public bool Collect = true;
 
         private ClosureScopeStack stack = new ClosureScopeStack();
+        private readonly IMethodBuilder? methodBuilder;
+
+        public LambdaRewriter(IMethodBuilder? methodBuilder = null)
+        {
+            this.methodBuilder = methodBuilder;
+        }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
@@ -71,7 +61,7 @@ namespace YantraJS
                 var localClosures 
                     = new List<(ParameterExpression, ParameterExpression)>();
 
-                ParameterExpression closures = null;
+                ParameterExpression? closures = null;
 
                 List<Expression> closureSetup = new List<Expression>();
 
@@ -139,7 +129,7 @@ namespace YantraJS
                     Expression.NewArrayBounds(typeof(Box), Expression.Constant(closureSetup.Count))));
 
 
-                return CurryHelper.Create(closureSetup, closures, n.Parameters, body);
+                return CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body);
             }
         }
 
@@ -176,6 +166,12 @@ namespace YantraJS
         {
             var l = new LambdaRewriter();
             return l.Convert(factory);
+        }
+
+        public static Expression Rewrite(Expression convert, IMethodBuilder? methodBuilder)
+        {
+            var l = new LambdaRewriter(methodBuilder);
+            return l.Convert(convert);
         }
 
         private Expression Convert(Expression exp)

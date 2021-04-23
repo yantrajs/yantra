@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace YantraJS.Core.FastParser
@@ -26,13 +27,13 @@ namespace YantraJS.Core.FastParser
         }
 
         public readonly FastKeywordMap Keywords;
-        private readonly SparseList<FastToken> tokens;
+        private readonly List<FastToken> tokens;
         private int index;
 
         public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
         {
             this.Pool = new FastPool();
-            tokens = new SparseList<FastToken>();
+            tokens = new List<FastToken>();
             index = 0;
             this.Keywords = keywords ?? FastKeywordMap.Instance;
             this.scanner = new FastScanner(Pool, text, Keywords);
@@ -50,7 +51,7 @@ namespace YantraJS.Core.FastParser
         public FastTokenStream(FastPool pool, in StringSpan text, FastKeywordMap keywords = null)
         {
             this.Pool = pool;
-            tokens = new SparseList<FastToken>();
+            tokens = new List<FastToken>();
             index = 0;
             this.Keywords = keywords ?? FastKeywordMap.Instance;
             this.scanner = new FastScanner(pool, text, Keywords);

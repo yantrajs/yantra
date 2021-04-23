@@ -14,3 +14,7 @@ Due to implementation difference in .NET, following Ecmascript features are not 
 ## Number
 
 1. Due to difference in double precision (15 digits), double values differ compared to V8 and Firefox. 
+
+## Returning control from finally
+
+1. .Net Lambda Compiler currently does not allow returning control from finally block. This is probably a minor fix, we can rewrite finally in non .net style to make it work.

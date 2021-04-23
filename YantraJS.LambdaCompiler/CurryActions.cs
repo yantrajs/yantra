@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
@@ -10,6 +11,7 @@ namespace YantraJS
     {
 
         public static Expression Create(
+            string? name,
             IList<Expression> setup,
             ParameterExpression closure,
             ReadOnlyCollection<ParameterExpression> parameters,
@@ -43,7 +45,9 @@ namespace YantraJS
             if(parameterTypes.Count > 0)
                 method = method.MakeGenericMethod(parameterTypes.ToArray());
 
-            var lambda = Expression.Lambda(body, newParameterList);
+            var lambda = Expression.Lambda(body, name, newParameterList);
+
+            Expression? call;
 
             setup.Add(Expression.Call(null, method, closure, lambda));
             return Expression.Block(setup);

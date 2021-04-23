@@ -14,7 +14,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Exp VisitCallExpression(AstCallExpression callExpression)
         {
-            var ce = VisitCallExpression(callExpression, callExpression);
+            var ce = VisitCallExpression(callExpression.Callee, in callExpression.Arguments);
             return ce;
         }
 
@@ -32,7 +32,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         continue;
                     }
                     // spread....
-                    var sa = ae as AstSpreadElement;
+                    var sa = (ae as AstSpreadElement)!;
                     args.Add(new ClrSpreadExpression(Visit(sa.Argument)));
                     hasSpread = true;
                 }
@@ -47,11 +47,12 @@ namespace YantraJS.Core.FastParser.Compiler
             }
         }
 
-        protected Exp VisitCallExpression(AstCallExpression callExpression, AstCallExpression node)
+        protected Exp VisitCallExpression(
+            AstExpression callee, 
+            in ArraySpan<AstExpression> arguments)
         {
-            var calle = callExpression.Callee;
 
-            if (calle is AstMemberExpression me)
+            if (callee is AstMemberExpression me)
             {
                 // invoke method...
 
@@ -61,7 +62,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 switch (me.Property.Type)
                 {
                     case FastNodeType.Identifier:
-                        var id = me.Property as AstIdentifier;
+                        var id = (me.Property as AstIdentifier)!;
                         name = me.Computed ? VisitExpression(id) : KeyOfName(id.Name);
                         // name = KeyOfName(id.Name);
                         break;
@@ -90,7 +91,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var paramArray = VisitArguments(
                         isSuper ? target : null, 
-                        in callExpression.Arguments);
+                        in arguments);
 
                 if (isSuper)
                 {
@@ -104,18 +105,18 @@ namespace YantraJS.Core.FastParser.Compiler
             else
             {
 
-                bool isSuper = callExpression.Callee is AstSuper;
+                bool isSuper = callee is AstSuper;
 
                 if (isSuper)
                 {
-                    var paramArray1 = VisitArguments(this.scope.Top.ThisExpression, in callExpression.Arguments);
+                    var paramArray1 = VisitArguments(this.scope.Top.ThisExpression, in arguments);
                     var super = this.scope.Top.Super;
                     return JSFunctionBuilder.InvokeSuperConstructor(this.scope.Top.ThisExpression, super, paramArray1);
                 }
 
-                var paramArray = VisitArguments(JSUndefinedBuilder.Value, in callExpression.Arguments);
-                var callee = VisitExpression(callExpression.Callee);
-                return JSFunctionBuilder.InvokeFunction(callee, paramArray);
+                var paramArray = VisitArguments(JSUndefinedBuilder.Value, in arguments);
+                var target = VisitExpression(callee);
+                return JSFunctionBuilder.InvokeFunction(target, paramArray);
             }
         }
     }
