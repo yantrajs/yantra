@@ -165,13 +165,24 @@ namespace YantraJS.Core.FastParser
 
             // if it is whitespace...
             // read all whitespace...
+            bool lineTerminator = false;
+            bool skipped = false;
             while (char.IsWhiteSpace(first))
             {
                 if(first == '\n')
                 {
-                    return ReadSymbol(state, TokenTypes.LineTerminator);
+                    lineTerminator = true;
                 }
                 first = Consume();
+                skipped = true;
+            }
+            if (lineTerminator)
+            {
+                this.position--;
+                return ReadSymbol(state, TokenTypes.LineTerminator);
+            }
+            if (skipped)
+            {
                 state = Push();
             }
 

@@ -124,9 +124,9 @@ namespace YantraJS.Core.FastParser
                     if (Queues[index].TryDequeue(out var a))
                         return a;
                     // try one higher...
-                    //if(index < Queues.Length)
+                    //if (index < Queues.Length - 1)
                     //{
-                    //    if (Queues[index+1].TryDequeue(out a))
+                    //    if (Queues[index + 1].TryDequeue(out a))
                     //        return a;
                     //}
                 }
