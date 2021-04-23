@@ -196,13 +196,9 @@ namespace YantraJS.Generator
         private void VisitOperator(
             BinaryExpression binaryExpression, 
             OpCode opCode,
-            bool duplicateLeft = false)
+            bool assign = false)
         {
             Visit(binaryExpression.Left);
-            if (duplicateLeft)
-            {
-                il.Emit(OpCodes.Dup);
-            }
             Visit(binaryExpression.Right);
             il.Emit(opCode);
         }
