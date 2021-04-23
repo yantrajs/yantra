@@ -69,12 +69,20 @@ namespace YantraJS.Core
         public static JSValue Substring(in Arguments a) 
         {
             var @this = a.This.AsString();
-            int start = a.GetIntAt(0, 0);
-            int end = a.GetIntAt(1, int.MaxValue);
-            if (a.GetAt(1).IsUndefined)
-            {
-                end = int.MaxValue;
-            }
+            //int start = a.GetIntAt(0, 0);  
+            //int end = a.GetIntAt(1, int.MaxValue);   
+            var start = a[0]?.IntegerValue ?? 0;
+            // var end = a[1]?.IntegerValue ?? int.MaxValue;
+            var end = a.TryGetAt(1, out var v)
+                ? (v.IsUndefined ? int.MaxValue : v.IntegerValue)
+                : int.MaxValue;
+         
+         
+            
+            //if (a.GetAt(1).IsUndefined)
+            //{
+            //    end = int.MaxValue;
+            // }
 
 
             var si = Math.Max(Math.Min(start, end), 0);
@@ -209,19 +217,21 @@ namespace YantraJS.Core
         internal static JSValue StartsWith(in Arguments a)
         {
             var @this = a.This.AsString();
-            var (searchString,pos) = a.Get2();
-            if (searchString is JSRegExp)
+            //var (searchString,pos) = a.Get2();
+            var searchStr = a[0] ?? JSUndefined.Value;
+            var pos = a[1]?.IntegerValue ?? 0;
+            if (searchStr is JSRegExp)
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
-            int position = pos.IntValue;
-            if (position == 0)
-                return @this.StartsWith(searchString.ToString()) ? JSBoolean.True : JSBoolean.False;
+            //int position = pos.IntValue;
+            if (pos == 0)
+                return @this.StartsWith(searchStr.ToString()) ? JSBoolean.True : JSBoolean.False;
 
-            position = Math.Min(Math.Max(0, position), @this.Length);
-            if (position + searchString.Length > @this.Length)
+            pos = Math.Min(Math.Max(0, pos), @this.Length);
+            if (pos + searchStr.Length > @this.Length)
                 return JSBoolean.False;
 
-            var result = @this.Substring(position, searchString.Length);
-            if (result == searchString.ToString())
+            var result = @this.Substring(pos, searchStr.Length);
+            if (result == searchStr.ToString())
                 return JSBoolean.True;
 
             return JSBoolean.False;
