@@ -178,6 +178,8 @@ namespace YantraJS.Core.FastParser
             }
             if (lineTerminator)
             {
+                // as this will be set by consume...
+                this.line--;
                 this.position--;
                 return ReadSymbol(state, TokenTypes.LineTerminator);
             }
