@@ -48,6 +48,14 @@ namespace YantraJS.Generator
                     break;
                 case YExpressionType.Label:
                     break;
+                case YExpressionType.TypeIs:
+                    break;
+                case YExpressionType.NewArrayBounds:
+                    break;
+                case YExpressionType.ArrayIndex:
+                    break;
+                case YExpressionType.Index:
+                    break;
             }
         }
     }
