@@ -21,6 +21,8 @@ namespace YantraJS.Generator
             return new CodeInfo(success);
         }
 
+        public static implicit operator bool (CodeInfo ci) => ci.Success;
+
     }
 
     public partial class ILCodeGenerator: YExpressionVisitor<CodeInfo>

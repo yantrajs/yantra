@@ -12,7 +12,15 @@ namespace YantraJS.Generator
 
         protected override CodeInfo VisitGoto(YGoToExpression yGoToExpression)
         {
-            throw new NotImplementedException();
+            PushBranch(() =>
+            {
+                if (yGoToExpression.Default != null)
+                {
+                    Visit(yGoToExpression.Default);
+                }
+                il.Emit(OpCodes.Br, labels[yGoToExpression.Target]);
+            });
+            return true;
         }
 
     }

@@ -12,19 +12,21 @@ namespace YantraJS.Generator
         private readonly ILGenerator il;
 
         private readonly VariableInfo variables;
+        private readonly LabelInfo labels;
 
         public ILCodeGenerator(ILGenerator il)
         {
             this.il = il;
             this.variables = new VariableInfo(il);
+            this.labels = new LabelInfo(il);
         }
 
         internal void Emit(YLambdaExpression exp)
         {
-
+            short i = 0;
             foreach(var p in exp.Parameters)
             {
-                variables.Create(p);
+                variables.Create(p, true, i++);
             }
 
             Visit(exp.Body);

@@ -1,10 +1,49 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
+    public class LabelInfo
+    {
+        private readonly ILGenerator il;
+        private Dictionary<YLabelTarget, Label> labels = new Dictionary<YLabelTarget, Label>();
+
+        public LabelInfo(ILGenerator il)
+        {
+            this.il = il;
+        }
+
+        public Label this[YLabelTarget target] => Create(target);
+
+
+
+        private Label Create(YLabelTarget target)
+        {
+            if (labels.TryGetValue(target, out var l))
+                return l;
+            l = il.DefineLabel();
+            labels[target] = l;
+            return l;
+        }
+    }
+
+    public class Variable
+    {
+        public readonly LocalBuilder LocalBuilder;
+        public readonly bool IsArgument;
+        public readonly short Index;
+
+        public Variable(LocalBuilder builder , bool isArg, short index)
+        {
+            this.LocalBuilder = builder;
+            this.IsArgument = isArg;
+            this.Index = index;
+        }
+    }
+
     public class VariableInfo {
 
         public VariableInfo(ILGenerator il)
@@ -12,22 +51,20 @@ namespace YantraJS.Generator
             this.il = il;
         }
 
-        private Dictionary<YParameterExpression, LocalBuilder> variables 
-            = new Dictionary<YParameterExpression, LocalBuilder>();
+        private Dictionary<YParameterExpression, Variable> variables 
+            = new Dictionary<YParameterExpression, Variable>();
         private readonly ILGenerator il;
 
-        public LocalBuilder this[YParameterExpression exp]
+        public Variable this[YParameterExpression exp]
         {
-            get => Create(exp);
+            get => variables[exp];
         }
 
-        public LocalBuilder Create(YParameterExpression exp)
+        public Variable Create(YParameterExpression exp, bool isArgument = false, short index = -1)
         {
-            if (variables.TryGetValue(exp, out var lb))
-                return lb;
-            lb = il.DeclareLocal(exp.Type);
-            variables[exp] = lb;
-            return lb;
+            var vb = new Variable(il.DeclareLocal(exp.Type), isArgument, index);
+            variables[exp] = vb;
+            return vb;
         }
 
     }
