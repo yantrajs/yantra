@@ -7,56 +7,24 @@ using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
-    public partial class ILCodeGenerator
+    public struct CodeInfo
+    {
+        public readonly bool Success;
+
+        public CodeInfo(bool success)
+        {
+            this.Success = success;
+        }
+
+        public static implicit operator CodeInfo(bool success)
+        {
+            return new CodeInfo(success);
+        }
+
+    }
+
+    public partial class ILCodeGenerator: YExpressionVisitor<CodeInfo>
     {
 
-        public void Visit(YExpression exp)
-        {
-            switch (exp.NodeType)
-            {
-                case YExpressionType.Binary:
-                    break;
-                case YExpressionType.Constant:
-                    break;
-                case YExpressionType.Conditional:
-                    break;
-                case YExpressionType.Assign:
-                    break;
-                case YExpressionType.Parameter:
-                    break;
-                case YExpressionType.Block:
-                    break;
-                case YExpressionType.Call:
-                    break;
-                case YExpressionType.New:
-                    break;
-                case YExpressionType.Field:
-                    break;
-                case YExpressionType.Property:
-                    break;
-                case YExpressionType.NewArray:
-                    break;
-                case YExpressionType.GoTo:
-                    break;
-                case YExpressionType.Return:
-                    break;
-                case YExpressionType.Loop:
-                    break;
-                case YExpressionType.TypeAs:
-                    break;
-                case YExpressionType.Lambda:
-                    break;
-                case YExpressionType.Label:
-                    break;
-                case YExpressionType.TypeIs:
-                    break;
-                case YExpressionType.NewArrayBounds:
-                    break;
-                case YExpressionType.ArrayIndex:
-                    break;
-                case YExpressionType.Index:
-                    break;
-            }
-        }
     }
 }
