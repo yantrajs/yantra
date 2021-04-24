@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
     public class ClosureScopeStack : LinkedStack<ClosureScopeStack.ClosureScopeItem> {
 
-        public void Register(ParameterExpression pe)
+        public void Register(YParameterExpression pe)
         {
             Top.PendingReplacements.Variables.Add(pe, null);
         }
 
-        public void Register(ReadOnlyCollection<ParameterExpression> list)
+        public void Register(YParameterExpression[] list)
         {
             foreach (var item in list)
             {
@@ -21,19 +22,19 @@ namespace YantraJS
             }
         }
 
-        public ClosureScopeItem Push(Expression exp)
+        public ClosureScopeItem Push(YExpression exp)
         {
             return Push(new ClosureScopeItem(exp));
         }
 
         public class ClosureScopeItem : LinkedStackItem<ClosureScopeItem>
         {
-            public readonly Expression Expression;
+            public readonly YExpression Expression;
 
             public readonly PendingReplacements PendingReplacements;
 
 
-            public ClosureScopeItem(Expression exp)
+            public ClosureScopeItem(YExpression exp)
             {
                 this.Expression = exp;
                 PendingReplacements = exp.GetPendingReplacements();
@@ -43,17 +44,17 @@ namespace YantraJS
 
             public int Length => index;
 
-            internal Expression Access(ParameterExpression node, bool box = false)
+            internal YExpression Access(YParameterExpression node, bool box = false)
             {
                 if(PendingReplacements.Variables.TryGetValue(node, out var be))
                 {
                     if(box && be == null)
                     {
-                        var pe = Expression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
+                        var pe = YExpression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
                         be = new BoxParamter {
                             Parameter = pe,
                             Type = node.Type,
-                            Expression = Expression.Field(pe, "Value" ),
+                            Expression = YExpression.Field(pe, "Value" ),
                             Create = true
                         };
                         PendingReplacements.Variables[node] = be;
@@ -62,13 +63,13 @@ namespace YantraJS
                 }
 
                 var pn = Parent.Access(node, true );
-                var n = Expression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
+                var n = YExpression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
                 var bp = new BoxParamter
                 {
                     Parent = pn,
                     Index = index++,
                     Parameter = n,
-                    Expression = Expression.Field(n, "Value")
+                    Expression = YExpression.Field(n, "Value")
                 };
                 PendingReplacements.Variables[node] = bp;
                 return bp.Expression;
@@ -76,7 +77,7 @@ namespace YantraJS
 
         }
 
-        internal Expression Access(ParameterExpression node)
+        internal YExpression Access(YParameterExpression node)
         {
             return Top.Access(node);
         }

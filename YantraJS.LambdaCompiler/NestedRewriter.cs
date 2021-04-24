@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Text;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
-    public class NestedRewriter : ExpressionVisitor
+    public class NestedRewriter : YExpressionMapVisitor
     {
-        private readonly LambdaExpression exp;
+        private readonly YLambdaExpression exp;
         private LambdaMethodBuilder lambdaMethodBuilder;
 
-        public NestedRewriter(LambdaExpression exp, LambdaMethodBuilder lambdaMethodBuilder)
+        public NestedRewriter(YLambdaExpression exp, LambdaMethodBuilder lambdaMethodBuilder)
         {
             this.exp = exp;
             this.lambdaMethodBuilder = lambdaMethodBuilder;
         }
 
-        protected override Expression VisitLambda<T>(Expression<T> node)
+        protected override YExpression VisitLambda(YLambdaExpression node)
         {
             if (exp == node)
                 return base.VisitLambda(node);

@@ -3,15 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
 
-    public class LambdaRewriter: ExpressionVisitor
+    public class LambdaRewriter: YExpressionMapVisitor
     {
 
         public bool Collect = true;
@@ -24,7 +24,7 @@ namespace YantraJS
             this.methodBuilder = methodBuilder;
         }
 
-        protected override Expression VisitLambda<T>(Expression<T> node)
+        protected override YExpression VisitLambda(YLambdaExpression node)
         {
             if (Collect)
             {
@@ -54,16 +54,16 @@ namespace YantraJS
                 return PostVisit(node, scope);
             }
 
-            Expression PostVisit(LambdaExpression n, ClosureScopeStack.ClosureScopeItem top)
+            YExpression PostVisit(YLambdaExpression n, ClosureScopeStack.ClosureScopeItem top)
             {
-                List<Expression> stmts = new List<Expression>();
-                List<ParameterExpression> localBoxes = new List<ParameterExpression>();
+                List<YExpression> stmts = new List<YExpression>();
+                List<YParameterExpression> localBoxes = new List<YParameterExpression>();
                 var localClosures 
-                    = new List<(ParameterExpression, ParameterExpression)>();
+                    = new List<(YParameterExpression, YParameterExpression)>();
 
-                ParameterExpression? closures = null;
+                YParameterExpression? closures = null;
 
-                List<Expression> closureSetup = new List<Expression>();
+                List<YExpression> closureSetup = new List<YExpression>();
 
                 foreach(var p in top.PendingReplacements.Variables)
                 {
@@ -78,26 +78,26 @@ namespace YantraJS
                         {
                             if (closures == null)
                             {
-                                closures = Expression.Parameter(typeof(Box[]));
+                                closures = YExpression.Parameter(typeof(Box[]));
                             }
 
-                            closureSetup.Add(Expression.Assign(
-                                Expression.ArrayAccess(closures, Expression.Constant(bp.Index)), 
+                            closureSetup.Add(YExpression.Assign(
+                                YExpression.ArrayIndex(closures, YExpression.Constant(bp.Index)), 
                                 BoxHelper.For(bp.Parent.Type).New(bp.Parent)));
 
-                            stmts.Add(Expression.Assign(bp.Parameter,
-                                    Expression.TypeAs(
-                                        Expression.ArrayIndex(closures, Expression.Constant(bp.Index)),
+                            stmts.Add(YExpression.Assign(bp.Parameter,
+                                    YExpression.TypeAs(
+                                        YExpression.ArrayIndex(closures, YExpression.Constant(bp.Index)),
                                         bp.Parameter.Type)
                                 ));
                         }
                         else {
-                            stmts.Add(Expression.Assign(bp.Parameter, Expression.New(bp.Parameter.Type)));
+                            stmts.Add(YExpression.Assign(bp.Parameter, YExpression.New(bp.Parameter.Type)));
 
                             var p1 = n.Parameters.FirstOrDefault(x => x == p.Key);
                             if (p1 != null)
                             {
-                                stmts.Add(Expression.Assign(bp.Expression, p1));
+                                stmts.Add(YExpression.Assign(bp.Expression, p1));
                             }
                         }
                     }
@@ -115,25 +115,25 @@ namespace YantraJS
 
                     stmts.Add(body);
 
-                    return Expression.Lambda(Expression.Block(localBoxes, body), n.Parameters);
+                    return YExpression.Lambda( n.Name, YExpression.Block(localBoxes, body), n.Parameters);
                 }
 
                 // curry....
                 if (stmts.Count > 0 || localBoxes.Count > 0)
                 {
                     stmts.Add(body);
-                    body = Expression.Block(localBoxes, stmts);
+                    body = YExpression.Block(localBoxes, stmts);
                 }
 
-                closureSetup.Insert(0, Expression.Assign(closures,
-                    Expression.NewArrayBounds(typeof(Box), Expression.Constant(closureSetup.Count))));
+                closureSetup.Insert(0, YExpression.Assign(closures,
+                    YExpression.NewArrayBounds(typeof(Box), YExpression.Constant(closureSetup.Count))));
 
 
                 return CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body);
             }
         }
 
-        protected override Expression VisitBlock(BlockExpression node)
+        protected override YExpression VisitBlock(YBlockExpression node)
         {
             if (Collect)
             {
@@ -142,10 +142,10 @@ namespace YantraJS
                 return VisitBlock(node);
             }
 
-            return Expression.Block(node.Expressions.Select(x => Visit(x)));
+            return YExpression.Block(null, node.Expressions.Select(x => Visit(x)).ToArray());
         }
 
-        protected override Expression VisitParameter(ParameterExpression node)
+        protected override YExpression VisitParameter(YParameterExpression node)
         {
             if (Collect)
             {
@@ -162,19 +162,13 @@ namespace YantraJS
             return stack.Access(node);
         }
 
-        public static Expression Rewrite<T,TR>(Expression<Func<T, TR>> factory)
-        {
-            var l = new LambdaRewriter();
-            return l.Convert(factory);
-        }
-
-        public static Expression Rewrite(Expression convert, IMethodBuilder? methodBuilder)
+        public static YExpression Rewrite(YExpression convert, IMethodBuilder? methodBuilder)
         {
             var l = new LambdaRewriter(methodBuilder);
             return l.Convert(convert);
         }
 
-        private Expression Convert(Expression exp)
+        private YExpression Convert(YExpression exp)
         {
             using (var scope = stack.Push(exp)) {
                 exp = Visit(exp);

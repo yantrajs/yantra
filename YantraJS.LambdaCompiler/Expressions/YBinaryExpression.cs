@@ -20,10 +20,6 @@ namespace YantraJS.Expressions
         {
             switch (@operator)
             {
-                case YOperator.TypeAs:
-                    return right;
-                case YOperator.TypeIs:
-                    return typeof(bool);
                 case YOperator.Coalesc:
                     return right;
             }

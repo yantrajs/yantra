@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -25,7 +26,11 @@ namespace YantraJS.Expressions
         Loop,
         TypeAs,
         Lambda,
-        Label
+        Label,
+        TypeIs,
+        NewArrayBounds,
+        ArrayIndex,
+        Index
     }
 
     public enum YOperator
@@ -45,9 +50,6 @@ namespace YantraJS.Expressions
 
         BooleanNot,
         BitwiseNot,
-
-        TypeAs,
-        TypeIs,
 
         Coalesc
     }
@@ -104,13 +106,25 @@ namespace YantraJS.Expressions
         }
 
         public static YBlockExpression Block(
-            IEnumerable<YParameterExpression> variables,
+            IEnumerable<YParameterExpression>? variables,
             IList<YExpression> expressions)
         {
             return new YBlockExpression(variables, expressions);
         }
 
-        public static YCallExpression Call(YExpression target, MethodInfo method, IList<YExpression> args)
+        public static YBlockExpression Block(
+            IEnumerable<YParameterExpression>? variables,
+            params YExpression[] expressions)
+        {
+            return new YBlockExpression(variables, expressions);
+        }
+
+
+        public static YCallExpression Call(YExpression? target, MethodInfo method, IList<YExpression> args)
+        {
+            return new YCallExpression(target, method, args);
+        }
+        public static YCallExpression Call(YExpression? target, MethodInfo method, params YExpression[] args)
         {
             return new YCallExpression(target, method, args);
         }
@@ -119,11 +133,31 @@ namespace YantraJS.Expressions
         {
             return new YNewExpression(constructor, args);
         }
+        public static YNewExpression New(Type type, IList<YExpression> args)
+        {
+            var constructor = type.GetConstructor(args.Select(x => x.Type).ToArray());
+            return new YNewExpression(constructor, args);
+        }
+        public static YNewExpression New(ConstructorInfo constructor, params YExpression[] args)
+        {
+            return New(constructor, (IList<YExpression>)args);
+        }
+        public static YNewExpression New(Type type, params YExpression[] args)
+        {
+            return New(type, (IList<YExpression>)args);
+        }
 
         public static YFieldExpression Field(YExpression target, FieldInfo field)
         {
             return new YFieldExpression(target, field);
         }
+
+        public static YFieldExpression Field(YExpression target, string name)
+        {
+            var field = target.GetType().GetField(name);
+            return new YFieldExpression(target, field);
+        }
+
 
         public static YPropertyExpression Property(YExpression target, PropertyInfo field)
         {
@@ -132,15 +166,11 @@ namespace YantraJS.Expressions
 
         public static YNewArrayExpression NewArray(Type type, IList<YExpression> elements)
         {
-            return new YNewArrayExpression(type, elements.Count, elements);
+            return new YNewArrayExpression(type, elements);
         }
-        public static YNewArrayExpression NewArray(Type type, int size, IList<YExpression> elements)
+        public static YNewArrayBoundsExpression NewArrayBounds(Type type, YExpression size)
         {
-            return new YNewArrayExpression(type, size, elements);
-        }
-        public static YNewArrayExpression NewArray(Type type, int size)
-        {
-            return new YNewArrayExpression(type, size);
+            return new YNewArrayBoundsExpression(type, size);
         }
 
         public static YLabelTarget Label(string? name = null, 
@@ -171,6 +201,31 @@ namespace YantraJS.Expressions
         public static YLambdaExpression Lambda(string name, YExpression body, IList<YParameterExpression> parameters)
         {
             return new YLambdaExpression(name, body, parameters);
+        }
+
+        public static YTypeAsExpression TypeAs(YExpression target, Type type)
+        {
+            return new YTypeAsExpression(target, type);
+        }
+
+        public static YTypeIsExpression TypeIs(YExpression target, Type type)
+        {
+            return new YTypeIsExpression(target, type);
+        }
+
+        public static YArrayIndexExpression ArrayIndex(YExpression target, YExpression index)
+        {
+            return new YArrayIndexExpression(target, index);
+        }
+
+        public static YIndexExpression Index(YExpression target, params YExpression[] args)
+        {
+            var types = args.Select(x => x.Type).ToArray();
+            PropertyInfo propertyInfo =
+                target.GetType()
+                    .GetProperties()
+                    .FirstOrDefault(x => x.GetIndexParameters().Select(p => p.ParameterType).SequenceEqual(types));
+            return new YIndexExpression(target, propertyInfo, args);
         }
     }
 }

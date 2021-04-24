@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
@@ -11,8 +12,8 @@ namespace YantraJS
             return Activator.CreateInstance(typeof(BoxHelper<>).MakeGenericType(type)) as BoxHelper;
         }
 
-        public abstract Expression New();
-        public abstract Expression New(Expression value);
+        public abstract YExpression New();
+        public abstract YExpression New(YExpression value);
 
     }
 
@@ -26,14 +27,14 @@ namespace YantraJS
         private static ConstructorInfo _newFromValue
             = boxType.GetConstructor(new Type[] { typeof(T) });
 
-        public override Expression New()
+        public override YExpression New()
         {
-            return Expression.New(_new);
+            return YExpression.New(_new);
         }
 
-        public override Expression New(Expression value)
+        public override YExpression New(YExpression value)
         {
-            return Expression.New(_newFromValue, value);
+            return YExpression.New(_newFromValue, value);
         }
 
     }

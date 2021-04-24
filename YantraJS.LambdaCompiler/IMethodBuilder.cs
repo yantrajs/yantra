@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq.Expressions;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
     public interface IMethodBuilder
     {
-        Expression Create(string name, LambdaExpression lambdaExpression);
+        YExpression Create(string name, YLambdaExpression lambdaExpression);
     }
 }

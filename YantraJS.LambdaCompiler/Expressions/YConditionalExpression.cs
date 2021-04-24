@@ -13,7 +13,7 @@ namespace YantraJS.Expressions
             YExpression test, 
             YExpression @true, 
             YExpression @false,
-            Type? type)
+            Type? type = null)
             :base(YExpressionType.Conditional, type ?? @true.Type)
         {
             this.test = test;

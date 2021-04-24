@@ -2,34 +2,34 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq.Expressions;
 using System.Reflection;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
     public static class CurryHelper
     {
 
-        public static Expression Create(
+        public static YExpression Create(
             string? name,
-            IList<Expression> setup,
-            ParameterExpression closure,
-            ReadOnlyCollection<ParameterExpression> parameters,
-            Expression body
+            IList<YExpression> setup,
+            YParameterExpression closure,
+            YParameterExpression[] parameters,
+            YExpression body
             )
         {
             var methods = body.Type == typeof(void)
                 ? CurryActions.methods
                 : CurryFunctions.methods;
 
-            var n = parameters.Count;
+            var n = parameters.Length;
 
             if (n > 10)
                 throw new NotSupportedException();
 
             var method = methods[n];
 
-            var newParameterList = new List<ParameterExpression> { closure };
+            var newParameterList = new List<YParameterExpression> { closure };
             var parameterTypes = new List<Type>();
             foreach(var p in parameters)
             {
@@ -45,12 +45,12 @@ namespace YantraJS
             if(parameterTypes.Count > 0)
                 method = method.MakeGenericMethod(parameterTypes.ToArray());
 
-            var lambda = Expression.Lambda(body, name, newParameterList);
+            var lambda = YExpression.Lambda(name ?? "Unnamed", body, newParameterList);
 
-            Expression? call;
+            // YExpression? call = null;
 
-            setup.Add(Expression.Call(null, method, closure, lambda));
-            return Expression.Block(setup);
+            setup.Add(YExpression.Call(null, method, closure, lambda));
+            return YExpression.Block(null, setup);
         }
 
     }

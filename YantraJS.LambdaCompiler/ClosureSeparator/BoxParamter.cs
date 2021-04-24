@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq.Expressions;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
@@ -7,9 +7,9 @@ namespace YantraJS
     {
         public Type Type;
         public int Index;
-        public ParameterExpression Parameter;
+        public YParameterExpression Parameter;
         internal bool Create;
-        internal MemberExpression Expression;
-        internal Expression Parent;
+        internal YExpression Expression;
+        internal YExpression Parent;
     }
 }

@@ -5,11 +5,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Expressions;
 using YantraJS.Generator;
 
 namespace YantraJS
 {
-    public class LambdaCompiler
+    public class ExpressionCompiler
     {
 
         private static int id = 1;
@@ -21,12 +22,12 @@ namespace YantraJS
 
 
         internal static void InternalCompileToMethod(
-            LambdaExpression exp,
+            YLambdaExpression exp,
             MethodBuilder builder)
         {
 
             NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(builder));
-            exp = nw.Visit(exp) as LambdaExpression;
+            exp = nw.Visit(exp) as YLambdaExpression;
 
             ILCodeGenerator icg = new ILCodeGenerator(builder.GetILGenerator());
             // icg.Emit(exp);
@@ -34,11 +35,11 @@ namespace YantraJS
 
 
         public static void CompileToMethod(
-            LambdaExpression lambdaExpression,
+            YLambdaExpression lambdaExpression,
             MethodBuilder methodBuilder)
         {
             var exp = LambdaRewriter.Rewrite(lambdaExpression, new LambdaMethodBuilder(methodBuilder))
-                as LambdaExpression;
+                as YLambdaExpression;
 
             InternalCompileToMethod(exp, methodBuilder);
 

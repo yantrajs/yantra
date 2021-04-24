@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
     public class PendingReplacements
     {
-        public Dictionary<ParameterExpression, BoxParamter> Variables { get; }
-            = new Dictionary<ParameterExpression, BoxParamter>();
+        public Dictionary<YParameterExpression, BoxParamter> Variables { get; }
+            = new Dictionary<YParameterExpression, BoxParamter>();
 
     }
 }

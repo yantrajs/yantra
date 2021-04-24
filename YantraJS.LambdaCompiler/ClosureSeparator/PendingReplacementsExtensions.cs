@@ -1,15 +1,16 @@
 ﻿using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
     public static class PendingReplacementsExtensions
     {
 
-        private static ConditionalWeakTable<Expression, PendingReplacements> storage 
-            = new ConditionalWeakTable<Expression, PendingReplacements>();
+        private static ConditionalWeakTable<YExpression, PendingReplacements> storage 
+            = new ConditionalWeakTable<YExpression, PendingReplacements>();
 
-        public static PendingReplacements GetPendingReplacements(this Expression exp)
+        public static PendingReplacements GetPendingReplacements(this YExpression exp)
         {
             if(!storage.TryGetValue(exp, out var p))
             {

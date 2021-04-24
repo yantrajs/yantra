@@ -43,11 +43,26 @@ namespace YantraJS.Expressions
                     return VisitLambda(exp as YLambdaExpression);
                 case YExpressionType.Label:
                     return VisitLabel(exp as YLabelExpression);
+                case YExpressionType.TypeAs:
+                    return VisitTypeAs(exp as YTypeAsExpression);
+                case YExpressionType.TypeIs:
+                    return VisitTypeIs(exp as YTypeIsExpression);
+                case YExpressionType.NewArrayBounds:
+                    return VisitNewArrayBounds(exp as YNewArrayBoundsExpression);
+                case YExpressionType.ArrayIndex:
+                    return VisitArrayIndex(exp as YArrayIndexExpression);
+                case YExpressionType.Index:
+                    return VisitIndex(exp as YIndexExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitIndex(YIndexExpression yIndexExpression);
+        protected abstract T VisitArrayIndex(YArrayIndexExpression yArrayIndexExpression);
+        protected abstract T VisitNewArrayBounds(YNewArrayBoundsExpression yNewArrayBoundsExpression);
+        protected abstract T VisitTypeIs(YTypeIsExpression yTypeIsExpression);
+        protected abstract T VisitTypeAs(YTypeAsExpression yTypeAsExpression);
         protected abstract T VisitLabel(YLabelExpression yLabelExpression);
         protected abstract T VisitLambda(YLambdaExpression yLambdaExpression);
         protected abstract T VisitLoop(YLoopExpression yLoopExpression);

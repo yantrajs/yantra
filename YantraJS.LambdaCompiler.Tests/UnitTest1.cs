@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using YantraJS.Core;
+using YantraJS.Expressions;
 
 namespace YantraJS.LambdaCompiler.Tests
 {
@@ -13,15 +14,11 @@ namespace YantraJS.LambdaCompiler.Tests
         [TestMethod]
         public void TestMethod1()
         {
-            var x = LambdaRewriter.Rewrite<string,string>(x => this.Simple<string>(() => x == null ? x : null));
-
-            Assert.IsNotNull(x);
-
+            
         }
 
 
-        [TestMethod]
-        public void Compile()
+        public void Compile(YLambdaExpression exp)
         {
             AssemblyName name = new AssemblyName("demo");
 
@@ -40,9 +37,9 @@ namespace YantraJS.LambdaCompiler.Tests
                 typeof(string),
                 new Type[] { typeof(string) });
 
-            Expression<Func<string,string>> y = x => this.Simple<string>(() => x == null ? x : null);
+            // Expression<Func<string,string>> y = x => this.Simple<string>(() => x == null ? x : null);
 
-            YantraJS.LambdaCompiler.LambdaCompiler.CompileToMethod(y as LambdaExpression, method);
+            ExpressionCompiler.CompileToMethod(exp, method);
 
 
         }

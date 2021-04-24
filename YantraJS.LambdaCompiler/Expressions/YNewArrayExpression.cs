@@ -1,29 +1,26 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace YantraJS.Expressions
 {
     public class YNewArrayExpression: YExpression
     {
-        public readonly IList<YExpression>? Elements;
+        public readonly YExpression[]? Elements;
+        public readonly Type ElementType;
 
-        public readonly int Size;
-
-        public YNewArrayExpression(Type type, int size, IList<YExpression>? elements = null)
+        public YNewArrayExpression(Type type, IList<YExpression>? elements = null)
             : base( YExpressionType.NewArray, type.MakeArrayType())
         {
-            this.Elements = elements;
+            this.ElementType = type;
             if(elements == null)
             {
-                if (size == -1)
-                    throw new ArgumentException($"{nameof(size)} cannot be less than zero");
+                Elements = null;
             } else
             {
-                if(size < elements.Count)
-                    throw new ArgumentException($"{nameof(size)} cannot be less than number of elements");
+                this.Elements = elements.ToArray();
             }
-            this.Size = size;
         }
     }
 }

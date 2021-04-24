@@ -16,6 +16,7 @@
     public class YGoToExpression : YExpression
     {
         public readonly YLabelTarget Target;
+
         public readonly YExpression Default;
 
         public YGoToExpression(YLabelTarget target, YExpression defaultValue)
