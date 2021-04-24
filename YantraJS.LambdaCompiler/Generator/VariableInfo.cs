@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
+using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
@@ -11,16 +12,16 @@ namespace YantraJS.Generator
             this.il = il;
         }
 
-        private Dictionary<ParameterExpression, LocalBuilder> variables 
-            = new Dictionary<ParameterExpression, LocalBuilder>();
+        private Dictionary<YParameterExpression, LocalBuilder> variables 
+            = new Dictionary<YParameterExpression, LocalBuilder>();
         private readonly ILGenerator il;
 
-        public LocalBuilder this[ParameterExpression exp]
+        public LocalBuilder this[YParameterExpression exp]
         {
             get => Create(exp);
         }
 
-        public LocalBuilder Create(ParameterExpression exp)
+        public LocalBuilder Create(YParameterExpression exp)
         {
             if (variables.TryGetValue(exp, out var lb))
                 return lb;

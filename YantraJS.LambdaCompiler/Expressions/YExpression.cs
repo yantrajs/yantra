@@ -16,7 +16,16 @@ namespace YantraJS.Expressions
         Parameter,
         Block,
         Call,
-        New
+        New,
+        Field,
+        Property,
+        NewArray,
+        GoTo,
+        Return,
+        Loop,
+        TypeAs,
+        Lambda,
+        Label
     }
 
     public enum YOperator
@@ -24,7 +33,23 @@ namespace YantraJS.Expressions
         Add,
         Subtract,
         Multipley,
-        Divide
+        Divide,
+        Mod,
+        Power,
+
+        Xor,
+        BitwiseAnd,
+        BitwiseOr,
+        BooleanAnd,
+        BooleanOr,
+
+        BooleanNot,
+        BitwiseNot,
+
+        TypeAs,
+        TypeIs,
+
+        Coalesc
     }
 
     /// <summary>
@@ -95,6 +120,57 @@ namespace YantraJS.Expressions
             return new YNewExpression(constructor, args);
         }
 
+        public static YFieldExpression Field(YExpression target, FieldInfo field)
+        {
+            return new YFieldExpression(target, field);
+        }
 
+        public static YPropertyExpression Property(YExpression target, PropertyInfo field)
+        {
+            return new YPropertyExpression(target, field);
+        }
+
+        public static YNewArrayExpression NewArray(Type type, IList<YExpression> elements)
+        {
+            return new YNewArrayExpression(type, elements.Count, elements);
+        }
+        public static YNewArrayExpression NewArray(Type type, int size, IList<YExpression> elements)
+        {
+            return new YNewArrayExpression(type, size, elements);
+        }
+        public static YNewArrayExpression NewArray(Type type, int size)
+        {
+            return new YNewArrayExpression(type, size);
+        }
+
+        public static YLabelTarget Label(string? name = null, 
+            Type? type = null)
+        {
+            return new YLabelTarget(name ?? "unnamed", type ?? typeof(void));
+        }
+
+        public static YLabelExpression Label(YLabelTarget target, YExpression? defaultValue = null)
+        {
+            return new YLabelExpression(target, defaultValue);
+        }
+
+        public static YGoToExpression GoTo(YLabelTarget target, YExpression? defaultValue = null)
+        {
+            return new YGoToExpression(target, defaultValue);
+        }
+
+        public static YReturnExpression Return(YLabelTarget target, YExpression? defaultValue = null)
+        {
+            return new YReturnExpression(target, defaultValue);
+        }
+
+        public static YLoopExpression Loop(YExpression body, YLabelTarget @break, YLabelTarget? @continue = null) {
+            return new YLoopExpression(body, @break, @continue ?? Label("continue", @break.LabelType));
+        }
+
+        public static YLambdaExpression Lambda(string name, YExpression body, IList<YParameterExpression> parameters)
+        {
+            return new YLambdaExpression(name, body, parameters);
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
@@ -18,7 +19,7 @@ namespace YantraJS.Generator
             this.variables = new VariableInfo(il);
         }
 
-        internal void Emit(LambdaExpression exp)
+        internal void Emit(YLambdaExpression exp)
         {
 
             foreach(var p in exp.Parameters)

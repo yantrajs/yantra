@@ -29,7 +29,7 @@ namespace YantraJS
             exp = nw.Visit(exp) as LambdaExpression;
 
             ILCodeGenerator icg = new ILCodeGenerator(builder.GetILGenerator());
-            icg.Emit(exp);
+            // icg.Emit(exp);
         }
 
 
