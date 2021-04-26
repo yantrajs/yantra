@@ -706,67 +706,56 @@ namespace YantraJS.Core
         [Prototype("slice", Length = 2)]
         public static JSArray Slice(in Arguments a)
         {
-            var start = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
-            var end = a.TryGetAt(1, out var a2) ? a2.IntValue : -1;
-            JSArray r = new JSArray();
+            var start = a.TryGetAt(0, out var a1) ? a1.IntegerValue : 0;
+            var end = a.TryGetAt(1, out var a2) 
+                ? (a2.IsUndefined ? int.MaxValue : a2.IntegerValue)  
+                : int.MaxValue;
+            
+            var @this = a.This;
+
+            // Fix the arguments so they are positive and within the bounds of the array.
+            if (start < 0)
+                start += @this.Length;
+
+            if (end < 0)
+                end += @this.Length;
+
+            // return empty array
+            if (end <= start)
+                return new JSArray();
+
+            start = Math.Min(Math.Max(start, 0), @this.Length);
+            end = Math.Min(Math.Max(end, 0), @this.Length);
+
+            var resultLength = end - start;
+            JSArray r = new JSArray((uint)resultLength);
             ref var rElements = ref r.CreateElements();
-            uint l;
             uint ni;
-            if (a.This is JSArray ary)
-            {
-                if (end >= 0)
-                {
-                    l = (uint)end >= ary._length ? ary._length - 1: (uint)end;
-                }
-                else 
-                {
-                    int n = ((int)ary._length) + end;
-                    l = n >= 0 ? (uint)n + 1 : ary._length;
-                }
+         
                 ni = 0;
-                ref var aryElements = ref ary.GetElements();
-                for (uint i = (uint)start; i < l; i++)
+                //r.length is int
+                for (uint i = 0; i < r.Length; i++)
                 {
-                    if (aryElements.TryGetValue(i, out var p))
+                    var index = (uint)start + i;
+
+                    if (@this.TryGetValue(index, out var val))
                     {
-                        rElements[ni++] = p;
-                    } else
-                    {
+                        rElements[ni++] = val;
+                    }
+                    else {
                         ni++;
                     }
                 }
+                //_length is uint for internal calculation
                 r._length = ni;
                 return r;
-            }
-            var @object = a.This;
-            // array like object..
-            l = ((uint)@object.Length) >> 0;
-            if (l == 0)
-                return r;
-            if (end >= 0)
-            {
-                l = (uint)end >= l ? l - 1 : (uint)end;
-            }
-            else
-            {
-                int n = ((int)l) + end;
-                l = n >= 0 ? (uint)n + 1 : l;
-            }
-            ni = 0;
-            for (uint i = (uint)start; i < l; i++)
-            {
-                r[ni++] = @object[i];
-            }
-            r._length = ni;
-
-            return r;
         }
 
         [Prototype("some", Length = 1)]
         public static JSValue Some(in Arguments a)
         {
             var array = a.This;
-            var first = a.Get1();
+            var (first, thisArg) = a.Get2();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
             var en = array.GetElementEnumerator();
@@ -774,7 +763,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (fn.f(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
