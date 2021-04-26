@@ -234,7 +234,7 @@ namespace YantraJS.Expressions
 
         protected override YExpression VistiAssign(YAssignExpression yAssignExpression)
         {
-            if (Modified(yAssignExpression.left, yAssignExpression.right, out var left, out var right))
+            if (Modified(yAssignExpression.Left, yAssignExpression.Right, out var left, out var right))
                 return new YAssignExpression(left, right, right?.Type);
             return yAssignExpression;
         }

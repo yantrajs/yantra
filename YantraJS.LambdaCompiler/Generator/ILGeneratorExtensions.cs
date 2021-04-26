@@ -49,10 +49,96 @@ namespace YantraJS.Generator
                 case double d:
                     il.EmitConstant(d);
                     return;
+                case decimal dm:
+                    il.EmitConstant(dm);
+                    return;
             }
 
             throw new NotSupportedException($"Constant of type  {value.GetType()} not supported, you must use a factory to create value of specified type");
 
+        }
+
+        public static void EmitConstant(this ILGenerator il, decimal value)
+        {
+            // var bits = new int[4];
+            var bits = decimal.GetBits(value);
+            Type type = typeof(decimal);
+
+            int scale = (bits[3] & int.MaxValue) >> 16;
+            if (scale == 0)
+            {
+                if (int.MinValue <= value)
+                {
+                    if (value <= int.MaxValue)
+                    {
+                        int intValue = decimal.ToInt32(value);
+                        switch (intValue)
+                        {
+                            case -1:
+                                il.Emit(OpCodes.Ldsfld, type.GetField(nameof(decimal.MinusOne)));
+                                return;
+                            case 0:
+                                il.Emit(OpCodes.Initobj, typeof(decimal));
+                                return;
+                            case 1:
+                                il.Emit(OpCodes.Ldsfld, type.GetField(nameof(decimal.One)));
+                                return;
+                            default:
+                                il.EmitConstant(intValue);
+                                il.EmitNew(type.GetConstructor(typeof(int)));
+                                return;
+                        }
+                    }
+
+                    if (value <= uint.MaxValue)
+                    {
+                        il.EmitConstant(decimal.ToUInt32(value));
+                        il.EmitNew(type.GetConstructor(typeof(uint)));
+                        return;
+                    }
+                }
+
+                if (long.MinValue <= value)
+                {
+                    if (value <= long.MaxValue)
+                    {
+                        il.EmitConstant(decimal.ToInt64(value));
+                        il.EmitNew(type.GetConstructor(typeof(long)));
+                        return;
+                    }
+
+                    if (value <= ulong.MaxValue)
+                    {
+                        il.EmitConstant(decimal.ToUInt64(value));
+                        il.EmitNew(type.GetConstructor(typeof(ulong)));
+                        return;
+                    }
+
+                    if (value == decimal.MaxValue)
+                    {
+                        il.Emit(OpCodes.Ldsfld, type.GetField(nameof(decimal.MaxValue)));
+                        return;
+                    }
+                }
+                else if (value == decimal.MinValue)
+                {
+                    il.Emit(OpCodes.Ldsfld, type.GetField(nameof(decimal.MinValue)));
+                    return;
+                }
+            }
+
+            il.EmitConstant(bits[0]);
+            il.EmitConstant(bits[1]);
+            il.EmitConstant(bits[2]);
+            il.EmitConstant((bits[3] & 0x80000000) != 0);
+            il.EmitConstant(unchecked((byte)scale));
+            // il.EmitNew(Decimal_Ctor_Int32_Int32_Int32_Bool_Byte);
+            il.EmitNew(type.GetConstructor(typeof(int), typeof(int), typeof(int), typeof(bool), typeof(byte)));
+        }
+
+        public static void EmitNew(this ILGenerator il, ConstructorInfo c)
+        {
+            il.Emit(OpCodes.Newobj, c);
         }
 
         public static void EmitConstant(this ILGenerator il, float value)
@@ -68,6 +154,21 @@ namespace YantraJS.Generator
         public static void EmitConstant(this ILGenerator il, bool value)
         {
             il.Emit(value ? OpCodes.Ldc_I4_1: OpCodes.Ldc_I4_0);
+        }
+
+        public static void EmitConstant(this ILGenerator il, uint i)
+        {
+            il.EmitConstant(unchecked((int)i));
+        }
+
+        public static void EmitConstant(this ILGenerator il, ulong i)
+        {
+            il.EmitConstant(unchecked((long)i));
+        }
+
+        public static void EmitConstant(this ILGenerator il, long i)
+        {
+            il.Emit(OpCodes.Ldc_I8, i);
         }
 
         public static void EmitSaveLocal(this ILGenerator il, int index)
