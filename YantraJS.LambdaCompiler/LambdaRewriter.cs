@@ -17,12 +17,13 @@ namespace YantraJS
         public bool Collect = true;
 
         private ClosureScopeStack stack = new ClosureScopeStack();
-        private readonly IMethodBuilder? methodBuilder;
+        private readonly YParameterExpression? repository;
 
-        public LambdaRewriter(IMethodBuilder? methodBuilder = null)
+        public LambdaRewriter(YParameterExpression? repository)
         {
-            this.methodBuilder = methodBuilder;
+            this.repository = repository;
         }
+
 
         protected override YExpression VisitLambda(YLambdaExpression node)
         {
@@ -104,6 +105,14 @@ namespace YantraJS
 
                 }
 
+                var selfRepository = repository as YExpression;
+
+                // forece repository access...
+                if(repository != null)
+                {
+                    selfRepository = VisitParameter(repository);
+                }
+
                 var body = Visit(n.Body);
 
                 if(closures == null)
@@ -129,7 +138,7 @@ namespace YantraJS
                     YExpression.NewArrayBounds(typeof(Box), YExpression.Constant(closureSetup.Count))));
 
 
-                return CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body);
+                return CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body, selfRepository);
             }
         }
 
@@ -162,9 +171,9 @@ namespace YantraJS
             return stack.Access(node);
         }
 
-        public static YExpression Rewrite(YExpression convert, IMethodBuilder? methodBuilder)
+        public static YExpression Rewrite(YLambdaExpression convert)
         {
-            var l = new LambdaRewriter(methodBuilder);
+            var l = new LambdaRewriter(convert.Parameters.FirstOrDefault(x => x.Type == typeof(IMethodRepository)));
             return l.Convert(convert);
         }
 

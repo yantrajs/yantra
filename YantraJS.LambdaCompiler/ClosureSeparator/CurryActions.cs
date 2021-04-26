@@ -15,7 +15,8 @@ namespace YantraJS
             IList<YExpression> setup,
             YParameterExpression closure,
             YParameterExpression[] parameters,
-            YExpression body
+            YExpression body,
+            YExpression? repository
             )
         {
             var methods = body.Type == typeof(void)
@@ -45,7 +46,7 @@ namespace YantraJS
             if(parameterTypes.Count > 0)
                 method = method.MakeGenericMethod(parameterTypes.ToArray());
 
-            var lambda = YExpression.Lambda(name ?? "Unnamed", body, newParameterList);
+            var lambda = YExpression.InlineLambda(name ?? "Unnamed", body, newParameterList, repository);
 
             // YExpression? call = null;
 

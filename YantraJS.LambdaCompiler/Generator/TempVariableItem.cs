@@ -14,7 +14,7 @@ namespace YantraJS.Generator
 
         public AddressScopeItem Push(bool requiresAddress)
         {
-            return new AddressScopeItem(requiresAddress);
+            return Push(new AddressScopeItem(requiresAddress));
         }
 
 
@@ -47,7 +47,7 @@ namespace YantraJS.Generator
 
         public TempVariableItem Push()
         {
-            return new TempVariableItem(this);
+            return Push(new TempVariableItem(this));
         }
 
         public LocalBuilder this[Type type]

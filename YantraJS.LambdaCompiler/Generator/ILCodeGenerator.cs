@@ -15,7 +15,6 @@ namespace YantraJS.Generator
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
         private readonly AddressScope addressScope;
-        private YLambdaExpression root;
 
         /// <summary>
         /// IL code must load the address
@@ -33,7 +32,6 @@ namespace YantraJS.Generator
 
         internal void Emit(YLambdaExpression exp)
         {
-            this.root = exp;
             short i = 0;
             foreach(var p in exp.Parameters)
             {
@@ -45,6 +43,8 @@ namespace YantraJS.Generator
                 using (addressScope.Push(false))
                 {
                     Visit(exp.Body);
+
+                    il.Emit(OpCodes.Ret);
                 }
             }
 

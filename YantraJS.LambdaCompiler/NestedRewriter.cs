@@ -8,9 +8,9 @@ namespace YantraJS
     public class NestedRewriter : YExpressionMapVisitor
     {
         private readonly YLambdaExpression exp;
-        private LambdaMethodBuilder lambdaMethodBuilder;
+        private IMethodBuilder lambdaMethodBuilder;
 
-        public NestedRewriter(YLambdaExpression exp, LambdaMethodBuilder lambdaMethodBuilder)
+        public NestedRewriter(YLambdaExpression exp, IMethodBuilder lambdaMethodBuilder)
         {
             this.exp = exp;
             this.lambdaMethodBuilder = lambdaMethodBuilder;

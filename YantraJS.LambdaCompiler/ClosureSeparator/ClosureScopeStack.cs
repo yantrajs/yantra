@@ -59,7 +59,7 @@ namespace YantraJS
                         };
                         PendingReplacements.Variables[node] = be;
                     }
-                    return be.Expression;
+                    return be?.Expression ?? node;
                 }
 
                 var pn = Parent.Access(node, true );

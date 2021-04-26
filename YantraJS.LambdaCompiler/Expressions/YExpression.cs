@@ -246,5 +246,13 @@ namespace YantraJS.Expressions
             return new YUnaryExpression(exp, YUnaryOperator.Negative);
         }
 
+        internal static YLambdaExpression InlineLambda(
+            string name, 
+            YExpression body, 
+            List<YParameterExpression> parameters, 
+            YExpression? repository)
+        {
+            return new YLambdaExpression(name, body, parameters, null, repository);
+        }
     }
 }

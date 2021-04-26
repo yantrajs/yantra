@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -9,16 +10,57 @@ using YantraJS.Expressions;
 namespace YantraJS.LambdaCompiler.Tests
 {
     [TestClass]
-    public class UnitTest1: BaseTest
+    public class ILBinaryTest: BaseTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public void AddCompiled()
         {
-            
+
+            var p1 = YExpression.Parameter(typeof(int));
+            var p2 = YExpression.Parameter(typeof(int));
+
+            var lambda = YExpression.Lambda("a",
+                YExpression.Binary(p1, YOperator.Add, p2), new YParameterExpression[] { p1, p2 });
+
+            var fx = Compile<Func<int, int, int>>(lambda);
+
+            Assert.AreEqual(3, fx(1, 2));
+        }
+
+        [TestMethod]
+        public void Add()
+        {
+
+            var p1 = YExpression.Parameter(typeof(int));
+            var p2 = YExpression.Parameter(typeof(int));
+
+            var lambda = YExpression.Lambda("a",
+                YExpression.Binary(p1, YOperator.Add, p2), new YParameterExpression[] { p1, p2 });
+
+            var fx = lambda.Compile<Func<int,int,int>>();
+
+            Assert.AreEqual(3, fx(1, 2));
         }
 
 
-        public void Compile(YLambdaExpression exp)
+        [TestMethod]
+        public void Conditional()
+        {
+
+            //var p1 = YExpression.Parameter(typeof(int));
+            //var p2 = YExpression.Parameter(typeof(int));
+
+            //var lambda = YExpression.Lambda("a",
+            //    YExpression.Conditional(
+            //        YExpression.Binary( p1, YOperator.equ, p2), new YParameterExpression[] { p1, p2 });
+
+            //var fx = lambda.Compile<Func<int, int, int>>();
+
+            //Assert.AreEqual(3, fx(1, 2));
+        }
+
+
+        public T Compile<T>(YLambdaExpression exp)
         {
             AssemblyName name = new AssemblyName("demo");
 
@@ -34,14 +76,17 @@ namespace YantraJS.LambdaCompiler.Tests
             type.DefineDefaultConstructor(MethodAttributes.Public);
 
             var method = type.DefineMethod("Run", MethodAttributes.Public | MethodAttributes.Static,
-                typeof(string),
-                new Type[] { typeof(string) });
+                exp.ReturnType,
+                exp.Parameters.Select(p => p.Type).ToArray());
 
             // Expression<Func<string,string>> y = x => this.Simple<string>(() => x == null ? x : null);
 
             ExpressionCompiler.CompileToMethod(exp, method);
 
+            var t = type.CreateType();
+            var m = t.GetMethod("Run");
 
+            return (T)(object)m.CreateDelegate(typeof(T));
         }
 
     }
