@@ -9,29 +9,30 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
+
         protected override CodeInfo VisitParameter(YParameterExpression yParameterExpression)
         {
             var v = variables[yParameterExpression];
             if (v.IsArgument)
             {
-                switch (v.Index)
+                if (RequiresAddress)
                 {
-                    case 0:
-                        il.Emit(OpCodes.Ldarg_0);
+                    if (!v.IsReference)
+                    {
+                        il.EmitLoadArgAddress(v.Index);
                         return true;
-                    case 1:
-                        il.Emit(OpCodes.Ldarg_1);
-                        return true;
-                    case 2:
-                        il.Emit(OpCodes.Ldarg_2);
-                        return true;
-                    case 3:
-                        il.Emit(OpCodes.Ldarg_3);
-                        return true;
+                    }
                 }
-                il.Emit(OpCodes.Ldarg_S, v.Index);
+                il.EmitLoadArg(v.Index);
                 return true;
             }
+
+            if (RequiresAddress)
+            {
+                il.EmitLoadLocalAddress(v.LocalBuilder.LocalIndex);
+                return true;
+            }
+            il.EmitLoadLocal(v.LocalBuilder.LocalIndex);
             return true;
         }
     }

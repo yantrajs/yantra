@@ -30,7 +30,9 @@ namespace YantraJS.Expressions
         TypeIs,
         NewArrayBounds,
         ArrayIndex,
-        Index
+        Index,
+        Coalesce,
+        Unary
     }
 
     public enum YOperator
@@ -47,11 +49,12 @@ namespace YantraJS.Expressions
         BitwiseOr,
         BooleanAnd,
         BooleanOr,
+    }
 
-        BooleanNot,
-        BitwiseNot,
-
-        Coalesc
+    public enum YUnaryOperator
+    {
+        Not,
+        Negative
     }
 
     /// <summary>
@@ -79,6 +82,11 @@ namespace YantraJS.Expressions
         public static YBinaryExpression Binary(YExpression left, YOperator @operator, YExpression right)
         {
             return new YBinaryExpression(left, @operator, right);
+        }
+
+        public static YCoalesceExpression Coalesce(YExpression left, YExpression right)
+        {
+            return new YCoalesceExpression(left, right);
         }
 
         public static YConstantExpression Constant(object value, Type? type = null)
@@ -227,5 +235,16 @@ namespace YantraJS.Expressions
                     .FirstOrDefault(x => x.GetIndexParameters().Select(p => p.ParameterType).SequenceEqual(types));
             return new YIndexExpression(target, propertyInfo, args);
         }
+
+        public static YUnaryExpression Not(YExpression exp)
+        {
+            return new YUnaryExpression(exp, YUnaryOperator.Not);
+        }
+
+        public static YUnaryExpression Negative(YExpression exp)
+        {
+            return new YUnaryExpression(exp, YUnaryOperator.Negative);
+        }
+
     }
 }

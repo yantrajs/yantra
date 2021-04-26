@@ -7,15 +7,15 @@ using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
-
     public partial class ILCodeGenerator
     {
-
-        protected override CodeInfo VisitConstant(YConstantExpression yConstantExpression)
+        protected override CodeInfo VisitLambda(YLambdaExpression yLambdaExpression)
         {
-            il.EmitConstant(yConstantExpression.Value);
+            if (root != yLambdaExpression)
+                throw new NotSupportedException($"Nested lambda are not supported");
+
+            Visit(yLambdaExpression.Body);
             return true;
         }
-
     }
 }

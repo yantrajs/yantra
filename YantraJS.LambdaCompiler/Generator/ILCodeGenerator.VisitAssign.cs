@@ -7,15 +7,13 @@ using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
-
     public partial class ILCodeGenerator
     {
-
-        protected override CodeInfo VisitConstant(YConstantExpression yConstantExpression)
+        protected override CodeInfo VistiAssign(YAssignExpression yAssignExpression)
         {
-            il.EmitConstant(yConstantExpression.Value);
-            return true;
-        }
+            // we need to investigate each type of expression on the left...
 
+            throw new NotImplementedException();
+        }
     }
 }

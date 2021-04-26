@@ -139,6 +139,13 @@ namespace YantraJS.Expressions
             return yConditionalExpression;
         }
 
+        protected override YExpression VisitCoalesce(YCoalesceExpression yCoalesceExpression)
+        {
+            if (Modified(yCoalesceExpression.Left, yCoalesceExpression.Right, out var left, out var right))
+                return new YCoalesceExpression(left, right);
+            return yCoalesceExpression;
+        }
+
         protected override YExpression VisitConstant(YConstantExpression yConstantExpression)
         {
             return yConstantExpression;
@@ -260,6 +267,13 @@ namespace YantraJS.Expressions
             if (Modified(yNewArrayBoundsExpression.Size, out var size))
                 return new YNewArrayBoundsExpression(yNewArrayBoundsExpression.ElementType, size);
             return yNewArrayBoundsExpression;
+        }
+
+        protected override YExpression VisitUnary(YUnaryExpression yUnaryExpression)
+        {
+            if (Modified(yUnaryExpression.Target, out var target))
+                return new YUnaryExpression(target, yUnaryExpression.Operator);
+            return yUnaryExpression;
         }
     }
 }
