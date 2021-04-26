@@ -1,9 +1,59 @@
-﻿using System.Reflection.Emit;
+﻿using System;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace YantraJS.Generator
 {
     public static class ILGeneratorExtensions
     {
+
+        /// <summary>
+        /// Emits instruction with _s if index is less or equal to 32767
+        /// </summary>
+        /// <param name="il"></param>
+        /// <param name="opCode_S"></param>
+        /// <param name="opCode"></param>
+        /// <param name="index"></param>
+        public static void Emit(this ILGenerator il, OpCode opCode_S, OpCode opCode, int index)
+        {
+            if (index <= 32767)
+            {
+                il.Emit(opCode_S, (short)index);
+                return;
+            }
+            il.Emit(opCode, index);
+        }
+
+        public static void EmitConstant(this ILGenerator il, object value)
+        {
+            if(value == null)
+            {
+                il.Emit(OpCodes.Ldnull);
+                return;
+            }
+
+            switch (value)
+            {
+                case string @string:
+                    il.EmitConstant(@string);
+                    return;
+                case int @int:
+                    il.EmitConstant(@int);
+                    return;
+                case bool b:
+                    il.EmitConstant(b);
+                    return;
+                case float f:
+                    il.EmitConstant(f);
+                    return;
+                case double d:
+                    il.EmitConstant(d);
+                    return;
+            }
+
+            throw new NotSupportedException($"Constant of type  {value.GetType()} not supported, you must use a factory to create value of specified type");
+
+        }
 
         public static void EmitConstant(this ILGenerator il, float value)
         {
@@ -18,6 +68,89 @@ namespace YantraJS.Generator
         public static void EmitConstant(this ILGenerator il, bool value)
         {
             il.Emit(value ? OpCodes.Ldc_I4_1: OpCodes.Ldc_I4_0);
+        }
+
+        public static void EmitSaveLocal(this ILGenerator il, int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    il.Emit(OpCodes.Stloc_0);
+                    return;
+                case 1:
+                    il.Emit(OpCodes.Stloc_1);
+                    return;
+                case 2:
+                    il.Emit(OpCodes.Stloc_2);
+                    return;
+                case 3:
+                    il.Emit(OpCodes.Stloc_3);
+                    return;
+            }
+            il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, index);
+        }
+
+        public static void EmitLoadArg(this ILGenerator il,int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    il.Emit(OpCodes.Ldarg_0);
+                    return;
+                case 1:
+                    il.Emit(OpCodes.Ldarg_1);
+                    return;
+                case 2:
+                    il.Emit(OpCodes.Ldarg_2);
+                    return;
+                case 3:
+                    il.Emit(OpCodes.Ldarg_3);
+                    return;
+            }
+            il.Emit(OpCodes.Ldarg_S, OpCodes.Ldarg, index);
+
+        }
+
+        public static void EmitLoadArgAddress(this ILGenerator il, int index)
+        {
+            il.Emit(OpCodes.Ldarga_S, OpCodes.Ldarga, index);
+
+        }
+
+
+        public static void EmitLoadLocal(this ILGenerator il, int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    il.Emit(OpCodes.Ldloc_0);
+                    return;
+                case 1:
+                    il.Emit(OpCodes.Ldloc_1);
+                    return;
+                case 2:
+                    il.Emit(OpCodes.Ldloc_2);
+                    return;
+                case 3:
+                    il.Emit(OpCodes.Ldloc_3);
+                    return;
+            }
+            il.Emit(OpCodes.Ldloc_S, OpCodes.Ldloc, index);
+        }
+
+        public static void  EmitCall(this ILGenerator il, MethodInfo method)
+        {
+            if (method.IsVirtual)
+            {
+                il.Emit(OpCodes.Callvirt, method);
+                return;
+            }
+            il.Emit(OpCodes.Call, method);
+        }
+
+        public static void EmitLoadLocalAddress(this ILGenerator il, int index)
+        {
+            il.Emit(OpCodes.Ldloca_S, OpCodes.Ldloca, index);
         }
 
 
@@ -61,7 +194,7 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Ldc_I4_8);
                     return;
             }
-            il.Emit(OpCodes.Ldc_I4_S, i);
+            il.Emit(OpCodes.Ldc_I4_S, OpCodes.Ldc_I4, i);
             return;
         }
     }

@@ -7,15 +7,13 @@ using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
-
     public partial class ILCodeGenerator
     {
-
-        protected override CodeInfo VisitConstant(YConstantExpression yConstantExpression)
+        protected override CodeInfo VisitLabel(YLabelExpression yLabelExpression)
         {
-            il.EmitConstant(yConstantExpression.Value);
+            var l = labels[yLabelExpression.Target];
+            il.MarkLabel(l);
             return true;
         }
-
     }
 }

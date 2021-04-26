@@ -19,6 +19,11 @@ namespace YantraJS.Generator
 
         private Stack<TryCatchBlock> tryCatchBlocks = new Stack<TryCatchBlock>();
 
+        private void Goto(Label label)
+        {
+            il.Emit(OpCodes.Br, label);
+        }
+
         private void PushBranch(Action action)
         {
             if(tryCatchBlocks.Count == 0)

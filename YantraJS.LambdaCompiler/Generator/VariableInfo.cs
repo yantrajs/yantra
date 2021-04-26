@@ -35,12 +35,13 @@ namespace YantraJS.Generator
         public readonly LocalBuilder LocalBuilder;
         public readonly bool IsArgument;
         public readonly short Index;
-
-        public Variable(LocalBuilder builder , bool isArg, short index)
+        public readonly bool IsReference;
+        public Variable(LocalBuilder builder , bool isArg, short index, bool isReference)
         {
             this.LocalBuilder = builder;
             this.IsArgument = isArg;
             this.Index = index;
+            this.IsReference = isReference;
         }
     }
 
@@ -60,9 +61,12 @@ namespace YantraJS.Generator
             get => variables[exp];
         }
 
-        public Variable Create(YParameterExpression exp, bool isArgument = false, short index = -1)
+        public Variable Create(
+            YParameterExpression exp, 
+            bool isArgument = false, 
+            short index = -1)
         {
-            var vb = new Variable(il.DeclareLocal(exp.Type), isArgument, index);
+            var vb = new Variable(il.DeclareLocal(exp.Type), isArgument, index, exp.Type.IsByRef);
             variables[exp] = vb;
             return vb;
         }
