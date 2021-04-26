@@ -773,7 +773,7 @@ namespace YantraJS.Core
         [Prototype("sort", Length = 1)]
         public static JSValue Sort(in Arguments a)
         {
-
+            // To be modified by Akash
             var fx = a.Get1();
             var @this = a.This;
             Comparison<JSValue> cx = null;
@@ -817,68 +817,129 @@ namespace YantraJS.Core
         public static JSValue Splice(in Arguments a)
         {
             var r = new JSArray();
-            var (startP, deleteCountP) = a.Get2();
+            // var (startP, deleteCountP) = a.Get2();
 
-            var start = startP.IsUndefined ? 0 : startP.IntValue;
-            var length = a.This.Length;
+            //var start = startP.IsUndefined ? 0 : startP.IntValue;
+            var start = a.TryGetAt(0, out var startP)
+                ? startP.IntegerValue
+                : 0;
+            var deleteCount = a.TryGetAt(1,out var deleteCountP)
+                ? deleteCountP.IntegerValue
+                : (a.Length == 0 ? 0 : int.MaxValue);
+            //var length = a.This.Length;
 
             var @this = a.This as JSObject;
             if (@this == null)
                 return r;
 
-            if (@this.IsSealedOrFrozen())
+            if (@this.IsSealedOrFrozen()) 
                 throw JSContext.Current.NewTypeError("Cannot modify property length");
+            
+
+            // Get the length of the array.
+            int arrayLength = @this.Length;
+
+            // This method only supports arrays of length up to 2^31 - 1.
+            if (@this.Length > int.MaxValue)
+                throw JSContext.Current.NewRangeError("The array is too long");
 
 
-            if (start <0)
+            // Fix the arguments so they are positive and within the bounds of the array.
+            if (start < 0)
+                start = Math.Max((int)arrayLength + start, 0);
+            else
+                start = Math.Min(start, (int)arrayLength);
+            deleteCount = Math.Min(Math.Max(deleteCount, 0), (int)arrayLength - start);
+
+            // Get the deleted items.
+            var deletedItems = new JSArray((uint)deleteCount);
+            for (uint i = 0; i < deleteCount; i++)
+                deletedItems[i] = @this[(uint)(start + i)];
+
+            var itemsLength = a.Length > 1 ? a.Length - 2 : 0;
+
+            // Move the trailing elements.
+            int offset = itemsLength - deleteCount;
+            int newLength = (int)arrayLength + offset;
+            if (deleteCount > itemsLength)
             {
-                start = Math.Max(length + start, 0);
+                for (int i = start + itemsLength; i < newLength; i++)
+                    @this[(uint)i] = @this[(uint)(i - offset)];
+
+                // Delete the trailing elements.
+                for (int i = newLength; i < arrayLength; i++)
+                    @this.Delete((uint)i);
             }
-            var deleteCount = 0;
-            if (deleteCountP.IsUndefined)
+            else
             {
-                // cut the array and return..
-                if (start == 0)
-                {
-                    return r;
-                }
-                deleteCount = length - start;
-            } else
-            {
-                deleteCount = deleteCountP.IntValue;
-                if (deleteCount >= length - start) {
-                    deleteCount = length - start;
-                }
+                for (int i = newLength - 1; i >= start + itemsLength; i--)
+                    @this[(uint)i] = @this[(uint)(i - offset)];
             }
+            //SetLength(thisObj, (uint)newLength);
+            @this.Length = newLength;
 
-            if (deleteCount > 0)
-            {
-                // copy items...
-                var end = start + deleteCount;
-                for (uint i = (uint)start, j = 0; i <end; i++, j++)
-                {
-                    if(@this.TryGetValue(i, out var p)) {
-                        r[j] = p.value;
-                    }
+            // Insert the new elements.
+            for (int i = 0; i < itemsLength; i++)
+                @this[(uint)(start + i)] = a[i + 2];
 
-                }
-                r._length = (uint)deleteCount;
-                @this.MoveElements(end, start);
-                // @this.Length -= deleteCount;
-            }
+            // Return the deleted items.
+            return deletedItems;
 
-            var insertLength = a.Length - 2;
-            if (insertLength > 0)
-            {
-                // move items...
-                @this.MoveElements(start, start + insertLength);
-                for (int i = 2, j = start; i < a.Length; i++, j++)
-                {
-                    @this[(uint)j] = a.GetAt(i);
-                }
-            }
 
-            return r;
+
+
+
+
+            //if (start <0)
+            //{
+            //    start = Math.Max(length + start, 0);
+            //}
+            //var deleteCount = 0;
+            //if (deleteCountP.IsUndefined)
+            //{
+            //    // cut the array and return..
+            //    if (start == 0)
+            //    {
+            //        return r;
+            //    }
+            //    deleteCount = length - start;
+            //} else
+            //{
+            //    //deleteCount = deleteCountP.IntValue;
+            //    deleteCount = deleteCountP.IntegerValue;
+            //    if (deleteCount >= length - start) {
+            //        deleteCount = length - start;
+            //    }
+            //}
+
+            //if (deleteCount > 0)
+            //{
+            //    // copy items...
+            //    var end = start + deleteCount;
+            //    for (uint i = (uint)start, j = 0; i <end; i++, j++)
+            //    {
+            //        if(@this.TryGetValue(i, out var p)) {
+            //            r[j] = p.value;
+            //        }
+
+            //    }
+            //    r._length = (uint)deleteCount;
+            //    @this.MoveElements(end, start);
+            //    // @this.Length -= deleteCount;
+            //}
+
+            //var insertLength = a.Length - 2;
+            //if (insertLength > 0)
+            //{
+            //    // move items...
+            //    @this.MoveElements(start, start + insertLength);
+            //    for (int i = 2, j = start; i < a.Length; i++, j++)
+            //    {
+            //        @this[(uint)j] = a.GetAt(i);
+            //    }
+            //}
+
+         //   return r;
 
         }
 
