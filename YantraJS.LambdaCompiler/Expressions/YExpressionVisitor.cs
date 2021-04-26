@@ -57,11 +57,14 @@ namespace YantraJS.Expressions
                     return VisitCoalesce(exp as YCoalesceExpression);
                 case YExpressionType.Unary:
                     return VisitUnary(exp as YUnaryExpression);
+                case YExpressionType.ArrayLength:
+                    return VisitArrayLength(exp as YArrayLengthExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitArrayLength(YArrayLengthExpression arrayLengthExpression);
         protected abstract T VisitUnary(YUnaryExpression yUnaryExpression);
         protected abstract T VisitCoalesce(YCoalesceExpression yCoalesceExpression);
         protected abstract T VisitIndex(YIndexExpression yIndexExpression);

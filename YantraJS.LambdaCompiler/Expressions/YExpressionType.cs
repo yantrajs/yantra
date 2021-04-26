@@ -26,6 +26,8 @@ namespace YantraJS.Expressions
         ArrayIndex,
         Index,
         Coalesce,
-        Unary
+        Unary,
+        ArrayLength,
+        TypeEqual
     }
 }

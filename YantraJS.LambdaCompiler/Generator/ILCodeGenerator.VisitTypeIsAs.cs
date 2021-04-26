@@ -17,7 +17,7 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitTypeIs(YTypeIsExpression yTypeIsExpression)
         {
             Visit(yTypeIsExpression.Target);
-            il.Emit(OpCodes.Isinst, yTypeIsExpression.AsType);
+            il.Emit(OpCodes.Isinst, yTypeIsExpression.TypeOperand);
             il.Emit(OpCodes.Ldnull);
             il.Emit(OpCodes.Cgt_Un);
             return true;

@@ -194,6 +194,11 @@ namespace YantraJS.Expressions
             return new YArrayIndexExpression(target, index);
         }
 
+        public static YArrayLengthExpression ArrayLength(YExpression target)
+        {
+            return new YArrayLengthExpression(target);
+        }
+
         public static YIndexExpression Index(YExpression target, params YExpression[] args)
         {
             var types = args.Select(x => x.Type).ToArray();
@@ -212,6 +217,11 @@ namespace YantraJS.Expressions
         public static YUnaryExpression Negative(YExpression exp)
         {
             return new YUnaryExpression(exp, YUnaryOperator.Negative);
+        }
+
+        public static YTypeIsExpression TypeEqual(YExpression exp, Type type)
+        {
+            return new YTypeIsExpression(exp, type);
         }
 
         internal static YLambdaExpression InlineLambda(

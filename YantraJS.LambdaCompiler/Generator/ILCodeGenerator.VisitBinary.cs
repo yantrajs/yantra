@@ -11,6 +11,37 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitBinary(YBinaryExpression yBinaryExpression)
         {
+            switch (yBinaryExpression.Operator)
+            {
+                case YOperator.BooleanAnd:
+                    {
+                        var trueEnd = il.DefineLabel();
+                        var falseEnd = il.DefineLabel();
+                        Visit(yBinaryExpression.Left);
+                        il.Emit(OpCodes.Brfalse, trueEnd);
+                        Visit(yBinaryExpression.Right);
+                        il.Emit(OpCodes.Br, falseEnd);
+                        il.MarkLabel(trueEnd);
+                        il.EmitConstant(0);
+                        il.MarkLabel(falseEnd);
+                    }
+                    return true;
+                case YOperator.BooleanOr:
+                    {
+                        var trueEnd = il.DefineLabel();
+                        var falseEnd = il.DefineLabel();
+                        Visit(yBinaryExpression.Left);
+                        il.Emit(OpCodes.Brtrue, trueEnd);
+                        Visit(yBinaryExpression.Right);
+                        il.Emit(OpCodes.Br, falseEnd);
+                        il.MarkLabel(trueEnd);
+                        il.EmitConstant(1);
+                        il.MarkLabel(falseEnd);
+                    }
+                    return true;
+            }
+
+
             Visit(yBinaryExpression.Left);
             Visit(yBinaryExpression.Right);
             switch (yBinaryExpression.Operator)
@@ -37,12 +68,6 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.And);
                     break;
                 case YOperator.BitwiseOr:
-                    il.Emit(OpCodes.Or);
-                    break;
-                case YOperator.BooleanAnd:
-                    il.Emit(OpCodes.And);
-                    break;
-                case YOperator.BooleanOr:
                     il.Emit(OpCodes.Or);
                     break;
                 case YOperator.Less:

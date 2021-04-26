@@ -105,6 +105,13 @@ namespace YantraJS.Expressions
             list = r;
             return true;
         }
+
+        protected override YExpression VisitArrayLength(YArrayLengthExpression arrayLengthExpression)
+        {
+            if (Modified(arrayLengthExpression.Target, out var target))
+                return new YArrayLengthExpression(target);
+            return arrayLengthExpression;
+        }
         protected override YExpression VisitBinary(YBinaryExpression yBinaryExpression)
         {
             if (Modified(yBinaryExpression.Left, yBinaryExpression.Right, out var left, out var right))
