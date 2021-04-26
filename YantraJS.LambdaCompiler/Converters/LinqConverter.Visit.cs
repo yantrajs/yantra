@@ -51,9 +51,11 @@ namespace YantraJS.Converters
                 case ExpressionType.Coalesce:
                     return VisitCoalesce(exp as BinaryExpression);
                 case ExpressionType.Conditional:
-                    break;
+                    var ce = exp as ConditionalExpression;
+                    return YExpression.Conditional(Visit(ce.Test), Visit(ce.IfTrue), Visit(ce.IfFalse));
                 case ExpressionType.Constant:
-                    break;
+                    var cnt = exp as ConstantExpression;
+                    return YExpression.Constant( cnt.Value, cnt.Type );
                 case ExpressionType.Convert:
                     break;
                 case ExpressionType.ConvertChecked:
@@ -97,7 +99,7 @@ namespace YantraJS.Converters
                 case ExpressionType.Label:
                     break;
                 case ExpressionType.Lambda:
-                    break;
+                    return VisitLambda(exp as LambdaExpression);
                 case ExpressionType.LeftShift:
                     break;
                 case ExpressionType.LeftShiftAssign:
