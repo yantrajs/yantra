@@ -514,6 +514,11 @@ namespace YantraJS.Core
         {
             if (Length > index)
             {
+                if (Length >= MinArray)
+                {
+                    a = Args![index];
+                    return true;
+                }
                 switch(index)
                 {
                     case 0:
@@ -544,6 +549,11 @@ namespace YantraJS.Core
         {
             if (Length > index)
             {
+                if (Length >= MinArray)
+                {
+                    return Args![index].IntValue;
+                }
+
                 switch (index)
                 {
                     case 0:
@@ -566,6 +576,10 @@ namespace YantraJS.Core
         {
             if (Length > index)
             {
+                if (Length >= MinArray)
+                {
+                    return Args![index].IntegerValue;
+                }
                 switch (index)
                 {
                     case 0:
