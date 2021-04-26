@@ -45,6 +45,25 @@ namespace YantraJS.Generator
                 case YOperator.BooleanOr:
                     il.Emit(OpCodes.Or);
                     break;
+                case YOperator.Less:
+                    il.Emit(OpCodes.Clt);
+                    break;
+                case YOperator.LessOrEqual:
+                    il.Emit(OpCodes.Cgt);
+                    break;
+                case YOperator.Greater:
+                    il.Emit(OpCodes.Cgt);
+                    break;
+                case YOperator.GreaterOrEqual:
+                    il.Emit(OpCodes.Clt);
+                    break;
+                case YOperator.Equal:
+                    il.Emit(OpCodes.Ceq);
+                    break;
+                case YOperator.NotEqual:
+                    il.Emit(OpCodes.Ceq);
+                    il.Emit(OpCodes.Neg);
+                    break;
                 default:
                     throw new NotSupportedException();
             }

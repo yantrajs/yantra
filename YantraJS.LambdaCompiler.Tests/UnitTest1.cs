@@ -47,16 +47,19 @@ namespace YantraJS.LambdaCompiler.Tests
         public void Conditional()
         {
 
-            //var p1 = YExpression.Parameter(typeof(int));
-            //var p2 = YExpression.Parameter(typeof(int));
+            var p1 = YExpression.Parameter(typeof(int));
+            var p2 = YExpression.Parameter(typeof(int));
 
-            //var lambda = YExpression.Lambda("a",
-            //    YExpression.Conditional(
-            //        YExpression.Binary( p1, YOperator.equ, p2), new YParameterExpression[] { p1, p2 });
+            var lambda = YExpression.Lambda("a",
+                YExpression.Conditional(
+                    YExpression.Less(p1,p2),
+                    p1,
+                    p2
+                    ), new YParameterExpression[] { p1, p2 });
 
-            //var fx = lambda.Compile<Func<int, int, int>>();
+            var fx = lambda.Compile<Func<int, int, int>>();
 
-            //Assert.AreEqual(3, fx(1, 2));
+            Assert.AreEqual(1, fx(1, 2));
         }
 
 

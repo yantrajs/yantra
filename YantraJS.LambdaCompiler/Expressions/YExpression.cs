@@ -8,55 +8,6 @@ using System.Text;
 namespace YantraJS.Expressions
 {
 
-    public enum YExpressionType
-    {
-        Binary,
-        Constant,
-        Conditional,
-        Assign,
-        Parameter,
-        Block,
-        Call,
-        New,
-        Field,
-        Property,
-        NewArray,
-        GoTo,
-        Return,
-        Loop,
-        TypeAs,
-        Lambda,
-        Label,
-        TypeIs,
-        NewArrayBounds,
-        ArrayIndex,
-        Index,
-        Coalesce,
-        Unary
-    }
-
-    public enum YOperator
-    {
-        Add,
-        Subtract,
-        Multipley,
-        Divide,
-        Mod,
-        Power,
-
-        Xor,
-        BitwiseAnd,
-        BitwiseOr,
-        BooleanAnd,
-        BooleanOr,
-    }
-
-    public enum YUnaryOperator
-    {
-        Not,
-        Negative
-    }
-
     /// <summary>
     /// System.Linq.Expressions.Expression is very complex and it allows
     /// various complex operations such as += etc.
@@ -127,6 +78,23 @@ namespace YantraJS.Expressions
             return new YBlockExpression(variables, expressions);
         }
 
+        public static YBinaryExpression Equal(YExpression left, YExpression right)
+             => YExpression.Binary(left, YOperator.Equal, right);
+
+        public static YBinaryExpression NotEqual(YExpression left, YExpression right)
+             => YExpression.Binary(left, YOperator.NotEqual, right);
+
+        public static YBinaryExpression Greater(YExpression left, YExpression right)
+             => YExpression.Binary(left, YOperator.Greater, right);
+
+        public static YBinaryExpression GreaterOrEqual(YExpression left, YExpression right)
+             => YExpression.Binary(left, YOperator.GreaterOrEqual, right);
+
+        public static YBinaryExpression Less(YExpression left, YExpression right)
+             => YExpression.Binary(left, YOperator.Less, right);
+
+        public static YBinaryExpression LessOrEqual(YExpression left, YExpression right)
+             => YExpression.Binary(left, YOperator.LessOrEqual, right);
 
         public static YCallExpression Call(YExpression? target, MethodInfo method, IList<YExpression> args)
         {
