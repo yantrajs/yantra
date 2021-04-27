@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,6 +22,22 @@ namespace YantraJS.Expressions
             {
                 this.Elements = elements.ToArray();
             }
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.WriteLine($"new {ElementType.FullName} [] {{");
+            writer.Indent++;
+            if (Elements != null)
+            {
+                foreach (var a in Elements)
+                {
+                    a.Print(writer);
+                    writer.WriteLine(',');
+                }
+            }
+            writer.Indent--;
+            writer.WriteLine("}}");
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace YantraJS.Expressions
+﻿using System.CodeDom.Compiler;
+
+namespace YantraJS.Expressions
 {
     public class YCoalesceExpression: YExpression
     {
@@ -10,6 +12,15 @@
         {
             this.Left = left;
             this.Right = right;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write("(");
+            Left.Print(writer);
+            writer.Write(" ?? ");
+            Right.Print(writer);
+            writer.Write(")");
         }
     }
 }

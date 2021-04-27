@@ -1,4 +1,7 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.CodeDom.Compiler;
+using System.Threading;
 
 namespace YantraJS.Expressions
 {
@@ -6,10 +9,21 @@ namespace YantraJS.Expressions
     {
         public readonly string Name;
 
-        public YParameterExpression(Type type, string name)
+        private static int id = 0;
+
+        public YParameterExpression(Type type, string? name)
             :base(YExpressionType.Parameter, type)
         {
+            if(name == null)
+            {
+                name = $"{type.Name}_{Interlocked.Increment(ref id)}";
+            }
             this.Name = name;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write(Name);
         }
     }
 }

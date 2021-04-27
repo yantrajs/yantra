@@ -148,10 +148,10 @@ namespace YantraJS
             {
                 // variables will be pushed.. so we dont need them...
                 stack.Register(node.Variables);
-                return VisitBlock(node);
+                // node = new YBlockExpression(null, node.Expressions);
             }
 
-            return YExpression.Block(null, node.Expressions.Select(x => Visit(x)).ToArray());
+            return base.VisitBlock(node);
         }
 
         protected override YExpression VisitParameter(YParameterExpression node)

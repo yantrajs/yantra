@@ -1,6 +1,8 @@
 ﻿#nullable enable
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -28,6 +30,22 @@ namespace YantraJS.Expressions
         {
             this.NodeType = nodeType;
             this.Type = type;
+        }
+
+        public abstract void Print(IndentedTextWriter writer);
+
+        public string DebugView => ToString();
+
+        public override string ToString()
+        {
+            using (var sw = new StringWriter())
+            {
+                using (var iw = new IndentedTextWriter(sw))
+                {
+                    Print(iw);
+                    return sw.ToString();
+                }
+            }
         }
 
         public static YBinaryExpression Binary(YExpression left, YOperator @operator, YExpression right)
@@ -130,7 +148,7 @@ namespace YantraJS.Expressions
 
         public static YFieldExpression Field(YExpression target, string name)
         {
-            var field = target.GetType().GetField(name);
+            var field = target.Type.GetField(name);
             return new YFieldExpression(target, field);
         }
 
@@ -152,7 +170,7 @@ namespace YantraJS.Expressions
         public static YLabelTarget Label(string? name = null, 
             Type? type = null)
         {
-            return new YLabelTarget(name ?? "unnamed", type ?? typeof(void));
+            return new YLabelTarget(name, type ?? typeof(void));
         }
 
         public static YLabelExpression Label(YLabelTarget target, YExpression? defaultValue = null)

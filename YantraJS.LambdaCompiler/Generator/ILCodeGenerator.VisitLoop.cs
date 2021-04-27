@@ -12,11 +12,11 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitLoop(YLoopExpression yLoopExpression)
         {
             var @continue = labels[yLoopExpression.Continue];
-
+            var @break = labels[yLoopExpression.Break];
             il.MarkLabel(@continue);
             Visit(yLoopExpression.Body);
             Goto(@continue);
-            il.MarkLabel(labels[yLoopExpression.Break]);
+            il.MarkLabel(@break);
 
             return true;
         }

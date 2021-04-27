@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.CodeDom.Compiler;
 using System.Reflection;
 
 namespace YantraJS.Expressions
@@ -23,6 +24,18 @@ namespace YantraJS.Expressions
             {
                 SetMethod = property.SetMethod;
             }
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            if (Target == null)
+            {
+                writer.Write($"{PropertyInfo.DeclaringType.FullName}.{PropertyInfo.Name}");
+                return;
+            }
+            Target.Print(writer);
+            writer.Write('.');
+            writer.Write(PropertyInfo.Name);
         }
     }
 

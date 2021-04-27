@@ -2,25 +2,26 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
+using YantraJS.Core;
 using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
     public class LabelInfo
     {
-        private readonly ILGenerator il;
-        private Dictionary<YLabelTarget, Label> labels = new Dictionary<YLabelTarget, Label>();
+        private readonly ILWriter il;
+        private Dictionary<YLabelTarget, ILWriterLabel> labels = new Dictionary<YLabelTarget, ILWriterLabel>();
 
-        public LabelInfo(ILGenerator il)
+        public LabelInfo(ILWriter il)
         {
             this.il = il;
         }
 
-        public Label this[YLabelTarget target] => Create(target);
+        public ILWriterLabel this[YLabelTarget target] => Create(target);
 
 
 
-        private Label Create(YLabelTarget target)
+        private ILWriterLabel Create(YLabelTarget target)
         {
             if (labels.TryGetValue(target, out var l))
                 return l;

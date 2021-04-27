@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.CodeDom.Compiler;
 using System.Reflection;
 
 namespace YantraJS.Expressions
@@ -19,6 +20,14 @@ namespace YantraJS.Expressions
             this.Arguments = args;
             GetMethod = propertyInfo.GetMethod;
             SetMethod = propertyInfo.SetMethod;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            Target.Print(writer);
+            writer.Write('[');
+            writer.PrintCSV(Arguments);
+            writer.Write(']');
         }
     }
 }

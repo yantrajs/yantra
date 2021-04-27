@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Generator
 {
@@ -19,7 +20,7 @@ namespace YantraJS.Generator
 
         private Stack<TryCatchBlock> tryCatchBlocks = new Stack<TryCatchBlock>();
 
-        private void Goto(Label label)
+        private void Goto(ILWriterLabel label)
         {
             il.Emit(OpCodes.Br, label);
         }

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.CodeDom.Compiler;
 
 namespace YantraJS.Expressions
 {
@@ -19,6 +20,27 @@ namespace YantraJS.Expressions
             this.test = test;
             this.@true = @true;
             this.@false = @false;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write("if(");
+            test.Print(writer);
+            writer.Write(')');
+            writer.WriteLine(" {");
+            writer.Indent++;
+            @true.Print(writer);
+            writer.Indent--;
+
+            if(@false != null)
+            {
+                writer.WriteLine("} else {");
+                writer.Indent++;
+                @false.Print(writer);
+                writer.Indent--;
+            }
+
+            writer.WriteLine('}');
         }
     }
 }

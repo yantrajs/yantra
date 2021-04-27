@@ -101,6 +101,8 @@ namespace YantraJS
             ILCodeGenerator icg = new ILCodeGenerator(dm.GetILGenerator());
             icg.Emit(exp);
 
+            string value = icg.ToString();
+
             return dm;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 
 namespace YantraJS.Expressions
 {
@@ -33,6 +34,58 @@ namespace YantraJS.Expressions
                     return typeof(bool);
             }
             return leftType;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write("(");
+            Left.Print(writer);
+            writer.Write($" {ToString(Operator)} ");
+            Right.Print(writer);
+            writer.Write(")");
+        }
+
+        private string ToString(YOperator @operator)
+        {
+            switch (@operator)
+            {
+                case YOperator.Add:
+                    return "+";
+                case YOperator.Subtract:
+                    return "-";
+                case YOperator.Multipley:
+                    return "*";
+                case YOperator.Divide:
+                    return "/";
+                case YOperator.Mod:
+                    return "%";
+                case YOperator.Power:
+                    return "**";
+                case YOperator.Xor:
+                    return "^";
+                case YOperator.BitwiseAnd:
+                    return "&";
+                case YOperator.BitwiseOr:
+                    return "|";
+                case YOperator.BooleanAnd:
+                    return "&&";
+                case YOperator.BooleanOr:
+                    return "||";
+                case YOperator.Less:
+                    return "<";
+                case YOperator.LessOrEqual:
+                    return "<=";
+                case YOperator.Greater:
+                    return ">";
+                case YOperator.GreaterOrEqual:
+                    return ">=";
+                case YOperator.Equal:
+                    return "==";
+                case YOperator.NotEqual:
+                    return "!=";
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

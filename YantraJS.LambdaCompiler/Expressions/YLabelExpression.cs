@@ -1,4 +1,6 @@
-﻿namespace YantraJS.Expressions
+﻿using System.CodeDom.Compiler;
+
+namespace YantraJS.Expressions
 {
     public class YLabelExpression: YExpression
     {
@@ -10,6 +12,15 @@
         {
             this.Target = target;
             this.Default = defaultValue;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            if(Default != null)
+            {
+                Default.Print(writer);
+            }
+            writer.WriteLine($"{Target.Name}:");
         }
     }
 
@@ -25,6 +36,17 @@
             this.Target = target;
             this.Default = defaultValue;
         }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            if(Default!=null){
+                writer.Write("Push>>");
+                Default.Print(writer);
+                writer.Write("<<");
+            }
+
+            writer.Write($"Goto {Target.Name}");
+        }
     }
     public class YReturnExpression : YExpression
     {
@@ -36,6 +58,18 @@
         {
             this.Target = target;
             this.Default = defaultValue;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            if (Default != null)
+            {
+                writer.Write("Push>>");
+                Default.Print(writer);
+                writer.Write("<<");
+            }
+
+            writer.Write($"RETURN {Target.Name}");
         }
     }
 

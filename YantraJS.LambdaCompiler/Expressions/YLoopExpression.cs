@@ -1,4 +1,6 @@
-﻿namespace YantraJS.Expressions
+﻿using System.CodeDom.Compiler;
+
+namespace YantraJS.Expressions
 {
     public class YLoopExpression: YExpression
     {
@@ -12,6 +14,16 @@
             this.Body = body;
             this.Break = @break;
             this.Continue = @continue;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.WriteLine("while(true) {");
+            writer.Indent++;
+            Body.Print(writer);
+            writer.Indent--;
+            writer.WriteLine("}");
+            writer.WriteLine($"{Break.Name}:");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.CodeDom.Compiler;
+using System.Reflection;
 
 namespace YantraJS.Expressions
 {
@@ -12,6 +13,18 @@ namespace YantraJS.Expressions
         {
             this.Target = target;
             this.FieldInfo = field;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            if(Target==null)
+            {
+                writer.Write($"{FieldInfo.DeclaringType.FullName}.{FieldInfo.Name}");
+                return;
+            }
+            Target.Print(writer);
+            writer.Write('.');
+            writer.Write(FieldInfo.Name);
         }
     }
 

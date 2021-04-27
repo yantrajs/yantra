@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Core;
 using YantraJS.Expressions;
 
 namespace YantraJS.Generator
@@ -9,7 +10,7 @@ namespace YantraJS.Generator
 
     public partial class ILCodeGenerator
     {
-        private readonly ILGenerator il;
+        private readonly ILWriter il;
 
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
@@ -21,11 +22,16 @@ namespace YantraJS.Generator
         /// </summary>
         public bool RequiresAddress => addressScope.RequiresAddress;
 
+        public override string ToString()
+        {
+            return il.ToString();
+        }
+
         public ILCodeGenerator(ILGenerator il)
         {
-            this.il = il;
+            this.il = new ILWriter(il);
             this.variables = new VariableInfo(il);
-            this.labels = new LabelInfo(il);
+            this.labels = new LabelInfo(this.il);
             this.tempVariables = new TempVariables(il);
             this.addressScope = new AddressScope();
         }

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -41,6 +42,15 @@ namespace YantraJS.Expressions
                 this.Parameters = new YParameterExpression[] { };
             ParameterTypes = this.Parameters.Select(x => x.Type).ToArray();
             this.Repository = repository;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write('(');
+            writer.Write(string.Join(", ", Parameters.Select(p => $"{p.Type.FullName} {p.Name}") ));
+            writer.Write(") => ");
+
+            Body.Print(writer);
         }
     }
 }

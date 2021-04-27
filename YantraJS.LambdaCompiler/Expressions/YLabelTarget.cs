@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Threading;
 
 namespace YantraJS.Expressions
 {
@@ -7,9 +9,15 @@ namespace YantraJS.Expressions
         public readonly string Name;
         public readonly Type LabelType;
 
-        public YLabelTarget(string v, Type type)
+        private static int id = 0;
+
+        public YLabelTarget(string? name, Type type)
         {
-            this.Name = v;
+            if(name == null)
+            {
+                name = $"LABLE_{Interlocked.Increment(ref id)}";
+            }
+            this.Name = name;
             this.LabelType = type;
         }
     }

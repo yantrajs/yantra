@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using YantraJS.Core;
 
 namespace YantraJS.Generator
 {
@@ -14,7 +15,7 @@ namespace YantraJS.Generator
         /// <param name="opCode_S"></param>
         /// <param name="opCode"></param>
         /// <param name="index"></param>
-        public static void Emit(this ILGenerator il, OpCode opCode_S, OpCode opCode, int index)
+        public static void Emit(this ILWriter il,OpCode opCode_S, OpCode opCode, int index)
         {
             if (index <= 32767)
             {
@@ -24,7 +25,7 @@ namespace YantraJS.Generator
             il.Emit(opCode, index);
         }
 
-        public static void EmitConstant(this ILGenerator il, object value)
+        public static void EmitConstant(this ILWriter il,object value)
         {
             if(value == null)
             {
@@ -58,7 +59,7 @@ namespace YantraJS.Generator
 
         }
 
-        public static void EmitConstant(this ILGenerator il, decimal value)
+        public static void EmitConstant(this ILWriter il,decimal value)
         {
             // var bits = new int[4];
             var bits = decimal.GetBits(value);
@@ -136,42 +137,42 @@ namespace YantraJS.Generator
             il.EmitNew(type.GetConstructor(typeof(int), typeof(int), typeof(int), typeof(bool), typeof(byte)));
         }
 
-        public static void EmitNew(this ILGenerator il, ConstructorInfo c)
+        public static void EmitNew(this ILWriter il,ConstructorInfo c)
         {
             il.Emit(OpCodes.Newobj, c);
         }
 
-        public static void EmitConstant(this ILGenerator il, float value)
+        public static void EmitConstant(this ILWriter il,float value)
         {
             il.Emit(OpCodes.Ldc_R4, value);
         }
 
-        public static void EmitConstant(this ILGenerator il, double value)
+        public static void EmitConstant(this ILWriter il,double value)
         {
             il.Emit(OpCodes.Ldc_R8, value);
         }
 
-        public static void EmitConstant(this ILGenerator il, bool value)
+        public static void EmitConstant(this ILWriter il,bool value)
         {
             il.Emit(value ? OpCodes.Ldc_I4_1: OpCodes.Ldc_I4_0);
         }
 
-        public static void EmitConstant(this ILGenerator il, uint i)
+        public static void EmitConstant(this ILWriter il,uint i)
         {
             il.EmitConstant(unchecked((int)i));
         }
 
-        public static void EmitConstant(this ILGenerator il, ulong i)
+        public static void EmitConstant(this ILWriter il,ulong i)
         {
             il.EmitConstant(unchecked((long)i));
         }
 
-        public static void EmitConstant(this ILGenerator il, long i)
+        public static void EmitConstant(this ILWriter il,long i)
         {
             il.Emit(OpCodes.Ldc_I8, i);
         }
 
-        public static void EmitSaveLocal(this ILGenerator il, int index)
+        public static void EmitSaveLocal(this ILWriter il,int index)
         {
             switch (index)
             {
@@ -191,7 +192,7 @@ namespace YantraJS.Generator
             il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, index);
         }
 
-        public static void EmitLoadArg(this ILGenerator il,int index)
+        public static void EmitLoadArg(this ILWriter il,int index)
         {
             switch (index)
             {
@@ -212,14 +213,14 @@ namespace YantraJS.Generator
 
         }
 
-        public static void EmitLoadArgAddress(this ILGenerator il, int index)
+        public static void EmitLoadArgAddress(this ILWriter il,int index)
         {
             il.Emit(OpCodes.Ldarga_S, OpCodes.Ldarga, index);
 
         }
 
 
-        public static void EmitLoadLocal(this ILGenerator il, int index)
+        public static void EmitLoadLocal(this ILWriter il,int index)
         {
             switch (index)
             {
@@ -239,7 +240,7 @@ namespace YantraJS.Generator
             il.Emit(OpCodes.Ldloc_S, OpCodes.Ldloc, index);
         }
 
-        public static void  EmitCall(this ILGenerator il, MethodInfo method)
+        public static void  EmitCall(this ILWriter il,MethodInfo method)
         {
             if (method.IsVirtual)
             {
@@ -249,18 +250,18 @@ namespace YantraJS.Generator
             il.Emit(OpCodes.Call, method);
         }
 
-        public static void EmitLoadLocalAddress(this ILGenerator il, int index)
+        public static void EmitLoadLocalAddress(this ILWriter il,int index)
         {
             il.Emit(OpCodes.Ldloca_S, OpCodes.Ldloca, index);
         }
 
 
-        public static void EmitConstant(this ILGenerator il, string @string)
+        public static void EmitConstant(this ILWriter il,string @string)
         {
             il.Emit(OpCodes.Ldstr, @string);
         }
 
-        public static void EmitConstant(this ILGenerator il, int i)
+        public static void EmitConstant(this ILWriter il,int i)
         {
             switch (i)
             {

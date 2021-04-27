@@ -9,6 +9,8 @@ namespace YantraJS.Expressions
 
         public T Visit(YExpression exp)
         {
+            if (exp == null)
+                return default;
             switch (exp.NodeType)
             {
                 case YExpressionType.Binary:

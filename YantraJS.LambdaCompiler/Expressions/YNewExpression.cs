@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -14,6 +15,13 @@ namespace YantraJS.Expressions
         {
             this.constructor = constructor;
             this.args = args.ToArray();
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write($"new {constructor.DeclaringType.FullName}(");
+            writer.PrintCSV(args);
+            writer.Write(")");
         }
     }
 }

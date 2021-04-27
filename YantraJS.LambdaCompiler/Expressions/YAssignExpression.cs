@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.CodeDom.Compiler;
 
 namespace YantraJS.Expressions
 {
@@ -13,6 +14,13 @@ namespace YantraJS.Expressions
         {
             this.Left = left;
             this.Right = right;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            Left.Print(writer);
+            writer.Write(" = ");
+            Right.Print(writer);
         }
     }
 }

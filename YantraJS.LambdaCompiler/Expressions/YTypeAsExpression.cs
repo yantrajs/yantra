@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 
 namespace YantraJS.Expressions
 {
@@ -10,6 +11,13 @@ namespace YantraJS.Expressions
             : base(YExpressionType.TypeAs, type)
         {
             this.Target = target;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            Target.Print(writer);
+            writer.Write(" as ");
+            writer.Write(Type.FullName);
         }
     }
 }
