@@ -145,5 +145,34 @@ namespace YantraJS.Core
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
+
+        internal ILWriterLabel BeginExceptionBlock()
+        {
+            PrintOffset();
+            writer.WriteLine("try:");
+            var label = il.BeginExceptionBlock();
+            return new ILWriterLabel(label);
+        }
+
+        internal void BeginCatchBlock(Type type)
+        {
+            PrintOffset();
+            writer.WriteLine("catch:");
+            il.BeginCatchBlock(type);
+        }
+
+        internal void BeginFinallyBlock()
+        {
+            PrintOffset();
+            writer.WriteLine("finally:");
+            il.BeginFinallyBlock();
+        }
+
+        internal void EndExceptionBlock()
+        {
+            PrintOffset();
+            writer.WriteLine("end try:");
+            il.EndExceptionBlock();
+        }
     }
 }

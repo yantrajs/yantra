@@ -28,6 +28,7 @@ namespace YantraJS.Expressions
         Coalesce,
         Unary,
         ArrayLength,
-        TypeEqual
+        TypeEqual,
+        TryCatchFinally
     }
 }

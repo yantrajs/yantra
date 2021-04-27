@@ -282,5 +282,13 @@ namespace YantraJS.Expressions
                 return new YUnaryExpression(target, yUnaryExpression.Operator);
             return yUnaryExpression;
         }
+
+        protected override YExpression VisitTryCatchFinally(YTryCatchFinallyExpression tryCatchFinallyExpression)
+        {
+            if (Modified(tryCatchFinallyExpression.Try, tryCatchFinallyExpression.Catch, tryCatchFinallyExpression.Finally,
+                out var @try, out var @catch, out var @finally))
+                return new YTryCatchFinallyExpression(@try, @catch, @finally);
+            return tryCatchFinallyExpression;
+        }
     }
 }

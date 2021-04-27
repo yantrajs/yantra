@@ -207,6 +207,16 @@ namespace YantraJS.Expressions
             return new YTypeIsExpression(target, type);
         }
 
+        public static YTryCatchFinallyExpression TryCatchFinally(
+            YExpression @try, 
+            YExpression? @catch,
+            YExpression? @finally)
+        {
+            if (@catch == null && @finally == null)
+                throw new ArgumentNullException($"Both finally and catch cannot be null");
+            return new YTryCatchFinallyExpression(@try, @catch, @finally);
+        }
+
         public static YArrayIndexExpression ArrayIndex(YExpression target, YExpression index)
         {
             return new YArrayIndexExpression(target, index);

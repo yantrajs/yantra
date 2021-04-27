@@ -9,6 +9,7 @@ namespace YantraJS.Generator
 {
     public class TryCatchBlock
     {
+        public ILWriterLabel EndTry { get; internal set; }
         internal void Push(Action action)
         {
             throw new NotImplementedException();
