@@ -11,6 +11,8 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitConditional(YConditionalExpression yConditionalExpression)
         {
+            // optimize for jumps...
+
             var trueEnd = il.DefineLabel();
             var falseBegin = il.DefineLabel();
             

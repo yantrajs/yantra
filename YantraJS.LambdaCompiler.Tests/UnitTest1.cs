@@ -95,7 +95,7 @@ namespace YantraJS.LambdaCompiler.Tests
             var fx = lambda.Compile<Func<int, int, int>>();
 
             var n = fx(1, 2);
-            Assert.AreEqual(2, n);
+            Assert.AreEqual(3, n);
         }
 
 

@@ -26,9 +26,9 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            if(Offset>0)
-                return $"L_{ID}_{Offset}";
-            return $"L_{ID}";
+            //if(Offset>0)
+            //    return $"L_{ID}_{Offset}";
+            return $"LABEL_{ID}";
         }
     }
 
@@ -47,8 +47,16 @@ namespace YantraJS.Core
             return writer.ToString();
         }
 
+        private void PrintOffset()
+        {
+            writer.Write("IL_");
+            writer.Write(il.ILOffset.ToString("X4"));
+            writer.Write(": ");
+        }
+
         internal void Emit(OpCode code)
         {
+            PrintOffset();
             writer.WriteLine(code.Name);
             il.Emit(code);
         }
@@ -60,12 +68,14 @@ namespace YantraJS.Core
 
         internal void Emit(OpCode code, short value)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
         internal void Emit(OpCode code, int value)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
@@ -73,42 +83,49 @@ namespace YantraJS.Core
         internal void MarkLabel(ILWriterLabel label)
         {
             label.Offset = il.ILOffset;
+            writer.WriteLine();
             writer.WriteLine($"{label}:");
             il.MarkLabel(label.Value);
         }
 
         internal void Emit(OpCode code, ILWriterLabel label)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {label}");
             il.Emit(code, label.Value);
         }
 
         internal void Emit(OpCode code, FieldInfo field)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {field.DeclaringType.FullName}.{field.Name}");
             il.Emit(code, field);
         }
 
         internal void Emit(OpCode code, Type type)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {type.FullName}");
             il.Emit(code, type);
         }
 
         internal void Emit(OpCode code, float value)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
         internal void Emit(OpCode code, double value)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
         internal void Emit(OpCode code, ConstructorInfo value)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {value.DeclaringType.FullName}");
             il.Emit(code, value);
 
@@ -116,6 +133,7 @@ namespace YantraJS.Core
 
         internal void Emit(OpCode code, MethodInfo method)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {method.DeclaringType.FullName}.{method.Name}");
             il.Emit(code, method);
 
@@ -123,6 +141,7 @@ namespace YantraJS.Core
 
         internal void Emit(OpCode code, string value)
         {
+            PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
