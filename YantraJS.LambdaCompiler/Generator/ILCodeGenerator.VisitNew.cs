@@ -11,8 +11,12 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitNew(YNewExpression newExpression)
         {
-            EmitParameters(newExpression.constructor, newExpression.args);     
-            il.Emit(OpCodes.Newobj, newExpression.constructor);
+            using (tempVariables.Push())
+            {
+                var a = EmitParameters(newExpression.constructor, newExpression.args, newExpression.Type);
+                il.Emit(OpCodes.Newobj, newExpression.constructor);
+                a();
+            }
             return true;
         }
 

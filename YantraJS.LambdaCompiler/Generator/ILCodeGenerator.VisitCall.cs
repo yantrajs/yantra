@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,36 +12,85 @@ namespace YantraJS.Generator
     public partial class ILCodeGenerator
     {
 
-        private void EmitParameters(MethodBase method, YExpression[] args)
+        private Action EmitParameters(MethodBase method, YExpression[] args, Type returnType)
         {
-            using (tempVariables.Push())
+            List<(int temp, YExpression exp)>? saveList = null;
+
+            var pa = method.GetParameters();
+            for (int i = 0; i < pa.Length; i++)
             {
-                var pa = method.GetParameters();
-                for (int i = 0; i < pa.Length; i++)
+
+                var p = pa[i];
+
+                if (i < args.Length)
                 {
+                    var a = args[i];
 
-                    var p = pa[i];
-
-                    if (i < args.Length)
+                    if(p.IsOut || p.ParameterType.IsByRef)
                     {
-                        using (addressScope.Push(p))
+                        if(a.NodeType != YExpressionType.Parameter)
                         {
-                            Visit(args[i]);
+                            var temp = tempVariables[p.ParameterType];
+                            saveList ??= new List<(int temp, YExpression exp)>();
+                            saveList.Add((temp.LocalIndex, a));
+
+                            Visit(a);
+                            // save in temp...
+                            il.EmitSaveLocal(temp.LocalIndex);
+
+                            il.EmitLoadLocalAddress(temp.LocalIndex);
+                            continue;
                         }
-                        continue;
                     }
-                    if (!p.HasDefaultValue)
-                        throw new ArgumentException($"Not enough arguments to create object");
-                    il.EmitConstant(p.RawDefaultValue);
+
+                    using (addressScope.Push(p))
+                    {
+                        Visit(a);
+                    }
+                    continue;
                 }
+                if (!p.HasDefaultValue)
+                    throw new ArgumentException($"Not enough arguments to create object");
+                il.EmitConstant(p.RawDefaultValue);
             }
 
+            return Save;
+
+            void Save()
+            {
+                if (saveList == null)
+                    return;
+                var rtIndex = 0;
+
+                if(returnType != typeof(void))
+                {
+                    var t = tempVariables[returnType];
+                    rtIndex = t.LocalIndex;
+
+                    il.EmitSaveLocal(rtIndex);
+                }
+
+                foreach(var (temp,exp) in saveList)
+                {
+                    il.EmitLoadLocal(temp);
+                    Assign(exp);
+                }
+
+                if(rtIndex != 0)
+                {
+                    il.EmitLoadLocal(rtIndex);
+                }
+            }
         }
 
         protected override CodeInfo VisitCall(YCallExpression yCallExpression)
         {
-            EmitParameters(yCallExpression.Method, yCallExpression.Arguments);
-            il.EmitCall(yCallExpression.Method);
+            using (tempVariables.Push())
+            {
+                var a = EmitParameters(yCallExpression.Method, yCallExpression.Arguments, yCallExpression.Type);
+                il.EmitCall(yCallExpression.Method);
+                a();
+            }
             return true;
         }
     }
