@@ -9,34 +9,72 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
-        protected override CodeInfo VistiAssign(YAssignExpression yAssignExpression)
+        protected override CodeInfo VisitAssign(YAssignExpression yAssignExpression)
         {
             // we need to investigate each type of expression on the left...
             Visit(yAssignExpression.Right);
-            il.Emit(OpCodes.Dup);
-
-            Assign(yAssignExpression.Left);
-            return true;
+            return Assign(yAssignExpression.Left);
         }
 
-        private void Assign(YExpression left)
+        private CodeInfo Assign(YExpression left)
         {
             switch (left.NodeType)
             {
                 case YExpressionType.Parameter:
-                    AssignParameter(left as YParameterExpression);
-                    return;
+                    return AssignParameter(left as YParameterExpression);
                 case YExpressionType.Field:
-                    AssignField(left as YFieldExpression);
-                    return;
+                    return AssignField(left as YFieldExpression);
+                case YExpressionType.Property:
+                    return AssignProperty(left as YPropertyExpression);
+                case YExpressionType.Assign:
+                    il.Emit(OpCodes.Dup);
+                    return VisitAssign(left as YAssignExpression);
+                case YExpressionType.ArrayIndex:
+                    return AssignArrayIndex(left as YArrayIndexExpression);
+                case YExpressionType.Index:
+                    return AssignIndex(left as YIndexExpression);
             }
 
             throw new NotImplementedException();
         }
 
-        private void AssignField(YFieldExpression yFieldExpression)
+        private CodeInfo AssignIndex(YIndexExpression yIndexExpression)
         {
-            throw new NotImplementedException();
+            var temp = tempVariables[yIndexExpression.Type];
+            il.EmitSaveLocal(temp.LocalIndex);
+            using (this.addressScope.Push(true))
+            {
+                Visit(yIndexExpression.Target);
+                il.EmitLoadLocal(temp.LocalIndex);
+                il.EmitCall(yIndexExpression.SetMethod);
+            }
+            return true;
+        }
+
+        private CodeInfo AssignProperty(YPropertyExpression yPropertyExpression)
+        {
+            var temp = tempVariables[yPropertyExpression.Type];
+            il.EmitSaveLocal(temp.LocalIndex);
+            using (this.addressScope.Push(true))
+            {
+                Visit(yPropertyExpression.Target);
+                il.EmitLoadLocal(temp.LocalIndex);
+                il.EmitCall(yPropertyExpression.SetMethod);
+            }
+            return true;
+        }
+
+        private CodeInfo AssignField(YFieldExpression yFieldExpression)
+        {
+            var temp = tempVariables[yFieldExpression.Type];
+            il.EmitSaveLocal(temp.LocalIndex);
+            using (this.addressScope.Push(true))
+            {
+                Visit(yFieldExpression.Target);
+                il.EmitLoadLocal(temp.LocalIndex);
+                il.Emit(OpCodes.Stfld, yFieldExpression.FieldInfo);
+            }
+            return true;
         }
     }
 }

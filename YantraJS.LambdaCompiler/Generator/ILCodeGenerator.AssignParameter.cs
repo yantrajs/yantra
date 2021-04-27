@@ -9,7 +9,7 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
-        private void AssignParameter(YParameterExpression yParameterExpression)
+        private CodeInfo AssignParameter(YParameterExpression yParameterExpression)
         {
             var pType = yParameterExpression.Type;
             var varInfo = variables[yParameterExpression];
@@ -17,30 +17,31 @@ namespace YantraJS.Generator
             if (pType.IsByRef)
             {
                 AssignRefParameter(varInfo, pType);
-                return;
+                return true;
             }
 
             if (varInfo.IsArgument)
             {
                 il.Emit(OpCodes.Starg_S, OpCodes.Starg, varInfo.Index);
-                return;
+                return true;
             }
             var i = varInfo.LocalBuilder.LocalIndex;
             switch (i) {
                 case 0:
                     il.Emit(OpCodes.Stloc_0);
-                    return;
+                    return true;
                 case 1:
                     il.Emit(OpCodes.Stloc_1);
-                    return;
+                    return true;
                 case 2:
                     il.Emit(OpCodes.Stloc_2);
-                    return;
+                    return true;
                 case 3:
                     il.Emit(OpCodes.Stloc_3);
-                    return;
+                    return true;
             }
             il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, i);
+            return true;
         }
 
         private void AssignRefParameter(Variable varInfo, Type pType)

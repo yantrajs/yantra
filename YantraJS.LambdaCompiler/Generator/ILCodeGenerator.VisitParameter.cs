@@ -13,26 +13,50 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitParameter(YParameterExpression yParameterExpression)
         {
             var v = variables[yParameterExpression];
-            if (v.IsArgument)
+            var isValueType = yParameterExpression.Type.IsValueType;
+            if (isValueType)
             {
+                if (v.IsArgument)
+                {
+                    if (RequiresAddress)
+                    {
+                        if (!v.IsReference)
+                        {
+                            il.EmitLoadArgAddress(v.Index);
+                            return true;
+                        }
+                    }
+                    il.EmitLoadArg(v.Index);
+                    return true;
+                }
+
                 if (RequiresAddress)
                 {
-                    if (!v.IsReference)
-                    {
-                        il.EmitLoadArgAddress(v.Index);
-                        return true;
-                    }
+                    il.EmitLoadLocalAddress(v.LocalBuilder.LocalIndex);
+                    return true;
                 }
+                il.EmitLoadLocal(v.LocalBuilder.LocalIndex);
+                return true;
+            }
+            if (v.IsArgument)
+            {
+                // irrespective of RequiresAddress
+                // retype always load ref...
                 il.EmitLoadArg(v.Index);
+                if (v.IsReference)
+                {
+                    il.Emit(OpCodes.Ldind_Ref);
+                    return true;
+                }
                 return true;
             }
 
-            if (RequiresAddress)
-            {
-                il.EmitLoadLocalAddress(v.LocalBuilder.LocalIndex);
-                return true;
-            }
             il.EmitLoadLocal(v.LocalBuilder.LocalIndex);
+            if (v.IsReference)
+            {
+                throw new NotSupportedException();
+            }
+
             return true;
         }
     }

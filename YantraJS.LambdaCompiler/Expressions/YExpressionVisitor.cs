@@ -18,7 +18,7 @@ namespace YantraJS.Expressions
                 case YExpressionType.Conditional:
                     return VisitConditional(exp as YConditionalExpression);
                 case YExpressionType.Assign:
-                    return VistiAssign(exp as YAssignExpression);
+                    return VisitAssign(exp as YAssignExpression);
                 case YExpressionType.Parameter:
                     return VisitParameter(exp as YParameterExpression);
                 case YExpressionType.Block:
@@ -84,7 +84,7 @@ namespace YantraJS.Expressions
         protected abstract T VisitCall(YCallExpression yCallExpression);
         protected abstract T VisitBlock(YBlockExpression yBlockExpression);
         protected abstract T VisitParameter(YParameterExpression yParameterExpression);
-        protected abstract T VistiAssign(YAssignExpression yAssignExpression);
+        protected abstract T VisitAssign(YAssignExpression yAssignExpression);
         protected abstract T VisitConditional(YConditionalExpression yConditionalExpression);
         protected abstract T VisitConstant(YConstantExpression yConstantExpression);
         protected abstract T VisitBinary(YBinaryExpression yBinaryExpression);

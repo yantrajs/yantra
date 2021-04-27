@@ -232,7 +232,7 @@ namespace YantraJS.Expressions
             return yReturnExpression;
         }
 
-        protected override YExpression VistiAssign(YAssignExpression yAssignExpression)
+        protected override YExpression VisitAssign(YAssignExpression yAssignExpression)
         {
             if (Modified(yAssignExpression.Left, yAssignExpression.Right, out var left, out var right))
                 return new YAssignExpression(left, right, right?.Type);
