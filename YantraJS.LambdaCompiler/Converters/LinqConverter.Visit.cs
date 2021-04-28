@@ -254,7 +254,7 @@ namespace YantraJS.Converters
                 case ExpressionType.Unbox:
                     break;
             }
-            throw new NotSupportedException();
+            throw new NotSupportedException($"Expression of type {exp.NodeType} is not yet supported");
         }
 
     }
