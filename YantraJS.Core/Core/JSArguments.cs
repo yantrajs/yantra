@@ -85,6 +85,22 @@ namespace YantraJS.Core
             set => base[key] = value;
         }
 
+        internal override bool TryGetValue(uint i, out JSProperty value)
+        {
+            if(arguments.TryGetAt((int)i, out var v))
+            {
+                value = JSProperty.Property( new KeyString(null, i), v);
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        internal override bool TryGetElement(uint i, out JSValue value)
+        {
+            return arguments.TryGetAt((int)i, out value);
+        }
+
         public override string ToString()
         {
             return "[object Arguments]";
