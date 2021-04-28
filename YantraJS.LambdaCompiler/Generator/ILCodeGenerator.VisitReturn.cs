@@ -23,7 +23,7 @@ namespace YantraJS.Generator
                     return true;
                 }
             }
-            Goto(label);
+            il.Branch(label);
             return true;
         }
     }
