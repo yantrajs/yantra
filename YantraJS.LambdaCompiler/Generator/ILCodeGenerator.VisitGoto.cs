@@ -24,6 +24,7 @@ namespace YantraJS.Generator
             //    }
             //    il.Emit(OpCodes.Br, labels[yGoToExpression.Target]);
             //});
+            il.Branch(labels[yGoToExpression.Target]);
             return true;
         }
 

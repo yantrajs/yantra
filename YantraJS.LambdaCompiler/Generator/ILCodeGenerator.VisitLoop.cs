@@ -15,7 +15,7 @@ namespace YantraJS.Generator
             var @break = labels[yLoopExpression.Break];
             il.MarkLabel(@continue);
             Visit(yLoopExpression.Body);
-            Goto(@continue);
+            il.Goto(@continue);
             il.MarkLabel(@break);
 
             return true;
