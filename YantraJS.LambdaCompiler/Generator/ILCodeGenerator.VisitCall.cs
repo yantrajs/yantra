@@ -87,6 +87,11 @@ namespace YantraJS.Generator
         {
             using (tempVariables.Push())
             {
+                if(yCallExpression.Target != null)
+                {
+                    Visit(yCallExpression.Target);
+                }
+
                 var a = EmitParameters(yCallExpression.Method, yCallExpression.Arguments, yCallExpression.Type);
                 il.EmitCall(yCallExpression.Method);
                 a();
