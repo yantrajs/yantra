@@ -228,7 +228,16 @@ namespace YantraJS.Converters
                     ue = exp as UnaryExpression;
                     return YExpression.Throw(Visit(ue.Operand));
                 case ExpressionType.Try:
-                    break;
+                    var te = exp as TryExpression;
+                    YCatchBody cb = null;
+                    if (te.Handlers.Count > 0)
+                    {
+                        var first = te.Handlers.First();
+                        cb = first.Variable != null 
+                            ? YExpression.Catch(parameters[first.Variable], Visit(first.Body))
+                            : YExpression.Catch(Visit(first.Body));
+                    }
+                    return YExpression.TryCatchFinally(Visit(te.Body), cb, Visit(te.Finally));
                 case ExpressionType.TypeAs:
                     ue = exp as UnaryExpression;
                     return YExpression.TypeAs(Visit(ue.Operand), ue.Type);
