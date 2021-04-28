@@ -11,23 +11,17 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitTryCatchFinally(YTryCatchFinallyExpression tryCatchFinallyExpression)
         {
-            var tcb = new TryCatchBlock();
-            tryCatchBlocks.Push(tcb);
+            var tcb = il.BeginTry();
 
             try
             {
-                var @endTry = il.BeginExceptionBlock();
-
-                tcb.EndTry = endTry;
 
                 Visit(tryCatchFinallyExpression.Try);
 
-                il.Emit(OpCodes.Leave, endTry);
-                il.EndExceptionBlock();
 
                 if (tryCatchFinallyExpression.Catch != null)
                 {
-                    il.BeginCatchBlock(typeof(Exception));
+                    tcb.BeginCatch(typeof(Exception));
                     if(tryCatchFinallyExpression.Catch.Parameter == null)
                     {
                         il.Emit(OpCodes.Pop);
@@ -38,18 +32,13 @@ namespace YantraJS.Generator
                     }
 
                     Visit(tryCatchFinallyExpression.Catch.Body);
-                    il.Emit(OpCodes.Leave, endTry);
                 }
 
                 if(tryCatchFinallyExpression.Finally != null)
                 {
-                    il.BeginFinallyBlock();
+                    tcb.BeginFinally();
                     Visit(tryCatchFinallyExpression.Finally);
                 }
-
-                il.MarkLabel(endTry);
-
-                
 
                 return true;
             }
