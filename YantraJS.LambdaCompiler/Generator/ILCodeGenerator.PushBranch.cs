@@ -7,7 +7,7 @@ using YantraJS.Core;
 
 namespace YantraJS.Generator
 {
-    public class TryCatchBlock
+    public class TryCatchBlock: LinkedStackItem<TryCatchBlock>
     {
         public ILWriterLabel EndTry { get; internal set; }
         internal void Push(Action action)
@@ -19,7 +19,8 @@ namespace YantraJS.Generator
     public partial class ILCodeGenerator
     {
 
-        private Stack<TryCatchBlock> tryCatchBlocks = new Stack<TryCatchBlock>();
+        private LinkedStack<TryCatchBlock> tryCatchBlocks
+            = new LinkedStack<TryCatchBlock>();
 
         private void Goto(ILWriterLabel label)
         {
@@ -28,13 +29,13 @@ namespace YantraJS.Generator
 
         private void PushBranch(Action action)
         {
-            if(tryCatchBlocks.Count == 0)
+            if(tryCatchBlocks.Top == null)
             {
                 action();
                 return;
             }
 
-            tryCatchBlocks.Peek().Push(action);
+            tryCatchBlocks.Top.Push(action);
         }
 
     }

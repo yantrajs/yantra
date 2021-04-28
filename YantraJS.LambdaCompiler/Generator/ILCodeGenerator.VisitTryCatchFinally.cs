@@ -55,7 +55,7 @@ namespace YantraJS.Generator
             }
             finally
             {
-                tryCatchBlocks.Pop();
+                tcb.Dispose();
             }
         }
     }
