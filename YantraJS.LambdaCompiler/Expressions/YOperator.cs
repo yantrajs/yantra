@@ -22,6 +22,9 @@ namespace YantraJS.Expressions
         Greater,
         GreaterOrEqual,
         Equal,
-        NotEqual
+        NotEqual,
+
+        LeftShift,
+        RightShift
     }
 }

@@ -65,11 +65,17 @@ namespace YantraJS.Expressions
                     return VisitTryCatchFinally(exp as YTryCatchFinallyExpression);
                 case YExpressionType.Throw:
                     return VisitThrow(exp as YThrowExpression);
+                case YExpressionType.Convert:
+                    return VisitConvert(exp as YConvertExpression);
+                case YExpressionType.Invoke:
+                    return VisitInvoke(exp as YInvokeExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitInvoke(YInvokeExpression invokeExpression);
+        protected abstract T VisitConvert(YConvertExpression convertExpression);
         protected abstract T VisitThrow(YThrowExpression throwExpression);
         protected abstract T VisitTryCatchFinally(YTryCatchFinallyExpression tryCatchFinallyExpression);
         protected abstract T VisitArrayLength(YArrayLengthExpression arrayLengthExpression);

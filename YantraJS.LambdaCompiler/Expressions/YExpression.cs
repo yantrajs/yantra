@@ -96,6 +96,18 @@ namespace YantraJS.Expressions
             return new YBlockExpression(variables, expressions);
         }
 
+        public static YConvertExpression Convert(YExpression exp, Type type)
+        {
+            var method = YConvertExpression.GetConversionMethod(exp.Type, type);
+            return new YConvertExpression(exp, type, method);
+        }
+
+        public static YConvertExpression Convert(YExpression exp, Type type, MethodInfo method)
+        {
+            return new YConvertExpression(exp, type, method);
+        }
+
+
         public static YBinaryExpression Equal(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Equal, right);
 
@@ -152,6 +164,10 @@ namespace YantraJS.Expressions
             return new YFieldExpression(target, field);
         }
 
+        public static YInvokeExpression Invoke(YExpression target, Type type, params YExpression[] args)
+        {
+            return new YInvokeExpression(target, args, type);
+        }
 
         public static YPropertyExpression Property(YExpression target, PropertyInfo field)
         {

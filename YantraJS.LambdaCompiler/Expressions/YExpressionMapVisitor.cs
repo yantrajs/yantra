@@ -146,6 +146,13 @@ namespace YantraJS.Expressions
             return yConditionalExpression;
         }
 
+        protected override YExpression VisitConvert(YConvertExpression convertExpression)
+        {
+            if (Modified(convertExpression.Target, out var target))
+                return YExpression.Convert(target, convertExpression.Type);
+            return convertExpression;
+        }
+
         protected override YExpression VisitCoalesce(YCoalesceExpression yCoalesceExpression)
         {
             if (Modified(yCoalesceExpression.Left, yCoalesceExpression.Right, out var left, out var right))
@@ -170,6 +177,15 @@ namespace YantraJS.Expressions
             if (Modified(yGoToExpression.Default, out var @default))
                 return new YGoToExpression(yGoToExpression.Target, @default);
             return yGoToExpression;
+        }
+
+        protected override YExpression VisitInvoke(YInvokeExpression invokeExpression)
+        {
+            var tm = Modified(invokeExpression.Target, out var target);
+            var am = Modified(invokeExpression.Arguments, out var args);
+            if (tm || am)
+                return new YInvokeExpression(target, args, invokeExpression.Type);
+            return invokeExpression;
         }
 
         protected override YExpression VisitLabel(YLabelExpression yLabelExpression)

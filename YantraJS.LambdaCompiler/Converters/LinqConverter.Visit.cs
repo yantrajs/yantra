@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using YantraJS.Expressions;
 
@@ -57,7 +58,8 @@ namespace YantraJS.Converters
                     var cnt = exp as ConstantExpression;
                     return YExpression.Constant( cnt.Value, cnt.Type );
                 case ExpressionType.Convert:
-                    break;
+                    ue = exp as UnaryExpression;
+                    return YExpression.Convert(Visit(ue.Operand), ue.Type);
                 case ExpressionType.ConvertChecked:
                     break;
                 case ExpressionType.DebugInfo:
@@ -67,61 +69,90 @@ namespace YantraJS.Converters
                 case ExpressionType.Default:
                     break;
                 case ExpressionType.Divide:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.Divide, Visit(be.Right));
                 case ExpressionType.DivideAssign:
                     break;
                 case ExpressionType.Dynamic:
                     break;
                 case ExpressionType.Equal:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Equal(Visit(be.Left), Visit(be.Right));
                 case ExpressionType.ExclusiveOr:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.Xor, Visit(be.Right));
                 case ExpressionType.ExclusiveOrAssign:
                     break;
                 case ExpressionType.Extension:
                     break;
                 case ExpressionType.Goto:
+                    var ge = exp as GotoExpression;
+                    switch (ge.Kind)
+                    {
+                        case GotoExpressionKind.Break:
+                        case GotoExpressionKind.Continue:
+                        case GotoExpressionKind.Goto:
+                            return YExpression.GoTo(labels[ge.Target], Visit(ge.Value));
+                        case GotoExpressionKind.Return:
+                            return YExpression.Return(labels[ge.Target], Visit(ge.Value));
+                    }
                     break;
                 case ExpressionType.GreaterThan:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.Greater, Visit(be.Right));
                 case ExpressionType.GreaterThanOrEqual:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.GreaterOrEqual, Visit(be.Right));
                 case ExpressionType.Increment:
                     break;
                 case ExpressionType.Index:
-                    break;
+                    var ie = exp as IndexExpression;
+                    return YExpression.Index(Visit(ie.Object) , VisitList(ie.Arguments));
                 case ExpressionType.Invoke:
-                    break;
+                    var invoke = exp as InvocationExpression;
+                    return YExpression.Invoke(Visit(invoke.Expression), invoke.Type, VisitList(invoke.Arguments));
                 case ExpressionType.IsFalse:
                     break;
                 case ExpressionType.IsTrue:
                     break;
                 case ExpressionType.Label:
-                    break;
+                    var le = exp as LabelExpression;
+                    return YExpression.Label(labels[le.Target], Visit(le.DefaultValue));
                 case ExpressionType.Lambda:
                     return VisitLambda(exp as LambdaExpression);
                 case ExpressionType.LeftShift:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.LeftShift, Visit(be.Right));
                 case ExpressionType.LeftShiftAssign:
                     break;
                 case ExpressionType.LessThan:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.Less, Visit(be.Right));
                 case ExpressionType.LessThanOrEqual:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.LessOrEqual, Visit(be.Right));
                 case ExpressionType.ListInit:
                     break;
                 case ExpressionType.Loop:
-                    break;
+                    var loop = exp as LoopExpression;
+                    return YExpression.Loop(Visit(loop.Body), labels[loop.BreakLabel], loop.ContinueLabel != null ? labels[loop.ContinueLabel] : null);
                 case ExpressionType.MemberAccess:
+                    var member = exp as MemberExpression;
+                    if (member.Member is FieldInfo field)
+                        return YExpression.Field(Visit(member.Expression), field);
+                    if (member.Member is PropertyInfo property)
+                        return YExpression.Property(Visit(member.Expression), property);
                     break;
                 case ExpressionType.MemberInit:
                     break;
                 case ExpressionType.Modulo:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.Mod, Visit(be.Right));
                 case ExpressionType.ModuloAssign:
                     break;
                 case ExpressionType.Multiply:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.Multipley, Visit(be.Right));
                 case ExpressionType.MultiplyAssign:
                     break;
                 case ExpressionType.MultiplyAssignChecked:
@@ -129,7 +160,8 @@ namespace YantraJS.Converters
                 case ExpressionType.MultiplyChecked:
                     break;
                 case ExpressionType.Negate:
-                    break;
+                    ue = exp as UnaryExpression;
+                    return YExpression.Negative(Visit(ue.Operand));
                 case ExpressionType.NegateChecked:
                     break;
                 case ExpressionType.New:

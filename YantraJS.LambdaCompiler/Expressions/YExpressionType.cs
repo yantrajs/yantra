@@ -30,6 +30,8 @@ namespace YantraJS.Expressions
         ArrayLength,
         TypeEqual,
         TryCatchFinally,
-        Throw
+        Throw,
+        Convert,
+        Invoke
     }
 }
