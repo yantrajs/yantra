@@ -50,6 +50,9 @@ namespace YantraJS.Core
                 il.Emit(OpCodes.Leave, label);
             }
 
+            if (!(isCatch || isFinally))
+                throw new InvalidOperationException($"Cannot finish try block without catch/finally");
+
             base.Dispose();
 
             // jump all pending
