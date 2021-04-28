@@ -12,5 +12,9 @@ namespace YantraJS
             return x();
         }
 
+        public Expression<Func<T1, T>> Get<T1, T>(Expression<Func<T1, T>> exp) => exp;
+        public Expression<Func<T1, T2, T>> Get<T1, T2, T>(Expression<Func<T1, T2, T>> exp) => exp;
+
+        public Expression<Func<T1, T2, T3, T>> Get<T1, T2, T3, T>(Expression<Func<T1, T2, T3, T>> exp) => exp;
     }
 }

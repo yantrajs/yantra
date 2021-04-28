@@ -28,7 +28,7 @@ namespace YantraJS.Expressions
 
         public YLambdaExpression(string name, 
             YExpression body, 
-            IList<YParameterExpression>? parameters,
+            YParameterExpression[]? parameters,
             Type? returnType = null,
             YExpression? repository = null)
             : base(YExpressionType.Lambda, body.Type)
@@ -37,7 +37,7 @@ namespace YantraJS.Expressions
             this.Body = body;
             this.ReturnType = returnType ?? body.Type;
             if (parameters != null)
-                this.Parameters = parameters.ToArray();
+                this.Parameters = parameters;
             else
                 this.Parameters = new YParameterExpression[] { };
             ParameterTypes = this.Parameters.Select(x => x.Type).ToArray();

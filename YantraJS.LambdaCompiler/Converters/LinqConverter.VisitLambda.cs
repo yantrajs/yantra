@@ -17,7 +17,7 @@ namespace YantraJS.Converters
             return new YLambdaExpression(
                 lambda.Name ?? "Unknown",
                 Visit(lambda.Body),
-                plist);
+                plist.ToArray());
         }
 
     }

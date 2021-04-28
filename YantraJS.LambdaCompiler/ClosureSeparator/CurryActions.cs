@@ -51,7 +51,7 @@ namespace YantraJS
             // YExpression? call = null;
 
             setup.Add(YExpression.Call(null, method, closure, lambda));
-            return YExpression.Block(null, setup);
+            return YExpression.Block(new YParameterExpression[] { closure }, setup);
         }
 
     }

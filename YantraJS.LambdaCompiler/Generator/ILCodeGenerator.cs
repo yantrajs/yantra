@@ -54,6 +54,8 @@ namespace YantraJS.Generator
                 }
             }
 
+            il.Verify();
+
         }
     }
 }

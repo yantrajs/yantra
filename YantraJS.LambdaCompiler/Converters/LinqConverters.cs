@@ -10,7 +10,7 @@ namespace YantraJS.Converters
     public static partial class LinqConverters
     {
 
-        public static YExpression ToLLExpression(this LambdaExpression lambda)
+        public static YLambdaExpression ToLLExpression(this LambdaExpression lambda)
         {
             var lc = new LinqConverter();
             return lc.VisitLambda(lambda);

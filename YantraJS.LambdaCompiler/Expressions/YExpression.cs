@@ -60,6 +60,8 @@ namespace YantraJS.Expressions
 
         public static YConstantExpression Constant(object value, Type? type = null)
         {
+            if (value is YConstantExpression)
+                throw new NotSupportedException();
             return new YConstantExpression(value, type ?? value.GetType());
         }
 
@@ -211,9 +213,14 @@ namespace YantraJS.Expressions
             return new YLoopExpression(body, @break, @continue ?? Label("continue", @break.LabelType));
         }
 
-        public static YLambdaExpression Lambda(string name, YExpression body, IList<YParameterExpression> parameters)
+        public static YLambdaExpression Lambda(string name, YExpression body, YParameterExpression[] parameters)
         {
             return new YLambdaExpression(name, body, parameters);
+        }
+
+        public static YLambdaExpression Lambda(string name, YExpression body, List<YParameterExpression> parameters)
+        {
+            return new YLambdaExpression(name, body, parameters.ToArray());
         }
 
         public static YTypeAsExpression TypeAs(YExpression target, Type type)
@@ -292,10 +299,19 @@ namespace YantraJS.Expressions
         internal static YLambdaExpression InlineLambda(
             string name, 
             YExpression body, 
-            List<YParameterExpression> parameters, 
+            YParameterExpression[] parameters, 
             YExpression? repository)
         {
             return new YLambdaExpression(name, body, parameters, null, repository);
+        }
+
+        internal static YLambdaExpression InlineLambda(
+            string name,
+            YExpression body,
+            List<YParameterExpression> parameters,
+            YExpression? repository)
+        {
+            return new YLambdaExpression(name, body, parameters.ToArray(), null, repository);
         }
     }
 }

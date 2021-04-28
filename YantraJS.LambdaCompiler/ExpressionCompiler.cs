@@ -52,7 +52,7 @@ namespace YantraJS
             InternalCompileToMethod(exp, methodBuilder);
         }
 
-        internal static MethodInfo Compile(YLambdaExpression expression,
+        internal static (MethodInfo method,string il, string exp) Compile(YLambdaExpression expression,
             IMethodRepository methods)
         {
             var exp = LambdaRewriter.Rewrite(expression)
@@ -65,7 +65,7 @@ namespace YantraJS
 
         public static T Compile<T>(this YLambdaExpression expression)
         {
-            var m = Compile(expression, null);
+            var (m,_,_) = Compile(expression, null);
             return (T)(object)m.CreateDelegate(typeof(T));
         }
 
@@ -77,7 +77,7 @@ namespace YantraJS
                 YExpression.Parameter(typeof(IMethodRepository))
             });
 
-            var outer = Compile(outerLambda, repository);
+            var (outer, il, exp) = Compile(outerLambda, repository);
 
             var func = outer.CreateDelegate(typeof(Func<IMethodRepository, object>)) as Func<IMethodRepository, object>;
 
@@ -85,7 +85,7 @@ namespace YantraJS
         }
 
 
-        internal static MethodInfo InternalCompileToMethod(
+        internal static (MethodInfo method,string il, string exp) InternalCompileToMethod(
             YLambdaExpression exp,
             RuntimeMethodBuilder builder)
         {
@@ -103,7 +103,7 @@ namespace YantraJS
 
             string value = icg.ToString();
 
-            return dm;
+            return (dm, value, exp.DebugView);
         }
 
     }
@@ -126,7 +126,7 @@ namespace YantraJS
         {
             if (lambdaExpression.Repository == null)
                 throw new NotSupportedException($"Compile with Method Repository");
-            var method = ExpressionCompiler.Compile(lambdaExpression, methods);
+            var (method, il, exp) = ExpressionCompiler.Compile(lambdaExpression, methods);
             var d = method.CreateDelegate(lambdaExpression.DelegateType);
             var id = methods.RegisterNew(d);
             return YExpression.Call(lambdaExpression.Repository, run, YExpression.Constant(id));

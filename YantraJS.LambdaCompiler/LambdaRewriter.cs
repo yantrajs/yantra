@@ -66,7 +66,18 @@ namespace YantraJS
 
                 List<YExpression> closureSetup = new List<YExpression>();
 
-                foreach(var p in top.PendingReplacements.Variables)
+                var selfRepository = repository as YExpression;
+
+                // forece repository access...
+                if (repository != null)
+                {
+                    selfRepository = VisitParameter(repository);
+                }
+
+                var body = Visit(n.Body);
+
+
+                foreach (var p in top.PendingReplacements.Variables)
                 {
                     var bp = p.Value;
                     if (bp == null)
@@ -84,7 +95,7 @@ namespace YantraJS
 
                             closureSetup.Add(YExpression.Assign(
                                 YExpression.ArrayIndex(closures, YExpression.Constant(bp.Index)), 
-                                BoxHelper.For(bp.Parent.Type).New(bp.Parent)));
+                                BoxHelper.For(bp.Parent.Type).New(p.Key)));
 
                             stmts.Add(YExpression.Assign(bp.Parameter,
                                     YExpression.TypeAs(
@@ -105,26 +116,16 @@ namespace YantraJS
 
                 }
 
-                var selfRepository = repository as YExpression;
-
-                // forece repository access...
-                if(repository != null)
-                {
-                    selfRepository = VisitParameter(repository);
-                }
-
-                var body = Visit(n.Body);
-
                 if(closures == null)
                 {
-                    if(stmts.Count == 0)
+                    if(stmts.Count == 0 && body == n.Body)
                     {
                         return n;
                     }
 
                     stmts.Add(body);
 
-                    return YExpression.Lambda( n.Name, YExpression.Block(localBoxes, body), n.Parameters);
+                    return YExpression.InlineLambda( n.Name, YExpression.Block(localBoxes, body), n.Parameters, selfRepository);
                 }
 
                 // curry....
@@ -138,7 +139,8 @@ namespace YantraJS
                     YExpression.NewArrayBounds(typeof(Box), YExpression.Constant(closureSetup.Count))));
 
 
-                return CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body, selfRepository);
+                var x = CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body, selfRepository);
+                return x;
             }
         }
 
@@ -180,9 +182,10 @@ namespace YantraJS
         private YExpression Convert(YExpression exp)
         {
             using (var scope = stack.Push(exp)) {
-                exp = Visit(exp);
+                var  r = Visit(exp);
                 Collect = false;
-                return Visit(exp);
+                var t = Visit(r);
+                return t;
             }
         }
     }

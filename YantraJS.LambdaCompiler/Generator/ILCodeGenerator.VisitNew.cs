@@ -46,7 +46,7 @@ namespace YantraJS.Generator
 
         protected override CodeInfo VisitNewArrayBounds(YNewArrayBoundsExpression yNewArrayBoundsExpression)
         {
-            il.EmitConstant(yNewArrayBoundsExpression.Size);
+            Visit(yNewArrayBoundsExpression.Size);
             il.Emit(OpCodes.Newarr, yNewArrayBoundsExpression.ElementType);
             return true;
         }

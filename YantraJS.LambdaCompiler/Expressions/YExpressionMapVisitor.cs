@@ -73,7 +73,7 @@ namespace YantraJS.Expressions
             }
             if (!dirty)
             {
-                list = Array.Empty<T>();
+                list = statements;
                 return false;
             }
             list = r;
@@ -200,7 +200,7 @@ namespace YantraJS.Expressions
             var pm = Modified(yLambdaExpression.Parameters, out var parameters);
             var bm = Modified(yLambdaExpression.Body, out var body);
             if (pm || bm)
-                return new YLambdaExpression(yLambdaExpression.Name, body, parameters);
+                return new YLambdaExpression(yLambdaExpression.Name, body, parameters, yLambdaExpression.ReturnType, yLambdaExpression.Repository);
             return yLambdaExpression;
 
         }

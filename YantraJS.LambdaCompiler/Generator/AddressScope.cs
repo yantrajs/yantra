@@ -25,7 +25,7 @@ namespace YantraJS.Generator
 
         internal AddressScopeItem Push(ParameterInfo p)
         {
-            return new AddressScopeItem(p.IsIn || p.IsOut || p.ParameterType.IsByRef || p.IsRetval);
+            return this.Push( new AddressScopeItem(p.IsIn || p.IsOut || p.ParameterType.IsByRef || p.IsRetval));
         }
     }
 }

@@ -68,8 +68,7 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Ldelem);
                     break;
             }
-
-            throw new NotImplementedException();
+            return true;
         }
 
     }

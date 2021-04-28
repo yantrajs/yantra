@@ -63,6 +63,11 @@ namespace YantraJS.Core
             il.Emit(code, value);
         }
 
+        internal void Verify()
+        {
+            
+        }
+
         internal void Emit(OpCode code, int value)
         {
             PrintOffset();
