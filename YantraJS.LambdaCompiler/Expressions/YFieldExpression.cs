@@ -19,7 +19,7 @@ namespace YantraJS.Expressions
         {
             if(Target==null)
             {
-                writer.Write($"{FieldInfo.DeclaringType.FullName}.{FieldInfo.Name}");
+                writer.Write($"{FieldInfo.DeclaringType.GetFriendlyName()}.{FieldInfo.Name}");
                 return;
             }
             Target.Print(writer);

@@ -19,7 +19,7 @@ namespace YantraJS.Expressions
 
         public override void Print(IndentedTextWriter writer)
         {
-            writer.Write($"new {constructor.DeclaringType.FullName}(");
+            writer.Write($"new {constructor.DeclaringType.GetFriendlyName()}(");
             writer.PrintCSV(args);
             writer.Write(")");
         }

@@ -45,7 +45,7 @@ namespace YantraJS.Linq
                 args[1]
                 ), args);
 
-            var fx = exp.Compile<Func<int[], int, int>>();
+            var fx = exp.CompileWithNestedLambdas<Func<int[], int, int>>();
 
             var n = new int[]{1,2,3 };
 

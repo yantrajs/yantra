@@ -105,7 +105,7 @@ namespace YantraJS.Core
         internal void Emit(OpCode code, FieldInfo field)
         {
             PrintOffset();
-            writer.WriteLine($"{code.Name} {field.DeclaringType.FullName}.{field.Name}");
+            writer.WriteLine($"{code.Name} {field.DeclaringType.GetFriendlyName()}.{field.Name}");
             il.Emit(code, field);
         }
 
@@ -133,7 +133,7 @@ namespace YantraJS.Core
         internal void Emit(OpCode code, ConstructorInfo value)
         {
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value.DeclaringType.FullName}");
+            writer.WriteLine($"{code.Name} {value.DeclaringType.GetFriendlyName()}");
             il.Emit(code, value);
 
         }
@@ -141,7 +141,7 @@ namespace YantraJS.Core
         internal void Emit(OpCode code, MethodInfo method)
         {
             PrintOffset();
-            writer.WriteLine($"{code.Name} {method.DeclaringType.FullName}.{method.Name}");
+            writer.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.Name}");
             il.Emit(code, method);
 
         }

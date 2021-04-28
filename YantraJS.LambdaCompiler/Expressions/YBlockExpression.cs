@@ -23,7 +23,7 @@ namespace YantraJS.Expressions
             writer.Indent++;
             foreach (var v in Variables)
             {
-                writer.WriteLine($"{v.Type.FullName} {v.Name};");
+                writer.WriteLine($"{v.Type.GetFriendlyName()} {v.Name};");
             }
             foreach (var exp in Expressions)
             {

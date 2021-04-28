@@ -17,7 +17,7 @@ namespace YantraJS.Expressions
 
         public override void Print(IndentedTextWriter writer)
         {
-            writer.Write($"new {ElementType.FullName} [");
+            writer.Write($"new {ElementType.GetFriendlyName()} [");
             Size.Print(writer);
             writer.Write("]");
         }

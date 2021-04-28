@@ -47,7 +47,7 @@ namespace YantraJS.Expressions
         public override void Print(IndentedTextWriter writer)
         {
             writer.Write('(');
-            writer.Write(string.Join(", ", Parameters.Select(p => $"{p.Type.FullName} {p.Name}") ));
+            writer.Write(string.Join(", ", Parameters.Select(p => $"{p.Type.GetFriendlyName()} {p.Name}") ));
             writer.Write(") => ");
 
             Body.Print(writer);

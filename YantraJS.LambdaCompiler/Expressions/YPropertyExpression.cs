@@ -30,7 +30,7 @@ namespace YantraJS.Expressions
         {
             if (Target == null)
             {
-                writer.Write($"{PropertyInfo.DeclaringType.FullName}.{PropertyInfo.Name}");
+                writer.Write($"{PropertyInfo.DeclaringType.GetFriendlyName()}.{PropertyInfo.Name}");
                 return;
             }
             Target.Print(writer);

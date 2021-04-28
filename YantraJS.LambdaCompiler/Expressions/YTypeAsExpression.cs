@@ -17,7 +17,7 @@ namespace YantraJS.Expressions
         {
             Target.Print(writer);
             writer.Write(" as ");
-            writer.Write(Type.FullName);
+            writer.Write(Type.GetFriendlyName());
         }
     }
 }

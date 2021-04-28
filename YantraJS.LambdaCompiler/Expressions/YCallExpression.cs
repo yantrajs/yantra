@@ -25,12 +25,12 @@ namespace YantraJS.Expressions
             if (Target == null)
             {
                 // static method...
-                writer.Write($"{Method.DeclaringType.FullName}.{Method.Name}(");
+                writer.Write($"{Method.DeclaringType.GetFriendlyName()}.{Method.Name}(");
             }
             else
             {
                 Target.Print(writer);
-                writer.Write('(');
+                writer.Write($".{Method.Name}(");
             }
             writer.PrintCSV(Arguments);
             writer.Write(')');

@@ -15,6 +15,10 @@ namespace YantraJS
 
         public static string GetFriendlyName(this Type type)
         {
+            if(type.IsArray)
+            {
+                return type.GetElementType().GetFriendlyName() + "[]";
+            }
             if(type.IsConstructedGenericType)
             {
                 var a = string.Join(", ", type.GetGenericArguments().Select(x => x.GetFriendlyName()));

@@ -24,7 +24,7 @@ namespace YantraJS.Expressions
                 && m.GetParameters().Length == 1
                 && m.GetParameters()[0].ParameterType == from);
             if (m == null)
-                throw new InvalidOperationException($"No conversion method found from {from.FullName} to {to.FullName}");
+                throw new InvalidOperationException($"No conversion method found from {from.GetFriendlyName()} to {to.GetFriendlyName()}");
 
             return m;
         }
