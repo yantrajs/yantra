@@ -12,7 +12,7 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitIndex(YIndexExpression yIndexExpression)
         {
             Visit(yIndexExpression.Target);
-            EmitParameters(yIndexExpression.GetMethod, yIndexExpression.Arguments);
+            EmitParameters(yIndexExpression.GetMethod, yIndexExpression.Arguments, yIndexExpression.Type);
             il.EmitCall(yIndexExpression.GetMethod);
             if (RequiresAddress)
             {

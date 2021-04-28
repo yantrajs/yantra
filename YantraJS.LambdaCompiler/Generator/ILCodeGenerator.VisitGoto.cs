@@ -12,14 +12,18 @@ namespace YantraJS.Generator
 
         protected override CodeInfo VisitGoto(YGoToExpression yGoToExpression)
         {
-            PushBranch(() =>
-            {
-                if (yGoToExpression.Default != null)
-                {
-                    Visit(yGoToExpression.Default);
-                }
-                il.Emit(OpCodes.Br, labels[yGoToExpression.Target]);
-            });
+            // need to store variable in temp
+            //il.Branch()
+
+
+            //PushBranch(() =>
+            //{
+            //    if (yGoToExpression.Default != null)
+            //    {
+            //        Visit(yGoToExpression.Default);
+            //    }
+            //    il.Emit(OpCodes.Br, labels[yGoToExpression.Target]);
+            //});
             return true;
         }
 

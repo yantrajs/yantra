@@ -18,7 +18,7 @@ namespace YantraJS.Expressions
     public class YTryCatchFinallyExpression: YExpression
     {
         public readonly YExpression Try;
-        public readonly YCatchBody? Catch;
+        public new readonly YCatchBody? Catch;
         public readonly YExpression? Finally;
 
         public YTryCatchFinallyExpression(
@@ -40,7 +40,7 @@ namespace YantraJS.Expressions
             writer.Indent--;
             if (Catch != null)
             {
-                if (Catch.Parametrr != null) {
+                if (Catch.Parameter != null) {
                     writer.WriteLine($"}} catch({Catch.Parameter.Name}) {{");
                 }
                 else

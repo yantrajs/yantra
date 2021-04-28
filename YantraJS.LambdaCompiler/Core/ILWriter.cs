@@ -14,6 +14,8 @@ namespace YantraJS.Core
         private readonly ILGenerator il;
         private StringWriter writer = new StringWriter();
 
+        public bool IsTryBlock => tryStack.Top != null;
+
         public ILWriter(ILGenerator il)
         {
             this.il = il;
@@ -31,11 +33,11 @@ namespace YantraJS.Core
             writer.Write(": ");
         }
 
-        public void Branch(ILWriterLabel label)
+        public void Branch(ILWriterLabel label, int index = 0)
         {
             if(tryStack.Top != null)
             {
-                tryStack.Top.Branch(label);
+                tryStack.Top.Branch(label, index);
                 return;
             }
             il.Emit(OpCodes.Br, label.Value);

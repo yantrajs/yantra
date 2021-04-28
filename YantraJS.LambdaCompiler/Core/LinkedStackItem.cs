@@ -5,7 +5,7 @@ namespace YantraJS
     public abstract class LinkedStackItem<T> : IDisposable
     where T : LinkedStackItem<T>
     {
-        internal T Parent;
+        public T Parent { get; internal set; }
 
         internal LinkedStack<T> stack;
 

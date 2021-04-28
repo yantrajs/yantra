@@ -15,6 +15,13 @@ namespace YantraJS.Generator
             if(yReturnExpression.Default != null)
             {
                 Visit(yReturnExpression.Default);
+
+                if(il.IsTryBlock)
+                {
+                    var temp = tempVariables[yReturnExpression.Default.Type];
+                    il.Branch(label, temp.LocalIndex);
+                    return true;
+                }
             }
             Goto(label);
             return true;

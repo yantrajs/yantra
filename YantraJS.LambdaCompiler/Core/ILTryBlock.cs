@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using YantraJS.Generator;
 
 namespace YantraJS.Core
 {
     public class ILTryBlock : LinkedStackItem<ILTryBlock>
     {
-        private bool isTry = true;
         private bool isCatch = false;
         private bool isFinally = false;
 
         private ILWriter il;
         private readonly ILWriterLabel label;
 
-        private List<(ILWriterLabel hop, ILWriterLabel final)> pendingJumps 
-            = new List<(ILWriterLabel,ILWriterLabel)>();
+        private List<(ILWriterLabel hop, ILWriterLabel final, int localIndex)> pendingJumps 
+            = new List<(ILWriterLabel,ILWriterLabel, int)>();
 
 
 
@@ -29,7 +29,6 @@ namespace YantraJS.Core
             if (isFinally)
                 throw new InvalidOperationException($"Cannot start catch after finally has begin");
             isCatch = true;
-            isTry = false;
             il.Emit(OpCodes.Leave, label);
 
             il.BeginCatchBlock(type);            
@@ -58,23 +57,27 @@ namespace YantraJS.Core
             // jump all pending
             il.EndExceptionBlock();
 
-            foreach(var (hop,jump) in pendingJumps)
+            foreach(var (hop,jump, index) in pendingJumps)
             {
                 il.MarkLabel(hop);
+                if (index > 0)
+                {
+                    il.EmitLoadLocal(index);
+                }
                 il.Branch(jump);
             }
 
             il.MarkLabel(label);
         }
 
-        internal void Branch(ILWriterLabel label)
+        internal void Branch(ILWriterLabel label, int index = 0)
         {
             if(label.TryBlock == this)
             {
                 il.Emit(OpCodes.Br, label);
                 return;
             }
-            pendingJumps.Add((il.DefineLabel(), label));
+            pendingJumps.Add((il.DefineLabel(), label, index));
         }
     }
 }
