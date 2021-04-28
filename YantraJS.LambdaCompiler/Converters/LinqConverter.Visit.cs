@@ -35,8 +35,8 @@ namespace YantraJS.Converters
                 case ExpressionType.AndAssign:
                     break;
                 case ExpressionType.ArrayIndex:
-                    var iexp = exp as IndexExpression;
-                    return YExpression.ArrayIndex(Visit(iexp.Object), Visit(iexp.Arguments.First()));
+                    var iexp = exp as BinaryExpression;
+                    return YExpression.ArrayIndex(Visit(iexp.Left), Visit(iexp.Right));
                 case ExpressionType.ArrayLength:
                     var ue = exp as UnaryExpression;
                     return YExpression.ArrayLength(Visit(ue.Operand));

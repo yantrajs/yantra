@@ -84,6 +84,17 @@ namespace YantraJS.Expressions
             return new YParameterExpression(type, name);
         }
 
+        public static YParameterExpression[] Parameters(params Type[] types)
+        {
+            var pl = new YParameterExpression[types.Length];
+            for (int i = 0; i < types.Length; i++)
+            {
+                pl[i] = new YParameterExpression(types[i], null);
+            }
+            return pl;
+        }
+
+
         public static YBlockExpression Block(
             IEnumerable<YParameterExpression>? variables,
             IList<YExpression> expressions)
