@@ -111,6 +111,9 @@ namespace YantraJS.Expressions
         public static YBinaryExpression Equal(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Equal, right);
 
+        public static YBinaryExpression Or(YExpression left, YExpression right)
+            => YExpression.Binary(left, YOperator.BooleanOr, right);   
+
         public static YBinaryExpression NotEqual(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.NotEqual, right);
 
@@ -270,6 +273,11 @@ namespace YantraJS.Expressions
         public static YUnaryExpression Negative(YExpression exp)
         {
             return new YUnaryExpression(exp, YUnaryOperator.Negative);
+        }
+
+        public static YUnaryExpression OnesComplement(YExpression exp)
+        {
+            return new YUnaryExpression(exp, YUnaryOperator.OnesComplement);
         }
 
         public static YTypeIsExpression TypeEqual(YExpression exp, Type type)

@@ -5,6 +5,7 @@ namespace YantraJS.Expressions
     public enum YUnaryOperator
     {
         Not,
-        Negative
+        Negative,
+        OnesComplement
     }
 }

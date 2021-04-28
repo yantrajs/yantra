@@ -165,25 +165,33 @@ namespace YantraJS.Converters
                 case ExpressionType.NegateChecked:
                     break;
                 case ExpressionType.New:
-                    break;
+                    var newExp = exp as NewExpression;
+                    return YExpression.New(newExp.Constructor, VisitList(newExp.Arguments));
                 case ExpressionType.NewArrayBounds:
-                    break;
+                    var nab = exp as NewArrayExpression;
+                    return YExpression.NewArrayBounds(nab.Type.GetElementType(), Visit(nab.Expressions.First()));
                 case ExpressionType.NewArrayInit:
-                    break;
+                    nab = exp as NewArrayExpression;
+                    return YExpression.NewArray(nab.Type.GetElementType(), VisitList(nab.Expressions));
                 case ExpressionType.Not:
-                    break;
+                    var notExp = exp as UnaryExpression;
+                    return YExpression.Not(Visit(notExp.Operand));
                 case ExpressionType.NotEqual:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.NotEqual(Visit(be.Left), Visit(be.Right));
                 case ExpressionType.OnesComplement:
-                    break;
+                    ue = exp as UnaryExpression;
+                    return YExpression.OnesComplement(Visit(ue.Operand));
                 case ExpressionType.Or:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Or(Visit(be.Left), Visit(be.Right));
                 case ExpressionType.OrAssign:
                     break;
                 case ExpressionType.OrElse:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Or(Visit(be.Left), Visit(be.Right));
                 case ExpressionType.Parameter:
-                    break;
+                    return parameters[exp as ParameterExpression];
                 case ExpressionType.PostDecrementAssign:
                     break;
                 case ExpressionType.PostIncrementAssign:
@@ -199,13 +207,15 @@ namespace YantraJS.Converters
                 case ExpressionType.Quote:
                     break;
                 case ExpressionType.RightShift:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.RightShift , Visit(be.Right));
                 case ExpressionType.RightShiftAssign:
                     break;
                 case ExpressionType.RuntimeVariables:
                     break;
                 case ExpressionType.Subtract:
-                    break;
+                    be = exp as BinaryExpression;
+                    return YExpression.Binary(Visit(be.Left), YOperator.Subtract, Visit(be.Right));
                 case ExpressionType.SubtractAssign:
                     break;
                 case ExpressionType.SubtractAssignChecked:
@@ -215,15 +225,18 @@ namespace YantraJS.Converters
                 case ExpressionType.Switch:
                     break;
                 case ExpressionType.Throw:
-                    break;
+                    ue = exp as UnaryExpression;
+                    return YExpression.Throw(Visit(ue.Operand));
                 case ExpressionType.Try:
                     break;
                 case ExpressionType.TypeAs:
-                    break;
+                    ue = exp as UnaryExpression;
+                    return YExpression.TypeAs(Visit(ue.Operand), ue.Type);
                 case ExpressionType.TypeEqual:
-                    break;
-                case ExpressionType.TypeIs:
                     var tbe = exp as TypeBinaryExpression;
+                    return YExpression.TypeIs(Visit(tbe.Expression), tbe.TypeOperand);
+                case ExpressionType.TypeIs:
+                    tbe = exp as TypeBinaryExpression;
                     return YExpression.TypeIs(Visit(tbe.Expression), tbe.TypeOperand);
                 case ExpressionType.UnaryPlus:
                     // ue = exp as UnaryExpression;
