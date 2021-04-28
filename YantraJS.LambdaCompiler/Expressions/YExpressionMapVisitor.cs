@@ -283,10 +283,26 @@ namespace YantraJS.Expressions
             return yUnaryExpression;
         }
 
+        protected override YExpression VisitThrow(YThrowExpression throwExpression)
+        {
+            if (Modified(throwExpression.Expression, out var exp))
+                return new YThrowExpression(exp);
+            return throwExpression;
+        }
+
         protected override YExpression VisitTryCatchFinally(YTryCatchFinallyExpression tryCatchFinallyExpression)
         {
-            if (Modified(tryCatchFinallyExpression.Try, tryCatchFinallyExpression.Catch, tryCatchFinallyExpression.Finally,
-                out var @try, out var @catch, out var @finally))
+            var tf = Modified(tryCatchFinallyExpression.Try, tryCatchFinallyExpression.Finally,
+                out var @try, out var @finally);
+            YCatchBody @catch = null;
+            bool cf = false;
+            if(tryCatchFinallyExpression.Catch != null)
+            {
+                cf = Modified(tryCatchFinallyExpression.Catch.Body, out var cb);
+                if (cf)
+                    @catch = new YCatchBody(tryCatchFinallyExpression.Catch.Parameter, cb);
+            }
+            if(cf || tf)
                 return new YTryCatchFinallyExpression(@try, @catch, @finally);
             return tryCatchFinallyExpression;
         }

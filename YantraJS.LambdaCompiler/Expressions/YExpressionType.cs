@@ -29,6 +29,7 @@ namespace YantraJS.Expressions
         Unary,
         ArrayLength,
         TypeEqual,
-        TryCatchFinally
+        TryCatchFinally,
+        Throw
     }
 }

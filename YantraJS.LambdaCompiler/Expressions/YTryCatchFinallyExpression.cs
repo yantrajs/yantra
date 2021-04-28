@@ -3,23 +3,32 @@ using System.CodeDom.Compiler;
 
 namespace YantraJS.Expressions
 {
+    public class YCatchBody
+    {
+        public readonly YParameterExpression? Parameter;
+        public readonly YExpression Body;
+
+        public YCatchBody(YParameterExpression? parameter, YExpression body)
+        {
+            this.Parameter = parameter;
+            this.Body = body;
+        }
+    }
+
     public class YTryCatchFinallyExpression: YExpression
     {
         public readonly YExpression Try;
-        public readonly YExpression? Catch;
-        public readonly YParameterExpression? CatchParameter;
+        public readonly YCatchBody? Catch;
         public readonly YExpression? Finally;
 
         public YTryCatchFinallyExpression(
-            YExpression @try, 
-            YExpression? @catch,
-            YParameterExpression? catchParameter,
+            YExpression @try,
+            YCatchBody? @catch,
             YExpression? @finally)
             : base(YExpressionType.TryCatchFinally, @try.Type)
         {
             this.Try = @try;
             this.Catch = @catch;
-            this.CatchParameter = catchParameter;
             this.Finally = @finally;
         }
 
@@ -31,15 +40,15 @@ namespace YantraJS.Expressions
             writer.Indent--;
             if (Catch != null)
             {
-                if (CatchParameter != null) {
-                    writer.WriteLine($"}} catch({CatchParameter.Name}) {{");
+                if (Catch.Parametrr != null) {
+                    writer.WriteLine($"}} catch({Catch.Parameter.Name}) {{");
                 }
                 else
                 {
                     writer.WriteLine("} catch {");
                 }
                 writer.Indent++;
-                Catch.Print(writer);
+                Catch.Body.Print(writer);
                 writer.Indent--;
             }
             if(Finally != null)

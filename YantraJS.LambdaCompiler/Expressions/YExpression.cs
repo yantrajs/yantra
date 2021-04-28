@@ -207,14 +207,23 @@ namespace YantraJS.Expressions
             return new YTypeIsExpression(target, type);
         }
 
+        public static YCatchBody Catch(YParameterExpression parameter, YExpression body)
+        {
+            return new YCatchBody(parameter, body);
+        }
+        public static YCatchBody Catch(YExpression body)
+        {
+            return new YCatchBody(null, body);
+        }
+
         public static YTryCatchFinallyExpression TryCatchFinally(
             YExpression @try, 
-            YExpression? @catch,
+            YCatchBody? catchBody,
             YExpression? @finally)
         {
-            if (@catch == null && @finally == null)
+            if (catchBody == null && @finally == null)
                 throw new ArgumentNullException($"Both finally and catch cannot be null");
-            return new YTryCatchFinallyExpression(@try, @catch, @finally);
+            return new YTryCatchFinallyExpression(@try, catchBody, @finally);
         }
 
         public static YArrayIndexExpression ArrayIndex(YExpression target, YExpression index)
@@ -252,6 +261,10 @@ namespace YantraJS.Expressions
             return new YTypeIsExpression(exp, type);
         }
 
+        public static YThrowExpression Throw(YExpression exp)
+        {
+            return new YThrowExpression(exp);
+        }
         internal static YLambdaExpression InlineLambda(
             string name, 
             YExpression body, 

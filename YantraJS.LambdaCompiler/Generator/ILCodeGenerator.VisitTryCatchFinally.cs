@@ -28,16 +28,16 @@ namespace YantraJS.Generator
                 if (tryCatchFinallyExpression.Catch != null)
                 {
                     il.BeginCatchBlock(typeof(Exception));
-                    if(tryCatchFinallyExpression.CatchParameter == null)
+                    if(tryCatchFinallyExpression.Catch.Parameter == null)
                     {
                         il.Emit(OpCodes.Pop);
                     } else
                     {
-                        var v = variables[tryCatchFinallyExpression.CatchParameter];
+                        var v = variables[tryCatchFinallyExpression.Catch.Parameter];
                         il.EmitSaveLocal(v.LocalBuilder.LocalIndex);
                     }
 
-                    Visit(tryCatchFinallyExpression.Catch);
+                    Visit(tryCatchFinallyExpression.Catch.Body);
                     il.Emit(OpCodes.Leave, endTry);
                 }
 
