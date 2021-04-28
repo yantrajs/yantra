@@ -49,8 +49,9 @@ namespace YantraJS
             var lambda = YExpression.InlineLambda(name ?? "Unnamed", body, newParameterList, repository);
 
             // YExpression? call = null;
-
-            setup.Add(YExpression.Call(null, method, closure, lambda));
+            var @return = YExpression.Label("R", method.ReturnType);
+            setup.Add(YExpression.Return(@return, YExpression.Call(null, method, closure, lambda)));
+            setup.Add(YExpression.Label(@return));
             return YExpression.Block(new YParameterExpression[] { closure }, setup);
         }
 

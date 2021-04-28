@@ -15,8 +15,9 @@ namespace YantraJS.Generator
             {
                 variables.Create(p);
             }
-            foreach (var statement in yBlockExpression.Expressions)
+            foreach (var statement in yBlockExpression.Expressions) {
                 Visit(statement);
+            }
             return true;
         }
     }

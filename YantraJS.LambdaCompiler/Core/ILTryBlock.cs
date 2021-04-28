@@ -74,7 +74,7 @@ namespace YantraJS.Core
         {
             if(label.TryBlock == this)
             {
-                il.Emit(OpCodes.Br, label);
+                il.Goto(label, index);
                 return;
             }
             pendingJumps.Add((il.DefineLabel(), label, index));

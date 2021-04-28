@@ -60,13 +60,20 @@ namespace YantraJS.Linq
 
             var args = YExpression.Parameters(typeof(int[]), typeof(int), typeof(int));
 
+            var ret = YExpression.Label("ret", typeof(int));
+
             var exp = YExpression.Lambda("save", 
-                YExpression.Assign( 
-                    YExpression.ArrayIndex(
-                        args[0],
-                        args[1]
-                    ), 
-                    args[2]
+                YExpression.Block(null, 
+                    YExpression.Return(ret,
+                        YExpression.Assign( 
+                            YExpression.ArrayIndex(
+                                args[0],
+                                args[1]
+                            ), 
+                            args[2]
+                        )
+                    ),
+                    YExpression.Label(ret, YExpression.Constant(0))
                 ), args);
 
             var fx = exp.Compile<Func<int[], int, int, int>>();

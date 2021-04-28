@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Generator;
 
 namespace YantraJS.Core
 {
@@ -40,6 +41,17 @@ namespace YantraJS.Core
                 tryStack.Top.Branch(label, index);
                 return;
             }
+            Goto(label, index);
+        }
+
+        internal void Goto(ILWriterLabel label, int index = 0)
+        {
+            if (index > 0)
+            {
+                this.EmitLoadLocal(index);
+            }
+            PrintOffset();
+            writer.WriteLine($"{OpCodes.Br} {label}");
             il.Emit(OpCodes.Br, label.Value);
         }
 
@@ -100,7 +112,7 @@ namespace YantraJS.Core
         internal void Emit(OpCode code, Type type)
         {
             PrintOffset();
-            writer.WriteLine($"{code.Name} {type.FullName}");
+            writer.WriteLine($"{code.Name} {type.GetFriendlyName()}");
             il.Emit(code, type);
         }
 

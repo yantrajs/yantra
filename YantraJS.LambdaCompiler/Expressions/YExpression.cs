@@ -207,8 +207,10 @@ namespace YantraJS.Expressions
 
         public static YLabelExpression Label(YLabelTarget target, YExpression? defaultValue = null)
         {
-            return new YLabelExpression(target, defaultValue);
+            return new YLabelExpression(target, defaultValue ?? Null);
         }
+
+        public static YConstantExpression Null = new YConstantExpression(null, typeof(object));
 
         public static YGoToExpression GoTo(YLabelTarget target, YExpression? defaultValue = null)
         {

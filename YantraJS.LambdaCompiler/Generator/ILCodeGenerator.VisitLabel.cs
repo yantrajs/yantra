@@ -12,6 +12,12 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitLabel(YLabelExpression yLabelExpression)
         {
             var l = labels[yLabelExpression.Target];
+
+            if(yLabelExpression.Default != null)
+            {
+                Visit(yLabelExpression.Default);
+            }
+
             il.MarkLabel(l);
             return true;
         }
