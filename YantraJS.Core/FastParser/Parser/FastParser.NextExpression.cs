@@ -310,8 +310,49 @@ namespace YantraJS.Core.FastParser
 
         bool Precedes(TokenTypes left, TokenTypes right)
         {
+            int CalculatePrecedence(TokenTypes token)
+            {
+                switch (token) {
+                    case TokenTypes.Mod:
+                    case TokenTypes.Divide:
+                    case TokenTypes.Multiply:
+                        return 1;
+                    case TokenTypes.Plus:
+                    case TokenTypes.Minus:
+                        return 2;
+                    case TokenTypes.LeftShift:
+                    case TokenTypes.RightShift:
+                    case TokenTypes.UnsignedRightShift:
+                        return 3;
+                    case TokenTypes.Less:
+                    case TokenTypes.LessOrEqual:
+                    case TokenTypes.Greater:
+                    case TokenTypes.GreaterOrEqual:
+                    case TokenTypes.In:
+                    case TokenTypes.InstanceOf:
+                        return 4;
+                    case TokenTypes.Equal:
+                    case TokenTypes.NotEqual:
+                    case TokenTypes.StrictlyEqual:
+                    case TokenTypes.StrictlyNotEqual:
+                        return 5;
+                    case TokenTypes.BitwiseAnd:
+                        return 6;
+                    case TokenTypes.Xor:
+                        return 7;
+                    case TokenTypes.BitwiseOr:
+                        return 8;
+                    case TokenTypes.BooleanAnd:
+                        return 9;
+                    case TokenTypes.BooleanOr:
+                        return 10;
+                }
+
+                return int.MaxValue;
+            }
+
             if (left != TokenTypes.SemiColon && left != TokenTypes.EOF) {
-                return left < right;
+                return CalculatePrecedence(left) < CalculatePrecedence(right);
             }
             return false;
         }
