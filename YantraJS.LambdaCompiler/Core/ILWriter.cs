@@ -50,14 +50,7 @@ namespace YantraJS.Core
 
         internal ILWriterLabel DefineLabel()
         {
-            var newLabel = new ILWriterLabel(il.DefineLabel());
-
-            var top = tryStack.Top;
-            if(top != null)
-            {
-                top.Register(newLabel);
-            }
-
+            var newLabel = new ILWriterLabel(il.DefineLabel(), tryStack.Top);
             return newLabel;
         }
 
@@ -148,14 +141,6 @@ namespace YantraJS.Core
             var label = il.BeginExceptionBlock();
             var ilb = tryStack.Push(new ILTryBlock(this, label));
             return ilb;
-        }
-
-        internal ILWriterLabel BeginExceptionBlock()
-        {
-            PrintOffset();
-            writer.WriteLine("try:");
-            var label = il.BeginExceptionBlock();
-            return new ILWriterLabel(label);
         }
 
         internal void BeginCatchBlock(Type type)

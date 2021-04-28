@@ -12,7 +12,6 @@ namespace YantraJS.Core
 
         private ILWriter il;
         private readonly ILWriterLabel label;
-        private List<ILWriterLabel> currentLabels = new List<ILWriterLabel>();
 
         private List<(ILWriterLabel hop, ILWriterLabel final)> pendingJumps 
             = new List<(ILWriterLabel,ILWriterLabel)>();
@@ -22,12 +21,7 @@ namespace YantraJS.Core
         public ILTryBlock(ILWriter iLWriter, Label label)
         {
             this.il = iLWriter;
-            this.label = new ILWriterLabel(label);
-        }
-
-        internal void Register(ILWriterLabel newLabel)
-        {
-            currentLabels.Add(newLabel);
+            this.label = new ILWriterLabel(label, null);
         }
 
         public void BeginCatch(Type type)
@@ -72,6 +66,11 @@ namespace YantraJS.Core
 
         internal void Branch(ILWriterLabel label)
         {
+            if(label.TryBlock == this)
+            {
+                il.Emit(OpCodes.Br, label);
+                return;
+            }
             pendingJumps.Add((il.DefineLabel(), label));
         }
     }
