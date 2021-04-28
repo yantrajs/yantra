@@ -11,5 +11,6 @@ namespace YantraJS
         internal bool Create;
         internal YExpression Expression;
         internal YExpression Parent;
+        internal YExpression ParentParameter;
     }
 }

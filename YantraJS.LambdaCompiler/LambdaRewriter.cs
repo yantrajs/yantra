@@ -82,35 +82,26 @@ namespace YantraJS
                     var bp = p.Value;
                     if (bp == null)
                         continue;
-                    if (bp.Create || bp.Parameter != null)
+                    localBoxes.Add(bp.Parameter);
+                    if (bp.Parent != null)
                     {
-
-                        localBoxes.Add(bp.Parameter);
-                        if (bp.Parent != null)
+                        if(bp.Parent.Type == typeof(IMethodRepository))
                         {
-                            if (closures == null)
-                            {
-                                closures = YExpression.Parameter(typeof(Box[]));
-                            }
-
-                            closureSetup.Add(YExpression.Assign(
-                                YExpression.ArrayIndex(closures, YExpression.Constant(bp.Index)), 
-                                BoxHelper.For(bp.Parent.Type).New(p.Key)));
-
-                            stmts.Add(YExpression.Assign(bp.Parameter,
-                                    YExpression.TypeAs(
-                                        YExpression.ArrayIndex(closures, YExpression.Constant(bp.Index)),
-                                        bp.Parameter.Type)
-                                ));
+                            selfRepository = bp.Parent;
                         }
-                        else {
-                            stmts.Add(YExpression.Assign(bp.Parameter, YExpression.New(bp.Parameter.Type)));
 
-                            var p1 = n.Parameters.FirstOrDefault(x => x == p.Key);
-                            if (p1 != null)
-                            {
-                                stmts.Add(YExpression.Assign(bp.Expression, p1));
-                            }
+                        if (closures == null)
+                        {
+                            closures = YExpression.Parameter(typeof(Box[]));
+                        }
+                        stmts.Add(YExpression.Assign(bp.Parameter, YExpression.ArrayIndex(closures, YExpression.Constant(bp.Index))));
+                        closureSetup.Add(bp.ParentParameter);
+                    }
+                    if (bp.Create)
+                    {
+                        if (bp.Parent == null)
+                        {
+                            stmts.Add(YExpression.Assign(bp.Parameter, YExpression.New(bp.Parameter.Type, p.Key)));
                         }
                     }
 
@@ -125,7 +116,7 @@ namespace YantraJS
 
                     stmts.Add(body);
 
-                    return YExpression.InlineLambda( n.Name, YExpression.Block(localBoxes, body), n.Parameters, selfRepository);
+                    return YExpression.InlineLambda( n.Name, YExpression.Block(localBoxes, stmts), n.Parameters, this.repository);
                 }
 
                 // curry....
@@ -134,10 +125,6 @@ namespace YantraJS
                     stmts.Add(body);
                     body = YExpression.Block(localBoxes, stmts);
                 }
-
-                closureSetup.Insert(0, YExpression.Assign(closures,
-                    YExpression.NewArrayBounds(typeof(Box), YExpression.Constant(closureSetup.Count))));
-
 
                 var x = CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body, selfRepository);
                 return x;

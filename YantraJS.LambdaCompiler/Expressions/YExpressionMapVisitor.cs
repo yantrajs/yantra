@@ -56,9 +56,9 @@ namespace YantraJS.Expressions
         private bool Modified<T>(in T[] statements, out T[] list)
             where T : YExpression
         {
+            list = statements;
             if (statements.Length == 0)
             {
-                list = Array.Empty<T>();
                 return false;
             }
             bool dirty = false;
@@ -73,7 +73,6 @@ namespace YantraJS.Expressions
             }
             if (!dirty)
             {
-                list = statements;
                 return false;
             }
             list = r;
@@ -82,9 +81,9 @@ namespace YantraJS.Expressions
 
         private bool Modified<T>(in T[] statements, Func<T, T> visitor, out T[] list)
         {
+            list = statements;
             if (statements.Length == 0)
             {
-                list = Array.Empty<T>();
                 return false;
             }
             bool dirty = false;
@@ -99,7 +98,6 @@ namespace YantraJS.Expressions
             }
             if (!dirty)
             {
-                list = Array.Empty<T>();
                 return false;
             }
             list = r;

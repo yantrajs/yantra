@@ -85,9 +85,9 @@ namespace YantraJS.Core.FastParser.Ast
         private bool Modified<T>(in ArraySpan<T> statements, out ArraySpan<T> list)
             where T: AstNode
         {
+            list = statements;
             if(statements.Length == 0)
             {
-                list = ArraySpan<T>.Empty;
                 return false;
             }
             bool dirty = false;
@@ -102,7 +102,6 @@ namespace YantraJS.Core.FastParser.Ast
             }
             if(!dirty)
             {
-                list = ArraySpan<T>.Empty;
                 return false;
             }
             list = new ArraySpan<T>(r, r.Length);
@@ -111,9 +110,9 @@ namespace YantraJS.Core.FastParser.Ast
 
         private bool Modified<T>(in ArraySpan<T> statements, Func<T, T> visitor, out ArraySpan<T> list)
         {
+            list = statements;
             if (statements.Length == 0)
             {
-                list = ArraySpan<T>.Empty;
                 return false;
             }
             bool dirty = false;
@@ -128,7 +127,6 @@ namespace YantraJS.Core.FastParser.Ast
             }
             if (!dirty)
             {
-                list = ArraySpan<T>.Empty;
                 return false;
             }
             list = new ArraySpan<T>(r, r.Length);

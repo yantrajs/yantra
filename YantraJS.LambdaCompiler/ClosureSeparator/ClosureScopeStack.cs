@@ -46,6 +46,11 @@ namespace YantraJS
 
             internal YExpression Access(YParameterExpression node, bool box = false)
             {
+                return AccessInternal(node, box).expression;
+            }
+
+            internal (YExpression expression, YExpression parameter) AccessInternal(YParameterExpression node, bool box = false)
+            {
                 if(PendingReplacements.Variables.TryGetValue(node, out var be))
                 {
                     if(box && be == null)
@@ -59,20 +64,23 @@ namespace YantraJS
                         };
                         PendingReplacements.Variables[node] = be;
                     }
-                    return be?.Expression ?? node;
+                    if (be != null)
+                        return (be.Expression, be.Parameter);
+                    return (node, node);
                 }
 
-                var pn = Parent.Access(node, true );
+                var (pn, pp) = Parent.AccessInternal(node, true );
                 var n = YExpression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
                 var bp = new BoxParamter
                 {
                     Parent = pn,
+                    ParentParameter = pp,
                     Index = index++,
                     Parameter = n,
                     Expression = YExpression.Field(n, "Value")
                 };
                 PendingReplacements.Variables[node] = bp;
-                return bp.Expression;
+                return (bp.Expression, n);
             }
 
         }

@@ -12,7 +12,7 @@ namespace YantraJS
 
         public static YExpression Create(
             string? name,
-            IList<YExpression> setup,
+            IList<YExpression> closures,
             YParameterExpression closure,
             YParameterExpression[] parameters,
             YExpression body,
@@ -48,11 +48,15 @@ namespace YantraJS
 
             var lambda = YExpression.InlineLambda(name ?? "Unnamed", body, newParameterList, repository);
 
+            var newArray = YExpression.NewArray(typeof(Box), closures);
+
+            return YExpression.Call(null, method, newArray, lambda);
+
             // YExpression? call = null;
-            var @return = YExpression.Label("R", method.ReturnType);
-            setup.Add(YExpression.Return(@return, YExpression.Call(null, method, closure, lambda)));
-            setup.Add(YExpression.Label(@return));
-            return YExpression.Block(new YParameterExpression[] { closure }, setup);
+            //var @return = YExpression.Label("R", method.ReturnType);
+            //setup.Add(YExpression.Return(@return, YExpression.Call(null, method, closure, lambda)));
+            //setup.Add(YExpression.Label(@return));
+            //return YExpression.Block(new YParameterExpression[] { closure }, setup);
         }
 
     }
