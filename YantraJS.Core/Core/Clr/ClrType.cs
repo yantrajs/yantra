@@ -248,7 +248,7 @@ namespace YantraJS.Core.Clr
                         convertedThis, field))));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            return lambda.FastCompileWithoutNested();
 
         }
 
@@ -271,7 +271,7 @@ namespace YantraJS.Core.Clr
                 JSExceptionBuilder.Wrap(assign);
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            return lambda.FastCompileWithoutNested();
         }
 
         private static JSFunctionDelegate GeneratePropertyGetter(bool isStatic, PropertyInfo property)
@@ -281,12 +281,15 @@ namespace YantraJS.Core.Clr
                 ? null
                 : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
             var body = Expression.Block( 
-                JSExceptionBuilder.Wrap(
+                // JSExceptionBuilder.Wrap(
                 ClrProxyBuilder.Marshal( 
                     Expression.Property(
-                        convertedThis, property))));
+                        convertedThis, property))
+                // )
+                );
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            // return lambda.CompileInAssembly();
             return lambda.CompileDynamic();
 
         }

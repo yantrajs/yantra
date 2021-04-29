@@ -11,14 +11,23 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitField(YFieldExpression yFieldExpression)
         {
-            if(yFieldExpression.FieldInfo.IsStatic)
+
+            var field = yFieldExpression.FieldInfo;
+            if (field.IsStatic)
             {
-                if (RequiresAddress)
+
+                if (field.IsLiteral)
                 {
-                    il.Emit(OpCodes.Ldsflda, yFieldExpression.FieldInfo);
+                    il.EmitConstant( field.GetRawConstantValue());
                     return true;
                 }
-                il.Emit(OpCodes.Ldsfld, yFieldExpression.FieldInfo);
+
+                if (RequiresAddress)
+                {
+                    il.Emit(OpCodes.Ldsflda, field);
+                    return true;
+                }
+                il.Emit(OpCodes.Ldsfld, field);
                 return true;
             }
 
@@ -26,11 +35,11 @@ namespace YantraJS.Generator
 
             if (RequiresAddress)
             {
-                il.Emit(OpCodes.Ldflda, yFieldExpression.FieldInfo);
+                il.Emit(OpCodes.Ldflda, field);
                 return true;
             }
 
-            il.Emit(OpCodes.Ldfld, yFieldExpression.FieldInfo);
+            il.Emit(OpCodes.Ldfld, field);
             return true;
         }
     }
