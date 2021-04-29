@@ -61,6 +61,19 @@ namespace YantraJS
 
     }
 
+    public class Hoisting
+    {
+
+        //public static object Hoist(
+        //    Box[] boxes, 
+        //    object method, 
+        //    int n,
+        //    Type originalType,
+        //    Type closureType)
+        //{
+        //}
+    }
+
     public class CurryActions
     {
 
