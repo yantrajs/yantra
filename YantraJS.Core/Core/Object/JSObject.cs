@@ -789,7 +789,7 @@ namespace YantraJS.Core
 
                 for (uint i = (uint)start, j = (uint)to; i <= end; i++, j++)
                 {
-                    if (elements.TryRemove(i, out var p))
+                    if (this.TryRemove(i, out var p))
                     {
                         elements[j] = p;
                     }
@@ -801,7 +801,7 @@ namespace YantraJS.Core
             {
                 for (int i = end, j = (this.Length + diff - 1); i >= start; i--, j--)
                 {
-                    if (elements.TryRemove((uint)i, out var p))
+                    if (this.TryRemove((uint)i, out var p))
                     {
                         elements[(uint)j] = p;
                     }
