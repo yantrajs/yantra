@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using YantraJS.Expressions;
 
@@ -23,7 +25,12 @@ namespace YantraJS
             if (lambdaExpression.Repository == null)
                 throw new NotSupportedException($"Compile with Method Repository");
             var (method, il, exp) = ExpressionCompiler.Compile(lambdaExpression, methods);
-            var d = method.CreateDelegate(lambdaExpression.DelegateType);
+
+            List<Type> types = new List<Type>();
+            types.AddRange(method.GetParameters().Select(p => p.ParameterType));
+            types.Add(method.ReturnType);
+
+            var d = method.CreateDelegate(System.Linq.Expressions.Expression.GetDelegateType(types.ToArray()));
             var id = methods.RegisterNew(d);
             return YExpression.Call(lambdaExpression.Repository, run, YExpression.Constant(id));
         }

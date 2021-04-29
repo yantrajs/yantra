@@ -15,17 +15,6 @@ namespace YantraJS.Expressions
         public readonly Type[] ParameterTypes;
         internal readonly YExpression? Repository;
 
-        public Type DelegateType
-        {
-            get
-            {
-                List<Type> types = new List<Type>();
-                types.AddRange(ParameterTypes);
-                types.Add(ReturnType ?? Type);
-                return System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
-            }
-        }
-
         public YLambdaExpression(string name, 
             YExpression body, 
             YParameterExpression[]? parameters,

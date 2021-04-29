@@ -124,7 +124,7 @@ namespace YantraJS
 
             DynamicMethod dm = new DynamicMethod(
                 exp.Name,
-                exp.Type,
+                exp.ReturnType,
                 exp.ParameterTypes, typeof(object), true);
 
             ILCodeGenerator icg = new ILCodeGenerator(dm.GetILGenerator());
