@@ -22,7 +22,7 @@ namespace YantraJS.LambdaCompiler.Tests
             var lambda = YExpression.Lambda("a",
                 YExpression.Binary(p1, YOperator.Add, p2), new YParameterExpression[] { p1, p2 });
 
-            var fx = Compile<Func<int, int, int>>(lambda);
+            var fx = lambda.CompileInAssembly<Func<int, int, int>>();
 
             Assert.AreEqual(3, fx(1, 2));
         }
@@ -96,36 +96,6 @@ namespace YantraJS.LambdaCompiler.Tests
 
             var n = fx(1, 2);
             Assert.AreEqual(3, n);
-        }
-
-
-        public T Compile<T>(YLambdaExpression exp)
-        {
-            AssemblyName name = new AssemblyName("demo");
-
-            // lets generate and save...
-            AssemblyBuilder ab = AssemblyBuilder.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndCollect);
-            // string fileName = System.IO.Path.GetFileNameWithoutExtension(location);
-            // name.CodeBase = filePath;
-            var mm = ab.DefineDynamicModule("JSModule");
-
-            var type = mm.DefineType("JSCodeClass",
-                TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed);
-
-            type.DefineDefaultConstructor(MethodAttributes.Public);
-
-            var method = type.DefineMethod("Run", MethodAttributes.Public | MethodAttributes.Static,
-                exp.ReturnType,
-                exp.Parameters.Select(p => p.Type).ToArray());
-
-            // Expression<Func<string,string>> y = x => this.Simple<string>(() => x == null ? x : null);
-
-            ExpressionCompiler.CompileToMethod(exp, method);
-
-            var t = type.CreateType();
-            var m = t.GetMethod("Run");
-
-            return (T)(object)m.CreateDelegate(typeof(T));
         }
 
     }
