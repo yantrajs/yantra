@@ -25,7 +25,8 @@ namespace YantraJS
             name = ExpressionCompiler.GetUniqueName(name);
             var m = typeBuilder.DefineMethod(
                 name, 
-                System.Reflection.MethodAttributes.Static | System.Reflection.MethodAttributes.Public,
+                System.Reflection.MethodAttributes.Static | 
+                System.Reflection.MethodAttributes.Public,
                 lambdaExpression.ReturnType,
                 ptypes);
 
@@ -38,19 +39,7 @@ namespace YantraJS
 
             var dt = Expression.GetDelegateType(plist.ToArray());
 
-            var factory = ExpressionCompiler.GetUniqueName(name + "_Factory");
-
-            var fld = typeBuilder.DefineMethod(factory, 
-                System.Reflection.MethodAttributes.Public | System.Reflection.MethodAttributes.Static,
-                dt, new Type[] { });
-
-
-            var il = fld.GetILGenerator();
-            il.Emit(OpCodes.Ldftn, m);
-            il.Emit(OpCodes.Newobj, dt);
-            il.Emit(OpCodes.Ret);
-
-            return YExpression.Call(null, fld);
+            return YExpression.Delegate(m, dt);
 
         }
     }

@@ -163,6 +163,10 @@ namespace YantraJS.Expressions
             return yConstantExpression;
         }
 
+        protected override YExpression VisitDelegate(YDelegateExpression yDelegateExpression)
+        {
+            return yDelegateExpression;
+        }
         protected override YExpression VisitField(YFieldExpression yFieldExpression)
         {
             if (Modified(yFieldExpression.Target, out var target))

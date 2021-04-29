@@ -120,6 +120,11 @@ namespace YantraJS.Expressions
             return new YConvertExpression(exp, type, method);
         }
 
+        public static YDelegateExpression Delegate(MethodInfo method, Type? type = null)
+        {
+            return new YDelegateExpression(method, type);
+        }
+
 
         public static YBinaryExpression Equal(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Equal, right);

@@ -69,11 +69,14 @@ namespace YantraJS.Expressions
                     return VisitConvert(exp as YConvertExpression);
                 case YExpressionType.Invoke:
                     return VisitInvoke(exp as YInvokeExpression);
+                case YExpressionType.Delegate:
+                    return VisitDelegate(exp as YDelegateExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitDelegate(YDelegateExpression yDelegateExpression);
         protected abstract T VisitInvoke(YInvokeExpression invokeExpression);
         protected abstract T VisitConvert(YConvertExpression convertExpression);
         protected abstract T VisitThrow(YThrowExpression throwExpression);

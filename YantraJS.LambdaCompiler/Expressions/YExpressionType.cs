@@ -32,6 +32,7 @@ namespace YantraJS.Expressions
         TryCatchFinally,
         Throw,
         Convert,
-        Invoke
+        Invoke,
+        Delegate
     }
 }
