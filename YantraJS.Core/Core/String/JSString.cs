@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -136,6 +137,13 @@ namespace YantraJS.Core
         public override string ToDetailString()
         {
             return value.Value;
+        }
+
+        public override string ToLocaleString(string format, CultureInfo culture)
+        {
+
+            return value.Value;
+          
         }
 
         public override JSValue this[uint key] { 

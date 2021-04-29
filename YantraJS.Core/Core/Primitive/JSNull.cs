@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace YantraJS.Core
@@ -134,6 +135,11 @@ namespace YantraJS.Core
             }
             value = null;
             return !type.IsValueType;
+        }
+
+        public override string ToLocaleString(string format, CultureInfo culture)
+        {
+            return "";
         }
     }
 }

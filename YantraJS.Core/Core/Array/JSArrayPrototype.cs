@@ -8,6 +8,7 @@ using YantraJS;
 using YantraJS.Extensions;
 using YantraJS.Core.Generator;
 using YantraJS.Core.Typed;
+using System.Globalization;
 
 namespace YantraJS.Core
 {
@@ -994,6 +995,47 @@ namespace YantraJS.Core
                 }
             }
             return new JSNumber(@this._length);
+        }
+
+        [Prototype("toLocaleString", Length = 0)]
+        internal static JSValue ToLocaleString(in Arguments a)
+        {
+            var @this = a.This as JSArray;
+            var (locale, format) = a.Get2();
+            StringBuilder sb = new StringBuilder();
+
+            var def = "N0";
+            //switch (@this.type)
+            //{
+            //    case JSArray.Float32Array:
+            //    case TypedArrayType.Float64Array:
+            //        def = "N";
+            //        break;
+            //}
+
+            string strFormat = format.IsNullOrUndefined ? def : (format.IsString ? format.ToString() :
+                throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats")
+                );
+
+            CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
+            // Group separator based on currency
+            var separator = culture.TextInfo.ListSeparator;
+            
+            bool first = true;
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var n))
+            {
+                if (!first)
+                {
+                    //sb.Append(',');
+                    sb.Append(separator);
+                }
+                first = false;
+                sb.Append(n.ToLocaleString(strFormat, culture));
+            }
+            return new JSString(sb.ToString());
+
+
         }
 
         [Prototype("toString")]
