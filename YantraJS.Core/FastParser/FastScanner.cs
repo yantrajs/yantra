@@ -163,8 +163,9 @@ namespace YantraJS.Core.FastParser
                 return EOF;
             }
 
-            // if it is whitespace...
-            // read all whitespace...
+            // following logic will
+            // skip consecutive line breaks
+            // and send only one line terminator token
             bool lineTerminator = false;
             bool skipped = false;
             while (char.IsWhiteSpace(first))
@@ -178,10 +179,7 @@ namespace YantraJS.Core.FastParser
             }
             if (lineTerminator)
             {
-                // as this will be set by consume...
-                this.line--;
-                this.position--;
-                return ReadSymbol(state, TokenTypes.LineTerminator);
+                return state.Commit(TokenTypes.LineTerminator);
             }
             if (skipped)
             {
