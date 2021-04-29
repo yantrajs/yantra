@@ -17,31 +17,40 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Newobj, newExpression.constructor);
                 a();
             }
+            if (RequiresAddress && newExpression.Type.IsValueType)
+            {
+                var t = tempVariables[newExpression.Type];
+                il.EmitSaveLocal(t.LocalIndex);
+                il.EmitLoadLocalAddress(t.LocalIndex);
+            }
             return true;
         }
 
         protected override CodeInfo VisitNewArray(YNewArrayExpression yNewArrayExpression)
         {
 
-            var ea = yNewArrayExpression.Elements;
-
-            // store length...
-            il.EmitConstant(yNewArrayExpression.Elements?.Length ?? 0);
-
-            il.Emit(OpCodes.Newarr, yNewArrayExpression.ElementType);
-
-            if (ea == null)
-                return true;
-
-            for (int i = 0; i < ea.Length; i++)
+            using (tempVariables.Push())
             {
-                il.Emit(OpCodes.Dup);
-                il.EmitConstant(i);
-                Visit(ea[i]);
-                il.Emit(OpCodes.Stelem_Ref);
-            }
+                var ea = yNewArrayExpression.Elements;
 
-            return true;
+                // store length...
+                il.EmitConstant(yNewArrayExpression.Elements?.Length ?? 0);
+
+                il.Emit(OpCodes.Newarr, yNewArrayExpression.ElementType);
+
+                if (ea == null)
+                    return true;
+
+                for (int i = 0; i < ea.Length; i++)
+                {
+                    il.Emit(OpCodes.Dup);
+                    il.EmitConstant(i);
+                    Visit(ea[i]);
+                    il.Emit(OpCodes.Stelem_Ref);
+                }
+
+                return true;
+            }
         }
 
         protected override CodeInfo VisitNewArrayBounds(YNewArrayBoundsExpression yNewArrayBoundsExpression)
