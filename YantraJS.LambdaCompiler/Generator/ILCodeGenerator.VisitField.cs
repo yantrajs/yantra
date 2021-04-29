@@ -11,6 +11,17 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitField(YFieldExpression yFieldExpression)
         {
+            if(yFieldExpression.FieldInfo.IsStatic)
+            {
+                if (RequiresAddress)
+                {
+                    il.Emit(OpCodes.Ldsflda, yFieldExpression.FieldInfo);
+                    return true;
+                }
+                il.Emit(OpCodes.Ldsfld, yFieldExpression.FieldInfo);
+                return true;
+            }
+
             Visit(yFieldExpression.Target);
 
             if (RequiresAddress)
