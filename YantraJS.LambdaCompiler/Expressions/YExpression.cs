@@ -109,6 +109,12 @@ namespace YantraJS.Expressions
             return new YBlockExpression(variables, expressions);
         }
 
+        public static YBlockExpression Block(params YExpression[] expressions)
+        {
+            return new YBlockExpression(null, expressions);
+        }
+
+
         public static YConvertExpression Convert(YExpression exp, Type type)
         {
             var method = YConvertExpression.GetConversionMethod(exp.Type, type);
@@ -263,7 +269,7 @@ namespace YantraJS.Expressions
         public static YTryCatchFinallyExpression TryCatchFinally(
             YExpression @try, 
             YCatchBody? catchBody,
-            YExpression? @finally)
+            YExpression? @finally = null)
         {
             if (catchBody == null && @finally == null)
                 throw new ArgumentNullException($"Both finally and catch cannot be null");

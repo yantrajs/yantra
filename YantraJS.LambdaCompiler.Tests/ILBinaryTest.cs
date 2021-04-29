@@ -76,7 +76,7 @@ namespace YantraJS.LambdaCompiler.Tests
             var zero = YExpression.Constant(0);
             var one = YExpression.Constant(1);
 
-            var loop = YExpression.Block(null, YExpression.Conditional(
+            var loop = YExpression.Block(YExpression.Conditional(
                     YExpression.Binary(p2, YOperator.LessOrEqual, zero),
                     YExpression.GoTo(@break), null
                     ),

@@ -21,7 +21,8 @@ namespace YantraJS.Core
         public ILTryBlock(ILWriter iLWriter, Label label)
         {
             this.il = iLWriter;
-            this.label = new ILWriterLabel(label, null);
+            // this.label = new ILWriterLabel(label, null);
+            this.label = iLWriter.DefineLabel();
         }
 
         public void BeginCatch(Type type)
@@ -72,12 +73,16 @@ namespace YantraJS.Core
 
         internal void Branch(ILWriterLabel label, int index = 0)
         {
-            if(label.TryBlock == this)
+            if(label.TryBlock == this || label == this.label)
             {
                 il.Goto(label, index);
                 return;
             }
-            pendingJumps.Add((il.DefineLabel(), label, index));
+
+            var hop = il.DefineLabel();
+
+            pendingJumps.Add((hop, label, index));
+            il.Emit(OpCodes.Leave, hop);
         }
     }
 }

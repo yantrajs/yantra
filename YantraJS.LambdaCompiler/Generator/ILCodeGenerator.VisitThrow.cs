@@ -11,7 +11,7 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitThrow(YThrowExpression throwExpression)
         {
-            Visit(throwExpression);
+            Visit(throwExpression.Expression);
             il.Emit(OpCodes.Throw, throwExpression.Type);
             return true;
         }

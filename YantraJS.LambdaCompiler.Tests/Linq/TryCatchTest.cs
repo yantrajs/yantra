@@ -1,0 +1,62 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using YantraJS.Expressions;
+
+namespace YantraJS.Linq
+{
+    [TestClass]
+    public class TryCatchTest
+    {
+
+        [TestMethod]
+        public void Loop()
+        {
+
+
+            var i = YExpression.Parameter(typeof(int));
+            var r = YExpression.Parameter(typeof(int));
+
+            var @break = YExpression.Label();
+            var one = YExpression.Constant(1);
+            var three = YExpression.Constant(3);
+            var @catch = YExpression.Catch(YExpression.GoTo(@break));
+
+            var @throw = YExpression.New(typeof(Exception).GetConstructor(new Type[] { typeof(string) }),
+                YExpression.Constant("a"));
+
+            var tryCatch = YExpression.TryCatchFinally(
+                    YExpression.Block(
+                         YExpression.Conditional(
+                             YExpression.Binary(i, YOperator.Greater, YExpression.Constant(5)),
+                             YExpression.GoTo(@break), null),
+                         YExpression.Assign(r, i),
+                         YExpression.Assign(i, YExpression.Binary(i, YOperator.Add , one ) ),
+                         YExpression.Conditional(
+                             YExpression.Equal(i, three),
+                             YExpression.Throw(@throw),
+                             null
+                             )
+                    ),
+                    @catch
+                    );
+
+            var loop = YExpression.Block( 
+                new YParameterExpression[] { i, r }, 
+                    YExpression.Loop(tryCatch,@break),
+                    r);
+
+            var lambda = YExpression.Lambda("tryCatch", loop, new YParameterExpression[] { });
+
+            var fx = lambda.Compile<Func<int>>();
+
+            Assert.AreEqual(2, fx());
+
+            
+        }
+
+    }
+}

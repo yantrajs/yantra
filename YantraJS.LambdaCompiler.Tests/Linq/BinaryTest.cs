@@ -63,7 +63,7 @@ namespace YantraJS.Linq
             var ret = YExpression.Label("ret", typeof(int));
 
             var exp = YExpression.Lambda("save", 
-                YExpression.Block(null, 
+                YExpression.Block( 
                     YExpression.Return(ret,
                         YExpression.Assign( 
                             YExpression.ArrayIndex(
