@@ -35,6 +35,7 @@ namespace YantraJS.Core
         public readonly static KeyString substring;
 
         public readonly static KeyString Array;
+        public readonly static KeyString join;
 
         public readonly static KeyString Function;
         public readonly static KeyString apply;

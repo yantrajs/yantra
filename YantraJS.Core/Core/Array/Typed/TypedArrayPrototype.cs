@@ -657,7 +657,7 @@ namespace YantraJS.Core.Typed
                 );
 
             CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
-            // Group separator based on currency
+            // Group separator based on CultureInfo.
             var separator = culture.TextInfo.ListSeparator;
 
             bool first = true;

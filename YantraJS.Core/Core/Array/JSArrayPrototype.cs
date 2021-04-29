@@ -1018,7 +1018,7 @@ namespace YantraJS.Core
                 );
 
             CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
-            // Group separator based on currency
+            // Group separator based on Culture Info.
             var separator = culture.TextInfo.ListSeparator;
             
             bool first = true;
@@ -1039,11 +1039,15 @@ namespace YantraJS.Core
         }
 
         [Prototype("toString")]
-        internal static JSValue ToString(in Arguments args)
-            => new JSString(
-                args.This is JSArray a
-                    ? a.ToString()
-                    : "[object Object]");
+        internal static JSValue ToString(in Arguments args) {
+            if(args.This.IsArray)
+                return Join(in args);
+            return args.This.InvokeMethod(KeyStrings.join,in args);
+        }
+            //=> new JSString(
+            //    args.This is JSArray a
+            //        ? a.ToString()
+            //        : "[object Object]");
 
 
         
