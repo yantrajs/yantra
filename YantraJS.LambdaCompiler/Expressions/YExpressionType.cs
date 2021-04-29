@@ -33,6 +33,7 @@ namespace YantraJS.Expressions
         Throw,
         Convert,
         Invoke,
-        Delegate
+        Delegate,
+        MemberInit
     }
 }

@@ -102,6 +102,18 @@ namespace YantraJS.Expressions
             return new YBlockExpression(variables, expressions);
         }
 
+        public static YMemberInitExpression MemberInit(
+            YNewExpression exp,
+            YMemberAssignment[] list)
+        {
+            return new YMemberInitExpression(exp, list);
+        }
+
+        public static YMemberAssignment Bind(MemberInfo field, YExpression value)
+        {
+            return new YMemberAssignment(field, value);
+        }
+
         public static YBlockExpression Block(
             IEnumerable<YParameterExpression>? variables,
             params YExpression[] expressions)
@@ -287,13 +299,23 @@ namespace YantraJS.Expressions
             return new YArrayLengthExpression(target);
         }
 
+        public static YIndexExpression Index(YExpression target, PropertyInfo propertyInfo, params YExpression[] args)
+        {
+            return new YIndexExpression(target, propertyInfo, args);
+        }
+
+
         public static YIndexExpression Index(YExpression target, params YExpression[] args)
         {
             var types = args.Select(x => x.Type).ToArray();
             PropertyInfo propertyInfo =
-                target.GetType()
-                    .GetProperties()
+                target.Type.GetType()
+                    .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.GetProperty)
                     .FirstOrDefault(x => x.GetIndexParameters().Select(p => p.ParameterType).SequenceEqual(types));
+            if (propertyInfo == null)
+            {
+                throw new NotSupportedException($"Index[{string.Join(",",types.Select(n => n.Name))}] not found on {target.Type.GetFriendlyName()}");
+            }
             return new YIndexExpression(target, propertyInfo, args);
         }
 
