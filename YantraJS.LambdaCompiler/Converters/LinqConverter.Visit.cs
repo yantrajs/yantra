@@ -59,7 +59,7 @@ namespace YantraJS.Converters
                     return YExpression.Constant( cnt.Value, cnt.Type );
                 case ExpressionType.Convert:
                     ue = exp as UnaryExpression;
-                    return YExpression.Convert(Visit(ue.Operand), ue.Type);
+                    return YExpression.Convert(Visit(ue.Operand), ue.Type, true);
                 case ExpressionType.ConvertChecked:
                     break;
                 case ExpressionType.DebugInfo:

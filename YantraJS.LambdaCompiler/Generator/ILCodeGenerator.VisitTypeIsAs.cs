@@ -17,16 +17,20 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitTypeIs(YTypeIsExpression yTypeIsExpression)
         {
             Visit(yTypeIsExpression.Target);
+            if (yTypeIsExpression.Type.IsAssignableFrom(yTypeIsExpression.Target.Type))
+                return true;
             il.Emit(OpCodes.Isinst, yTypeIsExpression.TypeOperand);
             il.Emit(OpCodes.Ldnull);
             il.Emit(OpCodes.Cgt_Un);
             return true;
         }
 
-        protected override CodeInfo VisitTypeAs(YTypeAsExpression yTypeAsExpression)
+        protected override CodeInfo VisitTypeAs(YTypeAsExpression typeAsExpression)
         {
-            Visit(yTypeAsExpression.Target);
-            il.Emit(OpCodes.Isinst, yTypeAsExpression.Type);
+            Visit(typeAsExpression.Target);
+            if (typeAsExpression.Type.IsAssignableFrom(typeAsExpression.Target.Type))
+                return true;
+            il.Emit(OpCodes.Isinst, typeAsExpression.Type);
             return true;
         }
     }

@@ -32,7 +32,7 @@ namespace YantraJS.Core
             isCatch = true;
             il.Emit(OpCodes.Leave, label);
 
-            il.BeginCatchBlock(type);            
+            il.BeginCatchBlock(type);
         }
 
         public void BeginFinally()

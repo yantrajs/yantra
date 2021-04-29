@@ -11,22 +11,25 @@ namespace YantraJS.Expressions
         public readonly YExpression Target;
         public readonly MethodInfo? Method;
 
-        public static MethodInfo? GetConversionMethod(Type from, Type to)
+        public static bool TryGetConversionMethod(Type from, Type to, out MethodInfo? m)
         {
             if (to.IsAssignableFrom(from))
-                return null;
+            {
+                m = null;
+                return true;
+            }
 
             //var nfrom = Nullable.GetUnderlyingType(from);
             //from = nfrom ?? from;
 
             var c = typeof(Convert).GetMethods();
-            var m = c.FirstOrDefault(m => m.ReturnType == to
+            m = c.FirstOrDefault(m => m.ReturnType == to
                 && m.GetParameters().Length == 1
                 && m.GetParameters()[0].ParameterType == from);
             if (m == null)
-                throw new InvalidOperationException($"No conversion method found from {from.GetFriendlyName()} to {to.GetFriendlyName()}");
+                return false;
 
-            return m;
+            return true;
         }
 
         public YConvertExpression(YExpression exp, Type type, MethodInfo? method)

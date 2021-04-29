@@ -43,7 +43,7 @@ namespace YantraJS.Generator
                 // irrespective of RequiresAddress
                 // retype always load ref...
                 il.EmitLoadArg(v.Index);
-                if (v.IsReference)
+                if (RequiresAddress && v.IsReference)
                 {
                     il.Emit(OpCodes.Ldind_Ref);
                     return true;

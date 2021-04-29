@@ -21,7 +21,8 @@ namespace YantraJS.Converters
             var list = new List<YParameterExpression>();
             foreach (var p in plist)
             {
-                var yp = YExpression.Parameter(p.Type, p.Name);
+                var t = p.IsByRef && !p.Type.IsByRef ? p.Type.MakeByRefType() : p.Type;
+                var yp = YExpression.Parameter(t, p.Name);
                 parameters[p] = yp;
                 list.Add(yp);
             }

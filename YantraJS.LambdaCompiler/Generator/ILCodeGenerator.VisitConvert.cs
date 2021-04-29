@@ -11,7 +11,9 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitConvert(YConvertExpression convertExpression)
         {
-            throw new NotImplementedException();
+            Visit(convertExpression.Target);
+            il.EmitCall(convertExpression.Method);
+            return true;
         }
     }
 }
