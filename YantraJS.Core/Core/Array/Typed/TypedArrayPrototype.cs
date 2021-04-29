@@ -657,14 +657,16 @@ namespace YantraJS.Core.Typed
                 );
 
             CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
-
+            // Group separator based on currency
+            var separator = culture.TextInfo.ListSeparator;
 
             bool first = true;
             var en = @this.GetElementEnumerator();
             while(en.MoveNext(out var n)) {
                 if (!first)
                 {
-                    sb.Append(',');
+                    //sb.Append(',');
+                    sb.Append(separator);
                 }
                 first = false;
                 sb.Append(n.ToLocaleString(strFormat, culture));
