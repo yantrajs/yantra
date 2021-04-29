@@ -57,7 +57,8 @@ namespace YantraJS.Generator
             il.EmitSaveLocal(temp.LocalIndex);
             using (this.addressScope.Push(true))
             {
-                Visit(yPropertyExpression.Target);
+                if(!yPropertyExpression.IsStatic)
+                    Visit(yPropertyExpression.Target);
                 il.EmitLoadLocal(temp.LocalIndex);
                 il.EmitCall(yPropertyExpression.SetMethod);
             }
@@ -70,7 +71,8 @@ namespace YantraJS.Generator
             il.EmitSaveLocal(temp.LocalIndex);
             using (this.addressScope.Push(true))
             {
-                Visit(yFieldExpression.Target);
+                if (!yFieldExpression.FieldInfo.IsStatic)
+                    Visit(yFieldExpression.Target);
                 il.EmitLoadLocal(temp.LocalIndex);
                 il.Emit(OpCodes.Stfld, yFieldExpression.FieldInfo);
             }

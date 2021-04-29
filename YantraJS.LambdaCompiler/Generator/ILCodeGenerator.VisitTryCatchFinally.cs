@@ -13,39 +13,33 @@ namespace YantraJS.Generator
         {
             var tcb = il.BeginTry();
 
-            try
+
+            Visit(tryCatchFinallyExpression.Try);
+
+
+            if (tryCatchFinallyExpression.Catch != null)
             {
-
-                Visit(tryCatchFinallyExpression.Try);
-
-
-                if (tryCatchFinallyExpression.Catch != null)
+                tcb.BeginCatch(typeof(Exception));
+                if(tryCatchFinallyExpression.Catch.Parameter == null)
                 {
-                    tcb.BeginCatch(typeof(Exception));
-                    if(tryCatchFinallyExpression.Catch.Parameter == null)
-                    {
-                        il.Emit(OpCodes.Pop);
-                    } else
-                    {
-                        var v = variables[tryCatchFinallyExpression.Catch.Parameter];
-                        il.EmitSaveLocal(v.LocalBuilder.LocalIndex);
-                    }
-
-                    Visit(tryCatchFinallyExpression.Catch.Body);
+                    il.Emit(OpCodes.Pop);
+                } else
+                {
+                    var v = variables[tryCatchFinallyExpression.Catch.Parameter];
+                    il.EmitSaveLocal(v.LocalBuilder.LocalIndex);
                 }
 
-                if(tryCatchFinallyExpression.Finally != null)
-                {
-                    tcb.BeginFinally();
-                    Visit(tryCatchFinallyExpression.Finally);
-                }
+                Visit(tryCatchFinallyExpression.Catch.Body);
+            }
 
-                return true;
-            }
-            finally
+            if(tryCatchFinallyExpression.Finally != null)
             {
-                tcb.Dispose();
+                tcb.BeginFinally();
+                Visit(tryCatchFinallyExpression.Finally);
             }
+
+            tcb.Dispose();
+            return true;
         }
     }
 }

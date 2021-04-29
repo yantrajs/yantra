@@ -9,6 +9,13 @@ namespace YantraJS
     public static class LinqExtensions
     {
 
+        public static T CompileInAssembly<T>(this Expression<T> expression)
+        {
+            var ll = LinqConverters.ToLLExpression(expression);
+            return ll.CompileInAssembly<T>();
+        }
+
+
         public static T FastCompileWithoutNested<T>(this Expression<T> expression)
         {
             var ll = LinqConverters.ToLLExpression(expression);

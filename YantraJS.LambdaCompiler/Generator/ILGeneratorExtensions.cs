@@ -53,6 +53,9 @@ namespace YantraJS.Generator
                 case decimal dm:
                     il.EmitConstant(dm);
                     return;
+                case Type type:
+                    il.Emit(OpCodes.Ldtoken, type);
+                    return;
             }
 
             throw new NotSupportedException($"Constant of type  {value.GetType()} not supported, you must use a factory to create value of specified type");

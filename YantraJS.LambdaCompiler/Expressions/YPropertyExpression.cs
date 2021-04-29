@@ -10,19 +10,23 @@ namespace YantraJS.Expressions
         public readonly PropertyInfo PropertyInfo;
         public readonly MethodInfo? GetMethod;
         public readonly MethodInfo? SetMethod;
+        public readonly bool IsStatic;
 
         public YPropertyExpression(YExpression target, PropertyInfo property)
             : base(YExpressionType.Property, property.PropertyType)
         {
             this.Target = target;
             this.PropertyInfo = property;
+
             if (property.CanRead)
             {
                 GetMethod = property.GetMethod;
+                this.IsStatic = GetMethod.IsStatic;
             }
             if(property.CanWrite)
             {
                 SetMethod = property.SetMethod;
+                this.IsStatic = SetMethod.IsStatic;
             }
         }
 

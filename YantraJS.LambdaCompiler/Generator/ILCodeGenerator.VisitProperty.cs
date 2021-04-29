@@ -18,7 +18,10 @@ namespace YantraJS.Generator
         /// <returns></returns>
         protected override CodeInfo VisitProperty(YPropertyExpression yPropertyExpression)
         {
-            Visit(yPropertyExpression.Target);
+            if (!yPropertyExpression.IsStatic)
+            {
+                Visit(yPropertyExpression.Target);
+            }
             il.EmitCall(yPropertyExpression.GetMethod);
 
             if (RequiresAddress)

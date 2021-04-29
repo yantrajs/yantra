@@ -39,24 +39,57 @@ namespace YantraJS
             var type = mm.DefineType("JSCodeClass",
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed);
 
-            type.DefineDefaultConstructor(MethodAttributes.Public);
 
             var method = type.DefineMethod("Run", MethodAttributes.Public | MethodAttributes.Static,
                 exp.ReturnType,
                 exp.Parameters.Select(p => p.Type).ToArray());
 
+            var method2 = type.DefineMethod("Run2", MethodAttributes.Public,
+                exp.ReturnType,
+                exp.Parameters.Select(p => p.Type).ToArray());
+
+
             // Expression<Func<string,string>> y = x => this.Simple<string>(() => x == null ? x : null);
 
-            ExpressionCompiler.CompileToMethod(exp, method);
+            var (il, expText) = ExpressionCompiler.CompileToMethod(exp, method);
+
+            var ilF = type.DefineField("IL", typeof(string), FieldAttributes.Public);
+            var expF = type.DefineField("Exp", typeof(string), FieldAttributes.Public);
+
+            var cnstr = type.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] { });
+            var ilg = cnstr.GetILGenerator();
+
+            ilg.Emit(OpCodes.Ldarg_0);
+            ilg.Emit(OpCodes.Call, typeof(object).GetConstructor());
+            ilg.Emit(OpCodes.Ldarg_0);
+            ilg.Emit(OpCodes.Ldstr, il);
+            ilg.Emit(OpCodes.Stfld, ilF);
+            ilg.Emit(OpCodes.Ldarg_0);
+            ilg.Emit(OpCodes.Ldstr, expText);
+            ilg.Emit(OpCodes.Stfld, expF);
+            ilg.Emit(OpCodes.Ret);
+
+
+            ilg = method2.GetILGenerator();
+            int i = 1;
+            foreach(var p in exp.Parameters)
+            {
+                ilg.Emit(OpCodes.Ldarg, i++);
+            }
+
+            ilg.Emit(OpCodes.Call, method);
+            ilg.Emit(OpCodes.Ret);
 
             var t = type.CreateTypeInfo();
-            var m = t.GetMethod("Run");
+            var m = t.GetMethod("Run2");
 
-            return (T)(object)m.CreateDelegate(typeof(T));
+            var obj = t.GetConstructor().Invoke(new object[] { });
+
+            return (T)(object)m.CreateDelegate(typeof(T), obj);
         }
 
 
-        internal static void InternalCompileToMethod(
+        internal static (string il, string exp) InternalCompileToMethod(
             YLambdaExpression exp,
             MethodBuilder builder)
         {
@@ -67,18 +100,18 @@ namespace YantraJS
             ILCodeGenerator icg = new ILCodeGenerator(builder.GetILGenerator());
             icg.Emit(exp);
 
-            
+            return (icg.ToString(), exp.ToString());
         }
 
 
-        public static void CompileToMethod(
+        public static (string il, string exp) CompileToMethod(
             YLambdaExpression lambdaExpression,
             MethodBuilder methodBuilder)
         {
             var exp = LambdaRewriter.Rewrite(lambdaExpression)
                 as YLambdaExpression;
 
-            InternalCompileToMethod(exp, methodBuilder);
+            return InternalCompileToMethod(exp, methodBuilder);
         }
 
         internal static (MethodInfo method,string il, string exp) Compile(YLambdaExpression expression,

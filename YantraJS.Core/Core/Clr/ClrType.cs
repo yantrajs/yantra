@@ -248,7 +248,7 @@ namespace YantraJS.Core.Clr
                         convertedThis, field))));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            return lambda.FastCompileWithoutNested();
 
         }
 
@@ -271,7 +271,7 @@ namespace YantraJS.Core.Clr
                 JSExceptionBuilder.Wrap(assign);
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            return lambda.FastCompileWithoutNested();
         }
 
         private static JSFunctionDelegate GeneratePropertyGetter(bool isStatic, PropertyInfo property)
@@ -281,12 +281,15 @@ namespace YantraJS.Core.Clr
                 ? null
                 : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
             var body = Expression.Block( 
-                JSExceptionBuilder.Wrap(
+                // JSExceptionBuilder.Wrap(
                 ClrProxyBuilder.Marshal( 
                     Expression.Property(
-                        convertedThis, property))));
+                        convertedThis, property))
+                // )
+                );
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
+            // return lambda.CompileInAssembly();
             return lambda.CompileDynamic();
 
         }
@@ -577,6 +580,18 @@ namespace YantraJS.Core.Clr
             return new JSFunction(GenerateConstructor(method, this.prototype), this);
         }
 
+        public delegate object JSValueFactory(in Arguments a);
+
+        public static JSFunctionDelegate JSValueFactoryDelegate(JSValueFactory fx, JSObject prototype)
+        {
+            JSValue Factory(in Arguments a)
+            {
+                var r = fx(in a);
+                return new ClrProxy(r, prototype);
+            }
+            return Factory;
+        }
+
         private JSFunctionDelegate GenerateConstructor(ConstructorInfo m, JSObject prototype)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
@@ -594,12 +609,10 @@ namespace YantraJS.Core.Clr
                         : Expression.Constant(null, pi.ParameterType));
                 parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
             }
-            var call = Expression.New(m, parameters);
-            var marshal = ClrProxyBuilder.New(call, Expression.Constant(prototype));
-            var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
-
-            var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
-            return lambda.CompileDynamic();
+            var call = Expression.TypeAs( Expression.New(m, parameters), typeof(object));
+            var lambda = Expression.Lambda<JSValueFactory>(call, args);
+            var factory = lambda.FastCompileWithoutNested();
+            return JSValueFactoryDelegate(factory, prototype);
         }
 
 
