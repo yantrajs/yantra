@@ -11,6 +11,16 @@ namespace YantraJS.Converters
 
     public partial class LinqConverter
     {
+        private YMemberAssignment Visit(MemberBinding binding)
+        {
+            switch (binding)
+            {
+                case MemberAssignment ma:
+                    return YExpression.Bind(ma.Member, Visit(ma.Expression));
+            }
+            throw new NotSupportedException();
+        }
+
         private YExpression Visit(Expression exp)
         {
             if (exp == null)
@@ -107,7 +117,7 @@ namespace YantraJS.Converters
                     break;
                 case ExpressionType.Index:
                     var ie = exp as IndexExpression;
-                    return YExpression.Index(Visit(ie.Object) , VisitList(ie.Arguments));
+                    return YExpression.Index(Visit(ie.Object), ie.Indexer , VisitList(ie.Arguments));
                 case ExpressionType.Invoke:
                     var invoke = exp as InvocationExpression;
                     return YExpression.Invoke(Visit(invoke.Expression), invoke.Type, VisitList(invoke.Arguments));
@@ -144,7 +154,10 @@ namespace YantraJS.Converters
                         return YExpression.Property(Visit(member.Expression), property);
                     break;
                 case ExpressionType.MemberInit:
-                    break;
+                    var mie = exp as MemberInitExpression;
+
+                    return YExpression.MemberInit(Visit(mie.NewExpression) as YNewExpression, 
+                        mie.Bindings.Select(m => Visit(m)).ToArray());
                 case ExpressionType.Modulo:
                     be = exp as BinaryExpression;
                     return YExpression.Binary(Visit(be.Left), YOperator.Mod, Visit(be.Right));

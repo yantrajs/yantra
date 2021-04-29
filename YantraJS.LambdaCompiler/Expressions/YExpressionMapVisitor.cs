@@ -214,6 +214,22 @@ namespace YantraJS.Expressions
             return yLoopExpression;
         }
 
+        protected override YExpression VisitMemberInit(YMemberInitExpression memberInitExpression)
+        {
+            var ne = Modified(memberInitExpression.Target, out var target);
+            var be = Modified(memberInitExpression.Bindings, VisitMemberAssignment, out var bindings);
+            if (ne || be)
+                return new YMemberInitExpression(target, bindings);
+            return memberInitExpression;
+        }
+
+        protected virtual  YMemberAssignment VisitMemberAssignment(YMemberAssignment a)
+        {
+            if (Modified(a.Value, out var v))
+                return new YMemberAssignment(a.Member, v);
+            return a;
+        }
+
         protected override YExpression VisitNew(YNewExpression yNewExpression)
         {
             var am = Modified(yNewExpression.args, out var args);
