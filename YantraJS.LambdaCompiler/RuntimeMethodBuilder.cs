@@ -29,10 +29,11 @@ namespace YantraJS
             List<Type> types = new List<Type>();
             types.AddRange(method.GetParameters().Select(p => p.ParameterType));
             types.Add(method.ReturnType);
-
-            var d = method.CreateDelegate(System.Linq.Expressions.Expression.GetDelegateType(types.ToArray()));
+            var dt = System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
+            var d = method.CreateDelegate(dt);
             var id = methods.RegisterNew(d);
             return YExpression.Call(lambdaExpression.Repository, run, YExpression.Constant(id));
+            // return YExpression.Call(lambdaExpression.Repository, run, YExpression.Delegate(method, dt));
         }
     }
 }

@@ -13,8 +13,10 @@ namespace YantraJS
             => type.GetConstructor(args);
 
 
-        public static string GetFriendlyName(this Type type)
+        public static string GetFriendlyName(this Type? type)
         {
+            if (type == null)
+                return "";
             if(type.IsArray)
             {
                 return type.GetElementType().GetFriendlyName() + "[]";

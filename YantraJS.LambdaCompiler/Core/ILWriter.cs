@@ -142,6 +142,13 @@ namespace YantraJS.Core
         {
             PrintOffset();
             writer.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.Name}");
+            //if (method is DynamicMethod) {
+            //    if (code == OpCodes.Ldftn)
+            //    {
+            //        il.Emit(code, (int)method.MethodHandle.GetFunctionPointer());
+            //        return;
+            //    }
+            //}
             il.Emit(code, method);
 
         }
