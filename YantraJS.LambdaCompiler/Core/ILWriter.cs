@@ -156,7 +156,7 @@ namespace YantraJS.Core
         internal void Emit(OpCode code, string value)
         {
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value}");
+            writer.WriteLine($"{code.Name} {value.Quoted()}");
             il.Emit(code, value);
         }
 

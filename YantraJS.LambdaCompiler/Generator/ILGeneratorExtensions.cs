@@ -57,7 +57,7 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Ldtoken, type);
                     return;
                 case MethodInfo method:
-                    il.Emit(OpCodes.Ldtoken, method);
+                    il.Emit(OpCodes.Ldftn, method);
                     return;
             }
 

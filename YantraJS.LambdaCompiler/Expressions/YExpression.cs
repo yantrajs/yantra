@@ -148,6 +148,12 @@ namespace YantraJS.Expressions
         public static YBinaryExpression Equal(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Equal, right);
 
+        internal static YNewExpression CallNew(
+            ConstructorInfo constructor, params YExpression[] args)
+        {
+            return new YNewExpression(constructor, args, true);
+        }
+
         public static YBinaryExpression Or(YExpression left, YExpression right)
             => YExpression.Binary(left, YOperator.BooleanOr, right);   
 
@@ -177,20 +183,16 @@ namespace YantraJS.Expressions
 
         public static YNewExpression New(ConstructorInfo constructor, IList<YExpression> args)
         {
-            return new YNewExpression(constructor, args);
+            return new YNewExpression(constructor, args.ToArray());
         }
-        public static YNewExpression New(Type type, IList<YExpression> args)
+        public static YNewExpression New(Type type, params YExpression[] args)
         {
             var constructor = type.GetConstructor(args.Select(x => x.Type).ToArray());
-            return new YNewExpression(constructor, args);
+            return new YNewExpression(constructor, args.ToArray());
         }
         public static YNewExpression New(ConstructorInfo constructor, params YExpression[] args)
         {
             return New(constructor, (IList<YExpression>)args);
-        }
-        public static YNewExpression New(Type type, params YExpression[] args)
-        {
-            return New(type, (IList<YExpression>)args);
         }
 
         public static YFieldExpression Field(YExpression target, FieldInfo field)

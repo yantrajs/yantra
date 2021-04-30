@@ -10,16 +10,29 @@ namespace YantraJS.Expressions
         public readonly ConstructorInfo constructor;
         public readonly YExpression[] args;
 
-        public YNewExpression(ConstructorInfo constructor, IList<YExpression> args)
+        /// <summary>
+        /// Base class constructors must be called a a 'call' instruction and not 'new'
+        /// </summary>
+        public readonly bool AsCall;
+
+        public YNewExpression(ConstructorInfo constructor, YExpression[] args, bool asCall = false)
             : base(YExpressionType.New, constructor.DeclaringType)
         {
             this.constructor = constructor;
-            this.args = args.ToArray();
+            this.args = args;
+            this.AsCall = asCall;
         }
 
         public override void Print(IndentedTextWriter writer)
         {
-            writer.Write($"new {constructor.DeclaringType.GetFriendlyName()}(");
+            if (AsCall)
+            {
+                writer.Write($"call {constructor.DeclaringType.GetFriendlyName()}(");
+            }
+            else
+            {
+                writer.Write($"new {constructor.DeclaringType.GetFriendlyName()}(");
+            }
             writer.PrintCSV(args);
             writer.Write(")");
         }

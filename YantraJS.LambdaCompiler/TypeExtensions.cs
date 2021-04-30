@@ -9,6 +9,30 @@ namespace YantraJS
     internal static class TypeExtensions
     {
 
+        public static string Quoted(this string text)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach(var che in text)
+            {
+                switch(che)
+                {
+                    case '\n':
+                        sb.Append("\\n");
+                        break;
+                    case '\r':
+                        sb.Append("\\r");
+                        break;
+                    case '\t':
+                        sb.Append("\\t");
+                        break;
+                    default:
+                        sb.Append(che);
+                        break;
+                }
+            }
+            return $"\"{sb.ToString()}\"";
+        }
+
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args)
             => type.GetConstructor(args);
 

@@ -128,9 +128,42 @@ namespace YantraJS
                     body = YExpression.Block(localBoxes, stmts);
                 }
 
-                var x = CurryHelper.Create(n.Name ?? "unnamed", closureSetup.ToArray(), closures, n.Parameters, body, selfRepository);
+                var x = Relay(n.Name ?? "unnamed", closureSetup.ToArray(), closures, n.Parameters, body, selfRepository);
                 return x;
             }
+        }
+
+        public static YExpression Relay(
+            string? name,
+            YExpression[] closures,
+            YParameterExpression closure,
+            YParameterExpression[] parameters,
+            YExpression body,
+            YExpression? repository
+            )
+        {
+
+            var n = parameters.Length;
+
+            if (n > 10)
+                throw new NotSupportedException();
+
+            var newParameterList = new List<YParameterExpression> { closure };
+            var parameterTypes = new List<Type>();
+            foreach (var p in parameters)
+            {
+                parameterTypes.Add(p.Type);
+                newParameterList.Add(p);
+            }
+
+            if (body.Type != typeof(void))
+            {
+                parameterTypes.Add(body.Type);
+            }
+
+            var lambda = YExpression.InlineLambda(name ?? "Unnamed", body, newParameterList, repository);
+
+            return YExpression.Relay(closures, lambda);
         }
 
         protected override YExpression VisitBlock(YBlockExpression node)

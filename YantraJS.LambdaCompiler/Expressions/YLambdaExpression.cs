@@ -33,6 +33,16 @@ namespace YantraJS.Expressions
             this.Repository = repository;
         }
 
+        public Type ThisDelegateType
+        {
+            get
+            {
+                List<Type> types = new List<Type>(ParameterTypes.Skip(1));
+                types.Add(ReturnType);
+                return System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
+            }
+        }
+
         private static Type Create(YParameterExpression[]? parameters, Type type)
         {
             List<Type> types = new List<Type>((parameters?.Length ?? 0) + 1);

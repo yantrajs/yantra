@@ -39,8 +39,9 @@ namespace YantraJS
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed);
 
             var method = exp.CompileToStaticMethod(type, true);
-
-            return (T)(object)method.CreateDelegate(typeof(T));
+            var t = type.CreateTypeInfo();
+            var m = t.GetMethods().FirstOrDefault(x => x.Name == method.Name);
+            return (T)m.Invoke(null, new object[] { });
         }
 
 
@@ -119,7 +120,6 @@ namespace YantraJS
 
             var (im, il, exp) = lambdaExpression.PrefixParameter(derived).CompileToInstnaceMethod(derived);
 
-
             var cnstr = derived.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] {
                 typeof(Box[])
             });
@@ -127,30 +127,44 @@ namespace YantraJS
             var boxes = YExpression.Parameter(typeof(Box[]));
 
             var cnstrLambda = YExpression.Lambda("cnstr",
-                YExpression.New(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
+                YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
             var cnstrIL = new ILCodeGenerator(cnstr.GetILGenerator());
             cnstrIL.EmitConstructor(cnstrLambda);
 
+            string cnstrILText = cnstrIL.ToString();
+
 
             var dt = lambdaExpression.Type;
+
+            var cdt = dt.GetConstructors().First(x => x.GetParameters().Length == 2);
 
             var cd = typeof(MethodInfo).GetMethod(nameof(MethodInfo.CreateDelegate), new Type[] { typeof(Type), typeof(object) });
 
             var derivedType = derived.CreateTypeInfo();
             var ct = derivedType.GetConstructors()[0];
 
-            var create = YExpression.Lambda( "Create", YExpression.Call(YExpression.Constant(im), cd, 
-                YExpression.Constant(dt), 
-                YExpression.New(cnstr, YExpression.Null)
-                ), new YParameterExpression[] { });
+            //var create = YExpression.Lambda( "Create", YExpression.Call(YExpression.Constant(im), cd, 
+            //    YExpression.Constant(dt), 
+            //    YExpression.New(cnstr, YExpression.Null)
+            //    ), new YParameterExpression[] { });
 
-            var m = type.DefineMethod(lambdaExpression.Name + "_Inner_Factory", MethodAttributes.Public | MethodAttributes.Static);
+            var create = YExpression.Lambda("Create", 
+                
+                YExpression.New(cdt,
+                    YExpression.New(cnstr, YExpression.Null),
+                    YExpression.Constant(im))
+                , new YParameterExpression[] { });
+
+            var m = type.DefineMethod(lambdaExpression.Name + "_Inner_Factory",
+                MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { });
 
             var icg = new ILCodeGenerator(m.GetILGenerator());
 
             icg.Emit(create);
+
+            var il1 = icg.ToString();
 
             return m;
         }

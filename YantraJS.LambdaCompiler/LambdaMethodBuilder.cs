@@ -36,22 +36,34 @@ namespace YantraJS
             var boxes = YExpression.Parameter(typeof(Box[]));
 
             var cnstrLambda = YExpression.Lambda("cnstr",
-                YExpression.New(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
+                YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
             var cnstrIL = new ILCodeGenerator( cnstr.GetILGenerator());
             cnstrIL.EmitConstructor(cnstrLambda);
 
-            var dt = innerLambda.Type;
+            var dt = innerLambda.ThisDelegateType;
+
+            var cdt = dt.GetConstructors().First(x => x.GetParameters().Length == 2);
 
             var cd = typeof(MethodInfo).GetMethod(nameof(MethodInfo.CreateDelegate), new Type[] { typeof(Type), typeof(object) });
 
             var derivedType = derived.CreateTypeInfo();
             var ct = derivedType.GetConstructors()[0];
 
-            return YExpression.Call(YExpression.Constant(m), cd, YExpression.Constant(dt), YExpression.New(ct,
+            var im = derivedType.GetMethods().First(x => x.Name == m.Name);
+
+            //var create = YExpression.Lambda("Create",
+
+            //    YExpression.New(cdt,
+            //        YExpression.New(cnstr, YExpression.Null),
+            //        YExpression.Constant(im))
+            //    , new YParameterExpression[] { });
+
+            return YExpression.New(cdt, YExpression.New(ct,
                 YExpression.NewArray(typeof(Box), closures)
-                ));
+                ),
+                YExpression.Constant(im));
 
         }
     }

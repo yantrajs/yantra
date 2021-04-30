@@ -14,7 +14,14 @@ namespace YantraJS.Generator
             using (tempVariables.Push())
             {
                 var a = EmitParameters(newExpression.constructor, newExpression.args, newExpression.Type);
-                il.Emit(OpCodes.Newobj, newExpression.constructor);
+                if (newExpression.AsCall)
+                {
+                    il.Emit(OpCodes.Call, newExpression.constructor);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Newobj, newExpression.constructor);
+                }
                 a();
             }
             if (RequiresAddress && newExpression.Type.IsValueType)
