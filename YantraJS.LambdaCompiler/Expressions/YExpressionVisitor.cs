@@ -73,11 +73,14 @@ namespace YantraJS.Expressions
                     return VisitDelegate(exp as YDelegateExpression);
                 case YExpressionType.MemberInit:
                     return VisitMemberInit(exp as YMemberInitExpression);
+                case YExpressionType.Relay:
+                    return VisitRelay(exp as YRelayExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitRelay(YRelayExpression yRelayExpression);
         protected abstract T VisitMemberInit(YMemberInitExpression memberInitExpression);
         protected abstract T VisitDelegate(YDelegateExpression yDelegateExpression);
         protected abstract T VisitInvoke(YInvokeExpression invokeExpression);

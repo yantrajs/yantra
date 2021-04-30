@@ -259,6 +259,13 @@ namespace YantraJS.Expressions
             return yPropertyExpression;
         }
 
+        protected override YExpression VisitRelay(YRelayExpression relayExpression)
+        {
+            if (Modified(relayExpression.Closure, relayExpression.InnerLambda, out var closure, out var lambda))
+                return new YRelayExpression(closure, lambda, relayExpression.Type);
+            return relayExpression;
+        }
+
         protected override YExpression VisitReturn(YReturnExpression yReturnExpression)
         {
             if (Modified(yReturnExpression.Default, out var @default))

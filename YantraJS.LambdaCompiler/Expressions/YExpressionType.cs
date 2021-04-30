@@ -34,6 +34,7 @@ namespace YantraJS.Expressions
         Convert,
         Invoke,
         Delegate,
-        MemberInit
+        MemberInit,
+        Relay
     }
 }

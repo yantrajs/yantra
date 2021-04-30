@@ -360,5 +360,13 @@ namespace YantraJS.Expressions
         {
             return new YLambdaExpression(name, body, parameters.ToArray(), null, repository);
         }
+
+        internal static YRelayExpression Relay(
+            YExpression box, 
+            YLambdaExpression inner, 
+            Type originalType)
+        {
+            return new YRelayExpression(box, inner, originalType);
+        }
     }
 }

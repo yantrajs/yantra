@@ -43,14 +43,18 @@ namespace YantraJS
                 parameterTypes.Add(body.Type);
             }
 
-            if(parameterTypes.Count > 0)
-                method = method.MakeGenericMethod(parameterTypes.ToArray());
+            var t = System.Linq.Expressions.Expression.GetDelegateType(parameterTypes.ToArray());
+
+            //if (parameterTypes.Count > 0)
+            //    method = method.MakeGenericMethod(parameterTypes.ToArray());
 
             var lambda = YExpression.InlineLambda(name ?? "Unnamed", body, newParameterList, repository);
 
             var newArray = YExpression.NewArray(typeof(Box), closures);
 
-            return YExpression.Call(null, method, newArray, lambda);
+            // return YExpression.Call(null, method, newArray, lambda);
+
+            return YExpression.Relay(newArray, lambda, t);
 
             // YExpression? call = null;
             //var @return = YExpression.Label("R", method.ReturnType);
