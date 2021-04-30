@@ -42,5 +42,10 @@ namespace YantraJS
             return YExpression.Delegate(m, dt);
 
         }
+
+        public YExpression Relay(YExpression[] closures, YLambdaExpression innerLambda)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

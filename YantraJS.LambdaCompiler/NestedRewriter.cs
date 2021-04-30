@@ -16,12 +16,21 @@ namespace YantraJS
             this.lambdaMethodBuilder = lambdaMethodBuilder;
         }
 
-        protected override YExpression VisitLambda(YLambdaExpression node)
+        protected override YExpression VisitRelay(YRelayExpression relayExpression)
         {
-            if (exp == node)
-                return base.VisitLambda(node);
 
-            return lambdaMethodBuilder.Create(node.Name, node);
+            var inner = Visit(relayExpression.InnerLambda);
+
+            return lambdaMethodBuilder.Relay(relayExpression.Closures, inner as YLambdaExpression);
+            // return base.VisitRelay(relayExpression);
         }
+
+        //protected override YExpression VisitLambda(YLambdaExpression node)
+        //{
+        //    if (exp == node)
+        //        return base.VisitLambda(node);
+
+        //    return lambdaMethodBuilder.Create(node.Name, node);
+        //}
     }
 }

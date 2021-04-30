@@ -261,8 +261,10 @@ namespace YantraJS.Expressions
 
         protected override YExpression VisitRelay(YRelayExpression relayExpression)
         {
-            if (Modified(relayExpression.Closure, relayExpression.InnerLambda, out var closure, out var lambda))
-                return new YRelayExpression(closure, lambda, relayExpression.Type);
+            var cm = Modified(relayExpression.Closures, out var closures);
+            var lm = Modified(relayExpression.InnerLambda, out var lambda);
+                if(cm || lm ) 
+                return new YRelayExpression(closures, lambda);
             return relayExpression;
         }
 

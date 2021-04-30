@@ -12,8 +12,8 @@ namespace YantraJS
 {
     public interface IMethodRepository
     {
-        object Run(int id);
-        int RegisterNew(Delegate d);
+        object Create(Box[] boxes, int id);
+        int RegisterNew(DynamicMethod d, string il, string exp, Type type);
     }
 
     public static class ExpressionCompiler

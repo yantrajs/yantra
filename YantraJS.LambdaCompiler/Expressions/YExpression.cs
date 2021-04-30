@@ -362,11 +362,10 @@ namespace YantraJS.Expressions
         }
 
         internal static YRelayExpression Relay(
-            YExpression box, 
-            YLambdaExpression inner, 
-            Type originalType)
+            YExpression[] box, 
+            YLambdaExpression inner)
         {
-            return new YRelayExpression(box, inner, originalType);
+            return new YRelayExpression(box, inner);
         }
     }
 }

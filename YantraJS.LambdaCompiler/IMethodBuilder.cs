@@ -5,6 +5,6 @@ namespace YantraJS
 {
     public interface IMethodBuilder
     {
-        YExpression Create(string name, YLambdaExpression lambdaExpression);
+        YExpression Relay(YExpression[] closures, YLambdaExpression innerLambda);
     }
 }

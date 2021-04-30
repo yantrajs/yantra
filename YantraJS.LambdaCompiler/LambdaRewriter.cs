@@ -92,9 +92,11 @@ namespace YantraJS
 
                         if (closures == null)
                         {
-                            closures = YExpression.Parameter(typeof(Box[]));
+                            closures = YExpression.Parameter(typeof(Closures));
                         }
-                        stmts.Add(YExpression.Assign(bp.Parameter, YExpression.ArrayIndex(closures, YExpression.Constant(bp.Index))));
+                        stmts.Add(YExpression.Assign(bp.Parameter, YExpression.ArrayIndex( 
+                            YExpression.Field( closures, Closures.boxesField), 
+                            YExpression.Constant(bp.Index))));
                         closureSetup.Add(bp.ParentParameter);
                     }
                     if (bp.Create)
@@ -126,7 +128,7 @@ namespace YantraJS
                     body = YExpression.Block(localBoxes, stmts);
                 }
 
-                var x = CurryHelper.Create(n.Name ?? "unnamed", closureSetup, closures, n.Parameters, body, selfRepository);
+                var x = CurryHelper.Create(n.Name ?? "unnamed", closureSetup.ToArray(), closures, n.Parameters, body, selfRepository);
                 return x;
             }
         }
