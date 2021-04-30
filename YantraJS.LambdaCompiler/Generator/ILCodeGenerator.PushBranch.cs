@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
 using YantraJS.Core;
+using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
@@ -13,6 +14,12 @@ namespace YantraJS.Generator
         private void Goto(ILWriterLabel label)
         {
             il.Branch(label);
+        }
+
+        internal void EmitConstructor(YLambdaExpression cnstrLambda)
+        {
+            il.EmitLoadArg(0);
+            Emit(cnstrLambda);
         }
     }
 }

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 using YantraJS.Expressions;
+using YantraJS.Generator;
 
 namespace YantraJS
 {
@@ -16,36 +18,41 @@ namespace YantraJS
             this.typeBuilder = (TypeBuilder)builder.DeclaringType;
         }
 
-
-        public YExpression Create(string name, YLambdaExpression lambdaExpression)
-        {
-
-            var ptypes = lambdaExpression.Parameters.Select(x => x.Type).ToArray();
-
-            name = ExpressionCompiler.GetUniqueName(name);
-            var m = typeBuilder.DefineMethod(
-                name, 
-                System.Reflection.MethodAttributes.Static | 
-                System.Reflection.MethodAttributes.Public,
-                lambdaExpression.ReturnType,
-                ptypes);
-
-            ExpressionCompiler.InternalCompileToMethod(lambdaExpression, m);
-
-            var plist = new List<Type>(ptypes);
-            plist.Add(m.ReturnType);
-
-            // we have to create a delegate as a static field...
-
-            var dt = Expression.GetDelegateType(plist.ToArray());
-
-            return YExpression.Delegate(m, dt);
-
-        }
-
         public YExpression Relay(YExpression[] closures, YLambdaExpression innerLambda)
         {
-            throw new NotImplementedException();
+
+            var derived = (typeBuilder.Module as ModuleBuilder).DefineType(
+                ExpressionCompiler.GetUniqueName("Closures"),
+                TypeAttributes.Public,
+                typeof(Closures));
+
+            var (m, il, exp) = innerLambda.CompileToInstnaceMethod(derived);
+
+
+            var cnstr = derived.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] {
+                typeof(Box[])
+            });
+
+            var boxes = YExpression.Parameter(typeof(Box[]));
+
+            var cnstrLambda = YExpression.Lambda("cnstr",
+                YExpression.New(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
+                new YParameterExpression[] { YExpression.Parameter(derived), boxes });
+
+            var cnstrIL = new ILCodeGenerator( cnstr.GetILGenerator());
+            cnstrIL.EmitConstructor(cnstrLambda);
+
+            var dt = innerLambda.Type;
+
+            var cd = typeof(MethodInfo).GetMethod(nameof(MethodInfo.CreateDelegate), new Type[] { typeof(Type), typeof(object) });
+
+            var derivedType = derived.CreateTypeInfo();
+            var ct = derivedType.GetConstructors()[0];
+
+            return YExpression.Call(YExpression.Constant(m), cd, YExpression.Constant(dt), YExpression.New(ct,
+                YExpression.NewArray(typeof(Box), closures)
+                ));
+
         }
     }
 }

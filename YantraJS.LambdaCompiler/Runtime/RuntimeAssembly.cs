@@ -16,22 +16,9 @@ namespace YantraJS.Runtime
         {
             var originalTypes = exp.ParameterTypes;
             string expString = exp.ToString();
-            var extra = new List<YParameterExpression>() { YExpression.Parameter(typeof(Closures)) };
-            var delegateTypes = new List<Type>() { typeof(Closures) };
-            foreach(var p in exp.Parameters)
-            {
-                delegateTypes.Add(p.Type);
-                extra.Add(p);
-            }
-            
-            exp = new YLambdaExpression(exp.Name, exp.Body, extra.ToArray(), exp.ReturnType);
+            exp = exp.PrefixParameter(typeof(Closures));
 
-            var method = new DynamicMethod(exp.Name, exp.ReturnType, delegateTypes.ToArray(), typeof(Closures), true);
-
-            var allTypes = new List<Type>(originalTypes);
-            allTypes.Add(exp.ReturnType);
-
-            var dt = System.Linq.Expressions.Expression.GetDelegateType(allTypes.ToArray());
+            var method = new DynamicMethod(exp.Name, exp.ReturnType, exp.ParameterTypes, typeof(Closures), true);
 
             var ilg = method.GetILGenerator();
 
@@ -41,11 +28,8 @@ namespace YantraJS.Runtime
             string il = icg.ToString();
 
             var c = new Closures(null, il, expString);
-            var t = typeof(T);
 
-            if (t != dt)
-                throw new InvalidOperationException();
-            return (T)(object)method.CreateDelegate(dt, c);
+            return (T)(object)method.CreateDelegate(typeof(T), c);
         }
 
 

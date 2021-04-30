@@ -6,6 +6,7 @@ namespace YantraJS
     {
         internal static FieldInfo boxesField = typeof(Closures).GetField("Boxes");
         internal static FieldInfo delegateField = typeof(Closures).GetField("Delegate");
+        internal static ConstructorInfo constructor = typeof(Closures).GetConstructors()[0];
 
         public readonly Box[] Boxes;
         public readonly string IL;

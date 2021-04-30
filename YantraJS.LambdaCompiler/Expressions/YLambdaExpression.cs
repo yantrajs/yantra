@@ -54,5 +54,19 @@ namespace YantraJS.Expressions
 
             Body.Print(writer);
         }
+
+        internal YLambdaExpression PrefixParameter(Type type)
+        {
+
+            var pp = YExpression.Parameter(type);
+
+            var pl = new List<YParameterExpression>() { pp };
+            foreach(var p in Parameters)
+            {
+                pl.Add(p);
+            }
+
+            return new YLambdaExpression(Name, Body, pl.ToArray(), ReturnType, Repository);
+        }
     }
 }

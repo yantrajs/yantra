@@ -26,115 +26,133 @@ namespace YantraJS
             return $"<YantraJSHidden>{name}<ID>{System.Threading.Interlocked.Increment(ref id)}";
         }
 
+
         public static T CompileInAssembly<T>(this YLambdaExpression exp)
         {
             AssemblyName name = new AssemblyName("demo");
 
-            // lets generate and save...
             AssemblyBuilder ab = AssemblyBuilder.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndCollect);
-            // string fileName = System.IO.Path.GetFileNameWithoutExtension(location);
-            // name.CodeBase = filePath;
+
             var mm = ab.DefineDynamicModule("JSModule");
 
             var type = mm.DefineType("JSCodeClass",
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed);
 
+            var method = exp.CompileToStaticMethod(type, true);
 
-            var method = type.DefineMethod("Run", MethodAttributes.Public | MethodAttributes.Static,
-                exp.ReturnType,
-                exp.Parameters.Select(p => p.Type).ToArray());
-
-            var method2 = type.DefineMethod("Run2", MethodAttributes.Public,
-                exp.ReturnType,
-                exp.Parameters.Select(p => p.Type).ToArray());
+            return (T)(object)method.CreateDelegate(typeof(T));
+        }
 
 
-            // Expression<Func<string,string>> y = x => this.Simple<string>(() => x == null ? x : null);
+        public static (MethodInfo method, string il, string exp) CompileToInstnaceMethod(
+            this YLambdaExpression lambdaExpression,
+            TypeBuilder type
+            )
+        {
+            if (!lambdaExpression.ParameterTypes.First().IsAssignableFrom(type))
+                throw new NotSupportedException($"First parameter of an instance method must be same as the owner type");
 
-            var (il, expText) = ExpressionCompiler.CompileToMethod(exp, method);
+            lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
+                as YLambdaExpression;
 
-            var ilF = type.DefineField("IL", typeof(string), FieldAttributes.Public);
-            var expF = type.DefineField("Exp", typeof(string), FieldAttributes.Public);
+            string exp = lambdaExpression.ToString();
 
-            var cnstr = type.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] { });
-            var ilg = cnstr.GetILGenerator();
+            var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
+                MethodAttributes.Public, CallingConventions.HasThis,
+                lambdaExpression.ReturnType,
+                lambdaExpression.ParameterTypes.Skip(1).ToArray());
 
-            ilg.Emit(OpCodes.Ldarg_0);
-            ilg.Emit(OpCodes.Call, typeof(object).GetConstructor());
-            ilg.Emit(OpCodes.Ldarg_0);
-            ilg.Emit(OpCodes.Ldstr, il);
-            ilg.Emit(OpCodes.Stfld, ilF);
-            ilg.Emit(OpCodes.Ldarg_0);
-            ilg.Emit(OpCodes.Ldstr, expText);
-            ilg.Emit(OpCodes.Stfld, expF);
-            ilg.Emit(OpCodes.Ret);
+            NestedRewriter nw = new NestedRewriter(lambdaExpression, new LambdaMethodBuilder(method));
+            lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
+
+            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
+            icg.Emit(lambdaExpression);
+
+            return (method, icg.ToString(), exp);
+        }
 
 
-            ilg = method2.GetILGenerator();
-            int i = 1;
-            foreach(var p in exp.Parameters)
+        /// <summary>
+        /// For debug = true, save it as an instance method..
+        /// and in static method create an instance of Closure
+        /// and return the instance method
+        /// </summary>
+        /// <param name="lambdaExpression"></param>
+        /// <param name="type"></param>
+        /// <param name="debug"></param>
+        /// <returns></returns>
+        public static MethodInfo CompileToStaticMethod(
+            this YLambdaExpression lambdaExpression,
+            TypeBuilder type, bool debug = false)
+        {
+            if(debug)
             {
-                ilg.Emit(OpCodes.Ldarg, i++);
+                return CompileToInternalMethod(lambdaExpression, type);
             }
 
-            ilg.Emit(OpCodes.Call, method);
-            ilg.Emit(OpCodes.Ret);
-
-            var t = type.CreateTypeInfo();
-            var m = t.GetMethod("Run2");
-
-            var obj = t.GetConstructor().Invoke(new object[] { });
-
-            return (T)(object)m.CreateDelegate(typeof(T), obj);
-        }
-
-
-        internal static (string il, string exp) InternalCompileToMethod(
-            YLambdaExpression exp,
-            MethodBuilder builder)
-        {
-
-            NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(builder));
-            exp = nw.Visit(exp) as YLambdaExpression;
-
-            ILCodeGenerator icg = new ILCodeGenerator(builder.GetILGenerator());
-            icg.Emit(exp);
-
-            return (icg.ToString(), exp.ToString());
-        }
-
-
-        public static (string il, string exp) CompileToMethod(
-            YLambdaExpression lambdaExpression,
-            MethodBuilder methodBuilder)
-        {
             var exp = LambdaRewriter.Rewrite(lambdaExpression)
                 as YLambdaExpression;
 
-            return InternalCompileToMethod(exp, methodBuilder);
-        }
+            var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name), 
+                MethodAttributes.Public | MethodAttributes.Static,
+                exp.ReturnType,
+                exp.ParameterTypes);
 
-
-        internal static (MethodInfo method,string il, string exp) InternalCompileToMethod(
-            YLambdaExpression exp,
-            RuntimeMethodBuilder builder)
-        {
-
-            NestedRewriter nw = new NestedRewriter(exp, builder);
+            NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(method));
             exp = nw.Visit(exp) as YLambdaExpression;
 
-            DynamicMethod dm = new DynamicMethod(
-                exp.Name,
-                exp.ReturnType,
-                exp.ParameterTypes, typeof(object), true);
-
-            ILCodeGenerator icg = new ILCodeGenerator(dm.GetILGenerator());
+            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
             icg.Emit(exp);
 
-            string value = icg.ToString();
-
-            return (dm, value, exp.DebugView);
+            return method;
         }
 
+        internal static MethodInfo CompileToInternalMethod(
+            this YLambdaExpression lambdaExpression, 
+            TypeBuilder type)
+        {
+
+            var derived = (type.Module as ModuleBuilder).DefineType(
+                ExpressionCompiler.GetUniqueName("Closures"),
+                TypeAttributes.Public,
+                typeof(Closures));
+
+            var (im, il, exp) = lambdaExpression.PrefixParameter(derived).CompileToInstnaceMethod(derived);
+
+
+            var cnstr = derived.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] {
+                typeof(Box[])
+            });
+
+            var boxes = YExpression.Parameter(typeof(Box[]));
+
+            var cnstrLambda = YExpression.Lambda("cnstr",
+                YExpression.New(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
+                new YParameterExpression[] { YExpression.Parameter(derived), boxes });
+
+            var cnstrIL = new ILCodeGenerator(cnstr.GetILGenerator());
+            cnstrIL.EmitConstructor(cnstrLambda);
+
+
+            var dt = lambdaExpression.Type;
+
+            var cd = typeof(MethodInfo).GetMethod(nameof(MethodInfo.CreateDelegate), new Type[] { typeof(Type), typeof(object) });
+
+            var derivedType = derived.CreateTypeInfo();
+            var ct = derivedType.GetConstructors()[0];
+
+            var create = YExpression.Lambda( "Create", YExpression.Call(YExpression.Constant(im), cd, 
+                YExpression.Constant(dt), 
+                YExpression.New(cnstr, YExpression.Null)
+                ), new YParameterExpression[] { });
+
+            var m = type.DefineMethod(lambdaExpression.Name + "_Inner_Factory", MethodAttributes.Public | MethodAttributes.Static);
+
+            var icg = new ILCodeGenerator(m.GetILGenerator());
+
+            icg.Emit(create);
+
+            return m;
+        }
     }
 }
