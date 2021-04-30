@@ -12,6 +12,43 @@ namespace YantraJS.Runtime
     public static class RuntimeAssembly
     {
 
+        public static T Compile<T>(this YLambdaExpression exp)
+        {
+            var originalTypes = exp.ParameterTypes;
+            string expString = exp.ToString();
+            var extra = new List<YParameterExpression>() { YExpression.Parameter(typeof(Closures)) };
+            var delegateTypes = new List<Type>() { typeof(Closures) };
+            foreach(var p in exp.Parameters)
+            {
+                delegateTypes.Add(p.Type);
+                extra.Add(p);
+            }
+            
+            exp = new YLambdaExpression(exp.Name, exp.Body, extra.ToArray(), exp.ReturnType);
+
+            var method = new DynamicMethod(exp.Name, exp.ReturnType, delegateTypes.ToArray(), typeof(Closures), true);
+
+            var allTypes = new List<Type>(originalTypes);
+            allTypes.Add(exp.ReturnType);
+
+            var dt = System.Linq.Expressions.Expression.GetDelegateType(allTypes.ToArray());
+
+            var ilg = method.GetILGenerator();
+
+            ILCodeGenerator icg = new ILCodeGenerator(ilg);
+            icg.Emit(exp);
+
+            string il = icg.ToString();
+
+            var c = new Closures(null, il, expString);
+            var t = typeof(T);
+
+            if (t != dt)
+                throw new InvalidOperationException();
+            return (T)(object)method.CreateDelegate(dt, c);
+        }
+
+
         internal static (DynamicMethod, string il, string exp) CompileToBoundDynamicMethod(
             this YLambdaExpression exp, Type boundType = null)
         {

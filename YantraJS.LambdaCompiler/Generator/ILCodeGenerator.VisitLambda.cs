@@ -11,7 +11,7 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitLambda(YLambdaExpression yLambdaExpression)
         {
-            throw new NotSupportedException($"Nested lambda are not supported");
+            throw new NotSupportedException($"Nested lambda are not supported, use CompileWithNestedLambda or CompileToMethod");
         }
     }
 }

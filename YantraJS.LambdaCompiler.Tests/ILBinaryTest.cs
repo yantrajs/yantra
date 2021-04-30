@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using YantraJS.Core;
 using YantraJS.Expressions;
+using YantraJS.Runtime;
 
 namespace YantraJS.LambdaCompiler.Tests
 {

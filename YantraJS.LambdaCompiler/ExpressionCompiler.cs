@@ -114,23 +114,6 @@ namespace YantraJS
             return InternalCompileToMethod(exp, methodBuilder);
         }
 
-        internal static (MethodInfo method,string il, string exp) Compile(YLambdaExpression expression,
-            IMethodRepository methods)
-        {
-            var exp = LambdaRewriter.Rewrite(expression)
-                as YLambdaExpression;
-
-            var runtimeMethodBuilder = new RuntimeMethodBuilder(methods);
-
-            return InternalCompileToMethod(exp, runtimeMethodBuilder);
-        }
-
-        public static T Compile<T>(this YLambdaExpression expression)
-        {
-            var (m,_,_) = Compile(expression, null);
-            return (T)(object)m.CreateDelegate(typeof(T));
-        }
-
 
         internal static (MethodInfo method,string il, string exp) InternalCompileToMethod(
             YLambdaExpression exp,
