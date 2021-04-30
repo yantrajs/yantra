@@ -50,9 +50,9 @@ namespace YantraJS.Linq
                     YExpression.Loop(tryCatch,@break),
                     r);
 
-            var lambda = YExpression.Lambda("tryCatch", loop, new YParameterExpression[] { });
+            var lambda = YExpression.Lambda<Func<int>>("tryCatch", loop, new YParameterExpression[] { });
 
-            var fx = lambda.Compile<Func<int>>();
+            var fx = lambda.Compile();
 
             Assert.AreEqual(2, fx());
 

@@ -14,10 +14,16 @@ namespace YantraJS.Converters
         public YLambdaExpression VisitLambda(LambdaExpression lambda)
         {
             var plist = Register(lambda.Parameters);
-            return new YLambdaExpression(
-                lambda.Name ?? "Unknown",
+            //return new YLambdaExpression(
+            //    lambda.Name ?? "Unknown",
+            //    Visit(lambda.Body),
+            //    plist.ToArray(),
+            //    lambda.ReturnType, 
+            //    lambda.Type);
+            return YExpression.Lambda(lambda.Name ?? "unnamed",
                 Visit(lambda.Body),
-                plist.ToArray());
+                plist.ToArray(),
+                lambda.Type);
         }
 
     }

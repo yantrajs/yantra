@@ -22,7 +22,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private StringArray _keyStrings = new StringArray();
 
-        private FastList<object> _innerFunctions;
+        // private FastList<object> _innerFunctions;
 
         public Expression<JSFunctionDelegate> Method { get; }
 
@@ -42,7 +42,7 @@ namespace YantraJS.Core.FastParser.Compiler
             // this.Code = new ParsedScript(code);
 
 
-            _innerFunctions = pool.AllocateList<object>();
+            // _innerFunctions = pool.AllocateList<object>();
 
             // add top level...
 
@@ -112,13 +112,13 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var script = Visit(jScript);
 
-                var sList = new List<Exp>(_innerFunctions.Count) {
+                var sList = new List<Exp>() {
                     Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
                     Exp.Assign(lScope, JSContextBuilder.Current)
                 };
 
-                sList.Add(Exp.Assign(ScriptInfoBuilder.Functions(scriptInfo),
-                    Exp.Constant(_innerFunctions.ToArray())));
+                //sList.Add(Exp.Assign(ScriptInfoBuilder.Functions(scriptInfo),
+                //    Exp.Constant(_innerFunctions.ToArray())));
 
                 JSContextStackBuilder.Push(sList, lScope, stackItem, Exp.Constant(location), StringSpanBuilder.Empty, 0, 0);
 

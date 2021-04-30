@@ -17,7 +17,7 @@ namespace YantraJS.Expressions
         public override void Print(IndentedTextWriter writer)
         {
             Target.Print(writer);
-            writer.Write("{");
+            writer.WriteLine("{");
             writer.Indent++;
             foreach(var b in Bindings)
             {
@@ -27,7 +27,7 @@ namespace YantraJS.Expressions
                 writer.WriteLine(",");
             }
             writer.Indent--;
-            writer.WriteLine("}");
+            writer.Write("}");
         }
     }
 }

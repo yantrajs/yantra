@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using YantraJS.Runtime;
 
 namespace YantraJS.Expressions
 {
@@ -63,6 +64,18 @@ namespace YantraJS.Expressions
             if (value is YConstantExpression)
                 throw new NotSupportedException();
             return new YConstantExpression(value, type ?? value.GetType());
+        }
+
+        protected static Type GetDelegateType(Type[] types, Type returnType)
+        {
+            //if(!types.Any(t => t.IsByRef))
+            //{
+            //    var n = new List<Type>(types);
+            //    n.Add(returnType);
+            //    return System.Linq.Expressions.Expression.GetDelegateType(n.ToArray());
+            //}
+
+            return RuntimeAssembly.CreateDelegateType(types, returnType);
         }
 
         public static YConditionalExpression Conditional(
@@ -255,6 +268,21 @@ namespace YantraJS.Expressions
         public static YLambdaExpression Lambda(string name, YExpression body, YParameterExpression[] parameters)
         {
             return new YLambdaExpression(name, body, parameters);
+        }
+
+        public static YExpression<T> Lambda<T>(string name, YExpression body, YParameterExpression[] parameters)
+        {
+            return new YExpression<T>(name, body, parameters);
+        }
+
+
+        public static YLambdaExpression Lambda(
+            string name, 
+            YExpression body, 
+            YParameterExpression[] parameters, 
+            Type type)
+        {
+            return new YLambdaExpression(name, body, parameters, body.Type, null, type);
         }
 
         public static YLambdaExpression Lambda(string name, YExpression body, List<YParameterExpression> parameters)

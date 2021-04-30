@@ -15,8 +15,21 @@ namespace YantraJS.Generator
             {
                 variables.Create(p);
             }
-            foreach (var statement in yBlockExpression.Expressions) {
-                Visit(statement);
+            var expressions = yBlockExpression.Expressions;
+            var l = expressions.Length;
+            for (int i = 0; i < l; i++)
+            {
+                var exp = expressions[i];
+                var c = Visit(exp);
+
+                // do not pop for last item...
+                if(i < l - 1)
+                {
+                    if (c.Stack)
+                    {
+                        il.Emit(OpCodes.Pop);
+                    }
+                }
             }
             return true;
         }

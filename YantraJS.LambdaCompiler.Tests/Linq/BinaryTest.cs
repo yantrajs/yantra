@@ -19,12 +19,12 @@ namespace YantraJS.Linq
             var a = YExpression.Parameter(typeof(int));
             var b = YExpression.Parameter(typeof(int));
 
-            var exp = YExpression.Lambda("add",
+            var exp = YExpression.Lambda<Func<int,int,int>>("add",
                 YExpression.Binary(a, YOperator.Add, b), new YParameterExpression[] { 
                     a, b
                 });
 
-            var fx = exp.Compile<Func<int, int, int>>();
+            var fx = exp.Compile();
 
             Assert.AreEqual(1, fx(1, 0));
             Assert.AreEqual(3, fx(1, 2));
@@ -41,12 +41,12 @@ namespace YantraJS.Linq
         {
             var args = YExpression.Parameters(typeof(int[]), typeof(int));
 
-            var exp = YExpression.Lambda("load", YExpression.ArrayIndex(
+            var exp = YExpression.Lambda<Func<int[],int,int>>("load", YExpression.ArrayIndex(
                 args[0],
                 args[1]
                 ), args);
 
-            var fx = exp.CompileWithNestedLambdas<Func<int[], int, int>>();
+            var fx = exp.CompileWithNestedLambdas();
 
             var n = new int[]{1,2,3 };
 
@@ -63,7 +63,7 @@ namespace YantraJS.Linq
 
             var ret = YExpression.Label("ret", typeof(int));
 
-            var exp = YExpression.Lambda("save", 
+            var exp = YExpression.Lambda<Func<int[], int, int, int>>("save", 
                 YExpression.Block( 
                     YExpression.Return(ret,
                         YExpression.Assign( 
@@ -77,7 +77,7 @@ namespace YantraJS.Linq
                     YExpression.Label(ret, YExpression.Constant(0))
                 ), args);
 
-            var fx = exp.Compile<Func<int[], int, int, int>>();
+            var fx = exp.Compile();
 
             var n = new int[] { 1, 2, 3 };
 

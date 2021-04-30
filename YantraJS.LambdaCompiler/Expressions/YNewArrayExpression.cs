@@ -26,18 +26,20 @@ namespace YantraJS.Expressions
 
         public override void Print(IndentedTextWriter writer)
         {
+            if (Elements == null || Elements.Length == 0){
+                writer.WriteLine($"new {ElementType.GetFriendlyName()} [] {{}}");
+                return;
+            }
+
             writer.WriteLine($"new {ElementType.GetFriendlyName()} [] {{");
             writer.Indent++;
-            if (Elements != null)
+            foreach (var a in Elements)
             {
-                foreach (var a in Elements)
-                {
-                    a.Print(writer);
-                    writer.WriteLine(',');
-                }
+                a.Print(writer);
+                writer.WriteLine(',');
             }
             writer.Indent--;
-            writer.WriteLine("}}");
+            writer.WriteLine("}");
         }
     }
 }

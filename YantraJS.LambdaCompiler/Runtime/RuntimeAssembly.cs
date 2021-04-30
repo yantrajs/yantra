@@ -12,11 +12,11 @@ namespace YantraJS.Runtime
     public static class RuntimeAssembly
     {
 
-        public static T Compile<T>(this YLambdaExpression exp)
+        public static T Compile<T>(this YExpression<T> exp)
         {
             var originalTypes = exp.ParameterTypes;
             string expString = exp.ToString();
-            exp = exp.PrefixParameter(typeof(Closures));
+            exp = exp.PrefixParameter(typeof(Closures)).As<T>();
 
             var method = new DynamicMethod(exp.Name, exp.ReturnType, exp.ParameterTypes, typeof(Closures), true);
 
@@ -55,7 +55,7 @@ namespace YantraJS.Runtime
 
         }
 
-        public static T CompileWithNestedLambdas<T>(this YLambdaExpression expression)
+        public static T CompileWithNestedLambdas<T>(this YExpression<T> expression)
         {
             var repository = new MethodRepository();
 
@@ -82,6 +82,43 @@ namespace YantraJS.Runtime
             var func = outer.CreateDelegate(typeof(Func<object>), repository) as Func<object>;
 
             return (T)(object)func();
+        }
+
+        private static ModuleBuilder moduleBuilder;
+
+        static RuntimeAssembly()
+        {
+            var a = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("EC.Runtime"), AssemblyBuilderAccess.RunAndCollect);
+            moduleBuilder = a.DefineDynamicModule("EC");
+        }
+
+        internal static Type CreateDelegateType(Type[] types, Type returnType)
+        {
+            return moduleBuilder.CreateDelegateType(types, returnType);
+        }
+
+        internal static TypeBuilder DefineDelegateType(this ModuleBuilder module, string name)
+        {
+            return module.DefineType(
+                name,
+                TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.AnsiClass | TypeAttributes.AutoClass,
+                typeof(MulticastDelegate)
+            );
+        }
+
+        private static int did = 1;
+
+        internal static Type CreateDelegateType(this ModuleBuilder module, Type[] types, Type returnType)
+        {
+            MethodAttributes CtorAttributes = MethodAttributes.RTSpecialName | MethodAttributes.HideBySig | MethodAttributes.Public;
+            MethodImplAttributes ImplAttributes = MethodImplAttributes.Runtime | MethodImplAttributes.Managed;
+            MethodAttributes InvokeAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
+            Type[] s_delegateCtorSignature = { typeof(object), typeof(IntPtr) };
+
+            TypeBuilder builder = module.DefineDelegateType("Delegate_" + Interlocked.Increment(ref did));
+            builder.DefineConstructor(CtorAttributes, CallingConventions.Standard, s_delegateCtorSignature).SetImplementationFlags(ImplAttributes);
+            builder.DefineMethod("Invoke", InvokeAttributes, returnType, types).SetImplementationFlags(ImplAttributes);
+            return builder.CreateTypeInfo();
         }
 
     }

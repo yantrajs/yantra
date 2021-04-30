@@ -26,8 +26,7 @@ namespace YantraJS
             return $"<YantraJSHidden>{name}<ID>{System.Threading.Interlocked.Increment(ref id)}";
         }
 
-
-        public static T CompileInAssembly<T>(this YLambdaExpression exp)
+        public static T CompileInAssembly<T>(this YExpression<T> exp)
         {
             AssemblyName name = new AssemblyName("demo");
 

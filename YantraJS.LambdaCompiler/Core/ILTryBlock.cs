@@ -30,6 +30,8 @@ namespace YantraJS.Core
             if (isFinally)
                 throw new InvalidOperationException($"Cannot start catch after finally has begin");
             isCatch = true;
+
+
             il.Emit(OpCodes.Leave, label);
 
             il.BeginCatchBlock(type);
@@ -41,6 +43,8 @@ namespace YantraJS.Core
                 throw new InvalidOperationException($"You already in the finally block");
             isFinally = true;
             il.Emit(OpCodes.Leave, label);
+
+            il.BeginFinallyBlock();
         }
 
         public override void Dispose()

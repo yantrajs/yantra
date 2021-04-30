@@ -12,6 +12,12 @@ namespace YantraJS.Expressions
         public readonly YExpression Body;
         public new readonly YParameterExpression[] Parameters;
         public readonly Type ReturnType;
+
+        internal YExpression<T> As<T>()
+        {
+            return new YExpression<T>(Name, Body, Parameters);
+        }
+
         public readonly Type[] ParameterTypes;
         internal readonly YExpression? Repository;
 
@@ -19,8 +25,8 @@ namespace YantraJS.Expressions
             YExpression body, 
             YParameterExpression[]? parameters,
             Type? returnType = null,
-            YExpression? repository = null)
-            : base(YExpressionType.Lambda, Create(parameters, body.Type))
+            YExpression? repository = null, Type? type = null)
+            : base(YExpressionType.Lambda, type ?? Create(parameters, body.Type))
         {
             this.Name = name;
             this.Body = body;
@@ -51,9 +57,7 @@ namespace YantraJS.Expressions
                 foreach (var p in parameters)
                     types.Add(p.Type);
             }
-
-            types.Add(type);
-            return System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
+            return YExpression.GetDelegateType(types.ToArray(), type);
         }
 
         public override void Print(IndentedTextWriter writer)
