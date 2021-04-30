@@ -12,23 +12,14 @@ namespace YantraJS.Runtime
     public static class RuntimeAssembly
     {
 
-        private static ModuleBuilder moduleBuilder;
-
-        private static int id = 1;
-
-        static RuntimeAssembly()
-        {
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("EC.Runtime"),
-                 AssemblyBuilderAccess.RunAndCollect);
-
-            moduleBuilder = assemblyBuilder.DefineDynamicModule("YModule");
-        }
-
-        internal static (DynamicMethod, string il, string exp) CompileToBoundDynamicMethod(this YLambdaExpression exp)
+        internal static (DynamicMethod, string il, string exp) CompileToBoundDynamicMethod(
+            this YLambdaExpression exp, Type boundType = null)
         {
             // create closure...
 
-            var method = new DynamicMethod(exp.Name , exp.ReturnType, exp.ParameterTypes, typeof(Closures), true);
+            boundType = boundType ?? typeof(Closures);
+
+            var method = new DynamicMethod(exp.Name , exp.ReturnType, exp.ParameterTypes, boundType, true);
 
             var ilg = method.GetILGenerator();
 
@@ -43,42 +34,33 @@ namespace YantraJS.Runtime
 
         }
 
-
-        internal static MethodInfo CompileToClosure(this YLambdaExpression exp)
+        public static T CompileWithNestedLambdas<T>(this YLambdaExpression expression)
         {
-            // create closure...
+            var repository = new MethodRepository();
 
-            var type = moduleBuilder.DefineType($"YClosure_{Interlocked.Increment(ref id)}"
-                , TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed, typeof(Closures));
+            var outerLambda = YExpression.Lambda(expression.Name + "_outer", expression, new List<YParameterExpression> {
+                YExpression.Parameter(typeof(IMethodRepository))
+            });
 
-            // this is a Closure itself...
-            var method = type.DefineMethod("Run", MethodAttributes.Public, CallingConventions.HasThis, exp.ReturnType, exp.ParameterTypes);
+            outerLambda = LambdaRewriter.Rewrite(outerLambda)
+                as YLambdaExpression;
 
-            var ilg = method.GetILGenerator();
 
-            ILCodeGenerator icg = new ILCodeGenerator(ilg);
-            icg.Emit(exp);
 
-            string il = icg.ToString();
+            var runtimeMethodBuilder = new RuntimeMethodBuilder(repository);
 
-            string expString = exp.ToString();
+            NestedRewriter nw = new NestedRewriter(outerLambda, runtimeMethodBuilder);
 
-            var defaultCC = typeof(Closures).GetConstructors()[0];
+            outerLambda = nw.Visit(outerLambda) as YLambdaExpression;
 
-            var cc = type.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] { typeof(Box[]) });
+            var (outer, il, exp) = outerLambda.CompileToBoundDynamicMethod(typeof(MethodRepository));
 
-            ilg = cc.GetILGenerator();
+            repository.IL = il;
+            repository.Exp = exp;
 
-            ilg.Emit(OpCodes.Ldarg_0); // load this
-            ilg.Emit(OpCodes.Ldarg_1); // load boxes from first parameter...
-            ilg.Emit(OpCodes.Ldstr, il); // load il 
-            ilg.Emit(OpCodes.Ldstr, expString); // load il 
-            ilg.Emit(OpCodes.Call, defaultCC);
-            ilg.Emit(OpCodes.Ret);
+            var func = outer.CreateDelegate(typeof(Func<object>), repository) as Func<object>;
 
-            var t = type.CreateTypeInfo();
-            return t.GetMethod("Run");
-
+            return (T)(object)func();
         }
 
     }

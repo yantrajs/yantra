@@ -7,8 +7,14 @@ namespace YantraJS
 {
     public class MethodRepository : IMethodRepository
     {
+
+        public string IL;
+        public string Exp;
+
         private List<(DynamicMethod method, string il, string exp, Type type)> delegates
             = new List<(DynamicMethod method, string il, string exp, Type type)>();
+
+
         public int RegisterNew(DynamicMethod d, string il, string exp, Type type)
         {
             int i = delegates.Count;

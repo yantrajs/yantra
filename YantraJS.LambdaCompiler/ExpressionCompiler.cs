@@ -131,21 +131,6 @@ namespace YantraJS
             return (T)(object)m.CreateDelegate(typeof(T));
         }
 
-        public static T CompileWithNestedLambdas<T>(this YLambdaExpression expression)
-        {
-            var repository = new MethodRepository();
-
-            var outerLambda = YExpression.Lambda(expression.Name + "_outer", expression, new List<YParameterExpression> { 
-                YExpression.Parameter(typeof(IMethodRepository))
-            });
-
-            var (outer, il, exp) = Compile(outerLambda, repository);
-
-            var func = outer.CreateDelegate(typeof(Func<IMethodRepository, object>)) as Func<IMethodRepository, object>;
-
-            return (T)(object)func(repository);
-        }
-
 
         internal static (MethodInfo method,string il, string exp) InternalCompileToMethod(
             YLambdaExpression exp,
