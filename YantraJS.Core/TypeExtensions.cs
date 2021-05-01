@@ -199,6 +199,17 @@ namespace YantraJS
             return a;
         }
 
+        internal static FieldInfo PublicField(this Type type, string name)
+        {
+            var f = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
+            if (f == null)
+            {
+                throw new NullReferenceException($"Field {name} not found on {type.FullName}");
+            }
+            return f;
+        }
+
+
         internal static FieldInfo InternalField(this Type type, string name)
         {
             var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
@@ -304,6 +315,22 @@ namespace YantraJS
             }
             return m;
         }
+
+        public static ConstructorInfo PublicConstructor(this Type type, params Type[] types)
+        {
+            var c = type.GetConstructor(
+                BindingFlags.DeclaredOnly |
+                BindingFlags.Instance |
+                BindingFlags.Public, null,
+                types, null);
+            if (c == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Constructor {type.Name}({tl}) not found");
+            }
+            return c;
+        }
+
 
         public static ConstructorInfo Constructor(this Type type, params Type[] types)
         {

@@ -73,7 +73,7 @@ namespace YantraJS.ExpHelper
 
 
         public static Expression Current =
-            Expression.Field(null, type.InternalField(nameof(JSContext.Current)));
+            Expression.Field(null, type.PublicField(nameof(JSContext.Current)));
 
         //public static Expression Current =
         //    Expression.Field(null, type.InternalField(nameof(JSContext.CurrentContext)));

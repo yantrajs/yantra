@@ -18,15 +18,13 @@ namespace YantraJS.ExpHelper
 
         private static ConstructorInfo _New
             = typeof(Core.CallStackItem)
-            .GetConstructor(BindingFlags.CreateInstance | BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                new Type[] {
+            .PublicConstructor(
                     typeof(JSContext),
                     typeof(string),
                     StringSpanBuilder.RefType,
                     typeof(int),
                     typeof(int)
-                }, null);
+                );
 
         public static Expression NewScope(
             Expression context,
@@ -50,10 +48,10 @@ namespace YantraJS.ExpHelper
             typeof(Position).Constructor(typeof(int), typeof(int));
 
         private static FieldInfo _Line =
-            type.InternalField(nameof(CallStackItem.Line));
+            type.PublicField(nameof(CallStackItem.Line));
 
         private static FieldInfo _Column =
-            type.InternalField(nameof(CallStackItem.Column));
+            type.PublicField(nameof(CallStackItem.Column));
 
         private static MethodInfo _Update =
             type.InternalMethod(nameof(CallStackItem.Update));

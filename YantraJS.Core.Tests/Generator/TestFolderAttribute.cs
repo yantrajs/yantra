@@ -69,7 +69,8 @@ namespace YantraJS.Tests.Generator
         public virtual IEnumerable<FileInfo> GetData()
         {
             var dir1 = new DirectoryInfo("../../../Generator/Files/" + root);
-            return dir1.EnumerateFiles("*.js", new EnumerationOptions { RecurseSubdirectories = true });
+            // return dir1.EnumerateFiles("*.js", new EnumerationOptions { RecurseSubdirectories = true });
+            return dir1.EnumerateFiles("*.js", SearchOption.AllDirectories);
         }
 
         protected virtual void Evaluate(JSContext context, string content, string fullName)

@@ -13,7 +13,7 @@ namespace YantraJS.Generator
 
         protected override CodeInfo VisitConstant(YConstantExpression yConstantExpression)
         {
-            il.EmitConstant(yConstantExpression.Value);
+            il.EmitConstant(yConstantExpression.Value, yConstantExpression.Type);
             return true;
         }
 

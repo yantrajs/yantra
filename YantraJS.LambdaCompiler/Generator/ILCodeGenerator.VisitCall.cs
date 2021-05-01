@@ -26,9 +26,9 @@ namespace YantraJS.Generator
                 {
                     var a = args[i];
 
-                    if(p.IsOut || p.ParameterType.IsByRef)
+                    if(p.IsOut)
                     {
-                        if(a.NodeType != YExpressionType.Parameter)
+                        if(a.NodeType != YExpressionType.Parameter && a.NodeType != YExpressionType.Field)
                         {
                             var temp = tempVariables[p.ParameterType];
                             saveList ??= new List<(int temp, YExpression exp)>();

@@ -20,6 +20,7 @@ using Microsoft.Threading;
 using YantraJS.Core.LightWeight;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.CodeGen;
+using System.ComponentModel;
 
 namespace YantraJS.Core
 {
@@ -33,7 +34,8 @@ namespace YantraJS.Core
             this.Column = column;
         }
 
-        internal CallStackItem(JSContext context, string fileName, in StringSpan function, int line, int column)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CallStackItem(JSContext context, string fileName, in StringSpan function, int line, int column)
         {
             context = context ?? JSContext.Current;
             this.FileName = fileName;
@@ -82,7 +84,8 @@ namespace YantraJS.Core
     {
 
         [ThreadStatic]
-        internal static JSContext Current;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSContext Current;
 
         public static JSContext CurrentContext
         {

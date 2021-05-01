@@ -186,7 +186,7 @@ namespace YantraJS.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString GetOrCreate(in StringSpan key)
+        public static KeyString GetOrCreate(in StringSpan key)
         {
             return map.GetOrCreate(key, (keyName) =>
             {

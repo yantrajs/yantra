@@ -25,13 +25,70 @@ namespace YantraJS.Generator
             il.Emit(opCode, index);
         }
 
-        public static void EmitConstant(this ILWriter il,object value)
+        public static void EmitConstant(this ILWriter il, DateTime d)
+        {
+            throw new NotSupportedException();
+        }
+
+        public static void EmitConstant(this ILWriter il,object value, Type valueType = null)
         {
             if(value == null)
             {
                 il.Emit(OpCodes.Ldnull);
                 return;
             }
+
+            valueType = valueType ?? value.GetType();
+
+            switch (Type.GetTypeCode(valueType))
+            {
+                case TypeCode.Boolean:
+                    il.EmitConstant((bool)value);
+                    return;
+                case TypeCode.Byte:
+                    il.EmitConstant((byte)value);
+                    return;
+                case TypeCode.Char:
+                    il.EmitConstant((short)value);
+                    return;
+                case TypeCode.DateTime:
+                    il.EmitConstant((DateTime)value);
+                    return;
+                case TypeCode.Decimal:
+                    il.EmitConstant((decimal)value);
+                    return;
+                case TypeCode.Double:
+                    il.EmitConstant((double)value);
+                    return;
+                case TypeCode.Int16:
+                    il.EmitConstant((short)value);
+                    return;
+                case TypeCode.Int32:
+                    il.EmitConstant((int)value);
+                    return;
+                case TypeCode.Int64:
+                    il.EmitConstant((long)value);
+                    return;
+                case TypeCode.SByte:
+                    il.EmitConstant((sbyte)value);
+                    return;
+                case TypeCode.Single:
+                    il.EmitConstant((float)value);
+                    return;
+                case TypeCode.String:
+                    il.EmitConstant((string)value);
+                    return;
+                case TypeCode.UInt16:
+                    il.EmitConstant((ushort)value);
+                    return;
+                case TypeCode.UInt32:
+                    il.EmitConstant((uint)value);
+                    return;
+                case TypeCode.UInt64:
+                    il.EmitConstant((ulong)value);
+                    return;
+            }
+
 
             switch (value)
             {
@@ -167,6 +224,8 @@ namespace YantraJS.Generator
         {
             il.EmitConstant(unchecked((int)i));
         }
+
+
 
         public static void EmitConstant(this ILWriter il,ulong i)
         {
