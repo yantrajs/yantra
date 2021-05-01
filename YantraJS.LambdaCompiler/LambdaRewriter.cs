@@ -118,7 +118,13 @@ namespace YantraJS
 
                     stmts.Add(body);
 
-                    return YExpression.InlineLambda( n.Name, YExpression.Block(localBoxes, stmts), n.Parameters, this.repository);
+                    return YExpression.InlineLambda( 
+                        n.Type,
+                        n.Name, 
+                        YExpression.Block(localBoxes, stmts), 
+                        n.Parameters,
+                        this.repository,
+                        n.ReturnType);
                 }
 
                 // curry....
@@ -128,7 +134,15 @@ namespace YantraJS
                     body = YExpression.Block(localBoxes, stmts);
                 }
 
-                var x = Relay(n.Name ?? "unnamed", closureSetup.ToArray(), closures, n.Parameters, body, selfRepository);
+                var x = Relay(
+                    n.Name ?? "unnamed", 
+                    closureSetup.ToArray(), 
+                    closures, 
+                    n.Parameters, 
+                    body, 
+                    selfRepository,
+                    n.ReturnType,
+                    n.Type);
                 return x;
             }
         }
@@ -139,7 +153,9 @@ namespace YantraJS
             YParameterExpression closure,
             YParameterExpression[] parameters,
             YExpression body,
-            YExpression? repository
+            YExpression? repository,
+            Type returnType,
+            Type delegateType
             )
         {
 
@@ -161,7 +177,7 @@ namespace YantraJS
                 parameterTypes.Add(body.Type);
             }
 
-            var lambda = YExpression.InlineLambda(name ?? "Unnamed", body, newParameterList, repository);
+            var lambda = YExpression.InlineLambda(delegateType, name ?? "Unnamed", body, newParameterList.ToArray(), repository, returnType);
 
             return YExpression.Relay(closures, lambda);
         }

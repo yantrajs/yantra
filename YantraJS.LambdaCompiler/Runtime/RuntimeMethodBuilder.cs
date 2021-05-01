@@ -28,13 +28,13 @@ namespace YantraJS
             if (innerLambda.Repository == null)
                 throw new NotSupportedException($"Compile with Method Repository");
             var (method, il, exp) = innerLambda.CompileToBoundDynamicMethod();
-            List<Type> types = new List<Type>();
-            types.AddRange(innerLambda.ParameterTypes);
-            types.Add(method.ReturnType);
-            types.RemoveAt(0);
-            var dt = System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
+            //List<Type> types = new List<Type>();
+            //types.AddRange(innerLambda.ParameterTypes);
+            //types.Add(method.ReturnType);
+            //types.RemoveAt(0);
+            //var dt = System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
 
-            var id = methods.RegisterNew(method, il, exp, dt);
+            var id = methods.RegisterNew(method, il, exp, innerLambda.Type);
             return YExpression.Call(
                 innerLambda.Repository, 
                 create , 

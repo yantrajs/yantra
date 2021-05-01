@@ -34,7 +34,7 @@ namespace YantraJS.Core
             writer.Write(": ");
         }
 
-        public void Branch(ILWriterLabel label, int index = 0)
+        public void Branch(ILWriterLabel label, int index = -1)
         {
             if(tryStack.Top != null)
             {
@@ -44,9 +44,9 @@ namespace YantraJS.Core
             Goto(label, index);
         }
 
-        internal void Goto(ILWriterLabel label, int index = 0)
+        internal void Goto(ILWriterLabel label, int index = -1)
         {
-            if (index > 0)
+            if (index >= 0)
             {
                 this.EmitLoadLocal(index);
             }
@@ -93,6 +93,15 @@ namespace YantraJS.Core
             writer.WriteLine();
             writer.WriteLine($"{label}:");
             il.MarkLabel(label.Value);
+
+            
+        }
+
+        internal void EmitConsoleWriteLine(string text)
+        {
+            PrintOffset();
+            writer.WriteLine($"Console.Writeline({text.Quoted()})");
+            il.EmitWriteLine(text);
         }
 
         internal void Emit(OpCode code, ILWriterLabel label)

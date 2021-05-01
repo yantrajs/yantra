@@ -20,10 +20,9 @@ namespace YantraJS.Converters
             //    plist.ToArray(),
             //    lambda.ReturnType, 
             //    lambda.Type);
-            return YExpression.Lambda(lambda.Name ?? "unnamed",
+            return YExpression.Lambda(lambda.Type, lambda.Name ?? "unnamed",
                 Visit(lambda.Body),
-                plist.ToArray(),
-                lambda.Type);
+                plist.ToArray());
         }
 
     }

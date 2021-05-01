@@ -11,34 +11,54 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitTryCatchFinally(YTryCatchFinallyExpression tryCatchFinallyExpression)
         {
-            var tcb = il.BeginTry();
-
-
-            Visit(tryCatchFinallyExpression.Try);
-
-
-            if (tryCatchFinallyExpression.Catch != null)
+            using (tempVariables.Push())
             {
-                tcb.BeginCatch(typeof(Exception));
-                if(tryCatchFinallyExpression.Catch.Parameter == null)
+                il.EmitConsoleWriteLine("Begin Try");
+                var tcb = il.BeginTry();
+
+                var hasType = tryCatchFinallyExpression.Try.Type != typeof(void);
+
+                var result = hasType ? tempVariables[tryCatchFinallyExpression.Try.Type] : null;
+
+                tcb.SavedLocal = hasType ? result.LocalIndex : -1;
+
+                // we need to save this in local variable...
+                Visit(tryCatchFinallyExpression.Try);
+                if (hasType)
                 {
-                    il.Emit(OpCodes.Pop);
-                } else
-                {
-                    var v = variables[tryCatchFinallyExpression.Catch.Parameter];
-                    il.EmitSaveLocal(v.LocalBuilder.LocalIndex);
+                    il.EmitSaveLocal(result.LocalIndex);
                 }
 
-                Visit(tryCatchFinallyExpression.Catch.Body);
-            }
 
-            if(tryCatchFinallyExpression.Finally != null)
-            {
-                tcb.BeginFinally();
-                Visit(tryCatchFinallyExpression.Finally);
-            }
 
-            tcb.Dispose();
+                if (tryCatchFinallyExpression.Catch != null)
+                {
+                    tcb.BeginCatch(typeof(Exception));
+                    if (tryCatchFinallyExpression.Catch.Parameter == null)
+                    {
+                        il.Emit(OpCodes.Pop);
+                    }
+                    else
+                    {
+                        var v = variables[tryCatchFinallyExpression.Catch.Parameter];
+                        il.EmitSaveLocal(v.LocalBuilder.LocalIndex);
+                    }
+
+                    Visit(tryCatchFinallyExpression.Catch.Body);
+                    if (hasType)
+                    {
+                        il.EmitSaveLocal(result.LocalIndex);
+                    }
+                }
+
+                if (tryCatchFinallyExpression.Finally != null)
+                {
+                    tcb.BeginFinally();
+                    Visit(tryCatchFinallyExpression.Finally);
+                }
+
+                tcb.Dispose();
+            }
             return true;
         }
     }

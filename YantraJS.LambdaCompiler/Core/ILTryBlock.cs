@@ -15,8 +15,8 @@ namespace YantraJS.Core
 
         private List<(ILWriterLabel hop, ILWriterLabel final, int localIndex)> pendingJumps 
             = new List<(ILWriterLabel,ILWriterLabel, int)>();
-
-
+        
+        internal int SavedLocal;
 
         public ILTryBlock(ILWriter iLWriter, Label label)
         {
@@ -31,6 +31,7 @@ namespace YantraJS.Core
                 throw new InvalidOperationException($"Cannot start catch after finally has begin");
             isCatch = true;
 
+            il.EmitConsoleWriteLine("Begin Catch");
 
             il.Emit(OpCodes.Leave, label);
 
@@ -42,6 +43,9 @@ namespace YantraJS.Core
             if (isFinally)
                 throw new InvalidOperationException($"You already in the finally block");
             isFinally = true;
+
+            il.EmitConsoleWriteLine("Begin Finally");
+
             il.Emit(OpCodes.Leave, label);
 
             il.BeginFinallyBlock();
@@ -62,20 +66,24 @@ namespace YantraJS.Core
             // jump all pending
             il.EndExceptionBlock();
 
-            foreach(var (hop,jump, index) in pendingJumps)
+            foreach (var (hop,jump, index) in pendingJumps)
             {
                 il.MarkLabel(hop);
-                if (index > 0)
+                if (index >= 0)
                 {
                     il.EmitLoadLocal(index);
                 }
                 il.Branch(jump);
             }
-
             il.MarkLabel(label);
+            if (SavedLocal >= 0)
+            {
+                il.EmitLoadLocal(SavedLocal);
+            }
+
         }
 
-        internal void Branch(ILWriterLabel label, int index = 0)
+        internal void Branch(ILWriterLabel label, int index = -1)
         {
             if(label.TryBlock == this || label == this.label)
             {

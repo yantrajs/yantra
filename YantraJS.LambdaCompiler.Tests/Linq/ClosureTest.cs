@@ -21,7 +21,7 @@ namespace YantraJS.Linq
             var b = YExpression.Parameters(typeof(int));
 
             var a1 = YExpression.Lambda<Func<int,Func<int,int>>>("a1",
-                YExpression.Lambda("a2",
+                YExpression.Lambda<Func<int,int>>("a2",
                     YExpression.Binary(a[0], YOperator.Add, b[0]),b
                 )
                 , a);
@@ -41,7 +41,7 @@ namespace YantraJS.Linq
             var b = YExpression.Parameters(typeof(int));
 
             var a1 = YExpression.Lambda<Func<int,Func<int,int> >>("a1",
-                YExpression.Lambda("a2",
+                YExpression.Lambda<Func<int,int>>("a2",
                     YExpression.Binary(a[0], YOperator.Add, b[0]), b
                 )
                 , a);

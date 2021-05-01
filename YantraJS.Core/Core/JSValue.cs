@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Dynamic;
 using System.Globalization;
@@ -46,7 +47,7 @@ namespace YantraJS.Core {
             return def;
         }
 
-        internal object ForceConvert(Type type) { 
+        public object ForceConvert(Type type) { 
             if (type.IsAssignableFrom(typeof(JSValue)))
             {
                 return this;

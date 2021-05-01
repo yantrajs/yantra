@@ -265,29 +265,19 @@ namespace YantraJS.Expressions
             return new YLoopExpression(body, @break, @continue ?? Label("continue", @break.LabelType));
         }
 
-        public static YLambdaExpression Lambda(string name, YExpression body, YParameterExpression[] parameters)
-        {
-            return new YLambdaExpression(name, body, parameters);
-        }
-
         public static YExpression<T> Lambda<T>(string name, YExpression body, YParameterExpression[] parameters)
         {
-            return new YExpression<T>(name, body, parameters);
+            return new YExpression<T>(name, body, parameters, null);
         }
 
 
         public static YLambdaExpression Lambda(
+            Type delegateType,
             string name, 
             YExpression body, 
-            YParameterExpression[] parameters, 
-            Type type)
+            YParameterExpression[] parameters)
         {
-            return new YLambdaExpression(name, body, parameters, body.Type, null, type);
-        }
-
-        public static YLambdaExpression Lambda(string name, YExpression body, List<YParameterExpression> parameters)
-        {
-            return new YLambdaExpression(name, body, parameters.ToArray());
+            return new YLambdaExpression(delegateType, name, body, parameters, body.Type);
         }
 
         public static YTypeAsExpression TypeAs(YExpression target, Type type)
@@ -374,21 +364,24 @@ namespace YantraJS.Expressions
             return new YThrowExpression(exp);
         }
         internal static YLambdaExpression InlineLambda(
+            Type delegateType,
             string name, 
             YExpression body, 
             YParameterExpression[] parameters, 
-            YExpression? repository)
+            YExpression? repository,
+            Type returnType)
         {
-            return new YLambdaExpression(name, body, parameters, null, repository);
+            return new YLambdaExpression(delegateType, name, body, parameters, returnType, repository);
         }
 
         internal static YLambdaExpression InlineLambda(
+            Type delegateType,
             string name,
             YExpression body,
             List<YParameterExpression> parameters,
             YExpression? repository)
         {
-            return new YLambdaExpression(name, body, parameters.ToArray(), null, repository);
+            return new YLambdaExpression(delegateType, name, body, parameters.ToArray(), null, repository);
         }
 
         internal static YRelayExpression Relay(

@@ -15,18 +15,21 @@ namespace YantraJS.Expressions
 
         internal YExpression<T> As<T>()
         {
-            return new YExpression<T>(Name, Body, Parameters);
+            return new YExpression<T>(Name, Body, Parameters, ReturnType);
         }
+
 
         public readonly Type[] ParameterTypes;
         internal readonly YExpression? Repository;
 
-        public YLambdaExpression(string name, 
+        public YLambdaExpression(
+            Type delegateType, 
+            string name, 
             YExpression body, 
             YParameterExpression[]? parameters,
             Type? returnType = null,
-            YExpression? repository = null, Type? type = null)
-            : base(YExpressionType.Lambda, type ?? Create(parameters, body.Type))
+            YExpression? repository = null)
+            : base(YExpressionType.Lambda, delegateType)
         {
             this.Name = name;
             this.Body = body;
@@ -38,28 +41,6 @@ namespace YantraJS.Expressions
             ParameterTypes = this.Parameters.Select(x => x.Type).ToArray();
             this.Repository = repository;
         }
-
-        public Type ThisDelegateType
-        {
-            get
-            {
-                List<Type> types = new List<Type>(ParameterTypes.Skip(1));
-                types.Add(ReturnType);
-                return System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
-            }
-        }
-
-        private static Type Create(YParameterExpression[]? parameters, Type type)
-        {
-            List<Type> types = new List<Type>((parameters?.Length ?? 0) + 1);
-            if(parameters != null)
-            {
-                foreach (var p in parameters)
-                    types.Add(p.Type);
-            }
-            return YExpression.GetDelegateType(types.ToArray(), type);
-        }
-
         public override void Print(IndentedTextWriter writer)
         {
             writer.Write('(');
@@ -80,7 +61,7 @@ namespace YantraJS.Expressions
                 pl.Add(p);
             }
 
-            return new YLambdaExpression(Name, Body, pl.ToArray(), ReturnType, Repository);
+            return new YLambdaExpression(Type, Name, Body, pl.ToArray(), ReturnType, Repository);
         }
     }
 }

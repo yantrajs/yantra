@@ -125,7 +125,7 @@ namespace YantraJS
 
             var boxes = YExpression.Parameter(typeof(Box[]));
 
-            var cnstrLambda = YExpression.Lambda("cnstr",
+            var cnstrLambda = YExpression.Lambda(lambdaExpression.Type, "cnstr",
                 YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
@@ -133,7 +133,6 @@ namespace YantraJS
             cnstrIL.EmitConstructor(cnstrLambda);
 
             string cnstrILText = cnstrIL.ToString();
-
 
             var dt = lambdaExpression.Type;
 
@@ -149,7 +148,7 @@ namespace YantraJS
             //    YExpression.New(cnstr, YExpression.Null)
             //    ), new YParameterExpression[] { });
 
-            var create = YExpression.Lambda("Create", 
+            var create = YExpression.Lambda( lambdaExpression.Type, "Create", 
                 
                 YExpression.New(cdt,
                     YExpression.New(cnstr, YExpression.Null),

@@ -35,14 +35,14 @@ namespace YantraJS
 
             var boxes = YExpression.Parameter(typeof(Box[]));
 
-            var cnstrLambda = YExpression.Lambda("cnstr",
+            var cnstrLambda = YExpression.Lambda(innerLambda.Type, "cnstr",
                 YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
             var cnstrIL = new ILCodeGenerator( cnstr.GetILGenerator());
             cnstrIL.EmitConstructor(cnstrLambda);
 
-            var dt = innerLambda.ThisDelegateType;
+            var dt = innerLambda.Type;
 
             var cdt = dt.GetConstructors().First(x => x.GetParameters().Length == 2);
 

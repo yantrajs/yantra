@@ -279,7 +279,7 @@ namespace YantraJS.ExpHelper
             type.InternalMethod(nameof(JSValue.TryConvertTo), typeof(Type), typeof(object).MakeByRefType());
 
         private static MethodInfo _ForceConvert =
-            type.InternalMethod(nameof(JSValue.ForceConvert), typeof(Type));
+            type.PublicMethod(nameof(JSValue.ForceConvert), typeof(Type));
 
         private static MethodInfo _Convert =
     type.InternalMethod(nameof(JSValue.Convert), typeof(Type), typeof(object));

@@ -59,9 +59,9 @@ namespace YantraJS.Runtime
         {
             var repository = new MethodRepository();
 
-            var outerLambda = YExpression.Lambda(expression.Name + "_outer", expression, new List<YParameterExpression> {
+            var outerLambda = YExpression.Lambda<Func<IMethodRepository,T>>(expression.Name + "_outer", expression, new YParameterExpression[] {
                 YExpression.Parameter(typeof(IMethodRepository))
-            });
+            }) as YLambdaExpression;
 
             outerLambda = LambdaRewriter.Rewrite(outerLambda)
                 as YLambdaExpression;
