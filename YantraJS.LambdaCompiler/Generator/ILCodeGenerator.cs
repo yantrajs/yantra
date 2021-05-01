@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
@@ -48,7 +50,9 @@ namespace YantraJS.Generator
             {
                 using (addressScope.Push(false))
                 {
-                    Visit(exp.Body);
+                    // if it is try/catch... reset try/finally 
+
+                    Visit(ReWriteTryCatch(exp.Body));
 
                     il.Emit(OpCodes.Ret);
                 }
@@ -56,6 +60,39 @@ namespace YantraJS.Generator
 
             il.Verify();
 
+        }
+
+        private YExpression ReWriteTryCatch(YExpression body)
+        {
+            if (body.NodeType != YExpressionType.TryCatchFinally)
+                return body;
+
+            YTryCatchFinallyExpression exp = (body as YTryCatchFinallyExpression)!;
+
+            if (exp.Try.NodeType != YExpressionType.Block)
+                return body;
+
+            YBlockExpression block = (exp.Try as YBlockExpression)!;
+
+
+            var exps = block.Expressions;
+            var last = exps[exps.Length - 1];
+
+            if (last.NodeType != YExpressionType.Label)
+                return body;
+
+            var label = (last as YLabelExpression)!;
+            if (label.Default == null)
+                return body;
+
+            var outerTemp = YExpression.Parameter(label.Default.Type);
+
+            var newLabel = YExpression.Label("BodyRet", outerTemp.Type);
+
+            exps[exps.Length - 1] = YExpression.GoTo(newLabel, label.Default);
+
+            return YExpression.Block(new YParameterExpression[] { outerTemp }, exps);
+            
         }
     }
 }
