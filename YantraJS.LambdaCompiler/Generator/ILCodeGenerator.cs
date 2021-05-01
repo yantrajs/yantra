@@ -75,7 +75,7 @@ namespace YantraJS.Generator
             var @catch = exp.Catch;
             if(@catch != null)
             {
-                @catch = YExpression.Catch(@catch.Parameter, YExpression.Return(returnLabel, @catch.Body));
+                @catch = YExpression.Catch(@catch.Parameter!, YExpression.Return(returnLabel, @catch.Body));
             }
 
             exp = new YTryCatchFinallyExpression(
