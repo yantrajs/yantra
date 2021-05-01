@@ -69,29 +69,19 @@ namespace YantraJS.Generator
 
             YTryCatchFinallyExpression exp = (body as YTryCatchFinallyExpression)!;
 
-            if (exp.Try.NodeType != YExpressionType.Block)
-                return body;
+            var returnLabel = YExpression.Label("ReturnLabel", exp.Try.Type);
 
-            YBlockExpression block = (exp.Try as YBlockExpression)!;
+            // replace catchbody...
+            var @catch = exp.Catch;
+            if(@catch != null)
+            {
+                @catch = YExpression.Catch(@catch.Parameter, YExpression.Return(returnLabel, @catch.Body));
+            }
 
+            exp = new YTryCatchFinallyExpression(
+                YExpression.Return(returnLabel, exp.Try), @catch, exp.Finally);
 
-            var exps = block.Expressions;
-            var last = exps[exps.Length - 1];
-
-            if (last.NodeType != YExpressionType.Label)
-                return body;
-
-            var label = (last as YLabelExpression)!;
-            if (label.Default == null)
-                return body;
-
-            var outerTemp = YExpression.Parameter(label.Default.Type);
-
-            var newLabel = YExpression.Label("BodyRet", outerTemp.Type);
-
-            exps[exps.Length - 1] = YExpression.GoTo(newLabel, label.Default);
-
-            return YExpression.Block(new YParameterExpression[] { outerTemp }, exps);
+            return YExpression.Block(exp, YExpression.Label(returnLabel));
             
         }
     }
