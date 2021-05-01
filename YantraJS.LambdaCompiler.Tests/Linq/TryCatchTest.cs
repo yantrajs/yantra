@@ -12,6 +12,34 @@ namespace YantraJS.Linq
     [TestClass]
     public class TryCatchTest
     {
+        [TestMethod]
+        public void Finally() {
+
+            var i = YExpression.Parameter(typeof(int));
+
+            var method = typeof(TryCatchTest).GetMethod(nameof(TryCatchTest.DoNothing));
+
+            var @try = YExpression.TryCatchFinally(
+                
+                YExpression.Binary(i, YOperator.Multipley, i), 
+                null,
+                YExpression.Call(null, method)                
+                );
+
+            var r = YExpression.Lambda<Func<int,int>>("finallyTest",
+                @try, new YParameterExpression[] { i });
+
+            var fx = r.CompileInAssembly();
+
+            Assert.AreEqual(4, fx(2));
+
+        }
+
+        public static void DoNothing()
+        {
+
+        }
+
 
         [TestMethod]
         public void Loop()

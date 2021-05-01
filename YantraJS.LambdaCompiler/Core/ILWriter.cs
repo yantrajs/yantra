@@ -36,12 +36,17 @@ namespace YantraJS.Core
 
         public void Branch(ILWriterLabel label, int index = -1)
         {
-            if(tryStack.Top != null)
+            if (tryStack.Top != null)
             {
                 tryStack.Top.Branch(label, index);
                 return;
             }
             Goto(label, index);
+        }
+
+        internal ILWriterLabel DefineLabel(ILTryBlock tryBlock)
+        {
+            return new ILWriterLabel( il.DefineLabel(), tryBlock);
         }
 
         internal void Goto(ILWriterLabel label, int index = -1)
@@ -64,7 +69,7 @@ namespace YantraJS.Core
 
         internal ILWriterLabel DefineLabel()
         {
-            var newLabel = new ILWriterLabel(il.DefineLabel(), tryStack.Top);
+            var newLabel = new ILWriterLabel(il.DefineLabel(), null);
             return newLabel;
         }
 

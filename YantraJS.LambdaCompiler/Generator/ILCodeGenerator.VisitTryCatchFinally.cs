@@ -13,8 +13,10 @@ namespace YantraJS.Generator
         {
             using (tempVariables.Push())
             {
-                il.EmitConsoleWriteLine("Begin Try");
                 var tcb = il.BeginTry();
+
+                // visit labels...
+                tcb.CollectLabels(tryCatchFinallyExpression, labels);
 
                 var hasType = tryCatchFinallyExpression.Try.Type != typeof(void);
 

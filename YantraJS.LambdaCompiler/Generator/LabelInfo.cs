@@ -26,5 +26,15 @@ namespace YantraJS.Generator
             labels[target] = l;
             return l;
         }
+
+        public ILWriterLabel Create(YLabelTarget target, ILTryBlock tryBlock)
+        {
+            if (labels.TryGetValue(target, out var l))
+                throw new System.InvalidOperationException();
+            l = il.DefineLabel(tryBlock);
+            labels[target] = l;
+            return l;
+        }
+
     }
 }

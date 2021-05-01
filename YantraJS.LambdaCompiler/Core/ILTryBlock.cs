@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using YantraJS.Expressions;
 using YantraJS.Generator;
 
 namespace YantraJS.Core
@@ -10,7 +11,7 @@ namespace YantraJS.Core
         private bool isCatch = false;
         private bool isFinally = false;
 
-        private ILWriter il;
+        internal readonly ILWriter il;
         private readonly ILWriterLabel label;
 
         private List<(ILWriterLabel hop, ILWriterLabel final, int localIndex)> pendingJumps 
@@ -23,6 +24,11 @@ namespace YantraJS.Core
             this.il = iLWriter;
             // this.label = new ILWriterLabel(label, null);
             this.label = iLWriter.DefineLabel();
+        }
+
+        internal void CollectLabels(YTryCatchFinallyExpression exp, LabelInfo labels)
+        {
+            TryCatchLabelMarker.Collect(exp, this, labels);
         }
 
         public void BeginCatch(Type type)
@@ -43,8 +49,6 @@ namespace YantraJS.Core
             if (isFinally)
                 throw new InvalidOperationException($"You already in the finally block");
             isFinally = true;
-
-            il.EmitConsoleWriteLine("Begin Finally");
 
             il.Emit(OpCodes.Leave, label);
 
@@ -85,7 +89,7 @@ namespace YantraJS.Core
 
         internal void Branch(ILWriterLabel label, int index = -1)
         {
-            if(label.TryBlock == this || label == this.label)
+            if(label.TryBlock == this)
             {
                 il.Goto(label, index);
                 return;
