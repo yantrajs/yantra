@@ -70,7 +70,8 @@ namespace YantraJS.Core
         public static T CompileDynamic<T>(this Expression<T> exp)
         {
             // return Microsoft.Scripting.Generation.CompilerHelpers.Compile<T>(exp, true);
-            var fx = exp.Compile();
+            var fx = exp.CompileInAssembly();
+            var fx = exp.CompileDynamic();
             return fx;
             // return (T)(object)((Delegate)(object)fx).ToTailDelegate(typeof(T), exp.Name ?? "tail_call");
 

@@ -18,7 +18,10 @@ namespace YantraJS.Expressions
         {
             if(Default != null)
             {
+                writer.Write($"{Target.Name}: (");
                 Default.Print(writer);
+                writer.Write(")");
+                return;
             }
             writer.WriteLine($"{Target.Name}:");
         }
@@ -40,9 +43,10 @@ namespace YantraJS.Expressions
         public override void Print(IndentedTextWriter writer)
         {
             if(Default!=null){
-                writer.Write("Push>>");
+                writer.Write($"Goto {Target.Name} with (");
                 Default.Print(writer);
-                writer.Write("<<");
+                writer.Write(")");
+                return;
             }
 
             writer.Write($"Goto {Target.Name}");
@@ -64,9 +68,10 @@ namespace YantraJS.Expressions
         {
             if (Default != null)
             {
-                writer.Write("Push>>");
+                writer.Write("RETURN (");
                 Default.Print(writer);
-                writer.Write("<<");
+                writer.Write($") at {Target.Name}");
+                return;
             }
 
             writer.Write($"RETURN {Target.Name}");

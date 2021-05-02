@@ -13,6 +13,10 @@ namespace YantraJS.Generator
         {
             // we need to investigate each type of expression on the left...
             Visit(yAssignExpression.Right);
+            if (ReturnLocal >= 0)
+            {
+                il.Emit(OpCodes.Dup);
+            }
             return Assign(yAssignExpression.Left);
         }
 
@@ -42,7 +46,7 @@ namespace YantraJS.Generator
         {
             var temp = tempVariables[yIndexExpression.Type];
             il.EmitSaveLocal(temp.LocalIndex);
-            using (this.addressScope.Push(true))
+            // using (this.addressScope.Push(true))
             {
                 Visit(yIndexExpression.Target);
                 il.EmitLoadLocal(temp.LocalIndex);
@@ -55,7 +59,7 @@ namespace YantraJS.Generator
         {
             var temp = tempVariables[yPropertyExpression.Type];
             il.EmitSaveLocal(temp.LocalIndex);
-            using (this.addressScope.Push(true))
+            // using (this.addressScope.Push(true))
             {
                 if(!yPropertyExpression.IsStatic)
                     Visit(yPropertyExpression.Target);
@@ -69,7 +73,7 @@ namespace YantraJS.Generator
         {
             var temp = tempVariables[yFieldExpression.Type];
             il.EmitSaveLocal(temp.LocalIndex);
-            using (this.addressScope.Push(true))
+            using (this.addressScope.Push(yFieldExpression.FieldInfo.FieldType.IsValueType))
             {
                 if (!yFieldExpression.FieldInfo.IsStatic)
                     Visit(yFieldExpression.Target);
