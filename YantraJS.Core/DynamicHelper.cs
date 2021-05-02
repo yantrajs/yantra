@@ -71,7 +71,7 @@ namespace YantraJS.Core
         {
             // return Microsoft.Scripting.Generation.CompilerHelpers.Compile<T>(exp, true);
             // var fx = exp.CompileInAssembly();
-            var fx = exp.CompileDynamic();
+            var fx = exp.Compile();
             return fx;
             // return (T)(object)((Delegate)(object)fx).ToTailDelegate(typeof(T), exp.Name ?? "tail_call");
 
