@@ -9,8 +9,10 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
-        private CodeInfo AssignParameter(YParameterExpression yParameterExpression)
+        private CodeInfo AssignParameter(DataSource exp, YParameterExpression yParameterExpression, int savedIndex)
         {
+            VisitSave(exp, savedIndex);
+
             var pType = yParameterExpression.Type;
             var varInfo = variables[yParameterExpression];
 

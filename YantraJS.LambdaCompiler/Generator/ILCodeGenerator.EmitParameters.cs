@@ -86,8 +86,7 @@ namespace YantraJS.Generator
 
                 foreach (var (temp, exp) in saveList)
                 {
-                    il.EmitLoadLocal(temp);
-                    Assign(exp);
+                    Assign(exp, temp);
                 }
 
                 if (rtIndex != 0)

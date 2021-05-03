@@ -42,9 +42,10 @@ namespace YantraJS.Generator
 
         private CodeInfo VisitReturnAssign(YAssignExpression assign, ILWriterLabel label, int localIndex)
         {
-            Visit(assign.Right);
-            il.EmitSaveLocal(localIndex);
-            Assign(assign.Left, localIndex);
+            //Visit(assign.Right);
+            //il.EmitSaveLocal(localIndex);
+            //Assign(assign.Left, localIndex);
+            VisitAssign(assign, localIndex);
             il.Branch(label, localIndex);
             return true;
         }

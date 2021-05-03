@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
@@ -7,52 +8,131 @@ using YantraJS.Expressions;
 
 namespace YantraJS.Generator
 {
+    public readonly struct DataSource
+    {
+        public readonly YExpression? Expression;
+        public readonly int Index;
+
+        public DataSource(YExpression? exp, int index = -1)
+        {
+            this.Expression = exp;
+            this.Index = index;
+        }
+
+        public static implicit operator DataSource(YExpression exp) 
+            => new DataSource(exp);
+
+        public static implicit  operator DataSource(int index)
+            => new DataSource(null, index);
+    }
+
     public partial class ILCodeGenerator
     {
         protected override CodeInfo VisitAssign(YAssignExpression yAssignExpression)
         {
             // we need to investigate each type of expression on the left...
-            Visit(yAssignExpression.Right);
-            return Assign(yAssignExpression.Left);
+            // Visit(yAssignExpression.Right);
+            // return Assign(yAssignExpression.Left);
+            return VisitAssign(yAssignExpression, -1);
         }
 
-        private CodeInfo Assign(YExpression left, int savedIndex = -1)
+        private CodeInfo VisitSave(DataSource data, int index = -1)
+        {
+            var exp = data.Expression;
+            if (exp == null)
+            {
+                il.EmitLoadLocal(data.Index);
+                return true;
+            }
+            switch (exp.NodeType)
+            {
+                case YExpressionType.Assign:
+                    var a = (exp as YAssignExpression)!;
+                    if(index == -1)
+                    {
+                        index = tempVariables[a.Left.Type].LocalIndex;
+                    }
+                    VisitSave(a.Right, index);
+                    il.EmitLoadLocal(index);
+                    return true;
+            }
+
+            Visit(exp);
+            if(index != -1)
+            {
+                il.Emit(OpCodes.Dup);
+                il.EmitSaveLocal(index);
+            }
+            return true;
+        }
+
+        protected CodeInfo VisitAssign(YAssignExpression exp, int savedIndex)
+        {
+            switch (exp.Left.NodeType)
+            {
+                case YExpressionType.Parameter:
+                    return AssignParameter(exp.Right, exp.Left as YParameterExpression, savedIndex);
+                case YExpressionType.Property:
+                    return AssignProperty(exp.Right, (exp.Left as YPropertyExpression)!, savedIndex);
+                case YExpressionType.Field:
+                    return AssignField(exp.Right, (exp.Left as YFieldExpression)!, savedIndex);
+                case YExpressionType.Index:
+                    return AssignIndex(exp.Right, (exp.Left as YIndexExpression)!, savedIndex);
+                case YExpressionType.ArrayIndex:
+                    return AssignArrayIndex(exp.Right, exp.Left as YArrayIndexExpression, savedIndex);
+            }
+            throw new NotImplementedException();
+        }
+
+        private CodeInfo Assign(YExpression left, DataSource source, int savedIndex = -1)
         {
             switch (left.NodeType)
             {
                 case YExpressionType.Parameter:
-                    return AssignParameter(left as YParameterExpression);
-                case YExpressionType.Field:
-                    return AssignField(left as YFieldExpression, savedIndex);
+                    return AssignParameter(source, left as YParameterExpression, savedIndex);
                 case YExpressionType.Property:
-                    return AssignProperty(left as YPropertyExpression, savedIndex);
-                case YExpressionType.Assign:
-                    var a = left as YAssignExpression;
-                    if (savedIndex >= 0) {
-                        il.EmitLoadLocal(savedIndex);
-                        return Assign(a.Right, savedIndex);
-                    }
-                    Visit(a.Right);
-                    return Assign(a.Left, savedIndex);
-                case YExpressionType.ArrayIndex:
-                    return AssignArrayIndex(left as YArrayIndexExpression, savedIndex);
+                    return AssignProperty(source, (left as YPropertyExpression)!, savedIndex);
+                case YExpressionType.Field:
+                    return AssignField(source, (left as YFieldExpression)!, savedIndex);
                 case YExpressionType.Index:
-                    return AssignIndex(left as YIndexExpression, savedIndex);
+                    return AssignIndex(source, (left as YIndexExpression)!, savedIndex);
+                case YExpressionType.ArrayIndex:
+                    return AssignArrayIndex(source, left as YArrayIndexExpression, savedIndex);
             }
-
             throw new NotImplementedException();
         }
 
-        private CodeInfo AssignIndex(YIndexExpression yIndexExpression, int savedIndex = -1)
+        //private CodeInfo Assign(YExpression left, int savedIndex = -1)
+        //{
+        //    switch (left.NodeType)
+        //    {
+        //        case YExpressionType.Parameter:
+        //            return AssignParameter(left as YParameterExpression, savedIndex);
+        //        case YExpressionType.Field:
+        //            return AssignField(left as YFieldExpression, savedIndex);
+        //        case YExpressionType.Property:
+        //            return AssignProperty(left as YPropertyExpression, savedIndex);
+        //        case YExpressionType.Assign:
+        //            var a = left as YAssignExpression;
+        //            if (savedIndex >= 0) {
+        //                il.EmitLoadLocal(savedIndex);
+        //                return Assign(a.Right, savedIndex);
+        //            }
+        //            Visit(a.Right);
+        //            return Assign(a.Left, savedIndex);
+        //        case YExpressionType.ArrayIndex:
+        //            return AssignArrayIndex(left as YArrayIndexExpression, savedIndex);
+        //        case YExpressionType.Index:
+        //            return AssignIndex(left as YIndexExpression, savedIndex);
+        //    }
+
+        //    throw new NotImplementedException();
+        //}
+
+        private CodeInfo AssignIndex(DataSource exp, YIndexExpression yIndexExpression, int savedIndex = -1)
         {
-            if (savedIndex == -1)
-            {
-                var temp = tempVariables[yIndexExpression.Type];
-                savedIndex = temp.LocalIndex;
-                il.EmitSaveLocal(temp.LocalIndex);
-            }
             Visit(yIndexExpression.Target);
-            var pa = yIndexExpression.SetMethod.GetParameters();
+            var pa = yIndexExpression.SetMethod!.GetParameters();
             for (int i = 0; i < pa.Length - 1; i++)
             {
                 var pe = yIndexExpression.Arguments[i];
@@ -67,40 +147,25 @@ namespace YantraJS.Generator
                 }
                 Visit(pe);
             }
-            il.EmitLoadLocal(savedIndex);
+            VisitSave(exp, savedIndex);
             il.EmitCall(yIndexExpression.SetMethod);
             return true;
         }
 
-        private CodeInfo AssignProperty(YPropertyExpression yPropertyExpression, int savedIndex = -1)
+        private CodeInfo AssignProperty(DataSource exp, YPropertyExpression yPropertyExpression, int savedIndex = -1)
         {
-            if (savedIndex == -1)
-            {
-                var temp = tempVariables[yPropertyExpression.Type];
-                savedIndex = temp.LocalIndex;
-                il.EmitSaveLocal(temp.LocalIndex);
-            }
-            // using (this.addressScope.Push(true))
-            {
-                if (!yPropertyExpression.IsStatic)
-                    Visit(yPropertyExpression.Target);
-                il.EmitLoadLocal(savedIndex);
-                il.EmitCall(yPropertyExpression.SetMethod);
-            }
+            if (!yPropertyExpression.IsStatic)
+                Visit(yPropertyExpression.Target);
+            VisitSave(exp, savedIndex);
+            il.EmitCall(yPropertyExpression.SetMethod);
             return true;
         }
 
-        private CodeInfo AssignField(YFieldExpression yFieldExpression, int savedIndex = -1)
+        private CodeInfo AssignField(DataSource exp, YFieldExpression yFieldExpression, int savedIndex = -1)
         {
-            if (savedIndex == -1)
-            {
-                var temp = tempVariables[yFieldExpression.Type];
-                savedIndex = temp.LocalIndex;
-                il.EmitSaveLocal(temp.LocalIndex);
-            }
             if (!yFieldExpression.FieldInfo.IsStatic)
                 Visit(yFieldExpression.Target);
-            il.EmitLoadLocal(savedIndex);
+            VisitSave(exp, savedIndex);
             il.Emit(OpCodes.Stfld, yFieldExpression.FieldInfo);
             return true;
         }

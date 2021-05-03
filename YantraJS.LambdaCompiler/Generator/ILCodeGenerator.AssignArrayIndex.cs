@@ -9,17 +9,12 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
-        private CodeInfo AssignArrayIndex(YArrayIndexExpression yArrayIndexExpression, int savedIndex = -1)
+        private CodeInfo AssignArrayIndex(DataSource exp, YArrayIndexExpression yArrayIndexExpression, int savedIndex = -1)
         {
-            if (savedIndex == -1)
-            {
-                var temp = tempVariables[yArrayIndexExpression.Type];
-                savedIndex = temp.LocalIndex;
-                il.EmitSaveLocal(savedIndex);
-            }
             Visit(yArrayIndexExpression.Target);
             Visit(yArrayIndexExpression.Index);
-            il.EmitLoadLocal(savedIndex);
+
+            VisitSave(exp, savedIndex);
 
             var code = Type.GetTypeCode(yArrayIndexExpression.Type);
             switch (code)
