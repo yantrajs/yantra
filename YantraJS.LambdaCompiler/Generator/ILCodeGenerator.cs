@@ -17,7 +17,6 @@ namespace YantraJS.Generator
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
-        /// private readonly AddressScope addressScope;
 
         /// <summary>
         /// IL code must load the address
@@ -35,7 +34,6 @@ namespace YantraJS.Generator
             this.variables = new VariableInfo(il);
             this.labels = new LabelInfo(this.il);
             this.tempVariables = new TempVariables(il);
-            // this.addressScope = new AddressScope();
         }
 
         internal void Emit(YLambdaExpression exp)
@@ -48,14 +46,10 @@ namespace YantraJS.Generator
 
             using (tempVariables.Push())
             {
-                // using (addressScope.Push(false))
-                {
-                    // if it is try/catch... reset try/finally 
 
-                    Visit(ReWriteTryCatch(exp.Body));
+                Visit(ReWriteTryCatch(exp.Body));
 
-                    il.Emit(OpCodes.Ret);
-                }
+                il.Emit(OpCodes.Ret);
             }
 
             il.Verify();

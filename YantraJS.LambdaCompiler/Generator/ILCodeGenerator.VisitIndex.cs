@@ -14,12 +14,6 @@ namespace YantraJS.Generator
             Visit(yIndexExpression.Target);
             EmitParameters(yIndexExpression.GetMethod, yIndexExpression.Arguments, yIndexExpression.Type);
             il.EmitCall(yIndexExpression.GetMethod);
-            if (RequiresAddress)
-            {
-                var temp = this.tempVariables[yIndexExpression.Property.PropertyType];
-                il.EmitSaveLocal(temp.LocalIndex);
-                il.EmitLoadLocalAddress(temp.LocalIndex);
-            }
             return true;
         }
     }

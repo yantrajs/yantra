@@ -22,16 +22,7 @@ namespace YantraJS.Generator
             {
                 Visit(yPropertyExpression.Target);
             }
-            il.EmitCall(yPropertyExpression.GetMethod);
-
-            if (RequiresAddress)
-            {
-                // we need to store this in temporary variable and send the address..
-                var temp = this.tempVariables[yPropertyExpression.PropertyInfo.PropertyType];
-                il.EmitSaveLocal(temp.LocalIndex);
-                il.EmitLoadLocalAddress(temp.LocalIndex);
-                return true;
-            }
+            il.EmitCall(yPropertyExpression.GetMethod);            
             return true;
         }
 
