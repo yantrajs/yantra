@@ -17,24 +17,24 @@ namespace YantraJS.Generator
 
             var type = yArrayIndexExpression.Type;
 
-            var requiresAddress = this.RequiresAddress;
-            if (requiresAddress)
-            {
-                if (type.IsValueType)
-                {
-                    il.Emit(OpCodes.Ldelema);
-                    return true;
-                }
-                switch (Type.GetTypeCode(type))
-                {
-                    case TypeCode.Object:
-                    case TypeCode.String:
-                        il.Emit(OpCodes.Ldelem_Ref);
-                        return true;
-                }
-                il.Emit(OpCodes.Ldelema);
-                return true;
-            }
+            //var requiresAddress = this.RequiresAddress;
+            //if (requiresAddress)
+            //{
+            //    if (type.IsValueType)
+            //    {
+            //        il.Emit(OpCodes.Ldelema);
+            //        return true;
+            //    }
+            //    switch (Type.GetTypeCode(type))
+            //    {
+            //        case TypeCode.Object:
+            //        case TypeCode.String:
+            //            il.Emit(OpCodes.Ldelem_Ref);
+            //            return true;
+            //    }
+            //    il.Emit(OpCodes.Ldelema);
+            //    return true;
+            //}
 
             switch (Type.GetTypeCode(type))
             {

@@ -18,23 +18,23 @@ namespace YantraJS.Generator
             {
                 if (v.IsArgument)
                 {
-                    if (RequiresAddress)
-                    {
-                        if (!v.IsReference)
-                        {
-                            il.EmitLoadArgAddress(v.Index);
-                            return true;
-                        }
-                    }
+                    //if (RequiresAddress)
+                    //{
+                    //    if (!v.IsReference)
+                    //    {
+                    //        il.EmitLoadArgAddress(v.Index);
+                    //        return true;
+                    //    }
+                    //}
                     il.EmitLoadArg(v.Index);
                     return true;
                 }
 
-                if (RequiresAddress)
-                {
-                    il.EmitLoadLocalAddress(v.LocalBuilder.LocalIndex);
-                    return true;
-                }
+                //if (RequiresAddress)
+                //{
+                //    il.EmitLoadLocalAddress(v.LocalBuilder.LocalIndex);
+                //    return true;
+                //}
                 il.EmitLoadLocal(v.LocalBuilder.LocalIndex);
                 return true;
             }
@@ -43,11 +43,11 @@ namespace YantraJS.Generator
                 // irrespective of RequiresAddress
                 // retype always load ref...
                 il.EmitLoadArg(v.Index);
-                if (RequiresAddress && v.IsReference)
-                {
-                    il.Emit(OpCodes.Ldind_Ref);
-                    return true;
-                }
+                //if (RequiresAddress && v.IsReference)
+                //{
+                //    il.Emit(OpCodes.Ldind_Ref);
+                //    return true;
+                //}
                 return true;
             }
 

@@ -24,12 +24,12 @@ namespace YantraJS.Generator
                 }
                 a();
             }
-            if (RequiresAddress && newExpression.Type.IsValueType)
-            {
-                var t = tempVariables[newExpression.Type];
-                il.EmitSaveLocal(t.LocalIndex);
-                il.EmitLoadLocalAddress(t.LocalIndex);
-            }
+            //if (RequiresAddress && newExpression.Type.IsValueType)
+            //{
+            //    var t = tempVariables[newExpression.Type];
+            //    il.EmitSaveLocal(t.LocalIndex);
+            //    il.EmitLoadLocalAddress(t.LocalIndex);
+            //}
             return true;
         }
 

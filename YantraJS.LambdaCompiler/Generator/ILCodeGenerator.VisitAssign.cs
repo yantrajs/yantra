@@ -83,13 +83,10 @@ namespace YantraJS.Generator
                 savedIndex = temp.LocalIndex;
                 il.EmitSaveLocal(temp.LocalIndex);
             }
-            using (this.addressScope.Push(yFieldExpression.FieldInfo.FieldType.IsValueType))
-            {
-                if (!yFieldExpression.FieldInfo.IsStatic)
-                    Visit(yFieldExpression.Target);
-                il.EmitLoadLocal(savedIndex);
-                il.Emit(OpCodes.Stfld, yFieldExpression.FieldInfo);
-            }
+            if (!yFieldExpression.FieldInfo.IsStatic)
+                Visit(yFieldExpression.Target);
+            il.EmitLoadLocal(savedIndex);
+            il.Emit(OpCodes.Stfld, yFieldExpression.FieldInfo);
             return true;
         }
     }
