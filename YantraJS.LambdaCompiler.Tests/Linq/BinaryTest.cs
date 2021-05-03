@@ -87,5 +87,56 @@ namespace YantraJS.Linq
             Assert.AreEqual(n[1], 4);
         }
 
+        [TestMethod]
+        public void Struct() {
+
+
+            var b = YExpression.Parameters(typeof(string));
+
+            var indices = typeof(ScriptInfo).GetField(nameof(ScriptInfo.Indices));
+
+            var getOrCreate = typeof(KeyString).GetMethod(nameof(KeyString.GetOrCreate));
+
+            var create = YExpression.MemberInit(
+                    YExpression.New(typeof(ScriptInfo)),
+                    YExpression.Bind(indices,  
+                        YExpression.NewArray(typeof(KeyString),
+                            YExpression.Call(null, getOrCreate, b[0] )
+                        )
+                    ));
+
+            var lambda = YExpression.Lambda<Func<string, ScriptInfo>>("c", create, b);
+
+            var fx = lambda.CompileInAssembly();
+
+
+            var r = fx("a");
+
+            Assert.AreEqual(r.Indices[0].Value, "a");
+
+        }
+
+
+        public class ScriptInfo {
+
+            public KeyString[] Indices;
+
+        }
+
+        public readonly struct KeyString {
+            
+            public readonly string Value;
+
+            public KeyString(string value)
+            {
+                this.Value = value;
+            }
+
+            public static KeyString GetOrCreate(string a)
+            {
+                return new KeyString(a);
+            }
+        }
+
     }
 }

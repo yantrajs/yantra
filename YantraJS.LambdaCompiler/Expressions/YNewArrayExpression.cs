@@ -11,17 +11,11 @@ namespace YantraJS.Expressions
         public readonly YExpression[]? Elements;
         public readonly Type ElementType;
 
-        public YNewArrayExpression(Type type, IList<YExpression>? elements = null)
+        public YNewArrayExpression(Type type, YExpression[] elements)
             : base( YExpressionType.NewArray, type.MakeArrayType())
         {
             this.ElementType = type;
-            if(elements == null)
-            {
-                Elements = null;
-            } else
-            {
-                this.Elements = elements.ToArray();
-            }
+            this.Elements = elements;
         }
 
         public override void Print(IndentedTextWriter writer)

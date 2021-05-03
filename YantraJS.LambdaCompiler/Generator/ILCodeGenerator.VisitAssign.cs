@@ -52,6 +52,21 @@ namespace YantraJS.Generator
                 il.EmitSaveLocal(temp.LocalIndex);
             }
             Visit(yIndexExpression.Target);
+            var pa = yIndexExpression.SetMethod.GetParameters();
+            for (int i = 0; i < pa.Length - 1; i++)
+            {
+                var pe = yIndexExpression.Arguments[i];
+                var p = pa[i];
+                if(p.IsIn || p.IsOut)
+                {
+                    if(p.ParameterType.IsValueType)
+                    {
+                        LoadAddress(pe);
+                        continue;
+                    }
+                }
+                Visit(pe);
+            }
             il.EmitLoadLocal(savedIndex);
             il.EmitCall(yIndexExpression.SetMethod);
             return true;

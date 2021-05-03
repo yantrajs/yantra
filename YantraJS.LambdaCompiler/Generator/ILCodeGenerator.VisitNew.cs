@@ -40,20 +40,19 @@ namespace YantraJS.Generator
             {
                 var ea = yNewArrayExpression.Elements;
 
+                var elementType = yNewArrayExpression.ElementType;
+
                 // store length...
-                il.EmitConstant(yNewArrayExpression.Elements?.Length ?? 0);
+                il.EmitConstant(ea.Length);
 
-                il.Emit(OpCodes.Newarr, yNewArrayExpression.ElementType);
-
-                if (ea == null)
-                    return true;
+                il.Emit(OpCodes.Newarr, elementType);
 
                 for (int i = 0; i < ea.Length; i++)
                 {
                     il.Emit(OpCodes.Dup);
                     il.EmitConstant(i);
                     Visit(ea[i]);
-                    il.Emit(OpCodes.Stelem_Ref);
+                    il.Emit(OpCodes.Stelem, elementType);
                 }
 
                 return true;

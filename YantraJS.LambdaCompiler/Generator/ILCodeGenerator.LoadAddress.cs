@@ -38,7 +38,7 @@ namespace YantraJS.Generator
 
             if (type.IsValueType)
             {
-                il.Emit(OpCodes.Ldelema);
+                il.Emit(OpCodes.Ldelema, type);
                 return true;
             }
             switch (Type.GetTypeCode(type))
@@ -48,7 +48,7 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Ldelem_Ref);
                     return true;
             }
-            il.Emit(OpCodes.Ldelema);
+            il.Emit(OpCodes.Ldelema, type);
             return true;
 
         }

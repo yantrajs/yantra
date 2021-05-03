@@ -117,7 +117,7 @@ namespace YantraJS.Expressions
 
         public static YMemberInitExpression MemberInit(
             YNewExpression exp,
-            YMemberAssignment[] list)
+            params YMemberAssignment[] list)
         {
             return new YMemberInitExpression(exp, list);
         }
@@ -229,10 +229,12 @@ namespace YantraJS.Expressions
             return new YPropertyExpression(target, field);
         }
 
-        public static YNewArrayExpression NewArray(Type type, IList<YExpression> elements)
+        public static YNewArrayExpression NewArray(Type type, params YExpression[] elements)
         {
             return new YNewArrayExpression(type, elements);
         }
+
+
         public static YNewArrayBoundsExpression NewArrayBounds(Type type, YExpression size)
         {
             return new YNewArrayBoundsExpression(type, size);
