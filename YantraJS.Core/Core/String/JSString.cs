@@ -167,7 +167,7 @@ namespace YantraJS.Core
             set { }
         }
 
-        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this.Length);
         }
@@ -202,7 +202,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        internal override JSBoolean Less(JSValue value)
+        public override JSBoolean Less(JSValue value)
         {
             if (value.IsUndefined)
                 return JSBoolean.False;
@@ -219,7 +219,7 @@ namespace YantraJS.Core
 
         }
 
-        internal override JSBoolean LessOrEqual(JSValue value)
+        public override JSBoolean LessOrEqual(JSValue value)
         {
             if (value.IsUndefined)
                 return JSBoolean.False;
@@ -234,7 +234,7 @@ namespace YantraJS.Core
                 : JSBoolean.False;
         }
 
-        internal override JSBoolean Greater(JSValue value)
+        public override JSBoolean Greater(JSValue value)
         {
             if (value.IsUndefined)
                 return JSBoolean.False;
@@ -249,7 +249,7 @@ namespace YantraJS.Core
                 : JSBoolean.False;
         }
 
-        internal override JSBoolean GreaterOrEqual(JSValue value)
+        public override JSBoolean GreaterOrEqual(JSValue value)
         {
             if (value.IsUndefined)
                 return JSBoolean.False;

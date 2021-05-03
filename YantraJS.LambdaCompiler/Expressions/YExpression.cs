@@ -108,13 +108,6 @@ namespace YantraJS.Expressions
         }
 
 
-        public static YBlockExpression Block(
-            IEnumerable<YParameterExpression>? variables,
-            IList<YExpression> expressions)
-        {
-            return new YBlockExpression(variables, expressions);
-        }
-
         public static YMemberInitExpression MemberInit(
             YNewExpression exp,
             params YMemberAssignment[] list)
@@ -160,6 +153,8 @@ namespace YantraJS.Expressions
 
         public static YBinaryExpression Equal(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Equal, right);
+
+        public static YEmptyExpression Empty = new YEmptyExpression();
 
         internal static YNewExpression CallNew(
             ConstructorInfo constructor, params YExpression[] args)

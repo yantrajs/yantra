@@ -159,7 +159,8 @@ namespace YantraJS.Core
             }
         }
 
-        internal static JSObject NewWithProperties()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSObject NewWithProperties()
         {
             var o = new JSObject
             {
@@ -168,7 +169,8 @@ namespace YantraJS.Core
             return o;
         }
 
-        internal static JSObject NewWithElements()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSObject NewWithElements()
         {
             var o = new JSObject()
             {
@@ -177,7 +179,8 @@ namespace YantraJS.Core
             return o;
         }
 
-        internal static JSObject NewWithPropertiesAndElements()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSObject NewWithPropertiesAndElements()
         {
             var o = new JSObject
             {
@@ -187,26 +190,30 @@ namespace YantraJS.Core
             return o;
         }
 
-        internal JSObject AddElement(uint index, JSValue value)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddElement(uint index, JSValue value)
         {
             elements[index] = JSProperty.Property(value);
             return this;
         }
 
-        internal JSObject AddProperty(in KeyString key, JSValue value)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddProperty(in KeyString key, JSValue value)
         {
             ownProperties[key.Key] = JSProperty.Property(key, value);
             return this;
         }
 
-        internal JSObject AddProperty(in KeyString key, JSFunction getter, JSFunction setter)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddProperty(in KeyString key, JSFunction getter, JSFunction setter)
         {
             ownProperties[key.Key] = JSProperty.Property(key, getter?.f, setter?.f);
             return this;
         }
 
 
-        internal JSObject AddProperty(JSValue key, JSValue value)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddProperty(JSValue key, JSValue value)
         {
             var k = key.ToKey(true);
             if (k.IsUInt)
@@ -503,7 +510,7 @@ namespace YantraJS.Core
             }
         }
 
-        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this, showEnumerableOnly, inherited);
             //var elements = this.elements;
@@ -708,7 +715,7 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError($"{this} is not a function");
         }
 
-        internal override JSBoolean Less(JSValue value)
+        public override JSBoolean Less(JSValue value)
         {
             switch(value)
             {
@@ -720,7 +727,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        internal override JSBoolean LessOrEqual(JSValue value)
+        public override JSBoolean LessOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
                 return JSBoolean.True;
@@ -733,7 +740,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        internal override JSBoolean Greater(JSValue value)
+        public override JSBoolean Greater(JSValue value)
         {
             switch (value)
             {
@@ -744,7 +751,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        internal override JSBoolean GreaterOrEqual(JSValue value)
+        public override JSBoolean GreaterOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
                 return JSBoolean.True;

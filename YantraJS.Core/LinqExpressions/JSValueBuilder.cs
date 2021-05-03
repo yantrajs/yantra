@@ -219,7 +219,7 @@ namespace YantraJS.ExpHelper
         }
 
         private static MethodInfo _Less
-            = type.InternalMethod(nameof(Core.JSValue.Less), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.Less), typeof(JSValue));
 
         public static Expression Less(Expression target, Expression value)
         {
@@ -227,7 +227,7 @@ namespace YantraJS.ExpHelper
         }
 
         private static MethodInfo _LessOrEqual
-            = type.InternalMethod(nameof(Core.JSValue.LessOrEqual), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.LessOrEqual), typeof(JSValue));
 
         public static Expression LessOrEqual(Expression target, Expression value)
         {
@@ -235,14 +235,14 @@ namespace YantraJS.ExpHelper
         }
 
         private static MethodInfo _Greater
-            = type.InternalMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
         public static Expression Greater(Expression target, Expression value)
         {
             return Expression.Call(target, _Greater, value);
         }
 
         private static MethodInfo _GreaterOrEqual
-            = type.InternalMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
             return Expression.Call(target, _GreaterOrEqual, value);
@@ -260,7 +260,7 @@ namespace YantraJS.ExpHelper
         }
 
         private static MethodInfo _GetAllKeys =
-            type.InternalMethod(nameof(JSValue.GetAllKeys), typeof(bool), typeof(bool));
+            type.PublicMethod(nameof(JSValue.GetAllKeys), typeof(bool), typeof(bool));
 
         private static MethodInfo _GetEnumerator =
             typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));

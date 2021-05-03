@@ -35,6 +35,7 @@ namespace YantraJS.Expressions
         Invoke,
         Delegate,
         MemberInit,
-        Relay
+        Relay,
+        Empty
     }
 }

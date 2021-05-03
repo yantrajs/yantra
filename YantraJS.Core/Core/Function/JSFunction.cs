@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -85,7 +86,8 @@ namespace YantraJS.Core
 
         internal static JSClosureFunctionDelegate emptyCF = (ScriptInfo s, JSVariable[] closures, in Arguments a) => a.This;
 
-        internal JSObject prototype;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject prototype;
 
         readonly StringSpan source;
 

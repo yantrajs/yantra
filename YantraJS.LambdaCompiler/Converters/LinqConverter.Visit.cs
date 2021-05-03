@@ -77,7 +77,12 @@ namespace YantraJS.Converters
                 case ExpressionType.Decrement:
                     break;
                 case ExpressionType.Default:
-                    break;
+                    var de = exp as DefaultExpression;
+                    if(exp.Type == typeof(void))
+                    {
+                        return YExpression.Empty;
+                    }
+                    return YExpression.Null;
                 case ExpressionType.Divide:
                     be = exp as BinaryExpression;
                     return YExpression.Binary(Visit(be.Left), YOperator.Divide, Visit(be.Right));

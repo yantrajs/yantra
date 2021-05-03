@@ -13,14 +13,6 @@ namespace YantraJS
             Top.PendingReplacements.Variables.Add(pe, null);
         }
 
-        public void Register(YParameterExpression[] list)
-        {
-            foreach (var item in list)
-            {
-                if(!Top.PendingReplacements.Variables.ContainsKey(item))
-                    Top.PendingReplacements.Variables.Add(item, null);
-            }
-        }
 
         public ClosureScopeItem Push(YExpression exp)
         {
@@ -33,6 +25,15 @@ namespace YantraJS
 
             public readonly PendingReplacements PendingReplacements;
 
+            public void Register(YParameterExpression[] list)
+            {
+                foreach (var item in list)
+                {
+                    if (!PendingReplacements.Variables.ContainsKey(item))
+                        PendingReplacements.Variables.Add(item, null);
+                }
+
+            }
 
             public ClosureScopeItem(YExpression exp)
             {
@@ -49,12 +50,18 @@ namespace YantraJS
                 return AccessInternal(node, box).expression;
             }
 
-            internal (YExpression expression, YExpression parameter) AccessInternal(YParameterExpression node, bool box = false)
+            internal (YExpression expression, YParameterExpression parameter) AccessInternal(YParameterExpression node, bool box = false)
             {
                 if(PendingReplacements.Variables.TryGetValue(node, out var be))
                 {
                     if(box && be == null)
                     {
+                        var boxType = node.Type; 
+                        if(boxType.IsByRef)
+                        {
+                            boxType = boxType.ReflectedType;
+                        }
+
                         var pe = YExpression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
                         be = new BoxParamter {
                             Parameter = pe,
@@ -65,7 +72,9 @@ namespace YantraJS
                         PendingReplacements.Variables[node] = be;
                     }
                     if (be != null)
+                    {
                         return (be.Expression, be.Parameter);
+                    }
                     return (node, node);
                 }
 
@@ -89,5 +98,11 @@ namespace YantraJS
         {
             return Top.Access(node);
         }
+
+        internal (YExpression expression, YParameterExpression parameter) AccessParameter(YParameterExpression node)
+        {
+            return Top.AccessInternal(node);
+        }
+
     }
 }

@@ -331,7 +331,7 @@ namespace YantraJS.Core {
             return this.StrictEquals(value);
         }
 
-        internal virtual JSBoolean Less(JSValue value)
+        public virtual JSBoolean Less(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
@@ -346,7 +346,7 @@ namespace YantraJS.Core {
             return JSBoolean.False;
 
         }
-        internal virtual JSBoolean LessOrEqual(JSValue value)
+        public virtual JSBoolean LessOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
@@ -362,7 +362,7 @@ namespace YantraJS.Core {
 
         }
 
-        internal virtual JSBoolean Greater(JSValue value)
+        public virtual JSBoolean Greater(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
@@ -377,7 +377,7 @@ namespace YantraJS.Core {
             return JSBoolean.False;
 
         }
-        internal virtual JSBoolean GreaterOrEqual(JSValue value)
+        public virtual JSBoolean GreaterOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined)) {
                 if (this.CanBeNumber || value.CanBeNumber)
@@ -396,7 +396,7 @@ namespace YantraJS.Core {
         //    yield break;
         //}
 
-        internal virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
+        public virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
             return new ElementEnumerator();
         }
 

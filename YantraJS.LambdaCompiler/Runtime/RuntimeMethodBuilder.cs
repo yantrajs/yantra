@@ -38,7 +38,7 @@ namespace YantraJS
             return YExpression.Call(
                 innerLambda.Repository, 
                 create , 
-                YExpression.NewArray(typeof(Box), closures),
+                closures == null ? YExpression.Null : YExpression.NewArray(typeof(Box), closures),
                 YExpression.Constant(id));
         }
     }

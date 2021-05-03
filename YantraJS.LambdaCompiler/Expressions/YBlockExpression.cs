@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,14 @@ namespace YantraJS.Expressions
         public readonly YParameterExpression[] Variables;
         public readonly YExpression[] Expressions;
 
-        public YBlockExpression(IEnumerable<YParameterExpression>? variables, IList<YExpression> expressions)
+        public YBlockExpression(IEnumerable<YParameterExpression>? variables, 
+            YExpression[] expressions)
             :base(YExpressionType.Block, expressions.Last().Type)
         {
             this.Variables = variables?.ToArray() ?? (new YParameterExpression[] { });
-            this.Expressions = expressions.ToArray();
+            if (this.Variables.Any(v => v == null))
+                throw new ArgumentNullException();
+            this.Expressions = expressions;
         }
 
         public override void Print(IndentedTextWriter writer)

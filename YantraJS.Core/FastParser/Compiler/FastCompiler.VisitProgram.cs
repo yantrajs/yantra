@@ -39,7 +39,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                         var vs = scope.CreateVariable(v, null, true);
                         vs.Expression = JSVariableBuilder.Property(vs.Variable);
-                        vs.SetInit(JSVariableBuilder.New(g, v));
+                        vs.SetInit(JSVariableBuilder.New(g, v.Value));
                     }
                 }
 

@@ -432,7 +432,7 @@ namespace YantraJS.Core
                 {
                     isFirst = false;
                 }
-                if (item.IsNullOrUndefined)
+                if (item == null || item.IsNullOrUndefined)
                     continue;
                 sb.Append(item.ToString());
             }

@@ -361,7 +361,11 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Ldc_I4_8);
                     return;
             }
-            il.Emit(OpCodes.Ldc_I4_S, OpCodes.Ldc_I4, i);
+            if (sbyte.MinValue > i && i < sbyte.MaxValue) {
+                il.Emit(OpCodes.Ldc_I4_S, (sbyte)i);
+                return;
+            }
+            il.Emit(OpCodes.Ldc_I4, i);
             return;
         }
     }

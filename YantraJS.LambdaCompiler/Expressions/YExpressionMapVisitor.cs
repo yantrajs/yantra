@@ -66,10 +66,13 @@ namespace YantraJS.Expressions
             for (int i = 0; i < statements.Length; i++)
             {
                 ref var item = ref statements[i];
-                var visited = Visit(item);
+                var visitedItem = Visit(item);
+                var visited = visitedItem as T;
+                if (visited == null)
+                    throw new ArgumentNullException();
                 if (visited != item)
                     dirty = true;
-                r[i] = visited as T;
+                r[i] = visited;
             }
             if (!dirty)
             {
@@ -167,6 +170,12 @@ namespace YantraJS.Expressions
         {
             return yDelegateExpression;
         }
+
+        protected override YExpression VisitEmpty(YEmptyExpression exp)
+        {
+            return exp;
+        }
+
         protected override YExpression VisitField(YFieldExpression yFieldExpression)
         {
             if (Modified(yFieldExpression.Target, out var target))

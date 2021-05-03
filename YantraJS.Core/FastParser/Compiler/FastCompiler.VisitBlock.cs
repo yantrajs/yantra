@@ -10,6 +10,10 @@ namespace YantraJS.Core.FastParser.Compiler
     {
 
         protected override Expression VisitBlock(AstBlock block) {
+
+            if (block.Statements.Length == 0)
+                return Expression.Empty();
+
             var blockList = pool.AllocateList<Expression>();
             var hoistingScope = block.HoistingScope;
             var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));

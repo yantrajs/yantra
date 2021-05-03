@@ -20,17 +20,19 @@ namespace YantraJS
         {
 
             var inner = Visit(relayExpression.InnerLambda);
-
-            return lambdaMethodBuilder.Relay(relayExpression.Closures, inner as YLambdaExpression);
+            if(inner.NodeType == YExpressionType.Lambda)
+                return lambdaMethodBuilder.Relay(relayExpression.Closures, inner as YLambdaExpression);
+            return inner;
             // return base.VisitRelay(relayExpression);
         }
 
-        //protected override YExpression VisitLambda(YLambdaExpression node)
-        //{
-        //    if (exp == node)
-        //        return base.VisitLambda(node);
+        protected override YExpression VisitLambda(YLambdaExpression node)
+        {
+            if (exp == node)
+                return base.VisitLambda(node);
 
-        //    return lambdaMethodBuilder.Create(node.Name, node);
-        //}
+            node = base.VisitLambda(node) as YLambdaExpression;
+            return lambdaMethodBuilder.Relay(null, node.PrefixParameter(typeof(Closures)));
+        }
     }
 }

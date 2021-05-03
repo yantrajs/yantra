@@ -51,7 +51,7 @@ namespace YantraJS.ExpHelper
         static Type type = typeof(JSFunction);
 
         private static FieldInfo _prototype =
-            type.InternalField(nameof(JSFunction.prototype));
+            type.PublicField(nameof(JSFunction.prototype));
 
         public static Expression Prototype(Expression target)
         {
