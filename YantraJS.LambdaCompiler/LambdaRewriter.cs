@@ -34,13 +34,13 @@ namespace YantraJS
                 {
                     // register parameters...
 
-                    stack.Register(node.Parameters);
+                    stack.Top.Register(node.Parameters);
 
                     return base.VisitLambda(node);
                 }
                 using (var scope = stack.Push(node))
                 {
-                    stack.Register(node.Parameters);
+                    stack.Top.Register(node.Parameters);
                     return base.VisitLambda(node);
                 }
             }
@@ -121,7 +121,7 @@ namespace YantraJS
                     return YExpression.InlineLambda( 
                         n.Type,
                         n.Name, 
-                        YExpression.Block(localBoxes, stmts), 
+                        YExpression.Block(localBoxes, stmts.ToArray()), 
                         n.Parameters,
                         this.repository,
                         n.ReturnType);
@@ -131,7 +131,7 @@ namespace YantraJS
                 if (stmts.Count > 0 || localBoxes.Count > 0)
                 {
                     stmts.Add(body);
-                    body = YExpression.Block(localBoxes, stmts);
+                    body = YExpression.Block(localBoxes, stmts.ToArray());
                 }
 
                 var x = Relay(
@@ -187,7 +187,7 @@ namespace YantraJS
             if (Collect)
             {
                 // variables will be pushed.. so we dont need them...
-                stack.Register(node.Variables);
+                stack.Top.Register(node.Variables);
                 // node = new YBlockExpression(null, node.Expressions);
             }
 
