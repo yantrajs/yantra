@@ -20,6 +20,11 @@ namespace YantraJS.Generator
             var requiresAddress = this.RequiresAddress;
             if (requiresAddress)
             {
+                if (type.IsValueType)
+                {
+                    il.Emit(OpCodes.Ldelema);
+                    return true;
+                }
                 switch (Type.GetTypeCode(type))
                 {
                     case TypeCode.Object:

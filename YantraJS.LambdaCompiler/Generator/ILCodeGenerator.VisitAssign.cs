@@ -13,71 +13,81 @@ namespace YantraJS.Generator
         {
             // we need to investigate each type of expression on the left...
             Visit(yAssignExpression.Right);
-            if (ReturnLocal >= 0)
-            {
-                il.Emit(OpCodes.Dup);
-            }
             return Assign(yAssignExpression.Left);
         }
 
-        private CodeInfo Assign(YExpression left)
+        private CodeInfo Assign(YExpression left, int savedIndex = -1)
         {
             switch (left.NodeType)
             {
                 case YExpressionType.Parameter:
                     return AssignParameter(left as YParameterExpression);
                 case YExpressionType.Field:
-                    return AssignField(left as YFieldExpression);
+                    return AssignField(left as YFieldExpression, savedIndex);
                 case YExpressionType.Property:
-                    return AssignProperty(left as YPropertyExpression);
+                    return AssignProperty(left as YPropertyExpression, savedIndex);
                 case YExpressionType.Assign:
-                    il.Emit(OpCodes.Dup);
-                    return VisitAssign(left as YAssignExpression);
+                    var a = left as YAssignExpression;
+                    if (savedIndex >= 0) {
+                        il.EmitLoadLocal(savedIndex);
+                        return Assign(a.Right, savedIndex);
+                    }
+                    Visit(a.Right);
+                    return Assign(a.Left, savedIndex);
                 case YExpressionType.ArrayIndex:
-                    return AssignArrayIndex(left as YArrayIndexExpression);
+                    return AssignArrayIndex(left as YArrayIndexExpression, savedIndex);
                 case YExpressionType.Index:
-                    return AssignIndex(left as YIndexExpression);
+                    return AssignIndex(left as YIndexExpression, savedIndex);
             }
 
             throw new NotImplementedException();
         }
 
-        private CodeInfo AssignIndex(YIndexExpression yIndexExpression)
+        private CodeInfo AssignIndex(YIndexExpression yIndexExpression, int savedIndex = -1)
         {
-            var temp = tempVariables[yIndexExpression.Type];
-            il.EmitSaveLocal(temp.LocalIndex);
-            // using (this.addressScope.Push(true))
+            if (savedIndex == -1)
             {
-                Visit(yIndexExpression.Target);
-                il.EmitLoadLocal(temp.LocalIndex);
-                il.EmitCall(yIndexExpression.SetMethod);
+                var temp = tempVariables[yIndexExpression.Type];
+                savedIndex = temp.LocalIndex;
+                il.EmitSaveLocal(temp.LocalIndex);
             }
+            Visit(yIndexExpression.Target);
+            il.EmitLoadLocal(savedIndex);
+            il.EmitCall(yIndexExpression.SetMethod);
             return true;
         }
 
-        private CodeInfo AssignProperty(YPropertyExpression yPropertyExpression)
+        private CodeInfo AssignProperty(YPropertyExpression yPropertyExpression, int savedIndex = -1)
         {
-            var temp = tempVariables[yPropertyExpression.Type];
-            il.EmitSaveLocal(temp.LocalIndex);
+            if (savedIndex == -1)
+            {
+                var temp = tempVariables[yPropertyExpression.Type];
+                savedIndex = temp.LocalIndex;
+                il.EmitSaveLocal(temp.LocalIndex);
+            }
             // using (this.addressScope.Push(true))
             {
-                if(!yPropertyExpression.IsStatic)
+                if (!yPropertyExpression.IsStatic)
                     Visit(yPropertyExpression.Target);
-                il.EmitLoadLocal(temp.LocalIndex);
+                il.EmitLoadLocal(savedIndex);
                 il.EmitCall(yPropertyExpression.SetMethod);
             }
             return true;
         }
 
-        private CodeInfo AssignField(YFieldExpression yFieldExpression)
+        private CodeInfo AssignField(YFieldExpression yFieldExpression, int savedIndex = -1)
         {
-            var temp = tempVariables[yFieldExpression.Type];
-            il.EmitSaveLocal(temp.LocalIndex);
+            if (savedIndex == -1)
+            {
+                var temp = tempVariables[yFieldExpression.Type];
+                savedIndex = temp.LocalIndex;
+                il.EmitSaveLocal(temp.LocalIndex);
+            }
             using (this.addressScope.Push(yFieldExpression.FieldInfo.FieldType.IsValueType))
             {
                 if (!yFieldExpression.FieldInfo.IsStatic)
                     Visit(yFieldExpression.Target);
-                il.EmitLoadLocal(temp.LocalIndex);
+                il.EmitLoadLocal(savedIndex);
                 il.Emit(OpCodes.Stfld, yFieldExpression.FieldInfo);
             }
             return true;

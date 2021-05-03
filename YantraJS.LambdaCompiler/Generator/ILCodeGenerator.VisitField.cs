@@ -22,7 +22,7 @@ namespace YantraJS.Generator
                     return true;
                 }
 
-                if (RequiresAddress)
+                if (RequiresAddress && field.FieldType.IsValueType)
                 {
                     il.Emit(OpCodes.Ldsflda, field);
                     return true;
@@ -33,7 +33,7 @@ namespace YantraJS.Generator
 
             Visit(yFieldExpression.Target);
 
-            if (RequiresAddress)
+            if (RequiresAddress && field.FieldType.IsValueType)
             {
                 il.Emit(OpCodes.Ldflda, field);
                 return true;
