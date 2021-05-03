@@ -65,14 +65,14 @@ namespace YantraJS.Generator
                 case TypeCode.UInt32:
                     il.Emit(OpCodes.Ldelem_U4);
                     break;
-                case TypeCode.Object:
                 case TypeCode.String:
                     il.Emit(OpCodes.Ldelem_Ref);
                     break;
                 default:
-                    il.Emit(OpCodes.Ldelem);
+                    il.Emit(OpCodes.Ldelem, yArrayIndexExpression.Type);
                     break;
             }
+
             return true;
         }
 
