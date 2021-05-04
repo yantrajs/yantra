@@ -49,7 +49,7 @@ namespace YantraJS
             TypeBuilder type
             )
         {
-            if (!lambdaExpression.ParameterTypes.First().IsAssignableFrom(type))
+            if (!lambdaExpression.This.Type.IsAssignableFrom(type))
                 throw new NotSupportedException($"First parameter of an instance method must be same as the owner type");
 
             lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
@@ -60,7 +60,7 @@ namespace YantraJS
             var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
                 MethodAttributes.Public, CallingConventions.HasThis,
                 lambdaExpression.ReturnType,
-                lambdaExpression.ParameterTypes.Skip(1).ToArray());
+                lambdaExpression.ParameterTypes);
 
             NestedRewriter nw = new NestedRewriter(lambdaExpression, new LambdaMethodBuilder(method));
             lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
@@ -117,7 +117,9 @@ namespace YantraJS
                 TypeAttributes.Public,
                 typeof(Closures));
 
-            var (im, il, exp) = lambdaExpression.PrefixParameter(derived).CompileToInstnaceMethod(derived);
+            var (im, il, exp) = lambdaExpression
+                .WithThis(typeof(Closures))
+                .CompileToInstnaceMethod(derived);
 
             var cnstr = derived.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] {
                 typeof(Box[])

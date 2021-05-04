@@ -34,13 +34,13 @@ namespace YantraJS
                 {
                     // register parameters...
 
-                    stack.Top.Register(node.Parameters);
+                    stack.Top.Register(node);
 
                     return base.VisitLambda(node);
                 }
                 using (var scope = stack.Push(node))
                 {
-                    stack.Top.Register(node.Parameters);
+                    stack.Top.Register(node);
                     return base.VisitLambda(node);
                 }
             }
@@ -85,7 +85,7 @@ namespace YantraJS
                     localBoxes.Add(bp.Parameter);
                     if (bp.Parent != null)
                     {
-                        if(bp.Parent.Type == typeof(IMethodRepository))
+                        if(typeof(IMethodRepository).IsAssignableFrom(bp.Parent.Type))
                         {
                             selfRepository = bp.Parent;
                         }
@@ -122,6 +122,7 @@ namespace YantraJS
                         n.Type,
                         n.Name, 
                         YExpression.Block(localBoxes, stmts.ToArray()), 
+                        repository!,
                         n.Parameters,
                         this.repository,
                         n.ReturnType);
@@ -150,7 +151,7 @@ namespace YantraJS
         public static YExpression Relay(
             string? name,
             YExpression[] closures,
-            YParameterExpression closure,
+            YParameterExpression c,
             YParameterExpression[] parameters,
             YExpression body,
             YExpression? repository,
@@ -158,26 +159,7 @@ namespace YantraJS
             Type delegateType
             )
         {
-
-            var n = parameters.Length;
-
-            if (n > 10)
-                throw new NotSupportedException();
-
-            var newParameterList = new List<YParameterExpression> { closure };
-            var parameterTypes = new List<Type>();
-            foreach (var p in parameters)
-            {
-                parameterTypes.Add(p.Type);
-                newParameterList.Add(p);
-            }
-
-            if (body.Type != typeof(void))
-            {
-                parameterTypes.Add(body.Type);
-            }
-
-            var lambda = YExpression.InlineLambda(delegateType, name ?? "Unnamed", body, newParameterList.ToArray(), repository, returnType);
+            var lambda = YExpression.InlineLambda(delegateType, name ?? "Unnamed", body, c, parameters, repository, returnType);
 
             return YExpression.Relay(closures, lambda);
         }
@@ -213,11 +195,12 @@ namespace YantraJS
 
         public static YExpression Rewrite(YLambdaExpression convert)
         {
-            var l = new LambdaRewriter(convert.Parameters.FirstOrDefault(x => x.Type == typeof(IMethodRepository)));
+            var l = new LambdaRewriter(
+                convert.This ?? convert.Parameters.FirstOrDefault(x => x.Type == typeof(IMethodRepository)));
             return l.Convert(convert);
         }
 
-        private YExpression Convert(YExpression exp)
+        private YExpression Convert(YLambdaExpression exp)
         {
             using (var scope = stack.Push(exp)) {
                 var  r = Visit(exp);

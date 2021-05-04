@@ -16,9 +16,9 @@ namespace YantraJS.Runtime
         {
             var originalTypes = exp.ParameterTypes;
             string expString = exp.ToString();
-            exp = exp.PrefixParameter(typeof(Closures)).As<T>();
+            exp = exp.WithThis<T>(typeof(Closures));
 
-            var method = new DynamicMethod(exp.Name, exp.ReturnType, exp.ParameterTypes, typeof(Closures), true);
+            var method = new DynamicMethod(exp.Name, exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
 
             var ilg = method.GetILGenerator();
 
@@ -40,7 +40,10 @@ namespace YantraJS.Runtime
 
             boundType = boundType ?? typeof(Closures);
 
-            var method = new DynamicMethod(exp.Name , exp.ReturnType, exp.ParameterTypes, boundType, true);
+            // dynamic method expects this as first parameter !!
+
+
+            var method = new DynamicMethod(exp.Name , exp.ReturnType, exp.ParameterTypesWithThis, boundType, true);
 
             var ilg = method.GetILGenerator();
 
@@ -59,9 +62,13 @@ namespace YantraJS.Runtime
         {
             var repository = new MethodRepository();
 
-            var outerLambda = YExpression.Lambda<Func<IMethodRepository,T>>(expression.Name + "_outer", expression, new YParameterExpression[] {
-                YExpression.Parameter(typeof(IMethodRepository))
-            }) as YLambdaExpression;
+            var outerLambda = YExpression
+                .InstanceLambda<Func<T>>(
+                    expression.Name + "_outer", 
+                    expression, 
+                    YExpression.Parameter(typeof(MethodRepository))
+                    , new YParameterExpression[] { })
+                as YLambdaExpression;
 
             outerLambda = LambdaRewriter.Rewrite(outerLambda)
                 as YLambdaExpression;
@@ -79,9 +86,13 @@ namespace YantraJS.Runtime
             repository.IL = il;
             repository.Exp = exp;
 
-            var func = outer.CreateDelegate(typeof(Func<object>), repository) as Func<object>;
+            // var fx = Delegate.CreateDelegate(typeof(Func<T>), repository, outer, true);
+            var func = outer.CreateDelegate(typeof(Func<T>), repository);
 
-            return (T)(object)func();
+            // return (T)(object)func();
+
+            //return (T)(object)outer.CreateDelegate(typeof(T), repository);
+            return (T)func.DynamicInvoke();
         }
 
         private static ModuleBuilder moduleBuilder;

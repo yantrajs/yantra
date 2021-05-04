@@ -39,6 +39,10 @@ namespace YantraJS.Generator
         internal void Emit(YLambdaExpression exp)
         {
             short i = 0;
+            if(exp.This != null)
+            {
+                variables.Create(exp.This, true, i++);
+            }
             foreach(var p in exp.Parameters)
             {
                 variables.Create(p, true, i++);

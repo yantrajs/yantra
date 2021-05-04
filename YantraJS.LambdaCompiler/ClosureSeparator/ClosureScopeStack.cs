@@ -14,7 +14,7 @@ namespace YantraJS
         }
 
 
-        public ClosureScopeItem Push(YExpression exp)
+        public ClosureScopeItem Push(YLambdaExpression exp)
         {
             return Push(new ClosureScopeItem(exp));
         }
@@ -35,10 +35,25 @@ namespace YantraJS
 
             }
 
-            public ClosureScopeItem(YExpression exp)
+            public void Register(YLambdaExpression exp)
+            {
+                foreach (var item in exp.Parameters)
+                {
+                    if (!PendingReplacements.Variables.ContainsKey(item))
+                        PendingReplacements.Variables.Add(item, null);
+                }
+                if (exp.This != null)
+                {
+                    if (!PendingReplacements.Variables.ContainsKey(exp.This))
+                        PendingReplacements.Variables.Add(exp.This, null);
+                }
+            }
+
+
+            public ClosureScopeItem(YLambdaExpression exp)
             {
                 this.Expression = exp;
-                PendingReplacements = exp.GetPendingReplacements();
+                PendingReplacements = exp.PendingReplacements;
             }
 
             private int index = 0;

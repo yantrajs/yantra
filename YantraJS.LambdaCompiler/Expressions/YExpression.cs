@@ -264,7 +264,16 @@ namespace YantraJS.Expressions
 
         public static YExpression<T> Lambda<T>(string name, YExpression body, YParameterExpression[] parameters)
         {
-            return new YExpression<T>(name, body, parameters, null);
+            return new YExpression<T>(name, body, null, parameters, null);
+        }
+
+        public static YExpression<T> InstanceLambda<T>(
+            string name, 
+            YExpression body, 
+            YParameterExpression @this,
+            YParameterExpression[] parameters)
+        {
+            return new YExpression<T>(name, body, @this, parameters, null);
         }
 
 
@@ -274,7 +283,7 @@ namespace YantraJS.Expressions
             YExpression body, 
             YParameterExpression[] parameters)
         {
-            return new YLambdaExpression(delegateType, name, body, parameters, body.Type);
+            return new YLambdaExpression(delegateType, name, body, null, parameters, body.Type);
         }
 
         public static YTypeAsExpression TypeAs(YExpression target, Type type)
@@ -364,11 +373,12 @@ namespace YantraJS.Expressions
             Type delegateType,
             string name, 
             YExpression body, 
+            YParameterExpression @this,
             YParameterExpression[] parameters, 
             YExpression? repository,
             Type returnType)
         {
-            return new YLambdaExpression(delegateType, name, body, parameters, returnType, repository);
+            return new YLambdaExpression(delegateType, name, body, @this, parameters, returnType, repository);
         }
 
         internal static YLambdaExpression InlineLambda(
@@ -378,7 +388,7 @@ namespace YantraJS.Expressions
             List<YParameterExpression> parameters,
             YExpression? repository)
         {
-            return new YLambdaExpression(delegateType, name, body, parameters.ToArray(), null, repository);
+            return new YLambdaExpression(delegateType, name, body, null, parameters.ToArray(), null, repository);
         }
 
         internal static YRelayExpression Relay(

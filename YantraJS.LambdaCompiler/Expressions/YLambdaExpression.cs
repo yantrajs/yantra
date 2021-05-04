@@ -3,6 +3,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 
 namespace YantraJS.Expressions
 {
@@ -12,20 +13,36 @@ namespace YantraJS.Expressions
         public readonly YExpression Body;
         public new readonly YParameterExpression[] Parameters;
         public readonly Type ReturnType;
+        public readonly YParameterExpression? This;
 
         internal YExpression<T> As<T>()
         {
-            return new YExpression<T>(Name, Body, Parameters, ReturnType);
+            return new YExpression<T>(Name, Body, This, Parameters, ReturnType);
         }
 
 
         public readonly Type[] ParameterTypes;
+
+        public Type[] ParameterTypesWithThis {
+            get {
+                var l = new List<Type> { This!.Type };
+                l.AddRange(ParameterTypes);
+                return l.ToArray();
+            }
+        }
+
         internal readonly YExpression? Repository;
+
+        private PendingReplacements? m_PendingReplacements = null;
+        internal PendingReplacements PendingReplacements =>
+            m_PendingReplacements ?? (m_PendingReplacements = new PendingReplacements());
+            
 
         public YLambdaExpression(
             Type delegateType, 
             string name, 
             YExpression body, 
+            YParameterExpression? @this,
             YParameterExpression[]? parameters,
             Type? returnType = null,
             YExpression? repository = null)
@@ -33,6 +50,7 @@ namespace YantraJS.Expressions
         {
             this.Name = name;
             this.Body = body;
+            this.This = @this;
             this.ReturnType = returnType ?? body.Type;
             if (parameters != null)
                 this.Parameters = parameters;
@@ -50,18 +68,13 @@ namespace YantraJS.Expressions
             Body.Print(writer);
         }
 
-        internal YLambdaExpression PrefixParameter(Type type)
+        internal YLambdaExpression WithThis(Type type)
         {
+            if (This != null)
+                throw new ArgumentOutOfRangeException();
+            var @this = YExpression.Parameter(type, "this");
 
-            var pp = YExpression.Parameter(type);
-
-            var pl = new List<YParameterExpression>() { pp };
-            foreach(var p in Parameters)
-            {
-                pl.Add(p);
-            }
-
-            return new YLambdaExpression(Type, Name, Body, pl.ToArray(), ReturnType, Repository);
+            return new YLambdaExpression(Type, Name, Body, @this, Parameters, ReturnType, Repository);
         }
     }
 }

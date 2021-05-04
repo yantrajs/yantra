@@ -26,13 +26,13 @@ namespace YantraJS
             // return base.VisitRelay(relayExpression);
         }
 
-        protected override YExpression VisitLambda(YLambdaExpression node)
-        {
-            if (exp == node)
-                return base.VisitLambda(node);
+        //protected override YExpression VisitLambda(YLambdaExpression node)
+        //{
+        //    // if (exp == node)
+        //        return base.VisitLambda(node);
 
-            node = base.VisitLambda(node) as YLambdaExpression;
-            return lambdaMethodBuilder.Relay(null, node.PrefixParameter(typeof(Closures)));
-        }
+        //    // node = base.VisitLambda(node) as YLambdaExpression;
+        //    // return lambdaMethodBuilder.Relay(null, node);
+        //}
     }
 }
