@@ -28,8 +28,21 @@ namespace YantraJS.Generator
 
         protected override YExpression VisitLabel(YLabelExpression yLabelExpression)
         {
-            labels.Create(yLabelExpression.Target, tryBlock);
+            labels.Create(yLabelExpression.Target, tryBlock, false);
             return base.VisitLabel(yLabelExpression);
+        }
+
+        protected override YExpression VisitReturn(YReturnExpression yReturnExpression)
+        {
+            labels.Create(yReturnExpression.Target, tryBlock, false);
+            return base.VisitReturn(yReturnExpression);
+        }
+
+        protected override YExpression VisitLoop(YLoopExpression yLoopExpression)
+        {
+            labels.Create(yLoopExpression.Break, tryBlock, false);
+            labels.Create(yLoopExpression.Continue, tryBlock, false);
+            return base.VisitLoop(yLoopExpression);
         }
 
         protected override YExpression VisitTryCatchFinally(YTryCatchFinallyExpression tryCatchFinallyExpression)

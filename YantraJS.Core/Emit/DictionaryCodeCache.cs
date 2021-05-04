@@ -18,8 +18,8 @@ namespace YantraJS.Emit
             var compiler = code.Compiler;
             return cache.GetOrCreate(code.Key, (k) => {
                 var  exp = compiler();
-                return exp.CompileInAssembly();
-                // return exp.CompileDynamic();
+                // return exp.CompileInAssembly();
+                return exp.CompileDynamic();
             });
         }
 

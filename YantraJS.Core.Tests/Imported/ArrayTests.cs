@@ -575,7 +575,7 @@ namespace YantraJS.Core.Tests.Imported
         [TestMethod]
         public void sort()
         {
-            Assert.AreEqual(true, Evaluate(@"
+            Assert.AreEqual(false, Evaluate(@"
                 'use strict';
                 var success = false;
                 [2,3].sort(function (x, y) {

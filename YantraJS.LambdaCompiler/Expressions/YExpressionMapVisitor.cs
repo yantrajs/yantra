@@ -295,14 +295,14 @@ namespace YantraJS.Expressions
         protected override YExpression VisitTypeIs(YTypeIsExpression yTypeIsExpression)
         {
             if (Modified(yTypeIsExpression.Target, out var target))
-                return new YTypeIsExpression(target, yTypeIsExpression.Type);
+                return new YTypeIsExpression(target, yTypeIsExpression.TypeOperand);
             return yTypeIsExpression;
         }
 
         protected override YExpression VisitTypeAs(YTypeAsExpression yTypeAsExpression)
         {
             if (Modified(yTypeAsExpression.Target, out var target))
-                return new YTypeIsExpression(target, yTypeAsExpression.Type);
+                return new YTypeAsExpression(target, yTypeAsExpression.Type);
             return yTypeAsExpression;
         }
 
@@ -347,16 +347,17 @@ namespace YantraJS.Expressions
         {
             var tf = Modified(tryCatchFinallyExpression.Try, tryCatchFinallyExpression.Finally,
                 out var @try, out var @finally);
-            YCatchBody @catch = null;
+            YCatchBody @catch = tryCatchFinallyExpression.Catch;
             bool cf = false;
             if(tryCatchFinallyExpression.Catch != null)
             {
                 cf = Modified(tryCatchFinallyExpression.Catch.Body, out var cb);
                 if (cf)
                     @catch = new YCatchBody(tryCatchFinallyExpression.Catch.Parameter, cb);
+                
             }
             if(cf || tf)
-                return new YTryCatchFinallyExpression(@try, @catch, @finally);
+                return YExpression.TryCatchFinally(@try, @catch, @finally);
             return tryCatchFinallyExpression;
         }
     }

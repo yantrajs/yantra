@@ -71,7 +71,7 @@ namespace YantraJS.ExpHelper
             typeof(JSValue).InternalMethod(nameof(JSFunction.InvokeFunction), ArgumentsBuilder.refType);
 
         private static MethodInfo _invokeSuperConstructor
-            = typeof(JSFunction).InternalMethod(nameof(JSFunction.InvokeSuperConstructor), typeof(JSValue), typeof(Arguments).MakeByRefType());
+            = typeof(JSFunction).PublicMethod(nameof(JSFunction.InvokeSuperConstructor), typeof(JSValue), typeof(Arguments).MakeByRefType());
 
         public static Expression InvokeSuperConstructor(Expression returnValue, Expression super, Expression args)
         {

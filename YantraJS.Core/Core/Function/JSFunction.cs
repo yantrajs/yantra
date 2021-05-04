@@ -290,7 +290,8 @@ namespace YantraJS.Core
             return fx;
         }
 
-        internal static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
         {
             var @this = a.This;
             var r = (super as JSFunction).f(a);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using YantraJS.Expressions;
 
@@ -56,7 +57,8 @@ namespace YantraJS
                 PendingReplacements = exp.PendingReplacements;
             }
 
-            private int index = 0;
+            private int index => 
+                PendingReplacements.Variables.Count(x => x.Value?.ParentParameter != null);
 
             public int Length => index;
 
@@ -67,15 +69,16 @@ namespace YantraJS
 
             internal (YExpression expression, YParameterExpression parameter) AccessInternal(YParameterExpression node, bool box = false)
             {
-                if(PendingReplacements.Variables.TryGetValue(node, out var be))
+                var boxType = node.Type;
+                if (boxType.IsByRef)
+                {
+                    boxType = boxType.Assembly.GetType(boxType.FullName.Replace("&", ""));
+                }
+
+                if (PendingReplacements.Variables.TryGetValue(node, out var be))
                 {
                     if(box && be == null)
                     {
-                        var boxType = node.Type; 
-                        if(boxType.IsByRef)
-                        {
-                            boxType = boxType.Assembly.GetType(boxType.FullName.Replace("&", ""));
-                        }
 
                         var pe = YExpression.Parameter(typeof(Box<>).MakeGenericType(boxType));
                         be = new BoxParamter {
@@ -94,12 +97,12 @@ namespace YantraJS
                 }
 
                 var (pn, pp) = Parent.AccessInternal(node, true );
-                var n = YExpression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
+                var n = YExpression.Parameter(typeof(Box<>).MakeGenericType(boxType));
                 var bp = new BoxParamter
                 {
                     Parent = pn,
                     ParentParameter = pp,
-                    Index = index++,
+                    Index = index,
                     Parameter = n,
                     Expression = YExpression.Field(n, "Value")
                 };

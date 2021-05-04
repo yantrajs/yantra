@@ -105,7 +105,14 @@ namespace YantraJS
                     {
                         if (bp.Parent == null)
                         {
-                            stmts.Add(YExpression.Assign(bp.Parameter, YExpression.New(bp.Parameter.Type, p.Key)));
+                            if (n.Parameters.Contains(p.Key) || p.Key == n.This)
+                            {
+                                stmts.Add(YExpression.Assign(bp.Parameter, YExpression.New(bp.Parameter.Type, p.Key)));
+                            }
+                            else
+                            {
+                                stmts.Add(YExpression.Assign(bp.Parameter, YExpression.New(bp.Parameter.Type)));
+                            }
                         }
                     }
 
@@ -173,9 +180,27 @@ namespace YantraJS
                 // variables will be pushed.. so we dont need them...
                 stack.Top.Register(node.Variables);
                 // node = new YBlockExpression(null, node.Expressions);
+                return base.VisitBlock(node);
             }
 
-            return base.VisitBlock(node);
+            // let us find out lifted variables...
+
+            var list = new List<YParameterExpression>();
+            var statements = new List<YExpression>();
+            foreach (var (e, p) in node.Variables.Select(v => stack.AccessParameter(v))) { 
+                if(e == p)
+                {
+                    list.Add(p);
+                    continue;
+                }
+            }
+
+            foreach(var s in node.Expressions)
+            {
+                statements.Add(Visit(s));
+            }
+
+            return new YBlockExpression(list, statements.ToArray());
         }
 
         protected override YExpression VisitParameter(YParameterExpression node)

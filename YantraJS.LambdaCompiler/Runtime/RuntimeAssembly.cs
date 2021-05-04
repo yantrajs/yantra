@@ -87,12 +87,12 @@ namespace YantraJS.Runtime
             repository.Exp = exp;
 
             // var fx = Delegate.CreateDelegate(typeof(Func<T>), repository, outer, true);
-            var func = outer.CreateDelegate(typeof(Func<T>), repository);
+            var func = outer.CreateDelegate(typeof(Func<T>), repository) as Func<T>;
 
-            // return (T)(object)func();
+            return func();
 
-            //return (T)(object)outer.CreateDelegate(typeof(T), repository);
-            return (T)func.DynamicInvoke();
+            // return (T)(object)outer.CreateDelegate(typeof(Func<T>), repository);
+            // return (T)func.DynamicInvoke();
         }
 
         private static ModuleBuilder moduleBuilder;
