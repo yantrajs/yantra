@@ -22,7 +22,7 @@ namespace YantraJS.Generator
         {
             if (labels.TryGetValue(target, out var l))
                 return l;
-            l = il.DefineLabel();
+            l = il.DefineLabel(target.Name);
             labels[target] = l;
             return l;
         }
@@ -31,7 +31,7 @@ namespace YantraJS.Generator
         {
             if (labels.TryGetValue(target, out var l))
                 throw new System.InvalidOperationException();
-            l = il.DefineLabel(tryBlock);
+            l = il.DefineLabel(target.Name, tryBlock);
             labels[target] = l;
             return l;
         }

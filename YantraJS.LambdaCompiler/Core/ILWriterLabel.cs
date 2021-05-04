@@ -7,24 +7,22 @@ namespace YantraJS.Core
     {
         public readonly Label Value;
         public readonly ILTryBlock TryBlock;
-        public readonly int ID;
+        public readonly string ID;
 
         public int Offset;
 
         private static int nextID = 1;
 
-        public ILWriterLabel(Label value, ILTryBlock tryBlock)
+        public ILWriterLabel(Label value, string label, ILTryBlock tryBlock)
         {
             this.Value = value;
             this.TryBlock = tryBlock;
-            this.ID = Interlocked.Increment(ref nextID);
+            this.ID = label ?? $"LABEL_{ Interlocked.Increment(ref nextID)}";
         }
 
         public override string ToString()
         {
-            //if(Offset>0)
-            //    return $"L_{ID}_{Offset}";
-            return $"LABEL_{ID}";
+            return ID;
         }
     }
 }

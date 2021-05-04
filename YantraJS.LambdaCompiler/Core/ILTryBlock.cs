@@ -23,7 +23,7 @@ namespace YantraJS.Core
         {
             this.il = iLWriter;
             // this.label = new ILWriterLabel(label, null);
-            this.label = iLWriter.DefineLabel();
+            this.label = iLWriter.DefineLabel("tryEnd");
         }
 
         internal void CollectLabels(YTryCatchFinallyExpression exp, LabelInfo labels)
@@ -95,7 +95,7 @@ namespace YantraJS.Core
                 return;
             }
 
-            var hop = il.DefineLabel();
+            var hop = il.DefineLabel($"hop for {label.ID}");
 
             pendingJumps.Add((hop, label, index));
             il.Emit(OpCodes.Leave, hop);

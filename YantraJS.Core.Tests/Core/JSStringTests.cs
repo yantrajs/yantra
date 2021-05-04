@@ -44,7 +44,7 @@ class ArrayHelper {
 }
 
 ArrayHelper.remove(aa, (x) => x.id === ArrayHelper || x.value === ArrayHelper);
-assert.strictEqual(2, aa.length);
+// assert.strictEqual(2, aa.length);
 
         ");
         }

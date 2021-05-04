@@ -11,7 +11,7 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitCoalesce(YCoalesceExpression yCoalesceExpression)
         {
-            var notNull = il.DefineLabel();
+            var notNull = il.DefineLabel("coalesce");
             Visit(yCoalesceExpression.Left);
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Brtrue, notNull);

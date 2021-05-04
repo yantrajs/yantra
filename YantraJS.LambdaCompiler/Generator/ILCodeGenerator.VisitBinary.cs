@@ -15,8 +15,8 @@ namespace YantraJS.Generator
             {
                 case YOperator.BooleanAnd:
                     {
-                        var trueEnd = il.DefineLabel();
-                        var falseEnd = il.DefineLabel();
+                        var trueEnd = il.DefineLabel("trueEnd");
+                        var falseEnd = il.DefineLabel("falseEnd");
                         Visit(yBinaryExpression.Left);
                         il.Emit(OpCodes.Brfalse, trueEnd);
                         Visit(yBinaryExpression.Right);
@@ -28,8 +28,8 @@ namespace YantraJS.Generator
                     return true;
                 case YOperator.BooleanOr:
                     {
-                        var trueEnd = il.DefineLabel();
-                        var falseEnd = il.DefineLabel();
+                        var trueEnd = il.DefineLabel("trueEnd");
+                        var falseEnd = il.DefineLabel("falseEnd");
                         Visit(yBinaryExpression.Left);
                         il.Emit(OpCodes.Brtrue, trueEnd);
                         Visit(yBinaryExpression.Right);

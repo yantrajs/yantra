@@ -19,8 +19,8 @@ namespace YantraJS.Generator
                     return true;
             }
 
-            var trueEnd = il.DefineLabel();
-            var falseBegin = il.DefineLabel();
+            var trueEnd = il.DefineLabel("trueEnd");
+            var falseBegin = il.DefineLabel("falseBegin");
             
             Visit(test);
             
@@ -89,8 +89,8 @@ namespace YantraJS.Generator
             Visit(left);
             Visit(right);
 
-            var trueEnd = il.DefineLabel();
-            var falseBegin = il.DefineLabel();
+            var trueEnd = il.DefineLabel("trueEnd");
+            var falseBegin = il.DefineLabel("falseBegin");
 
             il.Emit(code,
                 @false != null

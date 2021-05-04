@@ -44,9 +44,9 @@ namespace YantraJS.Core
             Goto(label, index);
         }
 
-        internal ILWriterLabel DefineLabel(ILTryBlock tryBlock)
+        internal ILWriterLabel DefineLabel(string label, ILTryBlock tryBlock = null)
         {
-            return new ILWriterLabel( il.DefineLabel(), tryBlock);
+            return new ILWriterLabel(il.DefineLabel(), label, tryBlock);
         }
 
         internal void Goto(ILWriterLabel label, int index = -1)
@@ -65,12 +65,6 @@ namespace YantraJS.Core
             PrintOffset();
             writer.WriteLine(code.Name);
             il.Emit(code);
-        }
-
-        internal ILWriterLabel DefineLabel()
-        {
-            var newLabel = new ILWriterLabel(il.DefineLabel(), null);
-            return newLabel;
         }
 
         internal void Emit(OpCode code, short value)
