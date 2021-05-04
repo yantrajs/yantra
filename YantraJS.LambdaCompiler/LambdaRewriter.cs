@@ -85,7 +85,9 @@ namespace YantraJS
                     localBoxes.Add(bp.Parameter);
                     if (bp.Parent != null)
                     {
-                        if(typeof(IMethodRepository).IsAssignableFrom(bp.Parent.Type))
+                        // this is for binding outer lambda's parameter 
+                        // to relay
+                        if (repository != null && repository.Type.IsAssignableFrom(bp.Parent.Type))
                         {
                             selfRepository = bp.Parent;
                         }
@@ -124,7 +126,7 @@ namespace YantraJS
                         YExpression.Block(localBoxes, stmts.ToArray()), 
                         repository!,
                         n.Parameters,
-                        this.repository,
+                        selfRepository,
                         n.ReturnType);
                 }
 

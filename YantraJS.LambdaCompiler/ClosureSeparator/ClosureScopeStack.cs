@@ -74,10 +74,10 @@ namespace YantraJS
                         var boxType = node.Type; 
                         if(boxType.IsByRef)
                         {
-                            boxType = boxType.ReflectedType;
+                            boxType = boxType.Assembly.GetType(boxType.FullName.Replace("&", ""));
                         }
 
-                        var pe = YExpression.Parameter(typeof(Box<>).MakeGenericType(node.Type));
+                        var pe = YExpression.Parameter(typeof(Box<>).MakeGenericType(boxType));
                         be = new BoxParamter {
                             Parameter = pe,
                             Type = node.Type,

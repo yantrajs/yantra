@@ -12,6 +12,38 @@ namespace YantraJS.Linq
     [TestClass]
     public class ClosureTest
     {
+        [TestMethod]
+        public void TwoLevels()
+        {
+            var a = YExpression.Parameters(typeof(int));
+
+            var b = YExpression.Parameters(typeof(int));
+
+            var c = YExpression.Parameters(typeof(int));
+
+
+            var lamba = YExpression.Lambda<Func<int, Func<int, Func<int, int>>>>("c",
+                    YExpression.Lambda<Func<int,Func<int,int>>>("b",
+                        YExpression.Lambda<Func<int,int>>( "inner",
+                            a[0] + b[0] + c[0],
+                            c
+                        ),b
+                    ), 
+                    a
+                );
+
+            var fx1 = lamba.CompileInAssembly();
+
+            var fx2 = fx1(1);
+
+            var fx3 = fx2(2);
+
+            var r = fx3(3);
+
+            Assert.AreEqual(6, r);
+
+        }
+
 
         [TestMethod]
         public void OneLevel()

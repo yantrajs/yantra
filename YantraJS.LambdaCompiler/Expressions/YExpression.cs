@@ -27,6 +27,12 @@ namespace YantraJS.Expressions
 
         public readonly Type Type;
 
+
+        public static YExpression operator + (YExpression left, YExpression right)
+        {
+            return YExpression.Binary(left, YOperator.Add, right);
+        }
+
         protected YExpression(YExpressionType nodeType, Type type)
         {
             this.NodeType = nodeType;
