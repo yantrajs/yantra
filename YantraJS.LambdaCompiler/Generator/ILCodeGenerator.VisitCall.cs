@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,7 +12,26 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
-       
+
+        private CodeInfo VisitTailCall(YCallExpression callExpression)
+        {
+            var parameters = callExpression.Method.GetParameters();
+            if (parameters.Any(p => p.IsOut))
+                return false;
+
+            if (callExpression.Target != null)
+                Visit(callExpression.Target);
+
+            EmitParameters(callExpression.Method, callExpression.Arguments, callExpression.Type);
+            il.Emit(OpCodes.Tailcall);
+            il.Emit(callExpression.Method.IsVirtual 
+                ? OpCodes.Callvirt
+                : OpCodes.Call, callExpression.Method);
+            il.Emit(OpCodes.Ret);
+            return true;
+        }
+
+
         protected override CodeInfo VisitCall(YCallExpression yCallExpression)
         {
             using (tempVariables.Push())

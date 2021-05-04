@@ -112,6 +112,7 @@ namespace YantraJS.Generator
                     return;
                 case Type type:
                     il.Emit(OpCodes.Ldtoken, type);
+                    il.Emit(OpCodes.Call, typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle)));
                     return;
                 case MethodInfo method:
                     il.Emit(OpCodes.Ldftn, method);

@@ -51,7 +51,8 @@ namespace YantraJS.Generator
             using (tempVariables.Push())
             {
 
-                Visit(ReWriteTryCatch(exp.Body));
+                var body = ReWriteTryCatch(exp.Body);
+                Visit(body);
 
                 il.Emit(OpCodes.Ret);
             }
@@ -62,8 +63,17 @@ namespace YantraJS.Generator
 
         private YExpression ReWriteTryCatch(YExpression body)
         {
+            switch (body.NodeType)
+            {
+                case YExpressionType.Block:
+                case YExpressionType.Assign:
+                    var l = YExpression.Label("ReturnLabel", body.Type);
+                    return YExpression.Block(YExpression.Return(l, body), YExpression.Label(l, YExpression.Null));
+            }
             if (body.NodeType != YExpressionType.TryCatchFinally)
+            {
                 return body;
+            }
 
             YTryCatchFinallyExpression exp = (body as YTryCatchFinallyExpression)!;
 

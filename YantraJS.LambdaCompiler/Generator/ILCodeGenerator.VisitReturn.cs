@@ -10,8 +10,6 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
-        private int ReturnLocal = -1;
-
         protected override CodeInfo VisitReturn(YReturnExpression yReturnExpression)
         {
             var label = labels[yReturnExpression.Target];
@@ -19,6 +17,20 @@ namespace YantraJS.Generator
             if(def != null)
             {
                 var temp = tempVariables[def.Type];
+
+                if(!il.IsTryBlock)
+                {
+                    if(def.NodeType == YExpressionType.Call)
+                    {
+                        if(yReturnExpression.Type.IsAssignableFrom(def.Type))
+                        {
+                            // tail call....
+                            if (VisitTailCall(def as YCallExpression))
+                                return true;
+                        }
+                    }
+                }
+
                 return VisitReturn(def, label, temp.LocalIndex);
             }
             il.Branch(label);
@@ -33,6 +45,8 @@ namespace YantraJS.Generator
                     return VisitReturnAssign(exp as YAssignExpression, label, localIndex);
                 case YExpressionType.Block:
                     return VisitReturnBlock(exp as YBlockExpression, label, localIndex);
+
+                // tail call...
             }
             Visit(exp);
             il.EmitSaveLocal(localIndex);
