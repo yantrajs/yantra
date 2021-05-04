@@ -49,6 +49,11 @@ namespace YantraJS.Generator
                 // tail call...
             }
             Visit(exp);
+            if(!il.IsTryBlock)
+            {
+                il.Emit(OpCodes.Ret);
+                return true;
+            }
             il.EmitSaveLocal(localIndex);
             il.Branch(label, localIndex);
             return true;
@@ -60,6 +65,12 @@ namespace YantraJS.Generator
             //il.EmitSaveLocal(localIndex);
             //Assign(assign.Left, localIndex);
             VisitAssign(assign, localIndex);
+            if (!il.IsTryBlock)
+            {
+                il.EmitLoadLocal(localIndex);
+                il.Emit(OpCodes.Ret);
+                return true;
+            }
             il.Branch(label, localIndex);
             return true;
         }

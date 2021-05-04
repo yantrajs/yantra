@@ -52,6 +52,16 @@ namespace YantraJS.Generator
             {
 
                 var body = ReWriteTryCatch(exp.Body);
+
+                if(body.NodeType == YExpressionType.Call)
+                {
+                    if(exp.ReturnType.IsAssignableFrom(body.Type) && body.Type != typeof(void))
+                    {
+                        if (VisitTailCall((body as YCallExpression)!))
+                            return;
+                    }
+                }
+
                 Visit(body);
 
                 il.Emit(OpCodes.Ret);

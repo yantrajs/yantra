@@ -9,6 +9,7 @@ using YantraJS.Runtime;
 
 namespace YantraJS.Linq
 {
+
     [TestClass]
     public class ClosureTest
     {
