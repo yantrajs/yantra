@@ -17,7 +17,7 @@ namespace YantraJS.Core
         {
             this.Value = value;
             this.TryBlock = tryBlock;
-            this.ID = label ?? $"LABEL_{ Interlocked.Increment(ref nextID)}";
+            this.ID = $"{label ?? "LABEL"}_{ Interlocked.Increment(ref nextID)}";
         }
 
         public override string ToString()

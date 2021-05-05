@@ -17,6 +17,8 @@ namespace YantraJS.Core
 
         public bool IsTryBlock => tryStack.Top != null;
 
+        public ILTryBlock Top => tryStack.Top;
+
         public ILWriter(ILGenerator il)
         {
             this.il = il;

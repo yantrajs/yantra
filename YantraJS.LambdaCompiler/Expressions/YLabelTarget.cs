@@ -15,7 +15,7 @@ namespace YantraJS.Expressions
         {
             if(name == null)
             {
-                name = $"LABLE_{Interlocked.Increment(ref id)}";
+                name = $"LABEL_{Interlocked.Increment(ref id)}";
             }
             this.Name = name;
             this.LabelType = type;

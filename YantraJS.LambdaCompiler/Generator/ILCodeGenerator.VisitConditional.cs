@@ -19,8 +19,8 @@ namespace YantraJS.Generator
                     return true;
             }
 
-            var trueEnd = il.DefineLabel("trueEnd");
-            var falseBegin = il.DefineLabel("falseBegin");
+            var trueEnd = il.DefineLabel("trueEnd", il.Top);
+            var falseBegin = il.DefineLabel("falseBegin", il.Top);
             
             Visit(test);
             
@@ -40,6 +40,8 @@ namespace YantraJS.Generator
             }
 
             il.MarkLabel(trueEnd);
+            if(yConditionalExpression.Type != typeof(void))
+                return CodeInfo.HasStack;
             return true;
         }
 
@@ -89,8 +91,8 @@ namespace YantraJS.Generator
             Visit(left);
             Visit(right);
 
-            var trueEnd = il.DefineLabel("trueEnd");
-            var falseBegin = il.DefineLabel("falseBegin");
+            var trueEnd = il.DefineLabel("trueEnd", il.Top);
+            var falseBegin = il.DefineLabel("falseBegin", il.Top);
 
             il.Emit(code,
                 @false != null

@@ -52,7 +52,7 @@ namespace YantraJS.Generator
                     {
                         index = tempVariables[a.Left.Type].LocalIndex;
                     }
-                    VisitSave(a.Right, index);
+                    VisitAssign(a, index);
                     il.EmitLoadLocal(index);
                     return true;
             }
