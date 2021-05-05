@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using YantraJS.Expressions;
@@ -11,7 +12,17 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitInvoke(YInvokeExpression invokeExpression)
         {
-            throw new NotImplementedException();
+
+            Type type = invokeExpression.Target.Type;
+            MethodInfo method = type.GetMethod("Invoke");
+            var a = EmitParameters(method, invokeExpression.Arguments, method.ReturnType);
+
+            Visit(invokeExpression.Target);
+
+            il.EmitCall(method);
+            a();
+
+            return true;
         }
     }
 }

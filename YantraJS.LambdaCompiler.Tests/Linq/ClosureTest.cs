@@ -24,12 +24,12 @@ namespace YantraJS.Linq
 
 
             var lamba = YExpression.Lambda<Func<int, Func<int, Func<int, int>>>>("c",
-                    YExpression.Lambda<Func<int,Func<int,int>>>("b",
-                        YExpression.Lambda<Func<int,int>>( "inner",
+                    YExpression.Lambda<Func<int, Func<int, int>>>("b",
+                        YExpression.Lambda<Func<int, int>>("inner",
                             a[0] + b[0] + c[0],
                             c
-                        ),b
-                    ), 
+                        ), b
+                    ),
                     a
                 );
 
@@ -53,13 +53,13 @@ namespace YantraJS.Linq
 
             var b = YExpression.Parameters(typeof(int));
 
-            var a1 = YExpression.Lambda<Func<int,Func<int,int>>>("a1",
-                YExpression.Lambda<Func<int,int>>("a2",
-                    YExpression.Binary(a[0], YOperator.Add, b[0]),b
+            var a1 = YExpression.Lambda<Func<int, Func<int, int>>>("a1",
+                YExpression.Lambda<Func<int, int>>("a2",
+                    YExpression.Binary(a[0], YOperator.Add, b[0]), b
                 )
                 , a);
 
-            Func<int, Func<int,int>> fx = a1.CompileWithNestedLambdas();
+            Func<int, Func<int, int>> fx = a1.CompileWithNestedLambdas();
 
             var f1 = fx(1);
 
@@ -73,8 +73,8 @@ namespace YantraJS.Linq
 
             var b = YExpression.Parameters(typeof(int));
 
-            var a1 = YExpression.Lambda<Func<int,Func<int,int> >>("a1",
-                YExpression.Lambda<Func<int,int>>("a2",
+            var a1 = YExpression.Lambda<Func<int, Func<int, int>>>("a1",
+                YExpression.Lambda<Func<int, int>>("a2",
                     YExpression.Binary(a[0], YOperator.Add, b[0]), b
                 )
                 , a);

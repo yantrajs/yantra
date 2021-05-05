@@ -32,6 +32,59 @@ namespace YantraJS.Expressions
         {
             return YExpression.Binary(left, YOperator.Add, right);
         }
+        public static YExpression operator -(YExpression left, YExpression right)
+        {
+            return YExpression.Binary(left, YOperator.Subtract, right);
+        }
+
+        public static YExpression operator +(YExpression left, object right)
+        {
+            return YExpression.Binary(left, YOperator.Add, YExpression.Constant(right));
+        }
+        public static YExpression operator -(YExpression left, object right)
+        {
+            return YExpression.Binary(left, YOperator.Subtract, YExpression.Constant(right));
+        }
+
+
+        public static YExpression operator >(YExpression left, YExpression right)
+        {
+            return YExpression.Binary(left, YOperator.Greater, right);
+        }
+        public static YExpression operator <(YExpression left, YExpression right)
+        {
+            return YExpression.Binary(left, YOperator.Less, right);
+        }
+
+
+        public static YExpression operator >=(YExpression left, object right)
+        {
+            return YExpression.Binary(left, YOperator.GreaterOrEqual, Constant(right));
+        }
+        public static YExpression operator <=(YExpression left, object right)
+        {
+            return YExpression.Binary(left, YOperator.LessOrEqual, YExpression.Constant(right));
+        }
+
+        public static YExpression operator >(YExpression left, object right)
+        {
+            return YExpression.Binary(left, YOperator.Greater, Constant( right));
+        }
+        public static YExpression operator <(YExpression left, object right)
+        {
+            return YExpression.Binary(left, YOperator.Less,Constant( right));
+        }
+
+
+        public static YExpression operator >=(YExpression left, YExpression right)
+        {
+            return YExpression.Binary(left, YOperator.GreaterOrEqual, right);
+        }
+        public static YExpression operator <=(YExpression left, YExpression right)
+        {
+            return YExpression.Binary(left, YOperator.LessOrEqual, right);
+        }
+
 
         protected YExpression(YExpressionType nodeType, Type type)
         {

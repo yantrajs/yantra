@@ -17,47 +17,15 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-class BaseClass {
-    m() {
-        return 'base';
-    }
-    }
+function fib(n) {
+    if (n <= 1)
+        return 0;
+    if (n === 2)
+        return 1;
+    return fib(n - 1) + fib(n - 2);
+}
 
-    class ChildClass extends BaseClass
-    {
-
-        constructor() {
-            super();
-
-            this.n = this.m();
-        }
-    }
-
-    var c = new ChildClass();
-
-    assert.strictEqual(c.n, 'base');
-
-assert.strictEqual(Object.getPrototypeOf(ChildClass), BaseClass);
-
-//class Shape
-//    {
-
-//        constructor(n)
-//        {
-//            this.name = n;
-//        }
-
-//    }
-
-//    class Circle extends Shape
-//    {
-//        constructor() {
-//            super(...arguments);
-//        }
-//    }
-
-//    let c = new Circle('Circle');
-//    assert.strictEqual('Circle', c.name);
+assert.strictEqual(fib(5),3);
 ");
 
         }
