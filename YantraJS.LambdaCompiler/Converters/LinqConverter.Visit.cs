@@ -125,7 +125,7 @@ namespace YantraJS.Converters
                     return YExpression.Index(Visit(ie.Object), ie.Indexer , VisitList(ie.Arguments));
                 case ExpressionType.Invoke:
                     var invoke = exp as InvocationExpression;
-                    return YExpression.Invoke(Visit(invoke.Expression), invoke.Type, VisitList(invoke.Arguments));
+                    return YExpression.Invoke(Visit(invoke.Expression), VisitList(invoke.Arguments));
                 case ExpressionType.IsFalse:
                     break;
                 case ExpressionType.IsTrue:

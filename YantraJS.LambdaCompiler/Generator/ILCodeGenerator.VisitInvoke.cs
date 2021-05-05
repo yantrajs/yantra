@@ -15,9 +15,9 @@ namespace YantraJS.Generator
 
             Type type = invokeExpression.Target.Type;
             MethodInfo method = type.GetMethod("Invoke");
+            Visit(invokeExpression.Target);
             var a = EmitParameters(method, invokeExpression.Arguments, method.ReturnType);
 
-            Visit(invokeExpression.Target);
 
             il.EmitCall(method);
             a();

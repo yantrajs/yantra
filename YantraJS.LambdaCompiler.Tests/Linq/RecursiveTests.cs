@@ -30,9 +30,9 @@ namespace YantraJS.Linq
                                     YExpression.Conditional(
                                         YExpression.Equal(p1, YExpression.Constant(2)), 
                                         YExpression.Constant(1),
-                                            YExpression.Invoke(fib, typeof(int), p1 - 1)
+                                            YExpression.Invoke(fib, p1 - 1)
                                             +
-                                            YExpression.Invoke(fib, typeof(int), p1 - 2)
+                                            YExpression.Invoke(fib, p1 - 2)
                                         ))
                             )
                         ,
@@ -40,11 +40,11 @@ namespace YantraJS.Linq
                     )
                 , a); ;
 
-            var outer = f.CompileWithNestedLambdas();
+            var outer = f.CompileInAssembly();
 
             var fx = outer();
 
-            Assert.AreEqual(5, fx(3));
+            Assert.AreEqual(3, fx(5));
 
         }
     }

@@ -13,8 +13,11 @@ namespace YantraJS.Generator
         {
             VisitSave(exp, savedIndex);
 
+
             var pType = yParameterExpression.Type;
             var varInfo = variables[yParameterExpression];
+
+            il.Comment($"save {varInfo.Name}");
 
             if (pType.IsByRef)
             {

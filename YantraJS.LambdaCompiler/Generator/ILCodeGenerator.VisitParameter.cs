@@ -13,6 +13,7 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitParameter(YParameterExpression yParameterExpression)
         {
             var v = variables[yParameterExpression];
+            il.Comment($"Load {v.Name}");
             var isValueType = yParameterExpression.Type.IsValueType;
             if (isValueType)
             {

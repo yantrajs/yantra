@@ -94,7 +94,7 @@ namespace YantraJS
 
                         if (closures == null)
                         {
-                            closures = YExpression.Parameter(typeof(Closures));
+                            closures = YExpression.Parameter(typeof(Closures), "thisClosure");
                         }
                         stmts.Add(YExpression.Assign(bp.Parameter, YExpression.ArrayIndex( 
                             YExpression.Field( closures, Closures.boxesField), 

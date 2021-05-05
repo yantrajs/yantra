@@ -30,5 +30,25 @@ namespace YantraJS.Linq
             Assert.AreEqual(3, fx(1, 2));
         }
 
+        [TestMethod]
+        public void NestedConditions()
+        {
+            var a = YExpression.Parameters(typeof(int), typeof(int), typeof(int));
+            var a1 = a[0];
+            var a2 = a[1];
+            var a3 = a[2];
+
+            var exp = YExpression.Lambda<Func<int, int, int, int>>("con",
+                YExpression.Conditional( a1 > a2 ,
+                    YExpression.Conditional( a1 > a3,
+                        a1,
+                        a3),
+                    a2)
+                , a);
+
+            var f = exp.CompileInAssembly();
+
+            Assert.AreEqual(10, f(1, 10, 2));
+        }
     }
 }

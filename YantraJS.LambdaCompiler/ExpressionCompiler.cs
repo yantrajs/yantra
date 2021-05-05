@@ -46,14 +46,17 @@ namespace YantraJS
 
         public static (MethodInfo method, string il, string exp) CompileToInstnaceMethod(
             this YLambdaExpression lambdaExpression,
-            TypeBuilder type
+            TypeBuilder type, bool rewriteNestedLambda = true
             )
         {
             if (!lambdaExpression.This.Type.IsAssignableFrom(type))
                 throw new NotSupportedException($"First parameter of an instance method must be same as the owner type");
 
-            lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
-                as YLambdaExpression;
+            if (rewriteNestedLambda)
+            {
+                lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
+                    as YLambdaExpression;
+            }
 
             string exp = lambdaExpression.ToString();
 

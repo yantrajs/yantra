@@ -28,7 +28,7 @@ namespace YantraJS.Generator
             bool isArgument = false, 
             short index = -1)
         {
-            var vb = new Variable(il.DeclareLocal(exp.Type), isArgument, index, exp.Type.IsByRef);
+            var vb = new Variable(il.DeclareLocal(exp.Type), isArgument, index, exp.Type.IsByRef, exp.Name);
             variables[exp] = vb;
             return vb;
         }

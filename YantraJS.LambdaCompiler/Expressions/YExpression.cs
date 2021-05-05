@@ -273,8 +273,10 @@ namespace YantraJS.Expressions
             return new YFieldExpression(target, field);
         }
 
-        public static YInvokeExpression Invoke(YExpression target, Type type, params YExpression[] args)
+        public static YInvokeExpression Invoke(YExpression target, params YExpression[] args)
         {
+            var t = target.Type;
+            var type = t.GetMethod("Invoke").ReturnType;
             return new YInvokeExpression(target, args, type);
         }
 

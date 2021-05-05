@@ -49,6 +49,11 @@ namespace YantraJS.Core
             return new ILWriterLabel(il.DefineLabel(), label, tryBlock);
         }
 
+        public void Comment(string comment)
+        {
+            writer.WriteLine($"// {comment}");
+        }
+
         internal void Goto(ILWriterLabel label, int index = -1)
         {
             if (index >= 0)

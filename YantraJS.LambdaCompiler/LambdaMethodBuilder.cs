@@ -26,7 +26,7 @@ namespace YantraJS
                 TypeAttributes.Public,
                 typeof(Closures));
 
-            var (m, il, exp) = innerLambda.CompileToInstnaceMethod(derived);
+            var (m, il, exp) = innerLambda.CompileToInstnaceMethod(derived, false);
 
 
             var cnstr = derived.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] {

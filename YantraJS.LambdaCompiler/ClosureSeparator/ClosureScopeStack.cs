@@ -80,7 +80,8 @@ namespace YantraJS
                     if(box && be == null)
                     {
 
-                        var pe = YExpression.Parameter(typeof(Box<>).MakeGenericType(boxType));
+                        var pe = YExpression.Parameter(typeof(Box<>).MakeGenericType(boxType),
+                            $"box{node.Name}");
                         be = new BoxParamter {
                             Parameter = pe,
                             Type = node.Type,
@@ -97,7 +98,7 @@ namespace YantraJS
                 }
 
                 var (pn, pp) = Parent.AccessInternal(node, true );
-                var n = YExpression.Parameter(typeof(Box<>).MakeGenericType(boxType));
+                var n = YExpression.Parameter(typeof(Box<>).MakeGenericType(boxType), $"boxFor{pp.Name}");
                 var bp = new BoxParamter
                 {
                     Parent = pn,
