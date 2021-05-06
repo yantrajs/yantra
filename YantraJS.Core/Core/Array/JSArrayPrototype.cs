@@ -1044,12 +1044,19 @@ namespace YantraJS.Core
                 return Join(in args);
             return args.This.InvokeMethod(KeyStrings.join,in args);
         }
-            //=> new JSString(
-            //    args.This is JSArray a
-            //        ? a.ToString()
-            //        : "[object Object]");
+        //=> new JSString(
+        //    args.This is JSArray a
+        //        ? a.ToString()
+        //        : "[object Object]");
 
 
-        
+        [Prototype("values", Length = 2)]
+        public static JSValue Values(in Arguments a)
+        {
+            var array = a.This;
+            return new JSGenerator(array.GetElementEnumerator(), "Array Iterator");
+        }
+
+
     }
 }
