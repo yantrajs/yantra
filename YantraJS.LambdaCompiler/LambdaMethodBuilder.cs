@@ -61,10 +61,11 @@ namespace YantraJS
             //    , new YParameterExpression[] { });
 
             return YExpression.New(cdt, YExpression.New(ct,
-                closures == null ? YExpression.Null : YExpression.NewArray(typeof(Box), closures)
+                closures == null ? YExpression.Null : (YExpression)YExpression.NewArray(typeof(Box), closures)
                 ),
                 YExpression.Constant(im));
 
         }
     }
 }
+ 
