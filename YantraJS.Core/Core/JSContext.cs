@@ -21,6 +21,7 @@ using YantraJS.Core.LightWeight;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.CodeGen;
 using System.ComponentModel;
+using YantraJS.Core.Core.DataView;
 
 namespace YantraJS.Core
 {
@@ -181,6 +182,8 @@ namespace YantraJS.Core
         public readonly JSObject Float32ArrayPrototype;
 
         public readonly JSObject Float64ArrayPrototype;
+
+        public readonly JSObject DataViewPrototype;
 
         public readonly JSObject JSON;
 
@@ -369,6 +372,7 @@ namespace YantraJS.Core
             Uint32ArrayPrototype = this.Create<Uint32Array>(KeyStrings.Uint32Array).prototype;
             Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
             Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
+            DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);

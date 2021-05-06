@@ -82,6 +82,8 @@ namespace YantraJS.Core
         public readonly static KeyString Float32Array;
         public readonly static KeyString Float64Array;
 
+        public readonly static KeyString DataView;
+
         public readonly static KeyString Map;
         public readonly static KeyString Set;
         public readonly static KeyString WeakRef;
