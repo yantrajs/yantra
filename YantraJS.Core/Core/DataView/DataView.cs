@@ -12,7 +12,7 @@ namespace YantraJS.Core.Core.DataView
         internal readonly int byteOffset;
         internal readonly int byteLength;
 
-    
+      
 
     public DataView(
         JSArrayBuffer buffer,
