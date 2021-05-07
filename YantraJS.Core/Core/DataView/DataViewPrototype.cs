@@ -313,7 +313,7 @@ namespace YantraJS.Core.Core.DataView
         public static JSValue SetBigUInt64(in Arguments a)
         {
             var (byteOffset, littleEndian, @this, value) = GetSetArgs(in a, 8);
-            var bytes = BitConverter.GetBytes((uint)value.DoubleValue);
+            var bytes = BitConverter.GetBytes((ulong)value.DoubleValue);
             @this.SetCore(byteOffset, bytes, littleEndian);
             return JSUndefined.Value;
         }
