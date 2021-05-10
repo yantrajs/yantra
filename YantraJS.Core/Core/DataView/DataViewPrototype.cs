@@ -173,11 +173,11 @@ namespace YantraJS.Core.Core.DataView
             {
                 if (littleEndian)
                 {
-                    return (*ptr) | (*(ptr + 1) << 8) | (*(ptr + 2) << 16) | (*(ptr + 3) << 24);
+                    return (short)((*ptr) | (*(ptr + 1) << 8));
                 }
                 else
                 {
-                    return (*ptr << 24) | (*(ptr + 1) << 16) | (*(ptr + 2) << 8) | (*(ptr + 3));
+                    return (short)((*ptr << 8) | (*(ptr + 1)));
                 }
             }
         }
@@ -193,7 +193,7 @@ namespace YantraJS.Core.Core.DataView
         /// <returns> The signed 16-bit integer at the specified byte offset from the start of the
         /// DataView. </returns>
         [Prototype("getInt16", Length = 2)]
-        public static JSValue GetInt16(in Arguments a)
+        public  static JSValue GetInt16(in Arguments a)
         {
             return new JSNumber(GetInt16Int(in a));
         }
@@ -251,7 +251,8 @@ namespace YantraJS.Core.Core.DataView
         /// <returns> The unsigned 8-bit integer (byte) at the specified byte offset from the start
         /// of the DataView. </returns>
         [Prototype("getUint16", Length = 2)]
-        public static JSValue GetUint16(in Arguments a) {
+        public static JSValue GetUint16(in Arguments a)
+        {
             return new JSNumber((ushort)GetInt16Int(in a));
         }
 
@@ -287,7 +288,7 @@ namespace YantraJS.Core.Core.DataView
             var @this = a.This.AsDataView();
             var byteOffset = a[0]?.IntValue ?? throw JSContext.Current.NewTypeError($"offset is required");
             if (byteOffset < 0 || byteOffset > @this.byteLength - 1)
-                throw JSContext.Current.NewTypeError($"{byteOffset} offset is outside the bounds of DataView");
+                throw JSContext.Current.NewRangeError($"{byteOffset} offset is outside the bounds of DataView");
             var buffer = @this.buffer;
             return new JSNumber( buffer.buffer[@this.byteOffset + byteOffset]);
         }
@@ -337,11 +338,11 @@ namespace YantraJS.Core.Core.DataView
             return JSUndefined.Value;
         }
 
-        [Prototype("setInt16", Length = 2)]
+        [Prototype("setInt16", Length = 3)]
         public static JSValue SetInt16(in Arguments a)
         {
             var (byteOffset, littleEndian, @this, value) = GetSetArgs(in a, 2);
-            var bytes = BitConverter.GetBytes((short)value.IntValue);
+            var bytes = BitConverter.GetBytes((short)(uint)value.IntValue);
             @this.SetCore(byteOffset, bytes, littleEndian);
             return JSUndefined.Value;
         }
@@ -360,12 +361,12 @@ namespace YantraJS.Core.Core.DataView
         public static JSValue SetInt8(in Arguments a)
         {
             var (byteOffset, littleEndian, @this, value) = GetSetArgs(in a, 1);
-            var bytes = BitConverter.GetBytes((sbyte)value.IntValue);
-            @this.SetCore(byteOffset, bytes, littleEndian);
+            var bytes = (byte)(sbyte)(uint)value.IntValue;
+            @this.buffer.buffer[@this.byteOffset + byteOffset] = bytes;
             return JSUndefined.Value;
         }
 
-        [Prototype("setUint16", Length = 2)]
+        [Prototype("setUint16", Length = 3)]
         public static JSValue SetUint16(in Arguments a)
         {
             var (byteOffset, littleEndian, @this, value) = GetSetArgs(in a, 2);
@@ -387,8 +388,9 @@ namespace YantraJS.Core.Core.DataView
         public static JSValue SetUint8(in Arguments a)
         {
             var (byteOffset, littleEndian, @this, value) = GetSetArgs(in a, 1);
-            var bytes = BitConverter.GetBytes((byte)value.IntValue);
-            @this.SetCore(byteOffset, bytes, littleEndian);
+            var bytes = (byte)(uint)value.IntValue;
+            @this.buffer.buffer[@this.byteOffset + byteOffset] = bytes;
+
             return JSUndefined.Value;
         }
 
@@ -397,15 +399,13 @@ namespace YantraJS.Core.Core.DataView
         private static (int byteOffset, bool littleEndian, DataView dataView, JSValue value) GetSetArgs(in Arguments a, int length)
         {
             var @this = a.This.AsDataView();
-            var byteOffset = a[0]?.IntValue ?? throw JSContext.Current.NewRangeError($"offset is required");
+            var byteOffset = a[0]?.IntValue ?? throw JSContext.Current.NewTypeError($"offset is required");
             var value = a[1] ?? throw JSContext.Current.NewTypeError($"value is required");
             
             var littleEndian = a[2]?.BooleanValue ?? false;
             if (byteOffset < 0 || byteOffset > @this.byteLength - length)
                 throw JSContext.Current.NewRangeError($"Offset {byteOffset} is outside the bounds of DataView");
-
             return (byteOffset, littleEndian, @this, value);
-            // return JSUndefined.Value;
         }
 
 
