@@ -25,7 +25,7 @@ namespace YantraJS.Generator
                         il.EmitConstant(0);
                         il.MarkLabel(falseEnd);
                     }
-                    return true;
+                    return CodeInfo.HasStack;
                 case YOperator.BooleanOr:
                     {
                         var trueEnd = il.DefineLabel("trueEnd");
@@ -38,7 +38,7 @@ namespace YantraJS.Generator
                         il.EmitConstant(1);
                         il.MarkLabel(falseEnd);
                     }
-                    return true;
+                    return CodeInfo.HasStack;
             }
 
 
@@ -98,7 +98,7 @@ namespace YantraJS.Generator
                     throw new NotSupportedException();
             }
 
-            return true;
+            return CodeInfo.HasStack;
         }
     }
 }

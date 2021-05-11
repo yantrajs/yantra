@@ -29,7 +29,7 @@ namespace YantraJS.Generator
                         throw new NotImplementedException();
                 }
             }
-            return true;
+            return CodeInfo.HasStack;
         }
     }
 }

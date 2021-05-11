@@ -86,13 +86,10 @@ namespace YantraJS.Generator
             for (int i = 0; i < length; i++)
             {
                 var exp = block.Expressions[i];
-                if(i < last)
+                if(i != last)
                 {
                     var r = Visit(exp);
-                    if (r.Stack)
-                    {
-                        il.Emit(OpCodes.Pop);
-                    }
+                    il.EmptyStack();
                     continue;
                 }
 

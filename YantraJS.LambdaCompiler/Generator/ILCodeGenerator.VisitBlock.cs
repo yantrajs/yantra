@@ -25,15 +25,12 @@ namespace YantraJS.Generator
                 var c = Visit(exp);
 
                 // do not pop for last item...
-                if(i > last)
+                if(i != last)
                 {
-                    if (c.Stack)
-                    {
-                        il.Emit(OpCodes.Pop);
-                    }
+                    il.EmptyStack();
                 } 
             }
-            return true;
+            return CodeInfo.HasStack;
         }
     }
 }

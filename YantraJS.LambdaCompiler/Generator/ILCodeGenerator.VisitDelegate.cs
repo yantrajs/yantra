@@ -18,6 +18,8 @@ namespace YantraJS.Generator
             var c = cl
                 .FirstOrDefault(ct => ct.GetParameters().Length == 2);
             il.EmitNew(c);
+            if(delegateExpression.Type != typeof(void))
+                return CodeInfo.HasStack;
             return true;
         }
     }

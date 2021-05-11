@@ -30,7 +30,7 @@ namespace YantraJS.Generator
             //    il.EmitSaveLocal(t.LocalIndex);
             //    il.EmitLoadLocalAddress(t.LocalIndex);
             //}
-            return true;
+            return CodeInfo.HasStack;
         }
 
         protected override CodeInfo VisitNewArray(YNewArrayExpression yNewArrayExpression)
@@ -55,7 +55,7 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Stelem, elementType);
                 }
 
-                return true;
+                return CodeInfo.HasStack;
             }
         }
 
@@ -63,7 +63,7 @@ namespace YantraJS.Generator
         {
             Visit(yNewArrayBoundsExpression.Size);
             il.Emit(OpCodes.Newarr, yNewArrayBoundsExpression.ElementType);
-            return true;
+            return CodeInfo.HasStack;
         }
     }
 }

@@ -15,6 +15,8 @@ namespace YantraJS.Core
         private readonly ILGenerator il;
         private StringWriter writer = new StringWriter();
 
+        private int Stack;
+
         public bool IsTryBlock => tryStack.Top != null;
 
         public ILTryBlock Top => tryStack.Top;
@@ -64,18 +66,149 @@ namespace YantraJS.Core
             }
             PrintOffset();
             writer.WriteLine($"{OpCodes.Br} {label}");
+            UpdateStack(OpCodes.Br);
             il.Emit(OpCodes.Br, label.Value);
         }
 
-        internal void Emit(OpCode code)
+        private void UpdateStack(in OpCode code)
         {
+            Update(code.StackBehaviourPush);
+            Update(code.StackBehaviourPop);
+            void Update(StackBehaviour sb)
+            {
+                switch (sb)
+                {
+                    case StackBehaviour.Pop0:
+                        break;
+                    case StackBehaviour.Pop1:
+                        Stack--;
+                        break;
+                    case StackBehaviour.Pop1_pop1:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popi:
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popi_pop1:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popi_popi:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popi_popi_popi:
+                        Stack--;
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popi_popi8:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popi_popr4:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popi_popr8:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref:
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_pop1:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_popi:
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_popi_pop1:
+                        Stack--;
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_popi_popi:
+                        Stack--;
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_popi_popi8:
+                        Stack--;
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_popi_popr4:
+                        Stack--;
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_popi_popr8:
+                        Stack--;
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Popref_popi_popref:
+                        Stack--;
+                        Stack--;
+                        Stack--;
+                        break;
+                    case StackBehaviour.Push0:
+                        break;
+                    case StackBehaviour.Push1:
+                        Stack++;
+                        break;
+                    case StackBehaviour.Push1_push1:
+                        Stack++;
+                        Stack++;
+                        break;
+                    case StackBehaviour.Pushi:
+                        Stack++;
+                        break;
+                    case StackBehaviour.Pushi8:
+                        Stack++;
+                        break;
+                    case StackBehaviour.Pushr4:
+                        Stack++;
+                        break;
+                    case StackBehaviour.Pushr8:
+                        Stack++;
+                        break;
+                    case StackBehaviour.Pushref:
+                        Stack++;
+                        break;
+                    case StackBehaviour.Varpop:
+                        Stack--;
+                        break;
+                    case StackBehaviour.Varpush:
+                        Stack++;
+                        break;
+                }
+            }
+        }
+
+        internal void EmptyStack()
+        {
+            while (Stack > 0)
+            {
+                Emit(OpCodes.Pop);
+            }
+        }
+
+        internal void Emit(in OpCode code)
+        {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine(code.Name);
             il.Emit(code);
         }
 
-        internal void Emit(OpCode code, short value)
+        internal void Emit(in OpCode code, short value)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
@@ -83,11 +216,14 @@ namespace YantraJS.Core
 
         internal void Verify()
         {
-            
+            if (Stack > 1)
+                throw new InvalidOperationException($"Stack is not empty {Stack}");
+
         }
 
-        internal void Emit(OpCode code, int value)
+        internal void Emit(in OpCode code, int value)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
@@ -110,51 +246,58 @@ namespace YantraJS.Core
             il.EmitWriteLine(text);
         }
 
-        internal void Emit(OpCode code, ILWriterLabel label)
+        internal void Emit(in OpCode code, ILWriterLabel label)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {label}");
             il.Emit(code, label.Value);
         }
 
-        internal void Emit(OpCode code, FieldInfo field)
+        internal void Emit(in OpCode code, FieldInfo field)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {field.DeclaringType.GetFriendlyName()}.{field.Name}");
             il.Emit(code, field);
         }
 
-        internal void Emit(OpCode code, Type type)
+        internal void Emit(in OpCode code, Type type)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {type.GetFriendlyName()}");
             il.Emit(code, type);
         }
 
-        internal void Emit(OpCode code, float value)
+        internal void Emit(in OpCode code, float value)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
-        internal void Emit(OpCode code, double value)
+        internal void Emit(in OpCode code, double value)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
-        internal void Emit(OpCode code, ConstructorInfo value)
+        internal void Emit(in OpCode code, ConstructorInfo value)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {value.DeclaringType.GetFriendlyName()}");
             il.Emit(code, value);
 
         }
 
-        internal void Emit(OpCode code, MethodInfo method)
+        internal void Emit(in OpCode code, MethodInfo method)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.Name}");
             //if (method is DynamicMethod) {
@@ -168,7 +311,7 @@ namespace YantraJS.Core
 
         }
 
-        internal void Emit(OpCode code, string value)
+        internal void Emit(in OpCode code, string value)
         {
             PrintOffset();
             writer.WriteLine($"{code.Name} {value.Quoted()}");

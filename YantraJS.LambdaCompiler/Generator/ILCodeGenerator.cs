@@ -66,7 +66,6 @@ namespace YantraJS.Generator
 
                 il.Emit(OpCodes.Ret);
             }
-
             il.Verify();
 
         }

@@ -13,7 +13,7 @@ namespace YantraJS.Generator
         {
             Visit(convertExpression.Target);
             il.EmitCall(convertExpression.Method);
-            return true;
+            return CodeInfo.HasStack;
         }
     }
 }

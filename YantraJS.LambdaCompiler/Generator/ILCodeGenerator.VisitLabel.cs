@@ -16,6 +16,8 @@ namespace YantraJS.Generator
             if(yLabelExpression.Default != null)
             {
                 Visit(yLabelExpression.Default);
+                il.MarkLabel(l);
+                return CodeInfo.HasStack;
             }
 
             il.MarkLabel(l);

@@ -19,7 +19,7 @@ namespace YantraJS.Generator
                 if (field.IsLiteral)
                 {
                     il.EmitConstant( field.GetRawConstantValue());
-                    return true;
+                    return CodeInfo.HasStack;
                 }
 
                 //if (RequiresAddress && field.FieldType.IsValueType)
@@ -28,7 +28,7 @@ namespace YantraJS.Generator
                 //    return true;
                 //}
                 il.Emit(OpCodes.Ldsfld, field);
-                return true;
+                return CodeInfo.HasStack;
             }
 
             Visit(yFieldExpression.Target);
@@ -40,7 +40,7 @@ namespace YantraJS.Generator
             //}
 
             il.Emit(OpCodes.Ldfld, field);
-            return true;
+            return CodeInfo.HasStack;
         }
     }
 }

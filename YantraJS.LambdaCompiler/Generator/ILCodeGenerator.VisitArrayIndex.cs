@@ -73,7 +73,7 @@ namespace YantraJS.Generator
                     break;
             }
 
-            return true;
+            return CodeInfo.HasStack;
         }
 
     }

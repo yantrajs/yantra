@@ -15,8 +15,11 @@ namespace YantraJS.Generator
             var test = yConditionalExpression.test;
             if (test.NodeType == YExpressionType.Binary && test is YBinaryExpression be)
             {
-                if (TryVisitConditional(be.Left, be.Right, be.Operator, yConditionalExpression.@true, yConditionalExpression.@false))
+                if (TryVisitConditional(be.Left, be.Right, be.Operator, yConditionalExpression.@true, yConditionalExpression.@false)) { 
+                    if(yConditionalExpression.Type != typeof(void))
+                        return CodeInfo.HasStack;
                     return true;
+                }
             }
 
             var trueEnd = il.DefineLabel("trueEnd", il.Top);
