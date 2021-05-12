@@ -5,10 +5,11 @@ using System.Text;
 
 namespace YantraJS.Core.Tests.Imported
 {
+
     /// <summary>
     /// Language expression tests.
     /// </summary>
-    // [TestClass]
+    [TestClass]
     public class ExpressionTests : TestBase
     {
         [TestMethod]
