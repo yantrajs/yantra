@@ -11,13 +11,13 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitConditional(YConditionalExpression yConditionalExpression)
         {
+            // Conditional statement must leave only one item on stack...
+
             // optimize for jumps...
             var test = yConditionalExpression.test;
             if (test.NodeType == YExpressionType.Binary && test is YBinaryExpression be)
             {
-                if (TryVisitConditional(be.Left, be.Right, be.Operator, yConditionalExpression.@true, yConditionalExpression.@false)) { 
-                    if(yConditionalExpression.Type != typeof(void))
-                        return CodeInfo.HasStack;
+                if (TryVisitConditional(be.Left, be.Right, be.Operator, yConditionalExpression.@true, yConditionalExpression.@false)) {
                     return true;
                 }
             }
@@ -40,11 +40,10 @@ namespace YantraJS.Generator
 
                 il.MarkLabel(falseBegin);
                 Visit(yConditionalExpression.@false);
+                il.DecrementStack();
             }
 
             il.MarkLabel(trueEnd);
-            if(yConditionalExpression.Type != typeof(void))
-                return CodeInfo.HasStack;
             return true;
         }
 
@@ -109,6 +108,7 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Br, trueEnd);
                 il.MarkLabel(falseBegin);
                 Visit(@false);
+                il.DecrementStack();
             }
 
             il.MarkLabel(trueEnd);

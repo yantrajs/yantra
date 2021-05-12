@@ -58,6 +58,11 @@ namespace YantraJS.Core
             writer.WriteLine($"// {comment}");
         }
 
+        internal void DecrementStack()
+        {
+            Stack--;
+        }
+
         internal void Goto(ILWriterLabel label, int index = -1)
         {
             if (index >= 0)
@@ -289,6 +294,9 @@ namespace YantraJS.Core
         internal void Emit(in OpCode code, ConstructorInfo value)
         {
             UpdateStack(code);
+
+            Stack -= value.GetParameters().Length;
+
             PrintOffset();
             writer.WriteLine($"{code.Name} {value.DeclaringType.GetFriendlyName()}");
             il.Emit(code, value);
@@ -298,6 +306,18 @@ namespace YantraJS.Core
         internal void Emit(in OpCode code, MethodInfo method)
         {
             UpdateStack(code);
+
+            Stack -= method.GetParameters().Length;
+            if (!method.IsStatic)
+            {
+                Stack--;
+            }
+
+            if(method.ReturnType != typeof(void))
+            {
+                Stack++;
+            }
+
             PrintOffset();
             writer.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.Name}");
             //if (method is DynamicMethod) {
@@ -313,6 +333,7 @@ namespace YantraJS.Core
 
         internal void Emit(in OpCode code, string value)
         {
+            UpdateStack(code);
             PrintOffset();
             writer.WriteLine($"{code.Name} {value.Quoted()}");
             il.Emit(code, value);
