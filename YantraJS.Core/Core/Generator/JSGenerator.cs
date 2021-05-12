@@ -6,13 +6,14 @@ using System.Threading;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.LightWeight;
 using YantraJS.Core.LinqExpressions.Generators;
+using YantraJS.Core.LinqExpressions.GeneratorsV2;
 
 namespace YantraJS.Core.Generator
 {
     public class JSGenerator : JSObject, IDisposable
     {
         readonly IElementEnumerator en;
-        private ClrGenerator cg;
+        private ClrGeneratorV2 cg;
         private readonly string name;
 
         private JSContext context;
@@ -25,7 +26,7 @@ namespace YantraJS.Core.Generator
             this.name = name;
         }
 
-        public JSGenerator(ClrGenerator g)
+        public JSGenerator(ClrGeneratorV2 g)
         {
             this.BasePrototypeObject = JSContext.Current.GeneratorPrototype;
             this.cg = g;
