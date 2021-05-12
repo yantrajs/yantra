@@ -24,13 +24,7 @@ namespace YantraJS.Generator
                 }
                 a();
             }
-            //if (RequiresAddress && newExpression.Type.IsValueType)
-            //{
-            //    var t = tempVariables[newExpression.Type];
-            //    il.EmitSaveLocal(t.LocalIndex);
-            //    il.EmitLoadLocalAddress(t.LocalIndex);
-            //}
-            return CodeInfo.HasStack;
+            return true;
         }
 
         protected override CodeInfo VisitNewArray(YNewArrayExpression yNewArrayExpression)
@@ -55,7 +49,7 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Stelem, elementType);
                 }
 
-                return CodeInfo.HasStack;
+                return true;
             }
         }
 
@@ -63,7 +57,7 @@ namespace YantraJS.Generator
         {
             Visit(yNewArrayBoundsExpression.Size);
             il.Emit(OpCodes.Newarr, yNewArrayBoundsExpression.ElementType);
-            return CodeInfo.HasStack;
+            return true;
         }
     }
 }

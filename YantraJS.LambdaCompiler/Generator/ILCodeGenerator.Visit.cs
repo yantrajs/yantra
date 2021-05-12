@@ -11,16 +11,12 @@ namespace YantraJS.Generator
     {
         public readonly bool Success;
 
-        public readonly bool Stack;
 
-        public CodeInfo(bool success, bool stack = false)
+        public CodeInfo(bool success)
         {
             this.Success = success;
-            this.Stack = stack;
         }
 
-        public static CodeInfo HasStack => new CodeInfo(true, true);
-        
 
         public static implicit operator CodeInfo(bool success)
         {

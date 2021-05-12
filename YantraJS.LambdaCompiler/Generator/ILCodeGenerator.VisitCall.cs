@@ -45,10 +45,6 @@ namespace YantraJS.Generator
                 il.EmitCall(yCallExpression.Method);
                 a();
             }
-            if(yCallExpression.Method.ReturnType != typeof(void))
-            {
-                return CodeInfo.HasStack;
-            }
             return true;
         }
     }
