@@ -17,6 +17,12 @@ namespace YantraJS.ExpHelper
         private static MethodInfo moveNext =
             type.InternalMethod(nameof(IElementEnumerator.MoveNext), typeof(JSValue).MakeByRefType());
 
+        private static MethodInfo moveNextOrDefault =
+            type.PublicMethod(nameof(IElementEnumerator.MoveNextOrDefault), 
+                typeof(JSValue).MakeByRefType(),
+                typeof(JSValue));
+
+
         public static Expression Get(Expression target)
         {
             if (typeof(JSValue).IsAssignableFrom(target.Type))
@@ -35,15 +41,9 @@ namespace YantraJS.ExpHelper
 
         public static Expression AssignMoveNext(
             Expression assignee,
-            Expression target,
-            Expression item)
+            Expression target)
         {
-            return Expression.Assign(assignee,
-                Expression.Condition(
-                    Expression.Call(target, moveNext, item),
-                    item,
-                    JSUndefinedBuilder.Value
-                    ));
+            return Expression.Call(target, moveNextOrDefault, assignee, JSUndefinedBuilder.Value);
         }
     }
 }

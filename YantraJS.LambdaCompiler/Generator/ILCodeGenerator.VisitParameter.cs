@@ -28,7 +28,7 @@ namespace YantraJS.Generator
                     //    }
                     //}
                     il.EmitLoadArg(v.Index);
-                    return CodeInfo.HasStack;
+                    return true;
                 }
 
                 //if (RequiresAddress)
@@ -37,7 +37,7 @@ namespace YantraJS.Generator
                 //    return true;
                 //}
                 il.EmitLoadLocal(v.LocalBuilder.LocalIndex);
-                return CodeInfo.HasStack;
+                return true;
             }
             if (v.IsArgument)
             {
@@ -49,7 +49,7 @@ namespace YantraJS.Generator
                 //    il.Emit(OpCodes.Ldind_Ref);
                 //    return true;
                 //}
-                return CodeInfo.HasStack;
+                return true;
             }
 
             il.EmitLoadLocal(v.LocalBuilder.LocalIndex);
@@ -58,7 +58,7 @@ namespace YantraJS.Generator
                 throw new NotSupportedException();
             }
 
-            return CodeInfo.HasStack;
+            return true;
         }
     }
 }

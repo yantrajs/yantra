@@ -16,11 +16,11 @@ namespace YantraJS.Generator
             {
                 case YUnaryOperator.Negative:
                     il.Emit(OpCodes.Neg);
-                    return CodeInfo.HasStack;
+                    return true;
                 case YUnaryOperator.Not:
                     il.EmitConstant(0);
                     il.Emit(OpCodes.Ceq);
-                    return CodeInfo.HasStack;
+                    return true;
             }
             throw new NotImplementedException();
         }

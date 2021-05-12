@@ -22,7 +22,7 @@ namespace YantraJS.Generator
             il.EmitCall(method);
             a();
             if(method.ReturnType != typeof(void))
-                return CodeInfo.HasStack;
+                return true;
             return true;
         }
     }

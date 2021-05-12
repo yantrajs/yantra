@@ -336,6 +336,14 @@ namespace YantraJS.Core.LinqExpressions.Generators
             };
         }
 
+        public Func<object> Value(JSValue v)
+        {
+            return () => {
+                Stack.Push(() => v);
+                return null;
+            };
+        }
+
         public Func<object> Binary<TLeft,TRight>(Func<TLeft> left, Func<TRight> right, Func<TLeft, TRight, TRight> process)
         {
             return () => {

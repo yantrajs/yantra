@@ -23,7 +23,7 @@ namespace YantraJS.Generator
                 Visit(yPropertyExpression.Target);
             }
             il.EmitCall(yPropertyExpression.GetMethod);
-            return CodeInfo.HasStack;
+            return true;
         }
 
     }

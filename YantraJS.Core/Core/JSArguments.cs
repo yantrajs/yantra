@@ -150,6 +150,18 @@ namespace YantraJS.Core
                 return false;
             }
 
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                i = (i == uint.MaxValue) ? 0 : (i + 1);
+                if (i < arguments.Length)
+                {
+                    value = arguments.GetAt((int)i);
+                    return true;
+                }
+                value = @default;
+                return false;
+            }
+
         }
 
     }

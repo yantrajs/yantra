@@ -120,65 +120,65 @@ namespace YantraJS.Core.FastParser.Compiler
                     using (var enVar = this.scope.Top.GetTempVariable(typeof(IElementEnumerator)))
                     {
                         var en = enVar.Expression;
-                        using (var item = this.scope.Top.GetTempVariable())
+                        inits.Add(Exp.Assign(en, IElementEnumeratorBuilder.Get(init)));
+                        foreach (var element in arrayPattern.Elements)
                         {
-                            inits.Add(Exp.Assign(en, IElementEnumeratorBuilder.Get(init)));
-                            foreach (var element in arrayPattern.Elements)
+                            switch (element.Type)
                             {
-                                switch (element.Type)
-                                {
-                                    case FastNodeType.Identifier:
-                                        var id = element as AstIdentifier;
-                                        // inits.Add(CreateAssignment(id, start));
-                                        if (createVariable)
-                                        {
-                                            var v = this.scope.Top.CreateVariable(id.Name.Value, null, newScope);
-                                            inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
-                                        }
-                                        var assignee = VisitIdentifier(id);
-                                        inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en,
-                                            item.Expression));
-                                        break;
-                                    case FastNodeType.SpreadElement:
-                                        var spe = element as AstSpreadElement;
-                                        // loop...
-                                        if (createVariable && spe.Argument is AstIdentifier id2)
-                                        {
-                                            var v = this.scope.Top.CreateVariable(id2.Name.Value, null, newScope);
-                                            inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id2.Name.Value)));
-                                        }
+                                case FastNodeType.Identifier:
+                                    var id = element as AstIdentifier;
+                                    // inits.Add(CreateAssignment(id, start));
+                                    if (createVariable)
+                                    {
+                                        var v = this.scope.Top.CreateVariable(id.Name.Value, null, newScope);
+                                        inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
+                                    }
+                                    var assignee = VisitIdentifier(id);
+                                    inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en));
+                                    break;
+                                case FastNodeType.SpreadElement:
+                                    var spe = element as AstSpreadElement;
+                                    // loop...
+                                    if (createVariable && spe.Argument is AstIdentifier id2)
+                                    {
+                                        var v = this.scope.Top.CreateVariable(id2.Name.Value, null, newScope);
+                                        inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id2.Name.Value)));
+                                    }
 
-                                        var spid = Visit(spe.Argument);
+                                    var spid = Visit(spe.Argument);
 
-                                        using (var arrayVar = this.scope.Top.GetTempVariable(typeof(JSArray)))
-                                        {
-                                            inits.Add(Exp.Assign(arrayVar.Expression, JSArrayBuilder.New()));
-                                            var @break = Exp.Label();
-                                            var add = JSArrayBuilder.Add(arrayVar.Expression, item.Expression);
-                                            var @breakStmt = Exp.Goto(@break);
-                                            var loop = Exp.Loop(Exp.Block(
-                                                Exp.IfThenElse(
-                                                    IElementEnumeratorBuilder.MoveNext(en, item.Expression),
-                                                    add,
-                                                    breakStmt)
-                                                ), @break);
-                                            inits.Add(loop);
-                                            inits.Add(Exp.Assign(spid, arrayVar.Expression));
-                                        }
-                                        break;
-                                    case FastNodeType.ObjectPattern:
-                                    case FastNodeType.ArrayPattern:
-                                        var ape = element;
-                                        // nested array ...
-                                        // nested object ...
-                                        var check = IElementEnumeratorBuilder.MoveNext(en, item.Expression);
+                                    // using (var arrayVar = this.scope.Top.GetTempVariable(typeof(JSArray)))
+                                    // {
+                                        //inits.Add(Exp.Assign(arrayVar.Expression, JSArrayBuilder.New()));
+                                        //var @break = Exp.Label();
+                                        //var add = JSArrayBuilder.Add(arrayVar.Expression, item.Expression);
+                                        //var @breakStmt = Exp.Goto(@break);
+                                        //var loop = Exp.Loop(Exp.Block(
+                                        //    Exp.IfThenElse(
+                                        //        IElementEnumeratorBuilder.MoveNext(en, item.Expression),
+                                        //        add,
+                                        //        breakStmt)
+                                        //    ), @break);
+                                        //inits.Add(loop);
+                                        inits.Add(Exp.Assign(spid, JSArrayBuilder.NewFromElementEnumerator(en)));
+                                    // }
+                                    break;
+                                case FastNodeType.ObjectPattern:
+                                case FastNodeType.ArrayPattern:
+                                    var ape = element;
+                                    // nested array ...
+                                    // nested object ...
+                                    using (var te = scope.Top.GetTempVariable(typeof(JSValue)))
+                                    {
+                                        var check = IElementEnumeratorBuilder.MoveNext(en, te.Expression);
                                         inits.Add(check);
-                                        CreateAssignment(inits, ape, item.Expression, true, newScope);
-                                        break;
-                                    default:
-                                        inits.Add(IElementEnumeratorBuilder.MoveNext(en, item.Expression));
-                                        break;
-                                }
+                                        CreateAssignment(inits, ape, te.Expression, true, newScope);
+                                    }
+                                    break;
+                                default:
+                                    // inits.Add(IElementEnumeratorBuilder.MoveNext(en, item.Expression));
+                                    // break;
+                                    throw new NotSupportedException($"{element.Type}");
                             }
                         }
                     }

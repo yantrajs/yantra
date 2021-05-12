@@ -842,8 +842,7 @@ namespace YantraJS
                                             inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name)));
                                         }
                                         var assignee = VisitIdentifier(id);
-                                        inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en, 
-                                            item.Expression));
+                                        inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en));
                                         break;
                                     case RestElement spe:
                                         // loop...

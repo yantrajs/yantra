@@ -336,6 +336,18 @@ namespace YantraJS.Core.Typed
                 value = JSUndefined.Value;
                 return false;
             }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    value = typedArray[(uint)index];
+                    return true;
+                }
+
+                value = @default;
+                return false;
+            }
         }
 
         struct EntryEnumerator : IElementEnumerator
@@ -374,6 +386,18 @@ namespace YantraJS.Core.Typed
                 }
 
                 value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    value = new JSArray(new JSNumber(index), typedArray[(uint)index]);
+                    return true;
+                }
+
+                value = @default;
                 return false;
             }
         }
@@ -415,6 +439,17 @@ namespace YantraJS.Core.Typed
                 return true;
             }
             value = JSUndefined.Value;
+            return false;
+        }
+
+        public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+        {
+            if (++this.index < this.length)
+            {
+                value = new JSNumber(index);
+                return true;
+            }
+            value = @default;
             return false;
         }
     }

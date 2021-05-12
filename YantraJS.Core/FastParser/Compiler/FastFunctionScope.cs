@@ -36,6 +36,7 @@ namespace YantraJS.Core.FastParser.Compiler
             public Expression PostInit { get; private set; }
 
             public bool InUse { get; internal set; }
+            public bool IsTemp { get; internal set; }
 
             public void Dispose()
             {
@@ -171,18 +172,20 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public LabelTarget ReturnLabel { get; }
 
-        public FastFunctionScope TopScope
-        {
-            get
-            {
-                var p = this;
-                while (p.Parent != null && p.Function == p.Parent.Function)
-                {
-                    p = p.Parent;
-                }
-                return p;
-            }
-        }
+        public readonly FastFunctionScope TopScope;
+
+        //public FastFunctionScope TopScope
+        //{
+        //    get
+        //    {
+        //        var p = this;
+        //        while (p.Parent != null && p.Function == p.Parent.Function)
+        //        {
+        //            p = p.Parent;
+        //        }
+        //        return p;
+        //    }
+        //}
 
         //public FunctionScope TopStackScope
         //{
@@ -216,6 +219,7 @@ namespace YantraJS.Core.FastParser.Compiler
             FastPool pool,
             AstFunctionExpression fx, Expression previousThis = null, Expression super = null)
         {
+            TopScope = this;
             var sID = Interlocked.Increment(ref scopeID);
             this.pool = pool.NewScope();
             this.Function = fx;
@@ -267,6 +271,7 @@ namespace YantraJS.Core.FastParser.Compiler
             )
         {
             this.Function = p.Function;
+            this.TopScope = p.TopScope;
             this.pool = p.pool.NewScope();
             // this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
@@ -305,25 +310,26 @@ namespace YantraJS.Core.FastParser.Compiler
         private FastList<VariableScope> TempVariables;
         private readonly FastPool.Scope pool;
 
+        private int id;
+
         public VariableScope GetTempVariable(Type type = null)
         {
             type = type ?? typeof(JSValue);
-            var ts = TempVariables.FirstOrDefault(x => x.Variable.Type == type && x.InUse == false);
-            if (ts == null)
+            var fe = TopScope.variableScopeList.AllValues;
+            while(fe.MoveNext(out var item))
             {
-                var t = Expression.Variable(type);
-                ts = new VariableScope
-                {
-                    Name = "#temp",
-                    Variable = t,
-                    Expression = t,
-                    Create = true
-                };
-                TempVariables.Add(ts);
-                TopScope.variableScopeList["#temp" + DateTime.UtcNow.Ticks] = ts;
+                var v = item.Value;
+                if (v.IsTemp && v.Expression.Type == type && !v.InUse)
+                    return v;
             }
-            ts.InUse = true;
-            return ts;
+            var temp = new VariableScope {
+                Create = true,
+                Name = "#Temp" + type.Name + TopScope.id++,
+                IsTemp = true
+            };
+            temp.Expression = temp.Variable = Exp.Variable(type, temp.Name);
+            TopScope.variableScopeList[temp.Name] = temp;
+            return temp;
         }
 
         public bool IsFunctionScope => this.Parent?.Function != this.Function;

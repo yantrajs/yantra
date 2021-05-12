@@ -55,8 +55,8 @@ namespace YantraJS.Core.Tests.Parser
             ScanTypes("'a'\n").AssertSequenceEqual(TokenTypes.String, TokenTypes.LineTerminator);
             ScanTypes("'a'").AssertSequenceEqual(TokenTypes.String);
             ScanTypes("'\"a'").AssertSequenceEqual(TokenTypes.String);
-            ScanTypes("'''a'").AssertSequenceEqual(TokenTypes.String);
-            ScanTypes(" '''a'").AssertSequenceEqual(TokenTypes.String);
+            ScanTypes("'\\'a'").AssertSequenceEqual(TokenTypes.String);
+            ScanTypes(" '\\'a'").AssertSequenceEqual(TokenTypes.String);
         }
         [TestMethod]
         public void Number()

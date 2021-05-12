@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using YantraJS.Core.LinqExpressions;
@@ -17,6 +18,10 @@ namespace YantraJS.Core.FastParser.Compiler
             try {
                 list.AddRange(scope.InitList);
                 list.AddRange(body);
+                if (scope.VariableParameters.Any() && !list.Any())
+                    throw new InvalidOperationException();
+                if (!list.Any())
+                    return Exp.Empty();
                 return Exp.Block(scope.VariableParameters, list);
             } finally {
                 list.Clear();

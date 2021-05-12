@@ -45,6 +45,18 @@ namespace YantraJS
             value = null;
             return false;
         }
+
+        public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+        {
+            if (en.MoveNext())
+            {
+                value = en.Current;
+                return true;
+            }
+            value = @default;
+            return false;
+        }
+
     }
 
 
@@ -78,6 +90,18 @@ namespace YantraJS
                 return true;
             }
             value = null;
+            return false;
+        }
+
+
+        public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+        {
+            if (en.MoveNext())
+            {
+                value = en.Current;
+                return true;
+            }
+            value = @default;
             return false;
         }
     }
@@ -179,6 +203,18 @@ namespace YantraJS
             value = JSUndefined.Value;
             return false;
         }
+
+        public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+        {
+            if (en.MoveNext())
+            {
+                value = ClrProxy.Marshal(en.Current);
+                this.index = this.index == uint.MaxValue ? 0 : this.index + 1;
+                return true;
+            }
+            value = @default;
+            return false;
+        }
     }
 
     /// <summary>
@@ -193,6 +229,8 @@ namespace YantraJS
 
         
         bool MoveNext(out JSValue value);
+
+        bool MoveNextOrDefault(out JSValue value, JSValue @default);
 
         // JSValue Current { get; }
 

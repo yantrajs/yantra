@@ -330,6 +330,18 @@ namespace YantraJS.Core
                 return false;
             }
 
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                if (en.MoveNext(out var ch))
+                {
+                    index++;
+                    value = new JSString(new string(ch, 1));
+                    return true;
+                }
+                value = @default;
+                return false;
+            }
+
 
         }
 

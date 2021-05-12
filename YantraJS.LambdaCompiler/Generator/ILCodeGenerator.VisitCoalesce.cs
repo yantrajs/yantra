@@ -18,7 +18,7 @@ namespace YantraJS.Generator
             il.Emit(OpCodes.Pop);
             Visit(yCoalesceExpression.Right);
             il.MarkLabel(notNull);
-            return CodeInfo.HasStack;
+            return true;
         }
     }
 }

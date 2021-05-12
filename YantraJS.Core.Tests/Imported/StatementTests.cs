@@ -10,7 +10,7 @@ namespace YantraJS.Core.Tests.Imported
     /// <summary>
     /// Language statement tests.
     /// </summary>
-    [TestClass]
+    // [TestClass]
     public class StatementTests : TestBase
     {
         [TestMethod]

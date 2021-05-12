@@ -22,7 +22,7 @@ namespace YantraJS.Generator
             il.Emit(OpCodes.Isinst, yTypeIsExpression.TypeOperand);
             il.Emit(OpCodes.Ldnull);
             il.Emit(OpCodes.Cgt_Un);
-            return CodeInfo.HasStack;
+            return true;
         }
 
         protected override CodeInfo VisitTypeAs(YTypeAsExpression typeAsExpression)
@@ -31,7 +31,7 @@ namespace YantraJS.Generator
             if (typeAsExpression.Type.IsAssignableFrom(typeAsExpression.Target.Type))
                 return true;
             il.Emit(OpCodes.Isinst, typeAsExpression.Type);
-            return CodeInfo.HasStack;
+            return true;
         }
     }
 }

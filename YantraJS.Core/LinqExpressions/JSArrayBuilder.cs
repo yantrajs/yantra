@@ -14,6 +14,9 @@ namespace YantraJS.ExpHelper
         private static ConstructorInfo _New =
             type.GetConstructor(new Type[] { });
 
+        private static ConstructorInfo _NewFromElementEnumerator =
+            type.GetConstructor(new Type[] { typeof(IElementEnumerator) });
+
         private static MethodInfo _Add =
             type.GetMethod(nameof(Core.JSArray.Add), new Type[] { typeof(JSValue) });
 
@@ -37,6 +40,12 @@ namespace YantraJS.ExpHelper
             }
             return start;
         }
+
+        public static Expression NewFromElementEnumerator(Expression en)
+        {
+            return Expression.New(_NewFromElementEnumerator, en);
+        }
+
 
     }
 }

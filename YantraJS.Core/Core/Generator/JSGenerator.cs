@@ -154,6 +154,20 @@ namespace YantraJS.Core.Generator
                 return false;
 
             }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                generator.Next();
+                if (!generator.done)
+                {
+                    this.index++;
+                    value = this.generator.value;
+                    return true;
+                }
+                value = @default;
+                return false;
+
+            }
         }
 
         [Prototype("next", Length = 1)]

@@ -30,7 +30,7 @@ namespace YantraJS.Generator
                     il.EmptyStack();
                 } 
             }
-            return CodeInfo.HasStack;
+            return true;
         }
     }
 }
