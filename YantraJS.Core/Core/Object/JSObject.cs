@@ -334,7 +334,8 @@ namespace YantraJS.Core
                         p.set.f(new Arguments(this, value));
                         return;
                     }
-                    return;
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                    //return;
                 }
                 if(p.IsReadOnly)
                 {
@@ -343,6 +344,8 @@ namespace YantraJS.Core
                 }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                if(p.IsEmpty && !this.IsExtensible())
+                    throw JSContext.Current.NewTypeError($"Cannot add property {name} to {this}");
                 ref var ownProperties = ref this.GetOwnProperties();
                 ownProperties[name.Key] = JSProperty.Property(name, value);
                 PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
@@ -621,7 +624,7 @@ namespace YantraJS.Core
                 pt |= JSPropertyAttributes.Configurable;
             if (pd[KeyStrings.enumerable].BooleanValue)
                 pt |= JSPropertyAttributes.Enumerable;
-            if (pd[KeyStrings.@readonly].BooleanValue)
+            if (!pd[KeyStrings.writable].BooleanValue)
                 pt |= JSPropertyAttributes.Readonly;
             if (get != null)
             {
