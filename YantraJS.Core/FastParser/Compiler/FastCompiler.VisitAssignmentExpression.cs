@@ -22,6 +22,23 @@ namespace YantraJS.Core.FastParser.Compiler
                 case FastNodeType.ObjectPattern:
                     return CreateAssignment(left, Visit(right));
             }
+
+
+            // we need to rewrite left side if it is computed expression with member assignment...
+            if (left.Type == FastNodeType.MemberExpression && left is AstMemberExpression mem)
+            {
+                if (mem.Object.Type != FastNodeType.Identifier)
+                {
+                    // this needs to be computed...
+                    var tmp = this.scope.Top.GetTempVariable();
+                    var leftExp = CreateMemberExpression(tmp.Expression, mem.Property, mem.Computed);
+                    return Expression.Block(
+                        Expression.Assign(tmp.Expression, Visit(mem.Object)),
+                        BinaryOperation.Assign(leftExp, Visit(right), assignmentOperator)
+                        );
+
+                }
+            }
             return BinaryOperation.Assign(Visit(left), Visit(right), assignmentOperator);
         }
 
