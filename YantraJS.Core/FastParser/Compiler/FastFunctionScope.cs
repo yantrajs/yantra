@@ -7,6 +7,7 @@ using System.Threading;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Generator;
 using YantraJS.Core.LinqExpressions.Generators;
+using YantraJS.Core.LinqExpressions.GeneratorsV2;
 using YantraJS.ExpHelper;
 using YantraJS.Utils;
 using Exp = System.Linq.Expressions.Expression;
@@ -225,7 +226,7 @@ namespace YantraJS.Core.FastParser.Compiler
             this.Function = fx;
             if (fx?.Generator ?? false)
             {
-                Generator = Expression.Parameter(typeof(ClrGenerator), "clrGenerator");
+                Generator = Expression.Parameter(typeof(ClrGeneratorV2), "clrGenerator");
             }
             else
             {

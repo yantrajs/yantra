@@ -6,6 +6,7 @@ using System.Text;
 using YantraJS.Core.Generator;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.Core.LinqExpressions.Generators;
+using YantraJS.Core.LinqExpressions.GeneratorsV2;
 using YantraJS.ExpHelper;
 using Exp = System.Linq.Expressions.Expression;
 
@@ -179,16 +180,25 @@ namespace YantraJS.Core.FastParser.Compiler
                     Exp jsf;
                     if (functionDeclaration.Generator)
                     {
-                        lambda = Exp.Lambda(typeof(JSGeneratorDelegate),
-                            YieldRewriter.Rewrite(block, r, cs.Generator, lexicalScopeVar),
-                            functionName, new ParameterExpression[] {
-                            cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments
-                            });
+                        //lambda = Exp.Lambda(typeof(JSGeneratorDelegate),
+                        //    YieldRewriter.Rewrite(block, r, cs.Generator, lexicalScopeVar),
+                        //    functionName, new ParameterExpression[] {
+                        //    cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments
+                        //    });
                         // rewrite lambda...
 
                         // lambda.Compile();
 
-                        jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
+                        lambda = GeneratorRewriter.Rewrite(block, cs.ReturnLabel, cs.Generator, 
+                            replaceArgs: cs.Arguments,
+                            replaceStackItem: cs.StackItem,
+                            replaceContext: cs.Context, 
+                            replaceScriptInfo: cs.ScriptInfo,
+                            replaceClosures: cs.Closures);
+
+                        jsf = JSGeneratorFunctionBuilderV2.New(parentScriptInfo, closureArray, lambda, fxName, code);
+
+                        // jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
 
                     }
                     else if (functionDeclaration.Async)
