@@ -265,7 +265,8 @@ namespace YantraJS.Core {
             set { }
         }
 
-        internal JSValue this[JSObject super, KeyString name]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue this[JSObject super, KeyString name]
         {
             get => this.GetValue(super.GetInternalProperty(name));
             set
@@ -283,7 +284,8 @@ namespace YantraJS.Core {
             }
         }
 
-        internal JSValue this[JSObject super, uint index]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue this[JSObject super, uint index]
         {
             get => this.GetValue(super.GetInternalProperty(index));
             set
@@ -301,7 +303,8 @@ namespace YantraJS.Core {
             }
         }
 
-        internal JSValue this[JSObject super, JSValue name]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue this[JSObject super, JSValue name]
         {
             get
             {

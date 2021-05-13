@@ -90,13 +90,13 @@ namespace YantraJS.ExpHelper
                 type.IndexProperty(typeof(JSValue));
 
         private static PropertyInfo _SuperIndexKeyString =
-                    type.IndexProperty(typeof(JSObject), typeof(KeyString));
+                    type.PublicIndex(typeof(JSObject), typeof(KeyString));
 
         private static PropertyInfo _SuperIndexUInt =
-                    type.IndexProperty(typeof(JSObject), typeof(uint));
+                    type.PublicIndex(typeof(JSObject), typeof(uint));
 
         private static PropertyInfo _SuperIndex =
-                    type.IndexProperty(typeof(JSObject), typeof(JSValue));
+                    type.PublicIndex(typeof(JSObject), typeof(JSValue));
 
         public static Expression Index(Expression target, Expression super, uint i)
         {

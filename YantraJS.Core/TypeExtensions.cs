@@ -220,6 +220,20 @@ namespace YantraJS
             return f;
         }
 
+        internal static PropertyInfo PublicIndex(this Type type, params Type[] types)
+        {
+            var px = type
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
+                .FirstOrDefault(x => x.GetIndexParameters().Length > 0 &&
+                x.GetIndexParameters().Select(p => p.ParameterType).SequenceEqual(types));
+            if (px == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Property this({tl}) not found on {type.FullName}");
+            }
+            return px;
+        }
+
         internal static PropertyInfo IndexProperty(this Type type, params Type[] types)
         {
             var px = type
