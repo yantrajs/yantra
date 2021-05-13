@@ -96,7 +96,7 @@ namespace YantraJS.Core.Tests.Imported
                 var v = ev?.prototypeChain?[KeyStrings.constructor] as JSFunction;
                 return v?.name.Value;
             }
-            throw new Exception();
+            throw new Exception("No exception was thrown");
         }
 
         public (JSValue Value, JSValue v2) Undefined => (JSUndefined.Value, null);

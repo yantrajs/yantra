@@ -93,6 +93,8 @@ namespace YantraJS.Core {
 
         public abstract bool BooleanValue { get; }
 
+        internal virtual string StringValue => this.ToString();
+
         public abstract JSValue TypeOf();
 
         public virtual int IntValue => (int)(uint)this.DoubleValue;
@@ -128,6 +130,15 @@ namespace YantraJS.Core {
             }
         }
 
+        
+        /// <summary>
+        /// Unless overriden, it returns self
+        /// </summary>
+        /// <returns></returns>
+        public virtual JSValue ValueOf() {
+            return this;
+        }
+
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>
@@ -135,13 +146,16 @@ namespace YantraJS.Core {
         /// <returns></returns>
         public virtual JSValue AddValue(JSValue value)
         {
-            if (this.CanBeNumber && value.CanBeNumber)
+            var self = this.ValueOf();
+            value = value.IsObject ? value.ValueOf() : value;
+
+            if (self.CanBeNumber && value.CanBeNumber)
             {
-                return new JSNumber(this.DoubleValue + value.DoubleValue);
+                return new JSNumber(self.DoubleValue + value.DoubleValue);
             }
             if (value.ToString().Length == 0)
-                return this.IsString ? this : new JSString(this.ToString());
-            return new JSString(this.ToString() + value.ToString());
+                return self.IsString ? self : new JSString(self.StringValue);
+            return new JSString(self.StringValue + value.StringValue);
         }
         /// <summary>
         /// Speed improvements for string contact operations
