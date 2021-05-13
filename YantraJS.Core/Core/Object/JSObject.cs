@@ -274,6 +274,17 @@ namespace YantraJS.Core
             return new JSProperty();
         }
 
+        public override JSValue ValueOf()
+        {
+            var p = GetInternalProperty(KeyStrings.valueOf, false);
+            if (!p.IsEmpty)
+            {
+                return this.GetValue(p).InvokeFunction(new Arguments(this));
+                
+            }
+            return this;
+        }
+
         public bool HasValueOf(out JSValue value)
         {
             var p = GetInternalProperty(KeyStrings.valueOf, false);
@@ -287,12 +298,12 @@ namespace YantraJS.Core
 
         }
 
-        public override JSValue AddValue(JSValue value)
-        {
-            if (HasValueOf(out var v))
-                return v.AddValue(value);
-            return base.AddValue(value);
-        }
+        //public override JSValue AddValue(JSValue value)
+        //{
+        //    if (HasValueOf(out var v))
+        //        return v.AddValue(value);
+        //    return base.AddValue(value);
+        //}
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {

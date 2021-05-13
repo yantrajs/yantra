@@ -33,10 +33,10 @@ namespace YantraJS.Core
             this.value = time;
         }
 
-        public override string ToString()
-        {
-            return this.value.ToString();
-        }
+        //public override string ToString()
+        //{
+        //    return this.value.ToString();
+        //}
 
         public override string ToDetailString()
         {

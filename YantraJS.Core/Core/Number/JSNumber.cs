@@ -222,12 +222,13 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(JSValue value)
         {
+            value = value.IsObject ? value.ValueOf() : value;
             if (value is JSPrimitiveObject po)
                 value = po.value;
             if (value is JSString @string)
                 return new JSString(this.value + @string.value);
             if(value is JSObject @object)
-                return new JSString(this.value + @object.ToString());
+                return new JSString(this.value + @object.StringValue);
             return new JSNumber(this.value + value.DoubleValue);
         }
 

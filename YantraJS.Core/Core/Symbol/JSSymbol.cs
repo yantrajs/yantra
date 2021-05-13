@@ -17,6 +17,10 @@ namespace YantraJS.Core
 
         public override bool BooleanValue => true;
 
+        public override double DoubleValue => throw JSContext.Current.NewTypeError("Cannot convert a Symbol value to a number.");
+
+        internal override string StringValue => throw JSContext.Current.NewTypeError("Cannot convert a Symbol value to a string.");
+
         internal override KeyString ToKey(bool create = true)
         {
             return Key;
