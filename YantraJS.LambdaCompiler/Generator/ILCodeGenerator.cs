@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
@@ -36,8 +37,23 @@ namespace YantraJS.Generator
             this.tempVariables = new TempVariables(il);
         }
 
-        internal void Emit(YLambdaExpression exp)
+        internal (string il, string exp) Emit(YLambdaExpression exp)
         {
+            var sw = new StringWriter();
+            System.CodeDom.Compiler.IndentedTextWriter writer = new System.CodeDom.Compiler.IndentedTextWriter(sw, "\t");
+            
+
+            var f = new FlattenVisitor();
+            var body = exp.Body;
+
+            writer.WriteLine("Original");
+            body.Print(writer);
+
+            body = f.Visit(body);
+
+            writer.WriteLine("Flatten");
+            body.Print(writer);
+
             short i = 0;
             if(exp.This != null)
             {
@@ -50,15 +66,16 @@ namespace YantraJS.Generator
 
             using (tempVariables.Push())
             {
-
-                var body = ReWriteTryCatch(exp.Body);
+                body = ReWriteTryCatch(body);
+                writer.WriteLine("Final");
+                body.Print(writer);
 
                 if(body.NodeType == YExpressionType.Call)
                 {
                     if(exp.ReturnType.IsAssignableFrom(body.Type) && body.Type != typeof(void))
                     {
                         if (VisitTailCall((body as YCallExpression)!))
-                            return;
+                            return (il.ToString(), body.ToString());
                     }
                 }
 
@@ -67,6 +84,8 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Ret);
             }
             il.Verify();
+
+            return (il.ToString(), sw.ToString());
 
         }
 

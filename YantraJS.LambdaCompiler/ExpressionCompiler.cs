@@ -58,8 +58,6 @@ namespace YantraJS
                     as YLambdaExpression;
             }
 
-            string exp = lambdaExpression.ToString();
-
             var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
                 MethodAttributes.Public, CallingConventions.HasThis,
                 lambdaExpression.ReturnType,
@@ -69,9 +67,9 @@ namespace YantraJS
             lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
 
             ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
-            icg.Emit(lambdaExpression);
+            var (ict, iexp) = icg.Emit(lambdaExpression);
 
-            return (method, icg.ToString(), exp);
+            return (method, ict, iexp);
         }
 
 
@@ -105,7 +103,7 @@ namespace YantraJS
             exp = nw.Visit(exp) as YLambdaExpression;
 
             ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
-            icg.Emit(exp);
+            var (ict, iexp) = icg.Emit(exp);
 
             return method;
         }

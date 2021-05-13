@@ -23,6 +23,11 @@ namespace YantraJS.Expressions
             this.AsCall = asCall;
         }
 
+        public YNewExpression Update(ConstructorInfo constructor, YExpression[] args)
+        {
+            return new YNewExpression(constructor, args, AsCall);
+        }
+
         public override void Print(IndentedTextWriter writer)
         {
             if (AsCall)

@@ -253,7 +253,7 @@ namespace YantraJS.Expressions
         {
             var am = Modified(yNewArrayExpression.Elements, out var elements);
             if (am)
-                return new YNewArrayExpression(yNewArrayExpression.Type, elements);
+                return new YNewArrayExpression(yNewArrayExpression.ElementType, elements);
             return yNewArrayExpression;
         }
 

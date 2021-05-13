@@ -17,29 +17,35 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-function t() {
-    throw new Error('1');
-}
+class SP {
 
-        function* g1(n)
-        {
-            try
-            {
-                yield 1;
-                t();
-            }
-            catch (e)
-            {
-                yield 2;
-            }
+    constructor() {
+        this.instances = {};
+    }
+
+    put(key, value) {
+        var v = this.instances[key.id];
+        if (!v) {
+            this.instances[key.id] = value;
+        } else {
+            console.log(`v is ${v}`);
         }
+    }
 
-        var a = [];
-for (var i of g1(5)) {
-    a.push(i);
+    get(key) {
+        return this.instances[key.id];
+    }
+
 }
 
-    assert.strictEqual('1,2', a.toString());
+let s = new SP();
+
+s.put({ id: 'a1' }, 'a1');
+
+let a1 = s.get({ id: 'a1' });
+
+assert.strictEqual(a1, 'a1');
+assert.strictEqual(s.instances['a1'], 'a1');
 ");
         }
 

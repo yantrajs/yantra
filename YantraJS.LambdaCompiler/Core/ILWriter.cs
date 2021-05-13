@@ -33,6 +33,7 @@ namespace YantraJS.Core
 
         private void PrintOffset()
         {
+            writer.Write($"S{Stack:x2}_");
             writer.Write("IL_");
             writer.Write(il.ILOffset.ToString("X4"));
             writer.Write(": ");
@@ -58,9 +59,19 @@ namespace YantraJS.Core
             writer.WriteLine($"// {comment}");
         }
 
-        internal void DecrementStack()
+        public IDisposable Branch()
         {
-            Stack--;
+            var s = Stack;
+            Stack = 0;
+            return new DisposableAction(() => {
+                var n = Stack;
+                Stack = s;
+                while(n > s)
+                {
+                    il.Emit(OpCodes.Pop);
+                    n--;
+                }
+            });
         }
 
         internal void Goto(ILWriterLabel label, int index = -1)
@@ -186,10 +197,10 @@ namespace YantraJS.Core
                         Stack++;
                         break;
                     case StackBehaviour.Varpop:
-                        Stack--;
+                        // Stack--;
                         break;
                     case StackBehaviour.Varpush:
-                        Stack++;
+                        // Stack++;
                         break;
                 }
             }
@@ -296,7 +307,9 @@ namespace YantraJS.Core
             UpdateStack(code);
 
             Stack -= value.GetParameters().Length;
-
+            if (code.Value != OpCodes.Newobj.Value)
+                Stack--;
+            // Stack++;
             PrintOffset();
             writer.WriteLine($"{code.Name} {value.DeclaringType.GetFriendlyName()}");
             il.Emit(code, value);
@@ -306,16 +319,18 @@ namespace YantraJS.Core
         internal void Emit(in OpCode code, MethodInfo method)
         {
             UpdateStack(code);
-
-            Stack -= method.GetParameters().Length;
-            if (!method.IsStatic)
+            if (code.Value != OpCodes.Ldftn.Value)
             {
-                Stack--;
-            }
+                Stack -= method.GetParameters().Length;
+                if (!method.IsStatic)
+                {
+                    Stack--;
+                }
 
-            if(method.ReturnType != typeof(void))
-            {
-                Stack++;
+                if (method.ReturnType != typeof(void))
+                {
+                    Stack++;
+                }
             }
 
             PrintOffset();
