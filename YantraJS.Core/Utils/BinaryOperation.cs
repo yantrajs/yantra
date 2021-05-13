@@ -96,7 +96,7 @@ namespace YantraJS.Utils
         public static Expression Assign(Expression left, Expression right, TokenTypes assignmentOperator)
         {
 
-
+            var oneF = Expression.Constant(0x1F);
 
             switch (assignmentOperator)
             {
@@ -109,9 +109,10 @@ namespace YantraJS.Utils
             var leftDouble = ExpHelper.JSValueBuilder.DoubleValue(left);
             var rightDouble = ExpHelper.JSValueBuilder.DoubleValue(right);
 
-            var leftInt = Expression.Convert(leftDouble, typeof(int));
+            var leftInt = JSValueBuilder.IntValue(left);
+            var rightInt = JSValueBuilder.IntValue(right);
             var leftUInt = Expression.Convert(leftDouble, typeof(uint));
-            var rightInt = Expression.Convert(rightDouble, typeof(int));
+           
 
             var rightUInt = Expression.Convert(rightDouble, typeof(uint));
 
@@ -135,7 +136,7 @@ namespace YantraJS.Utils
                 case TokenTypes.AssignLeftShift:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.LeftShift(leftInt, rightInt)));
                 case TokenTypes.AssignRightShift:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt,Expression.And( rightInt, oneF))));
                 case TokenTypes.AssignUnsignedRightShift:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
                 case TokenTypes.AssignPower:
@@ -188,7 +189,7 @@ namespace YantraJS.Utils
                 case AssignmentOperator.LeftShiftAssign:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.LeftShift(leftInt, rightInt)));
                 case AssignmentOperator.RightShiftAssign:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt,  rightInt)));
                 case AssignmentOperator.UnsignedRightShiftAssign:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
                 case AssignmentOperator.ExponentiationAssign:
@@ -280,6 +281,8 @@ namespace YantraJS.Utils
 
             var rightUInt = Expression.Convert(rightDouble, typeof(uint));
 
+            var oneF = Expression.Constant(0x1F);
+
             switch (op)
             {
                 case TokenTypes.Equal:
@@ -323,7 +326,7 @@ namespace YantraJS.Utils
                 case TokenTypes.LeftShift:
                     return ExpHelper.JSNumberBuilder.New(Expression.LeftShift(leftInt, rightInt));
                 case TokenTypes.RightShift:
-                    return ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt));
+                    return ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt,Expression.And( rightInt, oneF)));
                 case TokenTypes.UnsignedRightShift:
                     return ExpHelper.JSNumberBuilder.New(
                         Expression.RightShift(
