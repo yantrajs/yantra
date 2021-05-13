@@ -175,5 +175,14 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 Parent = Root
             };
         }
+
+
+        public void Pop()
+        {
+            if (Root == null)
+                throw new InvalidOperationException();
+            Root = Root.Parent;
+        }
+
     }
 }

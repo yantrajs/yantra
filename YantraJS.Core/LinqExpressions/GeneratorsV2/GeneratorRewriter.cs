@@ -11,6 +11,110 @@ using YantraJS.ExpHelper;
 namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 {
 
+    public class FlattenBlocks: ExpressionVisitor
+    {
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+
+            if(Flatten(node.Right, last => node.Update(node.Left, node.Conversion, last), out var result))
+            {
+                return result;
+            }
+
+            return base.VisitBinary(node);
+        }
+
+        protected override Expression VisitGoto(GotoExpression node)
+        {
+            if(node.Kind == GotoExpressionKind.Return)
+            {
+                if (Flatten(node.Value, x => node.Update(node.Target, x), out var block))
+                    return block;
+            }
+            return base.VisitGoto(node);
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            var vars = new List<ParameterExpression>();
+            var args = new List<Expression>();
+            var list = new List<Expression>();
+            foreach(var a in node.Arguments)
+            {
+                var e = Visit(a);
+                if(e.NodeType == ExpressionType.Block && e is BlockExpression block)
+                {
+                    vars.AddRange(block.Variables);
+                    var p = Expression.Parameter(e.Type);
+                    vars.Add(p);
+                    args.Add(p);
+                    var length = block.Expressions.Count;
+                    var last = length - 1;
+                    for (int i = 0; i < length; i++)
+                    {
+                        var be = Visit(block.Expressions[i]);
+                        if(i == last)
+                        {
+                            list.Add(Expression.Assign(p, be));
+                            continue;
+                        }
+                        list.Add(be);
+                    }
+                    continue;
+                }
+                args.Add(e);
+            }
+            list.Add(Expression.New(node.Constructor, args));
+            // return base.VisitNew(node);
+            return Expression.Block(vars, list);
+        }
+
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            var vars = new List<ParameterExpression>( node.Variables);
+            var list = new List<Expression>();
+            foreach(var e in node.Expressions)
+            {
+                var visited = Visit(e);
+                if(visited.NodeType == ExpressionType.Block && visited is BlockExpression block)
+                {
+                    vars.AddRange(block.Variables);
+                    list.AddRange(block.Expressions);
+                    continue;
+                }
+                list.Add(visited);
+            }
+            return Expression.Block(vars, list);
+        }
+
+        private bool Flatten(Expression exp, Func<Expression, Expression> p, out Expression result)
+        {
+            if (exp.NodeType != ExpressionType.Block) {
+                result = null;
+                return false;
+            }
+            var block = exp as BlockExpression;
+            
+            var list = new List<Expression>();
+            var vars = block.Variables;
+            var length = block.Expressions.Count;
+            var last = length - 1;
+            for (int i = 0; i < length; i++)
+            {
+                var e = block.Expressions[i];
+                if (last == i)
+                {
+                    list.Add(p(Visit(e)));
+                    continue;
+                }
+                list.Add(Visit(e));
+            }
+            result = Expression.Block(vars, list);
+            return true;
+            
+        }
+    }
+
     public class MethodRewriter
     {
         public class Finder: ExpressionVisitor
@@ -20,8 +124,14 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             protected override Expression VisitExtension(Expression node)
             {
-                if (node is YieldExpression)
+                if (node is YieldExpression yield)
+                {
                     hasYield = true;
+                    var a = Visit(yield.Argument);
+                    if (a == yield.Argument)
+                        return yield;
+                    return YieldExpression.New(a);
+                }
                 return base.VisitExtension(node);
             }
 
@@ -36,6 +146,41 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         public class Rewriter: ExpressionVisitor
         {
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if(node is YieldExpression yield)
+                {
+                    var a = Visit(yield.Argument);
+                    if (a == yield.Argument)
+                        return yield;
+                    return YieldExpression.New(a);
+                }
+                return base.VisitExtension(node);
+            }
+
+            protected override Expression VisitNew(NewExpression node)
+            {
+                var f = new Finder();
+                f.Visit(node);
+                if (f.hasYield)
+                {
+                    var argList = new List<ParameterExpression>();
+                    var setup = new List<Expression>();
+                    foreach (var a in node.Arguments)
+                    {
+                        var p = Expression.Parameter(a.Type);
+                        argList.Add(p);
+                        setup.Add(Expression.Assign(p, Visit(a)));
+                    }
+                    setup.Add(Expression.New(node.Constructor, argList));
+                    return Expression.Block(argList.ToArray(),
+                        setup);
+
+                }
+                return base.VisitNew(node);
+            }
+
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
 
@@ -50,6 +195,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     foreach(var a in node.Arguments)
                     {
                         var p = Expression.Parameter(a.Type);
+                        argList.Add(p);
                         setup.Add(Expression.Assign(p, Visit(a)));
                     }
                     setup.Add(Expression.Call(node.Object, node.Method, argList));
@@ -125,7 +271,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
            ParameterExpression replaceClosures)
         {
             var gw = new GeneratorRewriter(generator, r, replaceArgs, replaceStackItem, replaceContext, replaceScriptInfo, replaceClosures);
-            var innerBody =  gw.Visit(body);
+            var flatten = new FlattenBlocks();
+            var innerBody = flatten.Visit( gw.Visit(body));
 
             // setup jump table...
 
@@ -251,7 +398,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         /// <returns></returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            return MethodRewriter.Rewrite(node);
+            var rewritten = MethodRewriter.Rewrite(node);
+            if (rewritten == node)
+                return base.VisitMethodCall(node);
+            return Visit(rewritten);
         }
 
         protected override Expression VisitTry(TryExpression node)
@@ -277,6 +427,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             tryList.Add(ClrGeneratorV2Builder.Push(pe, catchId, finallyId));
             tryList.Add(Visit(node.Body));
+            tryList.Add(ClrGeneratorV2Builder.Pop(pe));
             if (hasFinally)
             {
                 tryList.Add(Expression.Goto(finallyLabel));
@@ -284,7 +435,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             if (hasCatch) {
                 tryList.Add(Expression.Label(catchLabel));
-                tryList.Add(Expression.Assign(@catch.Variable, exception));
+                tryList.Add(Expression.Assign(Visit(@catch.Variable), exception));
                 tryList.Add(Visit(@catch.Body));
 
                 if (hasFinally)
@@ -332,6 +483,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             typeof(int),
             typeof(int));
 
+        private static MethodInfo _pop = type.PublicMethod(
+            nameof(ClrGeneratorV2.Pop));
+
+
         private static MethodInfo _GetVariable
             = type.GetMethod("GetVariable");
 
@@ -343,6 +498,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         internal static Expression GetVariable(ParameterExpression pe, int id, Type type)
         {
             return Expression.Call(pe, _GetVariable.MakeGenericMethod(type), Expression.Constant(id));
+        }
+
+        internal static Expression Pop(ParameterExpression pe)
+        {
+            return Expression.Call(pe, _pop);
         }
     }
 }
