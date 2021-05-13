@@ -31,7 +31,7 @@ namespace YantraJS.ExpHelper
         }
 
         private readonly static MethodInfo _NullIfTrue =
-            type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfTrue));
+            type.PublicMethod(nameof(JSValueExtensions.NullIfTrue), typeof(JSValue));
 
         public static Expression NullIfTrue(Expression exp)
         {
@@ -39,7 +39,7 @@ namespace YantraJS.ExpHelper
         }
 
         private readonly static MethodInfo _NullIfFalse =
-            type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfFalse));
+            type.PublicMethod(nameof(JSValueExtensions.NullIfFalse), typeof(JSValue));
 
         private readonly static MethodInfo _NullIfUndefined =
             type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfUndefined));

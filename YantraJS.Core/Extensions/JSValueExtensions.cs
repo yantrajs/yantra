@@ -1,6 +1,7 @@
 ﻿using Esprima.Ast;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -228,6 +229,7 @@ namespace YantraJS.Core
             return @this.InvokeMethod(key, a);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue NullIfUndefined(JSValue value)
         {
@@ -236,16 +238,18 @@ namespace YantraJS.Core
             return value;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSValue NullIfTrue(JSValue value)
+        public static JSValue NullIfTrue(JSValue value)
         {
             if (value.BooleanValue)
                 return null;
             return value;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSValue NullIfFalse(JSValue value)
+        public static JSValue NullIfFalse(JSValue value)
         {
             if (!value.BooleanValue)
                 return null;

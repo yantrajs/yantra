@@ -25,7 +25,9 @@ namespace YantraJS.Core.FastParser.Compiler
 
 
             // we need to rewrite left side if it is computed expression with member assignment...
-            if (left.Type == FastNodeType.MemberExpression && left is AstMemberExpression mem)
+            if (assignmentOperator != TokenTypes.Assign 
+                && left.Type == FastNodeType.MemberExpression 
+                && left is AstMemberExpression mem)
             {
                 if (mem.Object.Type != FastNodeType.Identifier)
                 {
@@ -34,7 +36,8 @@ namespace YantraJS.Core.FastParser.Compiler
                     var leftExp = CreateMemberExpression(tmp.Expression, mem.Property, mem.Computed);
                     return Expression.Block(
                         Expression.Assign(tmp.Expression, Visit(mem.Object)),
-                        BinaryOperation.Assign(leftExp, Visit(right), assignmentOperator)
+                        BinaryOperation.Assign(leftExp, Visit(right), assignmentOperator),
+                        tmp.Expression
                         );
 
                 }
