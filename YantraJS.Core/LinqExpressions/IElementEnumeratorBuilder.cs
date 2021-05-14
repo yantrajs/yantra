@@ -11,11 +11,11 @@ namespace YantraJS.ExpHelper
         private static readonly Type type = typeof(IElementEnumerator);
 
         private static MethodInfo getMethod =
-            typeof(JSValue).InternalMethod(
+            typeof(JSValue).PublicMethod(
                 nameof(JSValue.GetElementEnumerator));
 
         private static MethodInfo moveNext =
-            type.InternalMethod(nameof(IElementEnumerator.MoveNext), typeof(JSValue).MakeByRefType());
+            type.PublicMethod(nameof(IElementEnumerator.MoveNext), typeof(JSValue).MakeByRefType());
 
         private static MethodInfo moveNextOrDefault =
             type.PublicMethod(nameof(IElementEnumerator.MoveNextOrDefault), 

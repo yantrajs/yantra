@@ -150,8 +150,8 @@ namespace YantraJS.Core.FastParser.Compiler
                                     // inits.Add(CreateAssignment(id, start));
                                     if (createVariable)
                                     {
-                                        var v = this.scope.Top.CreateVariable(id.Name.Value, null, newScope);
-                                        inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
+                                        this.scope.Top.CreateVariable(id.Name.Value, null, newScope);
+                                        // inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
                                     }
                                     var assignee = VisitIdentifier(id);
                                     inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en));
@@ -161,8 +161,8 @@ namespace YantraJS.Core.FastParser.Compiler
                                     // loop...
                                     if (createVariable && spe.Argument is AstIdentifier id2)
                                     {
-                                        var v = this.scope.Top.CreateVariable(id2.Name.Value, null, newScope);
-                                        inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id2.Name.Value)));
+                                        this.scope.Top.CreateVariable(id2.Name.Value, null, newScope);
+                                        // inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id2.Name.Value)));
                                     }
 
                                     var spid = Visit(spe.Argument);

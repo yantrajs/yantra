@@ -117,18 +117,26 @@ namespace YantraJS.Core
             var block = target as YBlockExpression;
 
             var list = new List<YExpression>();
-            var vars = block.Variables;
+            var vars = new List<YParameterExpression>( block.Variables);
             var length = block.Expressions.Length;
             var last = length - 1;
             for (int i = 0; i < length; i++)
             {
                 var e = block.Expressions[i];
+                var visited = Visit(e);
                 if (last == i)
                 {
-                    list.Add(lastf(Visit(e)));
+                    visited = lastf(visited);
+                }
+
+                if(visited.NodeType == YExpressionType.Block && visited is YBlockExpression visitedBlock)
+                {
+                    vars.AddRange(visitedBlock.Variables);
+                    list.AddRange(visitedBlock.Expressions);
                     continue;
                 }
-                list.Add(Visit(e));
+
+                list.Add(visited);
             }
             result = YExpression.Block(vars, list.ToArray());
             return true;

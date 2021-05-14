@@ -866,7 +866,7 @@ namespace YantraJS.Core
             return base.ConvertTo(type, out value);
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }

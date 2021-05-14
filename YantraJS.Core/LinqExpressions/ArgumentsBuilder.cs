@@ -56,7 +56,7 @@ namespace YantraJS.ExpHelper
             = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[]), typeof(int) });
 
         private readonly static MethodInfo _GetElementEnumerator
-            = type.InternalMethod(nameof(Arguments.GetElementEnumerator));
+            = type.PublicMethod(nameof(Arguments.GetElementEnumerator));
 
         public static Expression New(Expression @this, Expression arg0)
         {

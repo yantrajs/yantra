@@ -273,7 +273,7 @@ namespace YantraJS.Core.Typed
             return this.ToString();
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }

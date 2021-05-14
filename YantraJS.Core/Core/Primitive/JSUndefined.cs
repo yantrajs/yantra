@@ -89,7 +89,7 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError("undefined is not a function", null);
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             throw JSContext.Current.NewTypeError("undefined is not iterable");
         }

@@ -211,7 +211,7 @@ namespace YantraJS.Core.Clr
         }
 
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             if (value is IEnumerable en) {
                 return new EnumerableElementEnumerable(en.GetEnumerator());

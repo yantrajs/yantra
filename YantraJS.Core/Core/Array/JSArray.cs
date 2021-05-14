@@ -144,7 +144,7 @@ namespace YantraJS.Core
         //    return elements.TryRemove(i, out p);
         //}
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }

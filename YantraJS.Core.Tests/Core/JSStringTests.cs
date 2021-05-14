@@ -17,35 +17,30 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-class SP {
+var a = {
+    '\t': '\\t',
+    '\v': '\\v',
+    '\f': '\\f',
+    '\b': '\\b',
+    '\r': '\\r',
+    '\n': '\\n',
+    '\\': '\\\\',
+    '\'': '\\\'',
+    '\'': '\\\'',
+    '\`': '\\\`',
+    '<' : '<<',
+    '\u2028': '\\u2028',
+    '\u2029': '\\u2029',
+    '\u0085': '\\u0085' // nextLine
+};
 
-    constructor() {
-        this.instances = {};
-    }
+assert.strictEqual('\\t', a['\t']);
 
-    put(key, value) {
-        var v = this.instances[key.id];
-        if (!v) {
-            this.instances[key.id] = value;
-        } else {
-            console.log(`v is ${v}`);
-        }
-    }
+var b = { a: 1 };
 
-    get(key) {
-        return this.instances[key.id];
-    }
+b = (b || (b = {}));
 
-}
-
-let s = new SP();
-
-s.put({ id: 'a1' }, 'a1');
-
-let a1 = s.get({ id: 'a1' });
-
-assert.strictEqual(a1, 'a1');
-assert.strictEqual(s.instances['a1'], 'a1');
+assert.strictEqual(1, b.a);
 ");
         }
 

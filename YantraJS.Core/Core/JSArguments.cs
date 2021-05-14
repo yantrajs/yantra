@@ -106,7 +106,7 @@ namespace YantraJS.Core
             return "[object Arguments]";
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new Enumerator(this.arguments);
         }

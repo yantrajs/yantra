@@ -24,6 +24,22 @@ namespace YantraJS.Generator
                 {
                     var a = args[i];
 
+                    if (p.IsOut)
+                    {
+                        if(a.NodeType == YExpressionType.Property)
+                        {
+                            var temp = tempVariables[p.ParameterType];
+                            saveList ??= new List<(int temp, YExpression exp)>();
+                            saveList.Add((temp.LocalIndex, a));
+                            Visit(a);
+                            il.EmitSaveLocal(temp.LocalIndex);
+                            il.EmitLoadLocalAddress(temp.LocalIndex);
+                            continue;
+                        }
+                        LoadAddress(a);
+                        continue;
+                    }
+
                     if (p.IsIn || p.IsOut) { 
                         if(p.ParameterType.IsValueType)
                         {

@@ -70,7 +70,7 @@ namespace YantraJS.Core
         }
 
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             throw JSContext.Current.NewTypeError("null is not iterable");
         }

@@ -50,7 +50,7 @@ namespace YantraJS.Generator
                     var a = (exp as YAssignExpression)!;
                     if(index == -1)
                     {
-                        index = tempVariables[a.Left.Type].LocalIndex;
+                        index = tempVariables[a.Right.Type].LocalIndex;
                     }
                     VisitAssign(a, index);
                     il.EmitLoadLocal(index);
@@ -145,6 +145,15 @@ namespace YantraJS.Generator
                         continue;
                     }
                 }
+
+                if(pe.NodeType == YExpressionType.Assign)
+                {
+                    var t = tempVariables[pe.Type].LocalIndex;
+                    VisitAssign((pe as YAssignExpression)!, t);
+                    il.EmitLoadLocal(t);
+                    continue;
+                }
+
                 Visit(pe);
             }
             VisitSave(exp, savedIndex);

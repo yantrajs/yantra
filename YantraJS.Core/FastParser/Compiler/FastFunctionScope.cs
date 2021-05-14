@@ -317,18 +317,23 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             type = type ?? typeof(JSValue);
             var fe = TopScope.variableScopeList.AllValues;
-            while(fe.MoveNext(out var item))
+            while (fe.MoveNext(out var item))
             {
                 var v = item.Value;
                 if (v.IsTemp && v.Expression.Type == type && !v.InUse)
+                {
+                    v.InUse = true;
                     return v;
+                }
             }
+            var tp = Exp.Variable(type, "#Temp" + type.Name + TopScope.id++);
             var temp = new VariableScope {
                 Create = true,
-                Name = "#Temp" + type.Name + TopScope.id++,
-                IsTemp = true
+                Name = tp.Name,
+                IsTemp = true,
+                Expression = tp,
+                Variable = tp
             };
-            temp.Expression = temp.Variable = Exp.Variable(type, temp.Name);
             TopScope.variableScopeList[temp.Name] = temp;
             return temp;
         }

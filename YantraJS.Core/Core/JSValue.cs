@@ -535,7 +535,7 @@ namespace YantraJS.Core {
             return false;
         }
 
-        internal virtual IElementEnumerator GetElementEnumerator()
+        public virtual IElementEnumerator GetElementEnumerator()
         {
             return ElementEnumerator.Empty;
         }

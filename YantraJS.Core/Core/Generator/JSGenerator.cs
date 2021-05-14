@@ -108,7 +108,7 @@ namespace YantraJS.Core.Generator
             return ValueObject;
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }

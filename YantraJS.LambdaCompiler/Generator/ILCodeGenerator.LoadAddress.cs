@@ -83,7 +83,7 @@ namespace YantraJS.Generator
                 il.EmitLoadArgAddress(varInfo.Index);
                 return true;
             }
-            il.EmitLoadLocal(varInfo.LocalBuilder.LocalIndex);
+            il.EmitLoadLocalAddress(varInfo.LocalBuilder.LocalIndex);
             return true;
         }
     }
