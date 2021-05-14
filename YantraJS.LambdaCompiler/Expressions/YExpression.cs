@@ -458,5 +458,27 @@ namespace YantraJS.Expressions
         {
             return new YRelayExpression(box, inner);
         }
+
+        public static YSwitchExpression Switch(
+            YExpression target, 
+            YExpression? defaultBody, 
+            params YSwitchCaseExpression[] cases) {
+            return new YSwitchExpression(target, null,  defaultBody, cases);
+        }
+
+        public static YSwitchExpression Switch(
+            YExpression target,
+            MethodInfo method,
+            YExpression? defaultBody,
+            params YSwitchCaseExpression[] cases)
+        {
+            return new YSwitchExpression(target, method, defaultBody, cases);
+        }
+
+
+        public static YSwitchCaseExpression SwitchCase(YExpression body, params YExpression[] testValues )
+        {
+            return new YSwitchCaseExpression(body, testValues);
+        }
     }
 }

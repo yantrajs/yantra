@@ -2,11 +2,11 @@
     switch (c) {
         case 0:
             if (n)
-                return "n";
+                return 'n';
         case 1:
-            return "c";
+            return 'c';
     }
 }
 
-assert.strictEqual("n", switchNode(0, 1));
-assert.strictEqual("c", switchNode(0, 0));
+assert.strictEqual('n', switchNode(0, 1));
+assert.strictEqual('c', switchNode(0, 0));

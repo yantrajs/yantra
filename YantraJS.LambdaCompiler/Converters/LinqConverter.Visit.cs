@@ -241,7 +241,7 @@ namespace YantraJS.Converters
                 case ExpressionType.SubtractChecked:
                     break;
                 case ExpressionType.Switch:
-                    break;
+                    return VisitSwitch(exp as SwitchExpression);
                 case ExpressionType.Throw:
                     ue = exp as UnaryExpression;
                     return YExpression.Throw(Visit(ue.Operand));
@@ -275,5 +275,18 @@ namespace YantraJS.Converters
             throw new NotSupportedException($"Expression of type {exp.NodeType} is not yet supported");
         }
 
+        private YExpression VisitSwitch(SwitchExpression switchExpression)
+        {
+            var cases = switchExpression.Cases.Select(x => 
+                YExpression.SwitchCase(Visit(x.Body),
+                x.TestValues.Select(Visit).ToArray()
+            )).ToArray();
+
+            return YExpression.Switch(
+                Visit(switchExpression.SwitchValue),
+                switchExpression.Comparison,
+                Visit(switchExpression.DefaultBody),
+                cases);
+        }
     }
 }

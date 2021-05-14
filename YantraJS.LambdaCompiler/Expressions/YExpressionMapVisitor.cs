@@ -285,6 +285,22 @@ namespace YantraJS.Expressions
             return yReturnExpression;
         }
 
+        protected override YExpression VisitSwitch(YSwitchExpression node)
+        {
+            var tOrdModified = Modified(node.Target, node.Default, out var target, out  var @default);
+            var casesModified = Modified(node.Cases, VisitSwitchCase, out var cases);
+            if(tOrdModified || casesModified)
+            {
+                return new YSwitchExpression(target, node.CompareMethod, @default, cases);
+            }
+            return node;
+        }
+
+        protected virtual YSwitchCaseExpression VisitSwitchCase(YSwitchCaseExpression @case)
+        {
+            return @case;
+        }
+
         protected override YExpression VisitAssign(YAssignExpression yAssignExpression)
         {
             if (Modified(yAssignExpression.Left, yAssignExpression.Right, out var left, out var right))

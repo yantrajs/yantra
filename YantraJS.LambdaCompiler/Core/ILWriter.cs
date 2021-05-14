@@ -206,6 +206,11 @@ namespace YantraJS.Core
             }
         }
 
+        internal void IncrementStack()
+        {
+            Stack++;
+        }
+
         internal void EmptyStack()
         {
             while (Stack > 0)
