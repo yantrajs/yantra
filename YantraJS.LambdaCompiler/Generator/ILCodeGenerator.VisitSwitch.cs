@@ -53,7 +53,7 @@ namespace YantraJS.Generator
             {
                 foreach (var @case in node.Cases)
                 {
-                    var jump = il.DefineLabel("caseBody");
+                    var jump = il.DefineLabel("caseBody", il.Top);
                     foreach (var test in @case.TestValues)
                     {
                         loadTarget();
@@ -61,23 +61,23 @@ namespace YantraJS.Generator
 
                     }
                     caseBodies.Add(() => {
-                        using (il.Branch())
+                        using (il.Branch(false))
                         {
                             il.MarkLabel(jump);
                             Visit(@case.Body);
-                            il.Emit(OpCodes.Br, @break);
                         }
+                        il.Emit(OpCodes.Br, @break);
                     });
 
                 }
 
                 if (node.Default != null)
                 {
-                    using (il.Branch())
+                    using (il.Branch(false))
                     {
                         Visit(node.Default);
-                        il.Emit(OpCodes.Br, @break);
                     }
+                    il.Emit(OpCodes.Br, @break);
                 }
             }
 

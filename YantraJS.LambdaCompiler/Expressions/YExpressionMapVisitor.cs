@@ -298,6 +298,10 @@ namespace YantraJS.Expressions
 
         protected virtual YSwitchCaseExpression VisitSwitchCase(YSwitchCaseExpression @case)
         {
+            var tvm = Modified(@case.TestValues, out var tv);
+            var bm = Modified(@case.Body, out var body);
+            if (tvm || bm)
+                return new YSwitchCaseExpression(body, tv);
             return @case;
         }
 

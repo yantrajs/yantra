@@ -15,7 +15,7 @@ namespace YantraJS.Converters
             {
                 if (labels.TryGetValue(label, out var r))
                     return r;
-                r = YExpression.Label(label.Name, label.Type);
+                r = YExpression.Label(label.Name + labels.Count, label.Type);
                 labels[label] = r;
                 return r;
             }

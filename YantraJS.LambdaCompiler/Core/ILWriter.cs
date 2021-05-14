@@ -16,6 +16,7 @@ namespace YantraJS.Core
         private StringWriter writer = new StringWriter();
 
         private int Stack;
+        private OpCode last;
 
         public bool IsTryBlock => tryStack.Top != null;
 
@@ -59,7 +60,7 @@ namespace YantraJS.Core
             writer.WriteLine($"// {comment}");
         }
 
-        public IDisposable Branch()
+        public IDisposable Branch(bool pop = true)
         {
             var s = Stack;
             Stack = 0;
@@ -68,7 +69,10 @@ namespace YantraJS.Core
                 Stack = s;
                 while(n > s)
                 {
-                    il.Emit(OpCodes.Pop);
+                    if (pop)
+                    {
+                        il.Emit(OpCodes.Pop);
+                    }
                     n--;
                 }
             });
@@ -88,6 +92,7 @@ namespace YantraJS.Core
 
         private void UpdateStack(in OpCode code)
         {
+            last = code;
             Update(code.StackBehaviourPush);
             Update(code.StackBehaviourPop);
             void Update(StackBehaviour sb)

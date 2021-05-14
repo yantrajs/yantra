@@ -16,7 +16,6 @@ namespace YantraJS.Generator
             var def = yReturnExpression.Default;
             if(def != null)
             {
-                var temp = tempVariables[def.Type];
 
                 if(!il.IsTryBlock)
                 {
@@ -30,7 +29,7 @@ namespace YantraJS.Generator
                         }
                     }
                 }
-
+                var temp = tempVariables[def.Type];
                 return VisitReturn(def, label, temp.LocalIndex);
             }
             il.Branch(label);
