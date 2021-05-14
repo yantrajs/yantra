@@ -15,8 +15,13 @@ namespace YantraJS.Generator
             Visit(yCoalesceExpression.Left);
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Brtrue, notNull);
-            il.Emit(OpCodes.Pop);
-            Visit(yCoalesceExpression.Right);
+            using (il.Branch())
+            {
+                il.Emit(OpCodes.Pop);
+
+                // is it assign...
+                Visit(yCoalesceExpression.Right);
+            }
             il.MarkLabel(notNull);
             return true;
         }

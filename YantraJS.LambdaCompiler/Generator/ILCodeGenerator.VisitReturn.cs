@@ -88,7 +88,7 @@ namespace YantraJS.Generator
                 var exp = block.Expressions[i];
                 if(i != last)
                 {
-                    var r = Visit(exp);
+                    var r = VisitSave(exp, false);
                     il.EmptyStack();
                     continue;
                 }

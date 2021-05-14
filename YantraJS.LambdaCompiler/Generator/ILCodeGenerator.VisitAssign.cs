@@ -33,7 +33,12 @@ namespace YantraJS.Generator
             // we need to investigate each type of expression on the left...
             // Visit(yAssignExpression.Right);
             // return Assign(yAssignExpression.Left);
-            return VisitAssign(yAssignExpression, -1);
+
+            // from block a non saving expression must be called with -1
+            var temp = tempVariables[yAssignExpression.Type];
+            VisitAssign(yAssignExpression, temp.LocalIndex);
+            il.EmitLoadLocal(temp.LocalIndex);
+            return true;
         }
 
         private CodeInfo VisitSave(DataSource data, int index = -1)
@@ -44,18 +49,18 @@ namespace YantraJS.Generator
                 il.EmitLoadLocal(data.Index);
                 return true;
             }
-            switch (exp.NodeType)
-            {
-                case YExpressionType.Assign:
-                    var a = (exp as YAssignExpression)!;
-                    if(index == -1)
-                    {
-                        index = tempVariables[a.Right.Type].LocalIndex;
-                    }
-                    VisitAssign(a, index);
-                    il.EmitLoadLocal(index);
-                    return true;
-            }
+            //switch (exp.NodeType)
+            //{
+            //    case YExpressionType.Assign:
+            //        var a = (exp as YAssignExpression)!;
+            //        if(index == -1)
+            //        {
+            //            index = tempVariables[a.Right.Type].LocalIndex;
+            //        }
+            //        VisitAssign(a, index);
+            //        il.EmitLoadLocal(index);
+            //        return true;
+            //}
 
             Visit(exp);
             if(index != -1)

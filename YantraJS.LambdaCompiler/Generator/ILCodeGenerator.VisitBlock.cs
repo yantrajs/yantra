@@ -22,7 +22,8 @@ namespace YantraJS.Generator
             for (int i = 0; i < l; i++)
             {
                 var exp = expressions[i];
-                var c = Visit(exp);
+                
+                var c = VisitSave(exp, i == last);
 
                 // do not pop for last item...
                 if(i != last)
@@ -31,6 +32,18 @@ namespace YantraJS.Generator
                 } 
             }
             return true;
+        }
+
+        private CodeInfo VisitSave(YExpression exp, bool save)
+        {
+            if(exp.NodeType == YExpressionType.Assign)
+            {
+                if (!save)
+                {
+                    return VisitAssign(exp as YAssignExpression, -1);
+                }
+            }
+            return Visit(exp);
         }
     }
 }

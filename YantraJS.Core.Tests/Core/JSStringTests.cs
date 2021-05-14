@@ -17,25 +17,6 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-var a = {
-    '\t': '\\t',
-    '\v': '\\v',
-    '\f': '\\f',
-    '\b': '\\b',
-    '\r': '\\r',
-    '\n': '\\n',
-    '\\': '\\\\',
-    '\'': '\\\'',
-    '\'': '\\\'',
-    '\`': '\\\`',
-    '<' : '<<',
-    '\u2028': '\\u2028',
-    '\u2029': '\\u2029',
-    '\u0085': '\\u0085' // nextLine
-};
-
-assert.strictEqual('\\t', a['\t']);
-
 var b = { a: 1 };
 
 b = (b || (b = {}));
