@@ -28,25 +28,73 @@ namespace YantraJS.Tests.Generator
 
         private Stopwatch watch = new Stopwatch();
 
+        public bool Parallel = true;
 
-        public override TestResult[] Execute(ITestMethod testMethod)
+        private TestResult[] ExecuteSync(ITestMethod  testMethod)
         {
             var files = GetData();
             var taskList = files.ToList();
             var result = new TestResult[taskList.Count];
+
+
+            watch.Start();
+            AsyncPump.Run(async () =>
+            {
+                int i = 0;
+                var r = new TestResult[taskList.Count];
+                foreach (var task in taskList)
+                {
+                    System.Diagnostics.Debug.WriteLine("Testing " + task.FullName);
+                    Console.WriteLine("Testing " + task.FullName);
+                    var ri = await RunAsyncTest(task);
+                    if(ri.Outcome == UnitTestOutcome.Passed)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Test done " + task.FullName);
+                        Console.WriteLine("Test Done " + task.FullName);
+                    }
+                    r[i++] = ri;
+                }
+                int resultIndex = 0;
+                // display errors first...
+                foreach (var ri in r)
+                {
+                    if (ri.Outcome != UnitTestOutcome.Passed)
+                    {
+                        result[resultIndex++] = ri;
+                    }
+                }
+                foreach (var ri in r)
+                {
+                    if (ri.Outcome == UnitTestOutcome.Passed)
+                    {
+                        result[resultIndex++] = ri;
+                    }
+                }
+            });
+            watch.Stop();
+            return result;
+
+        }
+
+        public override TestResult[] Execute(ITestMethod testMethod)
+        {
+            if (!Parallel)
+            {
+                return ExecuteSync(testMethod);
+            }
+
+            var files = GetData();
+            var taskList = files.ToList();
+            var result = new TestResult[taskList.Count];
+
 
             watch.Start();
             AsyncPump.Run(async () =>
             {
                 var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
                 var r = await Task.WhenAll(tasks);
-                //var r = new TestResult[taskList.Count];
-                //int i = 0;
-                //foreach(var x in taskList) {
-                //    Debug.WriteLine($"Executing {x.FullName}");
-                //    r[i++] = await RunAsyncTest(x);
-                //}
                 int resultIndex = 0;
+                // display errors first
                 foreach (var ri in r)
                 {
                     if (ri.Outcome != UnitTestOutcome.Passed)

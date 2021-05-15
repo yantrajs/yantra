@@ -179,6 +179,11 @@ namespace YantraJS
     internal static class TypeExtensions
     {
 
+        public static bool IsIndexProperty(this PropertyInfo property)
+        {
+            return property.GetMethod?.GetParameters()?.Length > 0;
+        }
+
         internal static Type GetElementTypeOrGeneric(this Type type)
         {
             if (type.IsArray && type.HasElementType)
