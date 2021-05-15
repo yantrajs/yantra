@@ -49,7 +49,7 @@ namespace YantraJS.Core
             if (isFinally)
                 throw new InvalidOperationException($"You already in the finally block");
             isFinally = true;
-
+            isCatch = false;
             il.Emit(OpCodes.Leave, label);
 
             il.BeginFinallyBlock();

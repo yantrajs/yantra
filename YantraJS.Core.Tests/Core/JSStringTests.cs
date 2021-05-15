@@ -17,7 +17,20 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-x = {get f() { return 1; }}; x.f = 5; x.f
+var a = [1,2,3];
+var n = [];
+for (let i of a) {
+    try {
+        (undefined).name();
+    } catch (e) {
+        n.push(i);
+    } finally {
+        // continue;
+    }
+}
+console.log(n.toString());
+assert.strictEqual(n.toString(), '1,2,3');
+console.log('This test is pending !!')
 ");
         }
 

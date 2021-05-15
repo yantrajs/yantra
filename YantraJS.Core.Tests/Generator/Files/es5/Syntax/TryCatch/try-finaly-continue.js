@@ -10,5 +10,5 @@ for (let i of a) {
     }
 }
 console.log(n.toString());
-assert.strictEqual(n.toString(), "1,2,3");
-console.log("This test is pending !!")
+assert.strictEqual(n.toString(), '1,2,3');
+console.log('This test is pending !!')
