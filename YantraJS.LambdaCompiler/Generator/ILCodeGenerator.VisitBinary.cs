@@ -15,28 +15,34 @@ namespace YantraJS.Generator
             {
                 case YOperator.BooleanAnd:
                     {
-                        var trueEnd = il.DefineLabel("trueEnd");
-                        var falseEnd = il.DefineLabel("falseEnd");
+                        var trueEnd = il.DefineLabel("trueEnd", il.Top);
+                        var falseEnd = il.DefineLabel("falseEnd", il.Top);
                         Visit(yBinaryExpression.Left);
-                        il.Emit(OpCodes.Brfalse, trueEnd);
-                        Visit(yBinaryExpression.Right);
-                        il.Emit(OpCodes.Br, falseEnd);
-                        il.MarkLabel(trueEnd);
-                        il.EmitConstant(0);
-                        il.MarkLabel(falseEnd);
+                        using (il.Branch(false))
+                        {
+                            il.Emit(OpCodes.Brfalse, trueEnd);
+                            Visit(yBinaryExpression.Right);
+                            il.Emit(OpCodes.Br, falseEnd);
+                            il.MarkLabel(trueEnd);
+                            il.EmitConstant(0);
+                            il.MarkLabel(falseEnd);
+                        }
                     }
                     return true;
                 case YOperator.BooleanOr:
                     {
-                        var trueEnd = il.DefineLabel("trueEnd");
-                        var falseEnd = il.DefineLabel("falseEnd");
+                        var trueEnd = il.DefineLabel("trueEnd", il.Top);
+                        var falseEnd = il.DefineLabel("falseEnd", il.Top);
                         Visit(yBinaryExpression.Left);
-                        il.Emit(OpCodes.Brtrue, trueEnd);
-                        Visit(yBinaryExpression.Right);
-                        il.Emit(OpCodes.Br, falseEnd);
-                        il.MarkLabel(trueEnd);
-                        il.EmitConstant(1);
-                        il.MarkLabel(falseEnd);
+                        using (il.Branch(false))
+                        {
+                            il.Emit(OpCodes.Brtrue, trueEnd);
+                            Visit(yBinaryExpression.Right);
+                            il.Emit(OpCodes.Br, falseEnd);
+                            il.MarkLabel(trueEnd);
+                            il.EmitConstant(1);
+                            il.MarkLabel(falseEnd);
+                        }
                     }
                     return true;
             }

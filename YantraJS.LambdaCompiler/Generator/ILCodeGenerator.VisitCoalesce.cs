@@ -15,7 +15,7 @@ namespace YantraJS.Generator
             Visit(yCoalesceExpression.Left);
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Brtrue, notNull);
-            using (il.Branch())
+            using (il.Branch(false))
             {
                 il.Emit(OpCodes.Pop);
 
