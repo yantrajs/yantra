@@ -331,7 +331,8 @@ namespace YantraJS.Core {
 
         public abstract JSBoolean Equals(JSValue value);
 
-        internal static bool StaticEquals(JSValue left, JSValue right)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static bool StaticEquals(JSValue left, JSValue right)
         {
             return left.Equals(right).BooleanValue;
         }

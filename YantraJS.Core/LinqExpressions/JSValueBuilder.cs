@@ -181,11 +181,11 @@ namespace YantraJS.ExpHelper
         }
 
         internal static MethodInfo StaticEquals
-            = type.InternalMethod(nameof(Core.JSValue.StaticEquals), typeof(JSValue), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.StaticEquals), typeof(JSValue), typeof(JSValue));
 
 
         private static MethodInfo _Equals
-            = type.InternalMethod(nameof(Core.JSValue.Equals), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.Equals), typeof(JSValue));
 
         public static Expression Equals(Expression target, Expression value)
         {
