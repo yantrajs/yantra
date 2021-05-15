@@ -77,14 +77,17 @@ namespace YantraJS.Generator
                     {
                         Visit(node.Default);
                     }
-                    il.Emit(OpCodes.Br, @break);
                 }
+                il.Emit(OpCodes.Br, @break);
             }
 
             il.MarkLabel(@break);
 
             // lets leave one value...
-            il.IncrementStack();
+            if (node.Type != typeof(void))
+            {
+                il.IncrementStack();
+            }
 
             return true;
 

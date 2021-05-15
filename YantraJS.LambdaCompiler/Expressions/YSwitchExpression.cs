@@ -41,6 +41,7 @@ namespace YantraJS.Expressions
                 writer.Indent++;
 
                 @case.Body.Print(writer);
+                writer.WriteLine();
                 writer.WriteLine("break;");
                 writer.Indent--;
             }

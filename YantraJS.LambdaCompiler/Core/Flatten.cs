@@ -9,6 +9,15 @@ namespace YantraJS.Core
     public class FlattenVisitor: YantraJS.Expressions.YExpressionMapVisitor
     {
 
+        protected override YExpression VisitTypeAs(YTypeAsExpression node)
+        {
+            if(node.Type.IsAssignableFrom(node.Target.Type))
+            {
+                return Visit(node.Target);
+            }
+            return base.VisitTypeAs(node);
+        }
+
         protected override YExpression VisitAssign(YAssignExpression yAssignExpression)
         {
             if (Flatten(yAssignExpression.Right, x => new YAssignExpression(yAssignExpression.Left, x, x.Type), out var block))
