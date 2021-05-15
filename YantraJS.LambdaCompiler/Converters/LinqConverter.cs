@@ -8,7 +8,7 @@ using YantraJS.Expressions;
 namespace YantraJS.Converters
 {
 
-    public partial class LinqConverter
+    public partial class LinqConverter: LinqMap<YExpression>
     {
         private Dictionary<ParameterExpression, YParameterExpression> parameters
             = new Dictionary<ParameterExpression, YParameterExpression>();

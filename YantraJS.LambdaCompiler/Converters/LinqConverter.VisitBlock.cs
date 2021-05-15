@@ -10,10 +10,10 @@ namespace YantraJS.Converters
 
     public partial class LinqConverter
     {
-        private YExpression VisitBlock(BlockExpression blockExpression)
+        protected override YExpression VisitBlock(BlockExpression node)
         {
-            var list = Register(blockExpression.Variables);
-            var s = blockExpression.Expressions.Select(b => Visit(b)).ToArray();
+            var list = Register(node.Variables);
+            var s = node.Expressions.Select(b => Visit(b)).ToArray();
             return YExpression.Block(list, s);
         }
 

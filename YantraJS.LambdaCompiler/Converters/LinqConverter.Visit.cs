@@ -21,7 +21,7 @@ namespace YantraJS.Converters
             throw new NotSupportedException();
         }
 
-        private YExpression Visit(Expression exp)
+        private YExpression VisitOld(Expression exp)
         {
             if (exp == null)
                 return null;
@@ -38,7 +38,7 @@ namespace YantraJS.Converters
                     break;
                 case ExpressionType.And:
                     be = exp as BinaryExpression;
-                    return YExpression.Binary(Visit(be.Left), YOperator.Add, Visit(be.Right));
+                    return YExpression.Binary(Visit(be.Left), YOperator.BitwiseAnd, Visit(be.Right));
                 case ExpressionType.AndAlso:
                     be = exp as BinaryExpression;
                     return YExpression.Binary(Visit(be.Left), YOperator.BooleanAnd, Visit(be.Right));
@@ -127,6 +127,7 @@ namespace YantraJS.Converters
                     var invoke = exp as InvocationExpression;
                     return YExpression.Invoke(Visit(invoke.Expression), VisitList(invoke.Arguments));
                 case ExpressionType.IsFalse:
+                    
                     break;
                 case ExpressionType.IsTrue:
                     break;
@@ -176,6 +177,7 @@ namespace YantraJS.Converters
                 case ExpressionType.MultiplyAssignChecked:
                     break;
                 case ExpressionType.MultiplyChecked:
+                    
                     break;
                 case ExpressionType.Negate:
                     ue = exp as UnaryExpression;
@@ -202,7 +204,7 @@ namespace YantraJS.Converters
                     return YExpression.OnesComplement(Visit(ue.Operand));
                 case ExpressionType.Or:
                     be = exp as BinaryExpression;
-                    return YExpression.Or(Visit(be.Left), Visit(be.Right));
+                    return YExpression.Binary(Visit(be.Left), YOperator.BitwiseOr, Visit(be.Right));
                 case ExpressionType.OrAssign:
                     break;
                 case ExpressionType.OrElse:
@@ -215,7 +217,7 @@ namespace YantraJS.Converters
                 case ExpressionType.PostIncrementAssign:
                     break;
                 case ExpressionType.Power:
-                    break;
+                    return VisitPower(exp as BinaryExpression);
                 case ExpressionType.PowerAssign:
                     break;
                 case ExpressionType.PreDecrementAssign:
@@ -270,23 +272,10 @@ namespace YantraJS.Converters
                     // i have no ideay why this exists !!
                     return Visit(exp);
                 case ExpressionType.Unbox:
+                    
                     break;
             }
             throw new NotSupportedException($"Expression of type {exp.NodeType} is not yet supported");
-        }
-
-        private YExpression VisitSwitch(SwitchExpression switchExpression)
-        {
-            var cases = switchExpression.Cases.Select(x => 
-                YExpression.SwitchCase(Visit(x.Body),
-                x.TestValues.Select(Visit).ToArray()
-            )).ToArray();
-
-            return YExpression.Switch(
-                Visit(switchExpression.SwitchValue),
-                switchExpression.Comparison,
-                Visit(switchExpression.DefaultBody),
-                cases);
         }
     }
 }

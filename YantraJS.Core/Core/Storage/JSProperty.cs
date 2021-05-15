@@ -224,7 +224,7 @@ namespace YantraJS.Core
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
             var fget = new JSFunction(get, "get " + key.ToString());
-            var fset = new JSFunction(set, "set " + key.ToString());
+            var fset =set == null ? null : new JSFunction(set, "set " + key.ToString());
             return new JSProperty(key, fget, fset, attributes);
         }
         public JSProperty With(in KeyString key)

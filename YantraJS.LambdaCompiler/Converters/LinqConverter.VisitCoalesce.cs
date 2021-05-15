@@ -10,11 +10,11 @@ namespace YantraJS.Converters
 
     public partial class LinqConverter
     {
-        private YExpression VisitCoalesce(BinaryExpression binaryExpression)
+        protected override YExpression VisitCoalesce(BinaryExpression node)
         {
-            if (binaryExpression.Method != null)
+            if (node.Method != null)
                 throw new NotSupportedException();
-            return YExpression.Coalesce(Visit(binaryExpression.Left), Visit(binaryExpression.Right));
+            return YExpression.Coalesce(Visit(node.Left), Visit(node.Right));
         }
 
     }

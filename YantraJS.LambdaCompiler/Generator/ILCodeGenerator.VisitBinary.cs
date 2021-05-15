@@ -94,8 +94,14 @@ namespace YantraJS.Generator
                     il.EmitConstant(0);
                     il.Emit(OpCodes.Ceq);
                     break;
+                case YOperator.LeftShift:
+                    il.Emit(OpCodes.Shl);
+                    break;
+                case YOperator.RightShift:
+                    il.Emit(OpCodes.Shr);
+                    break;
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException($"{yBinaryExpression.Operator}");
             }
 
             return true;

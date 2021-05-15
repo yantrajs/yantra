@@ -83,6 +83,10 @@ namespace YantraJS.Expressions
                     return "==";
                 case YOperator.NotEqual:
                     return "!=";
+                case YOperator.LeftShift:
+                    return "<<";
+                case YOperator.RightShift:
+                    return ">>";
             }
 
             throw new NotImplementedException();

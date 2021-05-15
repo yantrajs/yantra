@@ -10,12 +10,16 @@ namespace YantraJS.Converters
 
     public partial class LinqConverter
     {
-
-        private YExpression VisitCall(MethodCallExpression methodCallExpression)
+        protected YExpression[] Visit(IEnumerable<Expression> list)
         {
-            var target = Visit(methodCallExpression.Object);
-            var list = methodCallExpression.Arguments.Select(a => Visit(a)).ToArray();
-            return YExpression.Call(target, methodCallExpression.Method, list);
+            return list.Select(Visit).ToArray();
+        }
+
+        protected override YExpression VisitCall(MethodCallExpression node)
+        {
+            var target = Visit(node.Object);
+            var list = node.Arguments.Select(a => Visit(a)).ToArray();
+            return YExpression.Call(target, node.Method, list);
         }
 
 

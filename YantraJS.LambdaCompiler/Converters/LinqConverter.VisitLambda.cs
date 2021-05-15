@@ -11,7 +11,12 @@ namespace YantraJS.Converters
     public partial class LinqConverter
     {
 
-        public YLambdaExpression VisitLambda(LambdaExpression lambda)
+        protected override YExpression VisitLambda(LambdaExpression node)
+        {
+            return VisitLambdaSpecific(node);
+        }
+
+        public YLambdaExpression VisitLambdaSpecific(LambdaExpression lambda)
         {
             var plist = Register(lambda.Parameters);
             //return new YLambdaExpression(

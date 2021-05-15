@@ -13,7 +13,7 @@ namespace YantraJS.Converters
         public static YLambdaExpression ToLLExpression(this LambdaExpression lambda)
         {
             var lc = new LinqConverter();
-            return lc.VisitLambda(lambda);
+            return lc.VisitLambdaSpecific(lambda);
         }
 
     }
