@@ -12,7 +12,7 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitThrow(YThrowExpression throwExpression)
         {
             Visit(throwExpression.Expression);
-            il.Emit(OpCodes.Throw, throwExpression.Type);
+            il.Emit(OpCodes.Throw);
             return true;
         }
     }

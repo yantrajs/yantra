@@ -21,6 +21,9 @@ namespace YantraJS.Generator
                     il.EmitConstant(0);
                     il.Emit(OpCodes.Ceq);
                     return true;
+                case YUnaryOperator.OnesComplement:
+                    il.Emit(OpCodes.Not);
+                    return true;
             }
             throw new NotImplementedException();
         }
