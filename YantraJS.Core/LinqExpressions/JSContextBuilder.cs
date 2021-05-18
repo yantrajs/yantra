@@ -88,6 +88,18 @@ namespace YantraJS.ExpHelper
         public static MethodInfo _Register =
             type.InternalMethod(nameof(JSContext.Register), typeof(JSVariable));
 
+        public static MethodInfo _NewSyntaxError =
+        type.InternalMethod(nameof(JSContext.NewSyntaxError), typeof(string),typeof(string),typeof(string),typeof(int));
+
+        public static Expression NewSyntaxError(string error) {
+            return Expression.Call(Current, _NewSyntaxError, 
+                Expression.Constant(error),
+                Expression.Constant(null,typeof(string)),
+                Expression.Constant(null, typeof(string)),
+                Expression.Constant(0)
+                );
+        }
+
         private static PropertyInfo _Index =
             type.IndexProperty(typeof(Core.KeyString));
         public static Expression Index(Expression key)

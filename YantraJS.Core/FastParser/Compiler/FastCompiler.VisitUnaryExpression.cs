@@ -37,14 +37,28 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
                 case UnaryOperator.BitwiseNot:
-                    return ExpHelper.JSNumberBuilder.New(Exp.Not(JSValueBuilder.IntValue(Visit(target))));
+                    return ExpHelper.JSNumberBuilder.New(Exp.OnesComplement(JSValueBuilder.IntValue(Visit(target))));
                 case UnaryOperator.Negate:
                     return Exp.Condition(BooleanValue(target), JSBooleanBuilder.False, JSBooleanBuilder.True);
                 case UnaryOperator.delete:
                     // delete expression...
+                    switch (target.Type) {
+                        case FastNodeType.Literal:
+                            return JSBooleanBuilder.False;
+                        case FastNodeType.Identifier:
+                            var id = target as AstIdentifier;
+                            if(id.Name == "this")
+                                return JSBooleanBuilder.True;
+                            return Expression.Throw(
+                                JSContextBuilder.NewSyntaxError("Cannot delete a variable"),
+                                typeof(JSValue)
+                                );
+                        case FastNodeType.MemberExpression:
+                            break;
+                        default:
+                            return Exp.Block(Visit(target), JSBooleanBuilder.True);
+                    }
                     var me = target as AstMemberExpression;
-                    if (me == null)
-                        return JSBooleanBuilder.False;
                     var targetObj = VisitExpression(me.Object);
                     if (me.Computed)
                     {

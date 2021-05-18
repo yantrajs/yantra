@@ -339,7 +339,9 @@ namespace YantraJS.Core
             FunctionPrototype = func.prototype;
             // create object prototype...
             Object =  this.Create<JSObject>(KeyStrings.Object);
+            //Object.f = JSObjectPrototype.Constructor;
             ObjectPrototype = Object.prototype;
+            //ObjectPrototype.Delete(KeyStrings.constructor);
             ObjectPrototype.BasePrototypeObject = null;
             func.BasePrototypeObject = Object;
             FunctionPrototype.BasePrototypeObject = ObjectPrototype;

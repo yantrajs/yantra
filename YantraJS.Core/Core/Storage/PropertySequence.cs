@@ -216,6 +216,10 @@ namespace YantraJS.Core
                     ref var p = ref properties[i];
                     if (p.key.Key == key)
                     {
+                        if (p.IsReadOnly || !p.IsConfigurable)
+                        {
+                            throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
+                        }
                         p = JSProperty.Deleted;
                         return true;
                     }
@@ -225,7 +229,7 @@ namespace YantraJS.Core
             if (map.TryRemove(key, out var pkey))
             {
                 ref var p = ref properties[pkey];
-                if (p.IsReadOnly)
+                if (p.IsReadOnly || !p.IsConfigurable)
                 {
                     throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
                 }
