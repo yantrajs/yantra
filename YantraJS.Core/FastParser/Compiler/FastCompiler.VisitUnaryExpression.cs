@@ -50,7 +50,9 @@ namespace YantraJS.Core.FastParser.Compiler
                             if(id.Name == "this")
                                 return JSBooleanBuilder.True;
                             return Expression.Throw(
-                                JSContextBuilder.NewSyntaxError("Cannot delete a variable"),
+                                Expression.New(
+                                    typeof(Exception).PublicConstructor(typeof(string))
+                                    ,Expression.Constant( "Cannot delete a variable")),
                                 typeof(JSValue)
                                 );
                         case FastNodeType.MemberExpression:
