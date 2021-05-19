@@ -306,6 +306,9 @@ namespace YantraJS.Core
                     when (this.value == (boolean._value ? 1D : 0D)):
                     return JSBoolean.True;
             }
+            // Added for this TC ExpressionTests.cs Assert.AreEqual(true, Evaluate("2 == [2]"));
+            if (this.ToString() == value.ToString())
+                return JSBoolean.True;
             return JSBoolean.False;
         }
 

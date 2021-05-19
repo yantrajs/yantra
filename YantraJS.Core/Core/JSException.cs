@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -110,6 +111,13 @@ namespace YantraJS.Core
         internal static void Throw(JSValue value)
         {
             throw value is JSError jse ? jse.Exception : new JSException(value.ToString());
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ThrowSyntaxError(string value)
+        {
+            throw JSContext.Current.NewSyntaxError(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

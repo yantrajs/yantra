@@ -17,12 +17,20 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _Throw =
             type.InternalMethod(nameof(Core.JSException.Throw), typeof(Core.JSValue));
 
+        private static MethodInfo _ThrowSyntaxError =
+            type.PublicMethod(nameof(Core.JSException.ThrowSyntaxError), typeof(string));
+
         private static MethodInfo _From =
             type.InternalMethod(nameof(JSException.From), typeof(Exception));
 
         public static Expression Throw(Expression value)
         {
             return Expression.Call(null, _Throw, value);
+        }
+
+        public static Expression ThrowSyntaxError(string value)
+        {
+            return Expression.Call(null, _ThrowSyntaxError, Expression.Constant(value));
         }
 
         private static MethodInfo _ThrowNotFunction =

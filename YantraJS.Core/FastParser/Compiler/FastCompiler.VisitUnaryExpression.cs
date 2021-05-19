@@ -44,17 +44,18 @@ namespace YantraJS.Core.FastParser.Compiler
                     // delete expression...
                     switch (target.Type) {
                         case FastNodeType.Literal:
-                            return JSBooleanBuilder.False;
+                            return JSBooleanBuilder.True;
                         case FastNodeType.Identifier:
                             var id = target as AstIdentifier;
                             if(id.Name == "this")
                                 return JSBooleanBuilder.True;
-                            return Expression.Throw(
-                                Expression.New(
-                                    typeof(Exception).PublicConstructor(typeof(string))
-                                    ,Expression.Constant( "Cannot delete a variable")),
-                                typeof(JSValue)
-                                );
+                            //return Expression.Throw(
+                            //    Expression.New(
+                            //        typeof(Exception).PublicConstructor(typeof(string))
+                            //        ,Expression.Constant( "Cannot delete a variable")),
+                            //    typeof(JSValue)
+                            //    );
+                            return JSExceptionBuilder.ThrowSyntaxError("Cannot delete a variable in Strict Mode");
                         case FastNodeType.MemberExpression:
                             break;
                         default:

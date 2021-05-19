@@ -72,7 +72,7 @@ namespace YantraJS
                 return codeCache.GetOrCreate(in jsc);
             } catch (Core.FastParser.FastParseException ex)
             {
-                throw new JSException(ex.Message, "Compile", location, ex.Token.Start.Line);
+                throw new JSException(ex.Message,JSContext.Current.SyntaxErrorPrototype, "Compile", location, ex.Token.Start.Line);
             }
         }
 

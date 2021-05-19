@@ -62,5 +62,23 @@ namespace YantraJS.Core.Core.Primitive
                 base[name] = value;
             }
         }
+
+        /// <summary> Added for below TCs in ExpressionTests.cs
+        /// Assert.AreEqual(false, Evaluate("var x = new Number(10); x == new Number(10)"));
+        // Assert.AreEqual(true, Evaluate("var x = new Number(10); x == x"));
+       /// </summary>
+       /// <param name="value"></param>
+       /// <returns></returns>
+    
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            if (value is JSPrimitiveObject)
+            {
+                return JSBoolean.False;
+            }
+            return base.Equals(value);
+        }
     }
 }
