@@ -25,6 +25,9 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _ToKey
             = type.InternalMethod(nameof(Core.JSValue.ToKey), typeof(bool));
 
+        private static MethodInfo _Power
+            = type.PublicMethod(nameof(Core.JSValue.Power), typeof(JSValue));
+
         public static Expression ToKey(Expression exp)
         {
             return Expression.Call(exp, _ToKey, Expression.Constant(true));
@@ -55,6 +58,9 @@ namespace YantraJS.ExpHelper
             return Expression.Property(exp, _IntValue);
         }
 
+        public static Expression Power(Expression left,Expression right) {
+            return Expression.Call(left, _Power, right);
+        }
 
         private static PropertyInfo _BooleanValue =
             type.Property(nameof(JSValue.BooleanValue));

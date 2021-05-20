@@ -336,7 +336,8 @@ namespace YantraJS.Utils
                 case TokenTypes.BooleanOr:
                     return ExpHelper.JSValueBuilder.LogicalOr(left, right);
                 case TokenTypes.Power:
-                    return ExpHelper.JSNumberBuilder.New(Expression.Power(leftDouble, rightDouble));
+
+                    return ExpHelper.JSValueBuilder.Power(left, right);
             }
             return null;
         }

@@ -513,6 +513,21 @@ namespace YantraJS.Core {
             return new JSDynamicMetaData(parameter, this);
         }
 
+        public JSValue Power(JSValue a) {
+            var v = this.DoubleValue;
+            var a1 = a.DoubleValue;
+            if (a1 == 0)
+                return JSNumber.One;
+            if (a1 == Double.PositiveInfinity || a1 == Double.NegativeInfinity)
+            {
+                if (v == 1 || v == -1)
+
+                    return JSNumber.NaN;
+            }
+
+            return new JSNumber(Math.Pow(this.DoubleValue, a1));
+        }
+
         internal virtual bool TryGetValue(uint i, out JSProperty value)
         {
             value = new JSProperty { };
