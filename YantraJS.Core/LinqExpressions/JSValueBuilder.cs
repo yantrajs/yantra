@@ -28,6 +28,9 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _Power
             = type.PublicMethod(nameof(Core.JSValue.Power), typeof(JSValue));
 
+        private static MethodInfo _ValueOf
+            = type.PublicMethod(nameof(Core.JSValue.ValueOf));
+
         public static Expression ToKey(Expression exp)
         {
             return Expression.Call(exp, _ToKey, Expression.Constant(true));
@@ -229,7 +232,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression Less(Expression target, Expression value)
         {
-            return Expression.Call(target, _Less, value);
+            return Expression.Call(ValueOf(target), _Less, ValueOf(value));
         }
 
         private static MethodInfo _LessOrEqual
@@ -237,23 +240,26 @@ namespace YantraJS.ExpHelper
 
         public static Expression LessOrEqual(Expression target, Expression value)
         {
-            return Expression.Call(target, _LessOrEqual, value);
+            return Expression.Call(ValueOf(target), _LessOrEqual, ValueOf(value));
         }
 
         private static MethodInfo _Greater
             = type.PublicMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
         public static Expression Greater(Expression target, Expression value)
         {
-            return Expression.Call(target, _Greater, value);
+            return Expression.Call(ValueOf(target), _Greater, ValueOf(value));
         }
 
         private static MethodInfo _GreaterOrEqual
             = type.PublicMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
-            return Expression.Call(target, _GreaterOrEqual, value);
+            return Expression.Call(ValueOf(target), _GreaterOrEqual, ValueOf(value));
         }
 
+        public static Expression ValueOf(Expression target) {
+            return Expression.Call(target, _ValueOf);
+        }
 
         public static Expression LogicalAnd(Expression target, Expression value)
         {

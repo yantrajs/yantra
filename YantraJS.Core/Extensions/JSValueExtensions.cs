@@ -319,16 +319,17 @@ namespace YantraJS.Core
         public static JSBoolean IsIn(this JSValue target, JSValue value)
         {
             if (!(value is JSObject tx))
-                return JSBoolean.False;
+                throw JSContext.Current.NewTypeError($"Cannot use 'in' operator to search for '{target}' in {value}");
             var key = target.ToKey(false);
             if (key.IsUInt)
             {
                 var p = tx.GetInternalProperty(key.Key);
-                if (p.IsEnumerable)
+                if (!p.IsEmpty)
                     return JSBoolean.True;
+                return JSBoolean.False;
             }
             var p1 = tx.GetInternalProperty(key);
-            if (p1.IsEnumerable)
+            if (!p1.IsEmpty)
                 return JSBoolean.True;
             return JSBoolean.False;
         }

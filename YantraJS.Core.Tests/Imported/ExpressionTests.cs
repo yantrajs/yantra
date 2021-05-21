@@ -844,7 +844,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // Test the precedence in the middle of the conditional.
             Assert.AreEqual(1, Evaluate("x = 5; true ? x = 1 : 2"));
-            Assert.AreEqual("Error", EvaluateExceptionType("x = 5; true ? 1, x : 2"));
+            Assert.AreEqual("SyntaxError", EvaluateExceptionType("x = 5; true ? 1, x : 2"));
 
             // Test the precedence at the end of the conditional.
             Assert.AreEqual(1, Evaluate("x = 4; true ? 1 : x = 2"));

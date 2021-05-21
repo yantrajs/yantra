@@ -92,6 +92,11 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
+        [Prototype("valueOf")]
+        public static JSValue ValueOf(in Arguments a) {
+            return a.This;
+        }
+
         [Prototype("isPrototypeOf")]
         internal static JSValue IsPrototypeOf(in Arguments a)
         {

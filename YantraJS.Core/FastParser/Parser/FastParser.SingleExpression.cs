@@ -157,7 +157,7 @@ namespace YantraJS.Core.FastParser
                 try
                 {
 
-                    while (!stream.CheckAndConsumeAny(endType, TokenTypes.EOF))
+                    while (!stream.CheckAndConsume(endType))
                     {
                         if(stream.CheckAndConsume(TokenTypes.Comma))
                         {
@@ -178,7 +178,7 @@ namespace YantraJS.Core.FastParser
                         nodes.Add(n);
                         if (stream.CheckAndConsume(TokenTypes.Comma))
                             continue;
-                        if (stream.CheckAndConsumeAny(endType, TokenTypes.EOF))
+                        if (stream.CheckAndConsume(endType))
                             break;
                         throw stream.Unexpected();
                     }
