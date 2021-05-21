@@ -303,8 +303,8 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError("Right side of instanceof is undefined");
             if (value.IsNull)
                 throw JSContext.Current.NewTypeError("Right side of instanceof is null");
-            if(!value.IsObject)
-                throw JSContext.Current.NewTypeError("Right side of instanceof is not an object");
+            if(!value.IsFunction)
+                throw JSContext.Current.NewTypeError("Right side of instanceof is not a function");
             var p = target.prototypeChain?.@object;
             if (p == null)
                 return JSBoolean.False;

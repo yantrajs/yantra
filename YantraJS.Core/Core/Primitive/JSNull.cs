@@ -54,8 +54,8 @@ namespace YantraJS.Core
 
         public override JSValue this[KeyString name]
         {
-            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of null");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {name} of null");
+            get => throw JSContext.Current.NewTypeError($"Cannot get property {name} of null");
+            set => throw JSContext.Current.NewTypeError($"Cannot set property {name} of null");
         }
 
         public override JSValue this[uint key]
