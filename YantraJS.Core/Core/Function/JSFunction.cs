@@ -302,8 +302,10 @@ namespace YantraJS.Core
         internal static JSValue Constructor(in Arguments args)
         {
             var len = args.Length;
-            if (len == 0)
-                throw JSContext.Current.NewTypeError("No arguments were supplied to Function constructor");
+            if (len == 0) {
+                return new JSFunction(JSFunction.empty, "anonymous", "function anonymous() {\n\n}");
+            }
+                
             JSValue body = null;
             var al = args.Length;
             var last = al - 1;
