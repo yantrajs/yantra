@@ -60,13 +60,13 @@ namespace YantraJS.Core
 
         public override JSValue this[uint key]
         {
-            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+            get => throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
+            set => throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
         }
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {
-            throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+            throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
         }
 
 
