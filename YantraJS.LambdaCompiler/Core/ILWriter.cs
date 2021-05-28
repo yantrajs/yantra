@@ -60,6 +60,14 @@ namespace YantraJS.Core
             writer.WriteLine($"// {comment}");
         }
 
+        public IDisposable RetainBranch()
+        {
+            var s = Stack;
+            return new DisposableAction(() => {
+                Stack = s;
+            });
+        }
+
         public IDisposable Branch(bool pop = true)
         {
             var s = Stack;
