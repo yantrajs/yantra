@@ -776,13 +776,42 @@ namespace YantraJS.Core
         {
             // To be modified by Akash
             var fx = a.Get1();
-            var @this = a.This;
+            var @this = a.This as JSObject;
+
+            if (@this == null)
+                throw JSContext.Current.NewTypeError($"Sort can only be called with an Array or an Object");
+
+            var length = @this.Length;
+            if (length <= 1)
+                return @this;
+
             Comparison<JSValue> cx = null;
             if (fx is JSFunction fn)
             {
-                cx = (l, r) => {
-                    var arg = new Arguments(@this, l, r);
-                    return (int)(fn.f(arg).DoubleValue);
+                cx = (left, right) => {
+                    left = left ?? JSNull.Value;
+                    right = right ?? JSNull.Value;
+                    if (left == JSNull.Value)
+                    {
+                        if (right == JSNull.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSNull.Value)
+                        return -1;
+                    if (left == JSUndefined.Value)
+                    {
+                        if (right == JSUndefined.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSUndefined.Value)
+                        return -1;
+                    var arg = new Arguments(JSUndefined.Value, left, right);
+                    var r = fn.f(arg).DoubleValue;
+                    if (double.IsNaN(r))
+                        return 0;
+                    return Math.Sign(r);
                 };
             } else
             {
@@ -795,23 +824,37 @@ namespace YantraJS.Core
                 //{
 
                 //}
-                cx = (l, r) => (l.IsUndefined ? string.Empty : l.ToString())
-                    .CompareTo(r.IsUndefined ? string.Empty : r.ToString());
-            }
-
-            var list = new List<JSValue>();
-            var en = @this.GetElementEnumerator();
-            while(en.MoveNext(out var hasValue, out var item, out var index))
-            {
-                if (hasValue)
+                cx = (left, right) =>
                 {
-                    list.Add(item);
-                }
+                    left = left ?? JSNull.Value;
+                    right = right ?? JSNull.Value;
+                    if (left == JSNull.Value)
+                    {
+                        if (right == JSNull.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSNull.Value)
+                        return -1;
+                    if (left == JSUndefined.Value)
+                    {
+                        if (right == JSUndefined.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSUndefined.Value)
+                        return -1;
+                    return string.CompareOrdinal(
+                        left.IsUndefined ? string.Empty : left.ToString(),
+                        right.IsUndefined ? string.Empty : right.ToString());
+                };
             }
 
-            list.Sort(cx);
+            ref var elements = ref @this.GetElements();
 
-            return new JSArray(list);
+            elements.QuickSort(cx, 0, (uint)(length - 1));
+
+            return @this;
         }
 
         [Prototype("splice", Length = 2)]

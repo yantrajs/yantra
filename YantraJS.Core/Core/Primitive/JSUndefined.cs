@@ -28,9 +28,9 @@ namespace YantraJS.Core
 
         public override double DoubleValue => double.NaN;
 
-        public override bool IsUndefined => true;
+        //public override bool IsUndefined => true;
 
-        internal override bool IsNullOrUndefined => true;
+        //internal override bool IsNullOrUndefined => true;
 
         public override string ToString()
         {

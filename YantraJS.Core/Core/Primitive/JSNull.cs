@@ -28,9 +28,9 @@ namespace YantraJS.Core
 
         public override double DoubleValue => 0D;
 
-        public override bool IsNull => true;
+        //public override bool IsNull => true;
 
-        internal override bool IsNullOrUndefined => true; 
+        //internal override bool IsNullOrUndefined => true; 
 
         internal override KeyString ToKey(bool create = false)
         {

@@ -7,7 +7,13 @@ namespace YantraJS.Core.Objects
 {
     public class JSMath: JSObject
     {
-        static System.Random randomGenertor;
+        static System.Random randomGenertor = new System.Random();
+
+        internal static double RandomNumber()
+        {
+            return randomGenertor.NextDouble();
+        }
+
 
         [Static(nameof(E))]
         public static double E = Math.E;
@@ -36,8 +42,7 @@ namespace YantraJS.Core.Objects
         [Static("random")]
         public static JSValue Random(in Arguments a)
         {
-            var r = randomGenertor ?? (randomGenertor = new Random());
-            return new JSNumber(r.NextDouble());
+            return new JSNumber(randomGenertor.NextDouble());
         }
 
         [Static("round")]

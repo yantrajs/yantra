@@ -18,11 +18,23 @@ namespace YantraJS.Core {
 
     public abstract partial class JSValue : IDynamicMetaObjectProvider {
 
-        public virtual bool IsUndefined => false;
+        public bool IsUndefined
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this == JSUndefined.Value;
+        }
 
-        public virtual bool IsNull => false;
+        public bool IsNull
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this == JSNull.Value;
+        }
 
-        internal virtual bool IsNullOrUndefined => false;
+        internal bool IsNullOrUndefined
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this == JSNull.Value || this == JSUndefined.Value;
+        }
 
         public virtual bool IsNumber => false;
 
