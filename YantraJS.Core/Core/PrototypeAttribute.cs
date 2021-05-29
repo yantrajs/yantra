@@ -57,6 +57,8 @@ namespace YantraJS.Core
 
         public readonly JSPropertyAttributes Attributes;
 
+        public readonly bool IsSymbol;
+
         public int Length { get; set; }
 
         public bool IsStatic => ((int)this.MemberType & 0xF0) > 0;
@@ -87,8 +89,10 @@ namespace YantraJS.Core
             : this.Attributes;
         public PrototypeAttribute(string name, 
             JSPropertyAttributes attributes = JSPropertyAttributes.Empty, 
-            MemberType memberType = MemberType.Method)
+            MemberType memberType = MemberType.Method,
+            bool isSymbol = false)
         {
+            this.IsSymbol = isSymbol;
             this.Attributes = attributes;
             if (name != null)
             {
@@ -101,8 +105,9 @@ namespace YantraJS.Core
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class GetProperty: PrototypeAttribute
     {
-        public GetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty) 
-            :base(name, attributes, MemberType.Get)
+        public GetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty,
+            bool isSymbol = false) 
+            :base(name, attributes, MemberType.Get, isSymbol)
         {
 
         }
@@ -111,8 +116,9 @@ namespace YantraJS.Core
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class SetProperty : PrototypeAttribute
     {
-        public SetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
-            : base(name, attributes, MemberType.Set)
+        public SetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty,
+            bool isSymbol = false)
+            : base(name, attributes, MemberType.Set, isSymbol)
         {
 
         }
@@ -122,8 +128,8 @@ namespace YantraJS.Core
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class StaticGetProperty : PrototypeAttribute
     {
-        public StaticGetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
-            : base(name, attributes, MemberType.StaticGet)
+        public StaticGetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty, bool isSymbol = false)
+            : base(name, attributes, MemberType.StaticGet, isSymbol)
         {
 
         }
@@ -132,8 +138,8 @@ namespace YantraJS.Core
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class StaticSetProperty : PrototypeAttribute
     {
-        public StaticSetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
-            : base(name, attributes, MemberType.StaticSet)
+        public StaticSetProperty(string name, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty, bool isSymbol = false)
+            : base(name, attributes, MemberType.StaticSet, isSymbol)
         {
 
         }
@@ -152,8 +158,9 @@ namespace YantraJS.Core
     {
 
         public StaticAttribute(string name, 
-            JSPropertyAttributes attributes = JSPropertyAttributes.Empty) :
-            base(name, attributes, MemberType.StaticMethod)
+            JSPropertyAttributes attributes = JSPropertyAttributes.Empty,
+            bool isSymbol = false) :
+            base(name, attributes, MemberType.StaticMethod, isSymbol)
         {
         }
     }
