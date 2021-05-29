@@ -454,9 +454,9 @@ namespace YantraJS.Converters
             return YExpression.TypeIs(Visit(node.Expression), node.TypeOperand);
         }
 
-        protected override YExpression VisitUnaryPlus(BinaryExpression node)
+        protected override YExpression VisitUnaryPlus(UnaryExpression node)
         {
-            return Visit(node);
+            return Visit(node.Operand);
         }
 
         protected override YExpression VisitUnbox(UnaryExpression node)

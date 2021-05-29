@@ -1,4 +1,5 @@
-﻿using System.CodeDom.Compiler;
+﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -20,6 +21,8 @@ namespace YantraJS.Expressions
         {
             this.constructor = constructor;
             this.args = args;
+            if (args.Any(x => x == null))
+                throw new ArgumentNullException();
             this.AsCall = asCall;
         }
 

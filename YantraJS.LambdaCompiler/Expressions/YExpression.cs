@@ -122,7 +122,7 @@ namespace YantraJS.Expressions
         {
             if (value is YConstantExpression)
                 throw new NotSupportedException();
-            return new YConstantExpression(value, type ?? value.GetType());
+            return new YConstantExpression(value, type ?? value?.GetType() ?? typeof(object));
         }
 
         protected static Type GetDelegateType(Type[] types, Type returnType)

@@ -5,10 +5,10 @@ using System.Text;
 
 namespace YantraJS.Converters
 {
-    public abstract class LinqMap<T>
+    public abstract class LinqMap<T>: StackGuard<T, Expression>
+        where T: class
     {
-
-        public T Visit(Expression exp)
+        public override T VisitIn(Expression exp)
         {
             if (exp == null)
                 return default;
@@ -181,7 +181,7 @@ namespace YantraJS.Converters
                 case ExpressionType.TypeIs:
 					return VisitTypeIs(exp as TypeBinaryExpression);
                 case ExpressionType.UnaryPlus:
-					return VisitUnaryPlus(exp as BinaryExpression);
+					return VisitUnaryPlus(exp as UnaryExpression);
                 case ExpressionType.Unbox:
 					return VisitUnbox(exp as UnaryExpression);
             }
@@ -189,7 +189,7 @@ namespace YantraJS.Converters
         }
 
         protected abstract T VisitUnbox(UnaryExpression node);
-        protected abstract T VisitUnaryPlus(BinaryExpression node);
+        protected abstract T VisitUnaryPlus(UnaryExpression node);
         protected abstract T VisitTypeIs(TypeBinaryExpression node);
         protected abstract T VisitTypeEqual(TypeBinaryExpression node);
         protected abstract T VisitTypeAs(UnaryExpression node);

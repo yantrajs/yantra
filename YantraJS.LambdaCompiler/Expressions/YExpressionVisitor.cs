@@ -4,10 +4,9 @@ using System.Text;
 
 namespace YantraJS.Expressions
 {
-    public abstract class YExpressionVisitor<T>
+    public abstract class YExpressionVisitor<T>: StackGuard<T, YExpression>
     {
-
-        public T Visit(YExpression exp)
+        public override T VisitIn(YExpression exp)
         {
             if (exp == null)
                 return default;

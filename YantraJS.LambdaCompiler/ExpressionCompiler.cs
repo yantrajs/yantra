@@ -122,6 +122,9 @@ namespace YantraJS
                 .WithThis(typeof(Closures))
                 .CompileToInstnaceMethod(derived);
 
+            // exp = null;
+            // il = null;
+
             var cnstr = derived.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] {
                 typeof(Box[])
             });
@@ -135,7 +138,7 @@ namespace YantraJS
             var cnstrIL = new ILCodeGenerator(cnstr.GetILGenerator());
             cnstrIL.EmitConstructor(cnstrLambda);
 
-            string cnstrILText = cnstrIL.ToString();
+            // string cnstrILText = cnstrIL.ToString();
 
             var dt = lambdaExpression.Type;
 

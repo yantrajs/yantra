@@ -15,7 +15,10 @@ namespace YantraJS.Converters
             var r = new YExpression[list.Count];
             for (int i = 0; i < list.Count; i++)
             {
-                r[i] = Visit(list[i]);
+                var v =Visit(list[i]);
+                if (v == null)
+                    throw new ArgumentNullException();
+                r[i] = v;
             }
             return r;
         }
