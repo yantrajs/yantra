@@ -36,7 +36,7 @@ namespace YantraJS.Generator
                 if (tryCatchFinallyExpression.Catch != null)
                 {
                     tcb.BeginCatch(typeof(Exception));
-                    using (il.Branch())
+                    using (il.Branch(size: 1))
                     {
                         if (tryCatchFinallyExpression.Catch.Parameter == null)
                         {
@@ -64,7 +64,6 @@ namespace YantraJS.Generator
                         Visit(tryCatchFinallyExpression.Finally);
                     }
                 }
-
                 tcb.Dispose();
             }
             return true;

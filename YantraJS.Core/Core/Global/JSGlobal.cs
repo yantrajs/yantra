@@ -109,10 +109,6 @@ namespace YantraJS.Core
             return JSUndefined.Value;
         }
 
-        private static long timeouts = 1;
-
-        private static long intervals = 1;
-
         [Static("setInterval", Length = 2)]
         public static JSValue SetInterval(in Arguments a)
         {

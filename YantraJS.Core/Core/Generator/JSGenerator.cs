@@ -16,7 +16,6 @@ namespace YantraJS.Core.Generator
         private ClrGeneratorV2 cg;
         private readonly string name;
 
-        private JSContext context;
         internal JSValue value;
         internal bool done;
 

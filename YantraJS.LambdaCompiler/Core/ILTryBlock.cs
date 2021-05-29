@@ -69,6 +69,7 @@ namespace YantraJS.Core
 
             // jump all pending
             il.EndExceptionBlock();
+            il.ClearStack();
 
             foreach (var (hop,jump, index) in pendingJumps)
             {

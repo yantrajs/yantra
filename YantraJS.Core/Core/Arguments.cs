@@ -67,12 +67,12 @@ namespace YantraJS.Core
             int i;
             for (i = 0; i < Length - 1; i++)
             {
-                list[i] = this[i+1];
+                list[i] = this[i+1]!;
             }
             var start = i;
             for (; i < total; i++)
             {
-                list[i] = a[i - start];
+                list[i] = a[i - start]!;
             }
             return new Arguments(@this, list, a.NewTarget!);
         }

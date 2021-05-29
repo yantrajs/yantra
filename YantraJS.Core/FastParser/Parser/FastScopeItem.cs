@@ -10,7 +10,6 @@ namespace YantraJS.Core.FastParser
         private readonly FastToken token;
         public readonly FastNodeType NodeType;
         private readonly FastPool pool;
-        private bool hoisted = false;
         public FastScopeItem(FastToken token, FastNodeType nodeType, FastPool pool)
         {
             this.token = token;
@@ -88,7 +87,6 @@ namespace YantraJS.Core.FastParser
             var list = pool.AllocateList<StringSpan>();
             try
             {
-                hoisted = true;
                 foreach (var node in Variables.AllValues())
                 {
                     list.Add(node.Value.name);

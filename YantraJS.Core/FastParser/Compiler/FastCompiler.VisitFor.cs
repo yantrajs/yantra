@@ -53,7 +53,7 @@ namespace YantraJS.Core.FastParser.Compiler
         //}
 
 
-        protected override Expression VisitForInStatement(AstForInStatement forInStatement, string label = null)
+        protected override Expression VisitForInStatement(AstForInStatement forInStatement, string? label = null)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
@@ -136,7 +136,7 @@ namespace YantraJS.Core.FastParser.Compiler
             }
         }
 
-        protected override Expression VisitForStatement(AstForStatement forStatement, string label = null)
+        protected override Expression VisitForStatement(AstForStatement forStatement, string? label = null)
         {
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();

@@ -64,7 +64,6 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private JSGeneratorFunctionV2 generator;
         private JSGeneratorDelegateV2 @delegate;
         private readonly Arguments arguments;
-        private uint start = 0;
 
         public JSValue LastValue;
 

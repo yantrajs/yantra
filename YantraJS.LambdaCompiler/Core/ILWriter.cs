@@ -68,10 +68,10 @@ namespace YantraJS.Core
             });
         }
 
-        public IDisposable Branch(bool pop = true)
+        public IDisposable Branch(bool pop = true, int size = 0)
         {
             var s = Stack;
-            Stack = 0;
+            Stack = size;
             return new DisposableAction(() => {
                 var n = Stack;
                 Stack = s;
@@ -84,6 +84,11 @@ namespace YantraJS.Core
                     n--;
                 }
             });
+        }
+
+        internal void ClearStack()
+        {
+            Stack = 0;
         }
 
         internal void Goto(ILWriterLabel label, int index = -1)

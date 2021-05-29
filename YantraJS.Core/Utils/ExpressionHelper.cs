@@ -30,7 +30,7 @@ namespace YantraJS
         }
 
 
-        public static Expression ToJSValue(this Expression exp)
+        public static Expression? ToJSValue(this Expression exp)
         {
             if (exp == null)
                 return exp;

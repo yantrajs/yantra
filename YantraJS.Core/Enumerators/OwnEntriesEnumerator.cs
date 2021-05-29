@@ -64,7 +64,7 @@ namespace YantraJS
     {
         private readonly List<JSValue>.Enumerator en;
 
-        public ListElementEnumerator(in List<JSValue>.Enumerator en)
+        public ListElementEnumerator(List<JSValue>.Enumerator en)
         {
             this.en = en;
         }

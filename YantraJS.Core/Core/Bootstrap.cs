@@ -43,14 +43,14 @@ namespace YantraJS.Core
 
         public static JSFunction Create<T>(
             this JSContext context, 
-            KeyString key, 
+            in KeyString key, 
             JSObject chain = null, bool addToContext = true)
         {
             var type = typeof(T);
             var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
-            var jsf = cache.GetOrCreate(key.Key, () =>
+            var jsf = cache.GetOrCreate(key.Key, (xkey) =>
             {
-                JSFunction r = Create(key, type);
+                JSFunction r = Create(xkey, type);
 
                 if (rt != null)
                 {
@@ -73,7 +73,7 @@ namespace YantraJS.Core
                 }
 
                 return r;
-            });
+            }, key);
             string source = $"function {key.ToString()}() {{ [native code] }}";
             var copy = (rt?.PreventConstructorInvoke  ?? false)
                 ? new JSClassFunction(jsf.f, key.ToString(), source)
@@ -319,13 +319,14 @@ namespace YantraJS.Core
 
         public static JSObject CreateSharedObject(
             this JSContext context, 
-            KeyString key, 
+            in KeyString key, 
             Type type, 
             bool addToContext)
         {
-            var c = cache.GetOrCreate(key.Key, () => {
-                return Create(key, type);
-            });
+            var c = cache.GetOrCreate(key.Key, (x) => {
+                
+                return Create(x, type);
+            }, key);
             if(addToContext)
             {
                 context[key] = c;
