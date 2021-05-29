@@ -1094,10 +1094,10 @@ namespace YantraJS.Core
 
 
         [Prototype("values", Length = 2)]
+        [Symbol("@@iterator")]
         public static JSValue Values(in Arguments a)
         {
-            var array = a.This;
-            return new JSGenerator(array.GetElementEnumerator(), "Array Iterator");
+            return new JSGenerator(a.This.GetElementEnumerator(), "Array Iterator");
         }
 
 

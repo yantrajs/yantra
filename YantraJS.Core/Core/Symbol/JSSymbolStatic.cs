@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core.Runtime
 {
@@ -43,5 +44,21 @@ namespace YantraJS.Core.Runtime
         [Prototype("unscopables")]
         public static JSSymbol unscopables = new JSSymbol("Symbol.unscopables");
 
+        private static ConcurrentStringMap<JSSymbol> globals
+            = new ConcurrentStringMap<JSSymbol>();
+
+        public static JSSymbol GlobalSymbol(string name)
+        {
+            name = name.TrimStart('@');
+            var f = typeof(JSSymbolStatic).GetField(name);
+            return (JSSymbol)f.GetValue(null);
+        }
+
+        [Static("for")]
+        public static JSValue For(in Arguments a)
+        {
+            var name = a.Get1().ToString();
+            return globals.GetOrCreate(name, (x) => new JSSymbol(x.Value));
+        }
     }
 }

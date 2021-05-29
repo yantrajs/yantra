@@ -179,6 +179,19 @@ namespace YantraJS
     internal static class TypeExtensions
     {
 
+        public static bool HasAttribute<T>(this MemberInfo member, out T value)
+            where T: Attribute
+        {
+            var a = member.GetCustomAttribute<T>();
+            if( a==null)
+            {
+                value = default;
+                return false;
+            }
+            value = a;
+            return true;
+        }
+
         public static bool IsIndexProperty(this PropertyInfo property)
         {
             return property.GetMethod?.GetParameters()?.Length > 0;

@@ -40,6 +40,17 @@ namespace YantraJS.Core
         }
     }
 
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class SymbolAttribute: Attribute
+    {
+        public readonly string Name;
+
+        public SymbolAttribute(string name)
+        {
+            this.Name = name;
+        }
+    }
+
     /// <summary>
     /// Should only be defined on static method and field
     /// </summary>
