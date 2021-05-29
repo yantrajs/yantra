@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.LinqExpressions;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.ExpHelper
 {
@@ -90,7 +92,7 @@ namespace YantraJS.ExpHelper
                         al = Expression.Constant((int)1);
                         paramList.Add(arg);
                     }
-                    length = length == null ? al : Expression.Add(length, al);
+                    length = length == null ? al : length + al;
                 }
 
                 var a1 = Expression.NewArrayInit(typeof(JSValue), paramList);

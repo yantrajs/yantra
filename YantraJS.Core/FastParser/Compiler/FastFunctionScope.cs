@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Threading;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Generator;
@@ -10,7 +7,11 @@ using YantraJS.Core.LinqExpressions.Generators;
 using YantraJS.Core.LinqExpressions.GeneratorsV2;
 using YantraJS.ExpHelper;
 using YantraJS.Utils;
-using Exp = System.Linq.Expressions.Expression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+
 namespace YantraJS.Core.FastParser.Compiler
 {
     public class FastFunctionScope : LinkedStackItem<FastFunctionScope>

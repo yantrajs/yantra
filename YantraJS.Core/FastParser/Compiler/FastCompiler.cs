@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
+using YantraJS.Expressions;
 using YantraJS.Utils;
-using Exp = System.Linq.Expressions.Expression;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
-    public partial class FastCompiler : AstMapVisitor<Expression>
+    public partial class FastCompiler : AstMapVisitor<YExpression>
     {
 
         private readonly FastPool pool;
@@ -24,7 +24,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         // private FastList<object> _innerFunctions;
 
-        public Expression<JSFunctionDelegate> Method { get; }
+        public YExpression<JSFunctionDelegate> Method { get; }
 
         public FastCompiler(
             in StringSpan code,
@@ -172,7 +172,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 script = Exp.Block(vList, Exp.TryFinally(Exp.Block(sList), JSContextStackBuilder.Pop(stackItem, lScope)));
 
 
-                var lambda = Exp.Lambda<JSFunctionDelegate>(script, fx.Arguments);
+                var lambda = Exp.Lambda<JSFunctionDelegate>("body", script, fx.Arguments);
 
                 // System.Console.WriteLine($"Code Generation done...");
 
@@ -211,7 +211,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitEmptyExpression(AstEmptyExpression emptyExpression)
         {
-            return Exp.Empty();
+            return Exp.Empty;
         }
 
         protected override Expression VisitExpressionStatement(AstExpressionStatement expressionStatement)
@@ -247,7 +247,8 @@ namespace YantraJS.Core.FastParser.Compiler
                 // return JSGeneratorBuilder.Delegate(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
             }
             // return JSGeneratorBuilder.Yield(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
-            return YantraJS.Core.LinqExpressions.Generators.YieldExpression.New(target);
+            // return YantraJS.Core.LinqExpressions.Generators.YieldExpression.New(target);
+            return YExpression.Yield(target);
 
         }
     }

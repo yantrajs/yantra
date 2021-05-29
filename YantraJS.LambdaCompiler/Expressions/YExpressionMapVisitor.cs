@@ -380,5 +380,12 @@ namespace YantraJS.Expressions
                 return YExpression.TryCatchFinally(@try, @catch, @finally);
             return tryCatchFinallyExpression;
         }
+
+        protected override YExpression VisitYield(YYieldExpression node)
+        {
+            if (Modified(node.Argument, out var arg))
+                return new YYieldExpression(arg);
+            return node;
+        }
     }
 }

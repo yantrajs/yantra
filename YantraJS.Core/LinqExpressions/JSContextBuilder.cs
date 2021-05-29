@@ -5,6 +5,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.LightWeight;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+
 
 namespace YantraJS.ExpHelper
 {

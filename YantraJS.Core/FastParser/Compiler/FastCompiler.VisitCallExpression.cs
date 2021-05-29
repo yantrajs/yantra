@@ -6,7 +6,9 @@ using System.Linq.Expressions;
 using System.Text;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.ExpHelper;
-using Exp = System.Linq.Expressions.Expression;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.Core.FastParser.Compiler
 {

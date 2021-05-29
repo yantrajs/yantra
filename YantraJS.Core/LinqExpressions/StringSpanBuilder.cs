@@ -5,6 +5,10 @@ using System.Reflection;
 using System.Text;
 using YantraJS.Core;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+
 namespace YantraJS.ExpHelper
 {
     public static class StringSpanBuilder

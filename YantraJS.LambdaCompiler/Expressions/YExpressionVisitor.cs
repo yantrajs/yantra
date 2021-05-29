@@ -78,11 +78,14 @@ namespace YantraJS.Expressions
                     return VisitEmpty(exp as YEmptyExpression);
                 case YExpressionType.Switch:
                     return VisitSwitch(exp as YSwitchExpression);
+                case YExpressionType.Yield:
+                    return VisitYield(exp as YYieldExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitYield(YYieldExpression node);
         protected abstract T VisitSwitch(YSwitchExpression node);
         protected abstract T VisitEmpty(YEmptyExpression exp);
         protected abstract T VisitRelay(YRelayExpression yRelayExpression);

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.CodeDom.Compiler;
 
 namespace YantraJS.Expressions
@@ -76,6 +77,11 @@ namespace YantraJS.Expressions
             }
 
             writer.Write($"RETURN {Target.Name}");
+        }
+
+        public YExpression Update(YLabelTarget target, YExpression x)
+        {
+            return new YReturnExpression(target, x);
         }
     }
 

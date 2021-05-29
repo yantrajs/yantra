@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using YantraJS.Core.Generator;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.Core.LinqExpressions.Generators;
 using YantraJS.Core.LinqExpressions.GeneratorsV2;
 using YantraJS.ExpHelper;
-using Exp = System.Linq.Expressions.Expression;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -166,7 +167,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     functionName = (functionName ?? "inline") + "_" + point;
 
-                    Exp ToDelegate(System.Linq.Expressions.LambdaExpression e1)
+                    Exp ToDelegate(LambdaExpression e1)
                     {
                         return e1;
                         //if (super != null)
@@ -176,7 +177,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         //return ScriptInfoBuilder.Function(scriptInfo, index, e1.Type);
                     }
 
-                    System.Linq.Expressions.LambdaExpression lambda;
+                    LambdaExpression lambda;
                     Exp jsf;
                     if (functionDeclaration.Generator)
                     {

@@ -66,6 +66,11 @@ namespace YantraJS.Expressions
             return YExpression.Binary(left, YOperator.LessOrEqual, YExpression.Constant(right));
         }
 
+        public static YExpression Throw(YNewExpression yNewExpression, Type type)
+        {
+            return new YThrowExpression(yNewExpression, type);
+        }
+
         public static YExpression operator >(YExpression left, object right)
         {
             return YExpression.Binary(left, YOperator.Greater, Constant( right));
@@ -123,6 +128,11 @@ namespace YantraJS.Expressions
             if (value is YConstantExpression)
                 throw new NotSupportedException();
             return new YConstantExpression(value, type ?? value?.GetType() ?? typeof(object));
+        }
+
+        public static YExpression MakeIndex(YExpression target, PropertyInfo index, params YExpression[] args)
+        {
+            return Index(target, index, args);
         }
 
         protected static Type GetDelegateType(Type[] types, Type returnType)
@@ -186,6 +196,18 @@ namespace YantraJS.Expressions
             return new YBlockExpression(variables, expressions);
         }
 
+        public static YBlockExpression Block(
+            IEnumerable<YParameterExpression>? variables,
+            IEnumerable<YExpression> expressions)
+        {
+            return new YBlockExpression(variables, expressions.ToArray());
+        }
+
+        public static YBlockExpression Block(IEnumerable<YExpression> expressions)
+        {
+            return new YBlockExpression(null, expressions.ToArray());
+        }
+
         public static YBlockExpression Block(params YExpression[] expressions)
         {
             return new YBlockExpression(null, expressions);
@@ -202,6 +224,11 @@ namespace YantraJS.Expressions
         public static YConvertExpression Convert(YExpression exp, Type type, MethodInfo method)
         {
             return new YConvertExpression(exp, type, method);
+        }
+
+        public static YExpression Continue(YLabelTarget @break)
+        {
+            return new YGoToExpression(@break, null);
         }
 
         public static YDelegateExpression Delegate(MethodInfo method, Type? type = null)
@@ -230,6 +257,14 @@ namespace YantraJS.Expressions
         public static YBinaryExpression Greater(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Greater, right);
 
+        public static YLambdaExpression Lambda(
+            Type type, 
+            YExpression body, 
+            string name, YParameterExpression[] parameters)
+        {
+            return new YLambdaExpression(type, name, body, null, parameters);
+        }
+
         public static YBinaryExpression GreaterOrEqual(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.GreaterOrEqual, right);
 
@@ -239,16 +274,16 @@ namespace YantraJS.Expressions
         public static YBinaryExpression LessOrEqual(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.LessOrEqual, right);
 
-        public static YCallExpression Call(YExpression? target, MethodInfo method, IList<YExpression> args)
+        public static YCallExpression Call(YExpression? target, MethodInfo method, IEnumerable<YExpression> args)
         {
-            return new YCallExpression(target, method, args);
+            return new YCallExpression(target, method, args.ToArray());
         }
         public static YCallExpression Call(YExpression? target, MethodInfo method, params YExpression[] args)
         {
             return new YCallExpression(target, method, args);
         }
 
-        public static YNewExpression New(ConstructorInfo constructor, IList<YExpression> args)
+        public static YNewExpression New(ConstructorInfo constructor, IEnumerable<YExpression> args)
         {
             return new YNewExpression(constructor, args.ToArray());
         }
@@ -280,6 +315,11 @@ namespace YantraJS.Expressions
             return new YInvokeExpression(target, args, type);
         }
 
+        public static YParameterExpression Variable(Type type, string? name = null)
+        {
+            return new YParameterExpression(type, name);
+        }
+
         public static YPropertyExpression Property(YExpression target, PropertyInfo field)
         {
             return new YPropertyExpression(target, field);
@@ -290,10 +330,19 @@ namespace YantraJS.Expressions
             return new YNewArrayExpression(type, elements);
         }
 
+        public static YNewArrayExpression NewArrayInit(Type type, IEnumerable<YExpression> elements)
+        {
+            return new YNewArrayExpression(type, elements.ToArray());
+        }
 
         public static YNewArrayBoundsExpression NewArrayBounds(Type type, YExpression size)
         {
             return new YNewArrayBoundsExpression(type, size);
+        }
+
+        public static YLabelTarget Label(Type type, string? name = null)
+        {
+            return new YLabelTarget(name, type ?? typeof(void));
         }
 
         public static YLabelTarget Label(string? name = null, 
@@ -307,7 +356,17 @@ namespace YantraJS.Expressions
             return new YLabelExpression(target, defaultValue);
         }
 
+        public static YExpression Condition(YExpression yExpression, YExpression def, YExpression target, Type? type = null)
+        {
+            return Conditional(yExpression, def, target, type);
+        }
+
         public static YConstantExpression Null = new YConstantExpression(null, typeof(object));
+
+        public static YGoToExpression Goto(YLabelTarget target, YExpression? defaultValue = null)
+        {
+            return new YGoToExpression(target, defaultValue);
+        }
 
         public static YGoToExpression GoTo(YLabelTarget target, YExpression? defaultValue = null)
         {
@@ -323,7 +382,7 @@ namespace YantraJS.Expressions
             return new YLoopExpression(body, @break, @continue ?? Label("continue", @break.LabelType));
         }
 
-        public static YExpression<T> Lambda<T>(string name, YExpression body, YParameterExpression[] parameters)
+        public static YExpression<T> Lambda<T>(string name, YExpression body, params YParameterExpression[] parameters)
         {
             return new YExpression<T>(name, body, null, parameters, null);
         }
@@ -365,6 +424,14 @@ namespace YantraJS.Expressions
         {
             return new YCatchBody(null, body);
         }
+
+        public static YTryCatchFinallyExpression TryFinally(
+            YExpression @try,
+            YExpression @finally)
+        {
+            return new YTryCatchFinallyExpression(@try, null, @finally);
+        }
+
 
         public static YTryCatchFinallyExpression TryCatchFinally(
             YExpression @try, 
@@ -460,6 +527,13 @@ namespace YantraJS.Expressions
         }
 
         public static YSwitchExpression Switch(
+            YExpression target,
+            params YSwitchCaseExpression[] cases)
+        {
+            return new YSwitchExpression(target, null, null, cases);
+        }
+
+        public static YSwitchExpression Switch(
             YExpression target, 
             YExpression? defaultBody, 
             params YSwitchCaseExpression[] cases) {
@@ -479,6 +553,11 @@ namespace YantraJS.Expressions
         public static YSwitchCaseExpression SwitchCase(YExpression body, params YExpression[] testValues )
         {
             return new YSwitchCaseExpression(body, testValues);
+        }
+
+        public static YYieldExpression Yield(YExpression arg)
+        {
+            return new YYieldExpression(arg);
         }
     }
 }

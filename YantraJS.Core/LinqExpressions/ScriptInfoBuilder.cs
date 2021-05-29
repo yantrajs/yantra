@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Core.Storage;
 using YantraJS.ExpHelper;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.Core.LinqExpressions
 {

@@ -36,6 +36,11 @@ namespace YantraJS.Expressions
             return leftType;
         }
 
+        public YExpression Update(YExpression left, YOperator @operator, YExpression right)
+        {
+            return new YBinaryExpression(left, @operator, right);
+        }
+
         public override void Print(IndentedTextWriter writer)
         {
             writer.Write("(");

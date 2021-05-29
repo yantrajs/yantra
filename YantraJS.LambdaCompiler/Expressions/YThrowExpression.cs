@@ -1,4 +1,6 @@
-﻿using System.CodeDom.Compiler;
+﻿#nullable enable
+using System;
+using System.CodeDom.Compiler;
 
 namespace YantraJS.Expressions
 {
@@ -6,8 +8,8 @@ namespace YantraJS.Expressions
     {
         public readonly YExpression Expression;
 
-        public YThrowExpression(YExpression exp)
-            : base(YExpressionType.Throw, typeof(void))
+        public YThrowExpression(YExpression exp, Type? type = null)
+            : base(YExpressionType.Throw, type ?? typeof(void))
         {
             this.Expression = exp;
         }

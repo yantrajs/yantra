@@ -37,6 +37,7 @@ namespace YantraJS.Expressions
         MemberInit,
         Relay,
         Empty,
-        Switch
+        Switch,
+        Yield
     }
 }

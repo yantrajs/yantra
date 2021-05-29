@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.CodeDom.Compiler;
 using System.Reflection;
-using System.Text;
 using YantraJS.Core.Core.Array;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.Core.LinqExpressions
 {
@@ -23,11 +25,16 @@ namespace YantraJS.Core.LinqExpressions
 
     public class ClrSpreadExpression : Expression
     {
-        public ClrSpreadExpression(Expression argument)
+        public ClrSpreadExpression(Expression argument): base(Expressions.YExpressionType.Constant, argument.Type)
         {
             this.Argument = JSSpreadValueBuilder.New( argument);
         }
 
         public Expression Argument { get; }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            
+        }
     }
 }
