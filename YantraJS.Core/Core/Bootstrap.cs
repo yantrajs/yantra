@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -11,6 +10,16 @@ using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
 using YantraJS.Core.Runtime;
 using YantraJS.ExpHelper;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Runtime;
 
 namespace YantraJS.Core
 {
@@ -136,17 +145,17 @@ namespace YantraJS.Core
             if (property.CanRead)
             {
                 var getterBody = Expression.Property(coalesce, property);
-                var getterLambda = Expression.Lambda<JSFunctionDelegate>(getterBody, pe);
-                getter = getterLambda.FastCompileWithoutNested();
+                var getterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", getterBody, pe);
+                getter = getterLambda.Compile();
             }
             if (property.CanWrite)
             {
                 var setterBody = Expression.Assign(
                     Expression.Property(coalesce, property),
                     JSValueBuilder.ForceConvert(arg1, rType));
-                var setterLambda = Expression.Lambda<JSFunctionDelegate>(Expression.Block(peList,
+                var setterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", Expression.Block(peList,
                     setterBody), pe);
-                setter = setterLambda.FastCompileWithoutNested();
+                setter = setterLambda.Compile();
             }
             setter = (in Arguments a) =>
             {
@@ -207,8 +216,8 @@ namespace YantraJS.Core
                 ? Expression.Call(coalesce, method)
                 : Expression.Call(coalesce, method, JSValueBuilder.Coalesce(arg1, rType, targetExp, p.Name.ToString())),
                 peThis);
-            var lambda = Expression.Lambda<JSFunctionDelegate>(body, pe);
-            return lambda.FastCompileWithoutNested();
+            var lambda = Expression.Lambda<JSFunctionDelegate>(method.Name, body, pe);
+            return lambda.Compile();
         }
 
         public static (JSFunctionDelegate function, int length) Fill(Type type, JSObject target)

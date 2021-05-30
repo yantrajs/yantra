@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 using System.Text;
 using YantraJS.Core;
 using YantraJS.Emit;
+using YantraJS.Runtime;
 
 namespace YantraJS.Tests
 {
@@ -23,7 +24,7 @@ namespace YantraJS.Tests
         public JSFunctionDelegate GetOrCreate(in JSCode code)
         {
             var cc = code.Compiler();
-            return cc.Compile();
+            return cc.CompileWithNestedLambdas();
         }
 
         public void Save(string location, Expression<JSFunctionDelegate> expression)

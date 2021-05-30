@@ -22,7 +22,6 @@ using YantraJS.Extensions;
 using YantraJS.LinqExpressions;
 using YantraJS.Parser;
 using YantraJS.Utils;
-using static YantraJS.FunctionScope;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;

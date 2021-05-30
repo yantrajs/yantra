@@ -4,6 +4,16 @@ using System.Linq.Expressions;
 using System.Text;
 using YantraJS.ExpHelper;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+
+
 namespace YantraJS.Core.FastParser.Compiler
 {
     partial class FastCompiler
@@ -12,7 +22,7 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override Expression VisitBlock(AstBlock block) {
 
             if (block.Statements.Length == 0)
-                return Expression.Empty();
+                return Expression.Empty;
 
             var blockList = pool.AllocateList<Expression>();
             var hoistingScope = block.HoistingScope;

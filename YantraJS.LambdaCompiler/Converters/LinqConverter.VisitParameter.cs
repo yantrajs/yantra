@@ -415,8 +415,8 @@ namespace YantraJS.Converters
 
             return YExpression.Switch(
                 Visit(node.SwitchValue),
-                node.Comparison,
                 Visit(node.DefaultBody),
+                node.Comparison,
                 cases);
 
         }

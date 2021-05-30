@@ -12,6 +12,26 @@ namespace YantraJS.Runtime
     public static class RuntimeAssembly
     {
 
+        public static object Compile(this YLambdaExpression exp)
+        {
+            var originalTypes = exp.ParameterTypes;
+            string expString = exp.ToString();
+            exp = exp.WithThis(typeof(Closures));
+
+            var method = new DynamicMethod(exp.Name, exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
+
+            var ilg = method.GetILGenerator();
+
+            ILCodeGenerator icg = new ILCodeGenerator(ilg);
+            icg.Emit(exp);
+
+            string il = icg.ToString();
+
+            var c = new Closures(null, il, expString);
+
+            return (object)method.CreateDelegate(exp.Type, c);
+        }
+
         public static T Compile<T>(this YExpression<T> exp)
         {
             var originalTypes = exp.ParameterTypes;

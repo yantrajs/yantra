@@ -8,12 +8,12 @@ namespace YantraJS.Expressions
     {
         public readonly YExpression test;
         public readonly YExpression @true;
-        public readonly YExpression @false;
+        public readonly YExpression? @false;
 
         public YConditionalExpression(
             YExpression test, 
             YExpression @true, 
-            YExpression @false,
+            YExpression? @false,
             Type? type = null)
             :base(YExpressionType.Conditional, type ?? @true.Type)
         {

@@ -12,6 +12,16 @@ using YantraJS.Core.CodeGen;
 using YantraJS.ExpHelper;
 using YantraJS.Extensions;
 using YantraJS.LinqExpressions;
+using YantraJS.Runtime;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 
 namespace YantraJS.Core
 {
@@ -383,7 +393,7 @@ namespace YantraJS.Core
             stmts.Add(JSValueBuilder.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));
             stmts.Add(retVar);
 
-            return Expression.Lambda(Expression.Block(veList, stmts), peList).Compile();
+            return Expression.Lambda( type, Expression.Block(veList, stmts), type.Name, peList.ToArray()).Compile();
         }
     }
 }

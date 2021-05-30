@@ -14,6 +14,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
@@ -25,9 +26,9 @@ namespace YantraJS
             Expression exp)
         {
 
-            if(exp.NodeType == ExpressionType.Block)
+            if(exp.NodeType == YExpressionType.Block)
             {
-                var block = (exp as BlockExpression)!;
+                var block = (exp as YBlockExpression)!;
                 foreach (var p in block.Variables)
                     peList.Add(p);
                 foreach (var s in block.Expressions)

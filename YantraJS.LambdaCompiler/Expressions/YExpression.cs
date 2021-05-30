@@ -37,6 +37,16 @@ namespace YantraJS.Expressions
             return YExpression.Binary(left, YOperator.Subtract, right);
         }
 
+        public static YExpression Break(YLabelTarget @break)
+        {
+            return new YGoToExpression(@break, null);
+        }
+
+        public static YConditionalExpression IfThen(YExpression test, YExpression @true, YExpression? @false = null)
+        {
+            return new YConditionalExpression(test, @true, @false);
+        }
+
         public static YExpression operator +(YExpression left, object right)
         {
             return YExpression.Binary(left, YOperator.Add, YExpression.Constant(right));
@@ -66,7 +76,7 @@ namespace YantraJS.Expressions
             return YExpression.Binary(left, YOperator.LessOrEqual, YExpression.Constant(right));
         }
 
-        public static YExpression Throw(YNewExpression yNewExpression, Type type)
+        public static YExpression Throw(YExpression yNewExpression, Type type)
         {
             return new YThrowExpression(yNewExpression, type);
         }
@@ -122,6 +132,52 @@ namespace YantraJS.Expressions
         {
             return new YCoalesceExpression(left, right);
         }
+
+        public static YExpression Add(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.Add, right);
+        }
+        
+        public static YExpression Subtract(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.Subtract, right);
+        }
+
+        public static YExpression Multiply(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.Multipley, right);
+        }
+
+        public static YExpression Divide(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.Divide, right);
+        }
+
+        public static YExpression Modulo(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.Mod, right);
+        }        
+        public static YExpression And(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.BitwiseAnd, right);
+        }      
+        public static YExpression ExclusiveOr(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.Xor, right);
+        }   
+
+        public static YExpression LeftShift(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.LeftShift, right);
+        }   
+        public static YExpression RightShift(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.RightShift, right);
+        }   
+        public static YExpression Power(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.Power, right);
+        }   
 
         public static YConstantExpression Constant(object value, Type? type = null)
         {
@@ -425,6 +481,14 @@ namespace YantraJS.Expressions
             return new YCatchBody(null, body);
         }
 
+
+        public static YTryCatchFinallyExpression TryCatch(
+            YExpression @try,
+            YCatchBody @catch)
+        {
+            return new YTryCatchFinallyExpression(@try, @catch, null);
+        }
+
         public static YTryCatchFinallyExpression TryFinally(
             YExpression @try,
             YExpression @finally)
@@ -432,6 +496,15 @@ namespace YantraJS.Expressions
             return new YTryCatchFinallyExpression(@try, null, @finally);
         }
 
+        public static YTryCatchFinallyExpression TryCatchFinally(
+            YExpression @try,
+            YExpression @finally,
+            YCatchBody? catchBody)
+        {
+            if (catchBody == null && @finally == null)
+                throw new ArgumentNullException($"Both finally and catch cannot be null");
+            return new YTryCatchFinallyExpression(@try, catchBody, @finally);
+        }
 
         public static YTryCatchFinallyExpression TryCatchFinally(
             YExpression @try, 
@@ -487,7 +560,14 @@ namespace YantraJS.Expressions
         {
             return new YUnaryExpression(exp, YUnaryOperator.OnesComplement);
         }
-
+        public static YUnaryExpression Negate(YExpression exp)
+        {
+            return new YUnaryExpression(exp, YUnaryOperator.Negative);
+        }
+        public static YExpression UnaryPlus(YExpression exp)
+        {
+            return exp;
+        }
         public static YTypeIsExpression TypeEqual(YExpression exp, Type type)
         {
             return new YTypeIsExpression(exp, type);
@@ -542,11 +622,11 @@ namespace YantraJS.Expressions
 
         public static YSwitchExpression Switch(
             YExpression target,
-            MethodInfo method,
             YExpression? defaultBody,
-            params YSwitchCaseExpression[] cases)
+            MethodInfo method,
+            IEnumerable<YSwitchCaseExpression> cases)
         {
-            return new YSwitchExpression(target, method, defaultBody, cases);
+            return new YSwitchExpression(target, method, defaultBody, cases.ToArray());
         }
 
 
@@ -554,6 +634,12 @@ namespace YantraJS.Expressions
         {
             return new YSwitchCaseExpression(body, testValues);
         }
+
+        public static YSwitchCaseExpression SwitchCase(YExpression body, IEnumerable<YExpression> testValues)
+        {
+            return new YSwitchCaseExpression(body, testValues.ToArray());
+        }
+
 
         public static YYieldExpression Yield(YExpression arg)
         {

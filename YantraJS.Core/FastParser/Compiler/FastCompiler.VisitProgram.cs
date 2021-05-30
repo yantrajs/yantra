@@ -5,7 +5,15 @@ using System.Linq.Expressions;
 using System.Text;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.ExpHelper;
-using Exp = System.Linq.Expressions.Expression;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -21,7 +29,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 if (scope.VariableParameters.Any() && !list.Any())
                     throw new InvalidOperationException();
                 if (!list.Any())
-                    return Exp.Empty();
+                    return Exp.Empty;
                 return Exp.Block(scope.VariableParameters, list);
             } finally {
                 list.Clear();
