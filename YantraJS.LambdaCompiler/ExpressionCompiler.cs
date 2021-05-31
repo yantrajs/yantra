@@ -4,7 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using YantraJS.Builder;
 using YantraJS.Expressions;
 using YantraJS.Generator;
 
@@ -72,6 +74,41 @@ namespace YantraJS
             return (method, ict, iexp);
         }
 
+
+        /// <summary>
+        /// For debug = true, save it as an instance method..
+        /// and in static method create an instance of Closure
+        /// and return the instance method
+        /// </summary>
+        /// <param name="lambdaExpression"></param>
+        /// <param name="type"></param>
+        /// <param name="debug"></param>
+        /// <returns></returns>
+        public static MethodInfo CompileToStaticMethod(
+            this YLambdaExpression lambdaExpression,
+            TypeBuilder type,
+            PdbBuilder builder
+            )
+        {
+            var exp = LambdaRewriter.Rewrite(lambdaExpression)
+                as YLambdaExpression;
+
+            var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
+                MethodAttributes.Public | MethodAttributes.Static,
+                exp.ReturnType,
+                exp.ParameterTypes);
+
+            NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(method));
+            exp = nw.Visit(exp) as YLambdaExpression;
+
+            var mdh = MetadataTokens.MethodDefinitionHandle(builder.Next);
+            
+
+            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
+            var (ict, iexp) = icg.Emit(exp);
+
+            return method;
+        }
 
         /// <summary>
         /// For debug = true, save it as an instance method..
