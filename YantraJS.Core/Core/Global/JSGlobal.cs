@@ -1,5 +1,4 @@
-﻿using Esprima.Ast;
-using Microsoft.Threading;
+﻿using Microsoft.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

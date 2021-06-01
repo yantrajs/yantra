@@ -11,13 +11,116 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using YantraJS.Core.Core.Storage;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
+
+    public class SharedParserStringMap<T>
+    {
+        private static ConcurrentNameMap parserStringCache = new ConcurrentNameMap();
+        private UInt32Map<uint> indexes;
+        private (StringSpan Key, T Value)[] storage;
+
+        private uint length;
+
+        public T this[in StringSpan name]
+        {
+            get
+            {
+                if (parserStringCache.TryGetValue(in name, out var id))
+                {
+                    if (indexes.TryGetValue(id.Key, out var index))
+                        return storage[index].Value;
+                }
+                return default;
+            }
+            set
+            {
+                var a = parserStringCache.Get(in name);
+                if (!indexes.TryGetValue(a.Key, out var id))
+                {
+                    id = length++;
+                    indexes[a.Key] = id;
+                }
+                Save(id, in name, in value);
+            }
+        }
+
+        private void Save(uint index, in StringSpan key, in T value)
+        {
+            storage = storage ?? (new (StringSpan, T)[8]);
+            if (index >= storage.Length)
+            {
+                Array.Resize(ref storage, (((int)index >> 2) + 1) << 2);
+            }
+            storage[index] = (key, value);
+        }
+
+        public bool TryGetValue(in StringSpan name, out T value)
+        {
+            if (parserStringCache.TryGetValue(in name, out var id))
+            {
+                if (indexes.TryGetValue(id.Key, out var index))
+                {
+                    value = storage[index].Value;
+                    return true;
+                }
+            }
+            value = default;
+            return false;
+        }
+
+        public IFastEnumerator<(StringSpan Key, T Value)> AllValues => new Enumerator(this);
+
+        private class Enumerator : IFastEnumerator<(StringSpan Key, T Value)>
+        {
+            private SharedParserStringMap<T> map;
+            private int index = -1;
+
+            public Enumerator(SharedParserStringMap<T> map)
+            {
+                this.map = map;
+            }
+
+            public bool MoveNext(out (StringSpan Key, T Value) item)
+            {
+                while (true)
+                {
+                    this.index++;
+                    if (this.index < map.length)
+                    {
+                        item = map.storage[index];
+                        return true;
+                    }
+                    else break;
+                }
+                item = (StringSpan.Empty, default);
+                return false;
+            }
+
+            public bool MoveNext(out int index, out (StringSpan Key, T Value) item)
+            {
+                while (true)
+                {
+                    this.index++;
+                    if (this.index < map.length)
+                    {
+                        index = this.index;
+                        item = map.storage[index];
+                        return true;
+                    }
+                    else break;
+                }
+                item = (StringSpan.Empty, default);
+                index = 0;
+                return false;
+            }
+        }
+
+    }
     public class FastFunctionScope : LinkedStackItem<FastFunctionScope>
     {
-
-        public ScopedVariableDeclaration PushToNewScope { get; set; }
 
         public class VariableScope : IDisposable
         {
@@ -235,7 +338,8 @@ namespace YantraJS.Core.FastParser.Compiler
             }
             if (fx?.Async ?? false)
             {
-                Awaiter = Expression.Parameter(typeof(JSWeakAwaiter).MakeByRefType());
+                // Awaiter = Expression.Parameter(typeof(JSWeakAwaiter).MakeByRefType());
+                throw new NotSupportedException();
             }
             this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");

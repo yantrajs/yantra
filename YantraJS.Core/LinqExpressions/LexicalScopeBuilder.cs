@@ -1,5 +1,4 @@
-﻿using Esprima;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -52,9 +51,6 @@ namespace YantraJS.ExpHelper
 
         //private static PropertyInfo _Position =
         //    type.Property(nameof(Core.LexicalScope.Position));
-
-        private static ConstructorInfo _NewPosition =
-            typeof(Position).Constructor(typeof(int), typeof(int));
 
         private static FieldInfo _Line =
             type.PublicField(nameof(CallStackItem.Line));

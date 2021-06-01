@@ -218,10 +218,11 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     else if (functionDeclaration.Async)
                     {
-                        lambda = Exp.Lambda(typeof(JSAsyncDelegate), block, in scriptFunctionName, new ParameterExpression[] {
-                        cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
-                    });
-                        jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
+                        throw new NotSupportedException();
+                        //lambda = Exp.Lambda(typeof(JSAsyncDelegate), block, in scriptFunctionName, new ParameterExpression[] {
+                        //    cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
+                        //});
+                        //jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
                     }
                     else
                     {

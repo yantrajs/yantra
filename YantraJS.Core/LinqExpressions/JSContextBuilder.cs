@@ -14,8 +14,6 @@ namespace YantraJS.ExpHelper
 {
     public class JSContextStackBuilder
     {
-        private readonly static Type type = typeof(LinkedStack<LexicalScope>);
-
         private readonly static Type itemType = typeof(CallStackItem);
 
         public readonly static Type itemTypeRef = typeof(CallStackItem).MakeByRefType();
