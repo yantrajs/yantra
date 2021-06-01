@@ -247,6 +247,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         }
 
         public static LambdaExpression Rewrite(
+            in FunctionName name,
            Expression body,
            LabelTarget r,
            ParameterExpression generator,
@@ -277,7 +278,9 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 Expression.Label(gw.generatorReturn, GeneratorStateBuilder.New(0))
                 );
 
-            return Expression.Lambda<JSGeneratorDelegateV2>("generator", newBody, generator, gw.args, gw.nextJump, gw.nextValue, gw.exception);
+            return Expression.Lambda<JSGeneratorDelegateV2>(
+                in name, 
+                newBody, generator, gw.args, gw.nextJump, gw.nextValue, gw.exception);
         }
 
         private (ParameterExpression[] boxes, Expression init) LoadBoxes()

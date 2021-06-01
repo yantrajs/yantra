@@ -18,6 +18,8 @@ namespace YantraJS.Generator
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
+        public List<ILDebugInfo> SequencePoints { get; }
+            = new List<ILDebugInfo>();
 
         /// <summary>
         /// IL code must load the address

@@ -80,11 +80,17 @@ namespace YantraJS.Expressions
                     return VisitSwitch(exp as YSwitchExpression);
                 case YExpressionType.Yield:
                     return VisitYield(exp as YYieldExpression);
+                case YExpressionType.DebugInfo:
+                    return VisitDebugInfo(exp as YDebugInfoExpression);
+                case YExpressionType.ILOffset:
+                    return VisitILOffset(exp as YILOffsetExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitILOffset(YILOffsetExpression node);
+        protected abstract T VisitDebugInfo(YDebugInfoExpression node);
         protected abstract T VisitYield(YYieldExpression node);
         protected abstract T VisitSwitch(YSwitchExpression node);
         protected abstract T VisitEmpty(YEmptyExpression exp);

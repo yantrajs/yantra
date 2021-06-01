@@ -38,6 +38,8 @@ namespace YantraJS.Expressions
         Relay,
         Empty,
         Switch,
-        Yield
+        Yield,
+        DebugInfo,
+        ILOffset
     }
 }

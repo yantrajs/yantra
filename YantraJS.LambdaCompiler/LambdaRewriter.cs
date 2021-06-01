@@ -145,7 +145,7 @@ namespace YantraJS
                 }
 
                 var x = Relay(
-                    n.Name ?? "unnamed", 
+                    n.Name, 
                     closureSetup.ToArray(), 
                     closures, 
                     n.Parameters, 
@@ -158,7 +158,7 @@ namespace YantraJS
         }
 
         public static YExpression Relay(
-            string? name,
+            in FunctionName name,
             YExpression[] closures,
             YParameterExpression c,
             YParameterExpression[] parameters,
@@ -168,7 +168,7 @@ namespace YantraJS
             Type delegateType
             )
         {
-            var lambda = YExpression.InlineLambda(delegateType, name ?? "Unnamed", body, c, parameters, repository, returnType);
+            var lambda = YExpression.InlineLambda(delegateType, name, body, c, parameters, repository, returnType);
 
             return YExpression.Relay(closures, lambda);
         }

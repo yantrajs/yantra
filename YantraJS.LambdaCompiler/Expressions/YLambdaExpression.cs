@@ -7,9 +7,10 @@ using System.Reflection.Emit;
 
 namespace YantraJS.Expressions
 {
+
     public class YLambdaExpression: YExpression
     {
-        public readonly string Name;
+        public readonly FunctionName Name;
         public readonly YExpression Body;
         public new readonly YParameterExpression[] Parameters;
         public readonly Type ReturnType;
@@ -39,8 +40,8 @@ namespace YantraJS.Expressions
             
 
         public YLambdaExpression(
-            Type delegateType, 
-            string name, 
+            Type delegateType,
+            in FunctionName name, 
             YExpression body, 
             YParameterExpression? @this,
             YParameterExpression[]? parameters,

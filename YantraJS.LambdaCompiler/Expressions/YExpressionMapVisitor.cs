@@ -166,6 +166,11 @@ namespace YantraJS.Expressions
             return yConstantExpression;
         }
 
+        protected override YExpression VisitDebugInfo(YDebugInfoExpression node)
+        {
+            return node;
+        }
+
         protected override YExpression VisitDelegate(YDelegateExpression yDelegateExpression)
         {
             return yDelegateExpression;
@@ -188,6 +193,11 @@ namespace YantraJS.Expressions
             if (Modified(yGoToExpression.Default, out var @default))
                 return new YGoToExpression(yGoToExpression.Target, @default);
             return yGoToExpression;
+        }
+
+        protected override YExpression VisitILOffset(YILOffsetExpression node)
+        {
+            return node;
         }
 
         protected override YExpression VisitInvoke(YInvokeExpression invokeExpression)

@@ -17,6 +17,7 @@ namespace YantraJS.Core.FastParser.Compiler
         private readonly FastPool pool;
 
         readonly LinkedStack<FastFunctionScope> scope = new LinkedStack<FastFunctionScope>();
+        private readonly string location;
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
@@ -34,6 +35,7 @@ namespace YantraJS.Core.FastParser.Compiler
             this.pool = new FastPool();
 
             location = location ?? "vm.js";
+            this.location = location;
 
             // FileNameExpression = Exp.Variable(typeof(string), "_fileName");
             // CodeStringExpression = Exp.Variable(typeof(string), "code");

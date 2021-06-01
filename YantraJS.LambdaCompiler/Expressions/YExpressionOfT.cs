@@ -6,8 +6,8 @@ namespace YantraJS.Expressions
 {
     public class YExpression<T> : YLambdaExpression
     {
-        public YExpression(string name, YExpression body, YParameterExpression @this, YParameterExpression[] parameters, Type returnType)
-            : base(typeof(T), name, body, @this, parameters, returnType)
+        public YExpression(in FunctionName name, YExpression body, YParameterExpression @this, YParameterExpression[] parameters, Type returnType)
+            : base(typeof(T), in name, body, @this, parameters, returnType)
         {
         }
 
@@ -15,7 +15,7 @@ namespace YantraJS.Expressions
         {
             if (This != null)
                 throw new InvalidOperationException();
-            return new YExpression<T1>(Name, Body, YExpression.Parameter(type), Parameters, ReturnType);
+            return new YExpression<T1>(in Name, Body, YExpression.Parameter(type), Parameters, ReturnType);
         }
     }
 }

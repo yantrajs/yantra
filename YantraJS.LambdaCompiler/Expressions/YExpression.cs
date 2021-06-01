@@ -27,6 +27,9 @@ namespace YantraJS.Expressions
 
         public readonly Type Type;
 
+        public static YEmptyExpression Empty = new YEmptyExpression();
+
+        public static YILOffsetExpression ILOffset = new YILOffsetExpression();
 
         public static YExpression operator + (YExpression left, YExpression right)
         {
@@ -131,6 +134,11 @@ namespace YantraJS.Expressions
         public static YCoalesceExpression Coalesce(YExpression left, YExpression right)
         {
             return new YCoalesceExpression(left, right);
+        }
+
+        public static YDebugInfoExpression DebugInfo(in Position start, in Position end)
+        {
+            return new YDebugInfoExpression(start, end);
         }
 
         public static YExpression Add(YExpression left, YExpression right)
@@ -296,8 +304,6 @@ namespace YantraJS.Expressions
         public static YBinaryExpression Equal(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Equal, right);
 
-        public static YEmptyExpression Empty = new YEmptyExpression();
-
         internal static YNewExpression CallNew(
             ConstructorInfo constructor, params YExpression[] args)
         {
@@ -315,8 +321,8 @@ namespace YantraJS.Expressions
 
         public static YLambdaExpression Lambda(
             Type type, 
-            YExpression body, 
-            string name, YParameterExpression[] parameters)
+            YExpression body,
+            in FunctionName name, YParameterExpression[] parameters)
         {
             return new YLambdaExpression(type, name, body, null, parameters);
         }
@@ -438,13 +444,13 @@ namespace YantraJS.Expressions
             return new YLoopExpression(body, @break, @continue ?? Label("continue", @break.LabelType));
         }
 
-        public static YExpression<T> Lambda<T>(string name, YExpression body, params YParameterExpression[] parameters)
+        public static YExpression<T> Lambda<T>(in FunctionName name, YExpression body, params YParameterExpression[] parameters)
         {
             return new YExpression<T>(name, body, null, parameters, null);
         }
 
         public static YExpression<T> InstanceLambda<T>(
-            string name, 
+            in FunctionName name, 
             YExpression body, 
             YParameterExpression @this,
             YParameterExpression[] parameters)
@@ -455,7 +461,7 @@ namespace YantraJS.Expressions
 
         public static YLambdaExpression Lambda(
             Type delegateType,
-            string name, 
+            in FunctionName name, 
             YExpression body, 
             YParameterExpression[] parameters)
         {
@@ -579,7 +585,7 @@ namespace YantraJS.Expressions
         }
         internal static YLambdaExpression InlineLambda(
             Type delegateType,
-            string name, 
+            in FunctionName name, 
             YExpression body, 
             YParameterExpression @this,
             YParameterExpression[] parameters, 
@@ -591,7 +597,7 @@ namespace YantraJS.Expressions
 
         internal static YLambdaExpression InlineLambda(
             Type delegateType,
-            string name,
+            in FunctionName name,
             YExpression body,
             List<YParameterExpression> parameters,
             YExpression? repository)

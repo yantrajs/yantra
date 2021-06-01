@@ -23,7 +23,7 @@ namespace YantraJS
 
         private static int id = 1;
 
-        internal static string GetUniqueName(string name)
+        internal static string GetUniqueName(in FunctionName name)
         {
             return $"<YantraJSHidden>{name}<ID>{System.Threading.Interlocked.Increment(ref id)}";
         }
@@ -75,40 +75,40 @@ namespace YantraJS
         }
 
 
-        /// <summary>
-        /// For debug = true, save it as an instance method..
-        /// and in static method create an instance of Closure
-        /// and return the instance method
-        /// </summary>
-        /// <param name="lambdaExpression"></param>
-        /// <param name="type"></param>
-        /// <param name="debug"></param>
-        /// <returns></returns>
-        public static MethodInfo CompileToStaticMethod(
-            this YLambdaExpression lambdaExpression,
-            TypeBuilder type,
-            PdbBuilder builder
-            )
-        {
-            var exp = LambdaRewriter.Rewrite(lambdaExpression)
-                as YLambdaExpression;
+        ///// <summary>
+        ///// For debug = true, save it as an instance method..
+        ///// and in static method create an instance of Closure
+        ///// and return the instance method
+        ///// </summary>
+        ///// <param name="lambdaExpression"></param>
+        ///// <param name="type"></param>
+        ///// <param name="debug"></param>
+        ///// <returns></returns>
+        //public static MethodInfo CompileToStaticMethod(
+        //    this YLambdaExpression lambdaExpression,
+        //    TypeBuilder type,
+        //    PdbBuilder builder
+        //    )
+        //{
+        //    var exp = LambdaRewriter.Rewrite(lambdaExpression)
+        //        as YLambdaExpression;
 
-            var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
-                MethodAttributes.Public | MethodAttributes.Static,
-                exp.ReturnType,
-                exp.ParameterTypes);
+        //    var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
+        //        MethodAttributes.Public | MethodAttributes.Static,
+        //        exp.ReturnType,
+        //        exp.ParameterTypes);
 
-            NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(method));
-            exp = nw.Visit(exp) as YLambdaExpression;
+        //    NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(method));
+        //    exp = nw.Visit(exp) as YLambdaExpression;
 
-            var mdh = MetadataTokens.MethodDefinitionHandle(builder.Next);
+        //    var mdh = MetadataTokens.MethodDefinitionHandle(builder.Next);
             
 
-            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
-            var (ict, iexp) = icg.Emit(exp);
+        //    ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
+        //    var (ict, iexp) = icg.Emit(exp);
 
-            return method;
-        }
+        //    return method;
+        //}
 
         /// <summary>
         /// For debug = true, save it as an instance method..

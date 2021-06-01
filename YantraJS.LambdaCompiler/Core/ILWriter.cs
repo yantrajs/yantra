@@ -18,6 +18,8 @@ namespace YantraJS.Core
         private int Stack;
         private OpCode last;
 
+        public int ILOffset => il.ILOffset;
+
         public bool IsTryBlock => tryStack.Top != null;
 
         public ILTryBlock Top => tryStack.Top;

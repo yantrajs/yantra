@@ -9,7 +9,7 @@ using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
-
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -165,7 +165,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     Exp scriptInfo = parentScriptInfo;
 
-                    functionName = (functionName ?? "inline") + "_" + point;
+                    functionName = functionName ?? "inline";
 
                     Exp ToDelegate(LambdaExpression e1)
                     {
@@ -176,6 +176,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         //_innerFunctions.Add(e1.Compile());
                         //return ScriptInfoBuilder.Function(scriptInfo, index, e1.Type);
                     }
+
+                    var scriptFunctionName = new FunctionName(functionName, this.location, point.Line, point.Column);
 
                     LambdaExpression lambda;
                     Exp jsf;
@@ -190,7 +192,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                         // lambda.Compile();
 
-                        lambda = GeneratorRewriter.Rewrite(block, cs.ReturnLabel, cs.Generator, 
+                        lambda = GeneratorRewriter.Rewrite(in scriptFunctionName, block, cs.ReturnLabel, cs.Generator, 
                             replaceArgs: cs.Arguments,
                             replaceStackItem: cs.StackItem,
                             replaceContext: cs.Context, 
@@ -204,14 +206,14 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     else if (functionDeclaration.Async)
                     {
-                        lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, functionName, new ParameterExpression[] {
+                        lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, in scriptFunctionName, new ParameterExpression[] {
                         cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
                     });
                         jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
                     }
                     else
                     {
-                        lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, functionName, new ParameterExpression[] {
+                        lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, in scriptFunctionName, new ParameterExpression[] {
                         cs.ScriptInfo, cs.Closures, cs.Arguments });
                         if (createClass)
                         {
