@@ -250,11 +250,10 @@ namespace YantraJS.Core.Clr
             Expression convertedThis = field.IsStatic
                 ? null
                 : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), field.DeclaringType);
-            var body = Expression.Block(
-                JSExceptionBuilder.Wrap(
+            var body = 
                 ClrProxyBuilder.Marshal(
                     Expression.Field(
-                        convertedThis, field))));
+                        convertedThis, field));
 
             var lambda = Expression.Lambda<JSFunctionDelegate>($"set {field.Name}", body, args);
             return lambda.Compile();
@@ -276,8 +275,7 @@ namespace YantraJS.Core.Clr
 
             var assign = Expression.Assign(fieldExp, clrArg1).ToJSValue();
 
-            var body = 
-                JSExceptionBuilder.Wrap(assign);
+            var body = assign;
 
             var lambda = Expression.Lambda<JSFunctionDelegate>($"set {field.Name}", body, args);
             return lambda.Compile();
@@ -319,11 +317,11 @@ namespace YantraJS.Core.Clr
             var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
 
             var body = Expression.Block(new ParameterExpression[] { target },
-                JSExceptionBuilder.Wrap(
+                
                 Expression.Assign(
                     Expression.Property(
                         convert, property),
-                    clrArg1).ToJSValue()));
+                    clrArg1).ToJSValue());
 
             var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
             return lambda.Compile();
