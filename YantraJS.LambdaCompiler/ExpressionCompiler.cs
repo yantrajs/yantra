@@ -28,6 +28,13 @@ namespace YantraJS
             return $"<YantraJSHidden>{name}<ID>{System.Threading.Interlocked.Increment(ref id)}";
         }
 
+        private static ConstructorInfo locationConstructor = typeof(LocationAttribute).GetConstructor(new Type[] {
+            typeof(string),
+            typeof(string),
+            typeof(int),
+            typeof(int)
+        });
+
         public static T CompileInAssembly<T>(this YExpression<T> exp)
         {
             AssemblyName name = new AssemblyName("demo");
@@ -64,6 +71,13 @@ namespace YantraJS
                 MethodAttributes.Public, CallingConventions.HasThis,
                 lambdaExpression.ReturnType,
                 lambdaExpression.ParameterTypes);
+
+            var ln = lambdaExpression.Name;
+            if (ln.Location != null)
+            {
+                var cb = new CustomAttributeBuilder(locationConstructor, new object[] { ln.Location, ln.Name, ln.Line, ln.Column });
+                method.SetCustomAttribute(cb);
+            }
 
             NestedRewriter nw = new NestedRewriter(lambdaExpression, new LambdaMethodBuilder(method));
             lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
@@ -136,6 +150,13 @@ namespace YantraJS
                 exp.ReturnType,
                 exp.ParameterTypes);
 
+            var ln = lambdaExpression.Name;
+            if(ln.Location != null)
+            {
+                var cb = new CustomAttributeBuilder(locationConstructor, new object[] { ln.Location, ln.Name, ln.Line, ln.Column });
+                method.SetCustomAttribute(cb);
+            }
+
             NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(method));
             exp = nw.Visit(exp) as YLambdaExpression;
 
@@ -200,6 +221,13 @@ namespace YantraJS
 
             var m = type.DefineMethod(lambdaExpression.Name + "_Inner_Factory",
                 MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { });
+
+            var ln = lambdaExpression.Name;
+            if (ln.Location != null)
+            {
+                var cb = new CustomAttributeBuilder(locationConstructor, new object[] { ln.Location, ln.Name, ln.Line, ln.Column });
+                m.SetCustomAttribute(cb);
+            }
 
             var icg = new ILCodeGenerator(m.GetILGenerator());
 
