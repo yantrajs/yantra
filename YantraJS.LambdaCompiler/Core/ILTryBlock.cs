@@ -37,7 +37,7 @@ namespace YantraJS.Core
                 throw new InvalidOperationException($"Cannot start catch after finally has begin");
             isCatch = true;
 
-            il.EmitConsoleWriteLine("Begin Catch");
+            // il.EmitConsoleWriteLine("Begin Catch");
 
             il.Emit(OpCodes.Leave, label);
 

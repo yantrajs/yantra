@@ -25,9 +25,10 @@ namespace YantraJS.Core
 
         public ILTryBlock Top => tryStack.Top;
 
-        public ILWriter(ILGenerator il)
+        public ILWriter(ILGenerator il, TextWriter? writer = null)
         {
             this.il = il;
+            this.writer = writer;
         }
 
         public override string ToString()

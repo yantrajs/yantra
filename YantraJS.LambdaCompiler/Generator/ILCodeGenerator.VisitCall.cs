@@ -31,6 +31,7 @@ namespace YantraJS.Generator
                 ? OpCodes.Callvirt
                 : OpCodes.Call, callExpression.Method);
             il.Emit(OpCodes.Ret);
+            il.EmptyStack();
             return true;
         }
 

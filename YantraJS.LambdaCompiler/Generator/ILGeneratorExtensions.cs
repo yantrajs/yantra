@@ -255,7 +255,12 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Stloc_3);
                     return;
             }
-            il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, index);
+            if (index <= 255)
+            {
+                il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, index);
+                return;
+            }
+            il.Emit(OpCodes.Stloc, OpCodes.Stloc, index);
         }
 
         public static void EmitLoadArg(this ILWriter il,int index)
@@ -282,7 +287,6 @@ namespace YantraJS.Generator
         public static void EmitLoadArgAddress(this ILWriter il,int index)
         {
             il.Emit(OpCodes.Ldarga_S, OpCodes.Ldarga, index);
-
         }
 
 
@@ -303,7 +307,12 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Ldloc_3);
                     return;
             }
-            il.Emit(OpCodes.Ldloc_S, OpCodes.Ldloc, index);
+            if (index <= 255)
+            {
+                il.Emit(OpCodes.Ldloc_S, OpCodes.Ldloc, index);
+                return;
+            }
+            il.Emit(OpCodes.Ldloc, OpCodes.Ldloc, index);
         }
 
         public static void  EmitCall(this ILWriter il,MethodInfo method)
@@ -318,7 +327,12 @@ namespace YantraJS.Generator
 
         public static void EmitLoadLocalAddress(this ILWriter il,int index)
         {
-            il.Emit(OpCodes.Ldloca_S, OpCodes.Ldloca, index);
+            if (index <= 255)
+            {
+                il.Emit(OpCodes.Ldloca_S, OpCodes.Ldloca, index);
+                return;
+            }
+            il.Emit(OpCodes.Ldloca, OpCodes.Ldloca, index);
         }
 
 

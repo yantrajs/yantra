@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -72,11 +73,11 @@ namespace YantraJS.Runtime
             var method = new DynamicMethod(exp.Name.FullName, exp.ReturnType, exp.ParameterTypesWithThis, boundType, true);
 
             var ilg = method.GetILGenerator();
-
-            ILCodeGenerator icg = new ILCodeGenerator(ilg);
+            StringWriter sw = new StringWriter();
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw);
             icg.Emit(exp);
 
-            string il = icg.ToString();
+            string il = sw.ToString();
 
             string expString = exp.ToString();
 

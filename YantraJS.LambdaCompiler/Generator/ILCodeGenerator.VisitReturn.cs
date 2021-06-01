@@ -51,6 +51,7 @@ namespace YantraJS.Generator
             if(!il.IsTryBlock)
             {
                 il.Emit(OpCodes.Ret);
+                il.ClearStack();
                 return true;
             }
             il.EmitSaveLocal(localIndex);
@@ -68,6 +69,7 @@ namespace YantraJS.Generator
             {
                 il.EmitLoadLocal(localIndex);
                 il.Emit(OpCodes.Ret);
+                il.ClearStack();
                 return true;
             }
             il.Branch(label, localIndex);

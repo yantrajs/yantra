@@ -31,9 +31,9 @@ namespace YantraJS.Generator
             return il.ToString();
         }
 
-        public ILCodeGenerator(ILGenerator il)
+        public ILCodeGenerator(ILGenerator il, TextWriter? writer = null)
         {
-            this.il = new ILWriter(il);
+            this.il = new ILWriter(il, writer);
             this.variables = new VariableInfo(il);
             this.labels = new LabelInfo(this.il);
             this.tempVariables = new TempVariables(il);
