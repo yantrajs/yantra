@@ -35,8 +35,8 @@ namespace YantraJS
 
             var boxes = YExpression.Parameter(typeof(Box[]));
 
-            // exp = null;
-            // il = null;
+            exp = null;
+            il = null;
 
             var cnstrLambda = YExpression.Lambda(innerLambda.Type, "cnstr",
                 YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),

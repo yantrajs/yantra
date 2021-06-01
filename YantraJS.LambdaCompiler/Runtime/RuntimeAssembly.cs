@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
+using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Generator;
 
@@ -17,6 +18,9 @@ namespace YantraJS.Runtime
             var originalTypes = exp.ParameterTypes;
             string expString = exp.ToString();
             exp = exp.WithThis(typeof(Closures));
+
+            var f = new FlattenVisitor();
+            exp = f.Visit(exp) as YLambdaExpression;
 
             var method = new DynamicMethod(exp.Name.FullName, exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
             
@@ -38,12 +42,14 @@ namespace YantraJS.Runtime
             string expString = exp.ToString();
             exp = exp.WithThis<T>(typeof(Closures));
 
+            var f = new FlattenVisitor();
+
             var method = new DynamicMethod(exp.Name.FullName, exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
 
             var ilg = method.GetILGenerator();
 
             ILCodeGenerator icg = new ILCodeGenerator(ilg);
-            icg.Emit(exp);
+            icg.Emit(f.Visit(exp) as YLambdaExpression);
 
             string il = icg.ToString();
 
@@ -89,6 +95,10 @@ namespace YantraJS.Runtime
                     YExpression.Parameter(typeof(MethodRepository))
                     , new YParameterExpression[] { })
                 as YLambdaExpression;
+
+
+            var f = new FlattenVisitor();
+            outerLambda = f.Visit(outerLambda) as YLambdaExpression;
 
             outerLambda = LambdaRewriter.Rewrite(outerLambda)
                 as YLambdaExpression;

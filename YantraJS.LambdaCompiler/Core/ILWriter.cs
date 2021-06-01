@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -13,7 +14,7 @@ namespace YantraJS.Core
         private LinkedStack<ILTryBlock> tryStack 
             = new LinkedStack<ILTryBlock>();
         private readonly ILGenerator il;
-        private StringWriter writer = new StringWriter();
+        private TextWriter? writer = null;
 
         private int Stack;
         private OpCode last;
@@ -31,11 +32,13 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return writer.ToString();
+            return writer?.ToString() ?? "";
         }
 
         private void PrintOffset()
         {
+            if (writer == null)
+                return;
             writer.Write($"S{Stack:x2}_");
             writer.Write("IL_");
             writer.Write(il.ILOffset.ToString("X4"));
@@ -52,14 +55,14 @@ namespace YantraJS.Core
             Goto(label, index);
         }
 
-        internal ILWriterLabel DefineLabel(string label, ILTryBlock tryBlock = null)
+        internal ILWriterLabel DefineLabel(string label, ILTryBlock? tryBlock = null)
         {
             return new ILWriterLabel(il.DefineLabel(), label, tryBlock);
         }
 
         public void Comment(string comment)
         {
-            writer.WriteLine($"// {comment}");
+            writer?.WriteLine($"// {comment}");
         }
 
         public IDisposable RetainBranch()
@@ -100,7 +103,7 @@ namespace YantraJS.Core
                 this.EmitLoadLocal(index);
             }
             PrintOffset();
-            writer.WriteLine($"{OpCodes.Br} {label}");
+            writer?.WriteLine($"{OpCodes.Br} {label}");
             UpdateStack(OpCodes.Br);
             il.Emit(OpCodes.Br, label.Value);
         }
@@ -243,7 +246,7 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine(code.Name);
+            writer?.WriteLine(code.Name);
             il.Emit(code);
         }
 
@@ -251,7 +254,7 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value}");
+            writer?.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
@@ -266,15 +269,15 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value}");
+            writer?.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
         internal void MarkLabel(ILWriterLabel label)
         {
             label.Offset = il.ILOffset;
-            writer.WriteLine();
-            writer.WriteLine($"{label}:");
+            writer?.WriteLine();
+            writer?.WriteLine($"{label}:");
             il.MarkLabel(label.Value);
 
             
@@ -283,7 +286,7 @@ namespace YantraJS.Core
         internal void EmitConsoleWriteLine(string text)
         {
             PrintOffset();
-            writer.WriteLine($"Console.Writeline({text.Quoted()})");
+            writer?.WriteLine($"Console.Writeline({text.Quoted()})");
             il.EmitWriteLine(text);
         }
 
@@ -291,7 +294,7 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {label}");
+            writer?.WriteLine($"{code.Name} {label}");
             il.Emit(code, label.Value);
         }
 
@@ -299,7 +302,7 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {field.DeclaringType.GetFriendlyName()}.{field.Name}");
+            writer?.WriteLine($"{code.Name} {field.DeclaringType.GetFriendlyName()}.{field.Name}");
             il.Emit(code, field);
         }
 
@@ -307,7 +310,7 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {type.GetFriendlyName()}");
+            writer?.WriteLine($"{code.Name} {type.GetFriendlyName()}");
             il.Emit(code, type);
         }
 
@@ -315,7 +318,7 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value}");
+            writer?.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
@@ -323,7 +326,7 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value}");
+            writer?.WriteLine($"{code.Name} {value}");
             il.Emit(code, value);
         }
 
@@ -336,7 +339,7 @@ namespace YantraJS.Core
                 Stack--;
             // Stack++;
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value.DeclaringType.GetFriendlyName()}");
+            writer?.WriteLine($"{code.Name} {value.DeclaringType.GetFriendlyName()}");
             il.Emit(code, value);
 
         }
@@ -359,7 +362,7 @@ namespace YantraJS.Core
             }
 
             PrintOffset();
-            writer.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.Name}");
+            writer?.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.Name}");
             //if (method is DynamicMethod) {
             //    if (code == OpCodes.Ldftn)
             //    {
@@ -375,14 +378,14 @@ namespace YantraJS.Core
         {
             UpdateStack(code);
             PrintOffset();
-            writer.WriteLine($"{code.Name} {value.Quoted()}");
+            writer?.WriteLine($"{code.Name} {value.Quoted()}");
             il.Emit(code, value);
         }
 
         internal ILTryBlock BeginTry()
         {
             PrintOffset();
-            writer.WriteLine("try:");
+            writer?.WriteLine("try:");
             var label = il.BeginExceptionBlock();
             var ilb = tryStack.Push(new ILTryBlock(this, label));
             return ilb;
@@ -391,21 +394,21 @@ namespace YantraJS.Core
         internal void BeginCatchBlock(Type type)
         {
             PrintOffset();
-            writer.WriteLine("catch:");
+            writer?.WriteLine("catch:");
             il.BeginCatchBlock(type);
         }
 
         internal void BeginFinallyBlock()
         {
             PrintOffset();
-            writer.WriteLine("finally:");
+            writer?.WriteLine("finally:");
             il.BeginFinallyBlock();
         }
 
         internal void EndExceptionBlock()
         {
             PrintOffset();
-            writer.WriteLine("end try:");
+            writer?.WriteLine("end try:");
             il.EndExceptionBlock();
         }
     }

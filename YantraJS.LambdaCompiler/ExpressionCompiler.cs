@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using YantraJS.Builder;
+using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Generator;
 
@@ -63,6 +64,8 @@ namespace YantraJS
 
             if (rewriteNestedLambda)
             {
+                var f = new FlattenVisitor();
+                lambdaExpression = f.Visit(lambdaExpression) as YLambdaExpression;
                 lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
                     as YLambdaExpression;
             }
@@ -180,8 +183,8 @@ namespace YantraJS
                 .WithThis(typeof(Closures))
                 .CompileToInstnaceMethod(derived);
 
-            // exp = null;
-            // il = null;
+            exp = null;
+            il = null;
 
             var cnstr = derived.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] {
                 typeof(Box[])

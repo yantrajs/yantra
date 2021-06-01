@@ -45,16 +45,16 @@ namespace YantraJS.Generator
             System.CodeDom.Compiler.IndentedTextWriter writer = new System.CodeDom.Compiler.IndentedTextWriter(sw, "\t");
             
 
-            var f = new FlattenVisitor();
+            // var f = new FlattenVisitor();
             var body = exp.Body;
 
-            writer.WriteLine("Original");
-            body.Print(writer);
+            //writer.WriteLine("Original");
+            //body.Print(writer);
 
-            body = f.Visit(body);
+            //body = f.Visit(body);
 
-            writer.WriteLine("Flatten");
-            body.Print(writer);
+            //writer.WriteLine("Flatten");
+            //body.Print(writer);
 
             short i = 0;
             if(exp.This != null)
@@ -69,8 +69,8 @@ namespace YantraJS.Generator
             using (tempVariables.Push())
             {
                 body = ReWriteTryCatch(body);
-                writer.WriteLine("Final");
-                body.Print(writer);
+                // writer.WriteLine("Final");
+                // body.Print(writer);
 
                 if(body.NodeType == YExpressionType.Call)
                 {
