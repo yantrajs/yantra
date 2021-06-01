@@ -28,7 +28,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         return ExpHelper.JSValueBuilder.Index(
                             target,
-                            KeyOfName(id.Name.Value));
+                            KeyOfName(id.Name));
                     }
                     return ExpHelper.JSValueBuilder.Index(
                         target,
