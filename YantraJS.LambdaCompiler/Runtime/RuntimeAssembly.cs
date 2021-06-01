@@ -18,8 +18,8 @@ namespace YantraJS.Runtime
             string expString = exp.ToString();
             exp = exp.WithThis(typeof(Closures));
 
-            var method = new DynamicMethod(exp.Name.ToString(), exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
-
+            var method = new DynamicMethod(exp.Name.FullName, exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
+            
             var ilg = method.GetILGenerator();
 
             ILCodeGenerator icg = new ILCodeGenerator(ilg);
@@ -38,7 +38,7 @@ namespace YantraJS.Runtime
             string expString = exp.ToString();
             exp = exp.WithThis<T>(typeof(Closures));
 
-            var method = new DynamicMethod(exp.Name.ToString(), exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
+            var method = new DynamicMethod(exp.Name.FullName, exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
 
             var ilg = method.GetILGenerator();
 
@@ -63,7 +63,7 @@ namespace YantraJS.Runtime
             // dynamic method expects this as first parameter !!
 
 
-            var method = new DynamicMethod(exp.Name.ToString() , exp.ReturnType, exp.ParameterTypesWithThis, boundType, true);
+            var method = new DynamicMethod(exp.Name.FullName, exp.ReturnType, exp.ParameterTypesWithThis, boundType, true);
 
             var ilg = method.GetILGenerator();
 

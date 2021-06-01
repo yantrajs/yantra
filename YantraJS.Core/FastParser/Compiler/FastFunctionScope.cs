@@ -447,7 +447,13 @@ namespace YantraJS.Core.FastParser.Compiler
                 Name = name.Value
             };
             int index = ClosureList.Count;
-            v1.Expression = JSVariable.ValueExpression(v1.Variable);
+            if (v.Expression.NodeType == Expressions.YExpressionType.Field)
+            {
+                v1.Expression = JSVariable.ValueExpression(v1.Variable);
+            } else
+            {
+                v1.Expression = JSVariableBuilder.Property(v1.Variable);
+            }
             v1.SetInit(Expression.ArrayIndex(Closures, Expression.Constant(index)));
             ClosureList.Add(v);
             this.variableScopeList[name] = v1;

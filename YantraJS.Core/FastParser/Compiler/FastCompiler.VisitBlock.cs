@@ -12,7 +12,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
-
+using YantraJS.Core.LinqExpressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -49,6 +49,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     var exp = Visit(stmt);
                     if (exp == null)
                         continue;
+                    blockList.Add(CallStackItemBuilder.Step(scope.StackItem, stmt.Start.Start.Line, stmt.Start.Start.Column));
                     blockList.Add(exp);
                 }
                 return Scoped(scope, blockList);

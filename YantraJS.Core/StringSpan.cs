@@ -10,6 +10,11 @@ using System.Text;
 namespace YantraJS.Core
 {
 
+    public static class StringSpanExtensions
+    {
+        public static StringSpan ToStringSpan(this string text, int offset, int length) => new StringSpan(text, offset, length);
+    }
+
     [DebuggerDisplay("{Key}: {Value}")]
     public struct KeyValue
     {

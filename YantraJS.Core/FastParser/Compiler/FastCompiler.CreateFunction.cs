@@ -57,6 +57,9 @@ namespace YantraJS.Core.FastParser.Compiler
                 {
                     var lexicalScopeVar = cs.Context;
 
+                    vList.Add(cs.Context);
+                    vList.Add(cs.StackItem);
+                    sList.Add(Exp.Assign(cs.Context, JSContextBuilder.Current));
 
                     FastFunctionScope.VariableScope jsFVarScope = null;
 
@@ -70,12 +73,14 @@ namespace YantraJS.Core.FastParser.Compiler
                     // use this to create variables...
                     // var t = s.ThisExpression;
                     var args = s.ArgumentsExpression;
-                    var stackItem = s.StackItem;
+                    var stackItem = cs.StackItem;
                     var r = s.ReturnLabel;
 
 
                     Exp fxName;
                     Exp localFxName;
+                    int nameOffset;
+                    int nameLength;
                     if (functionName != null)
                     {
                         var id = functionDeclaration.Id;
@@ -87,18 +92,28 @@ namespace YantraJS.Core.FastParser.Compiler
                             ScriptInfoBuilder.Code(s.ScriptInfo),
                             id.Name.Offset,
                             id.Name.Length);
+                        nameOffset = id.Name.Offset;
+                        nameLength = id.Name.Length;
                     }
                     else
                     {
                         fxName = StringSpanBuilder.Empty;
                         localFxName = StringSpanBuilder.Empty;
+                        nameOffset = 0;
+                        nameLength = 0;
                     }
 
                     var point = node.Start.Start; // this.Code.Position(functionDeclaration.Range);
 
-                    var fn = ScriptInfoBuilder.FileName(s.ScriptInfo);
+                    // var fn = ScriptInfoBuilder.FileName(s.ScriptInfo);
 
-                    JSContextStackBuilder.Push(sList, s.Context, stackItem, fn, localFxName, point.Line, point.Column);
+                    // JSContextStackBuilder.Push(sList, s.Context, stackItem, fn, localFxName, point.Line, point.Column);
+                    sList.Add(Exp.Assign(stackItem, CallStackItemBuilder.New(cs.Context, cs.ScriptInfo,
+                        nameOffset,
+                        nameLength,
+                        point.Line,
+                        point.Column
+                        )));
 
                     // var pList = functionDeclaration.Params.OfType<Identifier>();
 
@@ -148,14 +163,11 @@ namespace YantraJS.Core.FastParser.Compiler
 
 
 
-                    var lexicalScope =
-                        Exp.Block(new ParameterExpression[] { lexicalScopeVar, stackItem },
-                        Exp.Assign(lexicalScopeVar,
-                            JSContextBuilder.Current),
-                        Exp.TryFinally(
-                            block
-                             , JSContextStackBuilder.Pop(stackItem, lexicalScopeVar))
-                        );
+                    //var lexicalScope =
+                    //    Exp.Block(new ParameterExpression[] { lexicalScopeVar, stackItem },
+                    //    Exp.Assign(lexicalScopeVar,
+                    //        JSContextBuilder.Current),
+                    //        block);
 
                     Exp closureArray = Exp.Constant(null, typeof(JSVariable[]));
                     if (cs.ClosureList != null)
@@ -206,14 +218,14 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     else if (functionDeclaration.Async)
                     {
-                        lambda = Exp.Lambda(typeof(JSAsyncDelegate), lexicalScope, in scriptFunctionName, new ParameterExpression[] {
+                        lambda = Exp.Lambda(typeof(JSAsyncDelegate), block, in scriptFunctionName, new ParameterExpression[] {
                         cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
                     });
                         jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
                     }
                     else
                     {
-                        lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), lexicalScope, in scriptFunctionName, new ParameterExpression[] {
+                        lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), block, in scriptFunctionName, new ParameterExpression[] {
                         cs.ScriptInfo, cs.Closures, cs.Arguments });
                         if (createClass)
                         {
