@@ -31,6 +31,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             return base.VisitBinary(node);
         }
 
+        protected override Exp VisitAssign(YAssignExpression node)
+        {
+            if (Flatten(node.Right, last => new YAssignExpression(node.Left, last, null), out var result))
+                return result;
+            return base.VisitAssign(node);
+        }
+
         protected override Exp VisitReturn(YReturnExpression node)
         {
             if (Flatten(node.Default, x => node.Update(node.Target, x), out var block))

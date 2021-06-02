@@ -64,8 +64,6 @@ namespace YantraJS
 
             if (rewriteNestedLambda)
             {
-                var f = new FlattenVisitor();
-                lambdaExpression = f.Visit(lambdaExpression) as YLambdaExpression;
                 lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
                     as YLambdaExpression;
             }
