@@ -73,6 +73,30 @@ namespace YantraJS.Core.Generator
                     .AddProperty(KeyStrings.value, this.value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
 
+        public bool MoveNext(JSValue replaceOld, out JSValue item)
+        {
+
+            var c = JSContext.Current;
+            var top = c.Top;
+            try
+            {
+                c.Top = cg.StackItem;
+                if (cg.Next(replaceOld, out item))
+                {
+                    this.done = false;
+                    this.value = item;
+                    return true;
+                }
+                this.value = JSUndefined.Value;
+                this.done = true;
+                return false;
+            }
+            finally
+            {
+                c.Top = top;
+            }
+        }
+
         public JSValue Next(JSValue replaceOld = null)
         {
             JSValue item;

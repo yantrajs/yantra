@@ -175,7 +175,7 @@ namespace YantraJS.Tests.Generator
 
         }
 
-        // [AsyncTestFolder("es6\\Async")]
+        [AsyncTestFolder("es6\\Async")]
         public void RunAsync()
         {
 

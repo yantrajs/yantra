@@ -145,7 +145,7 @@ namespace YantraJS.Core
             // get then...
             if (value.IsObject)
             {
-                var then = value["then"];
+                var then = value[KeyStrings.then];
                 if (then.IsFunction)
                 {
                     // do what....
@@ -153,7 +153,11 @@ namespace YantraJS.Core
                     {
                         try
                         {
-                            then.InvokeFunction(new Arguments(value, resolveFunction, rejectFunction));
+                            then.InvokeFunction(new Arguments(value, new JSFunction((in Arguments a) => {
+                                return Resolve(a.Get1());
+                            }), new JSFunction((in Arguments a) => {
+                                return Reject(a.Get1());
+                            })));
                         }
                         catch (JSException jse)
                         {

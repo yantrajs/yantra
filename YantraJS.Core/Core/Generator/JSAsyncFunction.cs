@@ -26,11 +26,15 @@ namespace YantraJS.Core.Core.Generator
         {
             try
             {
-                var r = gen.Next(lastResult);
-
-                if (gen.done)
+                if(!gen.MoveNext(lastResult, out var r))
                 {
                     return new JSPromise(lastResult, JSPromise.PromiseState.Resolved);
+                }
+
+                var then = r[KeyStrings.then];
+                if (then.IsUndefined)
+                {
+                    return new JSPromise(r, JSPromise.PromiseState.Resolved);
                 }
 
                 r = r.InvokeMethod(in KeyStrings.then, new JSFunction((in Arguments a) =>
