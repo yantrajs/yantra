@@ -185,7 +185,9 @@ namespace YantraJS.Expressions
         public static YExpression Power(YExpression left, YExpression right)
         {
             return new YBinaryExpression(left, YOperator.Power, right);
-        }   
+        }
+
+        public static YBoxExpression Box(YExpression target) => new YBoxExpression(target);
 
         public static YConstantExpression Constant(object value, Type? type = null)
         {
@@ -282,6 +284,8 @@ namespace YantraJS.Expressions
         {
             if(YConvertExpression.TryGetConversionMethod(exp.Type, type, out var method))
                 return new YConvertExpression(exp, type, method);
+            if (exp.Type.IsValueType && type == typeof(object))
+                return Box(exp);
             return new YTypeAsExpression(exp, type);
         }
 
@@ -476,6 +480,11 @@ namespace YantraJS.Expressions
         public static YTypeIsExpression TypeIs(YExpression target, Type type)
         {
             return new YTypeIsExpression(target, type);
+        }
+
+        public static YUnboxExpression Unbox(YExpression target, Type type)
+        {
+            return new YUnboxExpression(target, type);
         }
 
         public static YCatchBody Catch(YParameterExpression parameter, YExpression body)

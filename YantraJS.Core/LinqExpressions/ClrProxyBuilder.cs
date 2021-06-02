@@ -52,6 +52,10 @@ namespace YantraJS.LinqExpressions
             {
                 return Expression.Call(null, m, target);
             }
+            if (target.Type.IsValueType)
+            {
+                return Expression.Call(null, _marshal[typeof(object)], Expression.Box( target));
+            }
             return Expression.Call(null, _marshal[typeof(object)], target);
         }
 

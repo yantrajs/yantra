@@ -40,6 +40,8 @@ namespace YantraJS.Expressions
         Switch,
         Yield,
         DebugInfo,
-        ILOffset
+        ILOffset,
+        Box,
+        Unbox
     }
 }

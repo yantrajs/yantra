@@ -84,11 +84,17 @@ namespace YantraJS.Expressions
                     return VisitDebugInfo(exp as YDebugInfoExpression);
                 case YExpressionType.ILOffset:
                     return VisitILOffset(exp as YILOffsetExpression);
+                case YExpressionType.Box:
+                    return VisitBox(exp as YBoxExpression);
+                case YExpressionType.Unbox:
+                    return VisitUnbox(exp as YUnboxExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitUnbox(YUnboxExpression node);
+        protected abstract T VisitBox(YBoxExpression node);
         protected abstract T VisitILOffset(YILOffsetExpression node);
         protected abstract T VisitDebugInfo(YDebugInfoExpression node);
         protected abstract T VisitYield(YYieldExpression node);

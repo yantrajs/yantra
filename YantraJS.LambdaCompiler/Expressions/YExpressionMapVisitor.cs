@@ -129,6 +129,13 @@ namespace YantraJS.Expressions
             return yBlockExpression;
         }
 
+        protected override YExpression VisitBox(YBoxExpression node)
+        {
+            if (Modified(node.Target, out var target))
+                return new YBoxExpression(target);
+            return node;
+        }
+
         protected override YExpression VisitCall(YCallExpression yCallExpression)
         {
             var tm = Modified(yCallExpression.Target, out var target);
@@ -334,6 +341,13 @@ namespace YantraJS.Expressions
             if (Modified(yTypeAsExpression.Target, out var target))
                 return new YTypeAsExpression(target, yTypeAsExpression.Type);
             return yTypeAsExpression;
+        }
+
+        protected override YExpression VisitUnbox(YUnboxExpression node)
+        {
+            if (Modified(node.Target, out var target))
+                return new YUnboxExpression(target, node.Type);
+            return node;
         }
 
         protected override YExpression VisitIndex(YIndexExpression yIndexExpression)
