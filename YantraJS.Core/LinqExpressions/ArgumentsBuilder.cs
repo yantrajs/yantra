@@ -54,8 +54,8 @@ namespace YantraJS.ExpHelper
         private readonly static ConstructorInfo _New
             = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[]) });
 
-        private readonly static ConstructorInfo _NewSpread
-            = type.Constructor(new Type[] { typeof(JSValue), typeof(JSValue[]), typeof(int) });
+        private readonly static MethodInfo _spread
+            = type.PublicMethod(nameof(Arguments.Spread), typeof(JSValue), typeof(JSValue[]));
 
         private readonly static MethodInfo _GetElementEnumerator
             = type.PublicMethod(nameof(Arguments.GetElementEnumerator));
@@ -65,39 +65,24 @@ namespace YantraJS.ExpHelper
             return Expression.New(_New1, @this, arg0);
         }
 
+        public static Expression NewEmpty(Expression @this)
+        {
+            return Expression.New(_New0, @this);
+        }
+
+
         public static Expression New(Expression @this, Expression arg0, Expression arg2)
         {
             return Expression.New(_New1, @this, arg0, arg2);
         }
 
-
-        public static Expression New(Expression @this, IList<Expression> args, bool hasSpread = false)
+        public static Expression Spread(Expression @this, IList<Expression> args)
         {
-            if (hasSpread)
-            {
-                // create from spread...
+            return Expression.Call(null, _spread, @this, Expression.NewArrayInit(typeof(JSValue),args));
+        }
 
-                // create length expression..
-                Expression length = null;
-                List<Expression> paramList = new List<Expression>();
-                foreach(var arg in args)
-                {
-                    Expression al;
-                    if (arg is ClrSpreadExpression cse)
-                    {
-                        al = JSValueBuilder.Length(cse.Argument);
-                        paramList.Add(cse.Argument);
-                    } else
-                    {
-                        al = Expression.Constant((int)1);
-                        paramList.Add(arg);
-                    }
-                    length = length == null ? al : length + al;
-                }
-
-                var a1 = Expression.NewArrayInit(typeof(JSValue), paramList);
-                return Expression.New(_NewSpread, @this, a1, length);
-            }
+        public static Expression New(Expression @this, IList<Expression> args)
+        {
             var newList = new List<Expression>() { @this };
             newList.AddRange(args);
             switch (args.Count)

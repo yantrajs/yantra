@@ -113,6 +113,15 @@ namespace YantraJS.Core.FastParser
             return Length > 0;
         }
 
+        public T[] ToArray()
+        {
+            if (Length == items.Length)
+                return items;
+            var copy = new T[Length];
+            Array.Copy(items, copy, Length);
+            return copy;
+        }
+
         public struct Enumerator : IEnumerator<T>
         {
             private readonly T[] items;
@@ -172,6 +181,8 @@ namespace YantraJS.Core.FastParser
 
         internal void Copy(T[] copy, int start)
         {
+            if (Length == 0)
+                return;
             Array.Copy(items, 0, copy, start, Length);
         }
     }

@@ -337,8 +337,9 @@ namespace YantraJS.Core.FastParser.Compiler
             }
             if (fx?.Async ?? false)
             {
+                Generator = Expression.Parameter(typeof(ClrGeneratorV2), "clrGenerator");
                 // Awaiter = Expression.Parameter(typeof(JSWeakAwaiter).MakeByRefType());
-                throw new NotSupportedException();
+                // throw new NotSupportedException();
             }
             this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");

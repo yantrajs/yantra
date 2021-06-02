@@ -217,7 +217,17 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     else if (functionDeclaration.Async)
                     {
-                        throw new NotSupportedException();
+
+                        lambda = GeneratorRewriter.Rewrite(in scriptFunctionName, block, cs.ReturnLabel, cs.Generator,
+                            replaceArgs: cs.Arguments,
+                            replaceStackItem: cs.StackItem,
+                            replaceContext: cs.Context,
+                            replaceScriptInfo: cs.ScriptInfo,
+                            replaceClosures: cs.Closures);
+
+                        jsf = JSAsyncFunctionBuilder.Create(
+                            JSGeneratorFunctionBuilderV2.New(parentScriptInfo, closureArray, lambda, fxName, code));
+
                         //lambda = Exp.Lambda(typeof(JSAsyncDelegate), block, in scriptFunctionName, new ParameterExpression[] {
                         //    cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
                         //});

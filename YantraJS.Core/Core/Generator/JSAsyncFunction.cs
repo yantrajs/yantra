@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.Generator;
@@ -11,8 +12,40 @@ namespace YantraJS.Core.Core.Generator
 
         public static JSFunction Create(JSGeneratorFunctionV2 gf)
         {
-            return null;
+            JSValue ToAsync(in Arguments a)
+            {
+                var gen = gf.InvokeFunction(in a) as JSGenerator;
+
+                return ToPromise(gen!, JSUndefined.Value);
+            }
+
+            return new JSFunction(ToAsync, gf.name, gf.Length);
         }
 
+        private static JSValue ToPromise(JSGenerator gen, JSValue lastResult)
+        {
+            try
+            {
+                var r = gen.Next(lastResult);
+
+                if (gen.done)
+                {
+                    return new JSPromise(lastResult, JSPromise.PromiseState.Resolved);
+                }
+
+                r = r.InvokeMethod(in KeyStrings.then, new JSFunction((in Arguments a) =>
+                {
+                    return ToPromise(gen, a.Get1());
+                }), new JSFunction((in Arguments a) =>
+                {
+                    gen.Throw(a.Get1());
+                    return a.Get1();
+                }));
+                return r;
+            } catch (Exception ex)
+            {
+                return new JSPromise(JSError.From(ex), JSPromise.PromiseState.Rejected);
+            }
+        }
     }
 }

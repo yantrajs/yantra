@@ -154,6 +154,13 @@ namespace YantraJS.Core.FastParser.Ast
             return block;
         }
 
+        protected override AstNode VisitAwaitExpression(AstAwaitExpression node)
+        {
+            if (Modified(node.Argument, out var arg))
+                return new AstAwaitExpression(node.Start, node.End, arg);
+            return node;
+        }
+
         protected override AstNode VisitArrayExpression(AstArrayExpression arrayExpression)
         {
             if (Modified(arrayExpression.Elements, out var list))

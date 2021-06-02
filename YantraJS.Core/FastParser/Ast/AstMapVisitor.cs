@@ -121,11 +121,14 @@ namespace YantraJS.Utils
                     return VisitMeta(node as AstMeta);
                 case FastNodeType.TaggedTemplateExpression:
                     return VisitTaggedTemplateExpression(node as AstTaggedTemplateExpression);
+                case FastNodeType.AwaitExpression:
+                    return VisitAwaitExpression(node as AstAwaitExpression);
                 default:
                     throw new NotImplementedException($"No implementation for {node.Type}");
             }
         }
 
+        protected abstract T VisitAwaitExpression(AstAwaitExpression node);
         protected abstract T VisitTaggedTemplateExpression(AstTaggedTemplateExpression astTaggedTemplateExpression);
         protected abstract T VisitMeta(AstMeta astMeta);
         protected abstract T VisitExportStatement(AstExportStatement astExportStatement);

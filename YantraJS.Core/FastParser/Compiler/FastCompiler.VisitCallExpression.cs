@@ -20,6 +20,37 @@ namespace YantraJS.Core.FastParser.Compiler
             return ce;
         }
 
+        protected (ArraySpan<Expression> args, bool hasSpread) VisitArguments(in ArraySpan<AstExpression> arguments)
+        {
+
+            var args = pool.AllocateList<Exp>(arguments.Count);
+            bool hasSpread = false;
+            try
+            {
+                var e = arguments.GetEnumerator();
+                while (e.MoveNext(out var ae))
+                {
+                    if (ae.Type != FastNodeType.SpreadElement)
+                    {
+                        args.Add(Visit(ae));
+                        continue;
+                    }
+                    // spread....
+                    var sae = (ae as AstSpreadElement)!.Argument;
+                    args.Add(JSSpreadValueBuilder.New(Visit(sae)));
+                    hasSpread = true;
+                }
+
+                return args.Any()
+                    ? (args.ToSpan(), hasSpread)
+                    : (ArraySpan<Expression>.Empty, false);
+            }
+            finally
+            {
+                args.Clear();
+            }
+        }
+
         protected Expression VisitArguments(
             Expression? thisArg,
             in ArraySpan<AstExpression> arguments) {
@@ -34,16 +65,26 @@ namespace YantraJS.Core.FastParser.Compiler
                         continue;
                     }
                     // spread....
-                    var sa = (ae as AstSpreadElement)!;
-                    args.Add(new ClrSpreadExpression(Visit(sa.Argument)));
+                    var sae = (ae as AstSpreadElement)!.Argument;
+                    args.Add(JSSpreadValueBuilder.New(Visit(sae)));
                     hasSpread = true;
                 }
-                if(args.Any()) {
-                    thisArg ??= JSUndefinedBuilder.Value;
+
+                if(!args.Any())
+                {
+                    if (thisArg == null)
+                    {
+                        return ArgumentsBuilder.Empty();
+                    }
+                    return ArgumentsBuilder.NewEmpty(thisArg);
                 }
-                return thisArg != null || args.Any()
-                    ? ArgumentsBuilder.New(thisArg, args, hasSpread)
-                    : ArgumentsBuilder.Empty();
+                thisArg ??= JSUndefinedBuilder.Value;
+                if(hasSpread)
+                {
+                    return ArgumentsBuilder.Spread(thisArg, args);
+                }
+
+                return ArgumentsBuilder.New(thisArg, args);
             } finally {
                 args.Clear();
             }
@@ -91,17 +132,18 @@ namespace YantraJS.Core.FastParser.Compiler
                     ? this.scope.Top.ThisExpression
                     : VisitExpression(me.Object);
 
-                var paramArray = VisitArguments(
-                        isSuper ? target : null, 
-                        in arguments);
 
                 if (isSuper)
                 {
+                    var paramArray = VisitArguments(
+                            isSuper ? target : null,
+                            in arguments);
+
                     var superMethod = JSValueBuilder.Index(super, name);
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
                 }
-
-                return JSValueExtensionsBuilder.InvokeMethod(target, name, paramArray);
+                var (args, spread) = VisitArguments(in arguments);
+                return JSValueExtensionsBuilder.InvokeMethod(target, name, args, spread);
 
             }
             else

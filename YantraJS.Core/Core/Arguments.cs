@@ -195,6 +195,17 @@ namespace YantraJS.Core
             Args = null;
         }
 
+        public static Arguments Spread(JSValue @this, params JSValue[] list)
+        {
+            int length = 0;
+            foreach(var item in list)
+            {
+                length += item.IsSpread ? item.Length : 1;
+            }
+            return new Arguments(@this, list, length);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue[] list, int length)
         {
@@ -207,7 +218,7 @@ namespace YantraJS.Core
             {
                 if (a is JSSpreadValue spv)
                 {
-                    for (uint j = 0; j < spv.Value.Length; j++)
+                    for (uint j = 0; j < spv.Length; j++)
                     {
                         args[i++] = spv.Value[j];
                     }

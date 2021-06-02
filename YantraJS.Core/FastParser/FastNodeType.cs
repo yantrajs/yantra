@@ -49,6 +49,7 @@ namespace YantraJS.Core.FastParser
         ExportStatement,
         ImportStatement,
         Meta,
-        TaggedTemplateExpression
+        TaggedTemplateExpression,
+        AwaitExpression
     }
 }

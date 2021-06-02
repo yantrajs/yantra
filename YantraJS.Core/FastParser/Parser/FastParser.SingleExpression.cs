@@ -65,6 +65,8 @@ namespace YantraJS.Core.FastParser
                     return ClassExpression(out node);
                 case FastKeywords.yield:
                     return YieldExpression(out node);
+                case FastKeywords.await:
+                    return AwaitExpression(out node);
                 case FastKeywords.super:
                     stream.Consume();
                     node = new AstSuper(token);
@@ -204,6 +206,19 @@ namespace YantraJS.Core.FastParser
                 if (Expression(out var target))
                 {
                     statement = new AstYieldExpression(begin, PreviousToken, target, star);
+                    EndOfStatement();
+                    return true;
+                }
+                throw stream.Unexpected();
+            }
+
+            bool AwaitExpression(out AstExpression statement)
+            {
+                var begin = stream.Current;
+                stream.Consume();
+                if (Expression(out var target))
+                {
+                    statement = new AstAwaitExpression(begin, PreviousToken, target);
                     EndOfStatement();
                     return true;
                 }
