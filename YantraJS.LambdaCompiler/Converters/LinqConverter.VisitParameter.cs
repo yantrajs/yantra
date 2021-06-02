@@ -322,7 +322,7 @@ namespace YantraJS.Converters
 
         protected override YExpression VisitOrElse(BinaryExpression node)
         {
-            return YExpression.Or(Visit(node.Left), Visit(node.Right));
+            return YExpression.OrElse(Visit(node.Left), Visit(node.Right));
         }
 
         protected override YExpression VisitParameter(ParameterExpression node)

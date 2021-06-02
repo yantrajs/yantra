@@ -184,7 +184,13 @@ namespace YantraJS.Expressions
         }   
         public static YExpression Power(YExpression left, YExpression right)
         {
-            return new YBinaryExpression(left, YOperator.Power, right);
+            //return new YBinaryExpression(left, YOperator.Power, right);
+            var m = typeof(Math).GetMethod(nameof(Math.Pow));
+            // return YExpression.Binary(Visit(node.Left), YOperator.Power, Visit(node.Right));
+            
+            left = left.Type == typeof(double) ? left : YExpression.Convert(left, typeof(double));
+            right = right.Type == typeof(double) ? right : YExpression.Convert(right, typeof(double));
+            return YExpression.Call(null, m, left, right);
         }
 
         public static YBoxExpression Box(YExpression target) => new YBoxExpression(target);
@@ -315,7 +321,10 @@ namespace YantraJS.Expressions
         }
 
         public static YBinaryExpression Or(YExpression left, YExpression right)
-            => YExpression.Binary(left, YOperator.BooleanOr, right);   
+            => YExpression.Binary(left, YOperator.BitwiseOr, right);
+
+        public static YBinaryExpression OrElse(YExpression left, YExpression right)
+            => YExpression.Binary(left, YOperator.BooleanOr, right);
 
         public static YBinaryExpression NotEqual(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.NotEqual, right);

@@ -209,7 +209,7 @@ namespace YantraJS.Converters
                     break;
                 case ExpressionType.OrElse:
                     be = exp as BinaryExpression;
-                    return YExpression.Or(Visit(be.Left), Visit(be.Right));
+                    return YExpression.OrElse(Visit(be.Left), Visit(be.Right));
                 case ExpressionType.Parameter:
                     return parameters[exp as ParameterExpression];
                 case ExpressionType.PostDecrementAssign:
