@@ -2,7 +2,6 @@
 using System.Linq;
 using YantraJS.Core.Generator;
 using YantraJS.Core.LinqExpressions;
-using YantraJS.Core.LinqExpressions.Generators;
 using YantraJS.Core.LinqExpressions.GeneratorsV2;
 using YantraJS.ExpHelper;
 using Exp = YantraJS.Expressions.YExpression;

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using YantraJS.Core.CodeGen;
-using YantraJS.Core.LinqExpressions.Generators;
 using YantraJS.ExpHelper;
 using YantraJS.Expressions;
 using Exp = YantraJS.Expressions.YExpression;

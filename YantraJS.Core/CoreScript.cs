@@ -12,7 +12,6 @@ using YantraJS.Core;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.Generator;
 using YantraJS.Core.LinqExpressions;
-using YantraJS.Core.LinqExpressions.Generators;
 using YantraJS.Core.LinqExpressions.Logical;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
