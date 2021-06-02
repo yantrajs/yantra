@@ -2,7 +2,7 @@
   "profiles": {
     "Yantra TypeScript": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\in-built\\process\\index.js"
+      "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\in-built\\ts\\index.js"
     },
     "Yantra XF-Samples": {
       "commandName": "Project",

@@ -1097,10 +1097,10 @@ namespace YantraJS.Core.Tests.Imported
             //}
 
             // 'arguments' and 'caller' must be undefined in strict mode.
-            //Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ return test.arguments; } return inner(); } test()"));
-            //Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ return inner.caller; } return inner(); } test()"));
-            //Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ test.arguments = 5; } return inner(); } test()"));
-            //Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ inner.caller = 5; } return inner(); } test()"));
+            Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ return test.arguments; } return inner(); } test()"));
+            Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ return inner.caller; } return inner(); } test()"));
+            Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ test.arguments = 5; } return inner(); } test()"));
+            Assert.AreEqual(Undefined.Value, Evaluate("'use strict'; function test(){ function inner(){ inner.caller = 5; } return inner(); } test()"));
         }
 
         [TestMethod]
@@ -1416,14 +1416,14 @@ namespace YantraJS.Core.Tests.Imported
             // Assert.AreEqual(false, Evaluate("delete Number.prototype"));
 
             // Deleting a global variable fails.
-            //Execute("var delete_test_1 = 1; var delete_test_2 = delete delete_test_1;");
-            //Assert.AreEqual(1, Evaluate("delete_test_1"));
-            //Assert.AreEqual(false, Evaluate("delete_test_2"));
-            //Assert.AreEqual(false, Evaluate("Object.getOwnPropertyDescriptor(this, 'delete_test_1').configurable"));
+            // Execute("var delete_test_1 = 1; var delete_test_2 = delete delete_test_1;");
+            // Assert.AreEqual(1, Evaluate("delete_test_1"));
+            // Assert.AreEqual(false, Evaluate("delete_test_2"));
+            // Assert.AreEqual(false, Evaluate("Object.getOwnPropertyDescriptor(this, 'delete_test_1').configurable"));
 
             // Deleting function variables fails.
-            //Assert.AreEqual(false, Evaluate("(function f(a) { return delete a; })(1)"));
-            //Assert.AreEqual(1, Evaluate("(function f(a) { delete a; return a; })(1)"));
+            // Assert.AreEqual(false, Evaluate("(function f(a) { return delete a; })(1)"));
+            // Assert.AreEqual(1, Evaluate("(function f(a) { delete a; return a; })(1)"));
 
             // Delete non-reference.
             Assert.AreEqual(true, Evaluate("delete 5"));  // does nothing

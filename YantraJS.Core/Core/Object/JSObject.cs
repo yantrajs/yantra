@@ -334,7 +334,7 @@ namespace YantraJS.Core
                         p.set.f(new Arguments(this, value));
                         return;
                     }
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this} which has only a getter");
                     //return;
                 }
                 if(p.IsReadOnly)

@@ -77,7 +77,7 @@ namespace YantraJS.Core
             };
             var a1 = a.OverrideThis(obj, this);
             var r = cf(script, closures, in a1);
-            if (!r.IsUndefined)
+            if (r.IsObject)
                 return r;
             return obj;
         }
@@ -241,7 +241,7 @@ namespace YantraJS.Core
             };
             var a1 = a.OverrideThis(obj, constructor);
             var r = f(a1);
-            if (!r.IsUndefined)
+            if(r.IsObject)
                 return r;
             return obj;
         }

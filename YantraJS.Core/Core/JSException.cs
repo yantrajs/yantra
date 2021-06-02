@@ -115,7 +115,7 @@ namespace YantraJS.Core
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowSyntaxError(string value)
+        public static JSValue ThrowSyntaxError(string value)
         {
             throw JSContext.Current.NewSyntaxError(value);
         }

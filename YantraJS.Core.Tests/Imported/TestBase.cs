@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Threading;
 using YantraJS.Core.Core.Primitive;
 
@@ -91,6 +92,20 @@ namespace YantraJS.Core.Tests.Imported
                 var ev = JSException.ErrorFrom(ex);
                 var v = ev?.prototypeChain?[KeyStrings.constructor] as JSFunction;
                 return v?.name.Value;
+            }
+            throw new Exception("No exception was thrown");
+        }
+        public object EvaluateExceptionMessage(string text)
+        {
+            try
+            {
+                context.Eval(text);
+            } catch (Exception ex)
+            {
+                var ev = JSException.ErrorFrom(ex);
+                var v = ev?.prototypeChain?[KeyStrings.constructor] as JSFunction;
+                var r = v?.name.Value;
+                return r;
             }
             throw new Exception("No exception was thrown");
         }
