@@ -16,6 +16,8 @@ namespace YantraJS.Core
         private readonly ILGenerator il;
         private TextWriter? writer = null;
 
+        private int blockStack = 0;
+
         private int Stack;
         private OpCode last;
 
@@ -237,10 +239,19 @@ namespace YantraJS.Core
 
         internal void EmptyStack()
         {
-            while (Stack > 0)
+            while (Stack > blockStack)
             {
                 Emit(OpCodes.Pop);
             }
+        }
+
+        public IDisposable EnterBlock()
+        {
+            var old = blockStack;
+            blockStack = Stack;
+            return new DisposableAction(() => {
+                blockStack = old;
+            });
         }
 
         internal void Emit(in OpCode code)

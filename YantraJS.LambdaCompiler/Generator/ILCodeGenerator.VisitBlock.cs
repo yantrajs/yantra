@@ -16,6 +16,8 @@ namespace YantraJS.Generator
                 variables.Create(p);
             }
 
+            using var s = il.EnterBlock();
+
             var expressions = yBlockExpression.Expressions;
             var l = expressions.Length;
             var last = l - 1;
