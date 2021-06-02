@@ -17,7 +17,7 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-var delete_test_1 = 1; var delete_test_2 = delete delete_test_1;
+
 ");
         }
 
