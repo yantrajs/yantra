@@ -287,15 +287,11 @@ namespace YantraJS.Core.Clr
             Expression convertedThis = isStatic
                 ? null
                 : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
-            var body = Expression.Block( 
-                // JSExceptionBuilder.Wrap(
-                ClrProxyBuilder.Marshal( 
+            var body = ClrProxyBuilder.Marshal( 
                     Expression.Property(
-                        convertedThis, property))
-                // )
-                );
+                        convertedThis, property));
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>($"set {property.Name}", body, args);
+            var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
             // return lambda.CompileInAssembly();
             return lambda.Compile();
 

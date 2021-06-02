@@ -46,6 +46,8 @@ namespace YantraJS.LinqExpressions
         }
         public static Expression Marshal(Expression target)
         {
+            if (typeof(JSValue).IsAssignableFrom(target.Type))
+                return target;
             if (_marshal.TryGetValue(target.Type, out var m))
             {
                 return Expression.Call(null, m, target);
