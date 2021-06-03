@@ -1,3 +1,0 @@
-[submodule "esprima-dotnet"]
-	path = esprima-dotnet
-	url = https://github.com/yantrajs/esprima-dotnet.git
