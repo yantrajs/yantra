@@ -74,11 +74,7 @@ namespace YantraJS.Core
             foreach (var (hop,jump, index) in pendingJumps)
             {
                 il.MarkLabel(hop);
-                if (index >= 0)
-                {
-                    il.EmitLoadLocal(index);
-                }
-                il.Branch(jump);
+                il.Branch(jump, index);
             }
             il.MarkLabel(label);
             if (SavedLocal >= 0)

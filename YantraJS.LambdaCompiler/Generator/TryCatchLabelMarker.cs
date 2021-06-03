@@ -32,11 +32,11 @@ namespace YantraJS.Generator
             return base.VisitLabel(yLabelExpression);
         }
 
-        protected override YExpression VisitReturn(YReturnExpression yReturnExpression)
-        {
-            labels.Create(yReturnExpression.Target, tryBlock, false);
-            return base.VisitReturn(yReturnExpression);
-        }
+        //protected override YExpression VisitReturn(YReturnExpression yReturnExpression)
+        //{
+        //    labels.Create(yReturnExpression.Target, tryBlock, false);
+        //    return base.VisitReturn(yReturnExpression);
+        //}
 
         protected override YExpression VisitLoop(YLoopExpression yLoopExpression)
         {
