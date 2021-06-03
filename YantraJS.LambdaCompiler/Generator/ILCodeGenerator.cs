@@ -18,6 +18,8 @@ namespace YantraJS.Generator
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
+        private readonly TextWriter? expressionWriter;
+
         public List<ILDebugInfo> SequencePoints { get; }
             = new List<ILDebugInfo>();
 
@@ -31,18 +33,17 @@ namespace YantraJS.Generator
             return il.ToString();
         }
 
-        public ILCodeGenerator(ILGenerator il, TextWriter? writer = null)
+        public ILCodeGenerator(ILGenerator il, TextWriter? writer = null, TextWriter? expressionWriter = null)
         {
             this.il = new ILWriter(il, writer);
             this.variables = new VariableInfo(il);
             this.labels = new LabelInfo(this.il);
             this.tempVariables = new TempVariables(il);
+            this.expressionWriter = expressionWriter;
         }
 
-        internal (string il, string exp) Emit(YLambdaExpression exp)
+        internal void Emit(YLambdaExpression exp)
         {
-            var sw = new StringWriter();
-            System.CodeDom.Compiler.IndentedTextWriter writer = new System.CodeDom.Compiler.IndentedTextWriter(sw, "\t");
             
 
             // var f = new FlattenVisitor();
@@ -69,15 +70,18 @@ namespace YantraJS.Generator
             using (tempVariables.Push())
             {
                 body = ReWriteTryCatch(body);
-                // writer.WriteLine("Final");
-                // body.Print(writer);
+                if(expressionWriter != null)
+                {
+                    var writer = new System.CodeDom.Compiler.IndentedTextWriter(expressionWriter, "\t");
+                    body.Print(writer);
+                }
 
                 if(body.NodeType == YExpressionType.Call)
                 {
                     if(exp.ReturnType.IsAssignableFrom(body.Type) && body.Type != typeof(void))
                     {
                         if (VisitTailCall((body as YCallExpression)!))
-                            return (il.ToString(), body.ToString());
+                            return;
                     }
                 }
 
@@ -87,7 +91,7 @@ namespace YantraJS.Generator
             }
             il.Verify();
 
-            return (il.ToString(), sw.ToString());
+            return;
 
         }
 

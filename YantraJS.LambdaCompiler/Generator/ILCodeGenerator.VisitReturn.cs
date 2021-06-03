@@ -27,6 +27,9 @@ namespace YantraJS.Generator
                             if (VisitTailCall(def as YCallExpression))
                                 return true;
                         }
+                        Visit(yReturnExpression.Default);
+                        il.Emit(OpCodes.Ret);
+                        return true;
                     }
                 }
                 var temp = tempVariables[def.Type];

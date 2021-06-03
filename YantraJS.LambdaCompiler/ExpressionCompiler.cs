@@ -84,9 +84,9 @@ namespace YantraJS
             lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
 
             ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
-            var (ict, iexp) = icg.Emit(lambdaExpression);
+            icg.Emit(lambdaExpression);
 
-            return (method, ict, iexp);
+            return (method, null, null);
         }
 
 
@@ -162,7 +162,7 @@ namespace YantraJS
             exp = nw.Visit(exp) as YLambdaExpression;
 
             ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
-            var (ict, iexp) = icg.Emit(exp);
+            icg.Emit(exp);
 
             return method;
         }

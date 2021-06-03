@@ -39,6 +39,10 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Br, trueEnd);
                 il.MarkLabel(falseBegin);
                 Visit(yConditionalExpression.@false);
+            } else
+            {
+                // we will need to leave something on stack..
+                il.Emit(OpCodes.Ldnull);
             }
 
             il.MarkLabel(trueEnd);
@@ -106,6 +110,9 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Br, trueEnd);
                 il.MarkLabel(falseBegin);
                 Visit(@false);
+            } else
+            {
+                il.Emit(OpCodes.Ldnull);
             }
 
             il.MarkLabel(trueEnd);

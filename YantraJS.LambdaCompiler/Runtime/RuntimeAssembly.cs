@@ -50,12 +50,13 @@ namespace YantraJS.Runtime
             var ilg = method.GetILGenerator();
 
             var sw = new StringWriter();
-            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw);
+            var expWriter = new StringWriter();
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw, expWriter);
             icg.Emit(exp);
 
             string il = sw.ToString();
 
-            var c = new Closures(null, il, expString);
+            var c = new Closures(null, il, expWriter.ToString());
 
             return (T)(object)method.CreateDelegate(typeof(T), c);
         }
@@ -75,14 +76,13 @@ namespace YantraJS.Runtime
 
             var ilg = method.GetILGenerator();
             StringWriter sw = new StringWriter();
-            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw);
+            var expWriter = new StringWriter();
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw, expWriter);
             icg.Emit(exp);
 
             string il = sw.ToString();
 
-            string expString = exp.ToString();
-
-            return (method, il, expString);
+            return (method, il, expWriter.ToString());
 
         }
 
