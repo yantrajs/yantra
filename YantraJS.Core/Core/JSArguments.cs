@@ -85,12 +85,28 @@ namespace YantraJS.Core
             set => base[key] = value;
         }
 
+        internal override bool TryGetValue(uint i, out JSProperty value)
+        {
+            if(arguments.TryGetAt((int)i, out var v))
+            {
+                value = JSProperty.Property( new KeyString(null, i), v);
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        internal override bool TryGetElement(uint i, out JSValue value)
+        {
+            return arguments.TryGetAt((int)i, out value);
+        }
+
         public override string ToString()
         {
             return "[object Arguments]";
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new Enumerator(this.arguments);
         }
@@ -131,6 +147,18 @@ namespace YantraJS.Core
                     return true;
                 }
                 value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                i = (i == uint.MaxValue) ? 0 : (i + 1);
+                if (i < arguments.Length)
+                {
+                    value = arguments.GetAt((int)i);
+                    return true;
+                }
+                value = @default;
                 return false;
             }
 

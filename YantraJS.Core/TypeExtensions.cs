@@ -5,18 +5,34 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using YantraJS.Core;
+using YantraJS.Core.FastParser;
 using YantraJS.ExpHelper;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
     internal static class ListOfExpressionsExtensions
     {
-        internal static List<Expression> ConvertToInteger(this List<Expression> source)
+
+
+        internal static Core.FastParser.FastList<Expression> ConvertToInteger(
+            this IList<Expression> source, 
+            Core.FastParser.FastPool.Scope scope)
         {
-            List<Expression> result = new List<Expression>(source.Count);
-            foreach(var exp in source)
+            var result = scope.AllocateList<Expression>(source.Count);
+            foreach (var exp in source)
             {
-                if (!(exp is ConstantExpression ce))
+                if (!(exp is YConstantExpression ce))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(int))
                 {
@@ -28,12 +44,29 @@ namespace YantraJS
             return result;
         }
 
-        internal static List<Expression> ConvertToNumber(this List<Expression> source)
+        internal static SparseList<Expression> ConvertToInteger(this IList<Expression> source)
         {
-            List<Expression> result = new List<Expression>(source.Count);
+            var result = new SparseList<Expression>(source.Count);
+            foreach(var exp in source)
+            {
+                if (!(exp is YConstantExpression ce))
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(int))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(Convert.ToInt32(ce.Value)));
+            }
+            return result;
+        }
+
+        internal static FastList<Expression> ConvertToNumber(this FastList<Expression> source, FastPool.Scope scope)
+        {
+            var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is ConstantExpression ce))
+                if (!(exp is YConstantExpression ce))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(double))
                 {
@@ -45,12 +78,30 @@ namespace YantraJS
             return result;
         }
 
-        internal static List<Expression> ConvertToString(this List<Expression> source)
+        internal static SparseList<Expression> ConvertToNumber(this IList<Expression> source)
         {
-            List<Expression> result = new List<Expression>(source.Count);
+            var result = new SparseList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is ConstantExpression ce))
+                if (!(exp is YConstantExpression ce))
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(double))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(Convert.ToDouble(ce.Value)));
+            }
+            return result;
+        }
+
+
+        internal static FastList<Expression> ConvertToString(this FastList<Expression> source, FastPool.Scope scope)
+        {
+            var result = scope.AllocateList<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (!(exp is YConstantExpression ce))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(string))
                 {
@@ -62,12 +113,56 @@ namespace YantraJS
             return result;
         }
 
-        internal static List<Expression> ConvertToJSValue(this List<Expression> source)
+        internal static FastList<Expression> ConvertToJSValue(this FastList<Expression> source, FastPool.Scope scope)
         {
-            List<Expression> result = new List<Expression>(source.Count);
+            var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is ConstantExpression ce))
+                if (!(exp is YConstantExpression ce))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                Expression item;
+                switch (ce.Value)
+                {
+                    case string @string:
+                        item = JSStringBuilder.New(ce);
+                        break;
+                    case double @double:
+                        item = JSNumberBuilder.New(ce);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                result.Add(item);
+            }
+            return result;
+        }
+
+        internal static SparseList<Expression> ConvertToString(this IList<Expression> source)
+        {
+            var result = new SparseList<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (!(exp is YConstantExpression ce))
+                    throw new NotSupportedException();
+                if (ce.Type == typeof(string))
+                {
+                    result.Add(exp);
+                    continue;
+                }
+                result.Add(Expression.Constant(ce.Value.ToString()));
+            }
+            return result;
+        }
+
+        internal static SparseList<Expression> ConvertToJSValue(this IList<Expression> source)
+        {
+            SparseList<Expression> result = new SparseList<Expression>(source.Count);
+            foreach (var exp in source)
+            {
+                if (!(exp is YConstantExpression ce))
                 {
                     result.Add(exp);
                     continue;
@@ -94,6 +189,24 @@ namespace YantraJS
     internal static class TypeExtensions
     {
 
+        public static bool HasAttribute<T>(this MemberInfo member, out T value)
+            where T: Attribute
+        {
+            var a = member.GetCustomAttribute<T>();
+            if( a==null)
+            {
+                value = default;
+                return false;
+            }
+            value = a;
+            return true;
+        }
+
+        public static bool IsIndexProperty(this PropertyInfo property)
+        {
+            return property.GetMethod?.GetParameters()?.Length > 0;
+        }
+
         internal static Type GetElementTypeOrGeneric(this Type type)
         {
             if (type.IsArray && type.HasElementType)
@@ -114,6 +227,17 @@ namespace YantraJS
             return a;
         }
 
+        internal static FieldInfo PublicField(this Type type, string name)
+        {
+            var f = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
+            if (f == null)
+            {
+                throw new NullReferenceException($"Field {name} not found on {type.FullName}");
+            }
+            return f;
+        }
+
+
         internal static FieldInfo InternalField(this Type type, string name)
         {
             var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
@@ -122,6 +246,20 @@ namespace YantraJS
                 throw new NullReferenceException($"Field {name} not found on {type.FullName}");
             }
             return f;
+        }
+
+        internal static PropertyInfo PublicIndex(this Type type, params Type[] types)
+        {
+            var px = type
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
+                .FirstOrDefault(x => x.GetIndexParameters().Length > 0 &&
+                x.GetIndexParameters().Select(p => p.ParameterType).SequenceEqual(types));
+            if (px == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Property this({tl}) not found on {type.FullName}");
+            }
+            return px;
         }
 
         internal static PropertyInfo IndexProperty(this Type type, params Type[] types)
@@ -136,6 +274,19 @@ namespace YantraJS
                 throw new MethodAccessException($"Property this({tl}) not found on {type.FullName}");
             }
             return px;
+        }
+
+        public static MethodInfo PublicMethod(this Type type, string name, params Type[] types)
+        {
+            var m = type.GetMethod(name,
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance,
+                null, types, null);
+            if (m == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Method {name}({tl}) not found on {type.FullName}");
+            }
+            return m;
         }
 
         public static MethodInfo InternalMethod(this Type type, string name, params Type[] types)
@@ -206,6 +357,22 @@ namespace YantraJS
             }
             return m;
         }
+
+        public static ConstructorInfo PublicConstructor(this Type type, params Type[] types)
+        {
+            var c = type.GetConstructor(
+                BindingFlags.DeclaredOnly |
+                BindingFlags.Instance |
+                BindingFlags.Public, null,
+                types, null);
+            if (c == null)
+            {
+                var tl = string.Join(",", types.Select(x => x.Name));
+                throw new MethodAccessException($"Constructor {type.Name}({tl}) not found");
+            }
+            return c;
+        }
+
 
         public static ConstructorInfo Constructor(this Type type, params Type[] types)
         {

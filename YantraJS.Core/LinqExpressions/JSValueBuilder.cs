@@ -6,6 +6,16 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using YantraJS.Core;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+
+
 namespace YantraJS.ExpHelper
 {
     public class JSValueBuilder
@@ -14,6 +24,34 @@ namespace YantraJS.ExpHelper
 
         private static PropertyInfo _DoubleValue =
             type.Property(nameof(Core.JSValue.DoubleValue));
+
+        private static PropertyInfo _IntValue =
+            type.Property(nameof(Core.JSValue.IntValue));
+
+
+        private static PropertyInfo _IsNullOrUndefined
+            = type.Property(nameof(Core.JSValue.IsNullOrUndefined));
+
+        private static MethodInfo _ToKey
+            = type.InternalMethod(nameof(Core.JSValue.ToKey), typeof(bool));
+
+        private static MethodInfo _Power
+            = type.PublicMethod(nameof(Core.JSValue.Power), typeof(JSValue));
+
+        private static MethodInfo _ValueOf
+            = type.PublicMethod(nameof(Core.JSValue.ValueOf));
+
+        public static Expression ToKey(Expression exp)
+        {
+            return Expression.Call(exp, _ToKey, Expression.Constant(true));
+        }
+
+        public static Expression IsNullOrUndefined(Expression target)
+        {
+            if (target.Type == typeof(JSVariable))
+                target = JSVariable.ValueExpression(target);
+            return Expression.Property(target, _IsNullOrUndefined);
+        }
 
         private static PropertyInfo _lengthProperty
             = type.Property(nameof(Core.JSValue.Length));
@@ -26,6 +64,15 @@ namespace YantraJS.ExpHelper
         public static Expression DoubleValue(Expression exp)
         {
             return Expression.Property(exp, _DoubleValue);
+        }
+
+        public static Expression IntValue(Expression exp)
+        {
+            return Expression.Property(exp, _IntValue);
+        }
+
+        public static Expression Power(Expression left,Expression right) {
+            return Expression.Call(left, _Power, right);
         }
 
         private static PropertyInfo _BooleanValue =
@@ -62,13 +109,13 @@ namespace YantraJS.ExpHelper
                 type.IndexProperty(typeof(JSValue));
 
         private static PropertyInfo _SuperIndexKeyString =
-                    type.IndexProperty(typeof(JSObject), typeof(KeyString));
+                    type.PublicIndex(typeof(JSObject), typeof(KeyString));
 
         private static PropertyInfo _SuperIndexUInt =
-                    type.IndexProperty(typeof(JSObject), typeof(uint));
+                    type.PublicIndex(typeof(JSObject), typeof(uint));
 
         private static PropertyInfo _SuperIndex =
-                    type.IndexProperty(typeof(JSObject), typeof(JSValue));
+                    type.PublicIndex(typeof(JSObject), typeof(JSValue));
 
         public static Expression Index(Expression target, Expression super, uint i)
         {
@@ -153,11 +200,11 @@ namespace YantraJS.ExpHelper
         }
 
         internal static MethodInfo StaticEquals
-            = type.InternalMethod(nameof(Core.JSValue.StaticEquals), typeof(JSValue), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.StaticEquals), typeof(JSValue), typeof(JSValue));
 
 
         private static MethodInfo _Equals
-            = type.InternalMethod(nameof(Core.JSValue.Equals), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.Equals), typeof(JSValue));
 
         public static Expression Equals(Expression target, Expression value)
         {
@@ -191,35 +238,38 @@ namespace YantraJS.ExpHelper
         }
 
         private static MethodInfo _Less
-            = type.InternalMethod(nameof(Core.JSValue.Less), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.Less), typeof(JSValue));
 
         public static Expression Less(Expression target, Expression value)
         {
-            return Expression.Call(target, _Less, value);
+            return Expression.Call(ValueOf(target), _Less, ValueOf(value));
         }
 
         private static MethodInfo _LessOrEqual
-            = type.InternalMethod(nameof(Core.JSValue.LessOrEqual), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.LessOrEqual), typeof(JSValue));
 
         public static Expression LessOrEqual(Expression target, Expression value)
         {
-            return Expression.Call(target, _LessOrEqual, value);
+            return Expression.Call(ValueOf(target), _LessOrEqual, ValueOf(value));
         }
 
         private static MethodInfo _Greater
-            = type.InternalMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
         public static Expression Greater(Expression target, Expression value)
         {
-            return Expression.Call(target, _Greater, value);
+            return Expression.Call(ValueOf(target), _Greater, ValueOf(value));
         }
 
         private static MethodInfo _GreaterOrEqual
-            = type.InternalMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
+            = type.PublicMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
-            return Expression.Call(target, _GreaterOrEqual, value);
+            return Expression.Call(ValueOf(target), _GreaterOrEqual, ValueOf(value));
         }
 
+        public static Expression ValueOf(Expression target) {
+            return Expression.Call(target, _ValueOf);
+        }
 
         public static Expression LogicalAnd(Expression target, Expression value)
         {
@@ -232,7 +282,7 @@ namespace YantraJS.ExpHelper
         }
 
         private static MethodInfo _GetAllKeys =
-            type.InternalMethod(nameof(JSValue.GetAllKeys), typeof(bool), typeof(bool));
+            type.PublicMethod(nameof(JSValue.GetAllKeys), typeof(bool), typeof(bool));
 
         private static MethodInfo _GetEnumerator =
             typeof(IEnumerable<JSValue>).GetMethod(nameof(IEnumerable<JSValue>.GetEnumerator));
@@ -251,7 +301,7 @@ namespace YantraJS.ExpHelper
             type.InternalMethod(nameof(JSValue.TryConvertTo), typeof(Type), typeof(object).MakeByRefType());
 
         private static MethodInfo _ForceConvert =
-            type.InternalMethod(nameof(JSValue.ForceConvert), typeof(Type));
+            type.PublicMethod(nameof(JSValue.ForceConvert), typeof(Type));
 
         private static MethodInfo _Convert =
     type.InternalMethod(nameof(JSValue.Convert), typeof(Type), typeof(object));
@@ -275,6 +325,12 @@ namespace YantraJS.ExpHelper
         public static Expression ConvertTo(Expression jsValue, Type type, Expression outVar)
         {
             return ConvertTo(jsValue, Expression.Constant(type), outVar);
+        }
+
+        public static Expression Coalesce(Expression target, Expression def)
+        {
+            return Expression.Condition(
+                JSValueBuilder.IsNullOrUndefined(target), def, target);
         }
 
         public static Expression Coalesce(

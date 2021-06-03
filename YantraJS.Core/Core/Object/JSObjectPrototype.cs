@@ -1,9 +1,9 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using YantraJS.Core.Core.Primitive;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -11,6 +11,18 @@ namespace YantraJS.Core
 {
     public class JSObjectPrototype
     {
+
+        [Constructor]
+        public static JSValue Constructor(in Arguments a) {
+            if (a.This != null && !a.This.IsUndefined)
+                return a.This;
+            var first = a.Get1();
+            if (first.IsObject)
+                return first;
+            if (first.IsNullOrUndefined)
+                return new JSObject();
+            return new JSPrimitiveObject(first as JSPrimitive);
+        }
 
         [Prototype("propertyIsEnumerable")]
         public static JSValue PropertyIsEnumerable(in Arguments a)
@@ -77,6 +89,11 @@ namespace YantraJS.Core
             if (op.HasKey(key.Key))
                 return JSBoolean.True;
             return JSBoolean.False;
+        }
+
+        [Prototype("valueOf")]
+        public static JSValue ValueOf(in Arguments a) {
+            return a.This;
         }
 
         [Prototype("isPrototypeOf")]

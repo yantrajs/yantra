@@ -20,11 +20,15 @@ using Microsoft.Threading;
 using YantraJS.Core.LightWeight;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.CodeGen;
+using System.ComponentModel;
+using YantraJS.Core.Core.DataView;
 
 namespace YantraJS.Core
 {
     public class CallStackItem
     {
+        private static StringSpan Inline = "inline";
+
         internal CallStackItem(string fileName, in StringSpan function, int line, int column)
         {
             this.FileName = fileName;
@@ -33,9 +37,30 @@ namespace YantraJS.Core
             this.Column = column;
         }
 
-        internal CallStackItem(JSContext context, string fileName, in StringSpan function, int line, int column)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CallStackItem(
+            JSContext context, 
+            ScriptInfo scriptInfo, 
+            int nameOffset,
+            int nameLength, int line, int column)
         {
             context = context ?? JSContext.Current;
+            this.context = context;
+            this.FileName = scriptInfo.FileName;
+            this.Function = (nameLength>0) 
+                ? scriptInfo.Code.ToStringSpan(nameOffset, nameLength)
+                : Inline;
+            this.Line = line;
+            this.Column = column;
+            this.Parent = context.Top;
+            context.Top = this;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CallStackItem(JSContext context, string fileName, in StringSpan function, int line, int column)
+        {
+            context = context ?? JSContext.Current;
+            this.context = context;
             this.FileName = fileName;
             this.Function = function;
             this.Line = line;
@@ -49,11 +74,21 @@ namespace YantraJS.Core
         public StringSpan Function;
         public int Line;
         public int Column;
+        private readonly JSContext context;
         public string FileName;
 
         public void Update()
         {
             System.Diagnostics.Debug.WriteLine($"{Function} at {Line}, {Column}");
+        }
+
+        public void Step(int line, int column)
+        {
+            // pop..
+            if (this != context.Top)
+                context.Top = this;
+            this.Line = line;
+            this.Column = column;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,7 +117,8 @@ namespace YantraJS.Core
     {
 
         [ThreadStatic]
-        internal static JSContext Current;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSContext Current;
 
         public static JSContext CurrentContext
         {
@@ -178,6 +214,8 @@ namespace YantraJS.Core
         public readonly JSObject Float32ArrayPrototype;
 
         public readonly JSObject Float64ArrayPrototype;
+
+        public readonly JSObject DataViewPrototype;
 
         public readonly JSObject JSON;
 
@@ -333,7 +371,9 @@ namespace YantraJS.Core
             FunctionPrototype = func.prototype;
             // create object prototype...
             Object =  this.Create<JSObject>(KeyStrings.Object);
+            //Object.f = JSObjectPrototype.Constructor;
             ObjectPrototype = Object.prototype;
+            //ObjectPrototype.Delete(KeyStrings.constructor);
             ObjectPrototype.BasePrototypeObject = null;
             func.BasePrototypeObject = Object;
             FunctionPrototype.BasePrototypeObject = ObjectPrototype;
@@ -366,6 +406,7 @@ namespace YantraJS.Core
             Uint32ArrayPrototype = this.Create<Uint32Array>(KeyStrings.Uint32Array).prototype;
             Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
             Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
+            DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);

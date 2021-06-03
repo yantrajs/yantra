@@ -159,7 +159,8 @@ namespace YantraJS.Core
             }
         }
 
-        internal static JSObject NewWithProperties()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSObject NewWithProperties()
         {
             var o = new JSObject
             {
@@ -168,7 +169,8 @@ namespace YantraJS.Core
             return o;
         }
 
-        internal static JSObject NewWithElements()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSObject NewWithElements()
         {
             var o = new JSObject()
             {
@@ -177,7 +179,8 @@ namespace YantraJS.Core
             return o;
         }
 
-        internal static JSObject NewWithPropertiesAndElements()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSObject NewWithPropertiesAndElements()
         {
             var o = new JSObject
             {
@@ -187,26 +190,30 @@ namespace YantraJS.Core
             return o;
         }
 
-        internal JSObject AddElement(uint index, JSValue value)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddElement(uint index, JSValue value)
         {
             elements[index] = JSProperty.Property(value);
             return this;
         }
 
-        internal JSObject AddProperty(KeyString key, JSValue value)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddProperty(in KeyString key, JSValue value)
         {
             ownProperties[key.Key] = JSProperty.Property(key, value);
             return this;
         }
 
-        internal JSObject AddProperty(KeyString key, JSFunction getter, JSFunction setter)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddProperty(in KeyString key, JSFunction getter, JSFunction setter)
         {
             ownProperties[key.Key] = JSProperty.Property(key, getter?.f, setter?.f);
             return this;
         }
 
 
-        internal JSObject AddProperty(JSValue key, JSValue value)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject AddProperty(JSValue key, JSValue value)
         {
             var k = key.ToKey(true);
             if (k.IsUInt)
@@ -267,6 +274,37 @@ namespace YantraJS.Core
             return new JSProperty();
         }
 
+        public override JSValue ValueOf()
+        {
+            var p = GetInternalProperty(KeyStrings.valueOf, false);
+            if (!p.IsEmpty)
+            {
+                return this.GetValue(p).InvokeFunction(new Arguments(this));
+                
+            }
+            return this;
+        }
+
+        public bool HasValueOf(out JSValue value)
+        {
+            var p = GetInternalProperty(KeyStrings.valueOf, false);
+            if (!p.IsEmpty)
+            {
+                value = this.GetValue(p).InvokeFunction(new Arguments(this));
+                return true;
+            }
+            value = null;
+            return false;
+
+        }
+
+        //public override JSValue AddValue(JSValue value)
+        //{
+        //    if (HasValueOf(out var v))
+        //        return v.AddValue(value);
+        //    return base.AddValue(value);
+        //}
+
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {
             if (!ownProperties.IsEmpty)
@@ -296,7 +334,8 @@ namespace YantraJS.Core
                         p.set.f(new Arguments(this, value));
                         return;
                     }
-                    return;
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this} which has only a getter");
+                    //return;
                 }
                 if(p.IsReadOnly)
                 {
@@ -305,6 +344,8 @@ namespace YantraJS.Core
                 }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                if(p.IsEmpty && !this.IsExtensible())
+                    throw JSContext.Current.NewTypeError($"Cannot add property {name} to {this}");
                 ref var ownProperties = ref this.GetOwnProperties();
                 ownProperties[name.Key] = JSProperty.Property(name, value);
                 PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
@@ -483,7 +524,7 @@ namespace YantraJS.Core
             }
         }
 
-        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this, showEnumerableOnly, inherited);
             //var elements = this.elements;
@@ -583,7 +624,7 @@ namespace YantraJS.Core
                 pt |= JSPropertyAttributes.Configurable;
             if (pd[KeyStrings.enumerable].BooleanValue)
                 pt |= JSPropertyAttributes.Enumerable;
-            if (pd[KeyStrings.@readonly].BooleanValue)
+            if (!pd[KeyStrings.writable].BooleanValue)
                 pt |= JSPropertyAttributes.Readonly;
             if (get != null)
             {
@@ -649,7 +690,7 @@ namespace YantraJS.Core
                 PropertyChanged?.Invoke(this, (key.Key, uint.MaxValue, null));
                 return JSBoolean.True;
             }
-            return JSBoolean.False;
+            return JSBoolean.True;
         }
 
         public override JSValue Delete(uint key)
@@ -661,7 +702,7 @@ namespace YantraJS.Core
                 PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
                 return JSBoolean.True;
             }
-            return JSBoolean.False;
+            return JSBoolean.True;
         }
 
         public override JSBoolean Equals(JSValue value)
@@ -688,7 +729,7 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError($"{this} is not a function");
         }
 
-        internal override JSBoolean Less(JSValue value)
+        public override JSBoolean Less(JSValue value)
         {
             switch(value)
             {
@@ -700,7 +741,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        internal override JSBoolean LessOrEqual(JSValue value)
+        public override JSBoolean LessOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
                 return JSBoolean.True;
@@ -713,7 +754,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        internal override JSBoolean Greater(JSValue value)
+        public override JSBoolean Greater(JSValue value)
         {
             switch (value)
             {
@@ -724,7 +765,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        internal override JSBoolean GreaterOrEqual(JSValue value)
+        public override JSBoolean GreaterOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
                 return JSBoolean.True;
@@ -769,7 +810,7 @@ namespace YantraJS.Core
 
                 for (uint i = (uint)start, j = (uint)to; i <= end; i++, j++)
                 {
-                    if (elements.TryRemove(i, out var p))
+                    if (this.TryRemove(i, out var p))
                     {
                         elements[j] = p;
                     }
@@ -781,7 +822,7 @@ namespace YantraJS.Core
             {
                 for (int i = end, j = (this.Length + diff - 1); i >= start; i--, j--)
                 {
-                    if (elements.TryRemove((uint)i, out var p))
+                    if (this.TryRemove((uint)i, out var p))
                     {
                         elements[(uint)j] = p;
                     }
@@ -828,7 +869,7 @@ namespace YantraJS.Core
             return base.ConvertTo(type, out value);
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
@@ -868,6 +909,18 @@ namespace YantraJS.Core
                     return true;
                 }
                 value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                if (en?.MoveNext() ?? false)
+                {
+                    var (Key, Value) = en.Current;
+                    value = @object.GetValue(Value);
+                    return true;
+                }
+                value = @default;
                 return false;
             }
 

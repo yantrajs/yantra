@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Transactions;
 using System.Xml.Schema;
+using YantraJS.Core.Core.Primitive;
 using YantraJS.Core.Runtime;
 using YantraJS.ExpHelper;
 using YantraJS.Extensions;
@@ -114,19 +115,7 @@ namespace YantraJS.Core
             this.value = value;
         }
 
-        //public override int IntValue => (int)(uint)value;
-        public override int IntValue {
-            get
-            {
-                if (value > 2147483647.0)
-                    return 2147483647;
-                #pragma warning disable 1718
-                if (value != value)
-                    return 0;
-                #pragma warning restore 1718
-                return (int)value;
-            }
-        }
+        public override int IntValue => (int)(uint)value;
 
         public override double DoubleValue => value;
 
@@ -233,8 +222,13 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(JSValue value)
         {
+            value = value.IsObject ? value.ValueOf() : value;
+            if (value is JSPrimitiveObject po)
+                value = po.value;
             if (value is JSString @string)
                 return new JSString(this.value + @string.value);
+            if(value is JSObject @object)
+                return new JSString(this.value + @object.StringValue);
             return new JSNumber(this.value + value.DoubleValue);
         }
 
@@ -289,12 +283,19 @@ namespace YantraJS.Core
         public override JSBoolean Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
+            {
+                if (double.IsNaN(this.value))
+                    return JSBoolean.False;
                 return JSBoolean.True;
+            }
             switch (value)
             {
-                case JSNumber number
-                    when (this.value == number.value):
-                    return JSBoolean.True;
+                case JSNumber number:
+                    if (double.IsNaN(this.value) || double.IsNaN(number.value))
+                        return JSBoolean.False;
+                    if(this.value == number.value)
+                        return JSBoolean.True;
+                    return JSBoolean.False;
                 case JSString @string
                     when (this.value == @string.DoubleValue):
                     return JSBoolean.True;
@@ -305,6 +306,9 @@ namespace YantraJS.Core
                     when (this.value == (boolean._value ? 1D : 0D)):
                     return JSBoolean.True;
             }
+            // Added for this TC ExpressionTests.cs Assert.AreEqual(true, Evaluate("2 == [2]"));
+            if (this.ToString() == value.ToString())
+                return JSBoolean.True;
             return JSBoolean.False;
         }
 

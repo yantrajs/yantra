@@ -27,6 +27,13 @@ namespace YantraJS.Core
             return KeyStrings.GetOrCreate(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator KeyString(in StringSpan value)
+        {
+            return KeyStrings.GetOrCreate(value);
+        }
+
+
         private readonly KeyType Type;
         public readonly StringSpan Value;
         public readonly uint Key;

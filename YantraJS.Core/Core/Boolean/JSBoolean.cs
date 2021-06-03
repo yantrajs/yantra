@@ -99,6 +99,11 @@ namespace YantraJS.Core
         {
             if (Object.ReferenceEquals(this, value))
                 return JSBoolean.True;
+            if (!this._value)
+            {
+                if (value.IsNullOrUndefined)
+                    return JSBoolean.False;
+            }
             if (this._value) {
                 if (value.DoubleValue == 1)
                     return JSBoolean.True;

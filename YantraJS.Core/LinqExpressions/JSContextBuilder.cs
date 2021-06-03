@@ -5,13 +5,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.LightWeight;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+
 
 namespace YantraJS.ExpHelper
 {
     public class JSContextStackBuilder
     {
-        private readonly static Type type = typeof(LinkedStack<LexicalScope>);
-
         private readonly static Type itemType = typeof(CallStackItem);
 
         public readonly static Type itemTypeRef = typeof(CallStackItem).MakeByRefType();
@@ -35,7 +37,7 @@ namespace YantraJS.ExpHelper
             itemType.InternalField(nameof(CallStackItem.Column));
 
 
-        public static void Push(List<Expression> stmtList, Expression context,  Expression stack, 
+        public static void Push(IList<Expression> stmtList, Expression context,  Expression stack, 
             Expression fileName, 
             Expression  function,
             int line,
@@ -73,7 +75,7 @@ namespace YantraJS.ExpHelper
 
 
         public static Expression Current =
-            Expression.Field(null, type.InternalField(nameof(JSContext.Current)));
+            Expression.Field(null, type.PublicField(nameof(JSContext.Current)));
 
         //public static Expression Current =
         //    Expression.Field(null, type.InternalField(nameof(JSContext.CurrentContext)));
@@ -87,6 +89,18 @@ namespace YantraJS.ExpHelper
 
         public static MethodInfo _Register =
             type.InternalMethod(nameof(JSContext.Register), typeof(JSVariable));
+
+        public static MethodInfo _NewSyntaxError =
+        type.InternalMethod(nameof(JSContext.NewSyntaxError), typeof(string),typeof(string),typeof(string),typeof(int));
+
+        public static Expression NewSyntaxError(string error) {
+            return Expression.Call(Current, _NewSyntaxError, 
+                Expression.Constant(error),
+                Expression.Constant(null,typeof(string)),
+                Expression.Constant(null, typeof(string)),
+                Expression.Constant(0)
+                );
+        }
 
         private static PropertyInfo _Index =
             type.IndexProperty(typeof(Core.KeyString));

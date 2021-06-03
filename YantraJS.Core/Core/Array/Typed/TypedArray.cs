@@ -1,5 +1,4 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.Generator;
@@ -273,7 +272,7 @@ namespace YantraJS.Core.Typed
             return this.ToString();
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
@@ -287,7 +286,7 @@ namespace YantraJS.Core.Typed
             return new EntryEnumerator(this);
         }
 
-        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this.length);
         }
@@ -336,6 +335,18 @@ namespace YantraJS.Core.Typed
                 value = JSUndefined.Value;
                 return false;
             }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    value = typedArray[(uint)index];
+                    return true;
+                }
+
+                value = @default;
+                return false;
+            }
         }
 
         struct EntryEnumerator : IElementEnumerator
@@ -374,6 +385,18 @@ namespace YantraJS.Core.Typed
                 }
 
                 value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    value = new JSArray(new JSNumber(index), typedArray[(uint)index]);
+                    return true;
+                }
+
+                value = @default;
                 return false;
             }
         }
@@ -415,6 +438,17 @@ namespace YantraJS.Core.Typed
                 return true;
             }
             value = JSUndefined.Value;
+            return false;
+        }
+
+        public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+        {
+            if (++this.index < this.length)
+            {
+                value = new JSNumber(index);
+                return true;
+            }
+            value = @default;
             return false;
         }
     }

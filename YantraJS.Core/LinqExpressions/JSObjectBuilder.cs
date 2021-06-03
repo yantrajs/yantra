@@ -5,6 +5,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+
 namespace YantraJS.ExpHelper
 {
     public class JSObjectBuilder
@@ -20,25 +29,25 @@ namespace YantraJS.ExpHelper
         //        .FirstOrDefault(x => x.GetIndexParameters().Length > 0);
 
         readonly static MethodInfo _NewWithProperties =
-            type.StaticMethod(nameof(JSObject.NewWithProperties));
+            type.PublicMethod(nameof(JSObject.NewWithProperties));
 
         readonly static MethodInfo _NewWithElements =
-            type.StaticMethod(nameof(JSObject.NewWithElements));
+            type.PublicMethod(nameof(JSObject.NewWithElements));
 
         readonly static MethodInfo _NewWithPropertiesAndElements =
-            type.StaticMethod(nameof(JSObject.NewWithPropertiesAndElements));
+            type.PublicMethod(nameof(JSObject.NewWithPropertiesAndElements));
 
         readonly static MethodInfo _AddElement =
-            type.InternalMethod(nameof(JSObject.AddElement), new Type[] { typeof(uint), typeof(JSValue) });
+            type.PublicMethod(nameof(JSObject.AddElement), new Type[] { typeof(uint), typeof(JSValue) });
 
         readonly static MethodInfo _AddProperty =
-            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSValue) });
+            type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSValue) });
 
         readonly static MethodInfo _AddExpressionProperty =
-            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSValue) });
+            type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSValue) });
 
         readonly static MethodInfo _AddPropertyAccessors =
-            type.InternalMethod(nameof(JSObject.AddProperty), new Type[] { typeof(KeyString), typeof(JSFunction), typeof(JSFunction) });
+            type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction) });
 
 
         public static Expression New(IList<ExpressionHolder> keyValues)

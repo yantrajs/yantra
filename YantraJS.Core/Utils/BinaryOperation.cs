@@ -5,7 +5,17 @@ using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using YantraJS.Core;
-using AssignmentOperator = Esprima.Ast.AssignmentOperator;
+using YantraJS.Core.FastParser;
+using YantraJS.ExpHelper;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+
 
 namespace YantraJS.Utils
 {
@@ -91,54 +101,54 @@ namespace YantraJS.Utils
     public class BinaryOperation: SwitchExpression
     {
 
-
-        public static Expression Assign(Expression left, Expression right, AssignmentOperator assignmentOperator)
+        public static Expression Assign(Expression left, Expression right, TokenTypes assignmentOperator)
         {
 
+            var oneF = Expression.Constant(0x1F);
 
-
-            switch(assignmentOperator)
+            switch (assignmentOperator)
             {
-                case AssignmentOperator.Assign:
+                case TokenTypes.Assign:
                     return Assign(left, right);
-                case AssignmentOperator.PlusAssign:
-                    return Assign(left, ExpHelper.JSValueBuilder.Add(left,right));
+                case TokenTypes.AssignAdd:
+                    return Assign(left, ExpHelper.JSValueBuilder.Add(left, right));
             }
 
             var leftDouble = ExpHelper.JSValueBuilder.DoubleValue(left);
             var rightDouble = ExpHelper.JSValueBuilder.DoubleValue(right);
 
-            var leftInt = Expression.Convert(leftDouble, typeof(int));
+            var leftInt = JSValueBuilder.IntValue(left);
+            var rightInt = JSValueBuilder.IntValue(right);
             var leftUInt = Expression.Convert(leftDouble, typeof(uint));
-            var rightInt = Expression.Convert(rightDouble, typeof(int));
+           
 
-            // var rightUInt = Expression.Convert(rightDouble, typeof(uint));
+            var rightUInt = Expression.Convert(rightDouble, typeof(uint));
 
             // convert to double...
             switch (assignmentOperator)
             {
-                case AssignmentOperator.MinusAssign:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Add(leftDouble, rightDouble)));
-                case AssignmentOperator.TimesAssign:
+                case TokenTypes.AssignSubtract:
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Subtract(leftDouble, rightDouble)));
+                case TokenTypes.AssignMultiply:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Multiply(leftDouble, rightDouble)));
-                case AssignmentOperator.DivideAssign:
+                case TokenTypes.AssignDivide:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Divide(leftDouble, rightDouble)));
-                case AssignmentOperator.ModuloAssign:
+                case TokenTypes.AssignMod:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Modulo(leftDouble, rightDouble)));
-                case AssignmentOperator.BitwiseAndAssign:
+                case TokenTypes.AssignBitwideAnd:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.And(leftInt, rightInt)));
-                case AssignmentOperator.BitwiseOrAssign:
+                case TokenTypes.AssignBitwideOr:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Or(leftInt, rightInt)));
-                case AssignmentOperator.BitwiseXOrAssign:
+                case TokenTypes.AssignXor:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.ExclusiveOr(leftInt, rightInt)));
-                case AssignmentOperator.LeftShiftAssign:
+                case TokenTypes.AssignLeftShift:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.LeftShift(leftInt, rightInt)));
-                case AssignmentOperator.RightShiftAssign:
+                case TokenTypes.AssignRightShift:
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt,Expression.And( rightInt, oneF))));
+                case TokenTypes.AssignUnsignedRightShift:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
-                case AssignmentOperator.UnsignedRightShiftAssign:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
-                case AssignmentOperator.ExponentiationAssign:
-                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Power(leftInt, rightInt)));
+                case TokenTypes.AssignPower:
+                    return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Power(leftDouble, rightDouble)));
             }
 
             throw new NotSupportedException();
@@ -216,77 +226,76 @@ namespace YantraJS.Utils
 
         //}
         #endregion
-        public static Expression Operation(Expression left, Expression right, Esprima.Ast.BinaryOperator op)
+        public static Expression Operation(Expression left, Expression right, TokenTypes op)
         {
             var leftDouble = ExpHelper.JSValueBuilder.DoubleValue(left);
             var rightDouble = ExpHelper.JSValueBuilder.DoubleValue(right);
 
-            var leftInt = Expression.Convert(leftDouble, typeof(int));
-            var rightInt = Expression.Convert(rightDouble, typeof(int));
+            var leftInt = JSValueBuilder.IntValue(left);
+            var rightInt = JSValueBuilder.IntValue(right);
 
             var rightUInt = Expression.Convert(rightDouble, typeof(uint));
 
+            var oneF = Expression.Constant(0x1F);
+
             switch (op)
             {
-                case Esprima.Ast.BinaryOperator.Equal:
+                case TokenTypes.Equal:
                     return ExpHelper.JSValueBuilder.Equals(left, right);
-                case Esprima.Ast.BinaryOperator.NotEqual:
+                case TokenTypes.NotEqual:
                     return ExpHelper.JSValueBuilder.NotEquals(left, right);
-                case Esprima.Ast.BinaryOperator.StrictlyEqual:
+                case TokenTypes.StrictlyEqual:
                     return ExpHelper.JSValueBuilder.StrictEquals(left, right);
-                case Esprima.Ast.BinaryOperator.StricltyNotEqual:
+                case TokenTypes.StrictlyNotEqual:
                     return ExpHelper.JSValueBuilder.NotStrictEquals(left, right);
 
 
-                case Esprima.Ast.BinaryOperator.InstanceOf:
+                case TokenTypes.InstanceOf:
                     return ExpHelper.JSValueExtensionsBuilder.InstanceOf(left, right);
-                case Esprima.Ast.BinaryOperator.In:
+                case TokenTypes.In:
                     return ExpHelper.JSValueExtensionsBuilder.IsIn(left, right);
-                case Esprima.Ast.BinaryOperator.Plus:
+                case TokenTypes.Plus:
                     return ExpHelper.JSValueBuilder.Add(left, right);
-                case Esprima.Ast.BinaryOperator.Minus:
+                case TokenTypes.Minus:
                     return ExpHelper.JSNumberBuilder.New(Expression.Subtract(leftDouble, rightDouble));
-                case Esprima.Ast.BinaryOperator.Times:
+                case TokenTypes.Multiply:
                     return ExpHelper.JSNumberBuilder.New(Expression.Multiply(leftDouble, rightDouble));
-                case Esprima.Ast.BinaryOperator.Divide:
+                case TokenTypes.Divide:
                     return ExpHelper.JSNumberBuilder.New(Expression.Divide(leftDouble, rightDouble));
-                case Esprima.Ast.BinaryOperator.Modulo:
+                case TokenTypes.Mod:
                     return ExpHelper.JSNumberBuilder.New(Expression.Modulo(leftDouble, rightDouble));
-                case Esprima.Ast.BinaryOperator.Greater:
+                case TokenTypes.Greater:
                     return ExpHelper.JSValueBuilder.Greater(left, right);
-                case Esprima.Ast.BinaryOperator.GreaterOrEqual:
+                case TokenTypes.GreaterOrEqual:
                     return ExpHelper.JSValueBuilder.GreaterOrEqual(left, right);
-                case Esprima.Ast.BinaryOperator.Less:
+                case TokenTypes.Less:
                     return ExpHelper.JSValueBuilder.Less(left, right);
-                case Esprima.Ast.BinaryOperator.LessOrEqual:
+                case TokenTypes.LessOrEqual:
                     return ExpHelper.JSValueBuilder.LessOrEqual(left, right);
-                case Esprima.Ast.BinaryOperator.BitwiseAnd:
+                case TokenTypes.BitwiseAnd:
                     return ExpHelper.JSNumberBuilder.New(Expression.And(leftInt, rightInt));
-                case Esprima.Ast.BinaryOperator.BitwiseOr:
+                case TokenTypes.BitwiseOr:
                     return ExpHelper.JSNumberBuilder.New(Expression.Or(leftInt, rightInt));
-                case Esprima.Ast.BinaryOperator.BitwiseXOr:
+                case TokenTypes.Xor:
                     return ExpHelper.JSNumberBuilder.New(Expression.ExclusiveOr(leftInt, rightInt));
-                case Esprima.Ast.BinaryOperator.LeftShift:
+                case TokenTypes.LeftShift:
                     return ExpHelper.JSNumberBuilder.New(Expression.LeftShift(leftInt, rightInt));
-                case Esprima.Ast.BinaryOperator.RightShift:
-                    return ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt));
-                case Esprima.Ast.BinaryOperator.UnsignedRightShift:
+                case TokenTypes.RightShift:
+                    return ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt,Expression.And( rightInt, oneF)));
+                case TokenTypes.UnsignedRightShift:
                     return ExpHelper.JSNumberBuilder.New(
                         Expression.RightShift(
                             Expression.Convert(leftInt, typeof(uint)), rightInt));
-                case Esprima.Ast.BinaryOperator.LogicalAnd:
+                case TokenTypes.BooleanAnd:
                     return ExpHelper.JSValueBuilder.LogicalAnd(left, right);
-                case Esprima.Ast.BinaryOperator.LogicalOr:
+                case TokenTypes.BooleanOr:
                     return ExpHelper.JSValueBuilder.LogicalOr(left, right);
-                case Esprima.Ast.BinaryOperator.Exponentiation:
-                    return ExpHelper.JSNumberBuilder.New(Expression.Power(leftDouble, rightDouble));
+                case TokenTypes.Power:
+
+                    return ExpHelper.JSValueBuilder.Power(left, right);
             }
-            throw new NotImplementedException();
+            return null;
         }
-
-
-
-
 
     }
 }

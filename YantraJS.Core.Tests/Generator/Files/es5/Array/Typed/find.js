@@ -21,8 +21,8 @@ int8 = new Int8Array([1, 2, 3]);
 assert.throws(() => {
     int8.find({});
 });
-//(function () {
-// var output = 5;
+(function () {
+ var output = 5;
     function isPresent(element, index, array) {
         output = this;
         return false;
@@ -32,5 +32,5 @@ assert.throws(() => {
     let int8 = new Int8Array([1, 2, 3]);
     int8.find(isPresent, 10);
     assert.strictEqual(output, 10);
-//})();
+})();
 

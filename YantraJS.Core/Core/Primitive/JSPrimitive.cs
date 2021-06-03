@@ -49,7 +49,7 @@ namespace YantraJS.Core
             }
         }
 
-        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             ResolvePrototype();
             return base.GetAllKeys(showEnumerableOnly, inherited);

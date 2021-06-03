@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Dynamic;
 using System.Globalization;
@@ -17,11 +18,23 @@ namespace YantraJS.Core {
 
     public abstract partial class JSValue : IDynamicMetaObjectProvider {
 
-        public virtual bool IsUndefined => false;
+        public bool IsUndefined
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this == JSUndefined.Value;
+        }
 
-        public virtual bool IsNull => false;
+        public bool IsNull
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this == JSNull.Value;
+        }
 
-        internal virtual bool IsNullOrUndefined => false;
+        internal bool IsNullOrUndefined
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this == JSNull.Value || this == JSUndefined.Value;
+        }
 
         public virtual bool IsNumber => false;
 
@@ -46,7 +59,7 @@ namespace YantraJS.Core {
             return def;
         }
 
-        internal object ForceConvert(Type type) { 
+        public object ForceConvert(Type type) { 
             if (type.IsAssignableFrom(typeof(JSValue)))
             {
                 return this;
@@ -92,9 +105,30 @@ namespace YantraJS.Core {
 
         public abstract bool BooleanValue { get; }
 
+        internal virtual string StringValue => this.ToString();
+
         public abstract JSValue TypeOf();
 
         public virtual int IntValue => (int)(uint)this.DoubleValue;
+
+        /// <summary>
+        /// Integer value restricts value within int.MaxValue and
+        /// more than int.MaxValue is returned as int.MaxValue
+        /// </summary>
+        public virtual int IntegerValue
+        {
+            get
+            {
+                var v = DoubleValue;
+                if (v > 2147483647.0)
+                    return 2147483647;
+#pragma warning disable 1718
+                if (v != v)
+                    return 0;
+#pragma warning restore 1718
+                return (int)v;
+            }
+        }
 
         public virtual long BigIntValue => (long)(ulong)this.DoubleValue;
 
@@ -108,6 +142,15 @@ namespace YantraJS.Core {
             }
         }
 
+        
+        /// <summary>
+        /// Unless overriden, it returns self
+        /// </summary>
+        /// <returns></returns>
+        public virtual JSValue ValueOf() {
+            return this;
+        }
+
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>
@@ -115,13 +158,16 @@ namespace YantraJS.Core {
         /// <returns></returns>
         public virtual JSValue AddValue(JSValue value)
         {
-            if (this.CanBeNumber && value.CanBeNumber)
+            var self = this.ValueOf();
+            value = value.IsObject ? value.ValueOf() : value;
+
+            if (self.CanBeNumber && value.CanBeNumber)
             {
-                return new JSNumber(this.DoubleValue + value.DoubleValue);
+                return new JSNumber(self.DoubleValue + value.DoubleValue);
             }
             if (value.ToString().Length == 0)
-                return this.IsString ? this : new JSString(this.ToString());
-            return new JSString(this.ToString() + value.ToString());
+                return self.IsString ? self : new JSString(self.StringValue);
+            return new JSString(self.StringValue + value.StringValue);
         }
         /// <summary>
         /// Speed improvements for string contact operations
@@ -231,7 +277,8 @@ namespace YantraJS.Core {
             set { }
         }
 
-        internal JSValue this[JSObject super, KeyString name]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue this[JSObject super, KeyString name]
         {
             get => this.GetValue(super.GetInternalProperty(name));
             set
@@ -249,7 +296,8 @@ namespace YantraJS.Core {
             }
         }
 
-        internal JSValue this[JSObject super, uint index]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue this[JSObject super, uint index]
         {
             get => this.GetValue(super.GetInternalProperty(index));
             set
@@ -267,7 +315,8 @@ namespace YantraJS.Core {
             }
         }
 
-        internal JSValue this[JSObject super, JSValue name]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue this[JSObject super, JSValue name]
         {
             get
             {
@@ -294,7 +343,8 @@ namespace YantraJS.Core {
 
         public abstract JSBoolean Equals(JSValue value);
 
-        internal static bool StaticEquals(JSValue left, JSValue right)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static bool StaticEquals(JSValue left, JSValue right)
         {
             return left.Equals(right).BooleanValue;
         }
@@ -311,7 +361,7 @@ namespace YantraJS.Core {
             return this.StrictEquals(value);
         }
 
-        internal virtual JSBoolean Less(JSValue value)
+        public virtual JSBoolean Less(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
@@ -326,7 +376,7 @@ namespace YantraJS.Core {
             return JSBoolean.False;
 
         }
-        internal virtual JSBoolean LessOrEqual(JSValue value)
+        public virtual JSBoolean LessOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
@@ -342,7 +392,7 @@ namespace YantraJS.Core {
 
         }
 
-        internal virtual JSBoolean Greater(JSValue value)
+        public virtual JSBoolean Greater(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
@@ -357,7 +407,7 @@ namespace YantraJS.Core {
             return JSBoolean.False;
 
         }
-        internal virtual JSBoolean GreaterOrEqual(JSValue value)
+        public virtual JSBoolean GreaterOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined)) {
                 if (this.CanBeNumber || value.CanBeNumber)
@@ -376,7 +426,7 @@ namespace YantraJS.Core {
         //    yield break;
         //}
 
-        internal virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
+        public virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
             return new ElementEnumerator();
         }
 
@@ -435,11 +485,11 @@ namespace YantraJS.Core {
 
         public virtual JSValue Delete(KeyString key)
         {
-            return JSBoolean.False;
+            return JSBoolean.True;
         }
         public virtual JSValue Delete(uint key)
         {
-            return JSBoolean.False;
+            return JSBoolean.True;
         }
 
         public JSValue Delete(JSValue index)
@@ -475,6 +525,21 @@ namespace YantraJS.Core {
             return new JSDynamicMetaData(parameter, this);
         }
 
+        public JSValue Power(JSValue a) {
+            var v = this.DoubleValue;
+            var a1 = a.DoubleValue;
+            if (a1 == 0)
+                return JSNumber.One;
+            if (a1 == Double.PositiveInfinity || a1 == Double.NegativeInfinity)
+            {
+                if (v == 1 || v == -1)
+
+                    return JSNumber.NaN;
+            }
+
+            return new JSNumber(Math.Pow(this.DoubleValue, a1));
+        }
+
         internal virtual bool TryGetValue(uint i, out JSProperty value)
         {
             value = new JSProperty { };
@@ -498,7 +563,7 @@ namespace YantraJS.Core {
             return false;
         }
 
-        internal virtual IElementEnumerator GetElementEnumerator()
+        public virtual IElementEnumerator GetElementEnumerator()
         {
             return ElementEnumerator.Empty;
         }
@@ -520,6 +585,12 @@ namespace YantraJS.Core {
             public bool MoveNext(out JSValue value)
             {
                 value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                value = @default;
                 return false;
             }
         }

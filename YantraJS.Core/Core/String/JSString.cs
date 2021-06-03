@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -36,6 +37,8 @@ namespace YantraJS.Core
                 return NumberValue;
             }
         }
+
+        
 
         public override bool BooleanValue => value.Length > 0;
 
@@ -136,6 +139,13 @@ namespace YantraJS.Core
             return value.Value;
         }
 
+        public override string ToLocaleString(string format, CultureInfo culture)
+        {
+
+            return value.Value;
+          
+        }
+
         public override JSValue this[uint key] { 
             get
             {
@@ -157,7 +167,7 @@ namespace YantraJS.Core
             set { }
         }
 
-        internal override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this.Length);
         }
@@ -177,10 +187,10 @@ namespace YantraJS.Core
                 return JSBoolean.True;
             switch (value)
             {
-                case JSString strValue
-                    when ((this.value == strValue.value)
-                    || (this.DoubleValue == value.DoubleValue)):
-                    return JSBoolean.True;
+                case JSString strValue:
+                    if(this.value == strValue.value)
+                        return JSBoolean.True;
+                    return JSBoolean.False;
                 case JSNumber number
                     when ((this.DoubleValue == number.value)
                         || (this.value.CompareTo(number.value.ToString()) == 0)):
@@ -190,6 +200,68 @@ namespace YantraJS.Core
                     return JSBoolean.True;
             }
             return JSBoolean.False;
+        }
+
+        public override JSBoolean Less(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue < value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            int n = this.value.CompareTo(value.ToString());
+            return n < 0
+                ? JSBoolean.True
+                : JSBoolean.False;
+
+        }
+
+        public override JSBoolean LessOrEqual(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue <= value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            return this.value.CompareTo(value.ToString()) <= 0
+                ? JSBoolean.True
+                : JSBoolean.False;
+        }
+
+        public override JSBoolean Greater(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue > value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            return this.value.CompareTo(value.ToString()) > 0
+                ? JSBoolean.True
+                : JSBoolean.False;
+        }
+
+        public override JSBoolean GreaterOrEqual(JSValue value)
+        {
+            if (value.IsUndefined)
+                return JSBoolean.False;
+            if (value.CanBeNumber)
+            {
+                return (this.DoubleValue >= value.DoubleValue)
+                    ? JSBoolean.True
+                    : JSBoolean.False;
+            }
+            return this.value.CompareTo(value.ToString()) >= 0
+                ? JSBoolean.True
+                : JSBoolean.False;
         }
 
         public override JSBoolean StrictEquals(JSValue value)
@@ -215,7 +287,7 @@ namespace YantraJS.Core
 
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this.value);
         }
@@ -255,6 +327,18 @@ namespace YantraJS.Core
                     return true;
                 }
                 value = JSUndefined.Value;
+                return false;
+            }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                if (en.MoveNext(out var ch))
+                {
+                    index++;
+                    value = new JSString(new string(ch, 1));
+                    return true;
+                }
+                value = @default;
                 return false;
             }
 

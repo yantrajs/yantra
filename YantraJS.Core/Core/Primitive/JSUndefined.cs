@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace YantraJS.Core
@@ -27,9 +28,9 @@ namespace YantraJS.Core
 
         public override double DoubleValue => double.NaN;
 
-        public override bool IsUndefined => true;
+        //public override bool IsUndefined => true;
 
-        internal override bool IsNullOrUndefined => true;
+        //internal override bool IsNullOrUndefined => true;
 
         public override string ToString()
         {
@@ -37,19 +38,19 @@ namespace YantraJS.Core
         }
 
         public override JSValue this[KeyString name] {
-            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of undefined");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {name} of undefined");
+            get => throw JSContext.Current.NewTypeError($"Cannot get property {name} of undefined");
+            set => throw JSContext.Current.NewTypeError($"Cannot set property {name} of undefined");
         }
 
         public override JSValue this[uint key]
         {
-            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {key} of undefined");
+            get => throw JSContext.Current.NewTypeError($"Cannot get property {key} of undefined");
+            set => throw JSContext.Current.NewTypeError($"Cannot set property {key} of undefined");
         }
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {
-            throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of undefined");
+            throw JSContext.Current.NewTypeError($"Cannot get property {key} of undefined");
         }
 
         public override JSValue Delete(KeyString key)
@@ -85,10 +86,10 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            throw JSContext.Current.NewTypeError("undefined is not a function");
+            throw JSContext.Current.NewTypeError("undefined is not a function", null);
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             throw JSContext.Current.NewTypeError("undefined is not iterable");
         }
@@ -104,6 +105,9 @@ namespace YantraJS.Core
             return !type.IsValueType;
         }
 
-
+        public override string ToLocaleString(string format, CultureInfo culture)
+        {
+            return "";
+        }
     }
 }

@@ -28,12 +28,65 @@ namespace YantraJS.Tests.Generator
 
         private Stopwatch watch = new Stopwatch();
 
+        public bool Parallel = true;
 
-        public override TestResult[] Execute(ITestMethod testMethod)
+        private TestResult[] ExecuteSync(ITestMethod  testMethod)
         {
             var files = GetData();
             var taskList = files.ToList();
             var result = new TestResult[taskList.Count];
+
+
+            watch.Start();
+            AsyncPump.Run(async () =>
+            {
+                int i = 0;
+                var r = new TestResult[taskList.Count];
+                foreach (var task in taskList)
+                {
+                    System.Diagnostics.Debug.WriteLine("Testing " + task.FullName);
+                    Console.WriteLine("Testing " + task.FullName);
+                    var ri = await RunAsyncTest(task);
+                    if(ri.Outcome == UnitTestOutcome.Passed)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Test done " + task.FullName);
+                        Console.WriteLine("Test Done " + task.FullName);
+                    }
+                    r[i++] = ri;
+                }
+                int resultIndex = 0;
+                // display errors first...
+                foreach (var ri in r)
+                {
+                    if (ri.Outcome != UnitTestOutcome.Passed)
+                    {
+                        result[resultIndex++] = ri;
+                    }
+                }
+                foreach (var ri in r)
+                {
+                    if (ri.Outcome == UnitTestOutcome.Passed)
+                    {
+                        result[resultIndex++] = ri;
+                    }
+                }
+            });
+            watch.Stop();
+            return result;
+
+        }
+
+        public override TestResult[] Execute(ITestMethod testMethod)
+        {
+            if (!Parallel)
+            {
+                return ExecuteSync(testMethod);
+            }
+
+            var files = GetData();
+            var taskList = files.ToList();
+            var result = new TestResult[taskList.Count];
+
 
             watch.Start();
             AsyncPump.Run(async () =>
@@ -41,6 +94,7 @@ namespace YantraJS.Tests.Generator
                 var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
                 var r = await Task.WhenAll(tasks);
                 int resultIndex = 0;
+                // display errors first
                 foreach (var ri in r)
                 {
                     if (ri.Outcome != UnitTestOutcome.Passed)
@@ -63,7 +117,8 @@ namespace YantraJS.Tests.Generator
         public virtual IEnumerable<FileInfo> GetData()
         {
             var dir1 = new DirectoryInfo("../../../Generator/Files/" + root);
-            return dir1.EnumerateFiles("*.js", new EnumerationOptions { RecurseSubdirectories = true });
+            // return dir1.EnumerateFiles("*.js", new EnumerationOptions { RecurseSubdirectories = true });
+            return dir1.EnumerateFiles("*.js", SearchOption.AllDirectories);
         }
 
         protected virtual void Evaluate(JSContext context, string content, string fullName)
@@ -86,6 +141,7 @@ namespace YantraJS.Tests.Generator
             // watch.Start();
             var start = watch.ElapsedTicks;
             Exception lastError = null;
+            Debug.WriteLine($"Processing {file.FullName}");
             StringBuilder sb = new StringBuilder();
             try
             {

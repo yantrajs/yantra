@@ -8,6 +8,7 @@ using YantraJS;
 using YantraJS.Extensions;
 using YantraJS.Core.Generator;
 using YantraJS.Core.Typed;
+using System.Globalization;
 
 namespace YantraJS.Core
 {
@@ -268,7 +269,7 @@ namespace YantraJS.Core
         public static JSValue Flat(in Arguments a)
         {
             var result = new JSArray();
-            int depth = a[0]?.IntValue ?? 1;
+            int depth = a[0]?.IntegerValue ?? 1;
             FlattenTo(result, a.This, null, null, depth);
             return result;
             //throw new NotImplementedException();
@@ -431,7 +432,7 @@ namespace YantraJS.Core
                 {
                     isFirst = false;
                 }
-                if (item.IsNullOrUndefined)
+                if (item == null || item.IsNullOrUndefined)
                     continue;
                 sb.Append(item.ToString());
             }
@@ -706,67 +707,56 @@ namespace YantraJS.Core
         [Prototype("slice", Length = 2)]
         public static JSArray Slice(in Arguments a)
         {
-            var start = a.TryGetAt(0, out var a1) ? a1.IntValue : 0;
-            var end = a.TryGetAt(1, out var a2) ? a2.IntValue : -1;
-            JSArray r = new JSArray();
+            var start = a.TryGetAt(0, out var a1) ? a1.IntegerValue : 0;
+            var end = a.TryGetAt(1, out var a2) 
+                ? (a2.IsUndefined ? int.MaxValue : a2.IntegerValue)  
+                : int.MaxValue;
+            
+            var @this = a.This;
+
+            // Fix the arguments so they are positive and within the bounds of the array.
+            if (start < 0)
+                start += @this.Length;
+
+            if (end < 0)
+                end += @this.Length;
+
+            // return empty array
+            if (end <= start)
+                return new JSArray();
+
+            start = Math.Min(Math.Max(start, 0), @this.Length);
+            end = Math.Min(Math.Max(end, 0), @this.Length);
+
+            var resultLength = end - start;
+            JSArray r = new JSArray((uint)resultLength);
             ref var rElements = ref r.CreateElements();
-            uint l;
             uint ni;
-            if (a.This is JSArray ary)
-            {
-                if (end >= 0)
-                {
-                    l = (uint)end >= ary._length ? ary._length - 1: (uint)end;
-                }
-                else 
-                {
-                    int n = ((int)ary._length) + end;
-                    l = n >= 0 ? (uint)n + 1 : ary._length;
-                }
+         
                 ni = 0;
-                ref var aryElements = ref ary.GetElements();
-                for (uint i = (uint)start; i < l; i++)
+                //r.length is int
+                for (uint i = 0; i < r.Length; i++)
                 {
-                    if (aryElements.TryGetValue(i, out var p))
+                    var index = (uint)start + i;
+
+                    if (@this.TryGetValue(index, out var val))
                     {
-                        rElements[ni++] = p;
-                    } else
-                    {
+                        rElements[ni++] = val;
+                    }
+                    else {
                         ni++;
                     }
                 }
+                //_length is uint for internal calculation
                 r._length = ni;
                 return r;
-            }
-            var @object = a.This;
-            // array like object..
-            l = ((uint)@object.Length) >> 0;
-            if (l == 0)
-                return r;
-            if (end >= 0)
-            {
-                l = (uint)end >= l ? l - 1 : (uint)end;
-            }
-            else
-            {
-                int n = ((int)l) + end;
-                l = n >= 0 ? (uint)n + 1 : l;
-            }
-            ni = 0;
-            for (uint i = (uint)start; i < l; i++)
-            {
-                r[ni++] = @object[i];
-            }
-            r._length = ni;
-
-            return r;
         }
 
         [Prototype("some", Length = 1)]
         public static JSValue Some(in Arguments a)
         {
             var array = a.This;
-            var first = a.Get1();
+            var (first, thisArg) = a.Get2();
             if (!(first is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"First argument is not function");
             var en = array.GetElementEnumerator();
@@ -774,7 +764,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(a.This, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
                 if (fn.f(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
@@ -784,15 +774,44 @@ namespace YantraJS.Core
         [Prototype("sort", Length = 1)]
         public static JSValue Sort(in Arguments a)
         {
-
+            // To be modified by Akash
             var fx = a.Get1();
-            var @this = a.This;
+            var @this = a.This as JSObject;
+
+            if (@this == null)
+                throw JSContext.Current.NewTypeError($"Sort can only be called with an Array or an Object");
+
+            var length = @this.Length;
+            if (length <= 1)
+                return @this;
+
             Comparison<JSValue> cx = null;
             if (fx is JSFunction fn)
             {
-                cx = (l, r) => {
-                    var arg = new Arguments(@this, l, r);
-                    return (int)(fn.f(arg).DoubleValue);
+                cx = (left, right) => {
+                    left = left ?? JSNull.Value;
+                    right = right ?? JSNull.Value;
+                    if (left == JSNull.Value)
+                    {
+                        if (right == JSNull.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSNull.Value)
+                        return -1;
+                    if (left == JSUndefined.Value)
+                    {
+                        if (right == JSUndefined.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSUndefined.Value)
+                        return -1;
+                    var arg = new Arguments(JSUndefined.Value, left, right);
+                    var r = fn.f(arg).DoubleValue;
+                    if (double.IsNaN(r))
+                        return 0;
+                    return Math.Sign(r);
                 };
             } else
             {
@@ -805,91 +824,166 @@ namespace YantraJS.Core
                 //{
 
                 //}
-                cx = (l, r) => (l.IsUndefined ? string.Empty : l.ToString())
-                    .CompareTo(r.IsUndefined ? string.Empty : r.ToString());
-            }
-
-            var list = new List<JSValue>();
-            var en = @this.GetElementEnumerator();
-            while(en.MoveNext(out var hasValue, out var item, out var index))
-            {
-                if (hasValue)
+                cx = (left, right) =>
                 {
-                    list.Add(item);
-                }
+                    left = left ?? JSNull.Value;
+                    right = right ?? JSNull.Value;
+                    if (left == JSNull.Value)
+                    {
+                        if (right == JSNull.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSNull.Value)
+                        return -1;
+                    if (left == JSUndefined.Value)
+                    {
+                        if (right == JSUndefined.Value)
+                            return 0;
+                        return 1;
+                    }
+                    if (right == JSUndefined.Value)
+                        return -1;
+                    return string.CompareOrdinal(
+                        left.IsUndefined ? string.Empty : left.ToString(),
+                        right.IsUndefined ? string.Empty : right.ToString());
+                };
             }
 
-            list.Sort(cx);
+            ref var elements = ref @this.GetElements();
 
-            return new JSArray(list);
+            elements.QuickSort(cx, 0, (uint)(length - 1));
+
+            return @this;
         }
 
         [Prototype("splice", Length = 2)]
         public static JSValue Splice(in Arguments a)
         {
             var r = new JSArray();
-            var (startP, deleteCountP) = a.Get2();
+            // var (startP, deleteCountP) = a.Get2();
 
-            var start = startP.IsUndefined ? 0 : startP.IntValue;
-            var length = a.This.Length;
+            //var start = startP.IsUndefined ? 0 : startP.IntValue;
+            var start = a.TryGetAt(0, out var startP)
+                ? startP.IntegerValue
+                : 0;
+            var deleteCount = a.TryGetAt(1,out var deleteCountP)
+                ? deleteCountP.IntegerValue
+                : (a.Length == 0 ? 0 : int.MaxValue);
+            //var length = a.This.Length;
 
             var @this = a.This as JSObject;
             if (@this == null)
                 return r;
 
-            if (@this.IsSealedOrFrozen())
+            if (@this.IsSealedOrFrozen()) 
                 throw JSContext.Current.NewTypeError("Cannot modify property length");
+            
+
+            // Get the length of the array.
+            int arrayLength = @this.Length;
+
+            // This method only supports arrays of length up to 2^31 - 1.
+            if (@this.Length > int.MaxValue)
+                throw JSContext.Current.NewRangeError("The array is too long");
 
 
-            if (start <0)
+            // Fix the arguments so they are positive and within the bounds of the array.
+            if (start < 0)
+                start = Math.Max((int)arrayLength + start, 0);
+            else
+                start = Math.Min(start, (int)arrayLength);
+            deleteCount = Math.Min(Math.Max(deleteCount, 0), (int)arrayLength - start);
+
+            // Get the deleted items.
+            var deletedItems = new JSArray((uint)deleteCount);
+            for (uint i = 0; i < deleteCount; i++)
+                deletedItems[i] = @this[(uint)(start + i)];
+
+            var itemsLength = a.Length > 1 ? a.Length - 2 : 0;
+
+            // Move the trailing elements.
+            int offset = itemsLength - deleteCount;
+            int newLength = (int)arrayLength + offset;
+            if (deleteCount > itemsLength)
             {
-                start = Math.Max(length + start, 0);
+                for (int i = start + itemsLength; i < newLength; i++)
+                    @this[(uint)i] = @this[(uint)(i - offset)];
+
+                // Delete the trailing elements.
+                for (int i = newLength; i < arrayLength; i++)
+                    @this.Delete((uint)i);
             }
-            var deleteCount = 0;
-            if (deleteCountP.IsUndefined)
+            else
             {
-                // cut the array and return..
-                if (start == 0)
-                {
-                    return r;
-                }
-                deleteCount = length - start;
-            } else
-            {
-                deleteCount = deleteCountP.IntValue;
-                if (deleteCount >= length - start) {
-                    deleteCount = length - start;
-                }
+                for (int i = newLength - 1; i >= start + itemsLength; i--)
+                    @this[(uint)i] = @this[(uint)(i - offset)];
             }
+            //SetLength(thisObj, (uint)newLength);
+            @this.Length = newLength;
 
-            if (deleteCount > 0)
-            {
-                // copy items...
-                var end = start + deleteCount;
-                for (uint i = (uint)start, j = 0; i <end; i++, j++)
-                {
-                    if(@this.TryGetValue(i, out var p)) {
-                        r[j] = p.value;
-                    }
+            // Insert the new elements.
+            for (int i = 0; i < itemsLength; i++)
+                @this[(uint)(start + i)] = a[i + 2];
 
-                }
-                r._length = (uint)deleteCount;
-                @this.MoveElements(end, start);
-                // @this.Length -= deleteCount;
-            }
+            // Return the deleted items.
+            return deletedItems;
 
-            var insertLength = a.Length - 2;
-            if (insertLength > 0)
-            {
-                // move items...
-                @this.MoveElements(start, start + insertLength);
-                for (int i = 2, j = start; i < a.Length; i++, j++)
-                {
-                    @this[(uint)j] = a.GetAt(i);
-                }
-            }
 
-            return r;
+
+
+
+
+            //if (start <0)
+            //{
+            //    start = Math.Max(length + start, 0);
+            //}
+            //var deleteCount = 0;
+            //if (deleteCountP.IsUndefined)
+            //{
+            //    // cut the array and return..
+            //    if (start == 0)
+            //    {
+            //        return r;
+            //    }
+            //    deleteCount = length - start;
+            //} else
+            //{
+            //    //deleteCount = deleteCountP.IntValue;
+            //    deleteCount = deleteCountP.IntegerValue;
+            //    if (deleteCount >= length - start) {
+            //        deleteCount = length - start;
+            //    }
+            //}
+
+            //if (deleteCount > 0)
+            //{
+            //    // copy items...
+            //    var end = start + deleteCount;
+            //    for (uint i = (uint)start, j = 0; i <end; i++, j++)
+            //    {
+            //        if(@this.TryGetValue(i, out var p)) {
+            //            r[j] = p.value;
+            //        }
+
+            //    }
+            //    r._length = (uint)deleteCount;
+            //    @this.MoveElements(end, start);
+            //    // @this.Length -= deleteCount;
+            //}
+
+            //var insertLength = a.Length - 2;
+            //if (insertLength > 0)
+            //{
+            //    // move items...
+            //    @this.MoveElements(start, start + insertLength);
+            //    for (int i = 2, j = start; i < a.Length; i++, j++)
+            //    {
+            //        @this[(uint)j] = a.GetAt(i);
+            //    }
+            //}
+
+         //   return r;
 
         }
 
@@ -946,14 +1040,66 @@ namespace YantraJS.Core
             return new JSNumber(@this._length);
         }
 
+        [Prototype("toLocaleString", Length = 0)]
+        internal static JSValue ToLocaleString(in Arguments a)
+        {
+            var @this = a.This as JSArray;
+            var (locale, format) = a.Get2();
+            StringBuilder sb = new StringBuilder();
+
+            var def = "N0";
+            //switch (@this.type)
+            //{
+            //    case JSArray.Float32Array:
+            //    case TypedArrayType.Float64Array:
+            //        def = "N";
+            //        break;
+            //}
+
+            string strFormat = format.IsNullOrUndefined ? def : (format.IsString ? format.ToString() :
+                throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats")
+                );
+
+            CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
+            // Group separator based on Culture Info.
+            var separator = culture.TextInfo.ListSeparator;
+            
+            bool first = true;
+            var en = @this.GetElementEnumerator();
+            while (en.MoveNext(out var n))
+            {
+                if (!first)
+                {
+                    //sb.Append(',');
+                    sb.Append(separator);
+                }
+                first = false;
+                sb.Append(n.ToLocaleString(strFormat, culture));
+            }
+            return new JSString(sb.ToString());
+
+
+        }
+
         [Prototype("toString")]
-        internal static JSValue ToString(in Arguments args)
-            => new JSString(
-                args.This is JSArray a
-                    ? a.ToString()
-                    : "[object Object]");
+        internal static JSValue ToString(in Arguments args) {
+            if(args.This.IsArray)
+                return Join(in args);
+            return args.This.InvokeMethod(KeyStrings.join,in args);
+        }
+        //=> new JSString(
+        //    args.This is JSArray a
+        //        ? a.ToString()
+        //        : "[object Object]");
 
 
-        
+        [Prototype("values", Length = 2)]
+        [Symbol("@@iterator")]
+        public static JSValue Values(in Arguments a)
+        {
+            return new JSGenerator(a.This.GetElementEnumerator(), "Array Iterator");
+        }
+
+
     }
 }

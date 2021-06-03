@@ -4,6 +4,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+
 namespace YantraJS.ExpHelper
 {
     public class JSStringBuilder 
@@ -22,7 +31,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(Expression exp)
         {
-            return Expression.New(_New, exp);
+            return Expression.TypeAs( Expression.New(_New, exp), typeof(JSValue));
         }
 
         public static Expression ConcatBasicStrings(Expression left, Expression right)

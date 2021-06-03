@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using YantraJS.Core.CodeGen;
@@ -61,22 +62,25 @@ namespace YantraJS.Core
             return @this;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddPrototypeProperty(in KeyString name, JSFunction getter, JSFunction setter)
+        public JSClass AddPrototypeProperty(in KeyString name, JSFunction getter, JSFunction setter)
         {
             this.prototype.GetOwnProperties()[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddPrototypeMethod(in KeyString name, JSValue value)
+        public JSClass AddPrototypeMethod(in KeyString name, JSValue value)
         {
             this.prototype.GetOwnProperties()[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddPrototypeMethod(JSValue name, JSValue value)
+        public JSClass AddPrototypeMethod(JSValue name, JSValue value)
         {
             var key = name.ToKey();
             if (key.IsSymbol)
@@ -89,16 +93,18 @@ namespace YantraJS.Core
         }
 
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddStaticProperty(in KeyString name, JSFunction getter, JSFunction setter)
+        public JSClass AddStaticProperty(in KeyString name, JSFunction getter, JSFunction setter)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             ownProperties[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSClass AddStaticMethod(in KeyString name, JSValue value)
+        public JSClass AddStaticMethod(in KeyString name, JSValue value)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);

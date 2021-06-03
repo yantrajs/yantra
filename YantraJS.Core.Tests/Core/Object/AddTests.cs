@@ -60,7 +60,7 @@ namespace YantraJS.Tests.Core.Object
         {
             var a = new JSObject();
             a["a"] = JSContext.Current;
-            a["valueOf"] = new JSFunction((in Arguments a) => {
+            a["valueOf"] = new JSFunction((in Arguments a1) => {
                 return JSUndefined.Value;
             });
             // a["length"] = a;

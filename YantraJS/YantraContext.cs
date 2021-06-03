@@ -1,5 +1,4 @@
-﻿using Esprima.Ast;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Threading;
@@ -47,7 +46,7 @@ namespace YantraJS
                 if (System.IO.File.Exists(v))
                     return AppDomain.CurrentDomain.Load(System.IO.File.ReadAllBytes(v));
             }
-            name = name.Split(",")[0].Trim();
+            name = name.Split(',')[0].Trim();
             if (assemblyCache.TryGetValue(name, out v))
             {
                 if (System.IO.File.Exists(v))
@@ -69,7 +68,7 @@ namespace YantraJS
         private async Task<JSModuleDelegate> LoadDelegate(string assemblyPath)
         {
             var returnType = typeof(Task<JSModuleDelegate>);
-            var data = await System.IO.File.ReadAllBytesAsync(assemblyPath);
+            var data = await ReadAllBytesAsync(assemblyPath);
             var a = AppDomain.CurrentDomain.Load(data);
             var methods = a.GetTypes().SelectMany(x => x.GetMethods());
             var p = methods.FirstOrDefault(x => x.IsStatic && x.ReturnType == returnType);
@@ -108,11 +107,31 @@ namespace YantraJS
 
         }
 
+        private async Task<byte[]> ReadAllBytesAsync(string assemblyPath)
+        {
+            using(var fs = System.IO.File.OpenRead(assemblyPath))
+            {
+                var ms = new MemoryStream();
+                await fs.CopyToAsync(ms);
+                return ms.ToArray();
+            }
+        }
+
+        private async Task<string> ReadAllTextAsync(string filePath)
+        {
+            using (var ss = new StreamReader(filePath))
+            {
+                return await ss.ReadToEndAsync();
+            }
+
+        }
+
+
         async Task<JSModuleDelegate> LoadDelegate(FileInfo dllFile, FileInfo depsFile)
         {
             if (depsFile.Exists)
             {
-                var text = await System.IO.File.ReadAllTextAsync(depsFile.FullName);
+                var text = await ReadAllTextAsync(depsFile.FullName);
                 var files = JsonConvert.DeserializeObject<DependentAssemblyName[]>(text);
                 foreach(var file in files)
                 {

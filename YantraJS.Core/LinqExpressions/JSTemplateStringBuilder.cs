@@ -5,6 +5,16 @@ using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core.String;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
+
 namespace YantraJS.ExpHelper
 {
     public class JSTemplateStringBuilder
@@ -22,6 +32,23 @@ namespace YantraJS.ExpHelper
 
         private static MethodInfo _toJSString =
             type.GetMethod(nameof(JSTemplateString.ToJSString));
+
+        public static Expression New(IEnumerable<Expression> select, int total)
+        {
+            Expression exp = Expression.New(_new, Expression.Constant(total));
+            var en = select.GetEnumerator();
+            while (en.MoveNext())
+            {
+                var current = en.Current;
+                if (current.NodeType == YExpressionType.Constant)
+                {
+                    exp = Expression.Call(exp, _addQuasi, current);
+                    continue;
+                }
+                exp = Expression.Call(exp, _addExpression, current);
+            }
+            return Expression.Call(exp, _toJSString);
+        }
 
         public static Expression New(List<string> quasis, IEnumerable<Expression> select)
         {

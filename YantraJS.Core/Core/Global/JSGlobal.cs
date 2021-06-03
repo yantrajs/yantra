@@ -1,5 +1,4 @@
-﻿using Esprima.Ast;
-using Microsoft.Threading;
+﻿using Microsoft.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -108,10 +107,6 @@ namespace YantraJS.Core
             }, @this);
             return JSUndefined.Value;
         }
-
-        private static long timeouts = 1;
-
-        private static long intervals = 1;
 
         [Static("setInterval", Length = 2)]
         public static JSValue SetInterval(in Arguments a)

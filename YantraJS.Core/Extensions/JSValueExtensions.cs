@@ -1,6 +1,6 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -10,7 +10,7 @@ using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    public static class JSValueExtensions
+    public static partial class JSValueExtensions
     {
 
         /// <summary>
@@ -148,67 +148,6 @@ namespace YantraJS.Core
             return fx.CreateInstance(a);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, in KeyString name)
-        {
-            var fx = @this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
-            var a = new Arguments(@this);
-            return fx.InvokeFunction(a);
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0)
-        {
-            var fx = @this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
-            var a = new Arguments(@this, arg0);
-            return fx.InvokeFunction(a);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0, JSValue arg1)
-        {
-            var fx = @this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
-            var a = new Arguments(@this, arg0, arg1);
-            return fx.InvokeFunction(a);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0, JSValue arg1, JSValue arg2)
-        {
-            var fx = @this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
-            var a = new Arguments(@this, arg0, arg1, arg2);
-            return fx.InvokeFunction(a);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
-        {
-            var fx = @this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
-            var a = new Arguments(@this, arg0, arg1, arg2, arg3);
-            return fx.InvokeFunction(a);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue InvokeMethod(this JSValue @this, in KeyString name, JSValue[] args)
-        {
-            var fx = @this[name];
-            if (fx.IsUndefined)
-                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
-            var a = new Arguments(@this, args);
-            return fx.InvokeFunction(a);
-        }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, uint name, in Arguments a)
@@ -228,6 +167,7 @@ namespace YantraJS.Core
             return @this.InvokeMethod(key, a);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue NullIfUndefined(JSValue value)
         {
@@ -236,16 +176,18 @@ namespace YantraJS.Core
             return value;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSValue NullIfTrue(JSValue value)
+        public static JSValue NullIfTrue(JSValue value)
         {
             if (value.BooleanValue)
                 return null;
             return value;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSValue NullIfFalse(JSValue value)
+        public static JSValue NullIfFalse(JSValue value)
         {
             if (!value.BooleanValue)
                 return null;
@@ -299,8 +241,8 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError("Right side of instanceof is undefined");
             if (value.IsNull)
                 throw JSContext.Current.NewTypeError("Right side of instanceof is null");
-            if(!value.IsObject)
-                throw JSContext.Current.NewTypeError("Right side of instanceof is not an object");
+            if(!value.IsFunction)
+                throw JSContext.Current.NewTypeError("Right side of instanceof is not a function");
             var p = target.prototypeChain?.@object;
             if (p == null)
                 return JSBoolean.False;
@@ -315,16 +257,17 @@ namespace YantraJS.Core
         public static JSBoolean IsIn(this JSValue target, JSValue value)
         {
             if (!(value is JSObject tx))
-                return JSBoolean.False;
+                throw JSContext.Current.NewTypeError($"Cannot use 'in' operator to search for '{target}' in {value}");
             var key = target.ToKey(false);
             if (key.IsUInt)
             {
                 var p = tx.GetInternalProperty(key.Key);
-                if (p.IsEnumerable)
+                if (!p.IsEmpty)
                     return JSBoolean.True;
+                return JSBoolean.False;
             }
             var p1 = tx.GetInternalProperty(key);
-            if (p1.IsEnumerable)
+            if (!p1.IsEmpty)
                 return JSBoolean.True;
             return JSBoolean.False;
         }

@@ -4,6 +4,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+
 namespace YantraJS.ExpHelper
 {
     public class IElementEnumeratorBuilder
@@ -11,11 +20,17 @@ namespace YantraJS.ExpHelper
         private static readonly Type type = typeof(IElementEnumerator);
 
         private static MethodInfo getMethod =
-            typeof(JSValue).InternalMethod(
+            typeof(JSValue).PublicMethod(
                 nameof(JSValue.GetElementEnumerator));
 
         private static MethodInfo moveNext =
-            type.InternalMethod(nameof(IElementEnumerator.MoveNext), typeof(JSValue).MakeByRefType());
+            type.PublicMethod(nameof(IElementEnumerator.MoveNext), typeof(JSValue).MakeByRefType());
+
+        private static MethodInfo moveNextOrDefault =
+            type.PublicMethod(nameof(IElementEnumerator.MoveNextOrDefault), 
+                typeof(JSValue).MakeByRefType(),
+                typeof(JSValue));
+
 
         public static Expression Get(Expression target)
         {
@@ -35,15 +50,9 @@ namespace YantraJS.ExpHelper
 
         public static Expression AssignMoveNext(
             Expression assignee,
-            Expression target,
-            Expression item)
+            Expression target)
         {
-            return Expression.Assign(assignee,
-                Expression.Condition(
-                    Expression.Call(target, moveNext, item),
-                    item,
-                    JSUndefinedBuilder.Value
-                    ));
+            return Expression.Call(target, moveNextOrDefault, assignee, JSUndefinedBuilder.Value);
         }
     }
 }

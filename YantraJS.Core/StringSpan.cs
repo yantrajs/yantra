@@ -10,6 +10,11 @@ using System.Text;
 namespace YantraJS.Core
 {
 
+    public static class StringSpanExtensions
+    {
+        public static StringSpan ToStringSpan(this string text, int offset, int length) => new StringSpan(text, offset, length);
+    }
+
     [DebuggerDisplay("{Key}: {Value}")]
     public struct KeyValue
     {
@@ -50,6 +55,7 @@ namespace YantraJS.Core
 
         public string? Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (Source == null)
@@ -62,6 +68,7 @@ namespace YantraJS.Core
 
         public unsafe char this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (Source == null || (uint)index >= (uint)Length)
@@ -136,7 +143,7 @@ namespace YantraJS.Core
         }
 
 
-        public bool Equals(StringSpan other) => Equals(other, StringComparison.Ordinal);
+        public bool Equals(StringSpan other) => Equals(in other, StringComparison.Ordinal);
 
         public bool Equals(in StringSpan other, StringComparison comparisonType)
         {
@@ -150,8 +157,9 @@ namespace YantraJS.Core
 
         public static bool Equals(in StringSpan a, in StringSpan b, StringComparison comparisonType)
         {
-            return a.Equals(b, comparisonType);
+            return a.Equals(in b, comparisonType);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(string other)
         {
             return Equals(other, StringComparison.Ordinal);
@@ -184,7 +192,11 @@ namespace YantraJS.Core
             }
             if (other.Source == null)
                 return -1;
-            return string.Compare(Source, Offset, other.Source, other.Offset, Length, StringComparison.Ordinal);
+            var n = other.Length;
+            return string.Compare(Source, Offset, other.Source, other.Offset, 
+                Length > n 
+                ? Length
+                : n, StringComparison.Ordinal);
         }
 
         public override int GetHashCode()
@@ -257,7 +269,7 @@ namespace YantraJS.Core
 
         public struct CharEnumerator: IEnumerator<char>
         {
-            private StringSpan span;
+            private readonly StringSpan span;
             private int index;
 
             public CharEnumerator(in StringSpan span)

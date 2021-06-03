@@ -17,7 +17,7 @@ namespace YantraTests
     {
         public ModuleFolderAttribute(string root) : base(root)
         {
-
+            this.Parallel = false;
         }
 
         private static DirectoryInfo rootModules;

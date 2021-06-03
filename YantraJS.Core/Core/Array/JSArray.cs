@@ -1,5 +1,4 @@
-﻿using Esprima.Ast;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +24,13 @@ namespace YantraJS.Core
         public JSArray(params JSValue[] items): this((IEnumerable<JSValue>)items)
         {
 
+        }
+
+        public JSArray(IElementEnumerator en): base(JSContext.Current.ArrayPrototype)
+        {
+            ref var elements = ref GetElements(true);
+            while (en.MoveNextOrDefault(out var v, JSUndefined.Value))
+                elements[_length++] = JSProperty.Property(v);
         }
 
         public JSArray(IEnumerable<JSValue> items): this()
@@ -137,7 +143,7 @@ namespace YantraJS.Core
         //    return elements.TryRemove(i, out p);
         //}
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
@@ -205,6 +211,28 @@ namespace YantraJS.Core
                 return false;
             }
 
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                ref var elements = ref array.GetElements();
+                if ((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
+                {
+                    if (elements.TryGetValue(index, out var property))
+                    {
+                        value = property.IsEmpty
+                            ? null
+                            : (property.IsValue
+                            ? property.value
+                            : (property.set.InvokeFunction(new Arguments(this.array))));
+                    }
+                    else
+                    {
+                        value = @default;
+                    }
+                    return true;
+                }
+                value = @default;
+                return false;
+            }
         }
 
         internal void AddRange(JSValue iterator)
@@ -276,6 +304,18 @@ namespace YantraJS.Core
             }
 
             value = JSUndefined.Value;
+            return false;
+        }
+
+        public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+        {
+            if (++this.index < array.Length)
+            {
+                value = new JSArray(new JSNumber(index), array[(uint)index]);
+                return true;
+            }
+
+            value = @default;
             return false;
         }
     }

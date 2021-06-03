@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -9,7 +10,7 @@ namespace YantraJS.Core
     public class JSException: Exception
     {
 
-        public JSError Error { get; }
+        public JSValue Error { get; }
 
         private List<(StringSpan target, string file, int line, int column)> trace
             = new List<(StringSpan target, string file, int line, int column)>();
@@ -24,7 +25,7 @@ namespace YantraJS.Core
             {
                 this.trace.Add((function, filePath ?? "Unknown", line, 1));
             }
-            Error = new JSError(this);
+            Error = message;
         }
 
         public JSException(
@@ -109,7 +110,14 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Throw(JSValue value)
         {
-            throw value is JSError jse ? jse.Exception : new JSException(value.ToString());
+            throw value is JSError jse ? jse.Exception : new JSException(value);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue ThrowSyntaxError(string value)
+        {
+            throw JSContext.Current.NewSyntaxError(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

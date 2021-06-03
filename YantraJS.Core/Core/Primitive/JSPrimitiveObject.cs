@@ -37,7 +37,13 @@ namespace YantraJS.Core.Core.Primitive
 
         public override JSValue CreateInstance(in Arguments a)
         {
-            return value.CreateInstance(a);
+            // return value.CreateInstance(a);
+            throw JSContext.Current.NewTypeError($"Cannot create instance of {this}");
+        }
+
+        public override JSValue AddValue(JSValue value)
+        {
+            return this.value.AddValue(value);
         }
 
         public override JSValue this[uint name] {
@@ -55,6 +61,24 @@ namespace YantraJS.Core.Core.Primitive
                 }
                 base[name] = value;
             }
+        }
+
+        /// <summary> Added for below TCs in ExpressionTests.cs
+        /// Assert.AreEqual(false, Evaluate("var x = new Number(10); x == new Number(10)"));
+        // Assert.AreEqual(true, Evaluate("var x = new Number(10); x == x"));
+       /// </summary>
+       /// <param name="value"></param>
+       /// <returns></returns>
+    
+        public override JSBoolean Equals(JSValue value)
+        {
+            if (object.ReferenceEquals(this, value))
+                return JSBoolean.True;
+            if (value is JSPrimitiveObject)
+            {
+                return JSBoolean.False;
+            }
+            return base.Equals(value);
         }
     }
 }

@@ -4,6 +4,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using YantraJS.Core;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.ExpHelper
 {
@@ -17,12 +20,20 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _Throw =
             type.InternalMethod(nameof(Core.JSException.Throw), typeof(Core.JSValue));
 
+        private static MethodInfo _ThrowSyntaxError =
+            type.PublicMethod(nameof(Core.JSException.ThrowSyntaxError), typeof(string));
+
         private static MethodInfo _From =
             type.InternalMethod(nameof(JSException.From), typeof(Exception));
 
         public static Expression Throw(Expression value)
         {
             return Expression.Call(null, _Throw, value);
+        }
+
+        public static Expression ThrowSyntaxError(string value)
+        {
+            return Expression.Call(null, _ThrowSyntaxError, Expression.Constant(value));
         }
 
         private static MethodInfo _ThrowNotFunction =
@@ -73,13 +84,13 @@ namespace YantraJS.ExpHelper
 
         public static Expression Wrap(Expression body)
         {
-            // return body;
-            var b = Expression.Variable(typeof(Exception));
-            var cb = Expression.Catch(b, 
-                Expression.Throw(From(b),typeof(JSValue)), 
-                Expression.Not(Expression.TypeIs(b, typeof(JSException))));
-            return Expression.Block(new ParameterExpression[] { b }, 
-                Expression.TryCatch(body, cb )).ToJSValue();
+            return body;
+            //var b = Expression.Variable(typeof(Exception));
+            //var cb = Expression.Catch(b, 
+            //    Expression.Throw(From(b),typeof(JSValue)), 
+            //    Expression.Not(Expression.TypeIs(b, typeof(JSException))));
+            //return Expression.Block(new ParameterExpression[] { b }, 
+            //    Expression.TryCatch(body, cb )).ToJSValue();
         }
     }
 }

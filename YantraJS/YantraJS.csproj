@@ -9,6 +9,7 @@
     <Version>1.0.1</Version>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
+    <LangVersion>latest</LangVersion>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 

@@ -1,5 +1,4 @@
-﻿using Esprima;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -14,6 +13,15 @@ using YantraJS.Core.CodeGen;
 using YantraJS.Core.Generator;
 using YantraJS.Core.String;
 using YantraJS.Extensions;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 
 namespace YantraJS.ExpHelper
 {
@@ -51,7 +59,7 @@ namespace YantraJS.ExpHelper
         static Type type = typeof(JSFunction);
 
         private static FieldInfo _prototype =
-            type.InternalField(nameof(JSFunction.prototype));
+            type.PublicField(nameof(JSFunction.prototype));
 
         public static Expression Prototype(Expression target)
         {
@@ -71,7 +79,7 @@ namespace YantraJS.ExpHelper
             typeof(JSValue).InternalMethod(nameof(JSFunction.InvokeFunction), ArgumentsBuilder.refType);
 
         private static MethodInfo _invokeSuperConstructor
-            = typeof(JSFunction).InternalMethod(nameof(JSFunction.InvokeSuperConstructor), typeof(JSValue), typeof(Arguments).MakeByRefType());
+            = typeof(JSFunction).PublicMethod(nameof(JSFunction.InvokeSuperConstructor), typeof(JSValue), typeof(Arguments).MakeByRefType());
 
         public static Expression InvokeSuperConstructor(Expression returnValue, Expression super, Expression args)
         {

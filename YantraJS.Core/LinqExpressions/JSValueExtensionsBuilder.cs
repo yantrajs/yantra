@@ -4,6 +4,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Extensions;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.FastParser;
 
 namespace YantraJS.ExpHelper
 {
@@ -31,7 +40,7 @@ namespace YantraJS.ExpHelper
         }
 
         private readonly static MethodInfo _NullIfTrue =
-            type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfTrue));
+            type.PublicMethod(nameof(JSValueExtensions.NullIfTrue), typeof(JSValue));
 
         public static Expression NullIfTrue(Expression exp)
         {
@@ -39,7 +48,7 @@ namespace YantraJS.ExpHelper
         }
 
         private readonly static MethodInfo _NullIfFalse =
-            type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfFalse));
+            type.PublicMethod(nameof(JSValueExtensions.NullIfFalse), typeof(JSValue));
 
         private readonly static MethodInfo _NullIfUndefined =
             type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfUndefined));
@@ -54,22 +63,59 @@ namespace YantraJS.ExpHelper
         }
 
 
-        static readonly MethodInfo _InvokeMethodKeyString
-            = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType, ArgumentsBuilder.refType);
-        static readonly MethodInfo _InvokeMethodUInt
-            = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), ArgumentsBuilder.refType);
-        static readonly MethodInfo _InvokeMethodJSValue
-            = type.InternalMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), ArgumentsBuilder.refType);
+        static readonly MethodInfo[] _InvokeMethodKeyString
+            = new MethodInfo[] {
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethodSpread), typeof(JSValue), KeyStringsBuilder.RefType, typeof(JSValue[])),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType, typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType, typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType, typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType, typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), KeyStringsBuilder.RefType, typeof(JSValue[]))
+            };
+        static readonly MethodInfo[] _InvokeMethodKeyUint
+            = new MethodInfo[] {
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethodSpread), typeof(JSValue), typeof(uint), typeof(JSValue[])),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(uint), typeof(JSValue[]))
+            };
+        static readonly MethodInfo[] _InvokeMethodJSValue
+                    = new MethodInfo[] {
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethodSpread), typeof(JSValue), typeof(JSValue), typeof(JSValue[])),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue), typeof(JSValue)),
+                type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), typeof(JSValue[]))
+                    };
 
-        public static Expression InvokeMethod(Expression target, Expression method, Expression args)
+        public static Expression InvokeMethod(Expression target, Expression method, in ArraySpan<Expression> args, bool hasSpread)
         {
-            if (method.Type == typeof(KeyString))
-                return Expression.Call(null, _InvokeMethodKeyString, target, method, args);
-            if (method.Type == typeof(uint))
-                return Expression.Call(null, _InvokeMethodUInt, target, method, args);
-            if (method.Type == typeof(int))
-                return Expression.Call(null , _InvokeMethodUInt, target, Expression.Convert(method, typeof(uint)), args);
-            return Expression.Call(null, _InvokeMethodJSValue, target, method, args);
+
+            var methods = method.Type == typeof(KeyString)
+                ? _InvokeMethodKeyString
+                : method.Type == typeof(uint)
+                    ? _InvokeMethodKeyUint
+                    : _InvokeMethodJSValue;
+
+
+            var m = hasSpread ? methods[0] : methods[args.Length <= 4 ? args.Length + 1 : 6];
+
+            if (hasSpread || args.Length <= 4)
+            {
+                var finalArgs = new Expression[args.Length + 2];
+                finalArgs[0] = target;
+                finalArgs[1] = method;
+                args.Copy(finalArgs, 2);
+
+                return Expression.Call(null, m, finalArgs);
+            }
+            return Expression.Call(null, m, target, method, Expression.NewArray(typeof(JSValue), args.ToArray()));
         }
 
 

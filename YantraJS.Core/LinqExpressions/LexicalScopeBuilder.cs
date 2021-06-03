@@ -1,10 +1,18 @@
-﻿using Esprima;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 
 namespace YantraJS.ExpHelper
 {
@@ -18,15 +26,13 @@ namespace YantraJS.ExpHelper
 
         private static ConstructorInfo _New
             = typeof(Core.CallStackItem)
-            .GetConstructor(BindingFlags.CreateInstance | BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                new Type[] {
+            .PublicConstructor(
                     typeof(JSContext),
                     typeof(string),
                     StringSpanBuilder.RefType,
                     typeof(int),
                     typeof(int)
-                }, null);
+                );
 
         public static Expression NewScope(
             Expression context,
@@ -46,19 +52,16 @@ namespace YantraJS.ExpHelper
         //private static PropertyInfo _Position =
         //    type.Property(nameof(Core.LexicalScope.Position));
 
-        private static ConstructorInfo _NewPosition =
-            typeof(Position).Constructor(typeof(int), typeof(int));
-
         private static FieldInfo _Line =
-            type.InternalField(nameof(CallStackItem.Line));
+            type.PublicField(nameof(CallStackItem.Line));
 
         private static FieldInfo _Column =
-            type.InternalField(nameof(CallStackItem.Column));
+            type.PublicField(nameof(CallStackItem.Column));
 
         private static MethodInfo _Update =
             type.InternalMethod(nameof(CallStackItem.Update));
 
-        public static void Update(List<Expression> result, Expression exp, int line, int column)
+        public static void Update(IList<Expression> result, Expression exp, int line, int column)
         {
             result.Add(Expression.Assign(Expression.Field(exp, _Line), Expression.Constant(line)));
             result.Add(Expression.Assign(Expression.Field(exp, _Column), Expression.Constant(column)));

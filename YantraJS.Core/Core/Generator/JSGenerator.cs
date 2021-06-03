@@ -5,17 +5,16 @@ using System.Collections.Generic;
 using System.Threading;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.LightWeight;
-using YantraJS.Core.LinqExpressions.Generators;
+using YantraJS.Core.LinqExpressions.GeneratorsV2;
 
 namespace YantraJS.Core.Generator
 {
     public class JSGenerator : JSObject, IDisposable
     {
         readonly IElementEnumerator en;
-        private ClrGenerator cg;
+        private ClrGeneratorV2 cg;
         private readonly string name;
 
-        private JSContext context;
         internal JSValue value;
         internal bool done;
 
@@ -25,7 +24,7 @@ namespace YantraJS.Core.Generator
             this.name = name;
         }
 
-        public JSGenerator(ClrGenerator g)
+        public JSGenerator(ClrGeneratorV2 g)
         {
             this.BasePrototypeObject = JSContext.Current.GeneratorPrototype;
             this.cg = g;
@@ -74,6 +73,30 @@ namespace YantraJS.Core.Generator
                     .AddProperty(KeyStrings.value, this.value)
                     .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
 
+        public bool MoveNext(JSValue replaceOld, out JSValue item)
+        {
+
+            var c = JSContext.Current;
+            var top = c.Top;
+            try
+            {
+                c.Top = cg.StackItem;
+                if (cg.Next(replaceOld, out item))
+                {
+                    this.done = false;
+                    this.value = item;
+                    return true;
+                }
+                this.value = JSUndefined.Value;
+                this.done = true;
+                return false;
+            }
+            finally
+            {
+                c.Top = top;
+            }
+        }
+
         public JSValue Next(JSValue replaceOld = null)
         {
             JSValue item;
@@ -107,7 +130,7 @@ namespace YantraJS.Core.Generator
             return ValueObject;
         }
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             return new ElementEnumerator(this);
         }
@@ -151,6 +174,20 @@ namespace YantraJS.Core.Generator
                 index = 0;
                 value = JSUndefined.Value;
                 hasValue = false;
+                return false;
+
+            }
+
+            public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+            {
+                generator.Next();
+                if (!generator.done)
+                {
+                    this.index++;
+                    value = this.generator.value;
+                    return true;
+                }
+                value = @default;
                 return false;
 
             }

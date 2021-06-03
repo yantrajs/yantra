@@ -2,14 +2,24 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
+using YantraJS.Core.Runtime;
 using YantraJS.ExpHelper;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Runtime;
 
 namespace YantraJS.Core
 {
@@ -42,14 +52,14 @@ namespace YantraJS.Core
 
         public static JSFunction Create<T>(
             this JSContext context, 
-            KeyString key, 
+            in KeyString key, 
             JSObject chain = null, bool addToContext = true)
         {
             var type = typeof(T);
             var rt = type.GetCustomAttribute<JSRuntimeAttribute>();
-            var jsf = cache.GetOrCreate(key.Key, () =>
+            var jsf = cache.GetOrCreate(key.Key, (xkey) =>
             {
-                JSFunction r = Create(key, type);
+                JSFunction r = Create(xkey, type);
 
                 if (rt != null)
                 {
@@ -72,31 +82,15 @@ namespace YantraJS.Core
                 }
 
                 return r;
-            });
+            }, key);
             string source = $"function {key.ToString()}() {{ [native code] }}";
             var copy = (rt?.PreventConstructorInvoke  ?? false)
                 ? new JSClassFunction(jsf.f, key.ToString(), source)
                 :  new JSFunction(jsf.f, key.ToString(), source);
-            ref var target = ref copy.prototype.GetOwnProperties();
-            var en = new PropertySequence.ValueEnumerator(jsf.prototype, false);
-            while(en.MoveNextProperty(out var Value, out var Key ))
-            {
-                if (Key.Key != KeyStrings.constructor.Key)
-                {
-                    target[Key.Key] = Value;
-                }
-            }
-            ref var ro = ref copy.GetOwnProperties();
-            en = new PropertySequence.ValueEnumerator(jsf, false);
-            while (en.MoveNextProperty(out var Value, out var Key))
-            {
-                /// this is the case when we do not
-                /// want to overwrite Function.prototype
-                if (Key.Key != KeyStrings.prototype.Key)
-                {
-                    ro[Key.Key] = Value;
-                }
-            }
+
+            // copy prototype
+            copy.CloneFrom(jsf);
+
             if (addToContext)
             {
                 context.GetOwnProperties()[key.Key] = JSProperty.Property(key, copy, JSPropertyAttributes.EnumerableConfigurableReadonlyValue);
@@ -151,17 +145,17 @@ namespace YantraJS.Core
             if (property.CanRead)
             {
                 var getterBody = Expression.Property(coalesce, property);
-                var getterLambda = Expression.Lambda<JSFunctionDelegate>(getterBody, pe);
-                getter = getterLambda.CompileDynamic();
+                var getterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", getterBody, pe);
+                getter = getterLambda.Compile();
             }
             if (property.CanWrite)
             {
                 var setterBody = Expression.Assign(
                     Expression.Property(coalesce, property),
                     JSValueBuilder.ForceConvert(arg1, rType));
-                var setterLambda = Expression.Lambda<JSFunctionDelegate>(Expression.Block(peList,
+                var setterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", Expression.Block(peList,
                     setterBody), pe);
-                setter = setterLambda.CompileDynamic();
+                setter = setterLambda.Compile();
             }
             setter = (in Arguments a) =>
             {
@@ -222,8 +216,8 @@ namespace YantraJS.Core
                 ? Expression.Call(coalesce, method)
                 : Expression.Call(coalesce, method, JSValueBuilder.Coalesce(arg1, rType, targetExp, p.Name.ToString())),
                 peThis);
-            var lambda = Expression.Lambda<JSFunctionDelegate>(body, pe);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<JSFunctionDelegate>(method.Name, body, pe);
+            return lambda.Compile();
         }
 
         public static (JSFunctionDelegate function, int length) Fill(Type type, JSObject target)
@@ -266,8 +260,16 @@ namespace YantraJS.Core
 
                 if (pr.IsMethod)
                 {
-                    ownProperties[pr.Name.Key] = JSProperty.Function(pr.Name,
-                        f.CreateJSFunctionDelegate(), pr.ConfigurableValue, pr.Length);
+                    var jsf = new JSFunction(f.CreateJSFunctionDelegate(), pr.Name.Value, pr.Length);
+
+                    var fxp = JSProperty.Property(pr.Name,
+                        jsf, pr.ConfigurableValue);
+
+                    ownProperties[pr.Name.Key] = fxp;
+                    if (f.method.HasAttribute<SymbolAttribute>(out var symbol))
+                    {
+                        target.DefineProperty(JSSymbolStatic.GlobalSymbol(symbol.Name), fxp);
+                    }
                     continue;
                 }
 
@@ -326,13 +328,14 @@ namespace YantraJS.Core
 
         public static JSObject CreateSharedObject(
             this JSContext context, 
-            KeyString key, 
+            in KeyString key, 
             Type type, 
             bool addToContext)
         {
-            var c = cache.GetOrCreate(key.Key, () => {
-                return Create(key, type);
-            });
+            var c = cache.GetOrCreate(key.Key, (x) => {
+                
+                return Create(x, type);
+            }, key);
             if(addToContext)
             {
                 context[key] = c;
@@ -407,10 +410,18 @@ namespace YantraJS.Core
                 var target = pr.IsStatic ? r : p;
                 if (pr.IsMethod)
                 {
-                    var fxp = JSProperty.Function(pr.Name,
-                        f.CreateJSFunctionDelegate(), pr.ConfigurableValue, pr.Length);
-                    functionMembers?.Add(fxp.value as JSFunction);
+                    var jsf = new JSFunction(f.CreateJSFunctionDelegate(), pr.Name.Value, pr.Length);
+
+                    var fxp = JSProperty.Property(pr.Name,
+                        jsf, pr.ConfigurableValue);
+                    functionMembers?.Add(jsf);
                     target.DefineProperty(pr.Name, fxp);
+
+                    if(f.method.HasAttribute<SymbolAttribute>(out var symbol))
+                    {
+                        target.DefineProperty(JSSymbolStatic.GlobalSymbol(symbol.Name), fxp);
+                    }
+
                     continue;
                 }
                 

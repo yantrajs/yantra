@@ -81,7 +81,8 @@ namespace YantraJS.Utils
         /// <returns> The result of parsing the string as a number. </returns>
         internal static double CoerceToNumber(in StringSpan input)
         {
-            var reader = input.Reader();
+            // supporting ES2021 _ number separator
+            var reader = new StringReader(input.Value.Replace("_", ""));
 
             // Skip whitespace and line terminators.
             while (IsWhiteSpaceOrLineTerminator(reader.Peek()))

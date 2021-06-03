@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.Objects;
 
 namespace YantraJS.Core.Core.Storage
 {
@@ -260,6 +261,99 @@ namespace YantraJS.Core.Core.Storage
         public bool HasKey(uint key)
         {
             return Storage.HasKey(key);
+        }
+
+
+        //     PRIVATE IMPLEMENTATION METHODS
+        //_________________________________________________________________________________________
+
+        /// <summary>
+        /// Sorts a array using the quicksort algorithm.
+        /// </summary>
+        /// <param name="comparer"> A comparison function. </param>
+        /// <param name="start"> The first index in the range. </param>
+        /// <param name="end"> The last index in the range. </param>
+        internal void QuickSort(Comparison<JSValue> comparer, uint start, uint end)
+        {
+            if (end - start < 30)
+            {
+                // Insertion sort is faster than quick sort for small arrays.
+                InsertionSort(comparer, start, end);
+                return;
+            }
+
+            // Choose a random pivot.
+            uint pivotIndex = start + (uint)(JSMath.RandomNumber() * (end - start));
+
+            // Get the pivot value.
+            var pivotValue = this[pivotIndex];
+
+            // Send the pivot to the back.
+            Swap(pivotIndex, end);
+
+            // Sweep all the low values to the front of the array and the high values to the back
+            // of the array.  This version of quicksort never gets into an infinite loop even if
+            // the comparer function is not consistent.
+            uint newPivotIndex = start;
+            for (uint i = start; i < end; i++)
+            {
+                if (comparer(this[i].value, pivotValue.value) <= 0)
+                {
+                    Swap(i, newPivotIndex);
+                    newPivotIndex++;
+                }
+            }
+
+            // Swap the pivot back to where it belongs.
+            Swap(end, newPivotIndex);
+
+            // Quick sort the array to the left of the pivot.
+            if (newPivotIndex > start)
+                QuickSort(comparer, start, newPivotIndex - 1);
+
+            // Quick sort the array to the right of the pivot.
+            if (newPivotIndex < end)
+                QuickSort(comparer, newPivotIndex + 1, end);
+        }
+
+        /// <summary>
+        /// Sorts a array using the insertion sort algorithm.
+        /// </summary>
+        /// <param name="comparer"> A comparison function. </param>
+        /// <param name="start"> The first index in the range. </param>
+        /// <param name="end"> The last index in the range. </param>
+        private void InsertionSort(Comparison<JSValue> comparer, uint start, uint end)
+        {
+            for (uint i = start + 1; i <= end; i++)
+            {
+                var value = this[i];
+                uint j;
+                for (j = i - 1; j > start && comparer(this[j].value, value.value) > 0; j--)
+                    this[j + 1] = this[j];
+
+                // Normally the for loop above would continue until j < start but since we are
+                // using uint it doesn't work when start == 0.  Therefore the for loop stops one
+                // short of start then the extra loop iteration runs below.
+                if (j == start && comparer(this[j].value, value.value) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+
+                this[j + 1] = value;
+            }
+        }
+
+        /// <summary>
+        /// Swaps the elements at two locations in the array.
+        /// </summary>
+        /// <param name="index1"> The location of the first element. </param>
+        /// <param name="index2"> The location of the second element. </param>
+        private void Swap(uint index1, uint index2)
+        {
+            var temp = this[index1];
+            this[index1] = this[index2];
+            this[index2] = temp;
         }
     }
 

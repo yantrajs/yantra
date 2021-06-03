@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,6 +12,16 @@ using YantraJS.Core.CodeGen;
 using YantraJS.ExpHelper;
 using YantraJS.Extensions;
 using YantraJS.LinqExpressions;
+using YantraJS.Runtime;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 
 namespace YantraJS.Core
 {
@@ -66,7 +77,7 @@ namespace YantraJS.Core
             };
             var a1 = a.OverrideThis(obj, this);
             var r = cf(script, closures, in a1);
-            if (!r.IsUndefined)
+            if (r.IsObject)
                 return r;
             return obj;
         }
@@ -85,7 +96,8 @@ namespace YantraJS.Core
 
         internal static JSClosureFunctionDelegate emptyCF = (ScriptInfo s, JSVariable[] closures, in Arguments a) => a.This;
 
-        internal JSObject prototype;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject prototype;
 
         readonly StringSpan source;
 
@@ -229,7 +241,7 @@ namespace YantraJS.Core
             };
             var a1 = a.OverrideThis(obj, constructor);
             var r = f(a1);
-            if (!r.IsUndefined)
+            if(r.IsObject)
                 return r;
             return obj;
         }
@@ -288,7 +300,8 @@ namespace YantraJS.Core
             return fx;
         }
 
-        internal static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
         {
             var @this = a.This;
             var r = (super as JSFunction).f(a);
@@ -299,8 +312,10 @@ namespace YantraJS.Core
         internal static JSValue Constructor(in Arguments args)
         {
             var len = args.Length;
-            if (len == 0)
-                throw JSContext.Current.NewTypeError("No arguments were supplied to Function constructor");
+            if (len == 0) {
+                return new JSFunction(JSFunction.empty, "anonymous", "function anonymous() {\n\n}");
+            }
+                
             JSValue body = null;
             var al = args.Length;
             var last = al - 1;
@@ -378,7 +393,7 @@ namespace YantraJS.Core
             stmts.Add(JSValueBuilder.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));
             stmts.Add(retVar);
 
-            return Expression.Lambda(Expression.Block(veList, stmts), peList).Compile();
+            return Expression.Lambda( type, Expression.Block(veList, stmts), type.Name, peList.ToArray()).Compile();
         }
     }
 }

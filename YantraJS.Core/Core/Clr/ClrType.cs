@@ -1,12 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Storage;
 using YantraJS.ExpHelper;
 using YantraJS.LinqExpressions;
+
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Runtime;
 
 namespace YantraJS.Core.Clr
 {
@@ -206,7 +215,7 @@ namespace YantraJS.Core.Clr
                     Expression.Call(
                         convert, method, args))));
 
-            return Expression.Lambda<JSFunctionDelegate>(body, args).CompileDynamic();
+            return Expression.Lambda<JSFunctionDelegate>(method.Name, body, args).Compile();
         }
 
         private static JSValue Invoke(in KeyString name, Type type, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
@@ -241,14 +250,13 @@ namespace YantraJS.Core.Clr
             Expression convertedThis = field.IsStatic
                 ? null
                 : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), field.DeclaringType);
-            var body = Expression.Block(
-                JSExceptionBuilder.Wrap(
+            var body = 
                 ClrProxyBuilder.Marshal(
                     Expression.Field(
-                        convertedThis, field))));
+                        convertedThis, field));
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<JSFunctionDelegate>($"set {field.Name}", body, args);
+            return lambda.Compile();
 
         }
 
@@ -267,11 +275,10 @@ namespace YantraJS.Core.Clr
 
             var assign = Expression.Assign(fieldExp, clrArg1).ToJSValue();
 
-            var body = 
-                JSExceptionBuilder.Wrap(assign);
+            var body = assign;
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<JSFunctionDelegate>($"set {field.Name}", body, args);
+            return lambda.Compile();
         }
 
         private static JSFunctionDelegate GeneratePropertyGetter(bool isStatic, PropertyInfo property)
@@ -280,14 +287,13 @@ namespace YantraJS.Core.Clr
             Expression convertedThis = isStatic
                 ? null
                 : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
-            var body = Expression.Block( 
-                JSExceptionBuilder.Wrap(
-                ClrProxyBuilder.Marshal( 
+            var body = ClrProxyBuilder.Marshal( 
                     Expression.Property(
-                        convertedThis, property))));
+                        convertedThis, property));
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
+            // return lambda.CompileInAssembly();
+            return lambda.Compile();
 
         }
 
@@ -307,14 +313,14 @@ namespace YantraJS.Core.Clr
             var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
 
             var body = Expression.Block(new ParameterExpression[] { target },
-                JSExceptionBuilder.Wrap(
+                
                 Expression.Assign(
                     Expression.Property(
                         convert, property),
-                    clrArg1).ToJSValue()));
+                    clrArg1).ToJSValue());
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>(body, args);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
+            return lambda.Compile();
         }
 
         private static Func<object,uint,JSValue> GenerateIndexedGetter(PropertyInfo property)
@@ -336,8 +342,8 @@ namespace YantraJS.Core.Clr
                 indexExpression = Expression.MakeIndex(convertThis, property, new Expression[] { indexAccess });
             }
             Expression body = JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(indexExpression));
-            var lambda = Expression.Lambda<Func<object,uint,JSValue>>(body, @this, index);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<Func<object,uint,JSValue>>($"set {property.Name}", body, @this, index);
+            return lambda.Compile();
         }
 
         private static Func<object, uint, object, JSValue> GenerateIndexedSetter(PropertyInfo property)
@@ -371,8 +377,8 @@ namespace YantraJS.Core.Clr
             Expression body = Expression.Block( 
                 JSExceptionBuilder.Wrap( 
                     Expression.Assign(indexExpression , Expression.TypeAs(value, elementType)).ToJSValue()));
-            var lambda = Expression.Lambda<Func<object, uint, object, JSValue>>(body, @this, index, value);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<Func<object, uint, object, JSValue>>("get " + property.Name, body, @this, index, value);
+            return lambda.Compile();
         }
 
         private ClrType(
@@ -550,8 +556,8 @@ namespace YantraJS.Core.Clr
             var marshal = ClrProxyBuilder.Marshal(call);
             var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
-            return lambda.CompileDynamic();
+            var lambda = Expression.Lambda<JSFunctionDelegate>(m.Name, wrapTryCatch, args);
+            return lambda.Compile();
         }
 
         public JSValue GetConstructor(in Arguments a)
@@ -577,6 +583,18 @@ namespace YantraJS.Core.Clr
             return new JSFunction(GenerateConstructor(method, this.prototype), this);
         }
 
+        public delegate object JSValueFactory(in Arguments a);
+
+        public static JSFunctionDelegate JSValueFactoryDelegate(JSValueFactory fx, JSObject prototype)
+        {
+            JSValue Factory(in Arguments a)
+            {
+                var r = fx(in a);
+                return new ClrProxy(r, prototype);
+            }
+            return Factory;
+        }
+
         private JSFunctionDelegate GenerateConstructor(ConstructorInfo m, JSObject prototype)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
@@ -594,12 +612,10 @@ namespace YantraJS.Core.Clr
                         : Expression.Constant(null, pi.ParameterType));
                 parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
             }
-            var call = Expression.New(m, parameters);
-            var marshal = ClrProxyBuilder.New(call, Expression.Constant(prototype));
-            var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
-
-            var lambda = Expression.Lambda<JSFunctionDelegate>(wrapTryCatch, args);
-            return lambda.CompileDynamic();
+            var call = Expression.TypeAs( Expression.New(m, parameters), typeof(object));
+            var lambda = Expression.Lambda<JSValueFactory>(m.DeclaringType.Name, call, args);
+            var factory = lambda.Compile();
+            return JSValueFactoryDelegate(factory, prototype);
         }
 
 

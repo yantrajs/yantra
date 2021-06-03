@@ -35,6 +35,7 @@ namespace YantraJS.Core
         public readonly static KeyString substring;
 
         public readonly static KeyString Array;
+        public readonly static KeyString join;
 
         public readonly static KeyString Function;
         public readonly static KeyString apply;
@@ -80,6 +81,8 @@ namespace YantraJS.Core
         public readonly static KeyString Uint32Array;
         public readonly static KeyString Float32Array;
         public readonly static KeyString Float64Array;
+
+        public readonly static KeyString DataView;
 
         public readonly static KeyString Map;
         public readonly static KeyString Set;
@@ -151,6 +154,9 @@ namespace YantraJS.Core
 
         public readonly static KeyString @false;
 
+
+        public readonly static KeyString raw;
+
         static KeyStrings()
         {
             lock (typeof(KeyStrings))
@@ -182,7 +188,7 @@ namespace YantraJS.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString GetOrCreate(in StringSpan key)
+        public static KeyString GetOrCreate(in StringSpan key)
         {
             return map.GetOrCreate(key, (keyName) =>
             {

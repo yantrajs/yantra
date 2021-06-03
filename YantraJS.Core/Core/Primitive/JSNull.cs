@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace YantraJS.Core
@@ -27,9 +28,9 @@ namespace YantraJS.Core
 
         public override double DoubleValue => 0D;
 
-        public override bool IsNull => true;
+        //public override bool IsNull => true;
 
-        internal override bool IsNullOrUndefined => true; 
+        //internal override bool IsNullOrUndefined => true; 
 
         internal override KeyString ToKey(bool create = false)
         {
@@ -53,23 +54,23 @@ namespace YantraJS.Core
 
         public override JSValue this[KeyString name]
         {
-            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {name} of null");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot set property {name} of null");
+            get => throw JSContext.Current.NewTypeError($"Cannot get property {name} of null");
+            set => throw JSContext.Current.NewTypeError($"Cannot set property {name} of null");
         }
 
         public override JSValue this[uint key]
         {
-            get => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
-            set => throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+            get => throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
+            set => throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
         }
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {
-            throw JSContext.Current.NewSyntaxError($"Cannot get property {key} of null");
+            throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
         }
 
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             throw JSContext.Current.NewTypeError("null is not iterable");
         }
@@ -134,6 +135,11 @@ namespace YantraJS.Core
             }
             value = null;
             return !type.IsValueType;
+        }
+
+        public override string ToLocaleString(string format, CultureInfo culture)
+        {
+            return "";
         }
     }
 }

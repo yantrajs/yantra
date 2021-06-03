@@ -80,6 +80,37 @@ namespace YantraJS.Core.Clr
             return base.ConvertTo(type, out value);
         }
 
+        public static JSValue Marshal(int value) => new JSNumber(value);
+        public static JSValue Marshal(uint value) => new JSNumber(value);
+        public static JSValue Marshal(long value) => new JSNumber(value);
+        public static JSValue Marshal(ulong value) => new JSNumber(value);
+
+        public static JSValue Marshal(string value) => new JSString(value);
+
+        public static JSValue Marshal(in StringSpan value) => new JSString(value);
+
+        public static JSValue Marshal(bool value) => value ? JSBoolean.True : JSBoolean.False;
+
+        public static JSValue Marshal(short value) => new JSNumber(value);
+
+        public static JSValue Marshal(ushort value) => new JSNumber(value);
+
+        public static JSValue Marshal(byte value) => new JSNumber(value);
+
+        public static JSValue Marshal(sbyte value) => new JSNumber(value);
+
+        public static JSValue Marshal(DateTime value) => new JSDate(value);
+
+        public static JSValue Marshal(DateTimeOffset value) => new JSDate(value);
+
+        public static JSValue Marshal(double value) => new JSNumber(value);
+
+        public static JSValue Marshal(float value) => new JSNumber(value);
+
+        public static JSValue Marshal(Task task) => task.ToPromise();
+
+        public static JSValue Marshal(IEnumerable<JSValue> en) => new JSGenerator(new ClrEnumerableElementEnumerator(en), "Clr Iterator");
+
         /// <summary>
         /// Can be improved in future !!
         /// </summary>
@@ -211,7 +242,7 @@ namespace YantraJS.Core.Clr
         }
 
 
-        internal override IElementEnumerator GetElementEnumerator()
+        public override IElementEnumerator GetElementEnumerator()
         {
             if (value is IEnumerable en) {
                 return new EnumerableElementEnumerable(en.GetEnumerator());

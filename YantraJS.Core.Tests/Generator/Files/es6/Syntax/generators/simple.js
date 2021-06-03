@@ -26,4 +26,4 @@ function* g1(n) {
 }
 
 var a = Array.from(g1(5));
-assert.strictEqual("0,1,2,3,4", a.toString());
+assert.strictEqual('0,1,2,3,4', a.toString());

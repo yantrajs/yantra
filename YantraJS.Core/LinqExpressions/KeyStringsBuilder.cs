@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Expressions;
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.ExpHelper
 {
     internal class KeyStringsBuilder
     {
         private static MethodInfo _GetOrAdd =
-            typeof(KeyStrings).InternalMethod(nameof(KeyStrings.GetOrCreate), StringSpanBuilder.RefType);
+            typeof(KeyStrings).PublicMethod(nameof(KeyStrings.GetOrCreate), StringSpanBuilder.RefType);
 
         public static readonly Type RefType = typeof(KeyString).MakeByRefType();
 
@@ -20,12 +23,12 @@ namespace YantraJS.ExpHelper
             return Expression.Call(null, _GetOrAdd, text);
         }
 
-        public readonly static StringMap<MemberExpression> Fields =
+        public readonly static StringMap<YFieldExpression> Fields =
             ToStringMap(typeof(KeyStrings).GetFields());
 
-        private static StringMap<MemberExpression> ToStringMap(FieldInfo[] fields)
+        private static StringMap<YFieldExpression> ToStringMap(FieldInfo[] fields)
         {
-            StringMap<MemberExpression> map = new StringMap<MemberExpression>();
+            StringMap<YFieldExpression> map = new StringMap<YFieldExpression>();
             foreach(var field in fields)
             {
                 map[field.Name] = Expression.Field(null, field);

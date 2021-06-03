@@ -5,6 +5,15 @@ using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.CodeGen;
 
+using Exp = YantraJS.Expressions.YExpression;
+using Expression = YantraJS.Expressions.YExpression;
+using ParameterExpression = YantraJS.Expressions.YParameterExpression;
+using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
+using LabelTarget = YantraJS.Expressions.YLabelTarget;
+using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
+using GotoExpression = YantraJS.Expressions.YGoToExpression;
+using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+
 namespace YantraJS.ExpHelper
 {
     public static class JSClassBuilder
@@ -18,18 +27,18 @@ namespace YantraJS.ExpHelper
                 typeof(JSClosureFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
 
         private static MethodInfo _AddPrototypeProperty =
-            type.InternalMethod(nameof(JSClass.AddPrototypeProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
+            type.PublicMethod(nameof(JSClass.AddPrototypeProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
 
         private static MethodInfo _AddPrototypeMethod =
-                    type.InternalMethod(nameof(JSClass.AddPrototypeMethod), KeyStringsBuilder.RefType, typeof(JSValue));
+                    type.PublicMethod(nameof(JSClass.AddPrototypeMethod), KeyStringsBuilder.RefType, typeof(JSValue));
         private static MethodInfo _AddPrototypeValueMethod =
-                    type.InternalMethod(nameof(JSClass.AddPrototypeMethod), typeof(JSValue), typeof(JSValue));
+                    type.PublicMethod(nameof(JSClass.AddPrototypeMethod), typeof(JSValue), typeof(JSValue));
 
         private static MethodInfo _AddStaticProperty =
-            type.InternalMethod(nameof(JSClass.AddStaticProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
+            type.PublicMethod(nameof(JSClass.AddStaticProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
 
         private static MethodInfo _AddStaticMethod =
-                    type.InternalMethod(nameof(JSClass.AddStaticMethod), KeyStringsBuilder.RefType, typeof(JSValue));
+                    type.PublicMethod(nameof(JSClass.AddStaticMethod), KeyStringsBuilder.RefType, typeof(JSValue));
 
         public static Expression AddValue(
             Expression target,

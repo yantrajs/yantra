@@ -20,6 +20,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.Core", "YantraJS.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.Core.Tests", "YantraJS.Core.Tests\YantraJS.Core.Tests.csproj", "{6EAFC69D-8930-46E2-B83F-12551E878FBF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ExpressionCompiler", "YantraJS.LambdaCompiler\YantraJS.ExpressionCompiler.csproj", "{1A17F57A-C7B1-4C49-85D4-36FF973C9222}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.LambdaCompiler.Tests", "YantraJS.LambdaCompiler.Tests\YantraJS.LambdaCompiler.Tests.csproj", "{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +46,14 @@ Global
 		{6EAFC69D-8930-46E2-B83F-12551E878FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EAFC69D-8930-46E2-B83F-12551E878FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EAFC69D-8930-46E2-B83F-12551E878FBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

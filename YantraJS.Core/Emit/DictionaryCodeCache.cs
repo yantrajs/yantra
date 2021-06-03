@@ -3,6 +3,7 @@
 #endif
 using YantraJS.Core;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Runtime;
 
 namespace YantraJS.Emit
 {
@@ -18,7 +19,8 @@ namespace YantraJS.Emit
             var compiler = code.Compiler;
             return cache.GetOrCreate(code.Key, (k) => {
                 var  exp = compiler();
-                return exp.CompileDynamic();
+                return exp.CompileWithNestedLambdas();
+                // return exp.CompileDynamic();
             });
         }
 

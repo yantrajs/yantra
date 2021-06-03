@@ -1,111 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
-using YantraJS.Core.Core.Primitive;
 using YantraJS.Utils;
 
 namespace YantraJS.Core.Tests.Imported
 {
-    public class TestBase
-    {
 
-        private JSContext context;
-        public TestBase()
-        {
-            context = new JSContext();
-        }
-
-        public void Execute(string code)
-        {
-            context.Eval(code);
-        }
-
-
-        /// <summary>
-        /// Changes the culture to run the the given action, then restores the culture.
-        /// </summary>
-        /// <param name="cultureName"> The culture name. </param>
-        /// <param name="action"> The action to run under the modified culture. </param>
-        public static T ChangeLocale<T>(string cultureName, Func<T> action)
-        {
-            // Save the current culture.
-            var previousCulture = Thread.CurrentThread.CurrentCulture;
-
-            // Replace it with a new culture.
-            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(cultureName, false);
-
-            try
-            {
-                // Run the action.
-                return action();
-            }
-            finally
-            {
-                // Restore the previous culture.
-                Thread.CurrentThread.CurrentCulture = previousCulture;
-            }
-        }
-
-        public object Evaluate(string text)
-        {
-            object ToPrimitive(object value)
-            {
-                switch (value)
-                {
-                    //case JSNull n:
-                    //    return "null";
-                    //case JSUndefined _:
-                    //    return "undefined";
-                    case JSPrimitiveObject primitiveObject:
-                        return ToPrimitive(primitiveObject.value);
-                    case JSString sv:
-                        return sv.value.Value;
-                    case JSNumber number:
-                        //if (double.IsNaN(number.value))
-                        //    return "NaN";
-                        if ((number.value) % 1 == 0) { 
-                            if (number.value >= -2147483648.0 && number.value <= 2147483648.0)
-                                return (int)number.value;
-                        }
-                        return number.value;
-                    case JSBoolean boolean:
-                        return boolean._value;
-                }
-                return value;
-            }
-            try
-            {
-                var v = context.Eval(text);
-                return ToPrimitive(v);
-            }catch (Exception ex)
-            {
-                throw new InvalidOperationException(ex.Message, ex);
-            }
-        }
-
-        public object EvaluateExceptionType(string text)
-        {
-            try
-            {
-                context.Eval(text);
-            } catch (Exception ex)
-            {
-                var ev = JSException.ErrorFrom(ex);
-                var v = ev?.prototypeChain?[KeyStrings.constructor] as JSFunction;
-                return v?.name.Value;
-            }
-            throw new Exception();
-        }
-
-        public (JSValue Value, JSValue v2) Undefined => (JSUndefined.Value, null);
-
-        public (JSValue Value, JSValue v2) Null => (JSNull.Value, null);
-
-    }
-
-   [TestClass]
+    [TestClass]
     public class TypedArrayTests : TestBase
     {
         [TestMethod]
@@ -152,7 +53,8 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual(false, Evaluate("Object.getOwnPropertyDescriptor(new Int8Array([1, 2]), '1').configurable"));
 
             // delete
-            Assert.AreEqual(false, Evaluate("delete new Int8Array([1, 2])[1]"));
+            // false is returned only in non strict mode
+            Assert.AreEqual(true, Evaluate("delete new Int8Array([1, 2])[1]"));
             Assert.AreEqual("1,2", Evaluate("x = new Int8Array([1, 2]); delete x[1]; x.toString()"));
 
             // toString and valueOf.
@@ -728,9 +630,9 @@ namespace YantraJS.Core.Tests.Imported
                 System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("de-de");
                 Assert.AreEqual("", Evaluate("new Int8Array([]).toLocaleString()"));
                 Assert.AreEqual("1", Evaluate("new Int8Array([1]).toLocaleString()"));
-                //Assert.AreEqual("1;2", Evaluate("new Int8Array([1, 2]).toLocaleString()")); -> Wrong TC
-                Assert.AreEqual("1,2", Evaluate("new Int8Array([1, 2]).toLocaleString()")); 
-                Assert.AreEqual("8.123,2", Evaluate("new Int32Array([8123, 2]).toLocaleString()"));
+                Assert.AreEqual("1;2", Evaluate("new Int8Array([1, 2]).toLocaleString()")); 
+                //Assert.AreEqual("1,2", Evaluate("new Int8Array([1, 2]).toLocaleString()")); 
+                Assert.AreEqual("8.123;2", Evaluate("new Int32Array([8123, 2]).toLocaleString()"));
             }
             finally
             {
