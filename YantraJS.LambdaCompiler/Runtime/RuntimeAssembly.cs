@@ -49,10 +49,11 @@ namespace YantraJS.Runtime
 
             var ilg = method.GetILGenerator();
 
-            ILCodeGenerator icg = new ILCodeGenerator(ilg);
+            var sw = new StringWriter();
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw);
             icg.Emit(exp);
 
-            string il = icg.ToString();
+            string il = sw.ToString();
 
             var c = new Closures(null, il, expString);
 

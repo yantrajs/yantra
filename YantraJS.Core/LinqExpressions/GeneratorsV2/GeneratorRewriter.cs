@@ -303,6 +303,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         private Expression GenerateJumps()
         {
+            if (jumps.Count == 0)
+                return Expression.Empty;
             var cases = new SwitchCase[jumps.Count];
             for (int i = 0; i < jumps.Count; i++)
             {

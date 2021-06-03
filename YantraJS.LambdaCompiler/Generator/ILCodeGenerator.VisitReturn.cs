@@ -51,7 +51,7 @@ namespace YantraJS.Generator
             if(!il.IsTryBlock)
             {
                 il.Emit(OpCodes.Ret);
-                il.ClearStack();
+                // il.ClearStack();
                 return true;
             }
             il.EmitSaveLocal(localIndex);
@@ -89,8 +89,7 @@ namespace YantraJS.Generator
                 var exp = block.Expressions[i];
                 if(i != last)
                 {
-                    var r = VisitSave(exp, false);
-                    il.EmptyStack();
+                    VisitSave(exp, false);
                     continue;
                 }
 

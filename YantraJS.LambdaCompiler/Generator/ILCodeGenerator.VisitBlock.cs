@@ -15,23 +15,13 @@ namespace YantraJS.Generator
             {
                 variables.Create(p);
             }
-
-            using var s = il.EnterBlock();
-
             var expressions = yBlockExpression.Expressions;
             var l = expressions.Length;
             var last = l - 1;
             for (int i = 0; i < l; i++)
             {
                 var exp = expressions[i];
-                
-                var c = VisitSave(exp, i == last);
-
-                // do not pop for last item...
-                if(i != last)
-                {
-                    il.EmptyStack();
-                } 
+                VisitSave(exp, i == last);
             }
             return true;
         }
@@ -45,7 +35,15 @@ namespace YantraJS.Generator
                     return VisitAssign(exp as YAssignExpression, -1);
                 }
             }
-            return Visit(exp);
+            Visit(exp);
+            if (!save)
+            {
+                if (exp.Type != typeof(void))
+                {
+                    il.Emit(OpCodes.Pop);
+                }
+            }
+            return true;
         }
     }
 }

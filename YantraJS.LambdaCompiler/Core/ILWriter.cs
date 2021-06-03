@@ -245,12 +245,25 @@ namespace YantraJS.Core
             }
         }
 
-        public IDisposable EnterBlock()
+        public IDisposable EnterBlock(TempVariables temp, Type type)
         {
             var old = blockStack;
             blockStack = Stack;
             return new DisposableAction(() => {
+
                 blockStack = old;
+                // what if there are two parameters on stack??
+                //if (Stack > old)
+                //{
+                //    using (temp.Push())
+                //    {
+                //        var t = temp[type];
+                //        this.EmitSaveLocal(t.LocalIndex);
+                //        EmptyStack();
+                //        this.EmitLoadLocal(t.LocalIndex);
+                //    }
+                //}
+
             });
         }
 
