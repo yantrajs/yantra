@@ -18,15 +18,12 @@ namespace YantraJS.Generator
                         var trueEnd = il.DefineLabel("trueEnd", il.Top);
                         var falseEnd = il.DefineLabel("falseEnd", il.Top);
                         Visit(yBinaryExpression.Left);
-                        using (il.Branch(false))
-                        {
-                            il.Emit(OpCodes.Brfalse, trueEnd);
-                            Visit(yBinaryExpression.Right);
-                            il.Emit(OpCodes.Br, falseEnd);
-                            il.MarkLabel(trueEnd);
-                            il.EmitConstant(0);
-                            il.MarkLabel(falseEnd);
-                        }
+                        il.Emit(OpCodes.Brfalse, trueEnd);
+                        Visit(yBinaryExpression.Right);
+                        il.Emit(OpCodes.Br, falseEnd);
+                        il.MarkLabel(trueEnd);
+                        il.EmitConstant(0);
+                        il.MarkLabel(falseEnd);
                     }
                     return true;
                 case YOperator.BooleanOr:
@@ -34,15 +31,12 @@ namespace YantraJS.Generator
                         var trueEnd = il.DefineLabel("trueEnd", il.Top);
                         var falseEnd = il.DefineLabel("falseEnd", il.Top);
                         Visit(yBinaryExpression.Left);
-                        using (il.Branch(false))
-                        {
-                            il.Emit(OpCodes.Brtrue, trueEnd);
-                            Visit(yBinaryExpression.Right);
-                            il.Emit(OpCodes.Br, falseEnd);
-                            il.MarkLabel(trueEnd);
-                            il.EmitConstant(1);
-                            il.MarkLabel(falseEnd);
-                        }
+                        il.Emit(OpCodes.Brtrue, trueEnd);
+                        Visit(yBinaryExpression.Right);
+                        il.Emit(OpCodes.Br, falseEnd);
+                        il.MarkLabel(trueEnd);
+                        il.EmitConstant(1);
+                        il.MarkLabel(falseEnd);
                     }
                     return true;
             }

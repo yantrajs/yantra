@@ -61,11 +61,8 @@ namespace YantraJS.Generator
 
                     }
                     caseBodies.Add(() => {
-                        using (il.Branch(false))
-                        {
-                            il.MarkLabel(jump);
-                            Visit(@case.Body);
-                        }
+                        il.MarkLabel(jump);
+                        Visit(@case.Body);
                         il.Emit(OpCodes.Br, @break);
                     });
 
@@ -73,10 +70,7 @@ namespace YantraJS.Generator
 
                 if (node.Default != null)
                 {
-                    using (il.Branch(false))
-                    {
-                        Visit(node.Default);
-                    }
+                    Visit(node.Default);
                 }
                 il.Emit(OpCodes.Br, @break);
             }
@@ -84,10 +78,10 @@ namespace YantraJS.Generator
             il.MarkLabel(@break);
 
             // lets leave one value...
-            if (node.Type != typeof(void))
-            {
-                il.IncrementStack();
-            }
+            //if (node.Type != typeof(void))
+            //{
+            //    il.IncrementStack();
+            //}
 
             return true;
 

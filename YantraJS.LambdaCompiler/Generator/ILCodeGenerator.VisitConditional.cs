@@ -36,12 +36,9 @@ namespace YantraJS.Generator
 
             if(yConditionalExpression.@false != null)
             {
-                using (il.Branch())
-                {
-                    il.Emit(OpCodes.Br, trueEnd);
-                    il.MarkLabel(falseBegin);
-                    Visit(yConditionalExpression.@false);
-                }
+                il.Emit(OpCodes.Br, trueEnd);
+                il.MarkLabel(falseBegin);
+                Visit(yConditionalExpression.@false);
             }
 
             il.MarkLabel(trueEnd);
@@ -106,12 +103,9 @@ namespace YantraJS.Generator
 
             if (@false != null)
             {
-                using (il.Branch())
-                {
-                    il.Emit(OpCodes.Br, trueEnd);
-                    il.MarkLabel(falseBegin);
-                    Visit(@false);
-                }
+                il.Emit(OpCodes.Br, trueEnd);
+                il.MarkLabel(falseBegin);
+                Visit(@false);
             }
 
             il.MarkLabel(trueEnd);

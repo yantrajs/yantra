@@ -69,7 +69,7 @@ namespace YantraJS.Generator
             {
                 il.EmitLoadLocal(localIndex);
                 il.Emit(OpCodes.Ret);
-                il.ClearStack();
+                // il.ClearStack();
                 return true;
             }
             il.Branch(label, localIndex);
