@@ -15,39 +15,34 @@ namespace YantraJS.Tests.Generator
 
         }
 
-        protected override void Evaluate(JSContext context, string content, string fullName)
+        protected override async Task EvaluateAsync(JSContext context, string content, string fullName)
         {
             JSValue r;
             try
             {
-                
-
-                AsyncPump.Run(async () =>
+                // this needs to run inside AsyncPump 
+                // as Promise expects SynchronizationContext to be present
+                r = CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
+                var w = context.WaitTask;
+                if (w != null)
                 {
-                    // this needs to run inside AsyncPump 
-                    // as Promise expects SynchronizationContext to be present
-                    r = CoreScript.Evaluate(content, fullName, DictionaryCodeCache.Current);
-                    var w = context.WaitTask;
-                    if (w != null)
+                    try
                     {
-                        try
-                        {
-                            await w;
-                        }
-                        catch (TaskCanceledException) { }
+                        await w;
                     }
-                    if (r is JSPromise jp)
+                    catch (TaskCanceledException) { }
+                }
+                if (r is JSPromise jp)
+                {
+                    try
                     {
-                        try
-                        {
-                            await jp.Task;
-                        }
-                        catch (Exception ex)
-                        {
-                            throw JSException.From(ex);
-                        }
+                        await jp.Task;
                     }
-                });
+                    catch (Exception ex)
+                    {
+                        throw JSException.From(ex);
+                    }
+                }
             }
             catch (Exception ex)
             {

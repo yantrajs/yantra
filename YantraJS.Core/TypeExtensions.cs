@@ -18,9 +18,22 @@ using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Expressions;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace YantraJS
 {
+    internal static class SynchronizationContextExtensions
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Post<T>(this SynchronizationContext ctx, T value, Action<T> item)
+        {
+            ctx.Post((x) => {
+                item((T)x);
+            }, value);
+        }
+    }
+
     internal static class ListOfExpressionsExtensions
     {
 

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Core;
 using YantraJS.Emit;
@@ -121,62 +122,67 @@ namespace YantraJS.Tests.Generator
             return dir1.EnumerateFiles("*.js", SearchOption.AllDirectories);
         }
 
-        protected virtual void Evaluate(JSContext context, string content, string fullName)
+        protected virtual Task EvaluateAsync(JSContext context, string content, string fullName)
         {
-            CoreScript.Evaluate(content, fullName, saveLambda ? AssemblyCodeCache.Instance : DictionaryCodeCache.Current);
-            if (context.WaitTask != null)
-            {
-                AsyncPump.Run(() => context.WaitTask);
-            }
+            return CoreScript.EvaluateAsync(content, fullName, saveLambda ? AssemblyCodeCache.Instance : DictionaryCodeCache.Current);
+            
         }
 
-        protected virtual JSContext CreateContext(FileInfo file)
+        protected virtual JSContext CreateContext(FileInfo file, SynchronizationContext ctx)
         {
-            return new JSTestContext();
+            return new JSTestContext(ctx);
         }
 
         protected async Task<TestResult> RunAsyncTest(FileInfo file)
         {
             // var watch = new Stopwatch();
             // watch.Start();
-            var start = watch.ElapsedTicks;
-            Exception lastError = null;
-            Debug.WriteLine($"Processing {file.FullName}");
-            StringBuilder sb = new StringBuilder();
+            var old = SynchronizationContext.Current;
             try
             {
-                string content;
-                using (var fs = file.OpenText())
+                var ctx = new SynchronizationContext();
+                SynchronizationContext.SetSynchronizationContext(ctx);
+                var start = watch.ElapsedTicks;
+                Exception lastError = null;
+                Debug.WriteLine($"Processing {file.FullName}");
+                StringBuilder sb = new StringBuilder();
+                try
                 {
-                    content = await fs.ReadToEndAsync();
-                }
-                using (var jc = CreateContext(file))
-                {
-                    jc.Log += (_, s) =>
+                    string content;
+                    using (var fs = file.OpenText())
                     {
-                        lock (sb)
+                        content = await fs.ReadToEndAsync();
+                    }
+                    using (var jc = CreateContext(file, ctx))
+                    {
+                        jc.Log += (_, s) =>
                         {
-                            var text = s.ToDetailString();
-                            sb.AppendLine(text);
-                        }
-                    };
-                    jc.Error += (_, e) => lastError = e;
-                    Evaluate(jc, content, file.FullName);
+                            lock (sb)
+                            {
+                                var text = s.ToDetailString();
+                                sb.AppendLine(text);
+                            }
+                        };
+                        jc.Error += (_, e) => lastError = e;
+                        await EvaluateAsync(jc, content, file.FullName);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    lastError = ex;
+                }
+                var time = watch.ElapsedTicks - start;
+                return new TestResult
+                {
+                    Outcome = lastError == null ? UnitTestOutcome.Passed : UnitTestOutcome.Failed,
+                    DisplayName = file.Directory.Name + "\\" + file.Name,
+                    Duration = TimeSpan.FromTicks(time),
+                    TestFailureException = lastError,
+                    LogOutput = sb.ToString()
+                };
+            } finally {
+                SynchronizationContext.SetSynchronizationContext(old);
             }
-            catch (Exception ex)
-            {
-                lastError = ex;
-            }
-            var time = watch.ElapsedTicks - start;
-            return new TestResult
-            {
-                Outcome = lastError == null ? UnitTestOutcome.Passed : UnitTestOutcome.Failed,
-                DisplayName = file.Directory.Name + "\\" + file.Name,
-                Duration = TimeSpan.FromTicks(time),
-                TestFailureException = lastError,
-                LogOutput = sb.ToString()
-            };
         }
 
     }

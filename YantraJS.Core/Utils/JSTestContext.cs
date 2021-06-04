@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Debug;
@@ -19,7 +20,7 @@ namespace YantraJS.Utils
 
     public class JSTestContext: JSContext
     {
-        public JSTestContext()
+        public JSTestContext(SynchronizationContext ctx = null): base(ctx)
         {
             this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
             this[KeyStrings.global] = this;

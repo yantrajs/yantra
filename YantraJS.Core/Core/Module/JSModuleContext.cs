@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Storage;
@@ -117,7 +118,8 @@ namespace YantraJS.Core
         internal readonly JSObject ModulePrototype;
         internal readonly JSFunction Module;
 
-        public JSModuleContext()
+        public JSModuleContext(SynchronizationContext ctx = null):
+            base(ctx)
         {
             this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
 

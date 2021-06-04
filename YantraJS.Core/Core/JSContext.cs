@@ -531,45 +531,16 @@ namespace YantraJS.Core
             Log?.Invoke(this, f);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-
-        private void RunAction(Action action)
-        {
-            try
-            {
-                action();
-            } catch (Exception ex)
-            {
-                this.ReportError(ex);
-            }
-        }
-
-        internal void Post(SynchronizationContext ctx, Action action)
-        {
-            if (ctx != null)
-            {
-                ctx.Post((_) => RunAction(action), null);
-                return;
-            }
-            RunAction(action);
-        }
-
-        public void Post(Action action)
-        {
-            var ctx = SynchronizationContext.Current;
-            if (ctx != null)
-            {
-                ctx.Post((_) => RunAction(action), null);
-                return;
-            }
-            RunAction(action);
-        }
-
         private static long nextTimeout = 1;
         private static long nextInterval = 1;
 
         internal long PostTimeout(int delay, JSFunction f, in Arguments a)
         {
+            var ctx = this.synchronizationContext;
+            if(ctx == null)
+            {
+                throw NewTypeError($"Synchronization context must be present to set timeout");
+            }
             var key = Interlocked.Increment(ref nextTimeout);
             JSValue[] args = JSArguments.Empty;
             if (a.Length > 2)
@@ -580,12 +551,12 @@ namespace YantraJS.Core
                     args[i - 2] = a.GetAt(i);
                 }
             }
-            var ctx = SynchronizationContext.Current;
             var timer = new Timer((_) => {
-                Post(ctx, () => {
+                ctx.Post((x) => {
+                    var f = x as JSValue;
                     f.InvokeFunction(new Arguments(JSUndefined.Value, args));
                     ClearTimeout(key);
-                });
+                }, f);
             }, f, delay, Timeout.Infinite);
 
             timeouts.AddOrUpdate(key, timer, (a1, a2) => a2);
@@ -597,6 +568,11 @@ namespace YantraJS.Core
         }
         internal long SetInterval(int delay, JSFunction f, in Arguments a)
         {
+            var ctx = this.synchronizationContext;
+            if (ctx == null)
+            {
+                throw NewTypeError($"Synchronization context must be present to set timeout");
+            }
             var key = Interlocked.Increment(ref nextInterval);
             JSValue[] args = JSArguments.Empty;
             if (a.Length > 2)
@@ -607,10 +583,9 @@ namespace YantraJS.Core
                     args[i - 2] = a.GetAt(i);
                 }
             }
-            var ctx = SynchronizationContext.Current;
             var timer = new Timer((_) => {
-                Post(ctx, () => {
-                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                ctx.Post(f, (x) => {
+                    x.InvokeFunction(new Arguments(JSUndefined.Value, args));
                     ClearInterval(key);
                 });
             }, f, delay, Timeout.Infinite);

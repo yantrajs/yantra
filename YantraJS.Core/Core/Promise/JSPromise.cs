@@ -71,6 +71,7 @@ namespace YantraJS.Core
         public JSPromise(Task<JSValue> value)
             : base(JSContext.Current.PromisePrototype)
         {
+            sc = JSContext.Current.synchronizationContext;
             RegisterPromise();
             value.ContinueWith((t) => {
                 if (t.IsCompleted)
@@ -86,6 +87,7 @@ namespace YantraJS.Core
         internal JSPromise(JSValue value, PromiseState state) :
             base(JSContext.Current.PromisePrototype)
         {
+            sc = JSContext.Current.synchronizationContext;
             if (state == PromiseState.Pending)
             {
                 RegisterPromise();
@@ -99,7 +101,7 @@ namespace YantraJS.Core
             base(JSContext.Current.PromisePrototype)
         {
             // to improve speed of promise, we will add then/catch here...
-            var sc = SynchronizationContext.Current;
+            sc = JSContext.Current.synchronizationContext;
             if (sc == null)
                 throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 
@@ -114,6 +116,7 @@ namespace YantraJS.Core
         public JSPromise(JSPromiseDelegate @delegate) :
             base(JSContext.Current.PromisePrototype)
         {
+            sc = JSContext.Current.synchronizationContext;
             RegisterPromise();
             @delegate(p => Resolve(p), p => Reject(p));
         }
@@ -125,6 +128,7 @@ namespace YantraJS.Core
         public JSPromise(JSPromiseDelegate @delegate, JSPromise parent) :
             base(JSContext.Current.PromisePrototype)
         {
+            sc = JSContext.Current.synchronizationContext;
             this.Parent = parent;
             RegisterPromise();
             @delegate(p => Resolve(p), p => Reject(p));
@@ -208,6 +212,8 @@ namespace YantraJS.Core
         }
 
         private TaskCompletionSource<JSValue> taskCompletion = null;
+        private SynchronizationContext sc;
+
         public Task<JSValue> Task
         {
             get
@@ -307,7 +313,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Post(Action action)
         {
-            SynchronizationContext.Current.Post((_) => action(), null);
+            sc.Post(action, (x) => x());
             //AsyncPump.Run(() => {
             //    action();
             //    return Task.CompletedTask;

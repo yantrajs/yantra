@@ -74,6 +74,23 @@ namespace YantraJS
             return result;
         }
 
+        public static async Task<JSValue> EvaluateAsync(
+            string code, 
+            string location = null, 
+            ICodeCache codeCache = null)
+        {
+            var fx = Compile(code, location, null, codeCache);
+            var result = JSUndefined.Value;
+            var ctx = JSContext.Current;
+            result = fx(new Arguments(ctx));
+            if (ctx.WaitTask != null)
+            {
+                await ctx.WaitTask;
+            }
+            return result;
+        }
+
+
     }
 
     public class ExpressionHolder
