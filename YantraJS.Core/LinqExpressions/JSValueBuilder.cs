@@ -117,58 +117,103 @@ namespace YantraJS.ExpHelper
         private static PropertyInfo _SuperIndex =
                     type.PublicIndex(typeof(JSObject), typeof(JSValue));
 
-        public static Expression Index(Expression target, Expression super, uint i)
+        private static MethodInfo _PropertyOrUndefinedKeyString =
+            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), KeyStringsBuilder.RefType);
+        private static MethodInfo _PropertyOrUndefinedUInt =
+            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(uint));
+        private static MethodInfo _PropertyOrUndefined =
+            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSValue));
+        private static MethodInfo _SuperPropertyOrUndefinedKeyString =
+            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), KeyStringsBuilder.RefType);
+        private static MethodInfo _SuperPropertyOrUndefinedUInt =
+            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(uint));
+        private static MethodInfo _SuperPropertyOrUndefined =
+            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(JSValue));
+
+        public static Expression Index(Expression target, Expression super, uint i, bool coalesce = false)
         {
             if (super == null)
             {
-                return Index(target, i);
+                return Index(target, i, coalesce);
             }
             return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Constant(i) });
         }
 
 
-        public static Expression Index(Expression target, uint i)
+        public static Expression Index(Expression target, uint i, bool coalesce = false)
         {
 
             return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Constant(i) });
         }
 
 
-        public static Expression Index(Expression target, Expression super, Expression property)
+        public static Expression Index(Expression target, Expression super, Expression property, bool coalesce = false)
         {
             if (super == null)
             {
-                return Index(target, property);
+                return Index(target, property, coalesce);
             }
             if (property.Type == typeof(KeyString))
             {
+                if (coalesce)
+                {
+                    return Expression.Call(target, _SuperPropertyOrUndefinedKeyString, super, property);
+                }
                 return Expression.MakeIndex(target, _SuperIndexKeyString, new Expression[] { super, property });
             }
             if (property.Type == typeof(uint))
             {
+                if (coalesce)
+                {
+                    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, property);
+                }
                 return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, property });
             }
             if (property.Type == typeof(int))
             {
+                if (coalesce)
+                {
+                    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, Expression.Convert(property, typeof(uint)));
+                }
                 return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Convert(property, typeof(uint)) });
+            }
+            if (coalesce)
+            {
+                return Expression.Call(target, _SuperPropertyOrUndefined, super, Expression.Convert(property, typeof(uint)));
             }
             return Expression.MakeIndex(target, _SuperIndex, new Expression[] { super, property });
         }
 
 
-        public static Expression Index(Expression target, Expression property)
+        public static Expression Index(Expression target, Expression property, bool coalesce = false)
         {
             if (property.Type == typeof(KeyString))
             {
+                if(coalesce)
+                {
+                    return Expression.Call(target, _PropertyOrUndefinedKeyString, property);
+                }
                 return Expression.MakeIndex(target, _IndexKeyString, new Expression[] { property });
             }
             if (property.Type == typeof(uint))
             {
+                if (coalesce)
+                {
+                    return Expression.Call(target, _PropertyOrUndefinedUInt, property);
+                }
                 return Expression.MakeIndex(target, _IndexUInt, new Expression[] { property });
             }
             if (property.Type == typeof(int))
             {
+                if (coalesce)
+                {
+                    return Expression.Call(target, _PropertyOrUndefinedUInt, Expression.Convert(property, typeof(uint)));
+                }
                 return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Convert(property, typeof(uint)) });
+            }
+            if (coalesce)
+            {
+                return Expression.Call(target, _PropertyOrUndefined, property);
             }
             return Expression.MakeIndex(target, _Index, new Expression[] { property });
         }

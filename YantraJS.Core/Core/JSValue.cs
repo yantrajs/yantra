@@ -200,7 +200,112 @@ namespace YantraJS.Core {
         }
 
         internal abstract KeyString ToKey(bool create = true);
-        
+
+        internal protected virtual JSValue GetOwnProperty(in KeyString name)
+        {
+            return JSUndefined.Value;
+        }
+
+        internal protected virtual JSValue GetOwnProperty(uint name)
+        {
+            return JSUndefined.Value;
+        }
+
+        internal protected virtual JSValue GetOwnProperty(JSSymbol name)
+        {
+            return JSUndefined.Value;
+        }
+
+        internal protected JSValue GetOwnProperty(JSValue name)
+        {
+            if (name is JSSymbol symbol)
+                return GetOwnProperty(symbol);
+            var key = name.ToKey(false);
+            if (key.IsUInt)
+            {
+                return GetOwnProperty(key.Key);
+            }
+            return GetOwnProperty(in key);
+        }
+
+        public JSValue PropertyOrUndefined(in KeyString name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            return GetOwnProperty(in name);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue PropertyOrUndefined(JSObject super, in KeyString name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            var pc = prototypeChain;
+            if (pc == null)
+                return JSUndefined.Value;
+            return this.GetValue(super.GetInternalProperty(name));
+        }
+
+        public JSValue PropertyOrUndefined(uint name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            return GetOwnProperty(name);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue PropertyOrUndefined(JSObject super, uint name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            var pc = this.prototypeChain;
+            if (pc == null)
+                return JSUndefined.Value;
+            return this.GetValue(super.GetInternalProperty(name));
+        }
+
+        public JSValue PropertyOrUndefined(JSSymbol name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            return this.GetOwnProperty(name);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue PropertyOrUndefined(JSObject super, JSSymbol name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            var pc = prototypeChain;
+            if (pc == null)
+                return JSUndefined.Value;
+            return this.GetValue(super.GetInternalProperty(name));
+        }
+
+        public JSValue PropertyOrUndefined(JSValue name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            if (name is JSSymbol s)
+                return PropertyOrUndefined(s);
+            var k = name.ToKey(false);
+            if (k.IsUInt)
+                return PropertyOrUndefined(k.Key);
+            return PropertyOrUndefined(k);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSValue PropertyOrUndefined(JSObject super, JSValue name)
+        {
+            if (this == JSNull.Value || this == JSUndefined.Value)
+                return JSUndefined.Value;
+            if (name is JSSymbol s)
+                return PropertyOrUndefined(super, s);
+            var k = name.ToKey(false);
+            if (k.IsUInt)
+                return PropertyOrUndefined(k.Key);
+            return PropertyOrUndefined(k);
+        }
 
         public virtual JSValue this[KeyString name]
         {

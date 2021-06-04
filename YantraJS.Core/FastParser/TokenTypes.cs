@@ -86,6 +86,7 @@ namespace YantraJS.Core.FastParser
         NotEqual,
         StrictlyEqual,
         StrictlyNotEqual,
+        Coalesce,
         BitwiseAnd,
         Xor,
         BitwiseOr,
@@ -109,5 +110,7 @@ namespace YantraJS.Core.FastParser
         True,
         Hash,
         RegExLiteral,
+        OptionalCall,
+        OptionalIndex,
     }
 }

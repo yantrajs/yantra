@@ -59,6 +59,14 @@ namespace YantraJS.ExpHelper
         private readonly static MethodInfo _NullIfUndefined =
             type.StaticMethod<JSValue>(nameof(JSValueExtensions.NullIfUndefined));
 
+        private readonly static MethodInfo _NullIfNullOrUndefined =
+            type.PublicMethod(nameof(JSValueExtensions.NullIfUndefinedOrNull), typeof(JSValue));
+
+        public static Expression Coalesce(Expression left, Expression right)
+        {
+            return Expression.Coalesce(Expression.Call(null, _NullIfNullOrUndefined, left), right);
+        }
+
         public static Expression NullIfFalse(Expression exp)
         {
             return Expression.Call(null, _NullIfFalse, exp);

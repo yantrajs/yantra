@@ -37,12 +37,12 @@ namespace YantraJS.Core.FastParser.Compiler
                         return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            KeyOfName(id.Name));
+                            KeyOfName(id.Name), memberExpression.Coalesce);
                     }
                     return ExpHelper.JSValueBuilder.Index(
                         target,
                         super,
-                        VisitIdentifier(id));
+                        VisitIdentifier(id), memberExpression.Coalesce);
                 case FastNodeType.Literal:
                     var l = mp as AstLiteral;
                     switch (l.TokenType)
@@ -51,17 +51,17 @@ namespace YantraJS.Core.FastParser.Compiler
                             return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            KeyOfName(l.StringValue));
+                            KeyOfName(l.StringValue), memberExpression.Coalesce);
                         case TokenTypes.False:
                             return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            KeyOfName(l.StringValue));
+                            KeyOfName(l.StringValue), memberExpression.Coalesce);
                         case TokenTypes.String:
                             return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            KeyOfName(l.StringValue));
+                            KeyOfName(l.StringValue), memberExpression.Coalesce);
                         case TokenTypes.Number:
                             var number = l.NumericValue;
                             if (number >= 0 && number < uint.MaxValue && (number % 1) == 0)
@@ -69,23 +69,23 @@ namespace YantraJS.Core.FastParser.Compiler
                                 return ExpHelper.JSValueBuilder.Index(
                                     target,
                                     super,
-                                    (uint)l.NumericValue);
+                                    (uint)l.NumericValue, memberExpression.Coalesce);
                             }
                             return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            KeyOfName(l.NumericValue.ToString()));
+                            KeyOfName(l.NumericValue.ToString()), memberExpression.Coalesce);
                         default:
                             throw new NotImplementedException();
                     }
                 case FastNodeType.MemberExpression:
                     var se = mp as AstMemberExpression;
-                    return JSValueBuilder.Index(target, super, VisitExpression(se));
+                    return JSValueBuilder.Index(target, super, VisitExpression(se), memberExpression.Coalesce);
 
             }
             if (memberExpression.Computed)
             {
-                return JSValueBuilder.Index(target, super, VisitExpression(memberExpression.Property));
+                return JSValueBuilder.Index(target, super, VisitExpression(memberExpression.Property), memberExpression.Coalesce);
             }
             throw new NotImplementedException();
         }

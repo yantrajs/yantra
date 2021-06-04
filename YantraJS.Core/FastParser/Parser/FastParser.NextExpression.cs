@@ -34,6 +34,8 @@ namespace YantraJS.Core.FastParser
             }
             if (type == TokenTypes.Dot)
                 return new AstMemberExpression(left, right);
+            if (type == TokenTypes.QuestionDot)
+                return new AstMemberExpression(left, right, false, true);
             return new AstBinaryExpression(left, type, right);
         }
 
@@ -336,16 +338,18 @@ namespace YantraJS.Core.FastParser
                     case TokenTypes.StrictlyEqual:
                     case TokenTypes.StrictlyNotEqual:
                         return 5;
-                    case TokenTypes.BitwiseAnd:
+                    case TokenTypes.Coalesce:
                         return 6;
-                    case TokenTypes.Xor:
+                    case TokenTypes.BitwiseAnd:
                         return 7;
-                    case TokenTypes.BitwiseOr:
+                    case TokenTypes.Xor:
                         return 8;
-                    case TokenTypes.BooleanAnd:
+                    case TokenTypes.BitwiseOr:
                         return 9;
-                    case TokenTypes.BooleanOr:
+                    case TokenTypes.BooleanAnd:
                         return 10;
+                    case TokenTypes.BooleanOr:
+                        return 11;
                 }
 
                 return int.MaxValue;

@@ -332,7 +332,15 @@ namespace YantraJS.Core.FastParser
                 case '?':
                     Consume();
                     if (CanConsume('.'))
+                    {
+                        if (CanConsume('('))
+                            return state.Commit(TokenTypes.OptionalCall);
+                        if (CanConsume('['))
+                            return state.Commit(TokenTypes.OptionalIndex);
                         return state.Commit(TokenTypes.QuestionDot);
+                    }
+                    if (CanConsume('?'))
+                        return state.Commit(TokenTypes.Coalesce);
                     return state.Commit(TokenTypes.QuestionMark);
                 case '.':
                     var peek = Next();

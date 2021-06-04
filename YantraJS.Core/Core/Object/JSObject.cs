@@ -79,6 +79,24 @@ namespace YantraJS.Core
             return ref ownProperties;
         }
 
+        protected internal override JSValue GetOwnProperty(in KeyString name)
+        {
+            var p = GetInternalProperty(name);
+            return this.GetValue(p);
+        }
+
+        protected internal override JSValue GetOwnProperty(JSSymbol name)
+        {
+            var p = GetInternalProperty(name);
+            return this.GetValue(p);
+        }
+
+        protected internal override JSValue GetOwnProperty(uint name)
+        {
+            var p = GetInternalProperty(name);
+            return this.GetValue(p);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref ElementArray GetElements(bool create = true)
         {

@@ -178,6 +178,15 @@ namespace YantraJS.Core
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue NullIfUndefinedOrNull(JSValue value)
+        {
+            if (value == JSNull.Value || value == JSUndefined.Value)
+                return null;
+            return value;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue NullIfTrue(JSValue value)
         {
             if (value.BooleanValue)

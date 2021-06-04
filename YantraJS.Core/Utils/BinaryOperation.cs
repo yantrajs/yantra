@@ -293,6 +293,8 @@ namespace YantraJS.Utils
                 case TokenTypes.Power:
 
                     return ExpHelper.JSValueBuilder.Power(left, right);
+                case TokenTypes.Coalesce:
+                    return ExpHelper.JSValueExtensionsBuilder.Coalesce(left, right);
             }
             return null;
         }
