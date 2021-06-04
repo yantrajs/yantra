@@ -13,19 +13,25 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Expression VisitArrayExpression(AstArrayExpression arrayExpression)
         {
-            var list = pool.AllocateList<Expression>(arrayExpression.Elements.Length);
-            try {
-                var e = arrayExpression.Elements.GetEnumerator();
-                while(e.MoveNext(out var item))
+            var e = arrayExpression.Elements.GetEnumerator();
+            var _new = JSArrayBuilder.New();
+            while(e.MoveNext(out var item))
+            {
+                if(item == null)
                 {
-                    list.Add(item == null
-                        ? Expression.Constant(null, typeof(JSValue))
-                        : Visit(item));
+                    // list.Add(Expression.Null);
+                    _new = JSArrayBuilder.Add(_new, Expression.Null);
+                    continue;
                 }
-                return JSArrayBuilder.New(list);
-            } finally {
-                list.Clear();
+                if(item.Type == FastNodeType.SpreadElement)
+                {
+                    var i = (item as AstSpreadElement).Argument;
+                    _new = JSArrayBuilder.AddRange(_new, Visit(i));
+                    continue;
+                }
+                _new = JSArrayBuilder.Add(_new, Visit(item));
             }
+            return _new;
         }
     }
 }

@@ -28,6 +28,10 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _Add =
             type.GetMethod(nameof(Core.JSArray.Add), new Type[] { typeof(JSValue) });
 
+        private static MethodInfo _AddRange =
+            type.GetMethod(nameof(Core.JSArray.AddRange), new Type[] { typeof(JSValue) });
+
+
         public static Expression New()
         {
             Expression start = Expression.New(_New);
@@ -38,6 +42,12 @@ namespace YantraJS.ExpHelper
         {
             return Expression.Call(target, _Add, p);
         }
+
+        public static Expression AddRange(Expression target, Expression p)
+        {
+            return Expression.Call(target, _AddRange, p);
+        }
+
 
         public static Expression New(IEnumerable<Expression> list)
         {

@@ -40,6 +40,9 @@ namespace YantraJS.ExpHelper
         readonly static MethodInfo _AddElement =
             type.PublicMethod(nameof(JSObject.AddElement), new Type[] { typeof(uint), typeof(JSValue) });
 
+        readonly static MethodInfo _Spread =
+            type.PublicMethod(nameof(JSObject.Merge), new Type[] { typeof(JSValue) });
+
         readonly static MethodInfo _AddProperty =
             type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSValue) });
 
@@ -58,6 +61,12 @@ namespace YantraJS.ExpHelper
             // choose best create method...
             foreach (var px in keyValues)
             {
+                if (px.Spread)
+                {
+                    addElements = true;
+                    addProperties = true;
+                    break;
+                }
                 if (px.Key.Type == typeof(uint))
                 {
                     addElements = true;
@@ -91,6 +100,11 @@ namespace YantraJS.ExpHelper
 
             foreach (var px in keyValues)
             {
+                if (px.Spread)
+                {
+                    _newObj = Expression.Call(_newObj, _Spread, px.Value);
+                    continue;
+                }
                 if (px.Key.Type == typeof(uint))
                 {
                     _newObj = Expression.Call(_newObj, _AddElement, px.Key, px.Value);

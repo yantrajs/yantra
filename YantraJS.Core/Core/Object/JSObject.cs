@@ -198,6 +198,28 @@ namespace YantraJS.Core
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject Merge(JSValue value)
+        {
+            if (!(value is JSObject target))
+                return this;
+            var pe = new PropertyEnumerator(target, true, false);
+            while(pe.MoveNext(out var key, out var val))
+            {
+                this[key] = val;
+            }
+            var en = new ElementEnumerator(target);
+            while(en.MoveNext(out var hasValue, out var val, out var index))
+            {
+                if (hasValue)
+                {
+                    this[index] = val;
+                }
+            }
+            return this;
+        }
+
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public JSObject AddProperty(in KeyString key, JSValue value)
         {
             ownProperties[key.Key] = JSProperty.Property(key, value);

@@ -83,6 +83,7 @@ namespace YantraJS
         public Exp Value;
         public Exp Getter;
         public Exp Setter;
+        public bool Spread;
     }
 
 }

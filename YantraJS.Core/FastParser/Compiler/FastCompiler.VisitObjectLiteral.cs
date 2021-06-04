@@ -25,9 +25,20 @@ namespace YantraJS.Core.FastParser.Compiler
             var properties = new Dictionary<string, ExpressionHolder>(objectExpression.Properties.Count);
             foreach (AstNode pn in objectExpression.Properties)
             {
-                if(pn.Type == FastNodeType.SpreadElement)
+
+                switch (pn.Type)
                 {
-                    throw new NotImplementedException();
+                    case FastNodeType.SpreadElement:
+                        var spread = pn as AstSpreadElement;
+                        keys.Add(new ExpressionHolder { 
+                            Spread = true,
+                            Value = Visit(spread.Argument)
+                        });
+                        continue;
+                    case FastNodeType.ClassProperty:
+                        break;
+                    default:
+                        throw new FastParseException(pn.Start, $"Invalid token {pn.Start} in object literal");
                 }
 
                 AstClassProperty p = pn as AstClassProperty;

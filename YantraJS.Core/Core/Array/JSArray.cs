@@ -235,7 +235,7 @@ namespace YantraJS.Core
             }
         }
 
-        internal void AddRange(JSValue iterator)
+        public JSValue AddRange(JSValue iterator)
         {
             ref var et = ref CreateElements();
             // var et = this.elements;
@@ -249,7 +249,7 @@ namespace YantraJS.Core
                     et[el++] = JSProperty.Property(ary[i]);
                 }
                 this._length = el;
-                return;
+                return this;
             }
 
             var en = iterator.GetElementEnumerator();
@@ -264,6 +264,7 @@ namespace YantraJS.Core
                 }
             }
             this._length = el;
+            return this;
         }
     }
 
