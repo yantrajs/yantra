@@ -158,6 +158,19 @@ namespace YantraJS.Core.FastParser.Compiler
                                     var assignee = VisitIdentifier(id);
                                     inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en));
                                     break;
+                                case FastNodeType.BinaryExpression:
+                                    var be = element as AstBinaryExpression;
+                                    if (be.Left.Type != FastNodeType.Identifier)
+                                        throw new FastParseException(be.Left.Start, "Invalid left hand side in assignment");
+                                    id = be.Left as AstIdentifier;
+                                    if (createVariable)
+                                    {
+                                        this.scope.Top.CreateVariable(id.Name.Value, null, newScope);
+                                    }
+                                    assignee = VisitIdentifier(id);
+                                    inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en));
+                                    inits.Add(JSValueExtensionsBuilder.AssignCoalesce(assignee, Visit(be.Right)));
+                                    break;
                                 case FastNodeType.SpreadElement:
                                     var spe = element as AstSpreadElement;
                                     // loop...

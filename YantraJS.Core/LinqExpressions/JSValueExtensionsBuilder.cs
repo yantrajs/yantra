@@ -39,6 +39,12 @@ namespace YantraJS.ExpHelper
             return Expression.Assign(e, value);
         }
 
+        public static Expression AssignCoalesce(Expression e, Expression value)
+        {
+            return Expression.Assign(e, Expression.Coalesce( NullIfUndefined(e), value));
+        }
+
+
         private readonly static MethodInfo _NullIfTrue =
             type.PublicMethod(nameof(JSValueExtensions.NullIfTrue), typeof(JSValue));
 

@@ -114,6 +114,14 @@ namespace YantraJS.Core.FastParser
                         var spread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
                         if (!AssignmentLeftPattern(out var left, kind, modulePattern))
                             throw stream.Unexpected();
+                        if (stream.CheckAndConsume(TokenTypes.Assign))
+                        {
+                            if (spread)
+                                throw stream.Unexpected();
+                            if (!Expression(out var right))
+                                throw stream.Unexpected();
+                            left = new AstBinaryExpression(left, TokenTypes.Assign, right);
+                        }
                         if (spread)
                             left = new AstSpreadElement(token, left.End, left);
                         nodes.Add(left);
