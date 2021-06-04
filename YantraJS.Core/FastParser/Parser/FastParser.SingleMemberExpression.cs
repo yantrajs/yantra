@@ -58,13 +58,15 @@ namespace YantraJS.Core.FastParser
                             ArraySpan<AstExpression>.From(new AstTaggedTemplateExpression(template.Parts)));
                         continue;
 
+                    case TokenTypes.OptionalIndex:
                     case TokenTypes.SquareBracketStart:
                         stream.Consume();
                         if (!ExpressionSequence(out var index, TokenTypes.SquareBracketEnd))
                             throw stream.Unexpected();
-                        node = node.Member(index, true);
+                        node = node.Member(index, true, token.Type == TokenTypes.OptionalIndex);
                         continue;
                     case TokenTypes.BracketStart:
+                    case TokenTypes.OptionalCall:
                         stream.Consume();
                         if (!ArrayExpression(out var arguments))
                             throw stream.Unexpected();
@@ -74,7 +76,7 @@ namespace YantraJS.Core.FastParser
                             asNew = false;
                         }
                         else
-                            node = new AstCallExpression(node, arguments);
+                            node = new AstCallExpression(node, arguments, token.Type == TokenTypes.OptionalCall);
                         continue;
                     case TokenTypes.QuestionDot:
                     case TokenTypes.Dot:

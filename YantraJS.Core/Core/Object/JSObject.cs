@@ -79,19 +79,19 @@ namespace YantraJS.Core
             return ref ownProperties;
         }
 
-        protected internal override JSValue GetOwnProperty(in KeyString name)
+        public override JSValue GetOwnProperty(in KeyString name)
         {
             var p = GetInternalProperty(name);
             return this.GetValue(p);
         }
 
-        protected internal override JSValue GetOwnProperty(JSSymbol name)
+        public override JSValue GetOwnProperty(JSSymbol name)
         {
             var p = GetInternalProperty(name);
             return this.GetValue(p);
         }
 
-        protected internal override JSValue GetOwnProperty(uint name)
+        public override JSValue GetOwnProperty(uint name)
         {
             var p = GetInternalProperty(name);
             return this.GetValue(p);

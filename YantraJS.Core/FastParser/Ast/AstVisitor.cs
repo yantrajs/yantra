@@ -187,7 +187,7 @@ namespace YantraJS.Core.FastParser.Ast
             var a = Modified(callExpression.Arguments, out var arguments);
             if(t || a)
             {
-                return new AstCallExpression(target, arguments);
+                return new AstCallExpression(target, arguments, callExpression.Coalesce);
             }
             return callExpression;
         }

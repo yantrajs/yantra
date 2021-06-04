@@ -201,22 +201,22 @@ namespace YantraJS.Core {
 
         internal abstract KeyString ToKey(bool create = true);
 
-        internal protected virtual JSValue GetOwnProperty(in KeyString name)
+        public virtual JSValue GetOwnProperty(in KeyString name)
         {
             return JSUndefined.Value;
         }
 
-        internal protected virtual JSValue GetOwnProperty(uint name)
+        public virtual JSValue GetOwnProperty(uint name)
         {
             return JSUndefined.Value;
         }
 
-        internal protected virtual JSValue GetOwnProperty(JSSymbol name)
+        public virtual JSValue GetOwnProperty(JSSymbol name)
         {
             return JSUndefined.Value;
         }
 
-        internal protected JSValue GetOwnProperty(JSValue name)
+        public JSValue GetOwnProperty(JSValue name)
         {
             if (name is JSSymbol symbol)
                 return GetOwnProperty(symbol);

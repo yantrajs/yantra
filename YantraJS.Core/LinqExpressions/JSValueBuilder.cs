@@ -14,7 +14,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
-
+using YantraJS.Core.FastParser;
 
 namespace YantraJS.ExpHelper
 {
@@ -129,6 +129,49 @@ namespace YantraJS.ExpHelper
             type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(uint));
         private static MethodInfo _SuperPropertyOrUndefined =
             type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(JSValue));
+
+        private static MethodInfo _GetOwnPropertyKeyString =
+            type.PublicMethod(nameof(JSValue.GetOwnProperty), KeyStringsBuilder.RefType);
+
+        private static MethodInfo _GetOwnPropertyUInt =
+            type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(uint));
+
+        private static MethodInfo _GetOwnProperty =
+            type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(JSValue));
+
+
+        public static Expression InvokeMethod(
+            Expression targetTemp,
+            Expression methodTemp, 
+            Expression target, Expression name, in ArraySpan<Expression> args, bool spread, bool coalesce)
+        {
+            if (!coalesce)
+            {
+                return JSValueExtensionsBuilder.InvokeMethod(target, name, in args, spread);
+            }
+            var method = _GetOwnProperty;
+            if(name.Type == typeof(KeyString))
+            {
+                method = _GetOwnPropertyKeyString;
+            } else if(name.Type == typeof(uint))
+            {
+                method = _GetOwnPropertyUInt;
+            } else if (name.Type == typeof(int))
+            {
+                method = _GetOwnPropertyUInt;
+                name = Expression.Convert(name, typeof(uint));
+            }
+
+            return Expression.Block(
+                Expression.Assign(targetTemp, target),
+                Expression.Assign(methodTemp, Expression.Call(targetTemp, _GetOwnProperty, name)),
+                Expression.Condition(
+                    JSValueBuilder.IsNullOrUndefined(methodTemp), 
+                        JSUndefinedBuilder.Value,
+                        JSFunctionBuilder.InvokeFunction(methodTemp, ArgumentsBuilder.New(targetTemp, args, spread))
+                    )
+                );
+        }
 
         public static Expression Index(Expression target, Expression super, uint i, bool coalesce = false)
         {

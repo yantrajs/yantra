@@ -16,7 +16,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Exp VisitCallExpression(AstCallExpression callExpression)
         {
-            var ce = VisitCallExpression(callExpression.Callee, in callExpression.Arguments);
+            var ce = VisitCallExpression(callExpression.Callee, in callExpression.Arguments, callExpression.Coalesce);
             return ce;
         }
 
@@ -92,7 +92,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected Exp VisitCallExpression(
             AstExpression callee, 
-            in ArraySpan<AstExpression> arguments)
+            in ArraySpan<AstExpression> arguments
+            , bool coalesce = false)
         {
 
             if (callee is AstMemberExpression me)
@@ -132,18 +133,20 @@ namespace YantraJS.Core.FastParser.Compiler
                     ? this.scope.Top.ThisExpression
                     : VisitExpression(me.Object);
 
-
                 if (isSuper)
                 {
-                    var paramArray = VisitArguments(
-                            isSuper ? target : null,
-                            in arguments);
 
-                    var superMethod = JSValueBuilder.Index(super, name);
-                    return JSFunctionBuilder.InvokeFunction(superMethod, paramArray);
+                    var paramArray = VisitArguments(
+                                            isSuper ? target : null,
+                                            in arguments);
+
+                    var superMethod = JSValueBuilder.Index(super, name, me.Coalesce);
+                    return JSFunctionBuilder.InvokeFunction(superMethod, paramArray, me.Coalesce);
                 }
                 var (args, spread) = VisitArguments(in arguments);
-                return JSValueExtensionsBuilder.InvokeMethod(target, name, args, spread);
+                using var te = this.scope.Top.GetTempVariable(typeof(JSValue));
+                using var te2 = this.scope.Top.GetTempVariable(typeof(JSValue));
+                return JSValueBuilder.InvokeMethod(te.Variable, te2.Variable, target, name, args, spread, me.Coalesce || coalesce);
 
             }
             else
@@ -160,7 +163,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var paramArray = VisitArguments(JSUndefinedBuilder.Value, in arguments);
                 var target = VisitExpression(callee);
-                return JSFunctionBuilder.InvokeFunction(target, paramArray);
+                return JSFunctionBuilder.InvokeFunction(target, paramArray, coalesce);
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using YantraJS.Core;
+using YantraJS.Core.FastParser;
 using YantraJS.Core.LinqExpressions;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
@@ -80,6 +81,32 @@ namespace YantraJS.ExpHelper
         {
             return Expression.Call(null, _spread, @this, Expression.NewArrayInit(typeof(JSValue),args));
         }
+
+        public static Expression New(Expression @this, in ArraySpan<Expression> args, bool spread)
+        {
+            if (spread)
+            {
+                return Expression.Call(null, _spread, @this, Expression.NewArrayInit(typeof(JSValue), args));
+            }
+            var newList = new List<Expression>() { @this };
+            newList.AddRange(args);
+            switch (args.Count)
+            {
+                case 0:
+                    return Expression.New(_New0, newList);
+                case 1:
+                    return Expression.New(_New1, newList);
+                case 2:
+                    return Expression.New(_New2, newList);
+                case 3:
+                    return Expression.New(_New3, newList);
+                case 4:
+                    return Expression.New(_New4, newList);
+            }
+            var a = Expression.NewArrayInit(typeof(JSValue), args);
+            return Expression.New(_New, @this, a);
+        }
+
 
         public static Expression New(Expression @this, IList<Expression> args)
         {

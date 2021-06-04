@@ -86,12 +86,23 @@ namespace YantraJS.ExpHelper
             return Expression.Assign(returnValue, Expression.Call(null, _invokeSuperConstructor, super, args));
         }
 
-        public static Expression InvokeFunction(Expression target, Expression args)
+        public static Expression InvokeFunction(Expression target, Expression args, bool coalesce = false)
         {
             // var asFunction = Expression.Coalesce(Expression.TypeAs(target, typeof(JSFunction)),
             //    JSExceptionBuilder.ThrowNotFunction(target));
             // var field = Expression.Field(asFunction, _f);
             // return Expression.Invoke(field, t, args);
+            if (coalesce)
+            {
+                var pes = Expression.Parameters(typeof(JSValue));
+                var pe = pes[0];
+                return Expression.Block(
+                    pes,
+                    Expression.Assign(pe, target),
+                    Expression.Condition(JSValueBuilder.IsNullOrUndefined(pe),
+                    JSUndefinedBuilder.Value,
+                    Expression.Call(pe, invokeFunction, args)));
+            }
             return Expression.Call(target, invokeFunction, args);
         }
 
