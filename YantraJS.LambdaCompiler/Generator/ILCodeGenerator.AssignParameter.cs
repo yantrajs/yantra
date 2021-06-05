@@ -27,25 +27,27 @@ namespace YantraJS.Generator
 
             if (varInfo.IsArgument)
             {
-                il.Emit(OpCodes.Starg_S, OpCodes.Starg, varInfo.Index);
+                // il.Emit(OpCodes.Starg_S, OpCodes.Starg, varInfo.Index);
+                il.EmitSaveArg(varInfo.Index);
                 return true;
             }
             var i = varInfo.LocalBuilder.LocalIndex;
-            switch (i) {
-                case 0:
-                    il.Emit(OpCodes.Stloc_0);
-                    return true;
-                case 1:
-                    il.Emit(OpCodes.Stloc_1);
-                    return true;
-                case 2:
-                    il.Emit(OpCodes.Stloc_2);
-                    return true;
-                case 3:
-                    il.Emit(OpCodes.Stloc_3);
-                    return true;
-            }
-            il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, i);
+            //switch (i) {
+            //    case 0:
+            //        il.Emit(OpCodes.Stloc_0);
+            //        return true;
+            //    case 1:
+            //        il.Emit(OpCodes.Stloc_1);
+            //        return true;
+            //    case 2:
+            //        il.Emit(OpCodes.Stloc_2);
+            //        return true;
+            //    case 3:
+            //        il.Emit(OpCodes.Stloc_3);
+            //        return true;
+            //}
+            // il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, i);
+            il.EmitSaveLocal(i);
             return true;
         }
 

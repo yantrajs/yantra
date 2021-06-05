@@ -8,22 +8,22 @@ namespace YantraJS.Generator
     public static class ILGeneratorExtensions
     {
 
-        /// <summary>
-        /// Emits instruction with _s if index is less or equal to 32767
-        /// </summary>
-        /// <param name="il"></param>
-        /// <param name="opCode_S"></param>
-        /// <param name="opCode"></param>
-        /// <param name="index"></param>
-        public static void Emit(this ILWriter il,OpCode opCode_S, OpCode opCode, int index)
-        {
-            if (index <= 32767)
-            {
-                il.Emit(opCode_S, (short)index);
-                return;
-            }
-            il.Emit(opCode, index);
-        }
+        ///// <summary>
+        ///// Emits instruction with _s if index is less or equal to 32767
+        ///// </summary>
+        ///// <param name="il"></param>
+        ///// <param name="opCode_S"></param>
+        ///// <param name="opCode"></param>
+        ///// <param name="index"></param>
+        //public static void Emit(this ILWriter il,OpCode opCode_S, OpCode opCode, int index)
+        //{
+        //    if (index <= 32767)
+        //    {
+        //        il.Emit(opCode_S, (short)index);
+        //        return;
+        //    }
+        //    il.Emit(opCode, index);
+        //}
 
         public static void EmitConstant(this ILWriter il, DateTime d)
         {
@@ -257,10 +257,20 @@ namespace YantraJS.Generator
             }
             if (index <= 255)
             {
-                il.Emit(OpCodes.Stloc_S, OpCodes.Stloc, index);
+                il.Emit(OpCodes.Stloc_S, (byte)index);
                 return;
             }
-            il.Emit(OpCodes.Stloc, OpCodes.Stloc, index);
+            il.Emit(OpCodes.Stloc, index);
+        }
+
+        public static void EmitSaveArg(this ILWriter il, int index)
+        {
+            if(index <= 255)
+            {
+                il.Emit(OpCodes.Starg_S, (byte)index);
+                return;
+            }
+            il.Emit(OpCodes.Starg, index);
         }
 
         public static void EmitLoadArg(this ILWriter il,int index)
@@ -280,13 +290,23 @@ namespace YantraJS.Generator
                     il.Emit(OpCodes.Ldarg_3);
                     return;
             }
-            il.Emit(OpCodes.Ldarg_S, OpCodes.Ldarg, index);
+            if(index <= 255)
+            {
+                il.Emit(OpCodes.Ldarg_S, (byte)index);
+                return;
+            }
+            il.Emit(OpCodes.Ldarg, index);
 
         }
 
         public static void EmitLoadArgAddress(this ILWriter il,int index)
         {
-            il.Emit(OpCodes.Ldarga_S, OpCodes.Ldarga, index);
+            if(index<=255)
+            {
+                il.Emit(OpCodes.Ldarga_S, (byte)index);
+                return;
+            }
+            il.Emit(OpCodes.Ldarga, index);
         }
 
 
@@ -309,10 +329,10 @@ namespace YantraJS.Generator
             }
             if (index <= 255)
             {
-                il.Emit(OpCodes.Ldloc_S, OpCodes.Ldloc, index);
+                il.Emit(OpCodes.Ldloc_S, (byte)index);
                 return;
             }
-            il.Emit(OpCodes.Ldloc, OpCodes.Ldloc, index);
+            il.Emit(OpCodes.Ldloc, index);
         }
 
         public static void  EmitCall(this ILWriter il,MethodInfo method)
@@ -329,10 +349,10 @@ namespace YantraJS.Generator
         {
             if (index <= 255)
             {
-                il.Emit(OpCodes.Ldloca_S, OpCodes.Ldloca, index);
+                il.Emit(OpCodes.Ldloca_S, index);
                 return;
             }
-            il.Emit(OpCodes.Ldloca, OpCodes.Ldloca, index);
+            il.Emit(OpCodes.Ldloca, index);
         }
 
 
