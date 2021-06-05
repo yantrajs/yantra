@@ -7,8 +7,8 @@ function add() {
     return b;
 }
 
-assert.strictEqual(undefined, a?.call?.(add()));
+assert.strictEqual(undefined, a?.method?.(add()));
 assert.strictEqual(1, b);
 
-assert.strictEqual(undefined, a.call?.(add()));
+assert.strictEqual(undefined, a.method?.(add()));
 assert.strictEqual(1, b);
