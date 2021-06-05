@@ -149,22 +149,22 @@ namespace YantraJS.ExpHelper
             {
                 return JSValueExtensionsBuilder.InvokeMethod(target, name, in args, spread);
             }
-            var method = _GetOwnProperty;
+            var method = _PropertyOrUndefined;
             if(name.Type == typeof(KeyString))
             {
-                method = _GetOwnPropertyKeyString;
+                method = _PropertyOrUndefinedKeyString;
             } else if(name.Type == typeof(uint))
             {
-                method = _GetOwnPropertyUInt;
+                method = _PropertyOrUndefinedUInt;
             } else if (name.Type == typeof(int))
             {
-                method = _GetOwnPropertyUInt;
+                method = _PropertyOrUndefinedUInt;
                 name = Expression.Convert(name, typeof(uint));
             }
 
             return Expression.Block(
                 Expression.Assign(targetTemp, target),
-                Expression.Assign(methodTemp, Expression.Call(targetTemp, _GetOwnProperty, name)),
+                Expression.Assign(methodTemp, Expression.Call(targetTemp, method, name)),
                 Expression.Condition(
                     JSValueBuilder.IsNullOrUndefined(methodTemp), 
                         JSUndefinedBuilder.Value,
@@ -256,7 +256,19 @@ namespace YantraJS.ExpHelper
             }
             if (coalesce)
             {
-                return Expression.Call(target, _PropertyOrUndefined, property);
+                // we need to use a block...
+                var pes = Expression.Parameters(typeof(JSValue));
+                var pe = pes[0];
+                return Expression.Block(pes,
+                    Expression.Assign(pe, target),
+                    Expression.Condition(
+                        JSValueBuilder.IsNullOrUndefined(pe),
+                        JSUndefinedBuilder.Value,
+                        Expression.Call(target, _GetOwnProperty, property)
+                        )
+                    );
+
+                // return Expression.Call(target, _PropertyOrUndefined, property);
             }
             return Expression.MakeIndex(target, _Index, new Expression[] { property });
         }

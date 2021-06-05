@@ -203,16 +203,25 @@ namespace YantraJS.Core {
 
         public virtual JSValue GetOwnProperty(in KeyString name)
         {
+            var pc = prototypeChain;
+            if (pc != null)
+                return this.GetValue(pc.GetInternalProperty(name));
             return JSUndefined.Value;
         }
 
         public virtual JSValue GetOwnProperty(uint name)
         {
+            var pc = prototypeChain;
+            if (pc != null)
+                return this.GetValue(pc.GetInternalProperty(name));
             return JSUndefined.Value;
         }
 
         public virtual JSValue GetOwnProperty(JSSymbol name)
         {
+            var pc = prototypeChain;
+            if (pc != null)
+                return this.GetValue(pc.GetInternalProperty(name));
             return JSUndefined.Value;
         }
 
