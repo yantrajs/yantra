@@ -14,7 +14,7 @@ namespace YantraJS.Core.Tests.Core
         {
             StringSpan s1 = StringSpan.Empty;
 
-            Assert.AreNotEqual(0, s1.GetHashCode());
+            Assert.AreEqual(0, s1.GetHashCode());
 
             StringSpan s2 = null;
             Assert.AreEqual(0, s2.GetHashCode());

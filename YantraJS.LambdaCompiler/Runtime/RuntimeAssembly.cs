@@ -127,42 +127,5 @@ namespace YantraJS.Runtime
             // return (T)func.DynamicInvoke();
         }
 
-        private static ModuleBuilder moduleBuilder;
-
-        static RuntimeAssembly()
-        {
-            var a = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("EC.Runtime"), AssemblyBuilderAccess.RunAndCollect);
-            moduleBuilder = a.DefineDynamicModule("EC");
-        }
-
-        internal static Type CreateDelegateType(Type[] types, Type returnType)
-        {
-            return moduleBuilder.CreateDelegateType(types, returnType);
-        }
-
-        internal static TypeBuilder DefineDelegateType(this ModuleBuilder module, string name)
-        {
-            return module.DefineType(
-                name,
-                TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.AnsiClass | TypeAttributes.AutoClass,
-                typeof(MulticastDelegate)
-            );
-        }
-
-        private static int did = 1;
-
-        internal static Type CreateDelegateType(this ModuleBuilder module, Type[] types, Type returnType)
-        {
-            MethodAttributes CtorAttributes = MethodAttributes.RTSpecialName | MethodAttributes.HideBySig | MethodAttributes.Public;
-            MethodImplAttributes ImplAttributes = MethodImplAttributes.Runtime | MethodImplAttributes.Managed;
-            MethodAttributes InvokeAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
-            Type[] s_delegateCtorSignature = { typeof(object), typeof(IntPtr) };
-
-            TypeBuilder builder = module.DefineDelegateType("Delegate_" + Interlocked.Increment(ref did));
-            builder.DefineConstructor(CtorAttributes, CallingConventions.Standard, s_delegateCtorSignature).SetImplementationFlags(ImplAttributes);
-            builder.DefineMethod("Invoke", InvokeAttributes, returnType, types).SetImplementationFlags(ImplAttributes);
-            return builder.CreateTypeInfo();
-        }
-
     }
 }

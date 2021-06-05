@@ -207,18 +207,6 @@ namespace YantraJS.Expressions
             return Index(target, index, args);
         }
 
-        protected static Type GetDelegateType(Type[] types, Type returnType)
-        {
-            //if(!types.Any(t => t.IsByRef))
-            //{
-            //    var n = new List<Type>(types);
-            //    n.Add(returnType);
-            //    return System.Linq.Expressions.Expression.GetDelegateType(n.ToArray());
-            //}
-
-            return RuntimeAssembly.CreateDelegateType(types, returnType);
-        }
-
         public static YConditionalExpression Conditional(
             YExpression test, 
             YExpression @true, 
