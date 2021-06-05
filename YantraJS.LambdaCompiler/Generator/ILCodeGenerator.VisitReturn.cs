@@ -81,18 +81,14 @@ namespace YantraJS.Generator
 
         private CodeInfo VisitReturnBlock(YBlockExpression block, ILWriterLabel label, int localIndex)
         {
-            var length = block.Expressions.Length;
-            var last = length - 1;
-
             using var tvs = tempVariables.Push();
 
-            foreach (var p in block.Variables)
+            foreach (var p in block.FlattenVariables)
                 variables.Create(p, tvs);
 
-            for (int i = 0; i < length; i++)
+            foreach(var (exp, last) in block.FlattenExpressions)
             {
-                var exp = block.Expressions[i];
-                if(i != last)
+                if(!last)
                 {
                     VisitSave(exp, false);
                     continue;

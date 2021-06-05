@@ -38,7 +38,7 @@ namespace YantraJS.Generator
             this.il = new ILWriter(il, writer);
             this.variables = new VariableInfo(il);
             this.labels = new LabelInfo(this.il);
-            this.tempVariables = new TempVariables(il);
+            this.tempVariables = new TempVariables(this.il);
             this.expressionWriter = expressionWriter;
         }
 

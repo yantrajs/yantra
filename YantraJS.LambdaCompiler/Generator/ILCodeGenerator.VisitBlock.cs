@@ -12,17 +12,14 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitBlock(YBlockExpression yBlockExpression)
         {
             using var tvs = tempVariables.Push();
-            foreach(var p in yBlockExpression.Variables)
+            foreach(var p in yBlockExpression.FlattenVariables)
             {
                 variables.Create(p, tvs);
             }
-            var expressions = yBlockExpression.Expressions;
-            var l = expressions.Length;
-            var last = l - 1;
-            for (int i = 0; i < l; i++)
+            var expressions = yBlockExpression.FlattenExpressions;
+            foreach(var (exp, last) in expressions)
             {
-                var exp = expressions[i];
-                VisitSave(exp, i == last);
+                VisitSave(exp, last);
             }
             return true;
         }

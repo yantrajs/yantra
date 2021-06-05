@@ -37,5 +37,42 @@ namespace YantraJS.Expressions
             writer.Indent--;
             writer.WriteLine("}");
         }
+
+        public IEnumerable<YParameterExpression> FlattenVariables
+        {
+            get
+            {
+                foreach (var v in Variables)
+                    yield return v;
+                foreach(var s in Expressions)
+                {
+                    if(s.NodeType == YExpressionType.Block && s is YBlockExpression b)
+                    {
+                        foreach (var v in b.FlattenVariables)
+                            yield return v;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<(YExpression expression, bool isLast)> FlattenExpressions
+        {
+            get
+            {
+                var l = Expressions.Length;
+                for (int i = 0; i < l; i++)
+                {
+                    bool last = i == l - 1;
+                    var e = Expressions[i];
+                    if (e.NodeType == YExpressionType.Block && e is YBlockExpression b) {
+                        foreach (var (item, isLast) in b.FlattenExpressions)
+                            yield return (item, isLast && last);
+                        continue;
+                    }
+
+                    yield return (e, last);
+                }
+            }
+        }
     }
 }

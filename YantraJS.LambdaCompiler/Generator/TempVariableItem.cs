@@ -9,18 +9,16 @@ namespace YantraJS.Generator
 
     public class TempVariables: LinkedStack<TempVariables.TempVariableItem>
     {
-        private readonly ILGenerator il;
+        private readonly ILWriter il;
 
-        private Dictionary<Type, Queue<LocalBuilder>> queues = new Dictionary<Type, Queue<LocalBuilder>>();
-
-        public TempVariables(ILGenerator il)
+        public TempVariables(ILWriter il)
         {
             this.il = il;
         }
 
         public TempVariableItem Push()
         {
-            return Push(new TempVariableItem(this));
+            return Push(new TempVariableItem(il));
         }
 
         public LocalBuilder this[Type type]
@@ -33,49 +31,27 @@ namespace YantraJS.Generator
 
         public class TempVariableItem : LinkedStackItem<TempVariableItem>
         {
-            private readonly TempVariables scope;
+            private List<IDisposable> disposables = new List<IDisposable>();
+            private readonly ILWriter writer;
 
-            private List<LocalBuilder> reserved = new List<LocalBuilder>();
-
-            public TempVariableItem(TempVariables scope)
+            public TempVariableItem(ILWriter writer)
             {
-                this.scope = scope;
+                this.writer = writer;
             }
 
 
             public LocalBuilder Get(Type type)
             {
-                if(!scope.queues.TryGetValue(type, out  var q))
-                {
-                    q = new Queue<LocalBuilder>();
-                    scope.queues[type] = q;
-                }
-                LocalBuilder v;
-                if (q.Count > 0)
-                {
-                    v = q.Dequeue();
-                    reserved.Add(v);
-                    return v;
-                }
-
-                v = scope.il.DeclareLocal(type);
-                reserved.Add(v);
-                return v;
+                var t = writer.NewTemp(type);
+                disposables.Add(t);
+                return t.Local;
             }
 
             public override void Dispose()
             {
                 base.Dispose();
-
-                if (reserved == null)
-                    return;
-
-                foreach(var l in reserved)
-                {
-                    scope.queues[l.LocalType].Enqueue(l);
-                }
-
-                reserved = null;
+                foreach (var d in disposables)
+                    d.Dispose();
             }
         }
 
