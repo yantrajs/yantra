@@ -9,9 +9,10 @@ namespace YantraJS.Debugger
 
         public static event EventHandler Break;
 
-        public static void RaiseBreak()
+        public static object RaiseBreak()
         {
             Break?.Invoke(null, EventArgs.Empty);
+            return null;
         }
 
     }
