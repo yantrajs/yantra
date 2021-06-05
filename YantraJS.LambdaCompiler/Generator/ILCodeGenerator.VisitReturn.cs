@@ -32,7 +32,7 @@ namespace YantraJS.Generator
                         return true;
                     }
                 }
-                var temp = tempVariables[def.Type];
+                using var temp = il.NewTemp(def.Type);
                 return VisitReturn(def, label, temp.LocalIndex);
             }
             il.Branch(label);
@@ -84,8 +84,10 @@ namespace YantraJS.Generator
             var length = block.Expressions.Length;
             var last = length - 1;
 
+            using var tvs = tempVariables.Push();
+
             foreach (var p in block.Variables)
-                variables.Create(p);
+                variables.Create(p, tvs);
 
             for (int i = 0; i < length; i++)
             {

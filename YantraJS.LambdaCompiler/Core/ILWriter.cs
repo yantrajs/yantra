@@ -1,6 +1,8 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -15,6 +17,46 @@ namespace YantraJS.Core
             = new LinkedStack<ILTryBlock>();
         private readonly ILGenerator il;
         private TextWriter? writer = null;
+
+        private List<TempVariable> temps = new List<TempVariable>();
+
+        public TempVariable NewTemp(Type type) => TempVariable.New(this, type);
+
+        public class TempVariable : IDisposable
+        {
+            private bool IsBusy;
+
+            public readonly LocalBuilder Local;
+
+            public readonly int LocalIndex;
+
+            private TempVariable(ILWriter writer, Type type)
+            {
+                this.Local = writer.il.DeclareLocal(type);
+                this.LocalIndex = this.Local.LocalIndex;
+            }
+
+            public static TempVariable New(ILWriter writer, Type type)
+            {
+                var f = writer.temps.FirstOrDefault(x => x.IsBusy == false && x.Local.LocalType == type);
+                if (f != null)
+                {
+                    f.IsBusy = true;
+                    return f;
+                }
+                f = new TempVariable(writer, type);
+                writer.temps.Add(f);
+                f.IsBusy = true;
+                return f;
+            }
+
+            public void Dispose()
+            {
+                IsBusy = false;
+            }
+        }
+
+
 
         public int ILOffset => il.ILOffset;
 

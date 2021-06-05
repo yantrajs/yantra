@@ -33,5 +33,15 @@ namespace YantraJS.Generator
             return vb;
         }
 
+        public Variable Create(
+            YParameterExpression exp,
+            TempVariables.TempVariableItem tvs)
+        {
+            var vb = new Variable(tvs.Get(exp.Type), false, -1, exp.Type.IsByRef, exp.Name);
+            variables[exp] = vb;
+            return vb;
+        }
+
+
     }
 }

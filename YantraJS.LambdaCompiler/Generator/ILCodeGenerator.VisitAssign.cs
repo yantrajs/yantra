@@ -35,7 +35,7 @@ namespace YantraJS.Generator
             // return Assign(yAssignExpression.Left);
 
             // from block a non saving expression must be called with -1
-            var temp = tempVariables[yAssignExpression.Type];
+            using var temp = il.NewTemp(yAssignExpression.Type);
             VisitAssign(yAssignExpression, temp.LocalIndex);
             il.EmitLoadLocal(temp.LocalIndex);
             return true;
@@ -153,9 +153,10 @@ namespace YantraJS.Generator
 
                 if(pe.NodeType == YExpressionType.Assign)
                 {
-                    var t = tempVariables[pe.Type].LocalIndex;
-                    VisitAssign((pe as YAssignExpression)!, t);
-                    il.EmitLoadLocal(t);
+                    using var t = il.NewTemp(pe.Type);
+                    var ti = t.LocalIndex;
+                    VisitAssign((pe as YAssignExpression)!, ti);
+                    il.EmitLoadLocal(ti);
                     continue;
                 }
 

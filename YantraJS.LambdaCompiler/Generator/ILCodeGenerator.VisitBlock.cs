@@ -11,9 +11,10 @@ namespace YantraJS.Generator
     {
         protected override CodeInfo VisitBlock(YBlockExpression yBlockExpression)
         {
+            using var tvs = tempVariables.Push();
             foreach(var p in yBlockExpression.Variables)
             {
-                variables.Create(p);
+                variables.Create(p, tvs);
             }
             var expressions = yBlockExpression.Expressions;
             var l = expressions.Length;

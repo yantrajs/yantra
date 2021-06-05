@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Core;
 using YantraJS.Expressions;
 
 namespace YantraJS.Generator
@@ -91,10 +92,11 @@ namespace YantraJS.Generator
                 if (saveList == null)
                     return;
                 var rtIndex = 0;
+                ILWriter.TempVariable t = null;
 
                 if (returnType != typeof(void))
                 {
-                    var t = tempVariables[returnType];
+                    t = il.NewTemp(returnType);
                     rtIndex = t.LocalIndex;
 
                     il.EmitSaveLocal(rtIndex);
@@ -108,6 +110,7 @@ namespace YantraJS.Generator
                 if (rtIndex != 0)
                 {
                     il.EmitLoadLocal(rtIndex);
+                    t.Dispose();
                 }
             }
         }
