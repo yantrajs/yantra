@@ -97,13 +97,13 @@ namespace YantraJS.Generator
 
         private YExpression ReWriteTryCatch(YExpression body)
         {
-            switch (body.NodeType)
-            {
-                case YExpressionType.Block:
-                case YExpressionType.Assign:
-                    var l = YExpression.Label("ReturnLabel", body.Type);
-                    return YExpression.Block(YExpression.Return(l, body), YExpression.Label(l, YExpression.Null));
-            }
+            //switch (body.NodeType)
+            //{
+            //    case YExpressionType.Block:
+            //    case YExpressionType.Assign:
+            //        var l = YExpression.Label("ReturnLabel", body.Type);
+            //        return YExpression.Block(YExpression.Return(l, body), YExpression.Label(l, YExpression.Null));
+            //}
             if (body.NodeType != YExpressionType.TryCatchFinally)
             {
                 return body;
