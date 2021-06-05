@@ -177,7 +177,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         if (allIntegers)
                         {
-                            testTarget = Exp.Convert(JSValueBuilder.DoubleValue(testTarget), typeof(int));
+                            testTarget = JSValueBuilder.IntValue(testTarget);
                         }
                         else
                         {
