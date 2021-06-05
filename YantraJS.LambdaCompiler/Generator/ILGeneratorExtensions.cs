@@ -349,7 +349,7 @@ namespace YantraJS.Generator
         {
             if (index <= 255)
             {
-                il.Emit(OpCodes.Ldloca_S, index);
+                il.Emit(OpCodes.Ldloca_S, (byte)index);
                 return;
             }
             il.Emit(OpCodes.Ldloca, index);
