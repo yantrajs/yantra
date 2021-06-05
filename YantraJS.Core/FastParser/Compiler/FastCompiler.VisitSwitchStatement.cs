@@ -85,7 +85,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                 {
                                     case TokenTypes.String:
                                         allNumbers = false;
-                                        allStrings = false;
+                                        allStrings = true;
                                         test = Exp.Constant(literal.StringValue);
                                         break;
                                     case TokenTypes.Number:

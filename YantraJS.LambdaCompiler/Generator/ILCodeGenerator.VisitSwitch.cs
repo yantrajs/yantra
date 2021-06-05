@@ -6,6 +6,7 @@ using System.Reflection.Emit;
 using System.Text;
 using YantraJS.Core;
 using YantraJS.Expressions;
+using YantraJS.Internals;
 
 namespace YantraJS.Generator
 {
@@ -39,8 +40,22 @@ namespace YantraJS.Generator
                 typeof(string)
             }, null);
 
+        private MethodInfo HashMatch =
+            typeof(StringHashExtensions)
+            .GetMethod(nameof(StringHashExtensions.HashMatch));
+
+        private MethodInfo UnsafeGetHashCode =
+            typeof(StringHashExtensions)
+            .GetMethod(nameof(StringHashExtensions.UnsafeGetHashCode));
+
         protected override CodeInfo VisitSwitch(YSwitchExpression node)
         {
+
+            using var tmp = tempVariables.Push();
+
+            bool isString = node.Target.Type == typeof(string);
+
+            LocalVariableInfo hash = null;
 
             // save local if it is not parameter...
             Action loadTarget = LoadTargetMethod();
@@ -87,13 +102,40 @@ namespace YantraJS.Generator
 
             Action LoadTargetMethod()
             {
-                if (node.Target.NodeType == YExpressionType.Parameter)
+                var t = node.Target;
+                var isParameter = t.NodeType == YExpressionType.Parameter;
+                if (isParameter && !isString)
                 {
-                    var t = node.Target;
                     return () => Visit(t);
                 }
-                var tmp = tempVariables[node.Target.Type];
-                Visit(node.Target);
+                var tmp = tempVariables[t.Type];
+                Visit(t);
+                if(isString)
+                {
+                    hash = tempVariables[typeof(int)];
+                    if (!isParameter)
+                    {
+                        il.Emit(OpCodes.Dup);
+                    }
+                    il.EmitConstant(0);
+                    il.EmitConstant(0);
+                    il.EmitCall(UnsafeGetHashCode);
+                    il.EmitSaveLocal(hash.LocalIndex);
+                    if (!isParameter)
+                    {
+                        il.EmitSaveLocal(tmp.LocalIndex);
+                    }
+                    return () => {
+                        if (isParameter) {
+                            Visit(t);
+                        }
+                        else
+                        {
+                            il.EmitLoadLocal(tmp.LocalIndex);
+                        }
+                        il.EmitLoadLocal(hash.LocalIndex);
+                    };
+                }
                 il.EmitSaveLocal(tmp.LocalIndex);
                 return () => il.EmitLoadLocal(tmp.LocalIndex);
             }
@@ -112,8 +154,19 @@ namespace YantraJS.Generator
 
                 var cm = node.CompareMethod;
 
-                if (node.Target.Type == typeof(string))
+                if (isString)
+                {
                     cm = StringEqualsMethod;
+                    void CompareString(YExpression test, ILWriterLabel target)
+                    {
+                        var hash = (test as YConstantExpression).Value.ToString().UnsafeGetHashCode();
+                        Visit(test);
+                        il.EmitConstant(hash);
+                        il.EmitCall(HashMatch);
+                        il.Emit(OpCodes.Brtrue, target);
+                    }
+                    return CompareString;
+                }
 
                 void Compare(YExpression test, ILWriterLabel target)
                 {

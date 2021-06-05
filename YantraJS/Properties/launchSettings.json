@@ -6,7 +6,7 @@
     },
     "Yantra XF-Samples": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\YantraJS.Core.Tests\\Generator\\Files\\es5\\Index\\Index.pack.js"
+      "commandLineArgs": "..\\..\\..\\..\\YantraJS.Core.Tests\\Generator\\Files\\es5\\Objects\\Reflect\\Reflect.js"
     },
     "Yantra REPL": {
       "commandName": "Project",
