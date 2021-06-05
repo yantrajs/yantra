@@ -9,6 +9,7 @@ using YantraJS.Core;
 using Yantra;
 using YantraJS.Tests.Generator;
 using YantraJS;
+using System.Threading;
 
 namespace YantraTests
 {
@@ -37,9 +38,9 @@ namespace YantraTests
             }
         }
 
-        protected override JSContext CreateContext(FileInfo file)
+        protected override JSContext CreateContext(FileInfo file, SynchronizationContext ctx)
         {
-            return new YantraContext(file.DirectoryName);
+            return new YantraContext(file.DirectoryName, ctx);
         }
 
         protected override async Task EvaluateAsync(JSContext context, string content, string fullName)

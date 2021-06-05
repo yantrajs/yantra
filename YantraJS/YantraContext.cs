@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
@@ -56,7 +57,7 @@ namespace YantraJS
         }
 
         readonly string folder;
-        public YantraContext(string folder)
+        public YantraContext(string folder, SynchronizationContext ctx = null): base(ctx)
         {
             this.folder = folder;
             // reverse priority, select csx before js.
