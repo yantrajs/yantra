@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>YantraJS</RootNamespace>
+    <PackageId>YantraJS.ExpressionCompiler</PackageId>
+    <PackageTags>yantra,yantrajs,javascript</PackageTags>
+    <Version>1.0.1</Version>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
