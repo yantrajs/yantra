@@ -42,7 +42,10 @@ namespace YantraJS.Generator
             } else
             {
                 // we will need to leave something on stack..
-                il.Emit(OpCodes.Ldnull);
+                if (yConditionalExpression.@true.Type != typeof(void))
+                {
+                    il.Emit(OpCodes.Ldnull);
+                }
             }
 
             il.MarkLabel(trueEnd);
@@ -112,7 +115,10 @@ namespace YantraJS.Generator
                 Visit(@false);
             } else
             {
-                il.Emit(OpCodes.Ldnull);
+                if (@true.Type != typeof(void))
+                {
+                    il.Emit(OpCodes.Ldnull);
+                }
             }
 
             il.MarkLabel(trueEnd);

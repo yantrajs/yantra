@@ -214,9 +214,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             function (fn) {
                 setImmediate(fn);
             }) ||
-            function (fn) {
-                setTimeoutFunc(fn, 0);
-            };
+        function (fn) {
+            setTimeoutFunc(fn, 0);
+        };
     Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
         if (typeof console !== 'undefined' && console) {
             console.warn('Possible Unhandled Promise Rejection:', err);
@@ -241,168 +241,665 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         globalNS.Promise.prototype['finally'] = finallyConstructor;
     }
 })));
-;
-!function (o) { !function (t) { var e = "object" == typeof global ? global : "object" == typeof self ? self : "object" == typeof this ? this : Function("return this;")(), r = n(o); function n(r, n) { return function (t, e) { "function" != typeof r[t] && Object.defineProperty(r, t, { configurable: !0, writable: !0, value: e }), n && n(t, e); }; } void 0 === e.Reflect ? e.Reflect = o : r = n(e.Reflect, r), function (t) { var f = Object.prototype.hasOwnProperty, e = "function" == typeof Symbol, i = e && void 0 !== Symbol.toPrimitive ? Symbol.toPrimitive : "@@toPrimitive", s = e && void 0 !== Symbol.iterator ? Symbol.iterator : "@@iterator", r = "function" == typeof Object.create, n = { __proto__: [] } instanceof Array, o = !r && !n, c = { create: r ? function () { return S(Object.create(null)); } : n ? function () { return S({ __proto__: null }); } : function () { return S({}); }, has: o ? function (t, e) { return f.call(t, e); } : function (t, e) { return e in t; }, get: o ? function (t, e) { return f.call(t, e) ? t[e] : void 0; } : function (t, e) { return t[e]; } }, u = Object.getPrototypeOf(Function), a = "object" == typeof process && process.env && "true" === process.env.REFLECT_METADATA_USE_MAP_POLYFILL, h = a || "function" != typeof Map || "function" != typeof Map.prototype.entries ? function () { var o = {}, r = [], e = function () { function t(t, e, r) { this._index = 0, this._keys = t, this._values = e, this._selector = r; } return t.prototype["@@iterator"] = function () { return this; }, t.prototype[s] = function () { return this; }, t.prototype.next = function () { var t = this._index; if (0 <= t && t < this._keys.length) {
-    var e = this._selector(this._keys[t], this._values[t]);
-    return t + 1 >= this._keys.length ? (this._index = -1, this._keys = r, this._values = r) : this._index++, { value: e, done: !1 };
-} return { value: void 0, done: !0 }; }, t.prototype.throw = function (t) { throw 0 <= this._index && (this._index = -1, this._keys = r, this._values = r), t; }, t.prototype.return = function (t) { return 0 <= this._index && (this._index = -1, this._keys = r, this._values = r), { value: t, done: !0 }; }, t; }(); return function () { function t() { this._keys = [], this._values = [], this._cacheKey = o, this._cacheIndex = -2; } return Object.defineProperty(t.prototype, "size", { get: function () { return this._keys.length; }, enumerable: !0, configurable: !0 }), t.prototype.has = function (t) { return 0 <= this._find(t, !1); }, t.prototype.get = function (t) { var e = this._find(t, !1); return 0 <= e ? this._values[e] : void 0; }, t.prototype.set = function (t, e) { var r = this._find(t, !0); return this._values[r] = e, this; }, t.prototype.delete = function (t) { var e = this._find(t, !1); if (0 <= e) {
-    for (var r = this._keys.length, n = e + 1; n < r; n++)
-        this._keys[n - 1] = this._keys[n], this._values[n - 1] = this._values[n];
-    return this._keys.length--, this._values.length--, t === this._cacheKey && (this._cacheKey = o, this._cacheIndex = -2), !0;
-} return !1; }, t.prototype.clear = function () { this._keys.length = 0, this._values.length = 0, this._cacheKey = o, this._cacheIndex = -2; }, t.prototype.keys = function () { return new e(this._keys, this._values, n); }, t.prototype.values = function () { return new e(this._keys, this._values, i); }, t.prototype.entries = function () { return new e(this._keys, this._values, u); }, t.prototype["@@iterator"] = function () { return this.entries(); }, t.prototype[s] = function () { return this.entries(); }, t.prototype._find = function (t, e) { return this._cacheKey !== t && (this._cacheIndex = this._keys.indexOf(this._cacheKey = t)), this._cacheIndex < 0 && e && (this._cacheIndex = this._keys.length, this._keys.push(t), this._values.push(void 0)), this._cacheIndex; }, t; }(); function n(t, e) { return t; } function i(t, e) { return e; } function u(t, e) { return [t, e]; } }() : Map, l = a || "function" != typeof Set || "function" != typeof Set.prototype.entries ? function () { function t() { this._map = new h; } return Object.defineProperty(t.prototype, "size", { get: function () { return this._map.size; }, enumerable: !0, configurable: !0 }), t.prototype.has = function (t) { return this._map.has(t); }, t.prototype.add = function (t) { return this._map.set(t, t), this; }, t.prototype.delete = function (t) { return this._map.delete(t); }, t.prototype.clear = function () { this._map.clear(); }, t.prototype.keys = function () { return this._map.keys(); }, t.prototype.values = function () { return this._map.values(); }, t.prototype.entries = function () { return this._map.entries(); }, t.prototype["@@iterator"] = function () { return this.keys(); }, t.prototype[s] = function () { return this.keys(); }, t; }() : Set, p = new (a || "function" != typeof WeakMap ? function () { var o = 16, e = c.create(), r = n(); return function () { function t() { this._key = n(); } return t.prototype.has = function (t) { var e = i(t, !1); return void 0 !== e && c.has(e, this._key); }, t.prototype.get = function (t) { var e = i(t, !1); return void 0 !== e ? c.get(e, this._key) : void 0; }, t.prototype.set = function (t, e) { var r = i(t, !0); return r[this._key] = e, this; }, t.prototype.delete = function (t) { var e = i(t, !1); return void 0 !== e && delete e[this._key]; }, t.prototype.clear = function () { this._key = n(); }, t; }(); function n() { for (var t; t = "@@WeakMap@@" + a(), c.has(e, t);)
-    ; return e[t] = !0, t; } function i(t, e) { if (!f.call(t, r)) {
-    if (!e)
-        return;
-    Object.defineProperty(t, r, { value: c.create() });
-} return t[r]; } function u(t, e) { for (var r = 0; r < e; ++r)
-    t[r] = 255 * Math.random() | 0; return t; } function a() { var t = function (t) { if ("function" == typeof Uint8Array)
-    return "undefined" != typeof crypto ? crypto.getRandomValues(new Uint8Array(t)) : "undefined" != typeof msCrypto ? msCrypto.getRandomValues(new Uint8Array(t)) : u(new Uint8Array(t), t); return u(new Array(t), t); }(o); t[6] = 79 & t[6] | 64, t[8] = 191 & t[8] | 128; for (var e = "", r = 0; r < o; ++r) {
-    var n = t[r];
-    4 !== r && 6 !== r && 8 !== r || (e += "-"), n < 16 && (e += "0"), e += n.toString(16).toLowerCase();
-} return e; } }() : WeakMap); function y(t, e, r) { var n = p.get(t); if (b(n)) {
-    if (!r)
-        return;
-    n = new h, p.set(t, n);
-} var o = n.get(e); if (b(o)) {
-    if (!r)
-        return;
-    o = new h, n.set(e, o);
-} return o; } function v(t, e, r) { var n = y(e, r, !1); return !b(n) && !!n.has(t); } function _(t, e, r) { var n = y(e, r, !1); if (!b(n))
-    return n.get(t); } function d(t, e, r, n) { var o = y(r, n, !0); o.set(t, e); } function w(t, e) { var r = [], n = y(t, e, !1); if (b(n))
-    return r; for (var o, i = n.keys(), u = function (t) { var e = M(t, s); if (!j(e))
-    throw new TypeError; var r = e.call(t); if (!m(r))
-    throw new TypeError; return r; }(i), a = 0;;) {
-    var f = (void 0, !(o = u.next()).done && o);
-    if (!f)
-        return r.length = a, r;
-    var c = f.value;
-    try {
-        r[a] = c;
-    }
-    catch (t) {
-        try {
-            A(u);
+var Reflect;
+(function (Reflect) {
+    (function (factory) {
+        const root = typeof global === "object" ? global :
+            typeof self === "object" ? self :
+                typeof this === "object" ? this :
+                    Function("return this;")();
+        let exporter = makeExporter(Reflect);
+        if (typeof root.Reflect === "undefined") {
+            root.Reflect = Reflect;
         }
-        finally {
-            throw t;
+        else {
+            exporter = makeExporter(root.Reflect, exporter);
         }
-    }
-    a++;
-} } function g(t) { if (null === t)
-    return 1; switch (typeof t) {
-    case "undefined": return 0;
-    case "boolean": return 2;
-    case "string": return 3;
-    case "symbol": return 4;
-    case "number": return 5;
-    case "object": return null === t ? 1 : 6;
-    default: return 6;
-} } function b(t) { return void 0 === t; } function k(t) { return null === t; } function m(t) { return "object" == typeof t ? null !== t : "function" == typeof t; } function E(t, e) { switch (g(t)) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5: return t;
-} var r = 3 === e ? "string" : 5 === e ? "number" : "default", n = M(t, i); if (void 0 !== n) {
-    var o = n.call(t, r);
-    if (m(o))
-        throw new TypeError;
-    return o;
-} return function (t, e) { if ("string" === e) {
-    var r = t.toString;
-    if (j(r)) {
-        var n = r.call(t);
-        if (!m(n))
-            return n;
-    }
-    var o = t.valueOf;
-    if (j(o)) {
-        var n = o.call(t);
-        if (!m(n))
-            return n;
-    }
-}
-else {
-    var o = t.valueOf;
-    if (j(o)) {
-        var n = o.call(t);
-        if (!m(n))
-            return n;
-    }
-    var i = t.toString;
-    if (j(i)) {
-        var n = i.call(t);
-        if (!m(n))
-            return n;
-    }
-} throw new TypeError; }(t, "default" === r ? "number" : r); } function T(t) { var e = E(t, 3); return "symbol" == typeof e ? e : "" + e; } function O(t) { return Array.isArray ? Array.isArray(t) : t instanceof Object ? t instanceof Array : "[object Array]" === Object.prototype.toString.call(t); } function j(t) { return "function" == typeof t; } function x(t) { return "function" == typeof t; } function M(t, e) { var r = t[e]; if (null != r) {
-    if (!j(r))
-        throw new TypeError;
-    return r;
-} } function A(t) { var e = t.return; e && e.call(t); } function P(t) { var e = Object.getPrototypeOf(t); if ("function" != typeof t || t === u)
-    return e; if (e !== u)
-    return e; var r = t.prototype, n = r && Object.getPrototypeOf(r); if (null == n || n === Object.prototype)
-    return e; var o = n.constructor; return "function" != typeof o ? e : o === t ? e : o; } function S(t) { return t.__ = void 0, delete t.__, t; } t("decorate", function (t, e, r, n) { {
-    if (b(r)) {
-        if (!O(t))
-            throw new TypeError;
-        if (!x(e))
-            throw new TypeError;
-        return function (t, e) { for (var r = t.length - 1; 0 <= r; --r) {
-            var n = t[r], o = n(e);
-            if (!b(o) && !k(o)) {
-                if (!x(o))
-                    throw new TypeError;
-                e = o;
+        factory(exporter);
+        function makeExporter(target, previous) {
+            return (key, value) => {
+                if (typeof target[key] !== "function") {
+                    Object.defineProperty(target, key, { configurable: true, writable: true, value });
+                }
+                if (previous)
+                    previous(key, value);
+            };
+        }
+    })(function (exporter) {
+        const hasOwn = Object.prototype.hasOwnProperty;
+        const supportsSymbol = typeof Symbol === "function";
+        const toPrimitiveSymbol = supportsSymbol && typeof Symbol.toPrimitive !== "undefined" ? Symbol.toPrimitive : "@@toPrimitive";
+        const iteratorSymbol = supportsSymbol && typeof Symbol.iterator !== "undefined" ? Symbol.iterator : "@@iterator";
+        const supportsCreate = typeof Object.create === "function";
+        const supportsProto = { __proto__: [] } instanceof Array;
+        const downLevel = !supportsCreate && !supportsProto;
+        const HashMap = {
+            create: supportsCreate
+                ? () => MakeDictionary(Object.create(null))
+                : supportsProto
+                    ? () => MakeDictionary({ __proto__: null })
+                    : () => MakeDictionary({}),
+            has: downLevel
+                ? (map, key) => hasOwn.call(map, key)
+                : (map, key) => key in map,
+            get: downLevel
+                ? (map, key) => hasOwn.call(map, key) ? map[key] : undefined
+                : (map, key) => map[key],
+        };
+        const functionPrototype = Object.getPrototypeOf(Function);
+        const usePolyfill = typeof process === "object" && process.env && process.env["REFLECT_METADATA_USE_MAP_POLYFILL"] === "true";
+        const _Map = !usePolyfill && typeof Map === "function" && typeof Map.prototype.entries === "function" ? Map : CreateMapPolyfill();
+        const _Set = !usePolyfill && typeof Set === "function" && typeof Set.prototype.entries === "function" ? Set : CreateSetPolyfill();
+        const _WeakMap = !usePolyfill && typeof WeakMap === "function" ? WeakMap : CreateWeakMapPolyfill();
+        const Metadata = new _WeakMap();
+        function decorate(decorators, target, propertyKey, attributes) {
+            if (!IsUndefined(propertyKey)) {
+                if (!IsArray(decorators))
+                    throw new TypeError();
+                if (!IsObject(target))
+                    throw new TypeError();
+                if (!IsObject(attributes) && !IsUndefined(attributes) && !IsNull(attributes))
+                    throw new TypeError();
+                if (IsNull(attributes))
+                    attributes = undefined;
+                propertyKey = ToPropertyKey(propertyKey);
+                return DecorateProperty(decorators, target, propertyKey, attributes);
             }
-        } return e; }(t, e);
-    }
-    if (!O(t))
-        throw new TypeError;
-    if (!m(e))
-        throw new TypeError;
-    if (!m(n) && !b(n) && !k(n))
-        throw new TypeError;
-    return k(n) && (n = void 0), r = T(r), function (t, e, r, n) { for (var o = t.length - 1; 0 <= o; --o) {
-        var i = t[o], u = i(e, r, n);
-        if (!b(u) && !k(u)) {
-            if (!m(u))
-                throw new TypeError;
-            n = u;
+            else {
+                if (!IsArray(decorators))
+                    throw new TypeError();
+                if (!IsConstructor(target))
+                    throw new TypeError();
+                return DecorateConstructor(decorators, target);
+            }
         }
-    } return n; }(t, e, r, n);
-} }), t("metadata", function (r, n) { return function (t, e) { if (!m(t))
-    throw new TypeError; if (!b(e) && !function (t) { switch (g(t)) {
-    case 3:
-    case 4: return !0;
-    default: return !1;
-} }(e))
-    throw new TypeError; d(r, n, t, e); }; }), t("defineMetadata", function (t, e, r, n) { if (!m(r))
-    throw new TypeError; b(n) || (n = T(n)); return d(t, e, r, n); }), t("hasMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return function t(e, r, n) { var o = v(e, r, n); if (o)
-    return !0; var i = P(r); if (!k(i))
-    return t(e, i, n); return !1; }(t, e, r); }), t("hasOwnMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return v(t, e, r); }), t("getMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return function t(e, r, n) { var o = v(e, r, n); if (o)
-    return _(e, r, n); var i = P(r); if (!k(i))
-    return t(e, i, n); return; }(t, e, r); }), t("getOwnMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return _(t, e, r); }), t("getMetadataKeys", function (t, e) { if (!m(t))
-    throw new TypeError; b(e) || (e = T(e)); return function t(e, r) { var n = w(e, r); var o = P(e); if (null === o)
-    return n; var i = t(o, r); if (i.length <= 0)
-    return n; if (n.length <= 0)
-    return i; var u = new l; var a = []; for (var f = 0, c = n; f < c.length; f++) {
-    var s = c[f], h = u.has(s);
-    h || (u.add(s), a.push(s));
-} for (var p = 0, y = i; p < y.length; p++) {
-    var s = y[p], h = u.has(s);
-    h || (u.add(s), a.push(s));
-} return a; }(t, e); }), t("getOwnMetadataKeys", function (t, e) { if (!m(t))
-    throw new TypeError; b(e) || (e = T(e)); return w(t, e); }), t("deleteMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); var n = y(e, r, !1); if (b(n))
-    return !1; if (!n.delete(t))
-    return !1; if (0 < n.size)
-    return !0; var o = p.get(e); return o.delete(r), 0 < o.size || p.delete(e), !0; }); }(r); }(); }(Reflect || (Reflect = {}));
+        exporter("decorate", decorate);
+        function metadata(metadataKey, metadataValue) {
+            function decorator(target, propertyKey) {
+                if (!IsObject(target))
+                    throw new TypeError();
+                if (!IsUndefined(propertyKey) && !IsPropertyKey(propertyKey))
+                    throw new TypeError();
+                OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
+            }
+            return decorator;
+        }
+        exporter("metadata", metadata);
+        function defineMetadata(metadataKey, metadataValue, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
+        }
+        exporter("defineMetadata", defineMetadata);
+        function hasMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryHasMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("hasMetadata", hasMetadata);
+        function hasOwnMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryHasOwnMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("hasOwnMetadata", hasOwnMetadata);
+        function getMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryGetMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("getMetadata", getMetadata);
+        function getOwnMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryGetOwnMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("getOwnMetadata", getOwnMetadata);
+        function getMetadataKeys(target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryMetadataKeys(target, propertyKey);
+        }
+        exporter("getMetadataKeys", getMetadataKeys);
+        function getOwnMetadataKeys(target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryOwnMetadataKeys(target, propertyKey);
+        }
+        exporter("getOwnMetadataKeys", getOwnMetadataKeys);
+        function deleteMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            const metadataMap = GetOrCreateMetadataMap(target, propertyKey, false);
+            if (IsUndefined(metadataMap))
+                return false;
+            if (!metadataMap.delete(metadataKey))
+                return false;
+            if (metadataMap.size > 0)
+                return true;
+            const targetMetadata = Metadata.get(target);
+            targetMetadata.delete(propertyKey);
+            if (targetMetadata.size > 0)
+                return true;
+            Metadata.delete(target);
+            return true;
+        }
+        exporter("deleteMetadata", deleteMetadata);
+        function DecorateConstructor(decorators, target) {
+            for (let i = decorators.length - 1; i >= 0; --i) {
+                const decorator = decorators[i];
+                const decorated = decorator(target);
+                if (!IsUndefined(decorated) && !IsNull(decorated)) {
+                    if (!IsConstructor(decorated))
+                        throw new TypeError();
+                    target = decorated;
+                }
+            }
+            return target;
+        }
+        function DecorateProperty(decorators, target, propertyKey, descriptor) {
+            for (let i = decorators.length - 1; i >= 0; --i) {
+                const decorator = decorators[i];
+                const decorated = decorator(target, propertyKey, descriptor);
+                if (!IsUndefined(decorated) && !IsNull(decorated)) {
+                    if (!IsObject(decorated))
+                        throw new TypeError();
+                    descriptor = decorated;
+                }
+            }
+            return descriptor;
+        }
+        function GetOrCreateMetadataMap(O, P, Create) {
+            let targetMetadata = Metadata.get(O);
+            if (IsUndefined(targetMetadata)) {
+                if (!Create)
+                    return undefined;
+                targetMetadata = new _Map();
+                Metadata.set(O, targetMetadata);
+            }
+            let metadataMap = targetMetadata.get(P);
+            if (IsUndefined(metadataMap)) {
+                if (!Create)
+                    return undefined;
+                metadataMap = new _Map();
+                targetMetadata.set(P, metadataMap);
+            }
+            return metadataMap;
+        }
+        function OrdinaryHasMetadata(MetadataKey, O, P) {
+            const hasOwn = OrdinaryHasOwnMetadata(MetadataKey, O, P);
+            if (hasOwn)
+                return true;
+            const parent = OrdinaryGetPrototypeOf(O);
+            if (!IsNull(parent))
+                return OrdinaryHasMetadata(MetadataKey, parent, P);
+            return false;
+        }
+        function OrdinaryHasOwnMetadata(MetadataKey, O, P) {
+            const metadataMap = GetOrCreateMetadataMap(O, P, false);
+            if (IsUndefined(metadataMap))
+                return false;
+            return ToBoolean(metadataMap.has(MetadataKey));
+        }
+        function OrdinaryGetMetadata(MetadataKey, O, P) {
+            const hasOwn = OrdinaryHasOwnMetadata(MetadataKey, O, P);
+            if (hasOwn)
+                return OrdinaryGetOwnMetadata(MetadataKey, O, P);
+            const parent = OrdinaryGetPrototypeOf(O);
+            if (!IsNull(parent))
+                return OrdinaryGetMetadata(MetadataKey, parent, P);
+            return undefined;
+        }
+        function OrdinaryGetOwnMetadata(MetadataKey, O, P) {
+            const metadataMap = GetOrCreateMetadataMap(O, P, false);
+            if (IsUndefined(metadataMap))
+                return undefined;
+            return metadataMap.get(MetadataKey);
+        }
+        function OrdinaryDefineOwnMetadata(MetadataKey, MetadataValue, O, P) {
+            const metadataMap = GetOrCreateMetadataMap(O, P, true);
+            metadataMap.set(MetadataKey, MetadataValue);
+        }
+        function OrdinaryMetadataKeys(O, P) {
+            const ownKeys = OrdinaryOwnMetadataKeys(O, P);
+            const parent = OrdinaryGetPrototypeOf(O);
+            if (parent === null)
+                return ownKeys;
+            const parentKeys = OrdinaryMetadataKeys(parent, P);
+            if (parentKeys.length <= 0)
+                return ownKeys;
+            if (ownKeys.length <= 0)
+                return parentKeys;
+            const set = new _Set();
+            const keys = [];
+            for (const key of ownKeys) {
+                const hasKey = set.has(key);
+                if (!hasKey) {
+                    set.add(key);
+                    keys.push(key);
+                }
+            }
+            for (const key of parentKeys) {
+                const hasKey = set.has(key);
+                if (!hasKey) {
+                    set.add(key);
+                    keys.push(key);
+                }
+            }
+            return keys;
+        }
+        function OrdinaryOwnMetadataKeys(O, P) {
+            const keys = [];
+            const metadataMap = GetOrCreateMetadataMap(O, P, false);
+            if (IsUndefined(metadataMap))
+                return keys;
+            const keysObj = metadataMap.keys();
+            const iterator = GetIterator(keysObj);
+            let k = 0;
+            while (true) {
+                const next = IteratorStep(iterator);
+                if (!next) {
+                    keys.length = k;
+                    return keys;
+                }
+                const nextValue = IteratorValue(next);
+                try {
+                    keys[k] = nextValue;
+                }
+                catch (e) {
+                    try {
+                        IteratorClose(iterator);
+                    }
+                    finally {
+                        throw e;
+                    }
+                }
+                k++;
+            }
+        }
+        function Type(x) {
+            if (x === null)
+                return 1;
+            switch (typeof x) {
+                case "undefined": return 0;
+                case "boolean": return 2;
+                case "string": return 3;
+                case "symbol": return 4;
+                case "number": return 5;
+                case "object": return x === null ? 1 : 6;
+                default: return 6;
+            }
+        }
+        function IsUndefined(x) {
+            return x === undefined;
+        }
+        function IsNull(x) {
+            return x === null;
+        }
+        function IsSymbol(x) {
+            return typeof x === "symbol";
+        }
+        function IsObject(x) {
+            return typeof x === "object" ? x !== null : typeof x === "function";
+        }
+        function ToPrimitive(input, PreferredType) {
+            switch (Type(input)) {
+                case 0: return input;
+                case 1: return input;
+                case 2: return input;
+                case 3: return input;
+                case 4: return input;
+                case 5: return input;
+            }
+            const hint = PreferredType === 3 ? "string" : PreferredType === 5 ? "number" : "default";
+            const exoticToPrim = GetMethod(input, toPrimitiveSymbol);
+            if (exoticToPrim !== undefined) {
+                const result = exoticToPrim.call(input, hint);
+                if (IsObject(result))
+                    throw new TypeError();
+                return result;
+            }
+            return OrdinaryToPrimitive(input, hint === "default" ? "number" : hint);
+        }
+        function OrdinaryToPrimitive(O, hint) {
+            if (hint === "string") {
+                const toString = O.toString;
+                if (IsCallable(toString)) {
+                    const result = toString.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+                const valueOf = O.valueOf;
+                if (IsCallable(valueOf)) {
+                    const result = valueOf.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+            }
+            else {
+                const valueOf = O.valueOf;
+                if (IsCallable(valueOf)) {
+                    const result = valueOf.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+                const toString = O.toString;
+                if (IsCallable(toString)) {
+                    const result = toString.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+            }
+            throw new TypeError();
+        }
+        function ToBoolean(argument) {
+            return !!argument;
+        }
+        function ToString(argument) {
+            return "" + argument;
+        }
+        function ToPropertyKey(argument) {
+            const key = ToPrimitive(argument, 3);
+            if (IsSymbol(key))
+                return key;
+            return ToString(key);
+        }
+        function IsArray(argument) {
+            return Array.isArray
+                ? Array.isArray(argument)
+                : argument instanceof Object
+                    ? argument instanceof Array
+                    : Object.prototype.toString.call(argument) === "[object Array]";
+        }
+        function IsCallable(argument) {
+            return typeof argument === "function";
+        }
+        function IsConstructor(argument) {
+            return typeof argument === "function";
+        }
+        function IsPropertyKey(argument) {
+            switch (Type(argument)) {
+                case 3: return true;
+                case 4: return true;
+                default: return false;
+            }
+        }
+        function GetMethod(V, P) {
+            const func = V[P];
+            if (func === undefined || func === null)
+                return undefined;
+            if (!IsCallable(func))
+                throw new TypeError();
+            return func;
+        }
+        function GetIterator(obj) {
+            const method = GetMethod(obj, iteratorSymbol);
+            if (!IsCallable(method))
+                throw new TypeError();
+            const iterator = method.call(obj);
+            if (!IsObject(iterator))
+                throw new TypeError();
+            return iterator;
+        }
+        function IteratorValue(iterResult) {
+            return iterResult.value;
+        }
+        function IteratorStep(iterator) {
+            const result = iterator.next();
+            return result.done ? false : result;
+        }
+        function IteratorClose(iterator) {
+            const f = iterator["return"];
+            if (f)
+                f.call(iterator);
+        }
+        function OrdinaryGetPrototypeOf(O) {
+            const proto = Object.getPrototypeOf(O);
+            if (typeof O !== "function" || O === functionPrototype)
+                return proto;
+            if (proto !== functionPrototype)
+                return proto;
+            const prototype = O.prototype;
+            const prototypeProto = prototype && Object.getPrototypeOf(prototype);
+            if (prototypeProto == null || prototypeProto === Object.prototype)
+                return proto;
+            const constructor = prototypeProto.constructor;
+            if (typeof constructor !== "function")
+                return proto;
+            if (constructor === O)
+                return proto;
+            return constructor;
+        }
+        function CreateMapPolyfill() {
+            const cacheSentinel = {};
+            const arraySentinel = [];
+            class MapIterator {
+                constructor(keys, values, selector) {
+                    this._index = 0;
+                    this._keys = keys;
+                    this._values = values;
+                    this._selector = selector;
+                }
+                "@@iterator"() { return this; }
+                [iteratorSymbol]() { return this; }
+                next() {
+                    const index = this._index;
+                    if (index >= 0 && index < this._keys.length) {
+                        const result = this._selector(this._keys[index], this._values[index]);
+                        if (index + 1 >= this._keys.length) {
+                            this._index = -1;
+                            this._keys = arraySentinel;
+                            this._values = arraySentinel;
+                        }
+                        else {
+                            this._index++;
+                        }
+                        return { value: result, done: false };
+                    }
+                    return { value: undefined, done: true };
+                }
+                throw(error) {
+                    if (this._index >= 0) {
+                        this._index = -1;
+                        this._keys = arraySentinel;
+                        this._values = arraySentinel;
+                    }
+                    throw error;
+                }
+                return(value) {
+                    if (this._index >= 0) {
+                        this._index = -1;
+                        this._keys = arraySentinel;
+                        this._values = arraySentinel;
+                    }
+                    return { value: value, done: true };
+                }
+            }
+            return class Map {
+                constructor() {
+                    this._keys = [];
+                    this._values = [];
+                    this._cacheKey = cacheSentinel;
+                    this._cacheIndex = -2;
+                }
+                get size() { return this._keys.length; }
+                has(key) { return this._find(key, false) >= 0; }
+                get(key) {
+                    const index = this._find(key, false);
+                    return index >= 0 ? this._values[index] : undefined;
+                }
+                set(key, value) {
+                    const index = this._find(key, true);
+                    this._values[index] = value;
+                    return this;
+                }
+                delete(key) {
+                    const index = this._find(key, false);
+                    if (index >= 0) {
+                        const size = this._keys.length;
+                        for (let i = index + 1; i < size; i++) {
+                            this._keys[i - 1] = this._keys[i];
+                            this._values[i - 1] = this._values[i];
+                        }
+                        this._keys.length--;
+                        this._values.length--;
+                        if (key === this._cacheKey) {
+                            this._cacheKey = cacheSentinel;
+                            this._cacheIndex = -2;
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+                clear() {
+                    this._keys.length = 0;
+                    this._values.length = 0;
+                    this._cacheKey = cacheSentinel;
+                    this._cacheIndex = -2;
+                }
+                keys() { return new MapIterator(this._keys, this._values, getKey); }
+                values() { return new MapIterator(this._keys, this._values, getValue); }
+                entries() { return new MapIterator(this._keys, this._values, getEntry); }
+                "@@iterator"() { return this.entries(); }
+                [iteratorSymbol]() { return this.entries(); }
+                _find(key, insert) {
+                    if (this._cacheKey !== key) {
+                        this._cacheIndex = this._keys.indexOf(this._cacheKey = key);
+                    }
+                    if (this._cacheIndex < 0 && insert) {
+                        this._cacheIndex = this._keys.length;
+                        this._keys.push(key);
+                        this._values.push(undefined);
+                    }
+                    return this._cacheIndex;
+                }
+            };
+            function getKey(key, _) {
+                return key;
+            }
+            function getValue(_, value) {
+                return value;
+            }
+            function getEntry(key, value) {
+                return [key, value];
+            }
+        }
+        function CreateSetPolyfill() {
+            return class Set {
+                constructor() {
+                    this._map = new _Map();
+                }
+                get size() { return this._map.size; }
+                has(value) { return this._map.has(value); }
+                add(value) { return this._map.set(value, value), this; }
+                delete(value) { return this._map.delete(value); }
+                clear() { this._map.clear(); }
+                keys() { return this._map.keys(); }
+                values() { return this._map.values(); }
+                entries() { return this._map.entries(); }
+                "@@iterator"() { return this.keys(); }
+                [iteratorSymbol]() { return this.keys(); }
+            };
+        }
+        function CreateWeakMapPolyfill() {
+            const UUID_SIZE = 16;
+            const keys = HashMap.create();
+            const rootKey = CreateUniqueKey();
+            return class WeakMap {
+                constructor() {
+                    this._key = CreateUniqueKey();
+                }
+                has(target) {
+                    const table = GetOrCreateWeakMapTable(target, false);
+                    return table !== undefined ? HashMap.has(table, this._key) : false;
+                }
+                get(target) {
+                    const table = GetOrCreateWeakMapTable(target, false);
+                    return table !== undefined ? HashMap.get(table, this._key) : undefined;
+                }
+                set(target, value) {
+                    const table = GetOrCreateWeakMapTable(target, true);
+                    table[this._key] = value;
+                    return this;
+                }
+                delete(target) {
+                    const table = GetOrCreateWeakMapTable(target, false);
+                    return table !== undefined ? delete table[this._key] : false;
+                }
+                clear() {
+                    this._key = CreateUniqueKey();
+                }
+            };
+            function CreateUniqueKey() {
+                let key;
+                do
+                    key = "@@WeakMap@@" + CreateUUID();
+                while (HashMap.has(keys, key));
+                keys[key] = true;
+                return key;
+            }
+            function GetOrCreateWeakMapTable(target, create) {
+                if (!hasOwn.call(target, rootKey)) {
+                    if (!create)
+                        return undefined;
+                    Object.defineProperty(target, rootKey, { value: HashMap.create() });
+                }
+                return target[rootKey];
+            }
+            function FillRandomBytes(buffer, size) {
+                for (let i = 0; i < size; ++i)
+                    buffer[i] = Math.random() * 0xff | 0;
+                return buffer;
+            }
+            function GenRandomBytes(size) {
+                if (typeof Uint8Array === "function") {
+                    if (typeof crypto !== "undefined")
+                        return crypto.getRandomValues(new Uint8Array(size));
+                    if (typeof msCrypto !== "undefined")
+                        return msCrypto.getRandomValues(new Uint8Array(size));
+                    return FillRandomBytes(new Uint8Array(size), size);
+                }
+                return FillRandomBytes(new Array(size), size);
+            }
+            function CreateUUID() {
+                const data = GenRandomBytes(UUID_SIZE);
+                data[6] = data[6] & 0x4f | 0x40;
+                data[8] = data[8] & 0xbf | 0x80;
+                let result = "";
+                for (let offset = 0; offset < UUID_SIZE; ++offset) {
+                    const byte = data[offset];
+                    if (offset === 4 || offset === 6 || offset === 8)
+                        result += "-";
+                    if (byte < 16)
+                        result += "0";
+                    result += byte.toString(16).toLowerCase();
+                }
+                return result;
+            }
+        }
+        function MakeDictionary(obj) {
+            obj.__ = undefined;
+            delete obj.__;
+            return obj;
+        }
+    });
+})(Reflect || (Reflect = {}));
 if (!Array.prototype.find) {
     Array.prototype.find = function (predicate, thisArg) {
         for (let i = 0; i < this.length; i++) {
@@ -630,6 +1127,7 @@ Module.nextID = 1;
 if (typeof require !== "undefined") {
     md = require("module").Module;
 }
+const promiseDone = Promise.resolve(0);
 class AmdLoader {
     constructor() {
         this.root = null;
@@ -695,12 +1193,12 @@ class AmdLoader {
             console.error(e);
         });
         if (m.dependencies.length) {
-            const all = m.dependencies.map((m1) => __awaiter(this, void 0, void 0, function* () {
+            const all = m.dependencies.map((m1) => {
                 if (m1.isResolved) {
-                    return;
+                    return promiseDone;
                 }
-                yield this.import(m1);
-            }));
+                return this.import(m1);
+            });
             Promise.all(all).catch((e) => {
                 console.error(e);
             }).then(() => {
@@ -861,6 +1359,9 @@ class AmdLoader {
                 return Promise.resolve(require(name));
             }
             const module = typeof name === "object" ? name : this.get(name);
+            if (module.isResolved) {
+                return module.getExports();
+            }
             yield this.load(module);
             const e = yield this.resolveModule(module);
             return e;
@@ -1361,9 +1862,9 @@ const UMD = new UMDClass();
 })(UMD);
 //# sourceMappingURL=umd.js.map
 
-        AmdLoader.instance.register(
-            ["@web-atoms/xf-samples","@web-atoms/core","@web-atoms/font-awesome","@web-atoms/xf-controls","@web-atoms/date-time","@web-atoms/storage"],
-            ["@web-atoms/xf-samples/dist/Index","@web-atoms/core/dist/Atom","@web-atoms/core/dist/core/AtomList","@web-atoms/core/dist/core/AtomBinder","@web-atoms/core/dist/core/types","@web-atoms/core/dist/core/AtomMap","@web-atoms/xf-samples/dist/app-host/AppHost","@web-atoms/core/dist/core/Bind","@web-atoms/core/dist/core/ExpressionParser","@web-atoms/core/dist/core/XNode","@web-atoms/font-awesome/dist/FontAwesomeSolid","@web-atoms/xf-controls/dist/clr/WA","@web-atoms/xf-controls/dist/clr/XF","@web-atoms/xf-controls/dist/clr/X","@web-atoms/core/dist/core/AtomBridge","@web-atoms/core/dist/web/core/AtomUI","@web-atoms/xf-controls/dist/pages/AtomXFMasterDetailPage","@web-atoms/core/dist/xf/controls/AtomXFControl","@web-atoms/core/dist/core/AtomComponent","@web-atoms/core/dist/App","@web-atoms/core/dist/core/AtomDispatcher","@web-atoms/core/dist/di/RegisterSingleton","@web-atoms/core/dist/di/Register","@web-atoms/core/dist/di/ServiceCollection","@web-atoms/core/dist/di/TypeKey","@web-atoms/core/dist/di/ServiceProvider","@web-atoms/core/dist/core/TransientDisposable","@web-atoms/core/dist/di/Inject","@web-atoms/core/dist/services/BusyIndicatorService","@web-atoms/core/dist/core/PropertyBinding","@web-atoms/core/dist/core/AtomOnce","@web-atoms/core/dist/core/AtomWatcher","@web-atoms/core/dist/core/AtomDisposableList","@web-atoms/core/dist/core/InheritedProperty","@web-atoms/core/dist/core/PropertyMap","@web-atoms/core/dist/services/NavigationService","@web-atoms/core/dist/core/AtomUri","@web-atoms/core/dist/core/FormattedString","@web-atoms/core/dist/services/ReferenceService","@web-atoms/core/dist/di/DISingleton","@web-atoms/core/dist/web/styles/AtomStyle","@web-atoms/core/dist/core/StringHelper","@web-atoms/core/dist/web/styles/AtomStyleSheet","@web-atoms/xf-samples/dist/app-host/AppHostViewModel","@web-atoms/core/dist/core/AtomLoader","@web-atoms/core/dist/services/JsonService","@web-atoms/date-time/dist/DateTime","@web-atoms/date-time/dist/TimeSpan","@web-atoms/core/dist/view-model/AtomViewModel","@web-atoms/core/dist/core/BindableProperty","@web-atoms/core/dist/view-model/baseTypes","@web-atoms/core/dist/view-model/AtomWindowViewModel","@web-atoms/core/dist/view-model/Load","@web-atoms/xf-samples/dist/samples/alert/AlertSamplePage","@web-atoms/xf-samples/dist/samples/alert/AlertSample","@web-atoms/xf-controls/dist/pages/AtomXFContentPage","@web-atoms/xf-samples/dist/samples/alert/AlertSampleViewModel","@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupSample","@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupViewModel","@web-atoms/xf-samples/dist/samples/box/BoxViewSample","@web-atoms/xf-samples/dist/samples/box/BoxView","@web-atoms/xf-samples/dist/samples/brushes/addBrushSamples","@web-atoms/xf-samples/dist/samples/brushes/gradient/linear/LinearGradient","@web-atoms/xf-samples/dist/samples/brushes/gradient/radial/RadialGradient","@web-atoms/core/dist/core/Colors","@web-atoms/xf-samples/dist/samples/brushes/solid/SolidBrush","@web-atoms/xf-samples/dist/samples/calendar/calendarSamples","@web-atoms/xf-samples/dist/samples/calendar/Calendar","@web-atoms/xf-controls/dist/calendar/AtomXFCalendar","@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox","@web-atoms/xf-controls/dist/clr/RgPluginsPopup","@web-atoms/xf-controls/dist/pages/AtomXFPopupPage","@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel","@web-atoms/xf-controls/dist/combo-box/SelectionList","@web-atoms/xf-controls/dist/AtomContentView","@web-atoms/xf-controls/dist/controls/AtomXFGrid","@web-atoms/xf-controls/dist/calendar/AtomXFCalendarStyle","@web-atoms/xf-controls/dist/calendar/AtomXFCalendarViewModel","@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageSample","@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageView","@web-atoms/xf-controls/dist/pages/AtomXFCarouselPage","@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselSample","@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselView","@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselViewModel","@web-atoms/xf-samples/dist/samples/collection-view/CollectionViewSamplePage","@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingSample","@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingViewModel","@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterSample","@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterViewModel","@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridSample","@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridViewModel","@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListSample","@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListViewModel","@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridSample","@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridViewModel","@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListSample","@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListViewModel","@web-atoms/xf-samples/dist/samples/database/addDatabaseSamples","@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlSample","@web-atoms/font-awesome/dist/FontAwesomeRegular","@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlViewModel","@web-atoms/core/dist/view-model/Action","@web-atoms/storage/dist/database/sqlite/SqliteService","@web-atoms/storage/dist/query/Query","@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditor","@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditorViewModel","@web-atoms/xf-samples/dist/samples/form/FormSamples","@web-atoms/xf-samples/dist/samples/button/ButtonView","@web-atoms/xf-samples/dist/samples/button/ButtonViewModel","@web-atoms/xf-samples/dist/samples/button/image-button/ImageButtonView","@web-atoms/xf-samples/dist/samples/check-box/CheckBoxView","@web-atoms/xf-samples/dist/samples/check-box/CheckBoxSampleViewModel","@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSample","@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSampleViewModel","@web-atoms/xf-samples/dist/samples/date-picker/DatePickerView","@web-atoms/xf-samples/dist/samples/date-picker/DatePickerViewModel","@web-atoms/xf-samples/dist/samples/editor/EditorView","@web-atoms/xf-samples/dist/samples/editor/EditorViewModel","@web-atoms/xf-samples/dist/samples/entry/EntryView","@web-atoms/xf-samples/dist/samples/entry/EntryViewModel","@web-atoms/xf-samples/dist/samples/label/LabelView","@web-atoms/xf-samples/dist/samples/label/LabelViewModel","@web-atoms/xf-samples/dist/samples/search-bar/SearchBarView","@web-atoms/xf-samples/dist/samples/search-bar/SearchBarViewModel","@web-atoms/xf-samples/dist/service/http/MovieService","@web-atoms/core/dist/services/http/RestService","@web-atoms/core/dist/services/http/AjaxOptions","@web-atoms/core/dist/services/CacheService","@web-atoms/core/dist/services/http/JsonError","@web-atoms/xf-samples/dist/samples/slider/SliderView","@web-atoms/xf-samples/dist/samples/slider/SliderViewModel","@web-atoms/xf-samples/dist/samples/stepper/StepperView","@web-atoms/xf-samples/dist/samples/stepper/StepperViewModel","@web-atoms/xf-samples/dist/samples/form/simple/SimpleForm","@web-atoms/xf-samples/dist/samples/form/simple/SimpleFormViewModel","@web-atoms/xf-samples/dist/samples/image/ImageSample","@web-atoms/xf-samples/dist/samples/image/ImageView","@web-atoms/xf-samples/dist/samples/layout/multiple-content/LayoutSample","@web-atoms/xf-samples/dist/samples/layout/multiple-content/absolute-layout/AbsoluteLayoutView","@web-atoms/xf-samples/dist/samples/layout/multiple-content/flex-layout/FlexLayoutView","@web-atoms/xf-samples/dist/samples/layout/multiple-content/grid-layout/GridView","@web-atoms/xf-samples/dist/samples/layout/multiple-content/stack-layout/StackLayoutView","@web-atoms/xf-samples/dist/samples/layout/single-content/Sample","@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/MainPage","@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/ContentView","@web-atoms/xf-samples/dist/samples/layout/single-content/frame/FrameSample","@web-atoms/xf-samples/dist/samples/layout/single-content/scroll-view/ScrollViewSample","@web-atoms/xf-samples/dist/samples/list/ListSamples","@web-atoms/xf-samples/dist/samples/list/list-view/List","@web-atoms/xf-samples/dist/samples/list/list-view/ListViewModel","@web-atoms/xf-samples/dist/samples/list/template-selector/ListWithTemplates","@web-atoms/xf-samples/dist/samples/menu-item/MenuSample","@web-atoms/xf-samples/dist/samples/menu-item/MenuItemView","@web-atoms/xf-samples/dist/samples/menu-item/MenuItemViewModel","@web-atoms/xf-samples/dist/samples/popup/PopupSample","@web-atoms/xf-samples/dist/samples/popup/PopupCallingPage","@web-atoms/xf-samples/dist/samples/popup/PopupCallingPageViewModel","@web-atoms/xf-samples/dist/samples/popup/PopupView","@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewSample","@web-atoms/xf-samples/dist/samples/refresh-view/RefreshView","@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewModel","@web-atoms/xf-samples/dist/samples/switch/SwitchSamplePage","@web-atoms/xf-samples/dist/samples/switch/SwitchSample","@web-atoms/xf-samples/dist/samples/switch/SwitchViewModel","@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageSample","@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageView","@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage","@web-atoms/xf-samples/dist/samples/table-view/TableViewSamplePage","@web-atoms/xf-samples/dist/samples/table-view/TableViewSample","@web-atoms/xf-samples/dist/samples/table-view/TableViewModel","@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSamplePage","@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSample","@web-atoms/xf-samples/dist/samples/time-picker/TimePickerViewModel","@web-atoms/xf-samples/dist/samples/toggle-button-bar/addToggleButtonBar","@web-atoms/xf-samples/dist/samples/toggle-button-bar/custom/CustomToggleButtonBar","@web-atoms/xf-controls/dist/toggle-button-bar/AtomXFToggleButtonBar","@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBarViewModel","@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBar","@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemSample","@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemView","@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemViewModel","@web-atoms/xf-samples/dist/samples/web-view/WebViewSample","@web-atoms/xf-samples/dist/samples/web-view/WebView","@web-atoms/xf-samples/dist/service/menu-service/MenuService","@web-atoms/xf-samples/dist/service/menu-service/MenuItem","@web-atoms/xf-samples/dist/app-host/home/Home","@web-atoms/xf-samples/dist/app-host/home/HomeViewModel","@web-atoms/core/dist/xf/XFApp","@web-atoms/core/dist/xf/services/XFBusyIndicatorService","@web-atoms/core/dist/xf/services/XFNavigationService"]);
+AmdLoader.instance.register(
+    ["@web-atoms/xf-samples", "@web-atoms/core", "@web-atoms/font-awesome", "@web-atoms/xf-controls", "@web-atoms/date-time", "@web-atoms/storage"],
+    ["@web-atoms/xf-samples/dist/Index", "@web-atoms/core/dist/Atom", "@web-atoms/core/dist/core/AtomList", "@web-atoms/core/dist/core/AtomBinder", "@web-atoms/core/dist/core/types", "@web-atoms/core/dist/core/AtomMap", "@web-atoms/xf-samples/dist/app-host/AppHost", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/ExpressionParser", "@web-atoms/core/dist/core/Colors", "@web-atoms/core/dist/core/XNode", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/clr/WA", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/clr/X", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/web/core/AtomUI", "@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage", "@web-atoms/core/dist/xf/controls/AtomXFControl", "@web-atoms/core/dist/core/AtomComponent", "@web-atoms/core/dist/App", "@web-atoms/core/dist/core/AtomDispatcher", "@web-atoms/core/dist/di/RegisterSingleton", "@web-atoms/core/dist/di/Register", "@web-atoms/core/dist/di/ServiceCollection", "@web-atoms/core/dist/di/TypeKey", "@web-atoms/core/dist/di/ServiceProvider", "@web-atoms/core/dist/core/TransientDisposable", "@web-atoms/core/dist/di/Inject", "@web-atoms/core/dist/services/BusyIndicatorService", "@web-atoms/core/dist/core/PropertyBinding", "@web-atoms/core/dist/core/AtomOnce", "@web-atoms/core/dist/core/AtomWatcher", "@web-atoms/core/dist/core/AtomDisposableList", "@web-atoms/core/dist/core/InheritedProperty", "@web-atoms/core/dist/core/PropertyMap", "@web-atoms/core/dist/services/NavigationService", "@web-atoms/core/dist/core/AtomUri", "@web-atoms/core/dist/core/FormattedString", "@web-atoms/core/dist/services/ReferenceService", "@web-atoms/core/dist/di/DISingleton", "@web-atoms/core/dist/web/styles/AtomStyle", "@web-atoms/core/dist/core/StringHelper", "@web-atoms/core/dist/web/styles/AtomStyleSheet", "@web-atoms/xf-samples/dist/app-host/AppHostViewModel", "@web-atoms/core/dist/core/AtomLoader", "@web-atoms/core/dist/services/JsonService", "@web-atoms/date-time/dist/DateTime", "@web-atoms/date-time/dist/TimeSpan", "@web-atoms/core/dist/view-model/AtomViewModel", "@web-atoms/core/dist/core/BindableProperty", "@web-atoms/core/dist/view-model/baseTypes", "@web-atoms/core/dist/view-model/AtomWindowViewModel", "@web-atoms/core/dist/view-model/Load", "@web-atoms/xf-samples/dist/samples/alert/AlertSamplePage", "@web-atoms/xf-samples/dist/samples/alert/AlertSample", "@web-atoms/xf-controls/dist/pages/AtomXFContentPage", "@web-atoms/xf-samples/dist/samples/alert/AlertSampleViewModel", "@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupSample", "@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupViewModel", "@web-atoms/xf-samples/dist/samples/box/BoxViewSample", "@web-atoms/xf-samples/dist/samples/box/BoxView", "@web-atoms/xf-samples/dist/samples/brushes/addBrushSamples", "@web-atoms/xf-samples/dist/samples/brushes/gradient/linear/LinearGradient", "@web-atoms/xf-samples/dist/samples/brushes/gradient/radial/RadialGradient", "@web-atoms/xf-samples/dist/samples/brushes/solid/SolidBrush", "@web-atoms/xf-samples/dist/samples/calendar/calendarSamples", "@web-atoms/xf-samples/dist/samples/calendar/Calendar", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendar", "@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox", "@web-atoms/xf-controls/dist/clr/RgPluginsPopup", "@web-atoms/xf-controls/dist/pages/AtomXFPopupPage", "@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel", "@web-atoms/xf-controls/dist/combo-box/SelectionList", "@web-atoms/xf-controls/dist/AtomContentView", "@web-atoms/xf-controls/dist/controls/AtomXFGrid", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendarStyle", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendarViewModel", "@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageSample", "@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageView", "@web-atoms/xf-controls/dist/pages/AtomXFCarouselPage", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselSample", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselView", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/CollectionViewSamplePage", "@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingSample", "@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterSample", "@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridSample", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListSample", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridSample", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListSample", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListViewModel", "@web-atoms/xf-samples/dist/samples/database/addDatabaseSamples", "@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlSample", "@web-atoms/font-awesome/dist/FontAwesomeRegular", "@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlViewModel", "@web-atoms/core/dist/view-model/Action", "@web-atoms/storage/dist/database/sqlite/SqliteService", "@web-atoms/storage/dist/query/Query", "@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditor", "@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditorViewModel", "@web-atoms/xf-samples/dist/samples/form/FormSamples", "@web-atoms/xf-samples/dist/samples/button/ButtonView", "@web-atoms/xf-samples/dist/samples/button/ButtonViewModel", "@web-atoms/xf-samples/dist/samples/button/image-button/ImageButtonView", "@web-atoms/xf-samples/dist/samples/check-box/CheckBoxView", "@web-atoms/xf-samples/dist/samples/check-box/CheckBoxSampleViewModel", "@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSample", "@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSampleViewModel", "@web-atoms/xf-samples/dist/samples/date-picker/DatePickerView", "@web-atoms/xf-samples/dist/samples/date-picker/DatePickerViewModel", "@web-atoms/xf-samples/dist/samples/editor/EditorView", "@web-atoms/xf-samples/dist/samples/editor/EditorViewModel", "@web-atoms/xf-samples/dist/samples/entry/EntryView", "@web-atoms/xf-samples/dist/samples/entry/EntryViewModel", "@web-atoms/xf-samples/dist/samples/label/LabelView", "@web-atoms/xf-samples/dist/samples/label/LabelViewModel", "@web-atoms/xf-samples/dist/samples/search-bar/SearchBarView", "@web-atoms/xf-samples/dist/samples/search-bar/SearchBarViewModel", "@web-atoms/xf-samples/dist/service/http/MovieService", "@web-atoms/core/dist/services/http/RestService", "@web-atoms/core/dist/services/http/AjaxOptions", "@web-atoms/core/dist/services/CacheService", "@web-atoms/core/dist/services/http/JsonError", "@web-atoms/xf-samples/dist/samples/slider/SliderView", "@web-atoms/xf-samples/dist/samples/slider/SliderViewModel", "@web-atoms/xf-samples/dist/samples/stepper/StepperView", "@web-atoms/xf-samples/dist/samples/stepper/StepperViewModel", "@web-atoms/xf-samples/dist/samples/form/simple/SimpleForm", "@web-atoms/xf-samples/dist/samples/form/simple/SimpleFormViewModel", "@web-atoms/xf-samples/dist/samples/image/ImageSample", "@web-atoms/xf-samples/dist/samples/image/ImageView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/LayoutSample", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/absolute-layout/AbsoluteLayoutView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/flex-layout/FlexLayoutView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/grid-layout/GridView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/stack-layout/StackLayoutView", "@web-atoms/xf-samples/dist/samples/layout/single-content/Sample", "@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/MainPage", "@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/ContentView", "@web-atoms/xf-samples/dist/samples/layout/single-content/frame/FrameSample", "@web-atoms/xf-samples/dist/samples/layout/single-content/scroll-view/ScrollViewSample", "@web-atoms/xf-samples/dist/samples/list/ListSamples", "@web-atoms/xf-samples/dist/samples/list/list-view/List", "@web-atoms/xf-samples/dist/samples/list/list-view/ListViewModel", "@web-atoms/xf-samples/dist/samples/list/template-selector/ListWithTemplates", "@web-atoms/xf-samples/dist/samples/menu-item/MenuSample", "@web-atoms/xf-samples/dist/samples/menu-item/MenuItemView", "@web-atoms/xf-samples/dist/samples/menu-item/MenuItemViewModel", "@web-atoms/xf-samples/dist/samples/popup/PopupSample", "@web-atoms/xf-samples/dist/samples/popup/PopupCallingPage", "@web-atoms/xf-samples/dist/samples/popup/PopupCallingPageViewModel", "@web-atoms/xf-samples/dist/samples/popup/PopupView", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewSample", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshView", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewModel", "@web-atoms/xf-samples/dist/samples/switch/SwitchSamplePage", "@web-atoms/xf-samples/dist/samples/switch/SwitchSample", "@web-atoms/xf-samples/dist/samples/switch/SwitchViewModel", "@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageSample", "@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageView", "@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage", "@web-atoms/xf-samples/dist/samples/table-view/TableViewSamplePage", "@web-atoms/xf-samples/dist/samples/table-view/TableViewSample", "@web-atoms/xf-samples/dist/samples/table-view/TableViewModel", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSamplePage", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSample", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerViewModel", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/addToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/custom/CustomToggleButtonBar", "@web-atoms/xf-controls/dist/toggle-button-bar/AtomXFToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBarViewModel", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemSample", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemView", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemViewModel", "@web-atoms/xf-samples/dist/samples/web-view/WebViewSample", "@web-atoms/xf-samples/dist/samples/web-view/WebView", "@web-atoms/xf-samples/dist/service/menu-service/MenuService", "@web-atoms/xf-samples/dist/service/menu-service/MenuItem", "@web-atoms/xf-samples/dist/app-host/home/Home", "@web-atoms/xf-samples/dist/app-host/home/HomeViewModel", "@web-atoms/core/dist/xf/XFApp", "@web-atoms/core/dist/xf/services/XFBusyIndicatorService", "@web-atoms/core/dist/xf/services/XFNavigationService"]);
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -1448,7 +1949,7 @@ const UMD = new UMDClass();
 });
 //# sourceMappingURL=AtomMap.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomMap");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomMap");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -1550,7 +2051,7 @@ const UMD = new UMDClass();
 });
 //# sourceMappingURL=types.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/types");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/types");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -1699,7 +2200,8 @@ const UMD = new UMDClass();
             }
             const handlers = AtomBinder.get_WatchHandler(target, "_items");
             handlers.push(handler);
-            return { dispose: () => {
+            return {
+                dispose: () => {
                     AtomBinder.remove_CollectionChanged(target, handler);
                 }
             };
@@ -1757,7 +2259,7 @@ const UMD = new UMDClass();
 });
 //# sourceMappingURL=AtomBinder.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomBinder");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomBinder");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -1979,7 +2481,7 @@ const UMD = new UMDClass();
 });
 //# sourceMappingURL=AtomList.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomList");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomList");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2137,7 +2639,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Atom.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/Atom");
+AmdLoader.instance.setup("@web-atoms/core/dist/Atom");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -2350,14 +2852,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             // pl.combinedPathList =
             pl.combined = pl.thisPath
                 .map((x) => {
-                x[0] = "t";
-                x.splice(0, 0, "this");
-                return x;
-            })
+                    x[0] = "t";
+                    x.splice(0, 0, "this");
+                    return x;
+                })
                 .concat(pl.pathList.map((x) => {
-                x.splice(0, 0, "this", "x");
-                return x;
-            }));
+                    x.splice(0, 0, "this", "x");
+                    return x;
+                }));
             pl.thisPath = [];
             pl.pathList = [];
         }
@@ -2368,7 +2870,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ExpressionParser.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/ExpressionParser");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/ExpressionParser");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -2522,7 +3024,284 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Bind.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/Bind");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/Bind");
+
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ColorItem = void 0;
+    // tslint:disable:member-ordering
+    class ColorItem {
+        constructor(colorCodeOrRed, namedColorOrGreen, blue, alpha) {
+            if (typeof colorCodeOrRed === "string") {
+                this.colorCode = colorCodeOrRed;
+                if (typeof namedColorOrGreen === "string") {
+                    this.namedColor = namedColorOrGreen;
+                }
+                const r = ColorItem.parseRgb(this.colorCode);
+                this.red = r.red;
+                this.green = r.green;
+                this.blue = r.blue;
+                this.alpha = r.alpha;
+            }
+            else {
+                this.red = colorCodeOrRed;
+                if (typeof namedColorOrGreen === "number") {
+                    this.green = namedColorOrGreen;
+                }
+                this.blue = blue;
+                this.alpha = alpha;
+                this.colorCode = ColorItem.rgb(this.red, this.green, this.blue, this.alpha);
+            }
+        }
+        toString() {
+            return this.colorCode;
+        }
+        withAlphaPercent(a) {
+            // a = a * 255;
+            return new ColorItem(this.red, this.green, this.blue, a);
+        }
+        static parseRgb(rgba) {
+            if (/^\#/.test(rgba)) {
+                rgba = rgba.substr(1);
+                // this is hex...
+                if (rgba.length === 3) {
+                    rgba = rgba.split("").map((x) => x + x).join("");
+                }
+                const red = Number.parseInt(rgba[0] + rgba[1], 16);
+                const green = Number.parseInt(rgba[2] + rgba[3], 16);
+                const blue = Number.parseInt(rgba[4] + rgba[5], 16);
+                if (rgba.length > 6) {
+                    const alpha = Number.parseInt(rgba[6] + rgba[7], 16);
+                    return { red, green, blue, alpha };
+                }
+                return { red, green, blue };
+            }
+            if (/^rgba/i.test(rgba)) {
+                rgba = rgba.substr(5);
+                rgba = rgba.substr(0, rgba.length - 1);
+                const a = rgba.split(",").map((x, i) => i === 3 ? Number.parseFloat(x) : Number.parseInt(x, 10));
+                return { red: a[0], green: a[1], blue: a[2], alpha: a[3] };
+            }
+            if (/^rgb/i.test(rgba)) {
+                rgba = rgba.substr(4);
+                rgba = rgba.substr(0, rgba.length - 1);
+                const a = rgba.split(",").map((x) => Number.parseInt(x, 10));
+                return { red: a[0], green: a[1], blue: a[2] };
+            }
+            throw new Error("Unknown color format " + rgba);
+        }
+        static rgb(r, g, b, a) {
+            // if (!isInt(r)) {
+            //     // all must be less than one...
+            //     if (isInt(g) || isInt(b) || (a !== undefined && isInt(a))) {
+            //         throw new Error("All color values must be either fractions or integers between 0 to 255");
+            //     }
+            //     r = r * 255;
+            //     g = g * 255;
+            //     b = b * 255;
+            // }
+            if (a !== undefined) {
+                return `rgba(${r},${g},${b},${a})`;
+            }
+            return "#" + toFixedString(r) + toFixedString(g) + toFixedString(b);
+        }
+    }
+    exports.ColorItem = ColorItem;
+    // function isInt(n: number): boolean {
+    //     return Number(n) === n && n % 1 === 0;
+    // }
+    function toFixedString(t) {
+        return ("0" + t.toString(16)).slice(-2);
+    }
+    class Colors {
+        static rgba(red, green, blue, alpha) {
+            return new ColorItem(red, green, blue, alpha);
+        }
+        static parse(color) {
+            if (!color) {
+                return null;
+            }
+            color = color.toLowerCase();
+            // check if exists in current...
+            for (const key in Colors) {
+                if (Colors.hasOwnProperty(key)) {
+                    const element = Colors[key];
+                    if (element instanceof ColorItem) {
+                        const ci = element;
+                        if (ci.namedColor === color) {
+                            return ci;
+                        }
+                    }
+                }
+            }
+            if (/^(\#|rgb\(|rgba\()/i.test(color)) {
+                return new ColorItem(color);
+            }
+            throw new Error("Invalid color format " + color);
+        }
+    }
+    exports.default = Colors;
+    Colors.black = new ColorItem("#000000", "black");
+    Colors.silver = new ColorItem("#c0c0c0", "silver");
+    Colors.gray = new ColorItem("#808080", "gray");
+    Colors.white = new ColorItem("#ffffff", "white");
+    Colors.maroon = new ColorItem("#800000", "maroon");
+    Colors.red = new ColorItem("#ff0000", "red");
+    Colors.purple = new ColorItem("#800080", "purple");
+    Colors.fuchsia = new ColorItem("#ff00ff", "fuchsia");
+    Colors.green = new ColorItem("#008000", "green");
+    Colors.lime = new ColorItem("#00ff00", "lime");
+    Colors.olive = new ColorItem("#808000", "olive");
+    Colors.yellow = new ColorItem("#ffff00", "yellow");
+    Colors.navy = new ColorItem("#000080", "navy");
+    Colors.blue = new ColorItem("#0000ff", "blue");
+    Colors.teal = new ColorItem("#008080", "teal");
+    Colors.aqua = new ColorItem("#00ffff", "aqua");
+    Colors.orange = new ColorItem("#ffa500", "orange");
+    Colors.aliceBlue = new ColorItem("#f0f8ff", "aliceblue");
+    Colors.antiqueWhite = new ColorItem("#faebd7", "antiquewhite");
+    Colors.aquaMarine = new ColorItem("#7fffd4", "aquamarine");
+    Colors.azure = new ColorItem("#f0ffff", "azure");
+    Colors.beige = new ColorItem("#f5f5dc", "beige");
+    Colors.bisque = new ColorItem("#ffe4c4", "bisque");
+    Colors.blanchedAlmond = new ColorItem("#ffebcd", "blanchedalmond");
+    Colors.blueViolet = new ColorItem("#8a2be2", "blueviolet");
+    Colors.brown = new ColorItem("#a52a2a", "brown");
+    Colors.burlyWood = new ColorItem("#deb887", "burlywood");
+    Colors.cadetBlue = new ColorItem("#5f9ea0", "cadetblue");
+    Colors.chartReuse = new ColorItem("#7fff00", "chartreuse");
+    Colors.chocolate = new ColorItem("#d2691e", "chocolate");
+    Colors.coral = new ColorItem("#ff7f50", "coral");
+    Colors.cornFlowerBlue = new ColorItem("#6495ed", "cornflowerblue");
+    Colors.cornSilk = new ColorItem("#fff8dc", "cornsilk");
+    Colors.crimson = new ColorItem("#dc143c", "crimson");
+    Colors.cyan = new ColorItem("#00ffff", "cyan");
+    Colors.darkBlue = new ColorItem("#00008b", "darkblue");
+    Colors.darkCyan = new ColorItem("#008b8b", "darkcyan");
+    Colors.darkGoldenRod = new ColorItem("#b8860b", "darkgoldenrod");
+    Colors.darkGray = new ColorItem("#a9a9a9", "darkgray");
+    Colors.darkGreen = new ColorItem("#006400", "darkgreen");
+    Colors.darkGrey = new ColorItem("#a9a9a9", "darkgrey");
+    Colors.darkKhaki = new ColorItem("#bdb76b", "darkkhaki");
+    Colors.darkMagenta = new ColorItem("#8b008b", "darkmagenta");
+    Colors.darkOliveGreen = new ColorItem("#556b2f", "darkolivegreen");
+    Colors.darkOrange = new ColorItem("#ff8c00", "darkorange");
+    Colors.darkOrchid = new ColorItem("#9932cc", "darkorchid");
+    Colors.darkRed = new ColorItem("#8b0000", "darkred");
+    Colors.darkSalmon = new ColorItem("#e9967a", "darksalmon");
+    Colors.darkSeaGreen = new ColorItem("#8fbc8f", "darkseagreen");
+    Colors.darkSlateBlue = new ColorItem("#483d8b", "darkslateblue");
+    Colors.darkSlateGray = new ColorItem("#2f4f4f", "darkslategray");
+    Colors.darkSlateGrey = new ColorItem("#2f4f4f", "darkslategrey");
+    Colors.darkTurquoise = new ColorItem("#00ced1", "darkturquoise");
+    Colors.darkViolet = new ColorItem("#9400d3", "darkviolet");
+    Colors.deepPink = new ColorItem("#ff1493", "deeppink");
+    Colors.deepSkyBlue = new ColorItem("#00bfff", "deepskyblue");
+    Colors.dimGray = new ColorItem("#696969", "dimgray");
+    Colors.dimGrey = new ColorItem("#696969", "dimgrey");
+    Colors.dodgerBlue = new ColorItem("#1e90ff", "dodgerblue");
+    Colors.fireBrick = new ColorItem("#b22222", "firebrick");
+    Colors.floralWhite = new ColorItem("#fffaf0", "floralwhite");
+    Colors.forestGreen = new ColorItem("#228b22", "forestgreen");
+    Colors.gainsboro = new ColorItem("#dcdcdc", "gainsboro");
+    Colors.ghostWhite = new ColorItem("#f8f8ff", "ghostwhite");
+    Colors.gold = new ColorItem("#ffd700", "gold");
+    Colors.goldenRod = new ColorItem("#daa520", "goldenrod");
+    Colors.greenYellow = new ColorItem("#adff2f", "greenyellow");
+    Colors.grey = new ColorItem("#808080", "grey");
+    Colors.honeyDew = new ColorItem("#f0fff0", "honeydew");
+    Colors.hotPink = new ColorItem("#ff69b4", "hotpink");
+    Colors.indianRed = new ColorItem("#cd5c5c", "indianred");
+    Colors.indigo = new ColorItem("#4b0082", "indigo");
+    Colors.ivory = new ColorItem("#fffff0", "ivory");
+    Colors.khaki = new ColorItem("#f0e68c", "khaki");
+    Colors.lavender = new ColorItem("#e6e6fa", "lavender");
+    Colors.lavenderBlush = new ColorItem("#fff0f5", "lavenderblush");
+    Colors.lawnGreen = new ColorItem("#7cfc00", "lawngreen");
+    Colors.lemonChiffon = new ColorItem("#fffacd", "lemonchiffon");
+    Colors.lightBlue = new ColorItem("#add8e6", "lightblue");
+    Colors.lightCoral = new ColorItem("#f08080", "lightcoral");
+    Colors.lightCyan = new ColorItem("#e0ffff", "lightcyan");
+    Colors.lightGoldenRodYellow = new ColorItem("#fafad2", "lightgoldenrodyellow");
+    Colors.lightGray = new ColorItem("#d3d3d3", "lightgray");
+    Colors.lightGreen = new ColorItem("#90ee90", "lightgreen");
+    Colors.lightGrey = new ColorItem("#d3d3d3", "lightgrey");
+    Colors.lightPink = new ColorItem("#ffb6c1", "lightpink");
+    Colors.lightSalmon = new ColorItem("#ffa07a", "lightsalmon");
+    Colors.lightSeaGreen = new ColorItem("#20b2aa", "lightseagreen");
+    Colors.lightSkyBlue = new ColorItem("#87cefa", "lightskyblue");
+    Colors.lightSlateGray = new ColorItem("#778899", "lightslategray");
+    Colors.lightSlateGrey = new ColorItem("#778899", "lightslategrey");
+    Colors.lightSteelBlue = new ColorItem("#b0c4de", "lightsteelblue");
+    Colors.lightYellow = new ColorItem("#ffffe0", "lightyellow");
+    Colors.limeGreen = new ColorItem("#32cd32", "limegreen");
+    Colors.linen = new ColorItem("#faf0e6", "linen");
+    Colors.magenta = new ColorItem("#ff00ff", "magenta");
+    Colors.mediumAquaMarine = new ColorItem("#66cdaa", "mediumaquamarine");
+    Colors.mediumBlue = new ColorItem("#0000cd", "mediumblue");
+    Colors.mediumOrchid = new ColorItem("#ba55d3", "mediumorchid");
+    Colors.mediumPurple = new ColorItem("#9370db", "mediumpurple");
+    Colors.mediumSeaGreen = new ColorItem("#3cb371", "mediumseagreen");
+    Colors.mediumSlateBlue = new ColorItem("#7b68ee", "mediumslateblue");
+    Colors.mediumSpringGreen = new ColorItem("#00fa9a", "mediumspringgreen");
+    Colors.mediumTurquoise = new ColorItem("#48d1cc", "mediumturquoise");
+    Colors.mediumVioletred = new ColorItem("#c71585", "mediumvioletred");
+    Colors.midNightBlue = new ColorItem("#191970", "midnightblue");
+    Colors.mintCream = new ColorItem("#f5fffa", "mintcream");
+    Colors.mistyRose = new ColorItem("#ffe4e1", "mistyrose");
+    Colors.moccasin = new ColorItem("#ffe4b5", "moccasin");
+    Colors.navajoWhite = new ColorItem("#ffdead", "navajowhite");
+    Colors.oldLace = new ColorItem("#fdf5e6", "oldlace");
+    Colors.oliveDrab = new ColorItem("#6b8e23", "olivedrab");
+    Colors.orangeRed = new ColorItem("#ff4500", "orangered");
+    Colors.orchid = new ColorItem("#da70d6", "orchid");
+    Colors.paleGoldenRod = new ColorItem("#eee8aa", "palegoldenrod");
+    Colors.paleGreen = new ColorItem("#98fb98", "palegreen");
+    Colors.paleTurquoise = new ColorItem("#afeeee", "paleturquoise");
+    Colors.paleVioletRed = new ColorItem("#db7093", "palevioletred");
+    Colors.papayaWhip = new ColorItem("#ffefd5", "papayawhip");
+    Colors.peachPuff = new ColorItem("#ffdab9", "peachpuff");
+    Colors.peru = new ColorItem("#cd853f", "peru");
+    Colors.pink = new ColorItem("#ffc0cb", "pink");
+    Colors.plum = new ColorItem("#dda0dd", "plum");
+    Colors.powderBlue = new ColorItem("#b0e0e6", "powderblue");
+    Colors.rosyBrown = new ColorItem("#bc8f8f", "rosybrown");
+    Colors.royalBlue = new ColorItem("#4169e1", "royalblue");
+    Colors.saddleBrown = new ColorItem("#8b4513", "saddlebrown");
+    Colors.salmon = new ColorItem("#fa8072", "salmon");
+    Colors.sandyBrown = new ColorItem("#f4a460", "sandybrown");
+    Colors.seaGreen = new ColorItem("#2e8b57", "seagreen");
+    Colors.seaShell = new ColorItem("#fff5ee", "seashell");
+    Colors.sienna = new ColorItem("#a0522d", "sienna");
+    Colors.skyBlue = new ColorItem("#87ceeb", "skyblue");
+    Colors.slateBlue = new ColorItem("#6a5acd", "slateblue");
+    Colors.slateGray = new ColorItem("#708090", "slategray");
+    Colors.slateGrey = new ColorItem("#708090", "slategrey");
+    Colors.snow = new ColorItem("#fffafa", "snow");
+    Colors.springGreen = new ColorItem("#00ff7f", "springgreen");
+    Colors.steelBlue = new ColorItem("#4682b4", "steelblue");
+    Colors.tan = new ColorItem("#d2b48c", "tan");
+    Colors.thistle = new ColorItem("#d8bfd8", "thistle");
+    Colors.tomato = new ColorItem("#ff6347", "tomato");
+    Colors.turquoise = new ColorItem("#40e0d0", "turquoise");
+    Colors.violet = new ColorItem("#ee82ee", "violet");
+    Colors.wheat = new ColorItem("#f5deb3", "wheat");
+    Colors.whiteSmoke = new ColorItem("#f5f5f5", "whitesmoke");
+    Colors.yellowGreen = new ColorItem("#9acd32", "yellowgreen");
+    Colors.rebeccaPurple = new ColorItem("#663399", "rebeccapurple");
+});
+//# sourceMappingURL=Colors.js.map
+
+AmdLoader.instance.setup("@web-atoms/core/dist/core/Colors");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -2553,8 +3332,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     exports.RootObject = RootObject;
     class XNode {
         constructor(
-        // tslint:disable-next-line: ban-types
-        name, attributes, children, isProperty, isTemplate) {
+            // tslint:disable-next-line: ban-types
+            name, attributes, children, isProperty, isTemplate) {
             this.name = name;
             this.attributes = attributes;
             this.children = children;
@@ -2638,8 +3417,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             };
         }
         static create(
-        // tslint:disable-next-line: ban-types
-        name, attributes, ...children) {
+            // tslint:disable-next-line: ban-types
+            name, attributes, ...children) {
             if (name.factory) {
                 return (name.factory)(attributes, ...children);
             }
@@ -2651,7 +3430,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                     name = name.toString();
                     break;
                 case "function":
-                    return name(attributes, ...children);
+                    return name(attributes || {}, ...children);
             }
             return new XNode(name, attributes, children);
         }
@@ -2680,7 +3459,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=XNode.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/XNode");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/XNode");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -6580,7 +7359,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=FontAwesomeSolid.js.map
 
-    AmdLoader.instance.setup("@web-atoms/font-awesome/dist/FontAwesomeSolid");
+AmdLoader.instance.setup("@web-atoms/font-awesome/dist/FontAwesomeSolid");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -6595,7 +7374,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     Object.defineProperty(exports, "__esModule", { value: true });
     //tslint:disable
     const XNode_1 = require("@web-atoms/core/dist/core/XNode");
-    const XF = { get BindableObject() { return this._BindableObject || (this._BindableObject = bridge.getClass('Xamarin.Forms.BindableObject, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
+    const XF = {
+        get BindableObject() { return this._BindableObject || (this._BindableObject = bridge.getClass('Xamarin.Forms.BindableObject, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get Element() { return this._Element || (this._Element = bridge.getClass('Xamarin.Forms.Element, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get NavigableElement() { return this._NavigableElement || (this._NavigableElement = bridge.getClass('Xamarin.Forms.NavigableElement, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get VisualElement() { return this._VisualElement || (this._VisualElement = bridge.getClass('Xamarin.Forms.VisualElement, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
@@ -6641,12 +7421,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         get InputView() { return this._InputView || (this._InputView = bridge.getClass('Xamarin.Forms.InputView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get Editor() { return this._Editor || (this._Editor = bridge.getClass('Xamarin.Forms.Editor, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get Entry() { return this._Entry || (this._Entry = bridge.getClass('Xamarin.Forms.Entry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Expander() { return this._Expander || (this._Expander = bridge.getClass('Xamarin.Forms.Expander, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get ImageSource() { return this._ImageSource || (this._ImageSource = bridge.getClass('Xamarin.Forms.ImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get FileImageSource() { return this._FileImageSource || (this._FileImageSource = bridge.getClass('Xamarin.Forms.FileImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get MediaSource() { return this._MediaSource || (this._MediaSource = bridge.getClass('Xamarin.Forms.MediaSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get FileMediaSource() { return this._FileMediaSource || (this._FileMediaSource = bridge.getClass('Xamarin.Forms.FileMediaSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get FlexLayout() { return this._FlexLayout || (this._FlexLayout = bridge.getClass('Xamarin.Forms.FlexLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
+        get FlyoutPage() { return this._FlyoutPage || (this._FlyoutPage = bridge.getClass('Xamarin.Forms.FlyoutPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
+        get MasterDetailPage() { return this._MasterDetailPage || (this._MasterDetailPage = bridge.getClass('Xamarin.Forms.MasterDetailPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get FontImageSource() { return this._FontImageSource || (this._FontImageSource = bridge.getClass('Xamarin.Forms.FontImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get FormattedString() { return this._FormattedString || (this._FormattedString = bridge.getClass('Xamarin.Forms.FormattedString, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get Frame() { return this._Frame || (this._Frame = bridge.getClass('Xamarin.Forms.Frame, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
@@ -6677,8 +7456,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         get Label() { return this._Label || (this._Label = bridge.getClass('Xamarin.Forms.Label, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get LinearGradientBrush() { return this._LinearGradientBrush || (this._LinearGradientBrush = bridge.getClass('Xamarin.Forms.LinearGradientBrush, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get ListView() { return this._ListView || (this._ListView = bridge.getClass('Xamarin.Forms.ListView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get MasterDetailPage() { return this._MasterDetailPage || (this._MasterDetailPage = bridge.getClass('Xamarin.Forms.MasterDetailPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get MediaElement() { return this._MediaElement || (this._MediaElement = bridge.getClass('Xamarin.Forms.MediaElement, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get Menu() { return this._Menu || (this._Menu = bridge.getClass('Xamarin.Forms.Menu, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get MenuItem() { return this._MenuItem || (this._MenuItem = bridge.getClass('Xamarin.Forms.MenuItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get NavigationPage() { return this._NavigationPage || (this._NavigationPage = bridge.getClass('Xamarin.Forms.NavigationPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
@@ -6728,7 +7505,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         get TimePicker() { return this._TimePicker || (this._TimePicker = bridge.getClass('Xamarin.Forms.TimePicker, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get ToolbarItem() { return this._ToolbarItem || (this._ToolbarItem = bridge.getClass('Xamarin.Forms.ToolbarItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get UriImageSource() { return this._UriImageSource || (this._UriImageSource = bridge.getClass('Xamarin.Forms.UriImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get UriMediaSource() { return this._UriMediaSource || (this._UriMediaSource = bridge.getClass('Xamarin.Forms.UriMediaSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get UrlWebViewSource() { return this._UrlWebViewSource || (this._UrlWebViewSource = bridge.getClass('Xamarin.Forms.UrlWebViewSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get WebView() { return this._WebView || (this._WebView = bridge.getClass('Xamarin.Forms.WebView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get StyleSheet() { return this._StyleSheet || (this._StyleSheet = bridge.getClass('Xamarin.Forms.StyleSheets.StyleSheet, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
@@ -6758,6 +7534,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         get Rectangle() { return this._Rectangle || (this._Rectangle = bridge.getClass('Xamarin.Forms.Shapes.Rectangle, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get RectangleGeometry() { return this._RectangleGeometry || (this._RectangleGeometry = bridge.getClass('Xamarin.Forms.Shapes.RectangleGeometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get RotateTransform() { return this._RotateTransform || (this._RotateTransform = bridge.getClass('Xamarin.Forms.Shapes.RotateTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
+        get RoundRectangleGeometry() { return this._RoundRectangleGeometry || (this._RoundRectangleGeometry = bridge.getClass('Xamarin.Forms.Shapes.RoundRectangleGeometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get ScaleTransform() { return this._ScaleTransform || (this._ScaleTransform = bridge.getClass('Xamarin.Forms.Shapes.ScaleTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get SkewTransform() { return this._SkewTransform || (this._SkewTransform = bridge.getClass('Xamarin.Forms.Shapes.SkewTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
         get TransformGroup() { return this._TransformGroup || (this._TransformGroup = bridge.getClass('Xamarin.Forms.Shapes.TransformGroup, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
@@ -6767,7 +7544,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=XF.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/XF");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/XF");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -6801,7 +7578,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=WA.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/WA");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/WA");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -6943,7 +7720,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomUI.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/web/core/AtomUI");
+AmdLoader.instance.setup("@web-atoms/core/dist/web/core/AtomUI");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -6978,13 +7755,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 return true;
             });
         }
-        createNode(target, node, 
-        // tslint:disable-next-line: ban-types
-        binder, 
-        // tslint:disable-next-line: ban-types
-        xNodeClass, 
-        // tslint:disable-next-line: ban-types
-        creator) {
+        createNode(target, node,
+            // tslint:disable-next-line: ban-types
+            binder,
+            // tslint:disable-next-line: ban-types
+            xNodeClass,
+            // tslint:disable-next-line: ban-types
+            creator) {
             throw new Error("Method not implemented.");
         }
     }
@@ -7114,13 +7891,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             }
             return element;
         }
-        createNode(target, node, 
-        // tslint:disable-next-line: ban-types
-        binder, 
-        // tslint:disable-next-line: ban-types
-        xNodeClass, 
-        // tslint:disable-next-line: ban-types
-        creator) {
+        createNode(target, node,
+            // tslint:disable-next-line: ban-types
+            binder,
+            // tslint:disable-next-line: ban-types
+            xNodeClass,
+            // tslint:disable-next-line: ban-types
+            creator) {
             let parent = null;
             const app = target.app;
             let e = null;
@@ -7279,7 +8056,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomBridge.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomBridge");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomBridge");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7307,9 +8084,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     RelativeSource.self = { mode: "Self" };
     RelativeSource.TemplatedParent = { mode: "TemplatedParent" };
     const X = {
-        Name: (n) => ({ "WebAtoms.AtomX:Name": new Bind_1.default((nx, bx, c, e) => {
+        Name: (n) => ({
+            "WebAtoms.AtomX:Name": new Bind_1.default((nx, bx, c, e) => {
                 (AtomBridge_1.AtomBridge.instance).setName(e, n);
-            }, null) }),
+            }, null)
+        }),
         Arguments: (args, ...nodes) => new XNode_1.default("WebAtoms.AtomX:Arguments", {}, nodes),
         Type: (n) => ({ type: n }),
         Resource: (n) => ({ resource: n }),
@@ -7326,7 +8105,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=X.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/X");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/X");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7397,7 +8176,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomDispatcher.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomDispatcher");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomDispatcher");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7446,7 +8225,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // }
 //# sourceMappingURL=TypeKey.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/di/TypeKey");
+AmdLoader.instance.setup("@web-atoms/core/dist/di/TypeKey");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7510,7 +8289,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ServiceCollection.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/di/ServiceCollection");
+AmdLoader.instance.setup("@web-atoms/core/dist/di/ServiceCollection");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7567,7 +8346,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Register.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/di/Register");
+AmdLoader.instance.setup("@web-atoms/core/dist/di/Register");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7590,7 +8369,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=RegisterSingleton.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/di/RegisterSingleton");
+AmdLoader.instance.setup("@web-atoms/core/dist/di/RegisterSingleton");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7625,7 +8404,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TransientDisposable.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/TransientDisposable");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/TransientDisposable");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7726,7 +8505,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Inject.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/di/Inject");
+AmdLoader.instance.setup("@web-atoms/core/dist/di/Inject");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7863,7 +8642,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ServiceProvider.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/di/ServiceProvider");
+AmdLoader.instance.setup("@web-atoms/core/dist/di/ServiceProvider");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -7900,7 +8679,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=BusyIndicatorService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/BusyIndicatorService");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/BusyIndicatorService");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -8109,7 +8888,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=App.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/App");
+AmdLoader.instance.setup("@web-atoms/core/dist/App");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -8188,7 +8967,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=AtomOnce.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomOnce");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomOnce");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -8401,7 +9180,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=AtomWatcher.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomWatcher");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomWatcher");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -8548,7 +9327,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=PropertyBinding.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/PropertyBinding");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/PropertyBinding");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -8595,7 +9374,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=AtomDisposableList.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomDisposableList");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomDisposableList");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -8660,7 +9439,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=InheritedProperty.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/InheritedProperty");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/InheritedProperty");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -8713,7 +9492,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=PropertyMap.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/PropertyMap");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/PropertyMap");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -9149,7 +9928,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 });
 //# sourceMappingURL=AtomComponent.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomComponent");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomComponent");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9249,7 +10028,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 });
 //# sourceMappingURL=AtomUri.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomUri");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomUri");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9271,7 +10050,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 });
 //# sourceMappingURL=FormattedString.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/FormattedString");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/FormattedString");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9295,7 +10074,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 });
 //# sourceMappingURL=DISingleton.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/di/DISingleton");
+AmdLoader.instance.setup("@web-atoms/core/dist/di/DISingleton");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -9356,7 +10135,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=ReferenceService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/ReferenceService");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/ReferenceService");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -9510,7 +10289,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // Mock.mock(NavigationService, "MockNavigationService");
 //# sourceMappingURL=NavigationService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/NavigationService");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/NavigationService");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9548,7 +10327,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=StringHelper.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/StringHelper");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/StringHelper");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9637,7 +10416,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomStyle.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/web/styles/AtomStyle");
+AmdLoader.instance.setup("@web-atoms/core/dist/web/styles/AtomStyle");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9713,7 +10492,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomStyleSheet.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/web/styles/AtomStyleSheet");
+AmdLoader.instance.setup("@web-atoms/core/dist/web/styles/AtomStyleSheet");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -9855,7 +10634,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFControl.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/xf/controls/AtomXFControl");
+AmdLoader.instance.setup("@web-atoms/core/dist/xf/controls/AtomXFControl");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9871,16 +10650,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const AtomBridge_1 = require("@web-atoms/core/dist/core/AtomBridge");
     const AtomXFControl_1 = require("@web-atoms/core/dist/xf/controls/AtomXFControl");
     const XF_1 = require("../clr/XF");
-    class AtomXFMasterDetailPage extends AtomXFControl_1.AtomXFControl {
+    class AtomXFFlyoutPage extends AtomXFControl_1.AtomXFControl {
         constructor(app, e) {
-            super(app, e || AtomBridge_1.AtomBridge.instance.create(XF_1.default.MasterDetailPage));
+            super(app, e || AtomBridge_1.AtomBridge.instance.create(XF_1.default.FlyoutPage));
         }
     }
-    exports.default = AtomXFMasterDetailPage;
+    exports.default = AtomXFFlyoutPage;
 });
-//# sourceMappingURL=AtomXFMasterDetailPage.js.map
+//# sourceMappingURL=AtomXFFlyoutPage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFMasterDetailPage");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -9925,10 +10704,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             else {
                 this.msSinceEpoch =
                     (days || 0) * exports.msDays +
-                        (hours || 0) * exports.msHours +
-                        (minutes || 0) * exports.msMinutes +
-                        (seconds || 0) * exports.msSeconds +
-                        (milliseconds || 0);
+                    (hours || 0) * exports.msHours +
+                    (minutes || 0) * exports.msMinutes +
+                    (seconds || 0) * exports.msSeconds +
+                    (milliseconds || 0);
             }
         }
         TimeSpan.fromDays = function (n) {
@@ -10138,7 +10917,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TimeSpan.js.map
 
-    AmdLoader.instance.setup("@web-atoms/date-time/dist/TimeSpan");
+AmdLoader.instance.setup("@web-atoms/date-time/dist/TimeSpan");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -10470,7 +11249,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=DateTime.js.map
 
-    AmdLoader.instance.setup("@web-atoms/date-time/dist/DateTime");
+AmdLoader.instance.setup("@web-atoms/date-time/dist/DateTime");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -10620,7 +11399,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=JsonService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/JsonService");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/JsonService");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -10748,7 +11527,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomLoader.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomLoader");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/AtomLoader");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -10811,7 +11590,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=BindableProperty.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/BindableProperty");
+AmdLoader.instance.setup("@web-atoms/core/dist/core/BindableProperty");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -10834,7 +11613,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=baseTypes.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/view-model/baseTypes");
+AmdLoader.instance.setup("@web-atoms/core/dist/view-model/baseTypes");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -11293,7 +12072,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/view-model/AtomViewModel");
+AmdLoader.instance.setup("@web-atoms/core/dist/view-model/AtomViewModel");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -11391,7 +12170,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomWindowViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/view-model/AtomWindowViewModel");
+AmdLoader.instance.setup("@web-atoms/core/dist/view-model/AtomWindowViewModel");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -11535,7 +12314,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Load.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/view-model/Load");
+AmdLoader.instance.setup("@web-atoms/core/dist/view-model/Load");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -11560,7 +12339,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFContentPage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFContentPage");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFContentPage");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -11618,7 +12397,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AlertSampleViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/AlertSampleViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/AlertSampleViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -11649,7 +12428,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AlertSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/AlertSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/AlertSample");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -11705,7 +12484,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=CustomPopupViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -11738,7 +12517,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=CustomPopupSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -11762,7 +12541,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AlertSamplePage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/AlertSamplePage");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/alert/AlertSamplePage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -11788,7 +12567,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=BoxView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/box/BoxView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/box/BoxView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -11810,7 +12589,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=BoxViewSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/box/BoxViewSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/box/BoxViewSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -11841,284 +12620,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=LinearGradient.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/gradient/linear/LinearGradient");
-
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.ColorItem = void 0;
-    // tslint:disable:member-ordering
-    class ColorItem {
-        constructor(colorCodeOrRed, namedColorOrGreen, blue, alpha) {
-            if (typeof colorCodeOrRed === "string") {
-                this.colorCode = colorCodeOrRed;
-                if (typeof namedColorOrGreen === "string") {
-                    this.namedColor = namedColorOrGreen;
-                }
-                const r = ColorItem.parseRgb(this.colorCode);
-                this.red = r.red;
-                this.green = r.green;
-                this.blue = r.blue;
-                this.alpha = r.alpha;
-            }
-            else {
-                this.red = colorCodeOrRed;
-                if (typeof namedColorOrGreen === "number") {
-                    this.green = namedColorOrGreen;
-                }
-                this.blue = blue;
-                this.alpha = alpha;
-                this.colorCode = ColorItem.rgb(this.red, this.green, this.blue, this.alpha);
-            }
-        }
-        toString() {
-            return this.colorCode;
-        }
-        withAlphaPercent(a) {
-            // a = a * 255;
-            return new ColorItem(this.red, this.green, this.blue, a);
-        }
-        static parseRgb(rgba) {
-            if (/^\#/.test(rgba)) {
-                rgba = rgba.substr(1);
-                // this is hex...
-                if (rgba.length === 3) {
-                    rgba = rgba.split("").map((x) => x + x).join("");
-                }
-                const red = Number.parseInt(rgba[0] + rgba[1], 16);
-                const green = Number.parseInt(rgba[2] + rgba[3], 16);
-                const blue = Number.parseInt(rgba[4] + rgba[5], 16);
-                if (rgba.length > 6) {
-                    const alpha = Number.parseInt(rgba[6] + rgba[7], 16);
-                    return { red, green, blue, alpha };
-                }
-                return { red, green, blue };
-            }
-            if (/^rgba/i.test(rgba)) {
-                rgba = rgba.substr(5);
-                rgba = rgba.substr(0, rgba.length - 1);
-                const a = rgba.split(",").map((x, i) => i === 3 ? Number.parseFloat(x) : Number.parseInt(x, 10));
-                return { red: a[0], green: a[1], blue: a[2], alpha: a[3] };
-            }
-            if (/^rgb/i.test(rgba)) {
-                rgba = rgba.substr(4);
-                rgba = rgba.substr(0, rgba.length - 1);
-                const a = rgba.split(",").map((x) => Number.parseInt(x, 10));
-                return { red: a[0], green: a[1], blue: a[2] };
-            }
-            throw new Error("Unknown color format " + rgba);
-        }
-        static rgb(r, g, b, a) {
-            // if (!isInt(r)) {
-            //     // all must be less than one...
-            //     if (isInt(g) || isInt(b) || (a !== undefined && isInt(a))) {
-            //         throw new Error("All color values must be either fractions or integers between 0 to 255");
-            //     }
-            //     r = r * 255;
-            //     g = g * 255;
-            //     b = b * 255;
-            // }
-            if (a !== undefined) {
-                return `rgba(${r},${g},${b},${a})`;
-            }
-            return "#" + toFixedString(r) + toFixedString(g) + toFixedString(b);
-        }
-    }
-    exports.ColorItem = ColorItem;
-    // function isInt(n: number): boolean {
-    //     return Number(n) === n && n % 1 === 0;
-    // }
-    function toFixedString(t) {
-        return ("0" + t.toString(16)).slice(-2);
-    }
-    class Colors {
-        static rgba(red, green, blue, alpha) {
-            return new ColorItem(red, green, blue, alpha);
-        }
-        static parse(color) {
-            if (!color) {
-                return null;
-            }
-            color = color.toLowerCase();
-            // check if exists in current...
-            for (const key in Colors) {
-                if (Colors.hasOwnProperty(key)) {
-                    const element = Colors[key];
-                    if (element instanceof ColorItem) {
-                        const ci = element;
-                        if (ci.namedColor === color) {
-                            return ci;
-                        }
-                    }
-                }
-            }
-            if (/^(\#|rgb\(|rgba\()/i.test(color)) {
-                return new ColorItem(color);
-            }
-            throw new Error("Invalid color format " + color);
-        }
-    }
-    exports.default = Colors;
-    Colors.black = new ColorItem("#000000", "black");
-    Colors.silver = new ColorItem("#c0c0c0", "silver");
-    Colors.gray = new ColorItem("#808080", "gray");
-    Colors.white = new ColorItem("#ffffff", "white");
-    Colors.maroon = new ColorItem("#800000", "maroon");
-    Colors.red = new ColorItem("#ff0000", "red");
-    Colors.purple = new ColorItem("#800080", "purple");
-    Colors.fuchsia = new ColorItem("#ff00ff", "fuchsia");
-    Colors.green = new ColorItem("#008000", "green");
-    Colors.lime = new ColorItem("#00ff00", "lime");
-    Colors.olive = new ColorItem("#808000", "olive");
-    Colors.yellow = new ColorItem("#ffff00", "yellow");
-    Colors.navy = new ColorItem("#000080", "navy");
-    Colors.blue = new ColorItem("#0000ff", "blue");
-    Colors.teal = new ColorItem("#008080", "teal");
-    Colors.aqua = new ColorItem("#00ffff", "aqua");
-    Colors.orange = new ColorItem("#ffa500", "orange");
-    Colors.aliceBlue = new ColorItem("#f0f8ff", "aliceblue");
-    Colors.antiqueWhite = new ColorItem("#faebd7", "antiquewhite");
-    Colors.aquaMarine = new ColorItem("#7fffd4", "aquamarine");
-    Colors.azure = new ColorItem("#f0ffff", "azure");
-    Colors.beige = new ColorItem("#f5f5dc", "beige");
-    Colors.bisque = new ColorItem("#ffe4c4", "bisque");
-    Colors.blanchedAlmond = new ColorItem("#ffebcd", "blanchedalmond");
-    Colors.blueViolet = new ColorItem("#8a2be2", "blueviolet");
-    Colors.brown = new ColorItem("#a52a2a", "brown");
-    Colors.burlyWood = new ColorItem("#deb887", "burlywood");
-    Colors.cadetBlue = new ColorItem("#5f9ea0", "cadetblue");
-    Colors.chartReuse = new ColorItem("#7fff00", "chartreuse");
-    Colors.chocolate = new ColorItem("#d2691e", "chocolate");
-    Colors.coral = new ColorItem("#ff7f50", "coral");
-    Colors.cornFlowerBlue = new ColorItem("#6495ed", "cornflowerblue");
-    Colors.cornSilk = new ColorItem("#fff8dc", "cornsilk");
-    Colors.crimson = new ColorItem("#dc143c", "crimson");
-    Colors.cyan = new ColorItem("#00ffff", "cyan");
-    Colors.darkBlue = new ColorItem("#00008b", "darkblue");
-    Colors.darkCyan = new ColorItem("#008b8b", "darkcyan");
-    Colors.darkGoldenRod = new ColorItem("#b8860b", "darkgoldenrod");
-    Colors.darkGray = new ColorItem("#a9a9a9", "darkgray");
-    Colors.darkGreen = new ColorItem("#006400", "darkgreen");
-    Colors.darkGrey = new ColorItem("#a9a9a9", "darkgrey");
-    Colors.darkKhaki = new ColorItem("#bdb76b", "darkkhaki");
-    Colors.darkMagenta = new ColorItem("#8b008b", "darkmagenta");
-    Colors.darkOliveGreen = new ColorItem("#556b2f", "darkolivegreen");
-    Colors.darkOrange = new ColorItem("#ff8c00", "darkorange");
-    Colors.darkOrchid = new ColorItem("#9932cc", "darkorchid");
-    Colors.darkRed = new ColorItem("#8b0000", "darkred");
-    Colors.darkSalmon = new ColorItem("#e9967a", "darksalmon");
-    Colors.darkSeaGreen = new ColorItem("#8fbc8f", "darkseagreen");
-    Colors.darkSlateBlue = new ColorItem("#483d8b", "darkslateblue");
-    Colors.darkSlateGray = new ColorItem("#2f4f4f", "darkslategray");
-    Colors.darkSlateGrey = new ColorItem("#2f4f4f", "darkslategrey");
-    Colors.darkTurquoise = new ColorItem("#00ced1", "darkturquoise");
-    Colors.darkViolet = new ColorItem("#9400d3", "darkviolet");
-    Colors.deepPink = new ColorItem("#ff1493", "deeppink");
-    Colors.deepSkyBlue = new ColorItem("#00bfff", "deepskyblue");
-    Colors.dimGray = new ColorItem("#696969", "dimgray");
-    Colors.dimGrey = new ColorItem("#696969", "dimgrey");
-    Colors.dodgerBlue = new ColorItem("#1e90ff", "dodgerblue");
-    Colors.fireBrick = new ColorItem("#b22222", "firebrick");
-    Colors.floralWhite = new ColorItem("#fffaf0", "floralwhite");
-    Colors.forestGreen = new ColorItem("#228b22", "forestgreen");
-    Colors.gainsboro = new ColorItem("#dcdcdc", "gainsboro");
-    Colors.ghostWhite = new ColorItem("#f8f8ff", "ghostwhite");
-    Colors.gold = new ColorItem("#ffd700", "gold");
-    Colors.goldenRod = new ColorItem("#daa520", "goldenrod");
-    Colors.greenYellow = new ColorItem("#adff2f", "greenyellow");
-    Colors.grey = new ColorItem("#808080", "grey");
-    Colors.honeyDew = new ColorItem("#f0fff0", "honeydew");
-    Colors.hotPink = new ColorItem("#ff69b4", "hotpink");
-    Colors.indianRed = new ColorItem("#cd5c5c", "indianred");
-    Colors.indigo = new ColorItem("#4b0082", "indigo");
-    Colors.ivory = new ColorItem("#fffff0", "ivory");
-    Colors.khaki = new ColorItem("#f0e68c", "khaki");
-    Colors.lavender = new ColorItem("#e6e6fa", "lavender");
-    Colors.lavenderBlush = new ColorItem("#fff0f5", "lavenderblush");
-    Colors.lawnGreen = new ColorItem("#7cfc00", "lawngreen");
-    Colors.lemonChiffon = new ColorItem("#fffacd", "lemonchiffon");
-    Colors.lightBlue = new ColorItem("#add8e6", "lightblue");
-    Colors.lightCoral = new ColorItem("#f08080", "lightcoral");
-    Colors.lightCyan = new ColorItem("#e0ffff", "lightcyan");
-    Colors.lightGoldenRodYellow = new ColorItem("#fafad2", "lightgoldenrodyellow");
-    Colors.lightGray = new ColorItem("#d3d3d3", "lightgray");
-    Colors.lightGreen = new ColorItem("#90ee90", "lightgreen");
-    Colors.lightGrey = new ColorItem("#d3d3d3", "lightgrey");
-    Colors.lightPink = new ColorItem("#ffb6c1", "lightpink");
-    Colors.lightSalmon = new ColorItem("#ffa07a", "lightsalmon");
-    Colors.lightSeaGreen = new ColorItem("#20b2aa", "lightseagreen");
-    Colors.lightSkyBlue = new ColorItem("#87cefa", "lightskyblue");
-    Colors.lightSlateGray = new ColorItem("#778899", "lightslategray");
-    Colors.lightSlateGrey = new ColorItem("#778899", "lightslategrey");
-    Colors.lightSteelBlue = new ColorItem("#b0c4de", "lightsteelblue");
-    Colors.lightYellow = new ColorItem("#ffffe0", "lightyellow");
-    Colors.limeGreen = new ColorItem("#32cd32", "limegreen");
-    Colors.linen = new ColorItem("#faf0e6", "linen");
-    Colors.magenta = new ColorItem("#ff00ff", "magenta");
-    Colors.mediumAquaMarine = new ColorItem("#66cdaa", "mediumaquamarine");
-    Colors.mediumBlue = new ColorItem("#0000cd", "mediumblue");
-    Colors.mediumOrchid = new ColorItem("#ba55d3", "mediumorchid");
-    Colors.mediumPurple = new ColorItem("#9370db", "mediumpurple");
-    Colors.mediumSeaGreen = new ColorItem("#3cb371", "mediumseagreen");
-    Colors.mediumSlateBlue = new ColorItem("#7b68ee", "mediumslateblue");
-    Colors.mediumSpringGreen = new ColorItem("#00fa9a", "mediumspringgreen");
-    Colors.mediumTurquoise = new ColorItem("#48d1cc", "mediumturquoise");
-    Colors.mediumVioletred = new ColorItem("#c71585", "mediumvioletred");
-    Colors.midNightBlue = new ColorItem("#191970", "midnightblue");
-    Colors.mintCream = new ColorItem("#f5fffa", "mintcream");
-    Colors.mistyRose = new ColorItem("#ffe4e1", "mistyrose");
-    Colors.moccasin = new ColorItem("#ffe4b5", "moccasin");
-    Colors.navajoWhite = new ColorItem("#ffdead", "navajowhite");
-    Colors.oldLace = new ColorItem("#fdf5e6", "oldlace");
-    Colors.oliveDrab = new ColorItem("#6b8e23", "olivedrab");
-    Colors.orangeRed = new ColorItem("#ff4500", "orangered");
-    Colors.orchid = new ColorItem("#da70d6", "orchid");
-    Colors.paleGoldenRod = new ColorItem("#eee8aa", "palegoldenrod");
-    Colors.paleGreen = new ColorItem("#98fb98", "palegreen");
-    Colors.paleTurquoise = new ColorItem("#afeeee", "paleturquoise");
-    Colors.paleVioletRed = new ColorItem("#db7093", "palevioletred");
-    Colors.papayaWhip = new ColorItem("#ffefd5", "papayawhip");
-    Colors.peachPuff = new ColorItem("#ffdab9", "peachpuff");
-    Colors.peru = new ColorItem("#cd853f", "peru");
-    Colors.pink = new ColorItem("#ffc0cb", "pink");
-    Colors.plum = new ColorItem("#dda0dd", "plum");
-    Colors.powderBlue = new ColorItem("#b0e0e6", "powderblue");
-    Colors.rosyBrown = new ColorItem("#bc8f8f", "rosybrown");
-    Colors.royalBlue = new ColorItem("#4169e1", "royalblue");
-    Colors.saddleBrown = new ColorItem("#8b4513", "saddlebrown");
-    Colors.salmon = new ColorItem("#fa8072", "salmon");
-    Colors.sandyBrown = new ColorItem("#f4a460", "sandybrown");
-    Colors.seaGreen = new ColorItem("#2e8b57", "seagreen");
-    Colors.seaShell = new ColorItem("#fff5ee", "seashell");
-    Colors.sienna = new ColorItem("#a0522d", "sienna");
-    Colors.skyBlue = new ColorItem("#87ceeb", "skyblue");
-    Colors.slateBlue = new ColorItem("#6a5acd", "slateblue");
-    Colors.slateGray = new ColorItem("#708090", "slategray");
-    Colors.slateGrey = new ColorItem("#708090", "slategrey");
-    Colors.snow = new ColorItem("#fffafa", "snow");
-    Colors.springGreen = new ColorItem("#00ff7f", "springgreen");
-    Colors.steelBlue = new ColorItem("#4682b4", "steelblue");
-    Colors.tan = new ColorItem("#d2b48c", "tan");
-    Colors.thistle = new ColorItem("#d8bfd8", "thistle");
-    Colors.tomato = new ColorItem("#ff6347", "tomato");
-    Colors.turquoise = new ColorItem("#40e0d0", "turquoise");
-    Colors.violet = new ColorItem("#ee82ee", "violet");
-    Colors.wheat = new ColorItem("#f5deb3", "wheat");
-    Colors.whiteSmoke = new ColorItem("#f5f5f5", "whitesmoke");
-    Colors.yellowGreen = new ColorItem("#9acd32", "yellowgreen");
-    Colors.rebeccaPurple = new ColorItem("#663399", "rebeccapurple");
-});
-//# sourceMappingURL=Colors.js.map
-
-    AmdLoader.instance.setup("@web-atoms/core/dist/core/Colors");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/gradient/linear/LinearGradient");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12150,7 +12652,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=RadialGradient.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/gradient/radial/RadialGradient");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/gradient/radial/RadialGradient");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12177,7 +12679,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SolidBrush.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/solid/SolidBrush");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/solid/SolidBrush");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12203,7 +12705,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=addBrushSamples.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/addBrushSamples");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/addBrushSamples");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12224,7 +12726,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=RgPluginsPopup.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/RgPluginsPopup");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/RgPluginsPopup");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12274,7 +12776,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFPopupPage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFPopupPage");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFPopupPage");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -12341,7 +12843,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=SearchPageViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12366,7 +12868,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=AtomContentView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/AtomContentView");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/AtomContentView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12392,7 +12894,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
                         XNode_1.default.create(XF_1.default.RowDefinition, { height: "Auto" }),
                         XNode_1.default.create(XF_1.default.RowDefinition, null)),
                     XNode_1.default.create(XF_1.default.SearchBar, { isVisible: Bind_1.default.oneWay(() => this.viewModel.comboBox.showSearch), text: Bind_1.default.twoWays(() => this.viewModel.comboBox.searchText) }),
-                    XNode_1.default.create(XF_1.default.ListView, Object.assign({}, XF_1.default.Grid.row(1), { cachingStrategy: "RecycleElement", itemsSource: Bind_1.default.oneWay(() => this.viewModel.comboBox.items) }, WA_1.default.AtomViewCell.command((x) => {
+                    XNode_1.default.create(XF_1.default.ListView, Object.assign({}, XF_1.default.Grid.row(1), { cachingStrategy: "RecycleElement", itemsSource: Bind_1.default.oneWay(() => this.viewModel.comboBox.filterItems(this.viewModel.comboBox.search, this.viewModel.comboBox.searchText, this.viewModel.comboBox.items)) }, WA_1.default.AtomViewCell.command((x) => {
                         this.viewModel.selectedItem = x;
                         setTimeout(() => this.viewModel.close(this.viewModel.selectedItem), 250);
                     }), WA_1.default.AtomViewCell.dataTemplate(Bind_1.default.oneWay(() => this.viewModel.comboBox.itemTemplate)))))));
@@ -12402,7 +12904,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=SelectionList.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/combo-box/SelectionList");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/combo-box/SelectionList");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -12476,6 +12978,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 }
             }
         }
+        filterItems(s, searchText, items) {
+            if (!searchText) {
+                return items;
+            }
+            if (!s) {
+                return items;
+            }
+            const r = new RegExp(searchText, "i");
+            if (Array.isArray(s)) {
+                const a = s;
+                s = (i) => {
+                    for (const item of a) {
+                        // tslint:disable-next-line: triple-equals
+                        let field = i[item];
+                        if (field) {
+                            if (typeof field !== "string") {
+                                field = field.toString();
+                            }
+                            if (r.test(field)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+                return items.filter(s);
+            }
+            if (typeof s === "function") {
+                return items.filter((item) => s(item, searchText));
+            }
+            // tslint:disable-next-line: triple-equals
+            return items.filter((item) => {
+                let field = item[s];
+                if (field) {
+                    if (typeof field !== "string") {
+                        field = field.toString();
+                    }
+                    if (r.test(field)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
         preCreate() {
             this.defaultControlStyle = AtomXFComboBoxStyle;
             this.prompt = "Select";
@@ -12525,9 +13071,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                         XNode_1.default.create(XF_1.default.Label, { verticalTextAlignment: "Center", styleClass: "item", text: Bind_1.default.oneWay(() => this.prompt) }))),
                 XNode_1.default.create(AtomXFComboBox.itemTemplate, null,
                     XNode_1.default.create(XF_1.default.DataTemplate, null,
-                        XNode_1.default.create(XF_1.default.Label, { styleClass: "item", verticalTextAlignment: "Center", text: Bind_1.default.oneWay((x) => (x.data ? (x.data.label) : null) || "Loading.."), backgroundColor: Bind_1.default.oneWay((x) => x.data === x.viewModel.selectedItem
+                        XNode_1.default.create(XF_1.default.Label, {
+                            styleClass: "item", verticalTextAlignment: "Center", text: Bind_1.default.oneWay((x) => (x.data ? (x.data.label) : null) || "Loading.."), backgroundColor: Bind_1.default.oneWay((x) => x.data === x.viewModel.selectedItem
                                 ? Colors_1.default.lightBlue
-                                : Colors_1.default.white) }))),
+                                : Colors_1.default.white)
+                        }))),
                 XNode_1.default.create(AtomXFComboBox.selectionViewTemplate, null,
                     XNode_1.default.create(XF_1.default.DataTemplate, null,
                         XNode_1.default.create(SelectionList_1.default, null))),
@@ -12589,7 +13137,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFComboBox.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12614,7 +13162,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFGrid.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/controls/AtomXFGrid");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/controls/AtomXFGrid");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12674,7 +13222,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFCalendarStyle.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/calendar/AtomXFCalendarStyle");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/calendar/AtomXFCalendarStyle");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -12858,7 +13406,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFCalendarViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/calendar/AtomXFCalendarViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/calendar/AtomXFCalendarViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -12926,7 +13474,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             this.render(XNode_1.default.create(XF_1.default.Grid, { styleClass: this.controlStyle.name },
                 XNode_1.default.create(AtomXFCalendar.itemTemplate, null,
                     XNode_1.default.create(XF_1.default.DataTemplate, null,
-                        XNode_1.default.create(XF_1.default.Label, Object.assign({}, XF_1.default.Grid.row(BindDay.oneTime((x) => x.data.y)), XF_1.default.Grid.column(BindDay.oneTime((x) => x.data.x)), { styleClass: BindDay.oneWay((x) => toCss({
+                        XNode_1.default.create(XF_1.default.Label, Object.assign({}, XF_1.default.Grid.row(BindDay.oneTime((x) => x.data.y)), XF_1.default.Grid.column(BindDay.oneTime((x) => x.data.x)), {
+                            styleClass: BindDay.oneWay((x) => toCss({
                                 "date-css": 1,
                                 "is-other-month": x.data.isOtherMonth,
                                 "is-today": x.data.isToday,
@@ -12935,7 +13484,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                                 "is-disabled": this.localViewModel.enableFunc
                                     ? this.localViewModel.enableFunc(x.data)
                                     : 0
-                            })), text: BindDay.oneTime((x) => x.data.label) }),
+                            })), text: BindDay.oneTime((x) => x.data.label)
+                        }),
                             XNode_1.default.create(XF_1.default.Label.gestureRecognizers, null,
                                 XNode_1.default.create(XF_1.default.TapGestureRecognizer, { command: BindDay.event((x) => this.localViewModel.dateClicked(x.data)) }))))),
                 XNode_1.default.create(XF_1.default.Grid.rowDefinitions, null,
@@ -12988,7 +13538,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFCalendar.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/calendar/AtomXFCalendar");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/calendar/AtomXFCalendar");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -13038,7 +13588,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=Calendar.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/calendar/Calendar");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/calendar/Calendar");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13060,7 +13610,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=calendarSamples.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/calendar/calendarSamples");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/calendar/calendarSamples");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13085,7 +13635,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=AtomXFCarouselPage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFCarouselPage");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFCarouselPage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13122,7 +13672,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=CarouselPageView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13144,7 +13694,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=CarouselPageSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13175,7 +13725,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=CarouselViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13211,7 +13761,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=CarouselView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13233,7 +13783,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=CarouselSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13302,7 +13852,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=GroupingViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13346,7 +13896,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=GroupingSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingSample");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -13394,7 +13944,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=HeaderFooterViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13442,7 +13992,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=HeaderFooterSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterSample");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -13490,7 +14040,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=HorizontalGridViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13532,7 +14082,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=HorizontalGridSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridSample");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -13580,7 +14130,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=HorizontalListViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13620,7 +14170,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=HorizontalListSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListSample");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -13668,7 +14218,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=VerticalGridViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13710,7 +14260,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=VerticalGridSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridSample");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -13758,7 +14308,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=VerticalListViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13798,7 +14348,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=VerticalListSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -13830,7 +14380,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=CollectionViewSamplePage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/CollectionViewSamplePage");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/collection-view/CollectionViewSamplePage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -14478,7 +15028,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=FontAwesomeRegular.js.map
 
-    AmdLoader.instance.setup("@web-atoms/font-awesome/dist/FontAwesomeRegular");
+AmdLoader.instance.setup("@web-atoms/font-awesome/dist/FontAwesomeRegular");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -14563,7 +15113,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Action.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/view-model/Action");
+AmdLoader.instance.setup("@web-atoms/core/dist/view-model/Action");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -14680,9 +15230,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         }
         static literal(text, escape) {
             const q = new QueryObject(null);
-            q.fragments.push({ literal: escape
+            q.fragments.push({
+                literal: escape
                     ? escape(text)
-                    : text });
+                    : text
+            });
             return q;
         }
         /**
@@ -14740,7 +15292,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Query.js.map
 
-    AmdLoader.instance.setup("@web-atoms/storage/dist/query/Query");
+AmdLoader.instance.setup("@web-atoms/storage/dist/query/Query");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -14809,21 +15361,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
                         continue;
                     }
                     const name = Query_1.default.literal(key, escapeLiteral);
-                    set = set.add ` ${name} = ${element} `;
+                    set = set.add` ${name} = ${element} `;
                 }
             }
             const tableName = Query_1.default.literal(table, escapeLiteral);
             const sql = filter
-                ? Query_1.default.create `UPDATE ${tableName} ${set} WHERE ${filter}`
-                : Query_1.default.create `UPDATE ${tableName} ${set}`;
+                ? Query_1.default.create`UPDATE ${tableName} ${set} WHERE ${filter}`
+                : Query_1.default.create`UPDATE ${tableName} ${set}`;
             const q = sql.toQueryArguments();
             return this.executeSqlAsync(q.command, q.arguments);
         }
         deleteAsync(table, filter) {
             const tableName = Query_1.default.literal(table, escapeLiteral);
             const sql = filter
-                ? Query_1.default.create `DELETE FROM ${tableName} WHERE ${filter}`
-                : Query_1.default.create `DELETE FROM ${tableName} `;
+                ? Query_1.default.create`DELETE FROM ${tableName} WHERE ${filter}`
+                : Query_1.default.create`DELETE FROM ${tableName} `;
             const q = sql.toQueryArguments();
             return this.executeSqlAsync(q.command, q.arguments);
         }
@@ -14861,7 +15413,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=SqliteService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/storage/dist/database/sqlite/SqliteService");
+AmdLoader.instance.setup("@web-atoms/storage/dist/database/sqlite/SqliteService");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -14888,7 +15440,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=RowEditorViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditorViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditorViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -14924,7 +15476,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=RowEditor.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditor");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditor");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -14994,7 +15546,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return __awaiter(this, void 0, void 0, function* () {
                 const model = yield this.navigationService.openPage(RowEditor_1.default, { model: this.selectedRow });
                 yield this.database.transactionAsync((tx) => __awaiter(this, void 0, void 0, function* () {
-                    const filter = Query_1.default.create ` id = ${this.selectedRow.id}`;
+                    const filter = Query_1.default.create` id = ${this.selectedRow.id}`;
                     yield tx.updateAsync("Customers", model, filter);
                     const r = yield tx.executeSqlAsync("SELECT * FROM Customers", []);
                     this.rows = r.rows;
@@ -15004,7 +15556,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         delete() {
             return __awaiter(this, void 0, void 0, function* () {
                 yield this.database.transactionAsync((tx) => __awaiter(this, void 0, void 0, function* () {
-                    const filter = Query_1.default.create ` id = ${this.selectedRow.id}`;
+                    const filter = Query_1.default.create` id = ${this.selectedRow.id}`;
                     yield tx.deleteAsync("Customers", filter);
                     const r = yield tx.executeSqlAsync("SELECT * FROM Customers", []);
                     this.rows = r.rows;
@@ -15049,7 +15601,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=WebSqlViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -15097,7 +15649,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=WebSqlSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -15119,7 +15671,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=addDatabaseSamples.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/addDatabaseSamples");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/database/addDatabaseSamples");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -15157,7 +15709,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=ButtonViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/button/ButtonViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/button/ButtonViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -15188,7 +15740,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=ButtonView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/button/ButtonView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/button/ButtonView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -15219,7 +15771,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=ImageButtonView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/button/image-button/ImageButtonView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/button/image-button/ImageButtonView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -15243,7 +15795,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=CheckBoxSampleViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/check-box/CheckBoxSampleViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/check-box/CheckBoxSampleViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -15282,7 +15834,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=CheckBoxView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/check-box/CheckBoxView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/check-box/CheckBoxView");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -16323,7 +16875,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=ComboBoxSampleViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSampleViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSampleViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16355,7 +16907,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=ComboBoxSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16375,7 +16927,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=DatePickerViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/date-picker/DatePickerViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/date-picker/DatePickerViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16406,7 +16958,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=DatePickerView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/date-picker/DatePickerView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/date-picker/DatePickerView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16430,7 +16982,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=EditorViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/editor/EditorViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/editor/EditorViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16462,7 +17014,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=EditorView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/editor/EditorView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/editor/EditorView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16489,7 +17041,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=EntryViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/entry/EntryViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/entry/EntryViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16521,7 +17073,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=EntryView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/entry/EntryView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/entry/EntryView");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -16559,7 +17111,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=LabelViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/label/LabelViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/label/LabelViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16609,7 +17161,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=LabelView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/label/LabelView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/label/LabelView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16629,7 +17181,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=AjaxOptions.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/http/AjaxOptions");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/http/AjaxOptions");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -16739,7 +17291,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=CacheService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/CacheService");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/CacheService");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -16762,7 +17314,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=JsonError.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/http/JsonError");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/http/JsonError");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -17274,10 +17826,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return (headers || "")
                 .split("\n")
                 .reduce((pv, c) => {
-                const cv = c.split(":");
-                pv[cv[0]] = (cv[1] || "").trim();
-                return pv;
-            }, {});
+                    const cv = c.split(":");
+                    pv[cv[0]] = (cv[1] || "").trim();
+                    return pv;
+                }, {});
         }
         ajax(url, options) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -17364,13 +17916,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         __param(0, Inject_1.Inject),
         __param(1, Inject_1.Inject),
         __metadata("design:paramtypes", [App_1.App,
-            JsonService_1.JsonService])
+        JsonService_1.JsonService])
     ], BaseService);
     exports.BaseService = BaseService;
 });
 //# sourceMappingURL=RestService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/services/http/RestService");
+AmdLoader.instance.setup("@web-atoms/core/dist/services/http/RestService");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -17427,7 +17979,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 });
 //# sourceMappingURL=MovieService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/service/http/MovieService");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/service/http/MovieService");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -17496,7 +18048,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SearchBarViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/search-bar/SearchBarViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/search-bar/SearchBarViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17531,7 +18083,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SearchBarView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/search-bar/SearchBarView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/search-bar/SearchBarView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17551,7 +18103,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SliderViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/slider/SliderViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/slider/SliderViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17582,7 +18134,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SliderView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/slider/SliderView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/slider/SliderView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17602,7 +18154,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=StepperViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/stepper/StepperViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/stepper/StepperViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17633,7 +18185,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=StepperView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/stepper/StepperView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/stepper/StepperView");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -17706,7 +18258,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SimpleFormViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/form/simple/SimpleFormViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/form/simple/SimpleFormViewModel");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -17756,7 +18308,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=SimpleForm.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/form/simple/SimpleForm");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/form/simple/SimpleForm");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17800,7 +18352,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=FormSamples.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/form/FormSamples");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/form/FormSamples");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17827,7 +18379,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=ImageView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/image/ImageView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/image/ImageView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17849,7 +18401,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=ImageSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/image/ImageSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/image/ImageSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17881,7 +18433,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=AbsoluteLayoutView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/absolute-layout/AbsoluteLayoutView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/absolute-layout/AbsoluteLayoutView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17913,7 +18465,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=FlexLayoutView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/flex-layout/FlexLayoutView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/flex-layout/FlexLayoutView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17949,7 +18501,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=GridView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/grid-layout/GridView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/grid-layout/GridView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -17983,7 +18535,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=StackLayoutView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/stack-layout/StackLayoutView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/stack-layout/StackLayoutView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18011,7 +18563,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=LayoutSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/LayoutSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/multiple-content/LayoutSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18042,7 +18594,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=ContentView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/ContentView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/ContentView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18069,7 +18621,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=MainPage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/MainPage");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/MainPage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18100,7 +18652,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=FrameSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/frame/FrameSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/frame/FrameSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18129,7 +18681,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=ScrollViewSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/scroll-view/ScrollViewSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/scroll-view/ScrollViewSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18155,7 +18707,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=Sample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/Sample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/layout/single-content/Sample");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -18212,7 +18764,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ListViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/list-view/ListViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/list-view/ListViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18245,7 +18797,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=List.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/list-view/List");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/list-view/List");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18281,7 +18833,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ListWithTemplates.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/template-selector/ListWithTemplates");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/template-selector/ListWithTemplates");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18305,7 +18857,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ListSamples.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/ListSamples");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/list/ListSamples");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -18372,7 +18924,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=MenuItemViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/menu-item/MenuItemViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/menu-item/MenuItemViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18409,7 +18961,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=MenuItemView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/menu-item/MenuItemView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/menu-item/MenuItemView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18431,7 +18983,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=MenuSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/menu-item/MenuSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/menu-item/MenuSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18464,7 +19016,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=PopupView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupView");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -18516,7 +19068,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=PopupCallingPageViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupCallingPageViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupCallingPageViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18547,7 +19099,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=PopupCallingPage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupCallingPage");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupCallingPage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18569,7 +19121,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=PopupSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/popup/PopupSample");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -18628,7 +19180,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=RefreshViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18663,7 +19215,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=RefreshView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/refresh-view/RefreshView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/refresh-view/RefreshView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18685,7 +19237,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=RefreshViewSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewSample");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -18733,7 +19285,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SwitchViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/switch/SwitchViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/switch/SwitchViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18766,7 +19318,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SwitchSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/switch/SwitchSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/switch/SwitchSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18788,7 +19340,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=SwitchSamplePage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/switch/SwitchSamplePage");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/switch/SwitchSamplePage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18813,7 +19365,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFTabbedPage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18866,7 +19418,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TabbedPageView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18888,7 +19440,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TabbedPageSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageSample");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -18925,7 +19477,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TableViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/table-view/TableViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/table-view/TableViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18959,7 +19511,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TableViewSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/table-view/TableViewSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/table-view/TableViewSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -18981,7 +19533,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TableViewSamplePage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/table-view/TableViewSamplePage");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/table-view/TableViewSamplePage");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -19022,7 +19574,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TimePickerViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/time-picker/TimePickerViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/time-picker/TimePickerViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19053,7 +19605,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TimePickerSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19075,7 +19627,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=TimePickerSamplePage.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSamplePage");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSamplePage");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19138,11 +19690,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             this.render(XNode_1.default.create(XF_1.default.Frame, { padding: 2, heightRequest: 40 },
                 XNode_1.default.create(AtomXFToggleButtonBar.itemTemplate, null,
                     XNode_1.default.create(XF_1.default.DataTemplate, null,
-                        XNode_1.default.create(XF_1.default.Label, { padding: 10, horizontalOptions: "FillAndExpand", horizontalTextAlignment: "Center", verticalTextAlignment: "Center", verticalOptions: "Center", text: Bind_1.default.oneWay((x) => x.data ? x.data[this.labelPath] : "."), backgroundColor: Bind_1.default.oneWay((x) => x.data === this.selectedItem
+                        XNode_1.default.create(XF_1.default.Label, {
+                            padding: 10, horizontalOptions: "FillAndExpand", horizontalTextAlignment: "Center", verticalTextAlignment: "Center", verticalOptions: "Center", text: Bind_1.default.oneWay((x) => x.data ? x.data[this.labelPath] : "."), backgroundColor: Bind_1.default.oneWay((x) => x.data === this.selectedItem
                                 ? Colors_1.default.black
                                 : Colors_1.default.white), textColor: Bind_1.default.oneWay((x) => x.data !== this.selectedItem
-                                ? Colors_1.default.black
-                                : Colors_1.default.white) }))),
+                                    ? Colors_1.default.black
+                                    : Colors_1.default.white)
+                        }))),
                 XNode_1.default.create(XF_1.default.StackLayout, Object.assign({ orientation: "Horizontal" }, XF_1.default.BindableLayout.itemsSource(Bind_1.default.oneWay(() => this.items))),
                     XNode_1.default.create(XF_1.default.BindableLayout.itemTemplate, null,
                         XNode_1.default.create(XF_1.default.DataTemplate, null,
@@ -19156,7 +19710,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AtomXFToggleButtonBar.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-controls/dist/toggle-button-bar/AtomXFToggleButtonBar");
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/toggle-button-bar/AtomXFToggleButtonBar");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19184,7 +19738,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ToggleButtonBarViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBarViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBarViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19213,13 +19767,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                     XNode_1.default.create(AtomXFToggleButtonBar_1.default, { items: this.viewModel.genderList, value: Bind_1.default.twoWays(() => this.viewModel.gender) },
                         XNode_1.default.create(AtomXFToggleButtonBar_1.default.itemTemplate, null,
                             XNode_1.default.create(XF_1.default.DataTemplate, null,
-                                XNode_1.default.create(XF_1.default.Label, { padding: 10, fontSize: 30, fontFamily: FontAwesomeSolid_1.default.toString(), text: Bind_1.default.oneTime((x) => /female/i.test(x.data.value)
+                                XNode_1.default.create(XF_1.default.Label, {
+                                    padding: 10, fontSize: 30, fontFamily: FontAwesomeSolid_1.default.toString(), text: Bind_1.default.oneTime((x) => /female/i.test(x.data.value)
                                         ? FontAwesomeSolid_1.default.female
                                         : FontAwesomeSolid_1.default.male), textColor: Bind_1.default.oneWay((x) => x.data === x.localViewModel.owner.selectedItem
-                                        ? Colors_1.default.white
-                                        : Colors_1.default.black), backgroundColor: Bind_1.default.oneWay((x) => x.data !== x.localViewModel.owner.selectedItem
-                                        ? Colors_1.default.white
-                                        : Colors_1.default.black) })))),
+                                            ? Colors_1.default.white
+                                            : Colors_1.default.black), backgroundColor: Bind_1.default.oneWay((x) => x.data !== x.localViewModel.owner.selectedItem
+                                                ? Colors_1.default.white
+                                                : Colors_1.default.black)
+                                })))),
                     XNode_1.default.create(XF_1.default.Label, { text: Bind_1.default.oneWay(() => `Selected gender is ${this.viewModel.gender}`) }))));
         }
     }
@@ -19227,7 +19783,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=CustomToggleButtonBar.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/custom/CustomToggleButtonBar");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/custom/CustomToggleButtonBar");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19259,7 +19815,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ToggleButtonBar.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBar");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBar");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19283,7 +19839,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=addToggleButtonBar.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/addToggleButtonBar");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toggle-button-bar/addToggleButtonBar");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -19335,7 +19891,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ToolbarItemViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19373,7 +19929,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ToolbarItemView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19395,7 +19951,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=ToolbarItemSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19429,7 +19985,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=WebView.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/web-view/WebView");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/web-view/WebView");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19451,7 +20007,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=WebViewSample.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/web-view/WebViewSample");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/web-view/WebViewSample");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19526,7 +20082,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=MenuItem.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/service/menu-service/MenuItem");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/service/menu-service/MenuItem");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -19630,7 +20186,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 });
 //# sourceMappingURL=MenuService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/service/menu-service/MenuService");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/service/menu-service/MenuService");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -19731,7 +20287,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=HomeViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/home/HomeViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/home/HomeViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19783,7 +20339,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Home.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/home/Home");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/home/Home");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -19934,7 +20490,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AppHostViewModel.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/AppHostViewModel");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/AppHostViewModel");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -19942,29 +20498,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/XNode", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/clr/WA", "@web-atoms/xf-controls/dist/clr/X", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/pages/AtomXFMasterDetailPage", "./AppHostViewModel", "./home/Home", "@web-atoms/core/dist/core/Colors"], factory);
+        define(["require", "exports", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/Colors", "@web-atoms/core/dist/core/XNode", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/clr/WA", "@web-atoms/xf-controls/dist/clr/X", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage", "./AppHostViewModel", "./home/Home"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Bind_1 = require("@web-atoms/core/dist/core/Bind");
+    const Colors_1 = require("@web-atoms/core/dist/core/Colors");
     const XNode_1 = require("@web-atoms/core/dist/core/XNode");
     const FontAwesomeSolid_1 = require("@web-atoms/font-awesome/dist/FontAwesomeSolid");
     const WA_1 = require("@web-atoms/xf-controls/dist/clr/WA");
     const X_1 = require("@web-atoms/xf-controls/dist/clr/X");
     const XF_1 = require("@web-atoms/xf-controls/dist/clr/XF");
-    const AtomXFMasterDetailPage_1 = require("@web-atoms/xf-controls/dist/pages/AtomXFMasterDetailPage");
+    const AtomXFFlyoutPage_1 = require("@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage");
     const AppHostViewModel_1 = require("./AppHostViewModel");
     const Home_1 = require("./home/Home");
-    const Colors_1 = require("@web-atoms/core/dist/core/Colors");
-    class AppHost extends AtomXFMasterDetailPage_1.default {
+    class AppHost extends AtomXFFlyoutPage_1.default {
         create() {
             this.viewModel = this.resolve(AppHostViewModel_1.default);
             this.viewModel.owner = this;
             // tslint:disable-next-line: no-console
             console.log(`Render start`);
-            this.render(XNode_1.default.create(XF_1.default.MasterDetailPage, { isPresented: Bind_1.default.twoWays(() => this.viewModel.menuService.isOpen), title: "Demo 1" },
-                XNode_1.default.create(XF_1.default.MasterDetailPage.master, null,
+            this.render(XNode_1.default.create(XF_1.default.FlyoutPage, { isPresented: Bind_1.default.twoWays(() => this.viewModel.menuService.isOpen), title: "Demo 1" },
+                XNode_1.default.create(XF_1.default.FlyoutPage.flyout, null,
                     XNode_1.default.create(XF_1.default.ContentPage, { title: "Home" },
                         XNode_1.default.create(XF_1.default.ContentPage.iconImageSource, null,
                             XNode_1.default.create(XF_1.default.FontImageSource, { size: 25, color: Colors_1.default.darkOrange, fontFamily: FontAwesomeSolid_1.default, glyph: FontAwesomeSolid_1.default.home })),
@@ -19980,7 +20536,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                                         XNode_1.default.create(XF_1.default.Label, { text: Bind_1.default.oneWay((x) => x.data.label), padding: "10", verticalOptions: "Center" },
                                             XNode_1.default.create(XF_1.default.Label.gestureRecognizers, null,
                                                 XNode_1.default.create(XF_1.default.TapGestureRecognizer, { command: Bind_1.default.event((s) => s.data.click()) }))))))))),
-                XNode_1.default.create(XF_1.default.MasterDetailPage.detail, null,
+                XNode_1.default.create(XF_1.default.FlyoutPage.detail, null,
                     XNode_1.default.create(XF_1.default.NavigationPage, null,
                         XNode_1.default.create(X_1.default.Arguments, null,
                             XNode_1.default.create(Home_1.default, null))))));
@@ -19990,7 +20546,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=AppHost.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/AppHost");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/app-host/AppHost");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -20009,7 +20565,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=Index.js.map
 
-    AmdLoader.instance.setup("@web-atoms/xf-samples/dist/Index");
+AmdLoader.instance.setup("@web-atoms/xf-samples/dist/Index");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -20048,7 +20604,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 });
 //# sourceMappingURL=XFBusyIndicatorService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/xf/services/XFBusyIndicatorService");
+AmdLoader.instance.setup("@web-atoms/core/dist/xf/services/XFBusyIndicatorService");
 
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -20202,13 +20758,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         __param(0, Inject_1.Inject),
         __param(1, Inject_1.Inject),
         __metadata("design:paramtypes", [App_1.App,
-            JsonService_1.JsonService])
+        JsonService_1.JsonService])
     ], XFNavigationService);
     exports.default = XFNavigationService;
 });
 //# sourceMappingURL=XFNavigationService.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/xf/services/XFNavigationService");
+AmdLoader.instance.setup("@web-atoms/core/dist/xf/services/XFNavigationService");
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -20272,7 +20828,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 });
 //# sourceMappingURL=XFApp.js.map
 
-    AmdLoader.instance.setup("@web-atoms/core/dist/xf/XFApp");
+AmdLoader.instance.setup("@web-atoms/core/dist/xf/XFApp");
 
         //# sourceMappingURL=Index.pack.js.map
-        

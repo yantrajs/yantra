@@ -15,7 +15,7 @@ namespace YantraJS.Generator
             il.Emit(OpCodes.Throw);
             // leaving one item on stack so 
             // block code generator can continue
-            il.Emit(OpCodes.Ldnull);
+            // il.Emit(OpCodes.Ldnull);
             return true;
         }
     }

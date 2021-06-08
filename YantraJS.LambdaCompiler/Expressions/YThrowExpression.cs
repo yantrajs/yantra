@@ -9,7 +9,7 @@ namespace YantraJS.Expressions
         public readonly YExpression Expression;
 
         public YThrowExpression(YExpression exp, Type? type = null)
-            : base(YExpressionType.Throw, type ?? typeof(void))
+            : base(YExpressionType.Throw,typeof(void))
         {
             this.Expression = exp;
         }

@@ -26,7 +26,13 @@ namespace YantraJS
         {
             var (m, il, exp,t) = delegates[id];
             var c = new Closures(boxes, il, exp);
-            return m.CreateDelegate(t, c);            
+            try
+            {
+                return m.CreateDelegate(t, c);
+            } catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }
