@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Test262Runner All": {
+      "commandName": "Project"
+    },
+    "Test262Runner": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\git\\github\\web-atoms\\core-js\\test262\\test\\language\\statements\\class\\accessor-name-inst-computed-yield-expr.js"
+    }
+
+  }
+}
