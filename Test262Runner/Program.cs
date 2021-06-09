@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using YantraJS;
@@ -26,6 +27,10 @@ namespace Test262Runner
 
         static TimeSpan Timeout = TimeSpan.FromMinutes(1);
 
+        static int Total;
+        static int Failed;
+        static int Passed;
+
         async static Task Main(string[] args)
         {
             // find all tests...
@@ -46,7 +51,9 @@ namespace Test262Runner
                 var file = new FileInfo(Environment.CommandLine);
                 executable = Path.Combine( file.Directory.FullName, $"{System.IO.Path.GetFileNameWithoutExtension( file.Name)}.exe");
                 var now = DateTime.Now;
-                output = new FileInfo( Path.Combine(test262, $"{now.Year}-{now.Month:D2}-{now.Day:D2}-{now.Hour:D2}{now.Minute:D2}{now.Second:D2}.html"));
+                output = new FileInfo( Path.Combine(root.FullName,"tr", $"{now.Year}-{now.Month:D2}-{now.Day:D2}-{now.Hour:D2}{now.Minute:D2}{now.Second:D2}.html"));
+                if (!output.Directory.Exists)
+                    output.Directory.Create();
                 using (var outputStream = output.OpenWrite())
                 {
                     var sr = new StreamWriter(outputStream);
@@ -66,23 +73,45 @@ namespace Test262Runner
         {
             using (var js = new JSContext())
             {
-                var text = await System.IO.File.ReadAllTextAsync(filePath);
+                var code = await System.IO.File.ReadAllTextAsync(filePath);
 
                 // include harness...
                 await EvaluateAsync(Path.Combine(harnessFolder.FullName, "assert.js"), js);
                 await EvaluateAsync(Path.Combine(harnessFolder.FullName, "sta.js"), js);
 
+                js["$DONOTEVALUATE"] = new JSFunction((in Arguments a) => {
+                    return JSUndefined.Value;
+                });
+
                 Environment.ExitCode = 0;
+
+                var config = Config.Parse(code);
+                if (config.Flags != null && config.Flags.Any(x => x.Equals("noStrict")))
+                    return;
+                if (config.Negative != null)
+                {
+                    try
+                    {
+                        CoreScript.Evaluate(code, filePath);
+                        throw new Exception($"Exception not thrown");
+                    }
+                    catch (JSException ex)
+                    {
+                        return;
+                    }
+                }
+
 
                 // find more harness...
                 try
                 {
-                    await CoreScript.EvaluateAsync(text, filePath);
+                    await CoreScript.EvaluateAsync(code, filePath);
                 }
                 catch (Exception ex)
                 {
                     Environment.ExitCode = -1;
-                    throw ex;
+                    // throw ex;
+                    Console.Error.WriteLine(ex.ToString());
                 }
             }
         }
@@ -90,7 +119,7 @@ namespace Test262Runner
         private static async Task EvaluateAsync(string v, JSContext c)
         {
             JSContext.CurrentContext = c;
-            CoreScript.Evaluate(await System.IO.File.ReadAllTextAsync(v), v);
+            CoreScript.Evaluate(await System.IO.File.ReadAllTextAsync(v),v);
         }
 
         private static async Task RunTests(DirectoryInfo folder, StreamWriter sr)
@@ -121,7 +150,15 @@ namespace Test262Runner
             }, null, Timeout);
 
             if (r.ExitCode == 0)
+            {
+                lock (sr)
+                {
+                    Total++;
+                    Passed++;
+                    ConsoleHelper.WriteLineOnTop($"Total: {Total}, Passed: {Passed} Failed: {Failed}                                       ");
+                }
                 return;
+            }
 
             string error = (string.IsNullOrWhiteSpace(r.StdErr) ?
                 r.StdOut
@@ -132,14 +169,18 @@ namespace Test262Runner
 
             lock (sr)
             {
+                Total++;
+                Failed++;
 
 
                 sr.WriteLine($"<div><a href='{fileInfo.FullName}'>{fileInfo.FullName}</a></div>");
                 sr.WriteLine($"<div><pre>{error}</pre></div>");
                 sr.Flush();
 
-                Console.WriteLine($"Failed: {fileInfo.FullName}");
-                Console.WriteLine($"{error}");
+                //Console.WriteLine($"Failed: {fileInfo.FullName}");
+                //Console.WriteLine($"{error}");
+
+                ConsoleHelper.WriteLineOnTop($"Total: {Total}, Passed: {Passed} Failed: {Failed}                                       ");
             }
         }
 

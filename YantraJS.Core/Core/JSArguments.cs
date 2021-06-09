@@ -4,23 +4,35 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using YantraJS.Core.Generator;
+using YantraJS.Core.Runtime;
 
 namespace YantraJS.Core
 {
-    public class JSArguments: JSPrimitive
+    public class JSArguments: JSObject
     {
-        [GetProperty("length")]
-        public static JSValue GetLength(in Arguments a)
+        public JSValue Callee(in Arguments a)
         {
-            return new JSNumber(a.This.Length);
+            throw JSContext.Current.NewTypeError($"Cannot access callee in strict mode");
         }
 
-        [SetProperty("length")]
-        public static JSValue SetLength(in Arguments a)
+        public JSValue Values(in Arguments a)
         {
-            // do nothing...
-            return a.Get1();
+            return new JSGenerator(this.GetElementEnumerator(), "Arguments");
         }
+
+        //[GetProperty("length")]
+        //public static JSValue GetLength(in Arguments a)
+        //{
+        //    return new JSNumber(a.This.Length);
+        //}
+
+        //[SetProperty("length")]
+        //public static JSValue SetLength(in Arguments a)
+        //{
+        //    // do nothing...
+        //    return a.Get1();
+        //}
 
         public static JSValue[] Empty = new JSValue[] { };
 
@@ -72,11 +84,12 @@ namespace YantraJS.Core
         public JSArguments(in Arguments args)
         {
             arguments = args;
-        }
+            ref var properties = ref this.GetOwnProperties(true);
+            properties[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length, new JSNumber(args.Length), JSPropertyAttributes.ConfigurableValue);
+            properties[KeyStrings.callee.Key] = JSProperty.Property(KeyStrings.callee, (JSFunctionDelegate)Callee, Callee, JSPropertyAttributes.Property);
 
-        protected override JSObject GetPrototype()
-        {
-            return JSContext.Current.ObjectPrototype;
+            ref var symbols = ref this.GetSymbols();
+            symbols[JSSymbolStatic.iterator.Key.Key] = JSProperty.Property(new JSFunction(Values), JSPropertyAttributes.ConfigurableValue);
         }
 
         public override JSValue this[uint key] 

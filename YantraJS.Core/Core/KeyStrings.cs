@@ -40,6 +40,7 @@ namespace YantraJS.Core
         public readonly static KeyString Function;
         public readonly static KeyString apply;
         public readonly static KeyString call;
+        public readonly static KeyString callee;
         public readonly static KeyString bind;
 
         public readonly static KeyString Boolean;

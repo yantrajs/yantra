@@ -352,3 +352,4 @@ MigrationBackup/
 *.csx.dll.deps
 .packages
 
+/tr/*

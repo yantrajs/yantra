@@ -5,7 +5,7 @@
     },
     "Test262Runner": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\git\\github\\web-atoms\\core-js\\test262\\test\\language\\statements\\class\\accessor-name-inst-computed-yield-expr.js"
+      "commandLineArgs": "D:/git/github/web-atoms/core-js/test262/test/language/asi/S7.9_A6.1_T8.js"
     }
 
   }

@@ -23,6 +23,11 @@ namespace YantraJS.Core.FastParser.Compiler
                 case FastNodeType.ArrayPattern:
                 case FastNodeType.ObjectPattern:
                     return CreateAssignment(left, Visit(right));
+                case FastNodeType.Identifier:
+                    var id = left as AstIdentifier;
+                    if (id.Name.Equals("arguments") || id.Name.Equals("eval"))
+                        throw new FastParseException(id.Start, $"Cannot assign to reserved words");
+                    break;
             }
 
 

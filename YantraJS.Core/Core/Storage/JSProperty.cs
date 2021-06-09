@@ -29,7 +29,10 @@ namespace YantraJS.Core
         ConfigurableReadonlyProperty = Property | Configurable | Readonly,
 
         ReadonlyValue = Readonly | Value,
+        ReadonlyProperty = Readonly | Property,
 
+        EnumerableReadonlyValue = Enumerable | Readonly | Value,
+        EnumerableReadonlyProperty = Enumerable | Readonly | Property
     }
 
     [StructLayout(LayoutKind.Sequential)]
