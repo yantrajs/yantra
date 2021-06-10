@@ -92,8 +92,6 @@ namespace YantraJS.Core.FastParser
         BitwiseOr,
         BooleanAnd,
         BooleanOr,
-        Increment,
-        Decrement,
         QuestionMark,
         Colon,
         BitwiseNot,
@@ -102,6 +100,9 @@ namespace YantraJS.Core.FastParser
         TripleDots,
 
         EndOperators,
+
+        Increment,
+        Decrement,
 
         Comma,
 

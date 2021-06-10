@@ -7,7 +7,11 @@ namespace Test262Runner
 {
     class Config
     {
-
+        public static string[] DisabledFeatures = {
+            "class-static-methods-private",
+            "class-methods-private",
+            "async-iteration"
+        };
         public string Description { get; set; }
 
         public Response Negative { get; set; }
@@ -24,7 +28,7 @@ namespace Test262Runner
                 }
                 if (Features != null)
                 {
-                    if (Features.Contains("async-iteration"))
+                    if (Features.Any(x => DisabledFeatures.Contains(x)))
                         return true;
                 }
                 return false;

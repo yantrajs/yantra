@@ -120,7 +120,7 @@ namespace YantraJS.ExpHelper
 
             var m = hasSpread ? methods[0] : methods[args.Length <= 4 ? args.Length + 1 : 6];
 
-            if (hasSpread || args.Length <= 4)
+            if (!hasSpread && args.Length <= 4)
             {
                 var finalArgs = new Expression[args.Length + 2];
                 finalArgs[0] = target;

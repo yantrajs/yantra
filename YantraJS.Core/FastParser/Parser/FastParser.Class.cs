@@ -30,22 +30,28 @@ namespace YantraJS.Core.FastParser
 
             var next = stream.Consume();
             AstIdentifier identifier = null;
-
-            if (next.Keyword != FastKeywords.extends)
-            {
-                if (!Identitifer(out identifier))
-                    throw stream.Unexpected();
-            }
-
             AstExpression @base = null;
 
-            if (stream.CheckAndConsume(FastKeywords.extends))
+            if (next.Type != TokenTypes.CurlyBracketStart)
             {
-                if (!Expression(out @base))
-                    throw stream.Unexpected();
+
+                if (next.Keyword != FastKeywords.extends)
+                {
+                    if (!Identitifer(out identifier))
+                        throw stream.Unexpected();
+                }
+
+
+
+                if (stream.CheckAndConsume(FastKeywords.extends))
+                {
+                    if (!Expression(out @base))
+                        throw stream.Unexpected();
+                }
             }
 
             stream.Expect(TokenTypes.CurlyBracketStart);
+            
 
             var nodes = Pool.AllocateList<AstClassProperty>();
             try

@@ -113,10 +113,13 @@ namespace YantraJS.Core.FastParser
                     return true;
             }
 
-            if(m.LinesSkipped && !currentType.IsOperator())
+            if (!currentType.IsOperator())
             {
-                m.Undo();
-                return true;
+                if (m.LinesSkipped)
+                {
+                    m.Undo();
+                    return true;
+                }
             }
 
             if(NextExpression(ref node, ref currentType, out var next, out var nextToken))
