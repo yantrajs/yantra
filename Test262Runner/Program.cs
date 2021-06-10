@@ -51,7 +51,8 @@ namespace Test262Runner
                 var file = new FileInfo(Environment.CommandLine);
                 executable = Path.Combine( file.Directory.FullName, $"{System.IO.Path.GetFileNameWithoutExtension( file.Name)}.exe");
                 var now = DateTime.Now;
-                output = new FileInfo( Path.Combine(root.FullName,"tr", $"{now.Year}-{now.Month:D2}-{now.Day:D2}-{now.Hour:D2}{now.Minute:D2}{now.Second:D2}.html"));
+                // output = new FileInfo( Path.Combine(root.FullName,"tr", $"{now.Year}-{now.Month:D2}-{now.Day:D2}-{now.Hour:D2}{now.Minute:D2}{now.Second:D2}.html"));
+                output = new FileInfo(Path.Combine(root.FullName, "tr", $"TestResult.html"));
                 if (!output.Directory.Exists)
                     output.Directory.Create();
                 using (var outputStream = output.OpenWrite())
@@ -86,7 +87,7 @@ namespace Test262Runner
                 Environment.ExitCode = 0;
 
                 var config = Config.Parse(code);
-                if (config.Flags != null && config.Flags.Any(x => x.Equals("noStrict")))
+                if (config.Ignore)
                     return;
                 if (config.Negative != null)
                 {

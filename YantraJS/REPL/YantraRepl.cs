@@ -24,7 +24,15 @@ namespace YantraJS.REPL
             InteractivePrompt.Run((command, listCommand, completions) => {
                 if (command == ".exit")
                     return null;
-                return CoreScript.Evaluate(command).ToString();
+                string result;
+                try
+                {
+                    result = CoreScript.Evaluate(command).ToString();
+                } catch (Exception ex)
+                {
+                    result = ex.ToString();
+                }
+                return $"{result}\r\n";
             }, "Yantra:>", "// Write .exit to stop..");
             //while (true)
             //{

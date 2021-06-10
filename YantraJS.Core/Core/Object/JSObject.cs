@@ -387,7 +387,7 @@ namespace YantraJS.Core
                 if(p.IsEmpty && !this.IsExtensible())
                     throw JSContext.Current.NewTypeError($"Cannot add property {name} to {this}");
                 ref var ownProperties = ref this.GetOwnProperties();
-                ownProperties[name.Key] = JSProperty.Property(name, value);
+                ownProperties[name.Key] = JSProperty.Property(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue );
                 PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
             }
         }

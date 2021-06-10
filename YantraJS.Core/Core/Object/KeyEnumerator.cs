@@ -82,7 +82,7 @@ namespace YantraJS.Core.Enumerators
             {
                 if (this.elements.MoveNext(out var hasValueout, out var _, out var ui))
                 {
-                    value = new JSNumber(ui);
+                    value = new JSString(ui.ToString());
                     hasValue = hasValueout;
                     index = ui;
                     return true;
@@ -128,7 +128,7 @@ namespace YantraJS.Core.Enumerators
             {
                 if (this.elements.MoveNext(out var hasValueout, out var _, out var ui))
                 {
-                    value = new JSNumber(ui);
+                    value = new JSString(ui.ToString());
                     return true;
                 }
                 this.elements = null;
@@ -168,7 +168,7 @@ namespace YantraJS.Core.Enumerators
             {
                 if (this.elements.MoveNext(out var hasValueout, out var _, out var ui))
                 {
-                    value = new JSNumber(ui);
+                    value = new JSString(ui.ToString());
                     return true;
                 }
                 this.elements = null;

@@ -15,7 +15,7 @@ namespace YantraJS.Core
         Configurable = 8,
         Enumerable = 16,
         Readonly = 32,
-        Deleted = 64,
+        // Deleted = 64,
 
         // shortcuts..
         EnumerableConfigurableValue = Value | Enumerable | Configurable,
@@ -42,7 +42,7 @@ namespace YantraJS.Core
 
         public static JSProperty Empty = new JSProperty();
 
-        public static JSProperty Deleted = Empty.Delete();
+        // public static JSProperty Deleted = Empty.Delete();
 
         public readonly JSPropertyAttributes Attributes;
 
@@ -59,10 +59,10 @@ namespace YantraJS.Core
             return new JSProperty(key, get, set, value, Attributes & (~JSPropertyAttributes.Readonly));
         }
 
-        public JSProperty Delete()
-        {
-            return new JSProperty(key, get, set, value, JSPropertyAttributes.Deleted);
-        }
+        //public JSProperty Delete()
+        //{
+        //    return new JSProperty(key, get, set, value, JSPropertyAttributes.Deleted);
+        //}
 
         public JSProperty(
             in KeyString key,

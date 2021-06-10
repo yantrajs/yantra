@@ -205,10 +205,14 @@ namespace YantraJS.Core
             // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
             ownProperties[KeyStrings.prototype.Key] = JSProperty.Property(KeyStrings.prototype, prototype);
 
-            this[KeyStrings.name] = name.IsEmpty
+            //this[KeyStrings.name] = name.IsEmpty
+            //    ? new JSString("native")
+            //    : new JSString(name);
+            // this[KeyStrings.length] = new JSNumber(length);
+            ownProperties[KeyStrings.name.Key] = JSProperty.Property(KeyStrings.name, name.IsEmpty
                 ? new JSString("native")
-                : new JSString(name);
-            this[KeyStrings.length] = new JSNumber(length);
+                : new JSString(name));
+            ownProperties[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length, new JSNumber(length));
             constructor = this;
         }
 

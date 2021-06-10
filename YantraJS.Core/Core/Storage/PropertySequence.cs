@@ -37,8 +37,8 @@ namespace YantraJS.Core
                     while ((++index) < size)
                     {
                         ref var current = ref array[index];
-                        if (current.Attributes == JSPropertyAttributes.Deleted)
-                            continue;
+                        //if (current.Attributes == JSPropertyAttributes.Empty)
+                        //    continue;
                         if (current.IsEmpty)
                             continue;
                         if (enumerableOnly)
@@ -63,8 +63,8 @@ namespace YantraJS.Core
                     while ((++index) < size)
                     {
                         ref var current = ref array[index];
-                        if (current.Attributes == JSPropertyAttributes.Deleted)
-                            continue;
+                        //if (current.Attributes == JSPropertyAttributes.Deleted)
+                        //    continue;
                         if (current.IsEmpty)
                             continue;
                         if (enumerableOnly)
@@ -90,8 +90,8 @@ namespace YantraJS.Core
                     while ((++index) < size)
                     {
                         ref var current = ref array[index];
-                        if (current.Attributes == JSPropertyAttributes.Deleted)
-                            continue;
+                        //if (current.Attributes == JSPropertyAttributes.Deleted)
+                        //    continue;
                         if (current.IsEmpty)
                             continue;
                         if (enumerableOnly)
@@ -133,7 +133,7 @@ namespace YantraJS.Core
                 while ((++index) < size)
                 {
                     ref var current = ref array[index];
-                    if (current.Attributes == JSPropertyAttributes.Deleted)
+                    if (current.Attributes == JSPropertyAttributes.Empty)
                         continue;
                     return true;
                 }
@@ -165,7 +165,7 @@ namespace YantraJS.Core
             {
                 foreach (var p in properties)
                 {
-                    if (p.Attributes != JSPropertyAttributes.Deleted)
+                    if (p.Attributes != JSPropertyAttributes.Empty)
                         yield return (p.key.Key, p);
                 }
             }
@@ -197,7 +197,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Deleted)
+                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Empty)
                         return true;
                 }
                 return false;
@@ -220,7 +220,7 @@ namespace YantraJS.Core
                         {
                             throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
                         }
-                        p = JSProperty.Deleted;
+                        p = JSProperty.Empty;
                         return true;
                     }
                 }
@@ -234,7 +234,7 @@ namespace YantraJS.Core
                     throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
                 }
                 // move all properties up...
-                properties[pkey] = JSProperty.Deleted;
+                properties[pkey] = JSProperty.Empty;
             }
             return false;
         }
@@ -249,7 +249,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if(p.key.Key == key && p.Attributes != JSPropertyAttributes.Deleted)
+                    if(p.key.Key == key && p.Attributes != JSPropertyAttributes.Empty)
                     {
                         return ref p;
                     }
@@ -257,7 +257,7 @@ namespace YantraJS.Core
             } else if (map.TryGetValue(key, out var pkey))
             {
                 ref var obj = ref properties[pkey];
-                if (obj.Attributes != JSPropertyAttributes.Deleted)
+                if (obj.Attributes != JSPropertyAttributes.Empty)
                     return ref obj;
             }
             return ref JSProperty.Empty;
@@ -275,7 +275,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Deleted)
+                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Empty)
                     {
                         obj = p;
                         return true;
@@ -285,7 +285,7 @@ namespace YantraJS.Core
             if (map.TryGetValue(key, out var pkey))
             {
                 obj = properties[pkey];
-                return obj.Attributes != JSPropertyAttributes.Deleted;
+                return obj.Attributes != JSPropertyAttributes.Empty;
             }
             obj = new JSProperty();
             return false;

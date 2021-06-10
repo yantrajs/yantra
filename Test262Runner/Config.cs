@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Test262Runner
@@ -14,6 +15,21 @@ namespace Test262Runner
         public string[] Flags { get; set; }
 
         public string[] Features { get; set; }
+        public bool Ignore { 
+            get {
+                if (Flags != null)
+                {
+                    if (Flags.Contains("noStrict"))
+                        return true;
+                }
+                if (Features != null)
+                {
+                    if (Features.Contains("async-iteration"))
+                        return true;
+                }
+                return false;
+            }
+        }
 
         public class Response
         {
