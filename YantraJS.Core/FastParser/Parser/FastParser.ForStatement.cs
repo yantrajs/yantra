@@ -97,10 +97,11 @@ namespace YantraJS.Core.FastParser
                 }
                 else if (ExpressionSequence(out test, TokenTypes.SemiColon, true))
                 {
+                    // case of automatic semicolon insertion
+                    if (test.End.Type == TokenTypes.BracketEnd)
+                        throw stream.Unexpected();
                     if (test.Type == FastNodeType.EmptyExpression)
                         test = null;
-                    if (stream.Current.Type == TokenTypes.BracketEnd)
-                        throw stream.Unexpected();
                     if (!ExpressionSequence(out update, TokenTypes.BracketEnd, true))
                         throw stream.Unexpected();
                     if (update.Type == FastNodeType.EmptyExpression)

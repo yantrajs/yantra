@@ -33,7 +33,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 case FastNodeType.DoWhileStatement:
                     return VisitDoWhileStatement(labeledStatement.Body as AstDoWhileStatement, labeledStatement.Label.Span.Value);
                 default:
-                    throw JSContext.Current.NewSyntaxError($"Label can only be used for loops");
+                    return VisitStatement(labeledStatement.Body);
             }
             throw new NotImplementedException();
         }

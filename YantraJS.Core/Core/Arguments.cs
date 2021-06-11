@@ -79,49 +79,56 @@ namespace YantraJS.Core
 
         public static Arguments ForApply(JSValue @this, JSValue args)
         {
-            //if (args is JSArguments arg)
-            //{
-            //    ref var argList = ref arg.arguments;
-            //    switch (argList.Length)
-            //    {
-            //        case 0:
-            //            return new Arguments(@this);
-            //        case 1:
-            //            return new Arguments(@this, argList.Arg0!);
-            //        case 2:
-            //            return new Arguments(@this, argList.Arg0!, argList.Arg1!);
-            //        case 3:
-            //            return new Arguments(@this, argList.Arg0!, argList.Arg1!, argList.Arg2!);
-            //        case 4:
-            //            return new Arguments(@this, argList.Arg0!, argList.Arg1!, argList.Arg2!, argList.Arg3!);
-            //        default:
-            //            return new Arguments(@this, argList.Args!);
-
-            //    }
-            //}
-            if (!(args is JSArray argArray))
-                return new Arguments(@this);
-            switch (argArray._length)
+            if (args.IsArray && args is JSArray argArray)
             {
-                case 0:
-                    return new Arguments(@this);
-                case 1:
-                    return new Arguments(@this, argArray[0]);
-                case 2:
-                    return new Arguments(@this, argArray[0], argArray[1]);
-                case 3:
-                    return new Arguments(@this, argArray[0], argArray[1], argArray[2]);
-                case 4:
-                    return new Arguments(@this, argArray[0], argArray[1], argArray[2], argArray[3]);
-                default:
-                    var argList = new JSValue[argArray._length];
-                    var ee = argArray.GetElementEnumerator();
-                    while(ee.MoveNext(out var hasValue, out var value, out var index))
-                    {
-                        argList[index] = hasValue ? value : JSUndefined.Value;
-                    }
-                    return new Arguments(@this, argList);
+                switch (argArray._length)
+                {
+                    case 0:
+                        return new Arguments(@this);
+                    case 1:
+                        return new Arguments(@this, argArray[0]);
+                    case 2:
+                        return new Arguments(@this, argArray[0], argArray[1]);
+                    case 3:
+                        return new Arguments(@this, argArray[0], argArray[1], argArray[2]);
+                    case 4:
+                        return new Arguments(@this, argArray[0], argArray[1], argArray[2], argArray[3]);
+                    default:
+                        var argList = new JSValue[argArray._length];
+                        var ee = argArray.GetElementEnumerator();
+                        while (ee.MoveNext(out var hasValue, out var value, out var index))
+                        {
+                            argList[index] = hasValue ? value : JSUndefined.Value;
+                        }
+                        return new Arguments(@this, argList);
+                }
             }
+            if(args is JSArguments arguments)
+            {
+                switch (arguments.Length)
+                {
+                    case 0:
+                        return new Arguments(@this);
+                    case 1:
+                        return new Arguments(@this, arguments[0]);
+                    case 2:
+                        return new Arguments(@this, arguments[0], arguments[1]);
+                    case 3:
+                        return new Arguments(@this, arguments[0], arguments[1], arguments[2]);
+                    case 4:
+                        return new Arguments(@this, arguments[0], arguments[1], arguments[2], arguments[3]);
+                    default:
+                        var argList = new JSValue[arguments.Length];
+                        var ee = arguments.GetElementEnumerator();
+                        while (ee.MoveNext(out var hasValue, out var value, out var index))
+                        {
+                            argList[index] = hasValue ? value : JSUndefined.Value;
+                        }
+                        return new Arguments(@this, argList);
+                }
+
+            }
+            return new Arguments(@this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

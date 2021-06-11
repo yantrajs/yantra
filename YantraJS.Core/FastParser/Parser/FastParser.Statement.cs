@@ -137,7 +137,12 @@ namespace YantraJS.Core.FastParser
                                 throw stream.Unexpected();
                             break;
                         default:
-                            throw stream.Unexpected();
+                            if(Statement(out statement))
+                            {
+                                statement = new AstLabeledStatement(id, statement);
+                                return true;
+                            }
+                            break;
                     }
 
                     statement = new AstLabeledStatement(id, statement);
