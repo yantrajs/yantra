@@ -393,7 +393,10 @@ namespace YantraJS.REPL
                 if (!inputHistory.Contains(input))
                     inputHistory.Add(input);
                 Console.SetCursorPosition(0, Console.CursorTop);
-                Console.Write(lambda(cmd, input, completionList));
+                var result = lambda(cmd, input, completionList);
+                if (result == null)
+                    break;
+                Console.Write(result);
 
             }
         }

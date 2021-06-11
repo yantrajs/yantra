@@ -106,21 +106,39 @@ namespace YantraJS.Core.FastParser
                         m.Undo();
                         return false;
                     case TokenTypes.Increment:
+                        if (m.LinesSkipped)
+                        {
+                            m.Undo();
+                            return false;
+                        }
                         stream.Consume();
                         unaryOperator = UnaryOperator.Increment; 
                         return true;
                     case TokenTypes.Decrement:
+                        if (m.LinesSkipped)
+                        {
+                            m.Undo();
+                            return false;
+                        }
                         stream.Consume();
                         unaryOperator = UnaryOperator.Decrement;
                         return true;
                     case TokenTypes.Negate:
-                        stream.Consume();
-                        unaryOperator = UnaryOperator.Negate;
-                        return true;
+                        if (prefix)
+                        {
+                            stream.Consume();
+                            unaryOperator = UnaryOperator.Negate;
+                            return true;
+                        }
+                        break;
                     case TokenTypes.BitwiseNot:
-                        stream.Consume();
-                        unaryOperator = UnaryOperator.BitwiseNot;
-                        return true;
+                        if (prefix)
+                        {
+                            stream.Consume();
+                            unaryOperator = UnaryOperator.BitwiseNot;
+                            return true;
+                        }
+                        break;
                 }
                 if (!prefix)
                 {

@@ -34,13 +34,13 @@ namespace YantraJS.Core.FastParser
                     allowEmpty = false;
                     if (Expression(out var node))
                         nodes.Add(node);
-                    if (stream.LineTerminator())
-                        break;
                     if (stream.CheckAndConsume(TokenTypes.Comma))
                         continue;
                     if (stream.CheckAndConsumeAny(endWith, TokenTypes.EOF, TokenTypes.SemiColon))
                         break;
                     if (stream.Current.Type == TokenTypes.CurlyBracketEnd)
+                        break;
+                    if (stream.LineTerminator())
                         break;
                     //throw stream.Unexpected();
                     break;

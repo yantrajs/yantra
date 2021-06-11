@@ -120,6 +120,9 @@ namespace YantraJS.Core.FastParser
                     m.Undo();
                     return true;
                 }
+
+                if (currentType == token.Type)
+                    throw stream.Unexpected();
             }
 
             if(NextExpression(ref node, ref currentType, out var next, out var nextToken))

@@ -74,6 +74,7 @@ namespace YantraJS.Core.FastParser
                     case FastKeywords.@return:
                         return Return(out node);
                     case FastKeywords.with:
+                    case FastKeywords.@else:
                         throw stream.Unexpected();
                     case FastKeywords.@switch:
                         return Switch(out node);
@@ -201,9 +202,10 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = stream.Current;
                 stream.Consume();
-
+                if (stream.Current.Type == TokenTypes.LineTerminator)
+                    throw stream.Unexpected();
                 if (!Expression(out var target))
-                    stream.Unexpected();
+                    throw stream.Unexpected();
 
                 statement = new AstThrowStatement(begin, PreviousToken, target);
                 return true;
