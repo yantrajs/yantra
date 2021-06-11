@@ -70,6 +70,7 @@ namespace YantraJS.Core
         public readonly static KeyString SyntaxError;
         public readonly static KeyString TypeError;
         public readonly static KeyString URIError;
+        public readonly static KeyString ReferenceError;
 
         public readonly static KeyString ArrayBuffer;
 
