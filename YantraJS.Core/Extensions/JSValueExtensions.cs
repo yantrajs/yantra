@@ -212,8 +212,10 @@ namespace YantraJS.Core
             var elements = @object.GetElements();
             if (!elements.IsNull)
             {
-                foreach (var (Key, Value) in elements.AllValues())
+                var len = elements.Length;
+                for(uint Key = 0;Key<len;Key++)
                 {
+                    var Value = elements[Key];
                     if (showEnumerableOnly)
                     {
                         if (!Value.IsEnumerable)

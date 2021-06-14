@@ -206,6 +206,8 @@ namespace YantraJS.Core.Core.Storage
 
         private UInt32Map<JSProperty> Storage;
         private uint length;
+
+        public uint Length => length;
         
 
         public JSProperty this[uint index]

@@ -268,7 +268,9 @@ namespace YantraJS.Core
                     ownProperties[pr.Name.Key] = fxp;
                     if (f.method.HasAttribute<SymbolAttribute>(out var symbol))
                     {
-                        target.DefineProperty(JSSymbolStatic.GlobalSymbol(symbol.Name), fxp);
+                        ref var symbols = ref target.GetSymbols();
+                        var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
+                        symbols[globalSymbol.Key.Key] = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
                     }
                     continue;
                 }
@@ -351,6 +353,8 @@ namespace YantraJS.Core
 
             var p = r.prototype;
 
+            ref var pe = ref p.GetOwnProperties();
+
             // Properties can only be defined on the type...
             var properties = type
                 .GetProperties(BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
@@ -370,7 +374,7 @@ namespace YantraJS.Core
                     var a = property.attribute;
                     var name = a.Name;
                     var (getter, setter) = (property.property, a).CreateProperty();
-                    p.DefineProperty(name, JSProperty.Property(name, getter, setter, a.ConfigurableProperty));
+                    pe[name.Key] = JSProperty.Property(name, getter, setter, a.ConfigurableProperty);
                 }
             }
 
@@ -390,6 +394,9 @@ namespace YantraJS.Core
                 functionMembers = new List<JSFunction>();
             }
 
+            ref var staticProperties = ref r.GetOwnProperties();
+            ref var instanceProperties = ref pe;
+
             foreach (var mg in all)
             {
                 
@@ -407,7 +414,7 @@ namespace YantraJS.Core
                     continue;
                 }
 
-                var target = pr.IsStatic ? r : p;
+                ref var target = ref (pr.IsStatic ? ref staticProperties : ref instanceProperties);
                 if (pr.IsMethod)
                 {
                     var jsf = new JSFunction(f.CreateJSFunctionDelegate(), pr.Name.Value, pr.Length);
@@ -415,11 +422,13 @@ namespace YantraJS.Core
                     var fxp = JSProperty.Property(pr.Name,
                         jsf, pr.ConfigurableValue);
                     functionMembers?.Add(jsf);
-                    target.DefineProperty(pr.Name, fxp);
+                    target[pr.Name.Key] = fxp;
 
                     if(f.method.HasAttribute<SymbolAttribute>(out var symbol))
                     {
-                        target.DefineProperty(JSSymbolStatic.GlobalSymbol(symbol.Name), fxp);
+                        ref var symbols = ref (pr.IsStatic ? ref r.GetSymbols() : ref p.GetSymbols());
+                        var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
+                        symbols[globalSymbol.Key.Key] = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
                     }
 
                     continue;
@@ -430,24 +439,24 @@ namespace YantraJS.Core
                     var l = mg.Last();
                     var fdel = f.CreateJSFunctionDelegate();
                     var ldel = l.CreateJSFunctionDelegate();
-                    target = pr.IsStatic ? r : p;
-                    target.DefineProperty(mg.Key, JSProperty.Property(
+                    // target = pr.IsStatic ? r : p;
+                    target[mg.Key.Key] = JSProperty.Property(
                         mg.Key,
                         f.attribute.IsGetProperty ? fdel : ldel,
                         !f.attribute.IsGetProperty ? fdel : ldel,
                         f.attribute.ConfigurableProperty
-                        ));
+                        );
                     continue;
                 }
 
                 var fx = f.CreateJSFunctionDelegate();
-                target = pr.IsStatic ? r : p;
-                target.DefineProperty(mg.Key, JSProperty.Property(
+                // target = pr.IsStatic ? r : p;
+                target[mg.Key.Key] = JSProperty.Property(
                     mg.Key,
                     f.attribute.IsGetProperty ? fx : null,
                     !f.attribute.IsGetProperty ? fx : null,
                     f.attribute.ConfigurableProperty
-                    ));
+                    );
 
 
             }
@@ -458,7 +467,7 @@ namespace YantraJS.Core
                 .Where(x => x.attribute != null);
             foreach(var (f,pr) in fields)
             {
-                var target = pr.IsStatic ? r : p;
+                // var target = pr.IsStatic ? r : p;
                 var v = f.GetValue(null);
                 if (!(v is JSValue jv))
                 {
@@ -472,7 +481,8 @@ namespace YantraJS.Core
                     }
                 }
 
-                target.DefineProperty(pr.Name, JSProperty.Property(pr.Name, jv, pr.ReadonlyValue));
+                ref var target = ref (pr.IsStatic ? ref staticProperties : ref instanceProperties);
+                target[pr.Name.Key] = JSProperty.Property(pr.Name, jv, pr.ReadonlyValue);
             }
 
             if (functionMembers != null)
