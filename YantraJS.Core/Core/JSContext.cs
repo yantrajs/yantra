@@ -295,7 +295,7 @@ namespace YantraJS.Core
                 this[variable.Name] = v;
             }
             KeyString name = variable.Name;
-            globalVars[name.Key] = variable;
+            globalVars.Put(name.Key) = variable;
             return v;
         }
 

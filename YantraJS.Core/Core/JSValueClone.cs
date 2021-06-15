@@ -42,7 +42,7 @@ namespace YantraJS.Core
 
             foreach(var symbol in jsf.prototype.GetSymbols().All)
             {
-                symbols[symbol.Key] = symbol.Value;
+                symbols.Put(symbol.Key) = symbol.Value;
             }
 
             // copy static symbols
@@ -51,7 +51,7 @@ namespace YantraJS.Core
 
             foreach (var symbol in jsf.GetSymbols().All)
             {
-                symbols[symbol.Key] = symbol.Value;
+                symbols.Put(symbol.Key) = symbol.Value;
             }
 
         }

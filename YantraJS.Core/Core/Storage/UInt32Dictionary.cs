@@ -153,6 +153,7 @@ namespace YantraJS.Core.Core.Storage
                     return node.value;
                 return default;
             }
+            [Obsolete("Use Put method")]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
@@ -200,6 +201,12 @@ namespace YantraJS.Core.Core.Storage
             ref var node = ref GetNode(key, true);
             node.State = MapValueState.HasValue | MapValueState.Filled;
             node.value = value;
+        }
+
+        public ref T Put(uint key) {
+            ref var node = ref GetNode(key, true);
+            node.State = MapValueState.HasValue | MapValueState.Filled;
+            return ref node.value;
         }
 
         // [MethodImpl(MethodImplOptions.AggressiveInlining)]

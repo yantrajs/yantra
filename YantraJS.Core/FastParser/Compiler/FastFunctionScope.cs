@@ -40,7 +40,8 @@ namespace YantraJS.Core.FastParser.Compiler
                 if (!indexes.TryGetValue(a.Key, out var id))
                 {
                     id = length++;
-                    indexes[a.Key] = id;
+                    // indexes[a.Key] = id;
+                    indexes.Put(a.Key) = id;
                 }
                 Save(id, in name, in value);
             }

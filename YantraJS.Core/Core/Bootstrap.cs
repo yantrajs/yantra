@@ -46,7 +46,7 @@ namespace YantraJS.Core
 
             foreach (var (Key, Value) in cached.AllValues())
             {
-                co[Key] = Value;
+                co.Put(Key) = Value;
             }
         }
 
@@ -93,7 +93,7 @@ namespace YantraJS.Core
 
             if (addToContext)
             {
-                context.GetOwnProperties()[key.Key] = JSProperty.Property(key, copy, JSPropertyAttributes.EnumerableConfigurableReadonlyValue);
+                context.GetOwnProperties().Put(key.Key) = JSProperty.Property(key, copy, JSPropertyAttributes.EnumerableConfigurableReadonlyValue);
             }
 
             // seal copy...
@@ -265,12 +265,12 @@ namespace YantraJS.Core
                     var fxp = JSProperty.Property(pr.Name,
                         jsf, pr.ConfigurableValue);
 
-                    ownProperties[pr.Name.Key] = fxp;
+                    ownProperties.Put(pr.Name.Key) = fxp;
                     if (f.method.HasAttribute<SymbolAttribute>(out var symbol))
                     {
                         ref var symbols = ref target.GetSymbols();
                         var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
-                        symbols[globalSymbol.Key.Key] = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
+                        symbols.Put(globalSymbol.Key.Key) = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
                     }
                     continue;
                 }
@@ -428,7 +428,7 @@ namespace YantraJS.Core
                     {
                         ref var symbols = ref (pr.IsStatic ? ref r.GetSymbols() : ref p.GetSymbols());
                         var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
-                        symbols[globalSymbol.Key.Key] = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
+                        symbols.Put(globalSymbol.Key.Key) = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
                     }
 
                     continue;

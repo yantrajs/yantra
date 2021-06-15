@@ -226,7 +226,7 @@ namespace YantraJS.Core.Core.Storage
                 {
                     length = index + 1;
                 }
-                Storage[index] = value;
+                Storage.Put(index) = value;
             }
         }
 

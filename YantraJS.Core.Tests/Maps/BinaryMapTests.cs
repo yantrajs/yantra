@@ -38,8 +38,10 @@ namespace YantraJS.Tests
             var i1 = (uint)4;
             var i2 = (uint)687;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             im[i1] = "a";
             im[i2] = "b";
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.AreEqual("a", im[i1]);
             Assert.AreEqual("b", im[i2]);

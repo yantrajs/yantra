@@ -37,7 +37,7 @@ namespace YantraJS.Core
                 return $"ID:{px.value}";
             }
             var id = Interlocked.Increment(ref NextID);
-            op[UniqueIDKey.Key.Key] = JSProperty.Property(new JSString(id.ToString()), JSPropertyAttributes.ConfigurableReadonlyValue);
+            op.Put(UniqueIDKey.Key.Key) = JSProperty.Property(new JSString(id.ToString()), JSPropertyAttributes.ConfigurableReadonlyValue);
             return $"ID:{id}";
         }
 

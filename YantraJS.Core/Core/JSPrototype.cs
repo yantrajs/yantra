@@ -73,7 +73,7 @@ namespace YantraJS.Core.Core
                 {
                     if (!ep.Value.IsEmpty)
                     {
-                        ps.properties[ep.Key] = (ep.Value.ToNotReadOnly(),target);
+                        ps.properties.Put(ep.Key) = (ep.Value.ToNotReadOnly(),target);
                     }
                 }
             }
@@ -85,7 +85,7 @@ namespace YantraJS.Core.Core
                 {
                     if (!e.Value.IsEmpty)
                     {
-                        ps.elements[e.Key] = (e.Value.ToNotReadOnly(), target);
+                        ps.elements.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
                     }
                 }
             }
@@ -97,7 +97,7 @@ namespace YantraJS.Core.Core
                 {
                     if (!e.Value.IsEmpty)
                     {
-                        ps.symbols[e.Key] = (e.Value.ToNotReadOnly(), target);
+                        ps.symbols.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
                     }
                 }
             }

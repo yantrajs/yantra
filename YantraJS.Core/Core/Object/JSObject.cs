@@ -432,7 +432,7 @@ namespace YantraJS.Core
                 }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                symbols[name.Key.Key] = JSProperty.Property(value);
+                symbols.Put(name.Key.Key) = JSProperty.Property(value);
                 PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             }
         }
@@ -449,7 +449,7 @@ namespace YantraJS.Core
                 }
             }
             // p.key = name.Key;
-            symbols[key] = p.With(name.Key);
+            symbols.Put(key) = p.With(name.Key);
             PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             return JSUndefined.Value;
         }
@@ -716,7 +716,7 @@ namespace YantraJS.Core
             }
             // p.Attributes = pt;
             // var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
-            target.symbols[key.Key.Key] = new JSProperty(key.Key, get, set, value, pt);
+            target.symbols.Put(key.Key.Key) = new JSProperty(key.Key, get, set, value, pt);
             target.PropertyChanged?.Invoke(target, (uint.MaxValue, uint.MaxValue, key));
         }
 

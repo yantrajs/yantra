@@ -291,6 +291,55 @@ namespace YantraJS.Core
             return false;
         }
 
+        /// <summary>
+        /// Put method is faster as runtime will initiate the object in place instead of
+        /// creating it in local variable and put it on stack for another method
+        /// 
+        /// https://sharplab.io/#v2:C4LghgzgtgPgAgJgIwFgBQcDMACR2DC2A3utmbjnACzYCyAFAJTGnlsBuYATtmNgLzYAdgFMA7tgCCTANys25MADoAyiOD1REgFIqAClwD2ABxFdgAT3pIANAkaM5aBeXnYAvm7dZcNWgiYWZxdsTh4+QS0pWTc2ZQBxdUDI8WxdAxMzS3oqGwBWRzdPYLJvSgQpIJCfSRUAHnSjU3MLAD5eJxDsWPIAbTgkJQAlAFchYABLKBElfEMoYwmAGzM1LnYJgGMRCCVadQALQwATAEkFpfoB4bHJ6dn5xZWuNY3t3f3gI7OLgHljSaGIS7SQAc1BXB2EAm7BEpyESwmQiRoMYAF0ehRsJCAGZpfRNLIWbCJDTMEglLpwADs2JEeOUtE6LmKXX6g1G4ymMzmC2WqzMbx2e0OJ3Oxku105dx5j35L0FW2Fn2+4qW/0BwKUYIhUJhcIRSJR6MxWOo2DUGiR+IyzUsoTASxGInJpsUewEDqdImZLKKXkpPggwC4I02wCk9QAKu0KVScFG6L6PAG2D5sMHQ+GbYSWlUXD4kRGAGqO53JtM4IsW4BgYAjCAVvpS27ch5856vJUfUU/CVXDmt+68p4C9bdkVfMV/AETIEg8GQiDQ2HwxHIoSojGUys5zItejV9g2bDViCuncuUvez3sJsuFS1+sQT2N02s8jFdxAA==
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public ref JSProperty Put(uint key)
+        {
+            if (length < 8)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    ref var p = ref properties[i];
+                    if (p.key.Key == key)
+                    {
+                        // set value..
+                        return ref properties[i];
+                    }
+                }
+                if (length >= properties.Length)
+                    Array.Resize(ref properties, properties.Length + 4);
+                return ref properties[length++];
+            }
+            uint pkey;
+            if (map.IsNull)
+            {
+                map = new UInt32Map<uint>();
+                // copy..
+                for (uint i = 0; i < length; i++)
+                {
+                    ref var p = ref properties[i];
+                    map.Save(p.key.Key, i);
+                }
+            }
+            if (map.TryGetValue(key, out pkey))
+            {
+                return ref properties[pkey];
+            }
+            pkey = (uint)length++;
+            if (pkey >= properties.Length)
+            {
+                Array.Resize(ref properties, properties.Length + 4);
+            }
+            map.Save(key, pkey);
+            return ref properties[pkey];
+        }
+
         public JSProperty this[uint key]
         {
             //get
@@ -301,6 +350,7 @@ namespace YantraJS.Core
             //    }
             //    return JSProperty.Empty;
             //}
+            [Obsolete("Use Put")]
             set
             {
                 if (length < 8)

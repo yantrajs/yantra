@@ -67,10 +67,12 @@ namespace YantraJS.Tests.Maps
         {
             var a = new UInt32Map<int>();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             a[1] = 1;
             a[3] = 2;
             a[2] = 3;
             a[4] = 4;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var all = a.AllValues().ToList();
             Assert.AreEqual(4, all.Count);
