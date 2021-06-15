@@ -291,6 +291,21 @@ namespace YantraJS.Core
             return false;
         }
 
+        public void Put(in KeyString key, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
+        {
+            Put(key.Key) = JSProperty.Property(key, value, attributes);
+        }
+
+        public void Put(in KeyString key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        {
+            Put(key.Key) = JSProperty.Property(key, getter, setter, attributes);
+        }
+
+        public void Put(in KeyString key, JSFunctionDelegate getter, JSFunctionDelegate setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        {
+            Put(key.Key) = JSProperty.Property(key, getter, setter, attributes);
+        }
+
         /// <summary>
         /// Put method is faster as runtime will initiate the object in place instead of
         /// creating it in local variable and put it on stack for another method

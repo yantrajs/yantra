@@ -280,7 +280,7 @@ namespace YantraJS.Core
                     var l = mg.Last();
                     var fdel = f.CreateJSFunctionDelegate();
                     var ldel = l.CreateJSFunctionDelegate();
-                    ownProperties[pr.Name.Key] = JSProperty.Property(
+                    ownProperties.Put(pr.Name.Key) = JSProperty.Property(
                         mg.Key,
                         f.attribute.IsGetProperty ? fdel : ldel,
                         !f.attribute.IsGetProperty ? fdel : ldel,
@@ -290,7 +290,7 @@ namespace YantraJS.Core
                 }
 
                 var fx = f.CreateJSFunctionDelegate();
-                ownProperties[pr.Name.Key] = JSProperty.Property(
+                ownProperties.Put(pr.Name.Key) = JSProperty.Property(
                     mg.Key,
                     f.attribute.IsGetProperty ? fx : null,
                     !f.attribute.IsGetProperty ? fx : null,
@@ -320,8 +320,7 @@ namespace YantraJS.Core
                 }
                 if (ownProperties.TryGetValue(pr.Name.Key, out var _))
                     continue;
-                ownProperties[pr.Name.Key] = 
-                    JSProperty.Property(pr.Name, jv, pr.ReadonlyValue);
+                ownProperties.Put(pr.Name, jv, pr.ReadonlyValue);
             }
 
             return (r, length);
@@ -374,7 +373,7 @@ namespace YantraJS.Core
                     var a = property.attribute;
                     var name = a.Name;
                     var (getter, setter) = (property.property, a).CreateProperty();
-                    pe[name.Key] = JSProperty.Property(name, getter, setter, a.ConfigurableProperty);
+                    pe.Put(name, getter, setter, a.ConfigurableProperty);
                 }
             }
 
@@ -422,7 +421,7 @@ namespace YantraJS.Core
                     var fxp = JSProperty.Property(pr.Name,
                         jsf, pr.ConfigurableValue);
                     functionMembers?.Add(jsf);
-                    target[pr.Name.Key] = fxp;
+                    target.Put(pr.Name.Key) = fxp;
 
                     if(f.method.HasAttribute<SymbolAttribute>(out var symbol))
                     {
@@ -440,7 +439,7 @@ namespace YantraJS.Core
                     var fdel = f.CreateJSFunctionDelegate();
                     var ldel = l.CreateJSFunctionDelegate();
                     // target = pr.IsStatic ? r : p;
-                    target[mg.Key.Key] = JSProperty.Property(
+                    target.Put(
                         mg.Key,
                         f.attribute.IsGetProperty ? fdel : ldel,
                         !f.attribute.IsGetProperty ? fdel : ldel,
@@ -451,7 +450,7 @@ namespace YantraJS.Core
 
                 var fx = f.CreateJSFunctionDelegate();
                 // target = pr.IsStatic ? r : p;
-                target[mg.Key.Key] = JSProperty.Property(
+                target.Put(
                     mg.Key,
                     f.attribute.IsGetProperty ? fx : null,
                     !f.attribute.IsGetProperty ? fx : null,
@@ -482,7 +481,7 @@ namespace YantraJS.Core
                 }
 
                 ref var target = ref (pr.IsStatic ? ref staticProperties : ref instanceProperties);
-                target[pr.Name.Key] = JSProperty.Property(pr.Name, jv, pr.ReadonlyValue);
+                target.Put(pr.Name, jv, pr.ReadonlyValue);
             }
 
             if (functionMembers != null)

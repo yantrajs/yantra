@@ -25,20 +25,18 @@ namespace YantraJS.Extensions
             JSObject obj;
             if (px.IsValue)
             {
-                obj = new JSObject(
-                    JSProperty.Property(KeyStrings.configurable, px.IsConfigurable ? t : f),
-                    JSProperty.Property(KeyStrings.enumerable, px.IsEnumerable ? t : f),
-                    JSProperty.Property(KeyStrings.writable, !px.IsReadOnly ? t : f),
-                    JSProperty.Property(KeyStrings.value, px.value)
-                    );
+                obj = JSObject.NewWithProperties()
+                    .AddProperty(KeyStrings.configurable, px.IsConfigurable ? t : f)
+                    .AddProperty(KeyStrings.enumerable, px.IsEnumerable ? t : f)
+                    .AddProperty(KeyStrings.writable, !px.IsReadOnly ? t : f)
+                    .AddProperty(KeyStrings.value, px.value);
             } else
             {
-                obj = new JSObject(
-                    JSProperty.Property(KeyStrings.configurable, px.IsConfigurable ? t : f),
-                    JSProperty.Property(KeyStrings.enumerable, px.IsEnumerable ? t : f),
-                    JSProperty.Property(KeyStrings.@get, px.get),
-                    JSProperty.Property(KeyStrings.@set, px.set)
-                    );
+                obj = JSObject.NewWithProperties()
+                    .AddProperty(KeyStrings.configurable, px.IsConfigurable ? t : f)
+                    .AddProperty(KeyStrings.enumerable, px.IsEnumerable ? t : f)
+                    .AddProperty(KeyStrings.@get, px.get)
+                    .AddProperty(KeyStrings.@set, px.set);
             }
             return obj;
         }

@@ -164,7 +164,7 @@ namespace YantraJS.Core
             ownProperties = new PropertySequence(4);
             foreach (var p in entries)
             {
-                ownProperties[p.key.Key] = p;
+                ownProperties.Put(p.key.Key) = p;
             }
         }
 
@@ -173,7 +173,7 @@ namespace YantraJS.Core
             ownProperties = new PropertySequence(4);
             foreach (var p in entries)
             {
-                ownProperties[p.key.Key] = p;
+                ownProperties.Put(p.key.Key) = p;
             }
         }
 
@@ -240,14 +240,14 @@ namespace YantraJS.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSObject AddProperty(in KeyString key, JSValue value)
         {
-            ownProperties[key.Key] = JSProperty.Property(key, value);
+            ownProperties.Put(in key, value);
             return this;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSObject AddProperty(in KeyString key, JSFunction getter, JSFunction setter)
         {
-            ownProperties[key.Key] = JSProperty.Property(key, getter?.f, setter?.f);
+            ownProperties.Put(in key, getter?.f, setter?.f);
             return this;
         }
 
@@ -262,7 +262,7 @@ namespace YantraJS.Core
             } else
             {
                 ref var op = ref GetOwnProperties(true);
-                op[k.Key] = JSProperty.Property(k, value);
+                op.Put(in k, value);
             }
             return this;
         }
@@ -387,7 +387,7 @@ namespace YantraJS.Core
                 if(p.IsEmpty && !this.IsExtensible())
                     throw JSContext.Current.NewTypeError($"Cannot add property {name} to {this}");
                 ref var ownProperties = ref this.GetOwnProperties();
-                ownProperties[name.Key] = JSProperty.Property(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue );
+                ownProperties.Put(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue );
                 PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
             }
         }
@@ -467,7 +467,7 @@ namespace YantraJS.Core
                 }
             }
             // p.key = name;
-            ownProperties[key] = p.With(name);
+            ownProperties.Put(key) = p.With(name);
             PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
             return JSUndefined.Value;
         }
@@ -486,7 +486,7 @@ namespace YantraJS.Core
                         throw new UnauthorizedAccessException();
                     }
                 }
-                ownProperties[key] = p;
+                ownProperties.Put(key) = p;
             }
             PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
         }
@@ -559,7 +559,7 @@ namespace YantraJS.Core
                 if (this.IsSealedOrFrozenOrNonExtensible())
                     throw JSContext.Current.NewTypeError($"Cannot modify property length of {this}");
                 ref var ownp = ref GetOwnProperties();
-                ownp[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length,new JSNumber(value));
+                ownp.Put(KeyStrings.length,new JSNumber(value));
                 PropertyChanged?.Invoke(this, (KeyStrings.length.Key, uint.MaxValue, null));
             }
         }
@@ -684,7 +684,7 @@ namespace YantraJS.Core
             }
             var pAttributes = pt;
             ref var ownProperties = ref target.GetOwnProperties();
-            ownProperties[key.Key] = new JSProperty(key, pget, pset, pvalue, pAttributes);
+            ownProperties.Put(key.Key) = new JSProperty(key, pget, pset, pvalue, pAttributes);
             target.PropertyChanged?.Invoke(target, (key.Key, uint.MaxValue, null));
         }
 

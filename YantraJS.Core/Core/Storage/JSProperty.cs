@@ -230,6 +230,16 @@ namespace YantraJS.Core
             var fset = set == null ? null : new JSFunction(set, "set " + key.ToString());
             return new JSProperty(key, fget, fset, attributes);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSProperty Property(
+            in KeyString key,
+            JSFunction get,
+            JSFunction set = null,
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        {
+            return new JSProperty(key, get, set, attributes);
+        }
         public JSProperty With(in KeyString key)
         {
             return new JSProperty(key, get, set, value, Attributes);

@@ -263,7 +263,7 @@ namespace YantraJS.Core.Objects
                         return JSBoolean.True;
                     }
                     ref var properties = ref @object.GetOwnProperties(true);
-                    properties[key.Key] = JSProperty.Property(key, value);
+                    properties.Put(in key, value);
                     return JSBoolean.True;
                 }
             }

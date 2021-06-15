@@ -17,7 +17,7 @@ namespace YantraJS.Core
             {
                 if (Key.Key != KeyStrings.constructor.Key)
                 {
-                    target[Key.Key] = Value;
+                    target.Put(Key.Key) = Value;
                 }
             }
 
@@ -31,7 +31,7 @@ namespace YantraJS.Core
                 /// want to overwrite Function.prototype
                 if (Key.Key != KeyStrings.prototype.Key)
                 {
-                    ro[Key.Key] = Value;
+                    ro.Put(Key.Key) = Value;
                 }
             }
 

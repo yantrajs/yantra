@@ -63,7 +63,7 @@ namespace YantraJS.Core
                 while (en.MoveNext())
                 {
                     ref var item = ref en.Current;
-                    firstOwnProperties[item.key.Key] = JSProperty.Property(item.key, @object.GetValue(item));
+                    firstOwnProperties.Put(item.key, @object.GetValue(item));
                 }
             }
             return first;

@@ -66,7 +66,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JSClass AddPrototypeProperty(in KeyString name, JSFunction getter, JSFunction setter)
         {
-            this.prototype.GetOwnProperties()[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
+            this.prototype.GetOwnProperties().Put(name.Key) = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
 
@@ -74,7 +74,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JSClass AddPrototypeMethod(in KeyString name, JSValue value)
         {
-            this.prototype.GetOwnProperties()[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
+            this.prototype.GetOwnProperties().Put(name.Key) = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;
         }
 
@@ -98,7 +98,7 @@ namespace YantraJS.Core
         public JSClass AddStaticProperty(in KeyString name, JSFunction getter, JSFunction setter)
         {
             ref var ownProperties = ref this.GetOwnProperties();
-            ownProperties[name.Key] = JSProperty.Property(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
+            ownProperties.Put(name, getter.f, setter?.f, JSPropertyAttributes.ConfigurableProperty);
             return this;
         }
 
@@ -107,7 +107,7 @@ namespace YantraJS.Core
         public JSClass AddStaticMethod(in KeyString name, JSValue value)
         {
             ref var ownProperties = ref this.GetOwnProperties();
-            ownProperties[name.Key] = JSProperty.Property(name, value, JSPropertyAttributes.ConfigurableValue);
+            ownProperties.Put(name, value, JSPropertyAttributes.ConfigurableValue);
             return this;
         }
 

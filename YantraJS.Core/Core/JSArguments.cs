@@ -39,8 +39,8 @@ namespace YantraJS.Core
         {
             // arguments = args;
             ref var properties = ref this.GetOwnProperties(true);
-            properties[KeyStrings.length.Key] = JSProperty.Property(KeyStrings.length, new JSNumber(args.Length), JSPropertyAttributes.ConfigurableValue);
-            properties[KeyStrings.callee.Key] = JSProperty.Property(KeyStrings.callee, (JSFunctionDelegate)Callee, Callee, JSPropertyAttributes.Property);
+            properties.Put(KeyStrings.length, new JSNumber(args.Length), JSPropertyAttributes.ConfigurableValue);
+            properties.Put(KeyStrings.callee, (JSFunctionDelegate)Callee, Callee, JSPropertyAttributes.Property);
 
             ref var symbols = ref this.GetSymbols();
             symbols.Put(JSSymbolStatic.iterator.Key.Key) = JSProperty.Property(new JSFunction(Values), JSPropertyAttributes.ConfigurableValue);
