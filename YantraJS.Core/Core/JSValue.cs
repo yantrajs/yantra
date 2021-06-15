@@ -597,7 +597,7 @@ namespace YantraJS.Core {
             return this.ToString();
         }
 
-        public virtual JSValue Delete(KeyString key)
+        public virtual JSValue Delete(in KeyString key)
         {
             return JSBoolean.True;
         }

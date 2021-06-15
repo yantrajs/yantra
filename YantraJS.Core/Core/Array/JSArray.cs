@@ -30,14 +30,14 @@ namespace YantraJS.Core
         {
             ref var elements = ref GetElements(true);
             while (en.MoveNextOrDefault(out var v, JSUndefined.Value))
-                elements[_length++] = JSProperty.Property(v);
+                elements.Put(_length++, v);
         }
 
         public JSArray(IEnumerable<JSValue> items): this()
         {
             ref var elements = ref GetElements(true);
             foreach (var item in items)
-                elements[_length++] = JSProperty.Property(item);
+                elements.Put(_length++, item);
         }
 
       
@@ -93,7 +93,7 @@ namespace YantraJS.Core
                 if (this._length <= name)
                     this._length = name + 1;
                 ref var elements = ref CreateElements();
-                elements[name] = JSProperty.Property(value);
+                elements.Put(name, value);
                 Dirty();
             }
         }
@@ -132,7 +132,7 @@ namespace YantraJS.Core
             else
             {
                 ref var elements = ref CreateElements();
-                elements[this._length++] = JSProperty.Property(item);
+                elements.Put(this._length++, item);
             }
             return this;
         }
@@ -246,7 +246,7 @@ namespace YantraJS.Core
                 ref var e = ref ary.GetElements();
                 for (uint i = 0; i < l; i++)
                 {
-                    et[el++] = JSProperty.Property(ary[i]);
+                    et.Put(el++, ary[i]);
                 }
                 this._length = el;
                 return this;
@@ -257,7 +257,7 @@ namespace YantraJS.Core
             {
                 if (hasValue)
                 {
-                    et[el++] = JSProperty.Property(item);
+                    et.Put(el++, item);
                 } else
                 {
                     el++;

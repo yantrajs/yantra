@@ -29,14 +29,14 @@ namespace YantraJS.Core
                 var cb = fx.f;
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(cb(new Arguments(mapThis, item,new JSNumber(index))));
+                    elements.Put(length++, cb(new Arguments(mapThis, item,new JSNumber(index))));
                 }
             }
             else
             {
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements[length++] = JSProperty.Property(item);
+                    elements.Put(length++, item);
                 }
             }
             r._length = length;
@@ -57,7 +57,7 @@ namespace YantraJS.Core
             ref var rElements = ref r.CreateElements();
             for(var ai = 0; ai<al; ai++)
             {
-                rElements[r._length++] = JSProperty.Property(a.GetAt(ai));
+                rElements.Put(r._length++, a.GetAt(ai));
             }
             return r;
         }

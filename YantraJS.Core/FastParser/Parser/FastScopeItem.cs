@@ -78,7 +78,7 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
-            n.Variables[name] = (name, kind);
+            n.Variables.Put(name) = (name, kind);
 
         }
 

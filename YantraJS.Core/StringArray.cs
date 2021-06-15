@@ -15,7 +15,7 @@ namespace YantraJS
             if (map.TryGetValue(code, out var i))
                 return i;
             i = (uint)List.Count;
-            map[code] = i;
+            map.Put(code) = i;
             List.Add(code);
             return i;
         }

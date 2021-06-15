@@ -370,7 +370,7 @@ namespace YantraJS.Core.Typed
                     continue;
                 }
                 var itemArgs = new Arguments(thisArg, item, new JSNumber(index), @this);
-                rElements[r._length++] = JSProperty.Property(fn.f(itemArgs));
+                rElements.Put(r._length++, fn.f(itemArgs));
             }
             return r;
         }

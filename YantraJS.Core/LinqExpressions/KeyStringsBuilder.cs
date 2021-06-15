@@ -31,7 +31,7 @@ namespace YantraJS.ExpHelper
             StringMap<YFieldExpression> map = new StringMap<YFieldExpression>();
             foreach(var field in fields)
             {
-                map[field.Name] = Expression.Field(null, field);
+                map.Put(field.Name) = Expression.Field(null, field);
             }
             return map;
         }

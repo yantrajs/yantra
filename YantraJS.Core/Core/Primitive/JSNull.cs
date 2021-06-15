@@ -42,7 +42,7 @@ namespace YantraJS.Core
             return obj is JSNull;
         }
 
-        public override JSValue Delete(KeyString key)
+        public override JSValue Delete(in KeyString key)
         {
             throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }

@@ -65,7 +65,7 @@ namespace YantraJS.Core.Core.Storage
             set
             {
                 lockSlim.EnterWriteLock();
-                Map[key] = value;
+                Map.Put(key) = value;
                 lockSlim.ExitWriteLock();
             }
         }
@@ -91,7 +91,7 @@ namespace YantraJS.Core.Core.Storage
             {
                 lockSlim.EnterWriteLock();
                 r = value(key);
-                Map[key] = r;
+                Map.Put(key) = r;
             }
             finally
             {

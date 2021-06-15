@@ -155,6 +155,7 @@ namespace YantraJS.Core.Core.Storage
                     return node.value;
                 return default;
             }
+            [Obsolete("Use Put")]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
@@ -163,6 +164,13 @@ namespace YantraJS.Core.Core.Storage
                 node.value = value;
 
             }
+        }
+
+        public ref T Put(in HashedString index)
+        {
+            ref var node = ref GetNode(index, true);
+            node.State = MapValueState.HasValue | MapValueState.Filled;
+            return ref node.value;
         }
 
 
@@ -176,6 +184,7 @@ namespace YantraJS.Core.Core.Storage
                     return node.value;
                 return default;
             }
+            [Obsolete("Use Put")]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {

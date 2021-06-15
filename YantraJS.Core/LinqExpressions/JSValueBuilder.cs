@@ -274,7 +274,7 @@ namespace YantraJS.ExpHelper
         }
 
         private static MethodInfo _DeleteKeyString
-            = type.InternalMethod(nameof(JSValue.Delete), typeof(KeyString));
+            = type.InternalMethod(nameof(JSValue.Delete), KeyStringsBuilder.RefType);
         private static MethodInfo _DeleteUInt
             = type.InternalMethod(nameof(JSValue.Delete), typeof(uint));
         private static MethodInfo _DeleteJSValue

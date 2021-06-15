@@ -15,8 +15,10 @@ namespace YantraJS.Tests.Maps
         public void Less()
         {
             var a = new StringMap<int>();
+#pragma warning disable CS0618 // Type or member is obsolete
             a["createNodeFactory"] = 1;
             a["<"] = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
             Assert.AreEqual(a["<"], 0);
             Assert.AreEqual(a["createNodeFactory"], 1);
 
@@ -27,12 +29,14 @@ namespace YantraJS.Tests.Maps
         public void CharMap()
         {
             var a = new StringMap<int>();
+#pragma warning disable CS0618 // Type or member is obsolete
             a["a"] = 1;
             a["add"] = 5;
             a["aa"] = 3;
             a["b"] = 2;
             a["bb"] = 4;
             a["<"] = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // var all = a.AllValues.ToList();
             // Assert.AreEqual(4, all.Count);
@@ -56,9 +60,11 @@ namespace YantraJS.Tests.Maps
         public void BigMap()
         {
             var a = new StringMap<int>();
+#pragma warning disable CS0618 // Type or member is obsolete
             a["toString"] = 1;
             a["constructor"] = 2;
             a["push"] = 3;
+#pragma warning restore CS0618 // Type or member is obsolete
             Assert.AreEqual(2, a["constructor"]);
         }
 

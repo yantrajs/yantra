@@ -111,7 +111,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         // name = KeyOfName(id.Name);
                         break;
                     case FastNodeType.Literal:
-                        var l = me.Property as AstLiteral;
+                        var l = (me.Property as AstLiteral)!;
                         if (l.TokenType == TokenTypes.String)
                             name = KeyOfName(l.Start.CookedText);
                         else if (l.TokenType == TokenTypes.Number)

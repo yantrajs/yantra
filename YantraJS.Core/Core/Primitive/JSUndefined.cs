@@ -53,7 +53,7 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError($"Cannot get property {key} of undefined");
         }
 
-        public override JSValue Delete(KeyString key)
+        public override JSValue Delete(in KeyString key)
         {
             throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }

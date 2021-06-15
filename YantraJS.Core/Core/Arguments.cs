@@ -694,7 +694,7 @@ namespace YantraJS.Core
             uint ai;
             for (ai = 0,i = index; i < Length; i++, ai++)
             {
-                ae[ai] = JSProperty.Property( GetAt((int)i));
+                ae.Put(ai, GetAt((int)i));
             }
             a._length = ai;
             return a;

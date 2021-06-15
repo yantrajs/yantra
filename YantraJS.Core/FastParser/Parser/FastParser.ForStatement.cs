@@ -31,7 +31,7 @@ namespace YantraJS.Core.FastParser
 
             stream.Expect(TokenTypes.BracketStart);
 
-            AstNode beginNode;
+            AstNode? beginNode;
 
             // desugar let/const in following scope
             bool newScope = false;
@@ -155,7 +155,7 @@ namespace YantraJS.Core.FastParser
             return true;
 
             bool ExpressionList(
-                out AstExpression node)
+                out AstExpression? node)
             {
                 var list = Pool.AllocateList<AstExpression>();
                 var token = stream.Current;

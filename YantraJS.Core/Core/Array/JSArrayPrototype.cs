@@ -159,7 +159,7 @@ namespace YantraJS.Core
                 if (!elementValue.IsEmpty)
                 {
                     // Copy the value to the new position.
-                    elements[(uint)target] = elementValue;
+                    elements.Put((uint)target) = elementValue;
                 }
                 else
                 {
@@ -491,7 +491,7 @@ namespace YantraJS.Core
                     continue;
                 }
                 var itemArgs = new Arguments(@this, item, new JSNumber(index), @this);
-                relements[r._length++] = JSProperty.Property(fn.f(itemArgs));
+                relements.Put(r._length++, fn.f(itemArgs));
             }            
             return r;
         }
@@ -520,7 +520,7 @@ namespace YantraJS.Core
                     var item = a.GetAt(ai);
                     if (l < max)
                     {
-                        taElements[i++] = JSProperty.Property(item);
+                        taElements.Put(i++, item);
                         ta._length = i;
                     } else {
                         ta[l.ToString()] = item;
@@ -662,7 +662,7 @@ namespace YantraJS.Core
                     if(index > 0)
                     {
                         // shift...
-                        elements[index - 1] = elements[index];
+                        elements.Put(index - 1) = elements[index];
                         elements.RemoveAt(index);
                     } else
                     {
@@ -672,7 +672,7 @@ namespace YantraJS.Core
                 }
                 while (en.MoveNext(out hasValue, out item, out index))
                 {
-                    elements[index - 1] = elements[index];
+                    elements.Put(index - 1) = elements[index];
                     elements.RemoveAt(index);
                 }
                 ary._length -= 1;
@@ -696,7 +696,7 @@ namespace YantraJS.Core
             {
                 if (oe.TryRemove(i, out var p))
                 { 
-                    oe[i - 1] = p;
+                    oe.Put(i - 1) = p;
                 }
             }
             @this.Length = n - 1;
@@ -741,7 +741,7 @@ namespace YantraJS.Core
 
                     if (@this.TryGetValue(index, out var val))
                     {
-                        rElements[ni++] = val;
+                        rElements.Put(ni++) = val;
                     }
                     else {
                         ni++;

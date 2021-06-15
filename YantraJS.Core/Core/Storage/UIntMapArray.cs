@@ -208,6 +208,26 @@ namespace YantraJS.Core.Core.Storage
         private uint length;
 
         public uint Length => length;
+
+        public void Put(uint index, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        {
+            Put(index) = JSProperty.Property(new KeyString(index), getter, setter, attributes);
+        }
+
+
+        public void Put(uint index, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
+        {
+            Put(index) = JSProperty.Property(new KeyString(index), value, attributes);
+        }
+
+        public ref JSProperty Put(uint index)
+        {
+            if(index >= length)
+            {
+                length = index + 1;
+            }
+            return ref Storage.Put(index);
+        }
         
 
         public JSProperty this[uint index]
@@ -219,6 +239,7 @@ namespace YantraJS.Core.Core.Storage
                     return i;
                 return JSProperty.Empty;
             }
+            [Obsolete("Use Put")]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
@@ -331,18 +352,18 @@ namespace YantraJS.Core.Core.Storage
                 var value = this[i];
                 uint j;
                 for (j = i - 1; j > start && comparer(this[j].value, value.value) > 0; j--)
-                    this[j + 1] = this[j];
+                    this.Put(j + 1) = this[j];
 
                 // Normally the for loop above would continue until j < start but since we are
                 // using uint it doesn't work when start == 0.  Therefore the for loop stops one
                 // short of start then the extra loop iteration runs below.
                 if (j == start && comparer(this[j].value, value.value) > 0)
                 {
-                    this[j + 1] = this[j];
+                    this.Put(j + 1) = this[j];
                     j--;
                 }
 
-                this[j + 1] = value;
+                this.Put(j + 1) = value;
             }
         }
 
@@ -354,8 +375,8 @@ namespace YantraJS.Core.Core.Storage
         private void Swap(uint index1, uint index2)
         {
             var temp = this[index1];
-            this[index1] = this[index2];
-            this[index2] = temp;
+            this.Put(index1) = this[index2];
+            this.Put(index2) = temp;
         }
     }
 

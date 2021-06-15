@@ -47,7 +47,7 @@ namespace YantraJS.Core
             ref var elements = ref this.CreateElements();
             for (int i = 0; i < args.Length; i++)
             {
-                elements[(uint)i] = JSProperty.Property(args.GetAt(i));
+                elements.Put((uint)i, args.GetAt(i));
             }
         }
 

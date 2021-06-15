@@ -84,14 +84,14 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                rElements[r._length++] = JSProperty.Property(
+                rElements.Put(r._length++,
                         new JSArray(new JSString(index.ToString()), item)
                     ); 
             }
             var en = new PropertySequence.Enumerator((target as JSObject).GetOwnProperties(false));
             while (en.MoveNext())
             {
-                rElements[r._length++] = JSProperty.Property(
+                rElements.Put(r._length++,
                         new JSArray(en.Current.key.ToJSValue(), target.GetValue(en.Current))
                     );
             }
@@ -266,7 +266,7 @@ namespace YantraJS.Core
             while (en.MoveNext(out var hasValue, out var value, out var index)) {
                 if (hasValue)
                 {
-                    e[r._length++] = JSProperty.Property(value);
+                    e.Put(r._length++, value);
                 }
             }
             return r;
@@ -329,14 +329,14 @@ namespace YantraJS.Core
                 {
                     continue;
                 }
-                rElements[r._length++] = JSProperty.Property(
+                rElements.Put(r._length++,
                         item
                     );
             }
             var en = new PropertySequence.Enumerator(target.GetOwnProperties(false));
             while (en.MoveNext())
             {
-                rElements[r._length++] = JSProperty.Property(
+                rElements.Put(r._length++,
                         target.GetValue(en.Current)
                     );
             }
@@ -391,7 +391,7 @@ namespace YantraJS.Core
             {
                 ref var x = ref en.Current;
                 var p = JSProperty.Property(x.key, x.ToJSValue());
-                rElements[x.key.Key] = p;
+                rElements.Put(x.key.Key) = p;
             }
             return r;
         }

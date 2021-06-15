@@ -159,14 +159,14 @@ namespace YantraJS.Core
             }
         }
 
-        public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
-        {
-            ownProperties = new PropertySequence(4);
-            foreach (var p in entries)
-            {
-                ownProperties.Put(p.key.Key) = p;
-            }
-        }
+        //public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
+        //{
+        //    ownProperties = new PropertySequence(4);
+        //    foreach (var p in entries)
+        //    {
+        //        ownProperties.Put(p.key.Key) = p;
+        //    }
+        //}
 
         public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.Current?.ObjectPrototype)
         {
@@ -211,7 +211,7 @@ namespace YantraJS.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSObject AddElement(uint index, JSValue value)
         {
-            elements[index] = JSProperty.Property(value);
+            elements.Put(index, value);
             return this;
         }
 
@@ -258,7 +258,7 @@ namespace YantraJS.Core
             var k = key.ToKey(true);
             if (k.IsUInt)
             {
-                elements[k.Key] = JSProperty.Property(value);
+                elements.Put(k.Key, value);
             } else
             {
                 ref var op = ref GetOwnProperties(true);
@@ -410,7 +410,7 @@ namespace YantraJS.Core
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 ref var elements = ref CreateElements();
-                elements[name] = JSProperty.Property(value);
+                elements.Put(name, value);
                 PropertyChanged?.Invoke(this, (uint.MaxValue, name, null));
             }
         }
@@ -641,7 +641,7 @@ namespace YantraJS.Core
             }
             var pAttributes = pt;
             ref var elements = ref target.CreateElements();
-            elements[key] = new JSProperty(KeyString.Empty, pget, pset, pvalue, pAttributes);
+            elements.Put(key) = new JSProperty(KeyString.Empty, pget, pset, pvalue, pAttributes);
             if (target is JSArray array)
             {
                 if (array._length <= key)
@@ -721,7 +721,7 @@ namespace YantraJS.Core
         }
 
 
-        public override JSValue Delete(KeyString key)
+        public override JSValue Delete(in KeyString key)
         {
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
@@ -852,7 +852,7 @@ namespace YantraJS.Core
                 {
                     if (this.TryRemove(i, out var p))
                     {
-                        elements[j] = p;
+                        elements.Put(j) = p;
                     }
                 }
                 this.Length += diff;
@@ -864,7 +864,7 @@ namespace YantraJS.Core
                 {
                     if (this.TryRemove((uint)i, out var p))
                     {
-                        elements[(uint)j] = p;
+                        elements.Put((uint)j) = p;
                     }
                 }
                 this.Length += diff;

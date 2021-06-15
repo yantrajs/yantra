@@ -81,7 +81,7 @@ namespace YantraJS.Core
                         var en = ra.GetElementEnumerator();
                         while(en.MoveNext(out var hasValue, out var ri, out var index))
                         {
-                            map[ri.ToString()] = 1;
+                            map.Put(ri.ToString()) = 1;
                         }
                         if (map.TryGetValue(item.key.ToString(), out var a1))
                             return item.value;
