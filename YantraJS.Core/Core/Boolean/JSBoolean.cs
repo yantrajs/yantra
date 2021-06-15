@@ -127,12 +127,9 @@ namespace YantraJS.Core
             throw new NotImplementedException("boolean is not a function");
         }
 
-        private static KeyString @true = KeyStrings.GetOrCreate("true");
-        private static KeyString @false = KeyStrings.GetOrCreate("false");
-
         internal override KeyString ToKey(bool create = false)
         {
-            return this._value ? @true : @false;
+            return this._value ? KeyStrings.@true : KeyStrings.@false;
         }
     }
 }
