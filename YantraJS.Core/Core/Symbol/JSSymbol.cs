@@ -12,8 +12,8 @@ namespace YantraJS.Core
     {
 
         private static int SymbolID = 1;
-
-        internal readonly KeyString Key;
+        private readonly string name;
+        internal readonly uint Key;
 
         public override bool BooleanValue => true;
 
@@ -28,7 +28,8 @@ namespace YantraJS.Core
 
         public JSSymbol(string name) : base(JSContext.Current.ObjectPrototype)
         {
-            Key = KeyStrings.NewSymbol(name, (uint)Interlocked.Increment(ref SymbolID));
+            this.name = name;
+            Key = (uint)Interlocked.Increment(ref SymbolID);
         }
 
         public override JSValue TypeOf()
@@ -39,7 +40,7 @@ namespace YantraJS.Core
         public override bool Equals(object obj)
         {
             if (obj is JSSymbol s)
-                return s.Key.Key == Key.Key;
+                return s.Key == Key;
             return false;
         }
 
@@ -52,7 +53,7 @@ namespace YantraJS.Core
 
         public override int GetHashCode()
         {
-            return (int)Key.Key;
+            return (int)Key;
         }
 
         public override JSValue InvokeFunction(in Arguments a)
@@ -77,7 +78,7 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return Key.Value.Value;
+            return name;
         }
 
 

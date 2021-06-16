@@ -270,7 +270,7 @@ namespace YantraJS.Core
                     {
                         ref var symbols = ref target.GetSymbols();
                         var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
-                        symbols.Put(globalSymbol.Key.Key) = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
+                        symbols.Put(globalSymbol.Key) = JSProperty.Property(jsf, pr.ConfigurableValue);
                     }
                     continue;
                 }
@@ -427,7 +427,7 @@ namespace YantraJS.Core
                     {
                         ref var symbols = ref (pr.IsStatic ? ref r.GetSymbols() : ref p.GetSymbols());
                         var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
-                        symbols.Put(globalSymbol.Key.Key) = JSProperty.Property(globalSymbol.Key, jsf, pr.ConfigurableValue);
+                        symbols.Put(globalSymbol.Key) = JSProperty.Property(jsf, pr.ConfigurableValue);
                     }
 
                     continue;

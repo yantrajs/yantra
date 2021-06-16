@@ -211,13 +211,13 @@ namespace YantraJS.Core.Core.Storage
 
         public void Put(uint index, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            Put(index) = JSProperty.Property(new KeyString(index), getter, setter, attributes);
+            Put(index) = JSProperty.Property(getter, setter, attributes);
         }
 
 
         public void Put(uint index, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            Put(index) = JSProperty.Property(new KeyString(index), value, attributes);
+            Put(index) = JSProperty.Property(value, attributes);
         }
 
         public ref JSProperty Put(uint index)

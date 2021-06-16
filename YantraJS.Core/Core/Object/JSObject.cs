@@ -305,7 +305,7 @@ namespace YantraJS.Core
 
         internal JSProperty GetInternalProperty(JSSymbol key, bool inherited = true)
         {
-            if (symbols.TryGetValue(key.Key.Key, out var r))
+            if (symbols.TryGetValue(key.Key, out var r))
             {
                 return r;
             }
@@ -432,14 +432,14 @@ namespace YantraJS.Core
                 }
                 if (this.IsFrozen())
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                symbols.Put(name.Key.Key) = JSProperty.Property(value);
+                symbols.Put(name.Key) = JSProperty.Property(value);
                 PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             }
         }
 
         public JSValue DefineProperty(JSSymbol name, in JSProperty p)
         {
-            var key = name.Key.Key;
+            var key = name.Key;
             var old = symbols[key];
             if (!old.IsEmpty)
             {
@@ -449,7 +449,7 @@ namespace YantraJS.Core
                 }
             }
             // p.key = name.Key;
-            symbols.Put(key) = p.With(name.Key);
+            symbols.Put(key) = p;
             PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             return JSUndefined.Value;
         }
@@ -733,7 +733,7 @@ namespace YantraJS.Core
             }
             // p.Attributes = pt;
             // var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
-            target.symbols.Put(key.Key.Key) = new JSProperty(key.Key, get, set, value, pt);
+            target.symbols.Put(key.Key) = new JSProperty(KeyString.Empty, get, set, value, pt);
             target.PropertyChanged?.Invoke(target, (uint.MaxValue, uint.MaxValue, key));
         }
 

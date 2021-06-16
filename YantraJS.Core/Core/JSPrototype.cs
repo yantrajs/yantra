@@ -129,7 +129,7 @@ namespace YantraJS.Core.Core
         internal JSProperty GetInternalProperty(JSSymbol symbol)
         {
             this.Build();
-            return propertySet.symbols[symbol.Key.Key].property;
+            return propertySet.symbols[symbol.Key].property;
         }
 
         internal JSFunctionDelegate GetMethod(in KeyString key)

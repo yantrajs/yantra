@@ -22,7 +22,7 @@ namespace YantraJS.Core
                 case JSObject @object:
                     return GenerateID(@object);
                 case JSSymbol symbol:
-                    return $"symbol:{symbol.Key.Value}";
+                    return $"symbol:{symbol.Key}";
             }
             return value.ToString();
         }
@@ -32,12 +32,12 @@ namespace YantraJS.Core
         private static string GenerateID(JSObject obj)
         {
             ref var op = ref obj.GetSymbols();
-            if(op.TryGetValue(UniqueIDKey.Key.Key, out var px))
+            if(op.TryGetValue(UniqueIDKey.Key, out var px))
             {
                 return $"ID:{px.value}";
             }
             var id = Interlocked.Increment(ref NextID);
-            op.Put(UniqueIDKey.Key.Key) = JSProperty.Property(new JSString(id.ToString()), JSPropertyAttributes.ConfigurableReadonlyValue);
+            op.Put(UniqueIDKey.Key) = JSProperty.Property(new JSString(id.ToString()), JSPropertyAttributes.ConfigurableReadonlyValue);
             return $"ID:{id}";
         }
 

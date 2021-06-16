@@ -245,5 +245,14 @@ namespace YantraJS.Core
             return new JSProperty(key, get, set, value, Attributes);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSProperty Property(
+            JSFunction get,
+            JSFunction set = null,
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        {
+            return new JSProperty(KeyString.Empty, get, set, attributes);
+        }
+
     }
 }

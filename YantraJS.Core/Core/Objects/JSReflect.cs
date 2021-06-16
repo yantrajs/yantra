@@ -237,7 +237,7 @@ namespace YantraJS.Core.Objects
                     return JSBoolean.True;
                 }
                 ref var symbols = ref @object.GetSymbols();
-                symbols.Save(symbol.Key.Key, JSProperty.Property(value));
+                symbols.Save(symbol.Key, JSProperty.Property(value));
                 return JSBoolean.True;
             }
             else

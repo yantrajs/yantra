@@ -52,7 +52,7 @@ namespace YantraJS.Core
 
         public static implicit operator PropertyKey(JSSymbol key)
         {
-            return new PropertyKey(KeyType.Symbol, key.Key.Key, KeyString.Empty, key);
+            return new PropertyKey(KeyType.Symbol, key.Key, KeyString.Empty, key);
         }
     }
 
@@ -89,42 +89,6 @@ namespace YantraJS.Core
             }
         }
 
-        public bool IsSymbol
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return Type == KeyType.Symbol;
-            }
-        }
-
-        public bool IsString
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return Type == KeyType.String;
-            }
-        }
-
-        public bool IsUInt
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return Type == KeyType.UInt;
-            }
-        }
-
-        internal KeyString(uint key)
-        {
-            Type = KeyType.UInt;
-            this.Value = null;
-            this.Key = key;
-            this.JSValue = null;
-        }
-
-
         internal KeyString(in StringSpan value, uint key)
         {
             Type = KeyType.String;
@@ -140,14 +104,6 @@ namespace YantraJS.Core
             this.Value = value;
             this.Key = key;
             this.JSValue = @string;
-        }
-
-        internal KeyString(in StringSpan value, uint key, JSSymbol symbol)
-        {
-            Type = KeyType.String;
-            this.Value = value;
-            this.Key = key;
-            this.JSValue = symbol;
         }
 
         public override bool Equals(object obj)
