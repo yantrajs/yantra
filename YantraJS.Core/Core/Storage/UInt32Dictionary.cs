@@ -209,6 +209,16 @@ namespace YantraJS.Core.Core.Storage
             return ref node.value;
         }
 
+        public ref T GetRefOrDefault(uint key, ref T def)
+        {
+            ref var node = ref GetNode(key, false);
+            if(node.HasValue)
+            {
+                return ref node.value;
+            }
+            return ref def;
+        }
+
         // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ref UInt32Map<T> GetNode(uint originalKey, bool create = false)
         {

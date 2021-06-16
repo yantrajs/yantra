@@ -38,17 +38,17 @@ namespace YantraJS.Core.Objects
             var k = propertyKey.ToKey();
             if (k.IsSymbol)
             {
-                JSObject.InternalAddProperty(targetObject, k.JSValue as JSSymbol, pd);
+                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
             }
             else
             {
                 if (!k.IsUInt)
                 {
-                    JSObject.InternalAddProperty(targetObject, k, pd);
+                    JSObject.InternalAddProperty(targetObject, k.KeyString, pd);
                 }
                 else
                 {
-                    JSObject.InternalAddProperty(targetObject, k.Key, pd);
+                    JSObject.InternalAddProperty(targetObject, k.Index, pd);
                 }
             }
             return JSBoolean.True;
@@ -64,15 +64,15 @@ namespace YantraJS.Core.Objects
             if (key.IsSymbol)
             {
                 ref var symbols = ref @object.GetSymbols();
-                return symbols.RemoveAt(key.Key) ? JSBoolean.True : JSBoolean.False;
+                return symbols.RemoveAt(key.Index) ? JSBoolean.True : JSBoolean.False;
             }
             if (key.IsUInt)
             {
                 ref var elements = ref @object.GetElements();
-                return elements.RemoveAt(key.Key) ? JSBoolean.True : JSBoolean.False;
+                return elements.RemoveAt(key.Index) ? JSBoolean.True : JSBoolean.False;
             }
             ref var properties = ref @object.GetOwnProperties();
-            return properties.RemoveAt(key.Key) ? JSBoolean.True : JSBoolean.False;
+            return properties.RemoveAt(key.Index) ? JSBoolean.True : JSBoolean.False;
         }
 
         [Static("get", Length = 2)]
@@ -86,15 +86,15 @@ namespace YantraJS.Core.Objects
             ref var p = ref JSProperty.Empty;
             if (key.IsSymbol)
             {
-                p = @object.GetInternalProperty(key.ToJSValue() as JSSymbol);
+                p = @object.GetInternalProperty(key.Symbol);
             } else
             {
                 if (key.IsUInt)
                 {
-                    p = @object.GetInternalProperty(key.Key);
+                    p = @object.GetInternalProperty(key.Index);
                 } else
                 {
-                    p = @object.GetInternalProperty(in key);
+                    p = @object.GetInternalProperty(in key.KeyString);
                 }
             }
             if (p.IsEmpty)
@@ -114,17 +114,17 @@ namespace YantraJS.Core.Objects
             ref var p = ref JSProperty.Empty;
             if (key.IsSymbol)
             {
-                p = @object.GetInternalProperty(key.ToJSValue() as JSSymbol);
+                p = @object.GetInternalProperty(key.Symbol);
             }
             else
             {
                 if (key.IsUInt)
                 {
-                    p = @object.GetInternalProperty(key.Key);
+                    p = @object.GetInternalProperty(key.Index);
                 }
                 else
                 {
-                    p = @object.GetInternalProperty(in key);
+                    p = @object.GetInternalProperty(in key.KeyString);
                 }
             }
             if (p.IsEmpty)
@@ -154,17 +154,17 @@ namespace YantraJS.Core.Objects
             ref var p = ref JSProperty.Empty;
             if (key.IsSymbol)
             {
-                p = @object.GetInternalProperty(key.ToJSValue() as JSSymbol);
+                p = @object.GetInternalProperty(key.Symbol);
             }
             else
             {
                 if (key.IsUInt)
                 {
-                    p = @object.GetInternalProperty(key.Key);
+                    p = @object.GetInternalProperty(key.Index);
                 }
                 else
                 {
-                    p = @object.GetInternalProperty(in key);
+                    p = @object.GetInternalProperty(in key.KeyString);
                 }
             }
             if (p.IsEmpty)
@@ -229,7 +229,7 @@ namespace YantraJS.Core.Objects
             ref var p = ref JSProperty.Empty;
             if (key.IsSymbol)
             {
-                var symbol = key.ToJSValue() as JSSymbol;
+                var symbol = key.Symbol;
                 p = @object.GetInternalProperty(symbol, false);
                 if (p.IsProperty)
                 {
@@ -237,33 +237,33 @@ namespace YantraJS.Core.Objects
                     return JSBoolean.True;
                 }
                 ref var symbols = ref @object.GetSymbols();
-                symbols.Save(symbol.Key.Key, JSProperty.Property(key, value));
+                symbols.Save(symbol.Key.Key, JSProperty.Property(value));
                 return JSBoolean.True;
             }
             else
             {
                 if (key.IsUInt)
                 {
-                    p = @object.GetInternalProperty(key.Key, false);
+                    p = @object.GetInternalProperty(key.Index, false);
                     if (p.IsProperty)
                     {
                         p.set.InvokeFunction(new Arguments(receiver, value));
                         return JSBoolean.True;
                     }
                     ref var elements = ref @object.GetElements(true);
-                    elements.Put(key.Key, value);
+                    elements.Put(key.Index, value);
                     return JSBoolean.True;
                 }
                 else
                 {
-                    p = @object.GetInternalProperty(in key, false);
+                    p = @object.GetInternalProperty(in key.KeyString, false);
                     if (p.IsProperty)
                     {
                         p.set.InvokeFunction(new Arguments(receiver, value));
                         return JSBoolean.True;
                     }
                     ref var properties = ref @object.GetOwnProperties(true);
-                    properties.Put(in key, value);
+                    properties.Put(in key.KeyString, value);
                     return JSBoolean.True;
                 }
             }

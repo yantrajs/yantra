@@ -40,7 +40,7 @@ namespace YantraJS.Core
             return target.TypeOf();
         }
 
-        internal override KeyString ToKey(bool create = false)
+        internal override PropertyKey ToKey(bool create = false)
         {
             return target.ToKey();
         }

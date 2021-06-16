@@ -32,7 +32,7 @@ namespace YantraJS.Core
 
         //internal override bool IsNullOrUndefined => true; 
 
-        internal override KeyString ToKey(bool create = false)
+        internal override PropertyKey ToKey(bool create = false)
         {
             return KeyStrings.@null;
         }

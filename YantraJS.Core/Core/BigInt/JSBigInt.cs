@@ -53,9 +53,9 @@ namespace YantraJS.Core.BigInt
             return JSContext.Current.BigIntPrototype;
         }
 
-        internal override KeyString ToKey(bool create = true)
+        internal override PropertyKey ToKey(bool create = true)
         {
-            return new KeyString((uint)this.value);
+            return (uint)this.value;
         }
 
         public override bool ConvertTo(Type type, out object value)

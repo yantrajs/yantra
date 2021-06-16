@@ -14,7 +14,7 @@ namespace YantraJS.Core
 
         public static JSValue Value = new JSUndefined();
 
-        internal override KeyString ToKey(bool create = true)
+        internal override PropertyKey ToKey(bool create = true)
         {
             return KeyStrings.undefined;
         }

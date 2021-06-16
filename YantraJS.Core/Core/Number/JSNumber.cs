@@ -88,15 +88,15 @@ namespace YantraJS.Core
             return JSContext.Current.NumberPrototype;
         }
 
-        internal override KeyString ToKey(bool create = false)
+        internal override PropertyKey ToKey(bool create = false)
         {
             var n = this.value;
             if (double.IsNaN(n))
                 return KeyStrings.NaN;
             if (n == 0)
-                return new KeyString(0);
+                return 0;
             if (n > 0 && ((uint)n) == n)
-                return new KeyString((uint)n);
+                return (uint)n;
             if (!create)
             {
                 if (KeyStrings.TryGet(n.ToString(), out var k))

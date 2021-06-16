@@ -85,10 +85,15 @@ namespace YantraJS.Core
             var key = name.ToKey();
             if (key.IsSymbol)
             {
-                this.prototype.DefineProperty(key.JSValue as JSSymbol, JSProperty.Property(key, value, JSPropertyAttributes.ConfigurableValue));
+                this.prototype.DefineProperty(key.Symbol, JSProperty.Property(value, JSPropertyAttributes.ConfigurableValue));
                 return this;
             }
-            this.prototype.DefineProperty(key, JSProperty.Property(key, value, JSPropertyAttributes.ConfigurableValue));
+            if (key.IsUInt)
+            {
+                this.GetElements().Put(key.Index, value, JSPropertyAttributes.ConfigurableValue);
+                return this;
+            }
+            this.prototype.DefineProperty(key.KeyString, JSProperty.Property(key.KeyString, value, JSPropertyAttributes.ConfigurableValue));
             return this;
         }
 

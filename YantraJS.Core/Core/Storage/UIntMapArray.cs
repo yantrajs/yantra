@@ -235,20 +235,19 @@ namespace YantraJS.Core.Core.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (Storage.TryGetValue(index, out var i))
-                    return i;
-                return JSProperty.Empty;
+                ref var p = ref Storage.GetRefOrDefault(index, ref JSProperty.Empty);
+                return p;
             }
-            [Obsolete("Use Put")]
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
-                if (index >= length)
-                {
-                    length = index + 1;
-                }
-                Storage.Put(index) = value;
-            }
+            //[Obsolete("Use Put")]
+            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            //set
+            //{
+            //    if (index >= length)
+            //    {
+            //        length = index + 1;
+            //    }
+            //    Storage.Put(index) = value;
+            //}
         }
 
         public bool IsNull => !Storage.HasChildren;

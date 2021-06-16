@@ -163,8 +163,10 @@ namespace YantraJS.Core
         {
             var key = name.ToKey();
             if (key.IsUInt)
-                return @this.InvokeMethod(key.Key, a);
-            return @this.InvokeMethod(key, a);
+                return @this.InvokeMethod(key.Index, a);
+            if (key.IsSymbol)
+                return @this.InvokeMethod(key.Symbol, a);
+            return @this.InvokeMethod(key.KeyString, a);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -272,12 +274,12 @@ namespace YantraJS.Core
             var key = target.ToKey(false);
             if (key.IsUInt)
             {
-                var p = tx.GetInternalProperty(key.Key);
+                var p = tx.GetInternalProperty(key.Index);
                 if (!p.IsEmpty)
                     return JSBoolean.True;
                 return JSBoolean.False;
             }
-            var p1 = tx.GetInternalProperty(key);
+            var p1 = tx.GetInternalProperty(key.KeyString);
             if (!p1.IsEmpty)
                 return JSBoolean.True;
             return JSBoolean.False;

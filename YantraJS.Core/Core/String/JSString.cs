@@ -67,7 +67,7 @@ namespace YantraJS.Core
             return false;
         }
 
-        internal override KeyString ToKey(bool create = true)
+        internal override PropertyKey ToKey(bool create = true)
         {
             if (_keyString.HasValue)
                 return _keyString;
@@ -76,8 +76,7 @@ namespace YantraJS.Core
             {
                 if (d >= 0 && (d % 1 == 0))
                 {
-                    _keyString = new KeyString((uint)d);
-                    return _keyString;
+                    return (uint)d;
                 }
             }
             if (!create)

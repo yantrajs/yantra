@@ -21,9 +21,9 @@ namespace YantraJS.Core
 
         internal override string StringValue => throw JSContext.Current.NewTypeError("Cannot convert a Symbol value to a string.");
 
-        internal override KeyString ToKey(bool create = true)
+        internal override PropertyKey ToKey(bool create = true)
         {
-            return Key;
+            return this;
         }
 
         public JSSymbol(string name) : base(JSContext.Current.ObjectPrototype)

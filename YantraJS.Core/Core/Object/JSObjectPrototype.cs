@@ -82,11 +82,11 @@ namespace YantraJS.Core
             if (key.IsUInt)
             {
                 ref var elements = ref @object.GetElements();
-                if (elements.HasKey(key.Key))
+                if (elements.HasKey(key.Index))
                     return JSBoolean.True;
             }
             ref var op = ref @object.GetOwnProperties(false);
-            if (op.HasKey(key.Key))
+            if (op.HasKey(key.KeyString.Key))
                 return JSBoolean.True;
             return JSBoolean.False;
         }

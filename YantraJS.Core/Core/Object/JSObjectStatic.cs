@@ -148,17 +148,17 @@ namespace YantraJS.Core
             var k = key.ToKey();
             if (k.IsSymbol)
             {
-                JSObject.InternalAddProperty(targetObject, k.JSValue as JSSymbol, pd);
+                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
             }
             else
             {
                 if (!k.IsUInt)
                 {
-                    JSObject.InternalAddProperty(targetObject, k, pd);
+                    JSObject.InternalAddProperty(targetObject, k.KeyString, pd);
                 }
                 else
                 {
-                    JSObject.InternalAddProperty(targetObject, k.Key, pd);
+                    JSObject.InternalAddProperty(targetObject, k.Index, pd);
                 }
             }
             return target;
@@ -203,16 +203,24 @@ namespace YantraJS.Core
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
                     var first = ia[0];
                     var second = ia[1];
-                    if (first is JSSymbol symbol)
+                    var key = first.ToKey();
+                    if (key.IsSymbol)
                     {
-                        r.DefineProperty(symbol, JSProperty.Property(symbol.Key, second,
+                        r.DefineProperty(key.Symbol, JSProperty.Property(second,
                             JSPropertyAttributes.EnumerableConfigurableValue));
                     }
                     else
                     {
-                        var key = first.ToKey();
-                        r.DefineProperty(key, JSProperty.Property(key, second,
-                            JSPropertyAttributes.EnumerableConfigurableValue));
+                        if (key.IsUInt)
+                        {
+                            r.DefineProperty(key.Index, JSProperty.Property(second,
+                                JSPropertyAttributes.EnumerableConfigurableValue));
+                        }
+                        else
+                        {
+                            r.DefineProperty(key.KeyString, JSProperty.Property(key.KeyString, second,
+                                JSPropertyAttributes.EnumerableConfigurableValue));
+                        }
                     }
                 }
             }
@@ -358,18 +366,18 @@ namespace YantraJS.Core
                 // check for typedArray..
                 if (first is TypedArray ta)
                 {
-                    var v = ta[key.Key];
+                    var v = ta[key.Index];
                     if (v.IsUndefined)
                         return JSUndefined.Value;
 
-                    p = JSProperty.Property(key, v, JSPropertyAttributes.Enumerable | JSPropertyAttributes.Value);
+                    p = JSProperty.Property(v, JSPropertyAttributes.Enumerable | JSPropertyAttributes.Value);
                 }
                 else
                 {
-                    p = jobj.GetInternalProperty(key.Key, false);
+                    p = jobj.GetInternalProperty(key.Index, false);
                 }
             } else {
-                p = jobj.GetInternalProperty(key, false);
+                p = jobj.GetInternalProperty(key.KeyString, false);
             }
             if (!p.IsEmpty)
                 return p.ToJSValue();

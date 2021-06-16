@@ -127,7 +127,7 @@ namespace YantraJS.Core
             throw new NotImplementedException("boolean is not a function");
         }
 
-        internal override KeyString ToKey(bool create = false)
+        internal override PropertyKey ToKey(bool create = false)
         {
             return this._value ? KeyStrings.@true : KeyStrings.@false;
         }

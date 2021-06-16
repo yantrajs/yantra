@@ -30,7 +30,7 @@ namespace YantraJS.Core
             return JSConstants.Arguments;
         }
 
-        internal override KeyString ToKey(bool create = false)
+        internal override PropertyKey ToKey(bool create = false)
         {
             return KeyStrings.arguments;
         }

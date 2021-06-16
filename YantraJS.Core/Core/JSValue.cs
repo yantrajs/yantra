@@ -199,7 +199,7 @@ namespace YantraJS.Core {
             this.BasePrototypeObject = prototype;
         }
 
-        internal abstract KeyString ToKey(bool create = true);
+        internal abstract PropertyKey ToKey(bool create = true);
 
         public virtual JSValue GetOwnProperty(in KeyString name)
         {
@@ -232,9 +232,9 @@ namespace YantraJS.Core {
             var key = name.ToKey(false);
             if (key.IsUInt)
             {
-                return GetOwnProperty(key.Key);
+                return GetOwnProperty(key.Index);
             }
-            return GetOwnProperty(in key);
+            return GetOwnProperty(in key.KeyString);
         }
 
         public JSValue PropertyOrUndefined(in KeyString name)
@@ -299,8 +299,8 @@ namespace YantraJS.Core {
                 return PropertyOrUndefined(s);
             var k = name.ToKey(false);
             if (k.IsUInt)
-                return PropertyOrUndefined(k.Key);
-            return PropertyOrUndefined(k);
+                return PropertyOrUndefined(k.Index);
+            return PropertyOrUndefined(k.KeyString);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -312,8 +312,8 @@ namespace YantraJS.Core {
                 return PropertyOrUndefined(super, s);
             var k = name.ToKey(false);
             if (k.IsUInt)
-                return PropertyOrUndefined(k.Key);
-            return PropertyOrUndefined(k);
+                return PropertyOrUndefined(k.Index);
+            return PropertyOrUndefined(k.KeyString);
         }
 
         public virtual JSValue this[KeyString name]
@@ -359,7 +359,7 @@ namespace YantraJS.Core {
                 if (key is JSSymbol symbol)
                     return this[symbol];
                 var k = key.ToKey();
-                return k.IsUInt ? this[k.Key] : this[k];
+                return k.IsUInt ? this[k.Index] : this[k.KeyString];
             }
             set
             {
@@ -371,11 +371,11 @@ namespace YantraJS.Core {
                 var k = key.ToKey();
                 if (k.IsUInt)
                 {
-                    this[k.Key] = value;
+                    this[k.Index] = value;
                 }
                 else
                 {
-                    this[k] = value;
+                    this[k.KeyString] = value;
                 }
             }
         }
@@ -438,8 +438,8 @@ namespace YantraJS.Core {
                     return this[super, symbol];
                 var key = name.ToKey();
                 if (key.IsUInt)
-                    return this[super, key.Key];
-                return this[super, key];
+                    return this[super, key.Index];
+                return this[super, key.KeyString];
             }
             set {
                 if (name is JSSymbol symbol)
@@ -447,10 +447,10 @@ namespace YantraJS.Core {
                 var key = name.ToKey();
                 if (key.IsUInt)
                 {
-                    this[super, key.Key] = value;
+                    this[super, key.Index] = value;
                     return;
                 } 
-                this[super, key] = value;
+                this[super, key.KeyString] = value;
             }
         }
 
@@ -610,8 +610,8 @@ namespace YantraJS.Core {
         {
             var key = index.ToKey();
             if (key.IsUInt)
-                return this.Delete(key.Key);
-            return Delete(key);
+                return this.Delete(key.Index);
+            return Delete(key.KeyString);
         }
 
         internal JSValue InternalInvoke(object name, in Arguments a)

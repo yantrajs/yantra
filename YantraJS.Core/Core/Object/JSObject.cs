@@ -258,16 +258,16 @@ namespace YantraJS.Core
             var k = key.ToKey(true);
             if (k.IsUInt)
             {
-                elements.Put(k.Key, value);
+                elements.Put(k.Index, value);
             } else
             {
                 ref var op = ref GetOwnProperties(true);
-                op.Put(in k, value);
+                op.Put(in k.KeyString, value);
             }
             return this;
         }
 
-        internal override KeyString ToKey(bool create = true)
+        internal override PropertyKey ToKey(bool create = true)
         {
             if (!create)
             {
@@ -451,6 +451,23 @@ namespace YantraJS.Core
             // p.key = name.Key;
             symbols.Put(key) = p.With(name.Key);
             PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
+            return JSUndefined.Value;
+        }
+
+        public JSValue DefineProperty(uint key, in JSProperty p)
+        {
+            ref var elements = ref GetElements(true);
+            var old = elements[key];
+            if (!old.IsEmpty)
+            {
+                if (!old.IsConfigurable)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+            }
+            // p.key = name;
+            elements.Put(key) = p;
+            PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
             return JSUndefined.Value;
         }
 

@@ -70,7 +70,9 @@ namespace YantraJS.Core
                 case decimal d1: return value[(uint)d1];
                 case float f1: return value[(uint)f1];
                 case JSNumber jn: return value[(uint)jn.value];
-                case JSString js: return value[js.ToKey()];
+                case JSString js:
+                    var key = js.ToKey();
+                    return key.IsUInt ? value[key.Index] : value[key.KeyString];
             }
             return value[name.ToString()];
         }
@@ -89,7 +91,19 @@ namespace YantraJS.Core
                 case decimal d1: return target[(uint)d1] = value;
                 case float f1: return target[(uint)f1] = value;
                 case JSNumber jn: return target[(uint)jn.value] = value;
-                case JSString js: return target[js.ToKey()] = value;
+                case JSString js:
+                    var key = js.ToKey();
+                    if(key.IsSymbol)
+                    {
+                        target[key.Symbol] = value;
+                    } else if (key.IsUInt)
+                    {
+                        target[key.Index] = value;
+                    } else
+                    {
+                        target[key.KeyString] = value;
+                    }
+                    return value;
             }
             return target[name.ToString()] = value;
         }

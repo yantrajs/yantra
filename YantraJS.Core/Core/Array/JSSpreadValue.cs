@@ -48,7 +48,7 @@ namespace YantraJS.Core.Core.Array
             throw new NotImplementedException();
         }
 
-        internal override KeyString ToKey(bool create = true)
+        internal override PropertyKey ToKey(bool create = true)
         {
             throw new NotImplementedException();
         }
