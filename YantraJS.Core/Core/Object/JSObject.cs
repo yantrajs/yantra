@@ -173,7 +173,7 @@ namespace YantraJS.Core
             ownProperties = new PropertySequence(4);
             foreach (var p in entries)
             {
-                ownProperties.Put(p.key.Key) = p;
+                ownProperties.Put(p.key) = p;
             }
         }
 
@@ -494,7 +494,7 @@ namespace YantraJS.Core
             ref var ownProperties = ref GetOwnProperties();
             foreach (var p in list)
             {
-                var key = p.key.Key;
+                var key = p.key;
                 ref var old = ref ownProperties.GetValue(key);
                 if (!old.IsEmpty)
                 {

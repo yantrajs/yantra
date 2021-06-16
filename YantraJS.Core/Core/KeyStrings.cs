@@ -164,11 +164,13 @@ namespace YantraJS.Core
             lock (typeof(KeyStrings))
             {
                 map = ConcurrentStringMap<KeyString>.Create();
+                names = ConcurrentUInt32Map<StringSpan>.Create();
                 KeyString Create(string key)
                 {
-                    var i = NextID++;
-                    var js = new KeyString(key, (uint)i);
+                    var i = (uint)(NextID++);
+                    var js = new KeyString(key, i);
                     map[key] =  js;
+                    names[i] = key;
                     return js;
                 }
                 var t = typeof(KeyString);
@@ -183,6 +185,7 @@ namespace YantraJS.Core
         }
 
         private static ConcurrentStringMap<KeyString> map;
+        private static ConcurrentUInt32Map<StringSpan> names;
 
         private static int NextID = 1;
 
@@ -195,6 +198,7 @@ namespace YantraJS.Core
             return map.GetOrCreate(key, (keyName) =>
             {
                 var i = (uint)Interlocked.Increment(ref NextID);
+                names[i] = keyName;
                 return new KeyString(keyName, i);
             });
         }
@@ -206,9 +210,17 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString NewSymbol(in StringSpan name, uint id)
+        internal static KeyString GetName(uint id)
         {
-            return new KeyString($"Symbol({name})", id);
+            return new KeyString(names[id] , id);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSString GetJSString(uint id)
+        {
+            var name = GetName(id);
+            return new JSString(name.Value, name);
         }
 
     }

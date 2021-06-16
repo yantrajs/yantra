@@ -46,7 +46,7 @@ namespace YantraJS.Core
                             if (!current.IsEnumerable)
                                 continue;
                         }
-                        key = current.key;
+                        key = KeyStrings.GetName( current.key);
                         return true;
                     }
 
@@ -73,7 +73,7 @@ namespace YantraJS.Core
                                 continue;
                         }
                         value = target.GetValue(current);
-                        key = current.key;
+                        key = KeyStrings.GetName(current.key);
                         return true;
                     }
 
@@ -100,7 +100,7 @@ namespace YantraJS.Core
                                 continue;
                         }
                         value = current;
-                        key = current.key;
+                        key = KeyStrings.GetName(current.key);
                         return true;
                     }
 
@@ -166,7 +166,7 @@ namespace YantraJS.Core
                 foreach (var p in properties)
                 {
                     if (p.Attributes != JSPropertyAttributes.Empty)
-                        yield return (p.key.Key, p);
+                        yield return (p.key, p);
                 }
             }
         }
@@ -177,7 +177,7 @@ namespace YantraJS.Core
                 int i = 0;
                 foreach (var p in properties)
                 {
-                    var update = func((p.key.Key), p);
+                    var update = func((p.key), p);
                     if (update.update)
                     {
                         properties[i] = update.v;
@@ -197,7 +197,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Empty)
+                    if (p.key == key && p.Attributes != JSPropertyAttributes.Empty)
                         return true;
                 }
                 return false;
@@ -214,7 +214,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if (p.key.Key == key)
+                    if (p.key == key)
                     {
                         if (p.IsReadOnly || !p.IsConfigurable)
                         {
@@ -249,7 +249,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if(p.key.Key == key && p.Attributes != JSPropertyAttributes.Empty)
+                    if(p.key == key && p.Attributes != JSPropertyAttributes.Empty)
                     {
                         return ref p;
                     }
@@ -275,7 +275,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if (p.key.Key == key && p.Attributes != JSPropertyAttributes.Empty)
+                    if (p.key == key && p.Attributes != JSPropertyAttributes.Empty)
                     {
                         obj = p;
                         return true;
@@ -289,6 +289,10 @@ namespace YantraJS.Core
             }
             obj = new JSProperty();
             return false;
+        }
+        public void Put(uint key, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
+        {
+            Put(key) = JSProperty.Property(key, value, attributes);
         }
 
         public void Put(in KeyString key, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
@@ -321,7 +325,7 @@ namespace YantraJS.Core
                 for (int i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    if (p.key.Key == key)
+                    if (p.key == key)
                     {
                         // set value..
                         return ref properties[i];
@@ -339,7 +343,7 @@ namespace YantraJS.Core
                 for (uint i = 0; i < length; i++)
                 {
                     ref var p = ref properties[i];
-                    map.Save(p.key.Key, i);
+                    map.Save(p.key, i);
                 }
             }
             if (map.TryGetValue(key, out pkey))
@@ -373,7 +377,7 @@ namespace YantraJS.Core
                     for (int i = 0; i < length; i++)
                     {
                         ref var p = ref properties[i];
-                        if (p.key.Key == key)
+                        if (p.key == key)
                         {
                             // set value..
                             properties[i] = value;
@@ -393,7 +397,7 @@ namespace YantraJS.Core
                     for (uint i = 0; i < length; i++)
                     {
                         ref var p = ref properties[i];
-                        map.Save(p.key.Key, i);
+                        map.Save(p.key, i);
                     }
                 } 
                 if (map.TryGetValue(key, out pkey))

@@ -201,7 +201,7 @@ namespace YantraJS.Core
                 {
                     jsValue = replacer(
                         (target,
-                        value.key.ToJSValue(), jsValue));
+                        KeyStrings.GetJSString(value.key), jsValue));
                     if (jsValue.IsUndefined)
                         continue;
                 }
@@ -217,7 +217,7 @@ namespace YantraJS.Core
                     sb.WriteLine();
                 }
 
-                QuoteString(value.key.ToString(), sb);
+                QuoteString(KeyStrings.GetName(value.key).Value, sb);
                 sb.Write(':');
                 if (indent != null)
                 {
