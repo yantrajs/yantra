@@ -76,8 +76,9 @@ namespace YantraJS.Core.FastParser
 
             // stream.Expect(TokenTypes.BracketEnd);
 
-            if (!Statement(out var statement))
+            if (!NonDeclarativeStatement(out var statement))
                 throw stream.Unexpected();
+
 
             node = new AstWhileStatement(begin, PreviousToken, test, statement);
             return true;

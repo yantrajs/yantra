@@ -15,7 +15,7 @@ namespace YantraJS.Core.FastParser
             var begin = stream.Current;
             stream.Consume();
 
-            if (!Statement(out var statement))
+            if (!NonDeclarativeStatement(out var statement))
                 throw stream.Unexpected();
 
             stream.CheckAndConsume(TokenTypes.SemiColon);
