@@ -200,17 +200,6 @@ namespace YantraJS.Core
 
         public bool IsEmpty => properties == null;
 
-        public IEnumerable<(uint Key, JSProperty Value)> AllValues()
-        {
-            if (properties != null)
-            {
-                foreach (var p in properties)
-                {
-                    if (p.Attributes != JSPropertyAttributes.Empty)
-                        yield return (p.key, p);
-                }
-            }
-        }
         public void Update(Func<uint, JSProperty, (bool update, JSProperty v)> func)
         {
             if (properties != null)

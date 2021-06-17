@@ -43,10 +43,10 @@ namespace YantraJS.Core
             });
 
             ref var co = ref context.GetOwnProperties();
-
-            foreach (var (Key, Value) in cached.AllValues())
+            var e = cached.GetEnumerator(false);
+            while(e.MoveNext(out var keyString, out var value))
             {
-                co.Put(Key) = Value;
+                co.Put(keyString.Key) = value;
             }
         }
 

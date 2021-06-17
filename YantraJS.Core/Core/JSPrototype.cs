@@ -69,12 +69,9 @@ namespace YantraJS.Core.Core
             ref var objectProperties = ref @object.GetOwnProperties(false);
             if (objectProperties.properties != null)
             {
-                foreach(var ep in objectProperties.AllValues())
-                {
-                    if (!ep.Value.IsEmpty)
-                    {
-                        ps.properties.Put(ep.Key) = (ep.Value.ToNotReadOnly(),target);
-                    }
+                var ve = objectProperties.GetEnumerator(false);
+                while(ve.MoveNext(out var key, out var value)){
+                    ps.properties.Put(key.Key) = (value.ToNotReadOnly(),target);
                 }
             }
 

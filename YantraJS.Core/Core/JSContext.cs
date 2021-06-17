@@ -359,10 +359,10 @@ namespace YantraJS.Core
                 ref var op = ref this.GetOwnProperties();
 
                 op.Put(name, r, JSPropertyAttributes.ConfigurableReadonlyValue);
-
-                foreach(var (Key, Value) in cached.GetOwnProperties().AllValues())
+                var ve = cached.GetOwnProperties().GetEnumerator(false);
+                while(ve.MoveNext(out var keyString, out var value))
                 {
-                    rop.Put(Key) = Value;
+                    rop.Put(keyString.Key) = value;
                 }
 
                 return r;
