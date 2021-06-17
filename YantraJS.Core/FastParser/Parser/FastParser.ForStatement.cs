@@ -124,7 +124,7 @@ namespace YantraJS.Core.FastParser
                         statement = block;
                     }
                 }
-                else if (Statement(out statement))
+                else if (NonDeclarativeStatement(out statement))
                 {
                     if (newScope && declaration != null)
                     {

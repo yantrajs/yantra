@@ -15,7 +15,7 @@ namespace YantraJS.Core.FastParser
                 return false;
             if(statement.Type == FastNodeType.ExpressionStatement && statement is AstExpressionStatement exp)
             {
-                switch (exp.Type)
+                switch (exp.Expression.Type)
                 {
                     case FastNodeType.FunctionExpression:
                     case FastNodeType.ClassStatement:

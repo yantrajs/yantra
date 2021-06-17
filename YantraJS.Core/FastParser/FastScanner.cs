@@ -767,27 +767,39 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private FastToken SkipMultilineComment(State state)
         {
-            char ch;
-            bool hasLineTerminator = false;
+            char ch = this.Peek();
+            bool hasLineTerminator = ch == '\n' || ch == '\r';
             do
             {
                 ch = Consume();
-                if (ch == '\n') {
-                    hasLineTerminator = true;
-                }
-                if (ch == char.MaxValue)
-                    break;
-                if (ch == '*')
+                switch(ch)
                 {
-                    ch = Consume();
-                    if (ch == '/') {
-                        Consume();
-                        break;
-                    }
-                    if (ch == char.MaxValue) {
-                        break;
-                    }
+                    case '\r':
+                    case '\n':
+                        hasLineTerminator = true;
+                        continue;
+                    case char.MaxValue:
+                        if(hasLineTerminator)
+                        {
+                            return ReadSymbol(state, TokenTypes.LineTerminator);
+                        }
+                        return ReadToken();
+                    case '*':
+                        ch = Consume();
+                        if (ch == '/')
+                        {
+                            Consume();
+                            break;
+                        }
+                        if (ch == char.MaxValue)
+                        {
+                            break;
+                        }
+                        continue;
+                    default:
+                        continue;
                 }
+                break;
             } while (true);
             if(hasLineTerminator)
             {
@@ -818,6 +830,10 @@ namespace YantraJS.Core.FastParser
                 do
                 {
                     first = Consume();
+                    if(first == char.MaxValue)
+                    {
+                        return state.Commit(TokenTypes.String, sb.Builder);
+                    }
                     if (first == start)
                     {
                         var next = Consume();
