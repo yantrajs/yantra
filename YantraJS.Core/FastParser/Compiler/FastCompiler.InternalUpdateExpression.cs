@@ -13,6 +13,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -21,31 +22,59 @@ namespace YantraJS.Core.FastParser.Compiler
         private Exp InternalVisitUpdateExpression(AstUnaryExpression updateExpression)
         {
             // added support for a++, a--
-            var right = VisitExpression(updateExpression.Argument);
-            var ve = Exp.Variable(typeof(JSValue));
-            if (updateExpression.Prefix)
+            updateExpression.Argument.VerifyIdentifierForUpdate();
+
+
+            var list = pool.AllocateList<Exp>();
+
+            FastFunctionScope.VariableScope target = null;
+            FastFunctionScope.VariableScope @return = null;
+            try
             {
-                if (updateExpression.Operator == UnaryOperator.Increment)
+                var right = VisitExpression(updateExpression.Argument);
+
+                switch (right.NodeType)
                 {
-                    return Exp.Block(new ParameterExpression[] { ve },
-                        JSValueExtensionsBuilder.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
-                        JSValueExtensionsBuilder.Assign(ve, right));
+                    case YExpressionType.Index:
+                        var index = right as YIndexExpression;
+                        target = this.scope.Top.GetTempVariable(index.Type);
+                        list.Add(Exp.Assign(target.Variable, index.Target));
+                        right = Exp.Index(target.Variable, index.Property, index.Arguments);
+                        break;
                 }
-                return Exp.Block(new ParameterExpression[] { ve },
-                    JSValueExtensionsBuilder.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
-                    JSValueExtensionsBuilder.Assign(ve, right));
-            }
-            if (updateExpression.Operator == UnaryOperator.Increment)
+
+                if (!updateExpression.Prefix)
+                {
+                    @return = this.scope.Top.GetTempVariable(right.Type);
+                    list.Add(Exp.Assign(@return.Variable, right));
+                }
+
+                switch (updateExpression.Operator)
+                {
+                    case UnaryOperator.Increment:
+                        list.Add(Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(right), Exp.Constant((double)1)))));
+                        break;
+                    case UnaryOperator.Decrement:
+                        list.Add(Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(right), Exp.Constant((double)1)))));
+                        break;
+                }
+                if (!updateExpression.Prefix)
+                {
+                    list.Add(@return.Variable);
+                }
+                else
+                {
+                    list.Add(right);
+                }
+
+                var r = Exp.Block(list);
+                return r;
+            } finally
             {
-                return Exp.Block(new ParameterExpression[] { ve },
-                    JSValueExtensionsBuilder.Assign(ve, right),
-                    JSValueExtensionsBuilder.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
-                    ve);
+                @return?.Dispose();
+                target?.Dispose();
+                list.Clear();
             }
-            return Exp.Block(new ParameterExpression[] { ve },
-                JSValueExtensionsBuilder.Assign(ve, right),
-                JSValueExtensionsBuilder.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(updateExpression.Argument), Exp.Constant((double)1)))),
-                ve);
         }
     }
 }

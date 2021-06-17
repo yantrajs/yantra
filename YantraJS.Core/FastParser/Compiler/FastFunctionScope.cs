@@ -417,7 +417,7 @@ namespace YantraJS.Core.FastParser.Compiler
         private FastList<VariableScope> TempVariables;
         private readonly FastPool.Scope pool;
 
-        private int id;
+        private static int id;
 
         public VariableScope GetTempVariable(Type type = null)
         {
@@ -432,11 +432,12 @@ namespace YantraJS.Core.FastParser.Compiler
                     return v;
                 }
             }
-            var tp = Exp.Variable(type, "#Temp" + type.Name + TopScope.id++);
+            var tp = Exp.Variable(type, "#Temp" + type.Name + id++);
             var temp = new VariableScope {
                 Create = true,
                 Name = tp.Name,
                 IsTemp = true,
+                InUse = true,
                 Expression = tp,
                 Variable = tp
             };

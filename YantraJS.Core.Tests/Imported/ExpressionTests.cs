@@ -960,7 +960,7 @@ namespace YantraJS.Core.Tests.Imported
         {
             Assert.AreEqual(1, Evaluate("x = 0; ++ x"));
             Assert.AreEqual(1, Evaluate("x = 0; ++ x; x"));
-            Assert.AreEqual("ReferenceError", EvaluateExceptionType("++ 2"));
+            Assert.AreEqual("SyntaxError", EvaluateExceptionType("++ 2"));
 
             // The operand should only be evaluated once.
             Assert.AreEqual(3, Evaluate("x = [[2]]; ++(x = x[0])[0]"));
@@ -980,7 +980,7 @@ namespace YantraJS.Core.Tests.Imported
         {
             Assert.AreEqual(-1, Evaluate("x = 0; -- x"));
             Assert.AreEqual(-1, Evaluate("x = 0; -- x; x"));
-            Assert.AreEqual("ReferenceError", EvaluateExceptionType("-- 2"));
+            Assert.AreEqual("SyntaxError", EvaluateExceptionType("-- 2"));
 
             // The operand should only be evaluated once.
             Assert.AreEqual(1, Evaluate("x = [[2]]; --(x = x[0])[0]"));
@@ -1000,7 +1000,7 @@ namespace YantraJS.Core.Tests.Imported
         {
             Assert.AreEqual(0, Evaluate("x = 0; x ++"));
             Assert.AreEqual(1, Evaluate("x = 0; x ++; x"));
-            Assert.AreEqual("ReferenceError", EvaluateExceptionType("2 ++"));
+            Assert.AreEqual("SyntaxError", EvaluateExceptionType("2 ++"));
 
             // The operand should only be evaluated once.
             Assert.AreEqual(2, Evaluate("x = [[2]]; (x = x[0])[0]++"));
@@ -1020,7 +1020,7 @@ namespace YantraJS.Core.Tests.Imported
         {
             Assert.AreEqual(0, Evaluate("x = 0; x --"));
             Assert.AreEqual(-1, Evaluate("x = 0; x --; x"));
-            Assert.AreEqual("ReferenceError", EvaluateExceptionType("2 --"));
+            Assert.AreEqual("SyntaxError", EvaluateExceptionType("2 --"));
 
             // The operand should only be evaluated once.
             Assert.AreEqual(2, Evaluate("x = [[2]]; (x = x[0])[0]--"));

@@ -18,6 +18,12 @@ namespace YantraJS.Core.FastParser.Compiler
 {
     partial class FastCompiler
     {
+
+        private Exp DoubleValue(Exp exp)
+        {
+            return ExpHelper.JSValueBuilder.DoubleValue(exp);
+        }
+
         private Exp DoubleValue(AstExpression exp)
         {
             return ExpHelper.JSValueBuilder.DoubleValue(VisitExpression(exp));
