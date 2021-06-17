@@ -8,7 +8,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         public static void VerifyIdentifierForUpdate(this AstIdentifier id)
         {
-            if (id.Name.Equals("arguments") || id.Name.Equals("eval")) {
+            if (id.Name.Equals("arguments") || id.Name.Equals("eval") || id.Name.Equals("this")) {
                 throw new FastParseException(id.Start, $"Invalid left-hand side expression for update");
             }
         }

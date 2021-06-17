@@ -28,6 +28,8 @@ namespace YantraJS.ExpHelper
         private static PropertyInfo _IntValue =
             type.Property(nameof(Core.JSValue.IntValue));
 
+        private static PropertyInfo _UIntValue =
+            type.Property(nameof(JSValue.UIntValue));
 
         private static PropertyInfo _IsNullOrUndefined
             = type.Property(nameof(Core.JSValue.IsNullOrUndefined));
@@ -70,6 +72,12 @@ namespace YantraJS.ExpHelper
         {
             return Expression.Property(exp, _IntValue);
         }
+
+        public static Expression UIntValue(Expression exp)
+        {
+            return Expression.Property(exp, _UIntValue);
+        }
+
 
         public static Expression Power(Expression left,Expression right) {
             return Expression.Call(left, _Power, right);

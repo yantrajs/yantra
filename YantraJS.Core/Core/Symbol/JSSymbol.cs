@@ -21,6 +21,8 @@ namespace YantraJS.Core
 
         internal override string StringValue => throw JSContext.Current.NewTypeError("Cannot convert a Symbol value to a string.");
 
+        public override uint UIntValue => throw JSContext.Current.NewTypeError("Cannot convert a Symbol value to a uint32.");
+
         internal override PropertyKey ToKey(bool create = true)
         {
             return this;

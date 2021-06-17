@@ -92,6 +92,8 @@ namespace YantraJS.Expressions
                     return "<<";
                 case YOperator.RightShift:
                     return ">>";
+                case YOperator.UnsignedRightShift:
+                    return ">>>";
             }
 
             throw new NotImplementedException();

@@ -100,6 +100,9 @@ namespace YantraJS.Generator
                 case YOperator.RightShift:
                     il.Emit(OpCodes.Shr);
                     break;
+                case YOperator.UnsignedRightShift:
+                    il.Emit(OpCodes.Shr_Un);
+                    break;
                 default:
                     throw new NotSupportedException($"{yBinaryExpression.Operator}");
             }

@@ -132,6 +132,8 @@ namespace YantraJS.Core {
 
         public virtual long BigIntValue => (long)(ulong)this.DoubleValue;
 
+        public virtual uint UIntValue => (uint)this.DoubleValue;
+
         internal JSPrototype prototypeChain;
 
         internal virtual JSObject BasePrototypeObject

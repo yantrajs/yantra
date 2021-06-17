@@ -181,7 +181,13 @@ namespace YantraJS.Expressions
         public static YExpression RightShift(YExpression left, YExpression right)
         {
             return new YBinaryExpression(left, YOperator.RightShift, right);
-        }   
+        }
+
+        public static YExpression UnsignedRightShift(YExpression left, YExpression right)
+        {
+            return new YBinaryExpression(left, YOperator.UnsignedRightShift, right);
+        }
+
         public static YExpression Power(YExpression left, YExpression right)
         {
             //return new YBinaryExpression(left, YOperator.Power, right);

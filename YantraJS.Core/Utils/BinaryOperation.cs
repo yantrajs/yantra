@@ -284,8 +284,8 @@ namespace YantraJS.Utils
                     return ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt,Expression.And( rightInt, oneF)));
                 case TokenTypes.UnsignedRightShift:
                     return ExpHelper.JSNumberBuilder.New(
-                        Expression.RightShift(
-                            Expression.Convert(leftInt, typeof(uint)), rightInt));
+                        Expression.UnsignedRightShift(
+                            JSValueBuilder.UIntValue(left) , rightInt));
                 case TokenTypes.BooleanAnd:
                     return ExpHelper.JSValueBuilder.LogicalAnd(left, right);
                 case TokenTypes.BooleanOr:

@@ -25,6 +25,7 @@ namespace YantraJS.Expressions
         NotEqual,
 
         LeftShift,
-        RightShift
+        RightShift,
+        UnsignedRightShift
     }
 }
