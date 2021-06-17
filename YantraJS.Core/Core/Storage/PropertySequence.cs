@@ -11,6 +11,79 @@ namespace YantraJS.Core
     public struct PropertySequence
     {
 
+        public PropertyEnumerator GetEnumerator(bool showEnumerableOnly = true)
+        {
+            return new PropertyEnumerator(this, showEnumerableOnly);
+        }
+
+        public struct PropertyEnumerator
+        {
+            private readonly bool showEnumerableOnly;
+            private JSProperty[] array;
+            private int index;
+            private int length;
+
+            public PropertyEnumerator(PropertySequence sequence, bool showEnumerableOnly)
+            {
+                this.array = sequence.properties;
+                this.index = -1;
+                this.length = array.Length;
+                this.showEnumerableOnly = showEnumerableOnly;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext(out JSProperty property)
+            {
+                while (true)
+                {
+                    index++;
+                    if (index >= length)
+                    {
+                        property = default;
+                        return false;
+                    }
+                    ref var p = ref this.array[index];
+                    if (p.IsEmpty)
+                    {
+                        continue;
+                    }
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.IsEnumerable)
+                            continue;
+                    }
+                    property = p;
+                    return true;
+                }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext(out KeyString key, out JSProperty property)
+            {
+                while (true)
+                {
+                    index++;
+                    if (index >= length)
+                    {
+                        key = default;
+                        property = default;
+                        return false;
+                    }
+                    ref var p = ref this.array[index];
+                    if (p.IsEmpty) {
+                        continue;
+                    }
+                    if (showEnumerableOnly) {
+                        if (!p.IsEnumerable)
+                            continue;
+                    }
+                    key = KeyStrings.GetName(p.key);
+                    property = p;
+                    return true;
+                }
+            }
+        }
+
         #region ValueEnumerator
         public struct ValueEnumerator
         {
@@ -112,38 +185,6 @@ namespace YantraJS.Core
 
         }
         #endregion
-
-        #region Enumerator
-        public struct Enumerator
-        {
-            int index;
-            readonly int size;
-            readonly JSProperty[] array;
-            public Enumerator(PropertySequence ps)
-            {
-                index = -1;
-                array = ps.properties;
-                size = ps.length;
-            }
-
-            public bool MoveNext()
-            {
-                if (array == null)
-                    return false;
-                while ((++index) < size)
-                {
-                    ref var current = ref array[index];
-                    if (current.Attributes == JSPropertyAttributes.Empty)
-                        continue;
-                    return true;
-                }
-                return false;
-            }
-
-            public ref JSProperty Current => ref this.array[index];
-        }
-        #endregion
-
 
 
         private UInt32Map<uint> map;

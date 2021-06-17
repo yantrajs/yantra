@@ -195,10 +195,10 @@ namespace YantraJS.Core.Objects
                 if (hasValue)
                     r.Add(new JSNumber(index));
             }
-            var en = new PropertySequence.Enumerator(@object.GetOwnProperties(false));
-            while (en.MoveNext())
+            var en = @object.GetOwnProperties(false).GetEnumerator();
+            while (en.MoveNext(out var property))
             {
-                r.Add(en.Current.ToJSValue());
+                r.Add(property.ToJSValue());
             }
             ref var symbols = ref @object.GetSymbols();
             foreach(var e in symbols.AllValues())

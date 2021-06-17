@@ -173,11 +173,9 @@ namespace YantraJS.Core
             bool first = true;
             // the only left type is JSObject...
             var obj = target as JSObject;
-            var pen = new PropertySequence.Enumerator(obj.GetOwnProperties());
-            while(pen.MoveNext())
+            var pen = obj.GetOwnProperties().GetEnumerator();
+            while(pen.MoveNext(out var key, out var value))
             {
-                ref var p = ref pen.Current;
-                var value = p;
                 if (value.IsEmpty || !value.IsEnumerable)
                     continue;
                 JSValue jsValue;
@@ -217,7 +215,7 @@ namespace YantraJS.Core
                     sb.WriteLine();
                 }
 
-                QuoteString(KeyStrings.GetName(value.key).Value, sb);
+                QuoteString(key.Value, sb);
                 sb.Write(':');
                 if (indent != null)
                 {

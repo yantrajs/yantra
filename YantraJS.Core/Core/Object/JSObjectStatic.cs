@@ -59,11 +59,10 @@ namespace YantraJS.Core
                 var ai = a.GetAt(i);
                 if (!(ai is JSObject @object))
                     continue;
-                var en = new PropertySequence.Enumerator(@object.GetOwnProperties(false));
-                while (en.MoveNext())
+                var en = @object.GetOwnProperties(false).GetEnumerator();
+                while (en.MoveNext(out var keyString, out var value))
                 {
-                    ref var item = ref en.Current;
-                    firstOwnProperties.Put(item.key, @object.GetValue(item));
+                    firstOwnProperties.Put(keyString.Key, @object.GetValue(value));
                 }
             }
             return first;
@@ -88,11 +87,11 @@ namespace YantraJS.Core
                         new JSArray(new JSString(index.ToString()), item)
                     ); 
             }
-            var en = new PropertySequence.Enumerator((target as JSObject).GetOwnProperties(false));
-            while (en.MoveNext())
+            var en = (target as JSObject).GetOwnProperties(false).GetEnumerator();
+            while (en.MoveNext(out var key, out var property))
             {
                 rElements.Put(r._length++,
-                        new JSArray(KeyStrings.GetJSString( en.Current.key), target.GetValue(en.Current))
+                        new JSArray(key.ToJSValue(), target.GetValue(property))
                     );
             }
             return r;
@@ -126,10 +125,10 @@ namespace YantraJS.Core
                 JSObject.InternalAddProperty(target, index, item);
             }
 
-            var properties = new PropertySequence.Enumerator(pdObject.GetOwnProperties(false));
-            while (properties.MoveNext())
+            var properties = pdObject.GetOwnProperties(false).GetEnumerator();
+            while (properties.MoveNext(out var keyString, out var property))
             {
-                JSObject.InternalAddProperty(target, KeyStrings.GetName( properties.Current.key), target.GetValue(properties.Current));
+                JSObject.InternalAddProperty(target, keyString, target.GetValue(property));
             }
 
             return target;
@@ -341,11 +340,11 @@ namespace YantraJS.Core
                         item
                     );
             }
-            var en = new PropertySequence.Enumerator(target.GetOwnProperties(false));
-            while (en.MoveNext())
+            var en = target.GetOwnProperties(false).GetEnumerator();
+            while (en.MoveNext(out  var property))
             {
                 rElements.Put(r._length++,
-                        target.GetValue(en.Current)
+                        target.GetValue(property)
                     );
             }
             return r;
@@ -394,11 +393,10 @@ namespace YantraJS.Core
                 return new JSArray();
             var r = new JSObject();
             ref var p = ref r.GetOwnProperties(true);
-            var en = new PropertySequence.Enumerator(jobj.GetOwnProperties(false));
-            while(en.MoveNext())
+            var en = jobj.GetOwnProperties(false).GetEnumerator();
+            while(en.MoveNext(out var key, out var property))
             {
-                ref var x = ref en.Current;
-                p.Put(x.key) = x;    
+                p.Put(key.Key) = property;    
             }
             return r;
         }
@@ -411,11 +409,11 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            var en = new PropertySequence.Enumerator(jobj.GetOwnProperties(false));
+            var en = jobj.GetOwnProperties(false).GetEnumerator();
             var r = new JSArray();
-            while (en.MoveNext())
+            while (en.MoveNext(out var property))
             {
-                r.Add(en.Current.ToJSValue());
+                r.Add(property.ToJSValue());
             }
             return r;
         }

@@ -227,10 +227,9 @@ namespace YantraJS.Core
                 }
             }
 
-            var en = new PropertySequence.Enumerator(@object.GetOwnProperties(false));
-            while(en.MoveNext())
+            var en = @object.GetOwnProperties(false).GetEnumerator();
+            while(en.MoveNext(out var p))
             {
-                var p = en.Current;
                 if (showEnumerableOnly)
                 {
                     if (!p.IsEnumerable)
