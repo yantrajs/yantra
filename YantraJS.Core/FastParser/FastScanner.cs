@@ -768,9 +768,13 @@ namespace YantraJS.Core.FastParser
         private FastToken SkipMultilineComment(State state)
         {
             char ch;
+            bool hasLineTerminator = false;
             do
             {
                 ch = Consume();
+                if (ch == '\n') {
+                    hasLineTerminator = true;
+                }
                 if (ch == char.MaxValue)
                     break;
                 if (ch == '*')
@@ -785,6 +789,10 @@ namespace YantraJS.Core.FastParser
                     }
                 }
             } while (true);
+            if(hasLineTerminator)
+            {
+                return ReadSymbol(state, TokenTypes.LineTerminator);
+            }
             return ReadToken();
         }
 
