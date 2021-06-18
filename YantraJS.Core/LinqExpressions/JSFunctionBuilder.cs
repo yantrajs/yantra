@@ -70,7 +70,7 @@ namespace YantraJS.ExpHelper
         private static ConstructorInfo _New =
             type.Constructor(new Type[] { typeof(JSFunctionDelegate), 
                 StringSpanBuilder.RefType, 
-                StringSpanBuilder.RefType, typeof(int) });
+                StringSpanBuilder.RefType, typeof(int), typeof(bool) });
 
         private static FieldInfo _f =
             type.InternalField(nameof(JSFunction.f));
@@ -111,7 +111,8 @@ namespace YantraJS.ExpHelper
             return Expression.New(_New , del, 
                 name, 
                 code,
-                Expression.Constant(length));
+                Expression.Constant(length),
+                Expression.Constant(true));
         }
     }
 

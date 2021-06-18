@@ -190,7 +190,8 @@ namespace YantraJS.Core
             JSFunctionDelegate f,
             in StringSpan name,
             in StringSpan source,
-            int length = 0): base(JSContext.Current?.FunctionPrototype)
+            int length = 0,
+            bool createPrototype = true): base(JSContext.Current?.FunctionPrototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
@@ -198,12 +199,15 @@ namespace YantraJS.Core
             this.source = source.IsEmpty
                 ? $"function {this.name}() {{ [native] }}"
                 : source;
-            prototype = new JSObject();
-            // prototype[KeyStrings.constructor] = this;
-            prototype.DefineProperty(KeyStrings.constructor, JSProperty.Property(this, JSPropertyAttributes.ConfigurableValue));
-            // ref var opp = ref prototype.GetOwnProperties(true);
-            // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
-            ownProperties.Put(KeyStrings.prototype, prototype);
+            if (createPrototype)
+            {
+                prototype = new JSObject();
+                // prototype[KeyStrings.constructor] = this;
+                prototype.DefineProperty(KeyStrings.constructor, JSProperty.Property(this, JSPropertyAttributes.ConfigurableValue));
+                // ref var opp = ref prototype.GetOwnProperties(true);
+                // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
+                ownProperties.Put(KeyStrings.prototype, prototype);
+            }
 
             //this[KeyStrings.name] = name.IsEmpty
             //    ? new JSString("native")
@@ -239,6 +243,10 @@ namespace YantraJS.Core
 
         public override JSValue CreateInstance(in Arguments a)
         {
+            if (prototype == null)
+            {
+                throw JSContext.Current.NewTypeError($"{name} is not a constructor");
+            }
             JSValue obj = new JSObject
             {
                 BasePrototypeObject = prototype
