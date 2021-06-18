@@ -173,17 +173,18 @@ namespace YantraJS.Core
             var (method, p) = m;
             if (method.IsStatic)
             {
-                var d = (JSFunctionDelegate)method.CreateDelegate(typeof(JSFunctionDelegate));
-                JSValue DelegateWithTryCatch(in Arguments a)
-                {
-                    try
-                    {
-                        return d(in a);
-                    } catch (Exception ex) when (!(ex is JSException)) {
-                        throw new JSException(ex.ToString());
-                    }
-                }
-                return DelegateWithTryCatch;
+                return (JSFunctionDelegate)method.CreateDelegate(typeof(JSFunctionDelegate));
+                // var d = (JSFunctionDelegate)method.CreateDelegate(typeof(JSFunctionDelegate));
+                //JSValue DelegateWithTryCatch(in Arguments a)
+                //{
+                //    try
+                //    {
+                //        return d(in a);
+                //    } catch (Exception ex) when (!(ex is JSException)) {
+                //        throw new JSException(ex.ToString());
+                //    }
+                //}
+                //return DelegateWithTryCatch;
             }
 
             var name = method.DeclaringType.Name;
