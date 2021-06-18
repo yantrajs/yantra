@@ -165,7 +165,15 @@ namespace YantraJS.Core.FastParser.Compiler
                                 case FastNodeType.BinaryExpression:
                                     var be = element as AstBinaryExpression;
                                     if (be.Left.Type != FastNodeType.Identifier)
-                                        throw new FastParseException(be.Left.Start, "Invalid left hand side in assignment");
+                                    {
+                                        using (var te = scope.Top.GetTempVariable(typeof(JSValue)))
+                                        {
+                                            inits.Add(IElementEnumeratorBuilder.MoveNext(en, te.Expression));
+                                            inits.Add(JSValueExtensionsBuilder.AssignCoalesce(te.Expression, Visit(be.Right)));
+                                            CreateAssignment(inits, be.Left, te.Expression, true, newScope);
+                                        }
+                                        break;
+                                    }
                                     id = be.Left as AstIdentifier;
                                     if (createVariable)
                                     {
@@ -185,22 +193,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                     }
 
                                     var spid = Visit(spe.Argument);
-
-                                    // using (var arrayVar = this.scope.Top.GetTempVariable(typeof(JSArray)))
-                                    // {
-                                        //inits.Add(Exp.Assign(arrayVar.Expression, JSArrayBuilder.New()));
-                                        //var @break = Exp.Label();
-                                        //var add = JSArrayBuilder.Add(arrayVar.Expression, item.Expression);
-                                        //var @breakStmt = Exp.Goto(@break);
-                                        //var loop = Exp.Loop(Exp.Block(
-                                        //    Exp.IfThenElse(
-                                        //        IElementEnumeratorBuilder.MoveNext(en, item.Expression),
-                                        //        add,
-                                        //        breakStmt)
-                                        //    ), @break);
-                                        //inits.Add(loop);
-                                        inits.Add(Exp.Assign(spid, JSArrayBuilder.NewFromElementEnumerator(en)));
-                                    // }
+                                    inits.Add(Exp.Assign(spid, JSArrayBuilder.NewFromElementEnumerator(en)));
                                     break;
                                 case FastNodeType.ObjectPattern:
                                 case FastNodeType.ArrayPattern:
@@ -215,8 +208,6 @@ namespace YantraJS.Core.FastParser.Compiler
                                     }
                                     break;
                                 default:
-                                    // inits.Add(IElementEnumeratorBuilder.MoveNext(en, item.Expression));
-                                    // break;
                                     throw new NotSupportedException($"{element.Type}");
                             }
                         }
