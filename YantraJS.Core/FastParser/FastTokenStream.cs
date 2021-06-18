@@ -33,7 +33,7 @@ namespace YantraJS.Core.FastParser
         public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
         {
             this.Pool = new FastPool();
-            tokens = new List<FastToken>();
+            tokens = new List<FastToken>(Math.Max(1, text.Length/4));
             index = 0;
             this.Keywords = keywords ?? FastKeywordMap.Instance;
             this.scanner = new FastScanner(Pool, text, Keywords);
@@ -51,7 +51,7 @@ namespace YantraJS.Core.FastParser
         public FastTokenStream(FastPool pool, in StringSpan text, FastKeywordMap keywords = null)
         {
             this.Pool = pool;
-            tokens = new List<FastToken>();
+            tokens = new List<FastToken>(Math.Max(1, text.Length / 4));
             index = 0;
             this.Keywords = keywords ?? FastKeywordMap.Instance;
             this.scanner = new FastScanner(pool, text, Keywords);

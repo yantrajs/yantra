@@ -9,6 +9,7 @@ using System.Text;
 using YantraJS.Core.Core;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
+using YantraJS.Core.Runtime;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -21,6 +22,7 @@ namespace YantraJS.Core
     public partial class JSObject : JSValue
     {
         private JSPrototype currentPrototype;
+        protected bool HasIterator = false;
 
         internal override JSObject BasePrototypeObject {
             set {
@@ -420,6 +422,10 @@ namespace YantraJS.Core
             get => this.GetValue(GetInternalProperty(name));
             set
             {
+                if(name == JSSymbolStatic.iterator)
+                {
+                    HasIterator = true;
+                }
                 var p = GetInternalProperty(name);
                 if (p.IsProperty)
                 {
@@ -928,6 +934,11 @@ namespace YantraJS.Core
 
         public override IElementEnumerator GetElementEnumerator()
         {
+            if (this.HasIterator)
+            {
+                var v = this.GetValue(this.symbols[JSSymbolStatic.iterator.Key]);
+                return v.InvokeFunction(Arguments.Empty).GetElementEnumerator();
+            }
             return new ElementEnumerator(this);
         }
 

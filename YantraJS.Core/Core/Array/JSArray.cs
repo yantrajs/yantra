@@ -145,6 +145,11 @@ namespace YantraJS.Core
 
         public override IElementEnumerator GetElementEnumerator()
         {
+            if(this.HasIterator)
+            {
+                var v = this.GetValue(this.GetSymbols()[JSSymbolStatic.iterator.Key]);
+                return v.InvokeFunction(Arguments.Empty).GetElementEnumerator();
+            }
             return new ElementEnumerator(this);
         }
 
