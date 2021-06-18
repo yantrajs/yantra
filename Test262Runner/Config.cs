@@ -11,7 +11,8 @@ namespace Test262Runner
             "class-static-methods-private",
             "class-methods-private",
             "async-iteration",
-            "tail-call-optimization"
+            "tail-call-optimization",
+            "BigInt"
         };
         public string Description { get; set; }
 

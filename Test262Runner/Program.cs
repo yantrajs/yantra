@@ -46,9 +46,13 @@ namespace Test262Runner
 
             language = new DirectoryInfo(Path.Combine(test262, "test", "language"));
 
+
+
             if (args.Length == 0)
             {
-                var file = new FileInfo(Environment.CommandLine);
+                string cmd = Environment.CommandLine;
+
+                var file = new FileInfo(cmd);
                 executable = Path.Combine( file.Directory.FullName, $"{System.IO.Path.GetFileNameWithoutExtension( file.Name)}.exe");
                 var now = DateTime.Now;
                 // output = new FileInfo( Path.Combine(root.FullName,"tr", $"{now.Year}-{now.Month:D2}-{now.Day:D2}-{now.Hour:D2}{now.Minute:D2}{now.Second:D2}.html"));
@@ -66,8 +70,19 @@ namespace Test262Runner
                 return;
             }
 
+            string filePath = args[0];
+            if (filePath == "--ask")
+            {
+                filePath = Console.ReadLine().Trim();
+                if (filePath.StartsWith("file:///"))
+                {
+                    filePath = filePath.Substring(8);
+                }
+            }
+
+
             // run tests...
-            AsyncPump.Run(() => RunJSTest(args[0]));
+            AsyncPump.Run(() => RunJSTest(filePath));
         }
 
         private static async Task RunJSTest(string filePath)

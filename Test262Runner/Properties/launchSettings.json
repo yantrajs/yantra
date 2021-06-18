@@ -3,9 +3,9 @@
     "Test262Runner All": {
       "commandName": "Project"
     },
-    "Test262Runner": {
+    "Test262Runner Ask": {
       "commandName": "Project",
-      "commandLineArgs": "D:/git/github/web-atoms/core-js/test262/test/language/asi/S7.9_A6.1_T8.js"
+      "commandLineArgs": "--ask"
     }
 
   }

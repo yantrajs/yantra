@@ -26,11 +26,18 @@ namespace YantraJS.Core.FastParser
                 case FastNodeType.ArrayPattern:
                 case FastNodeType.ObjectPattern:
                     return exp;
-                default:
-                    throw new FastParseException(exp.Start, 
-                        $"Invalid pattern of {exp.Type} at {exp.Start.Start}");
+                case FastNodeType.BinaryExpression:
+                    var be = (exp as AstBinaryExpression)!;
+                    if (be.Operator == TokenTypes.Assign)
+                    {
+                        return new AstBinaryExpression(be.Left.ToPattern(), be.Operator, be.Right);
+                    }
+                    break;
+
             }
-            
+            throw new FastParseException(exp.Start,
+                $"Invalid pattern of {exp.Type} at {exp.Start.Start}");
+
             static AstExpression ArrayToPattern(AstArrayExpression array)
             {
                 var pl = new AstExpression?[array.Elements.Count];
@@ -60,7 +67,15 @@ namespace YantraJS.Core.FastParser
                             break;
                         case FastNodeType.ClassProperty:
                             var p = (px as AstClassProperty)!;
-                            property = new ObjectProperty(p.Key, p.Init.ToPattern(), null, false, p.Computed);
+                            var init = p.Init.ToPattern();
+                            if (init.Type == FastNodeType.BinaryExpression && init is AstBinaryExpression be)
+                            {
+                                property = new ObjectProperty(p.Key, be.Left, be.Right, false, p.Computed);
+                            }
+                            else
+                            {
+                                property = new ObjectProperty(p.Key, p.Init.ToPattern(), null, false, p.Computed);
+                            }
                             break;
                         default:
                             throw new NotSupportedException();
@@ -80,8 +95,16 @@ namespace YantraJS.Core.FastParser
 
         public VariableDeclarator(AstExpression identifier, AstExpression? init = null)
         {
-            Identifier = identifier;
-            Init = init;
+            if (identifier.Type == FastNodeType.BinaryExpression && identifier is AstBinaryExpression be)
+            {
+                Identifier = be.Left;
+                Init = be.Right;
+            }
+            else
+            {
+                Identifier = identifier;
+                Init = init;
+            }
         }
 
         public override string ToString()

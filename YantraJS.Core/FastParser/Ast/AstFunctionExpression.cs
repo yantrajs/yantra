@@ -20,6 +20,8 @@ namespace YantraJS.Core.FastParser
             in ArraySpan<VariableDeclarator> declarators, AstStatement body)
             : base(token, FastNodeType.FunctionExpression, previousToken)
         {
+            // detect duplicate parameter names...
+
             this.IsArrowFunction = isArrow;
             this.Async = isAsync;
             this.Generator = generator;
