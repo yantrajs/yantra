@@ -672,6 +672,31 @@ namespace YantraJS.Core.FastParser
 
         private FastToken ReadCommentsOrRegExOrSymbol(State state)
         {
+            var scanRegExp = true;
+            var last = lastToken;
+            switch (last.Type)
+            {
+                case TokenTypes.BracketEnd:
+                case TokenTypes.SquareBracketEnd:
+                case TokenTypes.Number:
+                    // probably not regexp...
+                    scanRegExp = false;
+                    break;
+                case TokenTypes.Identifier:
+                    switch (last.Keyword)
+                    {
+                        case FastKeywords.instanceof:
+                        case FastKeywords.@in:
+                        case FastKeywords.@typeof:
+                            scanRegExp = true;
+                            break;
+                        default:
+                            scanRegExp = false;
+                            break;
+                    }
+                    break;
+            }
+
             var divide = Push();
             var first = Consume();
             bool divideAndAssign = false;
@@ -696,8 +721,11 @@ namespace YantraJS.Core.FastParser
                     break;
             }
 
-            if (ScanRegEx(state, first, out var token))
-                return token;
+            if (scanRegExp)
+            {
+                if (ScanRegEx(state, first, out var token))
+                    return token;
+            }
             if(divideAndAssign)
             {
                 state.Dispose();
