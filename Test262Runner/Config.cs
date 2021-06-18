@@ -10,7 +10,8 @@ namespace Test262Runner
         public static string[] DisabledFeatures = {
             "class-static-methods-private",
             "class-methods-private",
-            "async-iteration"
+            "async-iteration",
+            "tail-call-optimization"
         };
         public string Description { get; set; }
 
@@ -19,6 +20,9 @@ namespace Test262Runner
         public string[] Flags { get; set; }
 
         public string[] Features { get; set; }
+
+        public string[] Includes { get; set; }
+
         public bool Ignore { 
             get {
                 if (Flags != null)

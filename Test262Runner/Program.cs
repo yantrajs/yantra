@@ -89,6 +89,13 @@ namespace Test262Runner
                 var config = Config.Parse(code);
                 if (config.Ignore)
                     return;
+                if(config.Includes != null)
+                {
+                    foreach(var item in config.Includes)
+                    {
+                        await EvaluateAsync(Path.Combine(harnessFolder.FullName, item), js);
+                    }
+                }
                 if (config.Negative != null)
                 {
                     try
