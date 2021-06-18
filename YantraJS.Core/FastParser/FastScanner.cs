@@ -689,6 +689,8 @@ namespace YantraJS.Core.FastParser
                         case FastKeywords.@in:
                         case FastKeywords.@typeof:
                         case FastKeywords.@return:
+                        case FastKeywords.yield:
+                        case FastKeywords.await:
                             scanRegExp = true;
                             break;
                         default:
