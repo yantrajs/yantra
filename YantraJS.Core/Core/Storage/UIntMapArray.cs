@@ -229,6 +229,10 @@ namespace YantraJS.Core.Core.Storage
             return ref Storage.Put(index);
         }
         
+        public ref JSProperty Get(uint index)
+        {
+            return ref Storage.GetRefOrDefault(index, ref JSProperty.Empty);
+        }
 
         public JSProperty this[uint index]
         {

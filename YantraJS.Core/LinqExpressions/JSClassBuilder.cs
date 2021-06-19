@@ -26,79 +26,93 @@ namespace YantraJS.ExpHelper
                 typeof(JSVariable[]),
                 typeof(JSClosureFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
 
-        private static MethodInfo _AddPrototypeProperty =
-            type.PublicMethod(nameof(JSClass.AddPrototypeProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
+        //private static MethodInfo _AddPrototypeProperty =
+        //    type.PublicMethod(nameof(JSClass.AddPrototypeProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
 
-        private static MethodInfo _AddPrototypeMethod =
-                    type.PublicMethod(nameof(JSClass.AddPrototypeMethod), KeyStringsBuilder.RefType, typeof(JSValue));
-        private static MethodInfo _AddPrototypeValueMethod =
-                    type.PublicMethod(nameof(JSClass.AddPrototypeMethod), typeof(JSValue), typeof(JSValue));
+        //private static MethodInfo _AddPrototypeMethod =
+        //            type.PublicMethod(nameof(JSClass.AddPrototypeMethod), KeyStringsBuilder.RefType, typeof(JSValue));
+        //private static MethodInfo _AddPrototypeValueMethod =
+        //            type.PublicMethod(nameof(JSClass.AddPrototypeMethod), typeof(JSValue), typeof(JSValue));
 
-        private static MethodInfo _AddStaticProperty =
-            type.PublicMethod(nameof(JSClass.AddStaticProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
+        //private static MethodInfo _AddStaticProperty =
+        //    type.PublicMethod(nameof(JSClass.AddStaticProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
 
-        private static MethodInfo _AddStaticMethod =
-                    type.PublicMethod(nameof(JSClass.AddStaticMethod), KeyStringsBuilder.RefType, typeof(JSValue));
+        //private static MethodInfo _AddStaticMethod =
+        //            type.PublicMethod(nameof(JSClass.AddStaticMethod), KeyStringsBuilder.RefType, typeof(JSValue));
 
-        public static Expression AddValue(
-            Expression target,
-            Expression name,
-            Expression value)
+        public static Expression AddValue(Expression target, Expression  name, Expression value, bool isStatic)
         {
-            if (name.Type == typeof(JSValue))
-                return Expression.Call(
-                    target,
-                    _AddPrototypeValueMethod,
-                    name,
-                    value);
-            return Expression.Call(
-                target,
-                _AddPrototypeMethod,
-                name,
-                value);
+            return JSObjectBuilder.AddValue(isStatic 
+                ? target
+                : JSFunctionBuilder.Prototype(target), name, value, JSPropertyAttributes.ConfigurableValue);
         }
 
-
-        public static Expression AddProperty(
-            Expression target,
-            Expression name,
-            Expression getter,
-            Expression setter)
+        public static Expression AddProperty(Expression target, Expression name, Expression getter, Expression setter, bool isStatic)
         {
-            return Expression.Call(
-                target,
-                _AddPrototypeProperty,
-                name,
-                getter ?? Expression.Constant(null, typeof(JSFunction)),
-                setter ?? Expression.Constant(null, typeof(JSFunction)));
+            return JSObjectBuilder.AddProperty( isStatic 
+                ? target 
+                : JSFunctionBuilder.Prototype(target), name, getter ?? Expression.Null, setter ?? Expression.Null, JSPropertyAttributes.ConfigurableProperty);
         }
 
-        public static Expression AddStaticValue(
-            Expression target,
-            Expression name,
-            Expression value)
-        {
-            return Expression.Call(
-                target,
-                _AddStaticMethod,
-                name,
-                value);
-        }
+        //public static Expression AddValue(
+        //    Expression target,
+        //    Expression name,
+        //    Expression value)
+        //{
+        //    if (name.Type == typeof(JSValue))
+        //        return Expression.Call(
+        //            target,
+        //            _AddPrototypeValueMethod,
+        //            name,
+        //            value);
+        //    return Expression.Call(
+        //        target,
+        //        _AddPrototypeMethod,
+        //        name,
+        //        value);
+        //}
 
 
-        public static Expression AddStaticProperty(
-            Expression target,
-            Expression name,
-            Expression getter,
-            Expression setter)
-        {
-            return Expression.Call(
-                target,
-                _AddStaticProperty,
-                name,
-                getter ?? Expression.Constant(null, typeof(JSFunction)),
-                setter ?? Expression.Constant(null, typeof(JSFunction)));
-        }
+        //public static Expression AddProperty(
+        //    Expression target,
+        //    Expression name,
+        //    Expression getter,
+        //    Expression setter)
+        //{
+        //    return Expression.Call(
+        //        target,
+        //        _AddPrototypeProperty,
+        //        name,
+        //        getter ?? Expression.Constant(null, typeof(JSFunction)),
+        //        setter ?? Expression.Constant(null, typeof(JSFunction)));
+        //}
+
+        //public static Expression AddStaticValue(
+        //    Expression target,
+        //    Expression name,
+        //    Expression value)
+        //{
+        //    return Expression.Call(
+        //        target,
+        //        _AddStaticMethod,
+        //        name,
+        //        value);
+        //}
+
+
+        //public static Expression AddStaticProperty(
+        //    Expression target,
+        //    Expression name,
+        //    Expression getter,
+        //    Expression setter)
+        //{
+        //    return Expression.Call(
+        //        target,
+        //        _AddStaticProperty,
+        //        name,
+        //        getter ?? Expression.Constant(null, typeof(JSFunction)),
+        //        setter ?? Expression.Constant(null, typeof(JSFunction)));
+        //}
 
 
         public static Expression New(

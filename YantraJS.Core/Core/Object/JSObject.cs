@@ -238,37 +238,6 @@ namespace YantraJS.Core
             return this;
         }
 
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public JSObject AddProperty(in KeyString key, JSValue value)
-        {
-            ownProperties.Put(in key, value);
-            return this;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public JSObject AddProperty(in KeyString key, JSFunction getter, JSFunction setter)
-        {
-            ownProperties.Put(in key, getter?.f, setter?.f);
-            return this;
-        }
-
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public JSObject AddProperty(JSValue key, JSValue value)
-        {
-            var k = key.ToKey(true);
-            if (k.IsUInt)
-            {
-                elements.Put(k.Index, value);
-            } else
-            {
-                ref var op = ref GetOwnProperties(true);
-                op.Put(in k.KeyString, value);
-            }
-            return this;
-        }
-
         internal override PropertyKey ToKey(bool create = true)
         {
             if (!create)

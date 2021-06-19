@@ -20,6 +20,8 @@ namespace YantraJS.ExpHelper
     {
         readonly static Type type = typeof(JSObject);
 
+        readonly static Type typeExtensions = typeof(JSObjectExtensions);
+
         //private static FieldInfo _ownProperties =
         //    type.InternalField(nameof(Core.JSObject.ownProperties));
 
@@ -43,14 +45,74 @@ namespace YantraJS.ExpHelper
         readonly static MethodInfo _Spread =
             type.PublicMethod(nameof(JSObject.Merge), new Type[] { typeof(JSValue) });
 
+        readonly static MethodInfo _AddValueString =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.AddProperty), typeof(JSObject), KeyStringsBuilder.RefType, typeof(JSValue), typeof(JSPropertyAttributes) );
+
+        readonly static MethodInfo _AddValueUInt =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.AddProperty), typeof(JSObject), typeof(uint), typeof(JSValue), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _AddValue =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.AddProperty), typeof(JSObject), typeof(JSValue), typeof(JSValue), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _AddPropertyString =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.AddProperty), typeof(JSObject), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _AddPropertyUInt =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.AddProperty), typeof(JSObject), typeof(uint), typeof(JSFunction), typeof(JSFunction), typeof(JSPropertyAttributes));
+
         readonly static MethodInfo _AddProperty =
-            type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSValue) });
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.AddProperty), typeof(JSObject), typeof(JSValue), typeof(JSFunction), typeof(JSFunction), typeof(JSPropertyAttributes));
 
-        readonly static MethodInfo _AddExpressionProperty =
-            type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSValue) });
 
-        readonly static MethodInfo _AddPropertyAccessors =
-            type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction) });
+        //readonly static MethodInfo _AddExpressionProperty =
+        //    type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { typeof(JSValue), typeof(JSValue) });
+
+        //readonly static MethodInfo _AddPropertyAccessors =
+        //    type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction) });
+
+
+        public static Expression AddValue(
+            Expression target, 
+            Expression key, 
+            Expression value,
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
+        {
+            if(key.Type == typeof(JSValue))
+            {
+                return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));
+            }
+            if(key.Type== typeof(uint))
+            {
+                return Expression.Call(null, _AddValueUInt, target, key, value, Expression.Constant(attributes));
+            }
+            if (key.Type == typeof(int))
+            {
+                return Expression.Call(null, _AddValueUInt, target, Expression.Convert(key, typeof(uint)), value, Expression.Constant(attributes));
+            }
+            return Expression.Call(null, _AddValueString, target, key, value, Expression.Constant(attributes));
+        }
+
+        public static Expression AddProperty(
+            Expression target, 
+            Expression key, 
+            Expression getter, 
+            Expression setter, 
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        {
+            if (key.Type == typeof(JSValue))
+            {
+                return Expression.Call(null, _AddProperty, target, key, getter, setter, Expression.Constant(attributes));
+            }
+            if (key.Type == typeof(uint))
+            {
+                return Expression.Call(null, _AddPropertyUInt, target, key, getter, setter, Expression.Constant(attributes));
+            }
+            if (key.Type == typeof(int))
+            {
+                return Expression.Call(null, _AddPropertyUInt, target, Expression.Convert(key, typeof(uint)), getter, setter, Expression.Constant(attributes));
+            }
+            return Expression.Call(null, _AddPropertyString, target, key, getter, setter, Expression.Constant(attributes));
+        }
 
 
         public static Expression New(IList<ExpressionHolder> keyValues)
@@ -107,22 +169,35 @@ namespace YantraJS.ExpHelper
                 }
                 if (px.Key.Type == typeof(uint))
                 {
-                    _newObj = Expression.Call(_newObj, _AddElement, px.Key, px.Value);
+                    if (px.Value != null)
+                    {
+                        _newObj = Expression.Call(null, _AddValueUInt, _newObj, px.Key, px.Value);
+                    } else
+                    {
+                        _newObj = Expression.Call(null, _AddPropertyUInt,_newObj, px.Key, px.Getter, px.Setter);
+                    }
                     continue;
                 }
                 if (px.Key.Type == typeof(KeyString))
                 {
                     if (px.Value != null)
                     {
-                        _newObj = Expression.Call(_newObj, _AddProperty, px.Key, px.Value);
+                        _newObj = Expression.Call(null, _AddValueString, _newObj, px.Key, px.Value);
                     }
                     else
                     {
-                        _newObj = Expression.Call(_newObj, _AddPropertyAccessors, px.Key, px.Getter, px.Setter);
+                        _newObj = Expression.Call(null, _AddPropertyString, _newObj, px.Key, px.Getter, px.Setter);
                     }
                     continue;
                 }
-                _newObj = Expression.Call(_newObj, _AddExpressionProperty, px.Key, px.Value);
+                if (px.Value != null)
+                {
+                    _newObj = Expression.Call(null, _AddValue, _newObj, px.Key, px.Value);
+                }
+                else
+                {
+                    _newObj = Expression.Call(null, _AddProperty, _newObj, px.Key, px.Getter, px.Setter);
+                }
             }
             return _newObj;
         }
