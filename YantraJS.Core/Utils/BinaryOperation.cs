@@ -149,6 +149,8 @@ namespace YantraJS.Utils
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt, rightInt)));
                 case TokenTypes.AssignPower:
                     return Assign(left, ExpHelper.JSNumberBuilder.New(Expression.Power(leftDouble, rightDouble)));
+                case TokenTypes.AssignCoalesce:
+                    return Assign(left, JSValueBuilder.Coalesce(left, right));
             }
 
             throw new NotSupportedException();

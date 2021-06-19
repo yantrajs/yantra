@@ -428,7 +428,10 @@ namespace YantraJS.Core.FastParser
                             }
                             return state.Commit(TokenTypes.QuestionDot);
                         case '?':
-                            Consume();
+                            if (ConsumeAndNext('='))
+                            {
+                                return state.Commit(TokenTypes.AssignCoalesce);
+                            }
                             return state.Commit(TokenTypes.Coalesce);
                     }
                     //if (CanConsume('.'))

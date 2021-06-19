@@ -59,6 +59,7 @@ namespace YantraJS.Core.FastParser
         AssignBitwideOr,
         AssignRightShift,
         AssignLeftShift,
+        AssignCoalesce,
         AssignPower,
 
         // not used...
