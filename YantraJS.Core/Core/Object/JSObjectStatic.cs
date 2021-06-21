@@ -401,6 +401,13 @@ namespace YantraJS.Core
             return r;
         }
 
+        /// <summary>
+        /// The Object.getOwnPropertyNames() method returns an array of all properties 
+        /// (including non-enumerable properties except for those which use Symbol) 
+        /// found directly in a given object.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
         [Static("getOwnPropertyNames")]
         internal static JSValue GetOwnPropertyNames(in Arguments a)
         {
@@ -409,12 +416,7 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            var en = jobj.GetOwnProperties(false).GetEnumerator();
-            var r = new JSArray();
-            while (en.MoveNext(out var property))
-            {
-                r.Add(property.ToJSValue());
-            }
+            var r = new JSArray(jobj.GetAllKeys(false, false));
             return r;
         }
 

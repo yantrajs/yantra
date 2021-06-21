@@ -82,6 +82,32 @@ namespace YantraJS.Core
                     return true;
                 }
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNextKey(out KeyString key)
+            {
+                while (true)
+                {
+                    index++;
+                    if (index >= length)
+                    {
+                        key = default;
+                        return false;
+                    }
+                    ref var p = ref this.array[index];
+                    if (p.IsEmpty)
+                    {
+                        continue;
+                    }
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.IsEnumerable)
+                            continue;
+                    }
+                    key = KeyStrings.GetName(p.key);
+                    return true;
+                }
+            }
         }
 
         #region ValueEnumerator
