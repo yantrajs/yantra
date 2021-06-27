@@ -55,7 +55,10 @@ namespace YantraJS.Core.FastParser
                 {
                     do
                     {
-                        if(Identitifer(out var id))
+                        // added for empty object pattern
+                        if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
+                            break;
+                        if (Identitifer(out var id))
                         {
                             left = id;
                         } else if (!AssignmentLeftPattern(out left, kind, modulePattern))
@@ -111,6 +114,9 @@ namespace YantraJS.Core.FastParser
                 {
                     do
                     {
+                        // added for empty square bracket pattern
+                        if (stream.CheckAndConsume(TokenTypes.SquareBracketEnd))
+                            break;
                         var spread = stream.CheckAndConsume(TokenTypes.TripleDots, out var token);
                         if (!AssignmentLeftPattern(out var left, kind, modulePattern))
                             throw stream.Unexpected();

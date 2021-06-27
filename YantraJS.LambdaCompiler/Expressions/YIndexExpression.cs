@@ -24,7 +24,7 @@ namespace YantraJS.Expressions
 
         public override void Print(IndentedTextWriter writer)
         {
-            Target.Print(writer);
+            Target?.Print(writer);
             writer.Write('[');
             writer.PrintCSV(Arguments);
             writer.Write(']');
