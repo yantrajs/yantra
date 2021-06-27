@@ -31,12 +31,12 @@ namespace YantraJS.Core.FastParser
             }
 
             if(Identitifer(out var id)) {
-                this.variableScope.Top.AddVariable(id.Start, id.Name);
+                this.variableScope.Top.AddVariable(id.Start, id.Name, FastVariableKind.Let);
             }
 
             stream.Expect(TokenTypes.BracketStart);
             var scope = variableScope.Push(begin, FastNodeType.FunctionExpression);
-            if (!Parameters(out var declarators, TokenTypes.BracketEnd, false, FastVariableKind.Var))
+            if (!Parameters(out var declarators, TokenTypes.BracketEnd, false, FastVariableKind.Let))
                 throw stream.Unexpected();
 
             if (!stream.CheckAndConsume(TokenTypes.CurlyBracketStart))

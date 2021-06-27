@@ -55,7 +55,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 {
 
                     keys.Add(new ExpressionHolder { 
-                        Key = JSValueBuilder.ToKey( VisitExpression(p.Key)),
+                        Key = VisitExpression(p.Key),
                         Value = value
                     });
 
