@@ -337,7 +337,7 @@ namespace YantraJS.Generator
 
         public static void  EmitCall(this ILWriter il,MethodInfo method)
         {
-            if (method.IsVirtual)
+            if (!method.IsStatic)
             {
                 il.Emit(OpCodes.Callvirt, method);
                 return;

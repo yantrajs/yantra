@@ -27,7 +27,7 @@ namespace YantraJS.Generator
             EmitParameters(callExpression.Method, callExpression.Arguments, callExpression.Type);
             // for some reason it is not working !!
             // il.Emit(OpCodes.Tailcall);
-            il.Emit(callExpression.Method.IsVirtual 
+            il.Emit(!callExpression.Method.IsStatic
                 ? OpCodes.Callvirt
                 : OpCodes.Call, callExpression.Method);
             il.Emit(OpCodes.Ret);

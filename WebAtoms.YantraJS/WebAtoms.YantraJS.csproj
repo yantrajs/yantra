@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>YantraJS.Core</AssemblyName>
+    <PackageId>WebAtoms.YantraJS</PackageId>
+    <PackageTags>yantra,yantrajs,javascript</PackageTags>
+    <Version>1.0.1</Version>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedAllSources>True</EmbedAllSources>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WebAtoms.Core" Version="1.5.171" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ErrorProne.NET.Structs" Version="0.3.0-beta.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
+  </ItemGroup>  
+  <ItemGroup>
+    <Compile Include="..\YantraJS.Core\**\*.cs">
+      <link>Imported\%(RecursiveDir)%(Filename)%(Extension)</link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="..\YantraJS.Core\obj\**" />
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+    <Compile Remove="..\YantraJS.Core\bin\**" />
+    <Compile Remove="bin\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <None Remove="bin\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\YantraJS.LambdaCompiler\YantraJS.ExpressionCompiler.csproj" />
+  </ItemGroup>
+
+</Project>
