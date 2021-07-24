@@ -130,6 +130,8 @@ namespace YantraJS.Core
         public IJSValue InvokeMethod(string name, params IJSValue[] args)
         {
             var fx = GetMethod(name);
+            if (fx == null)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {this}");
             var a = new Arguments(this, args);
             return fx(a);
         }
