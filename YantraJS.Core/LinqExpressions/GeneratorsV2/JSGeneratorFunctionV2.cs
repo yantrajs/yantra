@@ -123,8 +123,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     done = true;
                     return;
                 }
+                done = false;
+                return;
             }
-            done = false;
+            done = true;
             value = default;
         }
 
