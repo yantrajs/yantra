@@ -85,6 +85,10 @@ namespace YantraJS.Core.Generator
                 {
                     this.done = false;
                     this.value = item;
+                    if (cg.IsFinished)
+                    {
+                        this.done = true;
+                    }
                     return true;
                 }
                 this.value = JSUndefined.Value;
@@ -118,6 +122,10 @@ namespace YantraJS.Core.Generator
                 {
                     this.done = false;
                     this.value = item;
+                    if (cg.IsFinished)
+                    {
+                        this.done = true;
+                    }
                     return ValueObject;
                 }
             }finally

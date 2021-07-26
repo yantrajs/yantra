@@ -111,12 +111,6 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         internal bool Next(JSValue next, out JSValue value)
         {
-            if (IsFinished) {
-                value = default;
-                return false;
-            }
-
-            var lastResult = LastValue;
             LastValue = next ?? LastValue ?? JSUndefined.Value;
 
             var v = GetNext(this.NextJump, LastValue);
@@ -125,10 +119,14 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             {
                 value = v.Value;
 
-                if(v.NextJump == 0 || v.NextJump == -1)
+                if(v.NextJump == 0)
                 {
                     IsFinished = true;
                     return false;
+                }
+                if(v.NextJump == -1)
+                {
+                    IsFinished = true;
                 }
 
                 return true;
