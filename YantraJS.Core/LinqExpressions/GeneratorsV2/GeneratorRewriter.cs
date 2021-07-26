@@ -335,7 +335,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         protected override Exp VisitReturn(YReturnExpression node)
         {
             return Expression.Return(generatorReturn,
-                GeneratorStateBuilder.New(Visit(node.Default), 0));
+                GeneratorStateBuilder.New(Visit(node.Default), -1));
         }
 
         protected override Expression VisitGoto(GotoExpression node)

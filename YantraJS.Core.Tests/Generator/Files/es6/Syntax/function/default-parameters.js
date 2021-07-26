@@ -5,8 +5,8 @@
 assert.strictEqual(a(), 2);
 assert.strictEqual(a(1), 1);
 
-var a = {};
-a[a["A"] = 1] = "A";
+var b = {};
+b[b["A"] = 1] = "A";
 
-assert.strictEqual(a[1], "A");
-assert.strictEqual(a["A"], 1);
+assert.strictEqual(b[1], "A");
+assert.strictEqual(b["A"], 1);

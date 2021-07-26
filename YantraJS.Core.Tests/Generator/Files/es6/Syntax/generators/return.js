@@ -5,3 +5,4 @@
 }
 
 var a = Array.from(g());
+assert.strictEqual(a.toString(), "1,2,3");

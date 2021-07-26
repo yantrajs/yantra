@@ -125,9 +125,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             {
                 value = v.Value;
 
-                if(v.NextJump == 0)
+                if(v.NextJump == 0 || v.NextJump == -1)
                 {
                     IsFinished = true;
+                    return false;
                 }
 
                 return true;
