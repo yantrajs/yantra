@@ -81,14 +81,9 @@ namespace YantraJS.Core.Generator
             try
             {
                 c.Top = cg.StackItem;
-                if (cg.Next(replaceOld, out item))
-                {
-                    this.done = false;
-                    this.value = item;
-                    if (cg.IsFinished)
-                    {
-                        this.done = true;
-                    }
+                cg.Next(replaceOld, out item, out this.done);
+                this.value = item;
+                if (!this.done) {
                     return true;
                 }
                 this.value = JSUndefined.Value;
@@ -118,24 +113,12 @@ namespace YantraJS.Core.Generator
             try
             {
                 c.Top = cg.StackItem;
-                if (cg.Next(replaceOld, out item))
-                {
-                    this.done = false;
-                    this.value = item;
-                    if (cg.IsFinished)
-                    {
-                        this.done = true;
-                    }
-                    return ValueObject;
-                }
+                cg.Next(replaceOld, out this.value, out this.done);
+                return ValueObject;
             }finally
             {
                 c.Top = top; 
             }
-
-            this.done = true;
-            // this.value = JSUndefined.Value;
-            return ValueObject;
         }
 
         public override IElementEnumerator GetElementEnumerator()
