@@ -104,7 +104,7 @@ namespace YantraJS.Core
             var target = this as JSObject;
             ref var ownProperties = ref target.GetOwnProperties();
             KeyString key = name;
-            ownProperties[key.Key] = new JSProperty(key, pget, pset, pvalue, pAttributes);
+            ownProperties.Put(key.Key) = new JSProperty(key, pget, pset, pvalue, pAttributes);
         }
 
         public bool DeleteProperty(string name)

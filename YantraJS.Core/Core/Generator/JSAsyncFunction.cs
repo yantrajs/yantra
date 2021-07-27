@@ -28,7 +28,7 @@ namespace YantraJS.Core.Core.Generator
             {
                 if(!gen.MoveNext(lastResult, out var r))
                 {
-                    return new JSPromise(lastResult, JSPromise.PromiseState.Resolved);
+                    return new JSPromise(r, JSPromise.PromiseState.Resolved);
                 }
 
                 var then = r[KeyStrings.then];

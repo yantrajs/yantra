@@ -86,7 +86,7 @@ namespace YantraJS.Core.Generator
                 if (!this.done) {
                     return true;
                 }
-                this.value = JSUndefined.Value;
+                this.value = item;
                 this.done = true;
                 return false;
             }

@@ -31,17 +31,21 @@ namespace YantraJS
             }
 
             d.tasks.Add((task, input, func));
-            task.Task.Wait();
-
-            if(queue.Count < 10)
+            try
             {
-                queue.Enqueue(d);
-            } else
+                task.Task.Wait();
+                return task.Task.Result;
+            } finally
             {
-                d.Dispose();
+                if (queue.Count < 4)
+                {
+                    queue.Enqueue(d);
+                }
+                else
+                {
+                    d.Dispose();
+                }
             }
-
-            return task.Task.Result;
         }
 
         private static ConcurrentQueue<YDispatcher> queue = new ConcurrentQueue<YDispatcher>();
@@ -55,7 +59,13 @@ namespace YantraJS
         {
             foreach(var (task, input, func) in tasks.GetConsumingEnumerable())
             {
-                task.SetResult(func(input));
+                try
+                {
+                    task.SetResult(func(input));
+                } catch (Exception ex)
+                {
+                    task.TrySetException(ex);
+                }
             }
         }
     }

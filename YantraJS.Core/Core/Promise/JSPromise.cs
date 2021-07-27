@@ -36,10 +36,23 @@ namespace YantraJS.Core
             Rejected
         }
 
+        private enum ReactionType
+        {
+            Resolve,
+            Reject
+        }
+
+        private class Reaction
+        {
+            public JSPromise Promise;
+            public  ReactionType Type;
+            public JSFunctionDelegate Handler;
+        }
+
         internal PromiseState state = PromiseState.Pending;
 
-        private List<Action> thenList;
-        private List<Action> rejectList;
+        private List<Reaction> thenList;
+        private List<Reaction> rejectList;
         JSFunction resolveFunction;
         JSFunction rejectFunction;
         internal JSValue result = JSUndefined.Value;
@@ -63,6 +76,11 @@ namespace YantraJS.Core
             pending.TryAdd(promiseID, this);
         }
 
+        internal JSPromise(JSValue value, PromiseState state): this()
+        {
+            this.state = state;
+            this.result = value;
+        }
 
         /// <summary>
         /// Promise must stay alive till resolved...
@@ -84,20 +102,32 @@ namespace YantraJS.Core
             });
         }
 
-        internal JSPromise(JSValue value, PromiseState state) :
-            base(JSContext.Current.PromisePrototype)
+        public JSPromise(JSValue @delegate): this()
         {
-            sc = JSContext.Current.synchronizationContext;
-            if (state == PromiseState.Pending)
+            try
             {
-                RegisterPromise();
+                @delegate.InvokeFunction(new Arguments(this, resolveFunction, rejectFunction));
             }
-            this.result = value;
-            this.state = state;
+            catch (Exception ex)
+            {
+                rejectFunction.InvokeFunction(new Arguments(JSUndefined.Value, JSError.From(ex)));
+            }
+        }
+
+        public JSPromise(JSPromiseDelegate @delegate) : this()
+        {
+            try
+            {
+                @delegate((v) => resolveFunction.Call(JSUndefined.Value,v), (v) => rejectFunction.Call(JSUndefined.Value, v));
+            }
+            catch (Exception ex)
+            {
+                rejectFunction.InvokeFunction(new Arguments(JSUndefined.Value, JSError.From(ex)));
+            }
         }
 
 
-        public JSPromise(JSValue @delegate) :
+        private JSPromise() :
             base(JSContext.Current.PromisePrototype)
         {
             // to improve speed of promise, we will add then/catch here...
@@ -107,41 +137,42 @@ namespace YantraJS.Core
 
             RegisterPromise();
 
-            resolveFunction = new JSFunction((in Arguments a) => Resolve(a.Get1()));
-            rejectFunction = new JSFunction((in Arguments a) => Reject(a.Get1()));
-            @delegate.InvokeFunction(new Arguments(this, resolveFunction, rejectFunction));
-
-        }
-
-        public JSPromise(JSPromiseDelegate @delegate) :
-            base(JSContext.Current.PromisePrototype)
-        {
-            sc = JSContext.Current.synchronizationContext;
-            RegisterPromise();
-            @delegate(p => Resolve(p), p => Reject(p));
+            resolveFunction = new JSFunction((in Arguments a) =>
+            {
+                Resolve(a.Get1());
+                return JSUndefined.Value;
+            });
+            rejectFunction = new JSFunction((in Arguments a) =>
+            {
+                Reject(a.Get1());
+                return JSUndefined.Value;
+            });
         }
 
         /// <summary>
         /// This prevents garbage collection
         /// </summary>
         public JSPromise Parent { get; }
-        public JSPromise(JSPromiseDelegate @delegate, JSPromise parent) :
-            base(JSContext.Current.PromisePrototype)
-        {
-            sc = JSContext.Current.synchronizationContext;
-            this.Parent = parent;
-            RegisterPromise();
-            @delegate(p => Resolve(p), p => Reject(p));
-        }
+        //public JSPromise(JSPromiseDelegate @delegate, JSPromise parent) :
+        //    base(JSContext.Current.PromisePrototype)
+        //{
+        //    sc = JSContext.Current.synchronizationContext;
+        //    this.Parent = parent;
+        //    RegisterPromise();
+        //    @delegate(p => Resolve(p), p => Reject(p));
+        //}
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSValue Resolve(JSValue value)
+        internal void Resolve(JSValue value)
         {
+            if (state != PromiseState.Pending)
+                return;
+
             if (value == this)
             {
                 Reject(JSContext.Current.NewTypeError("A promise cannot be resolved with itself").Error);
-                return JSUndefined.Value;
+                return;
             }
 
             pending.TryRemove(promiseID, out var __);
@@ -157,22 +188,14 @@ namespace YantraJS.Core
                     {
                         try
                         {
-                            then.InvokeFunction(new Arguments(value, new JSFunction((in Arguments a) => {
-                                return Resolve(a.Get1());
-                            }), new JSFunction((in Arguments a) => {
-                                return Reject(a.Get1());
-                            })));
-                        }
-                        catch (JSException jse)
-                        {
-                            Reject(jse.Error);
+                            then.Call(value, resolveFunction, rejectFunction);
                         }
                         catch (Exception ex)
                         {
-                            Reject(new JSString(ex.ToString()));
+                            Reject(JSError.From(ex));
                         }
                     });
-                    return JSUndefined.Value;
+                    return;
                 }
             }
 
@@ -188,12 +211,15 @@ namespace YantraJS.Core
                 }
             }
 
-            return JSUndefined.Value;
+            return;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSValue Reject(JSValue value)
+        internal void Reject(JSValue value)
         {
+            if (state != PromiseState.Pending)
+                return;
+
             this.state = PromiseState.Rejected;
             this.result = value;
 
@@ -208,7 +234,7 @@ namespace YantraJS.Core
                     Post(t);
                 }
             }
-            return JSUndefined.Value;
+            return;
         }
 
         private TaskCompletionSource<JSValue> taskCompletion = null;
@@ -218,16 +244,23 @@ namespace YantraJS.Core
         {
             get
             {
+                if(state == PromiseState.Resolved)
+                {
+                    return System.Threading.Tasks.Task.FromResult(result);
+                }
+                if (state == PromiseState.Rejected)
+                {
+                    throw JSException.FromValue(result);
+                }
                 if (taskCompletion == null)
                 {
                     taskCompletion = new TaskCompletionSource<JSValue>();
-                    this.thenList = this.thenList ?? new List<Action>();
-                    thenList.Add(() => {
-                        taskCompletion.TrySetResult(this.result);
-                    });
-                    this.rejectList = this.rejectList ?? new List<Action>();
-                    rejectList.Add(() => {
-                        taskCompletion.TrySetException(JSException.FromValue(this.result));
+                    this.Then((in Arguments a) => {
+                        taskCompletion.TrySetResult(a.Get1());
+                        return JSUndefined.Value;
+                    },(in Arguments a) => {
+                        taskCompletion.TrySetException(JSException.FromValue(result));
+                        return JSUndefined.Value;
                     });
                 }
                 return taskCompletion.Task;
@@ -253,61 +286,57 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal JSValue Then(JSFunctionDelegate resolved, JSFunctionDelegate failed)
+        internal JSValue Then(JSFunctionDelegate resolve, JSFunctionDelegate fail, JSPromise @return = null)
         {
-            Action resolveAction = () =>
-            {
-                this.result = (resolved?.Invoke(new Arguments(this, this.result))) ?? this.result;
-            };
+            @return ??= new JSPromise();
+            var resolved = new Reaction { Promise = @return, Type = ReactionType.Resolve, Handler = resolve };
+            var rejected = new Reaction { Promise = @return, Type = ReactionType.Reject, Handler = fail };
 
-            Action failAction = () => {
-                this.result = (failed?.Invoke(new Arguments(this, this.result))) ?? this.result;
-            };
-
-            if (this.state == PromiseState.Resolved)
+            if(state == PromiseState.Pending)
             {
-                Post(resolveAction);
-                return this;
+                this.rejectList ??= new List<Reaction>();
+                this.thenList ??= new List<Reaction>();
+                rejectList.Add(rejected);
+                thenList.Add(resolved);
+            } else if(state == PromiseState.Resolved)
+            {
+                Post(resolved);
+            } else
+            {
+                Post(rejected);
             }
-            if (this.state == PromiseState.Rejected)
-            {
-                Post(failAction);
-                return this;
-            }
-            return new JSPromise((rs, rf) => {
-                if (resolved != null)
-                {
-                    var thenList = this.thenList ?? (this.thenList = new List<Action>());
-                    thenList.Add(() => {
-                        try
-                        {
-                            resolveAction();
-                            rs(this.result);
-                        }
-                        catch (Exception ex)
-                        {
-                            var error = JSError.From(ex);
-                            rf(error);
-                        }
-                    });
-                }
-                if (failed != null)
-                {
-                    var catchList = this.rejectList ?? (this.rejectList = new List<Action>());
-                    catchList.Add(() => {
-                        try
-                        {
-                            failAction();
-                            rf(this.resolveFunction);
-                        } catch (Exception ex)
-                        {
-                            var error = JSError.From(ex);
-                            rf(error);
-                        }
-                    });
 
+            return @return;
+        }
+
+        private void Post(Reaction reaction)
+        {
+            Post(() => { 
+                if(reaction.Handler != null)
+                {
+                    try {
+                        var handlerResult = reaction.Handler(new Arguments(JSUndefined.Value, result));
+                        if(reaction.Promise != null)
+                        {
+                            reaction.Promise.Resolve(handlerResult);
+                        }
+                    } catch(Exception ex) {
+                        reaction.Promise.Reject(JSError.From(ex));
+                    }
+                } else if (reaction.Type == ReactionType.Resolve)
+                {
+                    if(reaction.Promise != null)
+                    {
+                        reaction.Promise.Resolve(this.result ?? JSUndefined.Value);
+                    }
+                } else
+                {
+                    if(reaction.Promise != null)
+                    {
+                        reaction.Promise.Reject(this.result);
+                    }
                 }
-            }, this);
+            });
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
