@@ -221,7 +221,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public LinkedStack<LoopScope> Loop;
 
-        public Expression Super => JSValueBuilder.PrototypeChain(ThisExpression);
+        public Expression Super => JSValueBuilder.PrototypeChain( JSValueBuilder.PrototypeChain(ThisExpression));
 
         public IEnumerable<VariableScope> Variables
         {

@@ -12,19 +12,19 @@
     }
 }
 
-let s = new Shape("shape");
+let s = new Shape('shape');
 
-assert.strictEqual("shape", s.n);
-assert.strictEqual("shape", s.name);
+assert.strictEqual('shape', s.n);
+assert.strictEqual('shape', s.name);
 
 class Circle extends Shape {
 
     get name() {
-        return super.name + "$" + super.name;
+        return super.name + '$' + super.name;
     }
 
 }
 
-s = new Circle("circle");
-assert.strictEqual("circle", s.n);
-assert.strictEqual("circle$circle", s.name);
+s = new Circle('circle');
+assert.strictEqual('circle', s.n);
+assert.strictEqual('circle$circle', s.name);

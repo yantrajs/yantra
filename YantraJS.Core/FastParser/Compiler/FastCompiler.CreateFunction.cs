@@ -52,7 +52,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
             try
             {
-                using (var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis, super)))
+                using (var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis)))
                 {
                     var lexicalScopeVar = cs.Context;
 
