@@ -136,6 +136,8 @@ namespace Test262Runner
                     // throw ex;
                     Console.Error.WriteLine(ex.ToString());
                 }
+
+                // YDispatcher.Shutdown();
             }
         }
 
