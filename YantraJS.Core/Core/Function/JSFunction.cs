@@ -321,7 +321,7 @@ namespace YantraJS.Core
             var super = target.prototypeChain.@object;
 
             var @this = a.This;
-            var r = (super as JSFunction).f(a.OverrideThis(a.This, target));
+            var r = (super as JSFunction).f(a.OverrideThis(a.This, super));
             return r.IsObject ? r : @this;
         }
 

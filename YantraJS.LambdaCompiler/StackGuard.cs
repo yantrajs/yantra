@@ -93,23 +93,23 @@ namespace YantraJS
         private const int MaxStackSize = 1024;
 
 
-        private static int count = MaxStackSize;
+        private int count = 200;
 
         public T Visit(TIn input)
         {
 
-            if (count == MaxStackSize)
+            if (count == 0)
             {
                 T output = default;
-                count = 0;
-                output = (T)YDispatcher.Queue(input, (i) => this.VisitIn((TIn)i));
                 count = MaxStackSize;
+                output = (T)YDispatcher.Queue(input, (i) => this.VisitIn((TIn)i));
+                count = 0;
                 return output;
             }
 
-            count++;
-            var r = VisitIn(input);
             count--;
+            var r = VisitIn(input);
+            count++;
             return r;
         }
 

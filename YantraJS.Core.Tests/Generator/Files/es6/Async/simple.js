@@ -6,11 +6,11 @@
 
 let start = Date.now();
 
-let DateTime = clr.getClass('System.DateTime');
+// let DateTime = clr.getClass('System.DateTime');
 
 async function fill(m) {
     let a = [];
-    console.log('started ' + clr.toDateTime(DateTime.now).ticks);
+    console.log('started ' + start);
     for (var i = 0; i < m; i++) {
         await delay(100);
         a.push(Date.now());

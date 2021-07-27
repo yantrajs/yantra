@@ -33,5 +33,14 @@ class Circle extends Shape {
     }
 }
 
+class RoundedCircle extends Circle {
+    constructor() {
+        super(...arguments);
+    }
+}
+
 let c = new Circle('Circle');
 assert.strictEqual('Circle', c.name);
+
+let rc = new RoundedCircle('RoundedCircle');
+assert.strictEqual('RoundedCircle', rc.name);
