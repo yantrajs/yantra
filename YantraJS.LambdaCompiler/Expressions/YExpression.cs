@@ -373,7 +373,8 @@ namespace YantraJS.Expressions
 
         public static YFieldExpression Field(YExpression target, string name)
         {
-            var field = target.Type.GetField(name);
+            var field = target.Type.GetUnderlyingTypeIfRef().GetField(name);
+
             return new YFieldExpression(target, field);
         }
 

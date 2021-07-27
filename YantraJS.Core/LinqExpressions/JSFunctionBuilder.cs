@@ -81,9 +81,9 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _invokeSuperConstructor
             = typeof(JSFunction).PublicMethod(nameof(JSFunction.InvokeSuperConstructor), typeof(JSValue), typeof(Arguments).MakeByRefType());
 
-        public static Expression InvokeSuperConstructor(Expression returnValue, Expression super, Expression args)
+        public static Expression InvokeSuperConstructor(Expression newTarget, Expression returnValue, Expression args)
         {
-            return Expression.Assign(returnValue, Expression.Call(null, _invokeSuperConstructor, super, args));
+            return Expression.Assign(returnValue, Expression.Call(null, _invokeSuperConstructor, newTarget, args));
         }
 
         public static Expression InvokeFunction(Expression target, Expression args, bool coalesce = false)

@@ -34,6 +34,9 @@ namespace YantraJS.ExpHelper
         private static PropertyInfo _IsNullOrUndefined
             = type.Property(nameof(Core.JSValue.IsNullOrUndefined));
 
+        private static FieldInfo _PrototypeChain
+            = type.PublicField(nameof(Core.JSValue.prototypeChain));
+
         private static MethodInfo _ToKey
             = type.InternalMethod(nameof(Core.JSValue.ToKey), typeof(bool));
 
@@ -76,6 +79,11 @@ namespace YantraJS.ExpHelper
         public static Expression UIntValue(Expression exp)
         {
             return Expression.Property(exp, _UIntValue);
+        }
+
+        public static Expression PrototypeChain(Expression exp)
+        {
+            return Expression.Field( Expression.Field(exp, _PrototypeChain), "object");
         }
 
 

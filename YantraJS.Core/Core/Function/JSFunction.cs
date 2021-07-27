@@ -313,10 +313,16 @@ namespace YantraJS.Core
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static JSValue InvokeSuperConstructor(JSValue super, in Arguments a)
+        public static JSValue InvokeSuperConstructor(JSValue newTarget, in Arguments a)
         {
+            throw new NotImplementedException();
+            var target = newTarget;
+
+            // find parent constructor...
+            var super = target.prototypeChain.@object[KeyStrings.constructor];
+
             var @this = a.This;
-            var r = (super as JSFunction).f(a);
+            var r = (super as JSFunction).f(a.OverrideThis(a.This, target));
             return r.IsUndefined ? @this : r;
         }
 

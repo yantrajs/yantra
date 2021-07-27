@@ -53,7 +53,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected Expression VisitArguments(
             Expression? thisArg,
-            in ArraySpan<AstExpression> arguments) {
+            in ArraySpan<AstExpression> arguments,
+            Expression? newTarget = null) {
 
             var args = pool.AllocateList<Exp>(arguments.Count);
             bool hasSpread = false;
@@ -127,7 +128,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
 
                 // var id = me.Property.As<Esprima.Ast.Identifier>();
-                bool isSuper = me.Object is AstSuper;
+                bool isSuper = me.Object.Type == FastNodeType.Super;
                 var super = isSuper ? this.scope.Top.Super : null;
                 var target = isSuper
                     ? this.scope.Top.ThisExpression
@@ -152,13 +153,12 @@ namespace YantraJS.Core.FastParser.Compiler
             else
             {
 
-                bool isSuper = callee is AstSuper;
+                bool isSuper = callee.Type == FastNodeType.Super;
 
                 if (isSuper)
                 {
                     var paramArray1 = VisitArguments(this.scope.Top.ThisExpression, in arguments);
-                    var super = this.scope.Top.Super;
-                    return JSFunctionBuilder.InvokeSuperConstructor(this.scope.Top.ThisExpression, super, paramArray1);
+                    return JSFunctionBuilder.InvokeSuperConstructor(this.scope.Top.NewTarget, this.scope.Top.ThisExpression, paramArray1);
                 }
 
                 var paramArray = VisitArguments(JSUndefinedBuilder.Value, in arguments);

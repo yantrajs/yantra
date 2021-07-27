@@ -1,6 +1,6 @@
 ﻿class BaseClass {
     m() {
-        return "base";
+        return 'base';
     }
 }
 
@@ -15,7 +15,7 @@ class ChildClass extends BaseClass {
 
 var c = new ChildClass();
 
-assert.strictEqual(c.n, "base");
+assert.strictEqual(c.n, 'base');
 
 assert.strictEqual(Object.getPrototypeOf(ChildClass), BaseClass);
 
@@ -33,5 +33,5 @@ class Circle extends Shape {
     }
 }
 
-let c = new Circle("Circle");
-assert.strictEqual("Circle", c.name);
+let c = new Circle('Circle');
+assert.strictEqual('Circle', c.name);

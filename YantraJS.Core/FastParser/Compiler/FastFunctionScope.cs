@@ -203,6 +203,8 @@ namespace YantraJS.Core.FastParser.Compiler
         private Expression _this;
         public Expression ThisExpression => _this ?? (_this = this.GetVariable("this", true).Expression);
 
+        public Expression NewTarget => Expression.Field(ArgumentsExpression, nameof(YantraJS.Core.Arguments.NewTarget));
+
         public Expression ArgumentsExpression { get; }
 
         public ParameterExpression Arguments { get; }
@@ -218,6 +220,8 @@ namespace YantraJS.Core.FastParser.Compiler
         public bool IsRoot => Function == null;
 
         public LinkedStack<LoopScope> Loop;
+
+        public Expression Super => JSValueBuilder.PrototypeChain(ThisExpression);
 
         public IEnumerable<VariableScope> Variables
         {
@@ -316,8 +320,6 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public ParameterExpression Awaiter { get; set; }
 
-        public Expression Super { get; private set; }
-
         private static int scopeID = 0;
 
         public FastFunctionScope(
@@ -342,7 +344,6 @@ namespace YantraJS.Core.FastParser.Compiler
                 // Awaiter = Expression.Parameter(typeof(JSWeakAwaiter).MakeByRefType());
                 // throw new NotSupportedException();
             }
-            this.Super = super;
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
             this.Arguments = (fx?.Generator ?? false)
@@ -384,7 +385,6 @@ namespace YantraJS.Core.FastParser.Compiler
             this.ArgumentsExpression = p.ArgumentsExpression;
             this.Generator = p.Generator;
             this.Awaiter = p.Awaiter;
-            this.Super = p.Super;
             this.TempVariables = p.TempVariables;
             // this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
             this.Context = p.Context;

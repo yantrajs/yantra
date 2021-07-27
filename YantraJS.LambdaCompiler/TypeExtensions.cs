@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -36,6 +37,19 @@ namespace YantraJS
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args)
             => type.GetConstructor(args);
 
+
+        public static Type? GetUnderlyingTypeIfRef(this Type? type)
+        {
+            if (type == null)
+            {
+                return type;
+            }
+            if (type.IsByRef)
+            {
+                return type.Assembly.GetType(type.FullName.TrimEnd('&'));
+            }
+            return type;
+        }
 
         public static string GetFriendlyName(this Type? type)
         {

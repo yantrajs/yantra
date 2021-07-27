@@ -134,7 +134,8 @@ namespace YantraJS.Core {
 
         public virtual uint UIntValue => (uint)this.DoubleValue;
 
-        internal JSPrototype prototypeChain;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSPrototype prototypeChain;
 
         internal virtual JSObject BasePrototypeObject
         {
