@@ -17,20 +17,22 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-function* g(i) {
-    if (i === 4)
-        throw new Error('error');
-    if(i)
-        return yield 2;
-    var a = new RegExp();
-    return yield 3;
+function t() {
+    
 }
 
-var a = Array.from(g());
-assert.strictEqual(a.toString(), '3');
+function* g1(n) {
+    try {
+        yield 1;
+        t();
+    } catch(e) {
+        yield 2;
+    }
+}
 
-a = Array.from(g(1));
-assert.strictEqual(a.toString(), '2');
+var a = Array.from(g1(0));
+
+assert.strictEqual('1', a.toString());
 ");
         }
 

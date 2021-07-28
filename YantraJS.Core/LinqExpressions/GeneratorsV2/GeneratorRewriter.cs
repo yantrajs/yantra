@@ -274,13 +274,15 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 (finallyLabel, finallyId) = GetNextYieldJumpTarget();
             }
 
-            tryList.Add(ClrGeneratorV2Builder.Push(pe, catchId, finallyId));
+
+            var (endLabel, endId) = GetNextYieldJumpTarget();
+
+
+            tryList.Add(ClrGeneratorV2Builder.Push(pe, catchId, finallyId, endId));
             tryList.Add(Visit(node.Try));
             tryList.Add(ClrGeneratorV2Builder.Pop(pe));
-            if (hasFinally)
-            {
-                tryList.Add(Expression.Goto(finallyLabel));
-            }
+            tryList.Add(Expression.Goto(hasFinally ? finallyLabel : endLabel));
+
 
             if (hasCatch) {
                 tryList.Add(Expression.Label(catchLabel));
@@ -297,8 +299,9 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             {
                 tryList.Add(Expression.Label(finallyLabel));
                 tryList.Add(Visit(node.Finally));
+                tryList.Add(ClrGeneratorV2Builder.Throw(pe, endId));
             }
-
+            tryList.Add(Expression.Label(endLabel));
             return Expression.Block(tryList);
         }
 
@@ -327,8 +330,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
     {
         private static Type type = typeof(ClrGeneratorV2);
 
+        private static MethodInfo _throw = type.PublicMethod(nameof(ClrGeneratorV2.Throw), typeof(int));
+
         private static MethodInfo _push = type.PublicMethod(
             nameof(ClrGeneratorV2.PushTry),
+            typeof(int),
             typeof(int),
             typeof(int));
 
@@ -339,9 +345,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private static MethodInfo _GetVariable
             = type.GetMethod("GetVariable");
 
-        public static Expression Push(Expression exp, int c, int f)
+        public static Expression Push(Expression exp, int c, int f, int e)
         {
-            return Expression.Call(exp, _push, Expression.Constant(c), Expression.Constant(f));
+            return Expression.Call(exp, _push,
+                Expression.Constant(c), 
+                Expression.Constant(f),
+                Expression.Constant(e));
         }
 
         internal static Expression GetVariable(ParameterExpression pe, int id, Type type)
@@ -352,6 +361,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         internal static Expression Pop(ParameterExpression pe)
         {
             return Expression.Call(pe, _pop);
+        }
+        internal static Expression Throw(ParameterExpression pe, int id)
+        {
+            return Expression.Call(pe, _throw, Expression.Constant(id));
         }
     }
 }

@@ -52,6 +52,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
     {
         public int Catch;
         public int Finally;
+        public int End;
         public TryBlock Parent;
     }
 
@@ -130,6 +131,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             value = default;
         }
 
+        private Exception lastError = null;
+
         private GeneratorState GetNext(int nextJump, JSValue lastValue, Exception nextExp = null)
         {
             try {
@@ -149,6 +152,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                         return GetNext(root.Catch, lastValue, ex);
                     }
 
+                    lastError = ex;
                     var v = GetNext(root.Finally, lastValue);
                     if (v.HasValue)
                         return v;
@@ -158,12 +162,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             }
         }
 
-        public void PushTry(int @catch, int @finally){
+        public void PushTry(int @catch, int @finally, int end){
             if (@catch == 0 && @finally == 0)
                 throw new ArgumentException("Both catch and finally cannot be empty");
             Root = new TryBlock {
                 Catch = @catch,
                 Finally = @finally,
+                End = end,
                 Parent = Root
             };
         }
@@ -176,5 +181,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             Root = Root.Parent;
         }
 
+        public void Throw(int end)
+        {
+            if(Root.End == end && lastError != null)
+            {
+                Pop();
+                throw lastError;
+            }
+        }
     }
 }
