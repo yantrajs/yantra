@@ -19,9 +19,19 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 return base.VisitYield(node);
             }
 
+            protected override Exp VisitRelay(YRelayExpression relayExpression)
+            {
+                return relayExpression;
+            }
+
+            protected override Exp VisitLambda(YLambdaExpression yLambdaExpression)
+            {
+                return yLambdaExpression;
+            }
+
         }
 
-        public static Expression Rewrite(YCallExpression exp)
+        public static Expression Rewrite(YExpression exp)
         {
             var rw = new Rewriter();
             return rw.Visit(exp);
@@ -30,6 +40,16 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         public class Rewriter: YExpressionMapVisitor
         {
+
+            protected override Exp VisitLambda(YLambdaExpression yLambdaExpression)
+            {
+                return yLambdaExpression;
+            }
+
+            protected override Exp VisitRelay(YRelayExpression relayExpression)
+            {
+                return relayExpression;
+            }
 
             protected override Expression VisitNew(YNewExpression node)
             {

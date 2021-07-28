@@ -17,36 +17,20 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
-class Shape {
-
-    constructor(name) {
-        this.n = name;
-    }
-
-    get name() {
-        return this.n;
-    }
-    set name(v) {
-        this.n = v;
-    }
+function* g(i) {
+    if (i === 4)
+        throw new Error('error');
+    if(i)
+        return yield 2;
+    var a = new RegExp();
+    return yield 3;
 }
 
-let s = new Shape('shape');
+var a = Array.from(g());
+assert.strictEqual(a.toString(), '3');
 
-assert.strictEqual('shape', s.n);
-assert.strictEqual('shape', s.name);
-
-class Circle extends Shape {
-
-    get name() {
-        return super.name + '$' + super.name;
-    }
-
-}
-
-s = new Circle('circle');
-assert.strictEqual('circle', s.n);
-assert.strictEqual('circle$circle', s.name);
+a = Array.from(g(1));
+assert.strictEqual(a.toString(), '2');
 ");
         }
 

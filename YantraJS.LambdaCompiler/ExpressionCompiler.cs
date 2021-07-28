@@ -121,7 +121,7 @@ namespace YantraJS
         //    exp = nw.Visit(exp) as YLambdaExpression;
 
         //    var mdh = MetadataTokens.MethodDefinitionHandle(builder.Next);
-            
+
 
         //    ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
         //    var (ict, iexp) = icg.Emit(exp);
@@ -144,7 +144,10 @@ namespace YantraJS
         {
             if(debug)
             {
-                return CompileToInternalMethod(lambdaExpression, type);
+                var m = type.DefineMethod(lambdaExpression.Name + "_Inner_Factory",
+                    MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { });
+
+                return CompileToStaticMethod(lambdaExpression, type, m, debug);
             }
 
             var exp = LambdaRewriter.Rewrite(lambdaExpression)
@@ -171,9 +174,10 @@ namespace YantraJS
             return method;
         }
 
-        internal static MethodInfo CompileToInternalMethod(
+        public static MethodInfo CompileToStaticMethod(
             this YLambdaExpression lambdaExpression, 
-            TypeBuilder type)
+            TypeBuilder type,
+            MethodBuilder method, bool debug = false)
         {
 
             var derived = (type.Module as ModuleBuilder).DefineType(
@@ -207,7 +211,10 @@ namespace YantraJS
 
             var cdt = dt.GetConstructors().First(x => x.GetParameters().Length == 2);
 
-            var cd = typeof(MethodInfo).GetMethod(nameof(MethodInfo.CreateDelegate), new Type[] { typeof(Type), typeof(object) });
+            var cd = typeof(MethodInfo).GetMethod(nameof(MethodInfo.CreateDelegate), new Type[] {
+                typeof(Type),
+                method.ReturnType 
+            });
 
             var derivedType = derived.CreateTypeInfo();
             var ct = derivedType.GetConstructors()[0];
@@ -224,8 +231,9 @@ namespace YantraJS
                     YExpression.Constant(im))
                 , new YParameterExpression[] { });
 
-            var m = type.DefineMethod(lambdaExpression.Name + "_Inner_Factory",
-                MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { });
+            //var m = type.DefineMethod(lambdaExpression.Name + "_Inner_Factory",
+            //    MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { });
+            var m = method;
 
             var ln = lambdaExpression.Name;
             if (ln.Location != null)

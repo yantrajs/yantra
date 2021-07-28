@@ -81,6 +81,9 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
            ParameterExpression replaceClosures)
         {
             var gw = new GeneratorRewriter(generator, r, replaceArgs, replaceStackItem, replaceContext, replaceScriptInfo, replaceClosures);
+
+            body = MethodRewriter.Rewrite(body);
+
             var flatten = new FlattenBlocks();
             var innerBody = flatten.Visit( gw.Visit(body));
 
@@ -226,19 +229,29 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         }
 
-        /// <summary>
-        /// Yield requires flattening as you cannot jump in and out in middle
-        /// of call
-        /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        protected override Expression VisitCall(YCallExpression node)
+        protected override Exp VisitRelay(YRelayExpression relayExpression)
         {
-            var rewritten = MethodRewriter.Rewrite(node);
-            if (rewritten == node)
-                return base.VisitCall(node);
-            return Visit(rewritten);
+            return relayExpression;
         }
+
+        protected override Exp VisitLambda(LambdaExpression yLambdaExpression)
+        {
+            return yLambdaExpression;
+        }
+
+        ///// <summary>
+        ///// Yield requires flattening as you cannot jump in and out in middle
+        ///// of call
+        ///// </summary>
+        ///// <param name="node"></param>
+        ///// <returns></returns>
+        //protected override Expression VisitCall(YCallExpression node)
+        //{
+        //    var rewritten = MethodRewriter.Rewrite(node);
+        //    if (rewritten == node)
+        //        return base.VisitCall(node);
+        //    return Visit(rewritten);
+        //}
 
         protected override Exp VisitTryCatchFinally(TryExpression node)
         {
