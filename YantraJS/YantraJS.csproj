@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.7.0" />
     <PackageReference Include="NuGet.Protocol" Version="5.7.0" />
     <PackageReference Include="NuGet.Resolver" Version="5.7.0" />
+    <PackageReference Include="Lokad.ILPack" Version="0.1.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.1.6" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.216">
       <PrivateAssets>all</PrivateAssets>

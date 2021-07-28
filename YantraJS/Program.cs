@@ -6,6 +6,7 @@ using YantraJS;
 using YantraJS.Core;
 using YantraJS.Utils;
 using YantraJS.REPL;
+using YantraJS.Emit;
 
 namespace Yantra
 {
@@ -13,6 +14,8 @@ namespace Yantra
     {
         public static async Task Main(string[] args)
         {
+
+            DictionaryCodeCache.Current = new AssemblyCodeCache();
 
             if (args.Length == 0)
             {

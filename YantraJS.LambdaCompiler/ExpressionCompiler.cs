@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -83,10 +84,13 @@ namespace YantraJS
             NestedRewriter nw = new NestedRewriter(lambdaExpression, new LambdaMethodBuilder(method));
             lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
 
-            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
+            var ilw = new StringWriter();
+            var ew = new StringWriter();
+
+            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator(), ilw, ew);
             icg.Emit(lambdaExpression);
 
-            return (method, null, null);
+            return (method, ilw.ToString(), ew.ToString());
         }
 
 

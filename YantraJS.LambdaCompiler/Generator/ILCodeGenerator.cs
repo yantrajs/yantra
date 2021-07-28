@@ -55,7 +55,7 @@ namespace YantraJS.Generator
             //body = f.Visit(body);
 
             //writer.WriteLine("Flatten");
-            //body.Print(writer);
+            
 
             short i = 0;
             if(exp.This != null)
