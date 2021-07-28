@@ -175,6 +175,8 @@ namespace YantraJS.Core
                 return;
             }
 
+            value ??= JSUndefined.Value;
+
             pending.TryRemove(promiseID, out var __);
 
             // get then...
@@ -333,7 +335,7 @@ namespace YantraJS.Core
                 {
                     if(reaction.Promise != null)
                     {
-                        reaction.Promise.Reject(this.result);
+                        reaction.Promise.Reject(this.result ?? JSUndefined.Value);
                     }
                 }
             });
