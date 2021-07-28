@@ -7,240 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
-        typeof define === 'function' && define.amd ? define(factory) :
-            (factory());
-}(this, (function () {
-    'use strict';
-    function finallyConstructor(callback) {
-        var constructor = this.constructor;
-        return this.then(function (value) {
-            return constructor.resolve(callback()).then(function () {
-                return value;
-            });
-        }, function (reason) {
-            return constructor.resolve(callback()).then(function () {
-                return constructor.reject(reason);
-            });
-        });
-    }
-    var setTimeoutFunc = setTimeout;
-    function isArray(x) {
-        return Boolean(x && typeof x.length !== 'undefined');
-    }
-    function noop() { }
-    function bind(fn, thisArg) {
-        return function () {
-            fn.apply(thisArg, arguments);
-        };
-    }
-    function Promise(fn) {
-        if (!(this instanceof Promise))
-            throw new TypeError('Promises must be constructed via new');
-        if (typeof fn !== 'function')
-            throw new TypeError('not a function');
-        this._state = 0;
-        this._handled = false;
-        this._value = undefined;
-        this._deferreds = [];
-        doResolve(fn, this);
-    }
-    function handle(self, deferred) {
-        while (self._state === 3) {
-            self = self._value;
-        }
-        if (self._state === 0) {
-            self._deferreds.push(deferred);
-            return;
-        }
-        self._handled = true;
-        Promise._immediateFn(function () {
-            var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
-            if (cb === null) {
-                (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
-                return;
-            }
-            var ret;
-            try {
-                ret = cb(self._value);
-            }
-            catch (e) {
-                reject(deferred.promise, e);
-                return;
-            }
-            resolve(deferred.promise, ret);
-        });
-    }
-    function resolve(self, newValue) {
-        try {
-            if (newValue === self)
-                throw new TypeError('A promise cannot be resolved with itself.');
-            if (newValue &&
-                (typeof newValue === 'object' || typeof newValue === 'function')) {
-                var then = newValue.then;
-                if (newValue instanceof Promise) {
-                    self._state = 3;
-                    self._value = newValue;
-                    finale(self);
-                    return;
-                }
-                else if (typeof then === 'function') {
-                    doResolve(bind(then, newValue), self);
-                    return;
-                }
-            }
-            self._state = 1;
-            self._value = newValue;
-            finale(self);
-        }
-        catch (e) {
-            reject(self, e);
-        }
-    }
-    function reject(self, newValue) {
-        self._state = 2;
-        self._value = newValue;
-        finale(self);
-    }
-    function finale(self) {
-        if (self._state === 2 && self._deferreds.length === 0) {
-            Promise._immediateFn(function () {
-                if (!self._handled) {
-                    Promise._unhandledRejectionFn(self._value);
-                }
-            });
-        }
-        for (var i = 0, len = self._deferreds.length; i < len; i++) {
-            handle(self, self._deferreds[i]);
-        }
-        self._deferreds = null;
-    }
-    function Handler(onFulfilled, onRejected, promise) {
-        this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-        this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-        this.promise = promise;
-    }
-    function doResolve(fn, self) {
-        var done = false;
-        try {
-            fn(function (value) {
-                if (done)
-                    return;
-                done = true;
-                resolve(self, value);
-            }, function (reason) {
-                if (done)
-                    return;
-                done = true;
-                reject(self, reason);
-            });
-        }
-        catch (ex) {
-            if (done)
-                return;
-            done = true;
-            reject(self, ex);
-        }
-    }
-    Promise.prototype['catch'] = function (onRejected) {
-        return this.then(null, onRejected);
-    };
-    Promise.prototype.then = function (onFulfilled, onRejected) {
-        var prom = new this.constructor(noop);
-        handle(this, new Handler(onFulfilled, onRejected, prom));
-        return prom;
-    };
-    Promise.prototype['finally'] = finallyConstructor;
-    Promise.all = function (arr) {
-        return new Promise(function (resolve, reject) {
-            if (!isArray(arr)) {
-                return reject(new TypeError('Promise.all accepts an array'));
-            }
-            var args = Array.prototype.slice.call(arr);
-            if (args.length === 0)
-                return resolve([]);
-            var remaining = args.length;
-            function res(i, val) {
-                try {
-                    if (val && (typeof val === 'object' || typeof val === 'function')) {
-                        var then = val.then;
-                        if (typeof then === 'function') {
-                            then.call(val, function (val) {
-                                res(i, val);
-                            }, reject);
-                            return;
-                        }
-                    }
-                    args[i] = val;
-                    if (--remaining === 0) {
-                        resolve(args);
-                    }
-                }
-                catch (ex) {
-                    reject(ex);
-                }
-            }
-            for (var i = 0; i < args.length; i++) {
-                res(i, args[i]);
-            }
-        });
-    };
-    Promise.resolve = function (value) {
-        if (value && typeof value === 'object' && value.constructor === Promise) {
-            return value;
-        }
-        return new Promise(function (resolve) {
-            resolve(value);
-        });
-    };
-    Promise.reject = function (value) {
-        return new Promise(function (resolve, reject) {
-            reject(value);
-        });
-    };
-    Promise.race = function (arr) {
-        return new Promise(function (resolve, reject) {
-            if (!isArray(arr)) {
-                return reject(new TypeError('Promise.race accepts an array'));
-            }
-            for (var i = 0, len = arr.length; i < len; i++) {
-                Promise.resolve(arr[i]).then(resolve, reject);
-            }
-        });
-    };
-    Promise._immediateFn =
-        (typeof setImmediate === 'function' &&
-            function (fn) {
-                setImmediate(fn);
-            }) ||
-        function (fn) {
-            setTimeoutFunc(fn, 0);
-        };
-    Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
-        if (typeof console !== 'undefined' && console) {
-            console.warn('Possible Unhandled Promise Rejection:', err);
-        }
-    };
-    var globalNS = (function () {
-        if (typeof self !== 'undefined') {
-            return self;
-        }
-        if (typeof window !== 'undefined') {
-            return window;
-        }
-        if (typeof global !== 'undefined') {
-            return global;
-        }
-        throw new Error('unable to locate global object');
-    })();
-    if (!('Promise' in globalNS)) {
-        globalNS['Promise'] = Promise;
-    }
-    else if (!globalNS.Promise.prototype['finally']) {
-        globalNS.Promise.prototype['finally'] = finallyConstructor;
-    }
-})));
 var Reflect;
 (function (Reflect) {
     (function (factory) {
@@ -989,76 +755,6 @@ class Module {
     get filename() {
         return this.name;
     }
-    get dependents() {
-        const d = [];
-        const v = {};
-        const modules = AmdLoader.instance.modules;
-        for (const key in modules) {
-            if (modules.hasOwnProperty(key)) {
-                const element = modules[key];
-                if (element.isDependentOn(this, v)) {
-                    d.push(element);
-                }
-            }
-        }
-        return d;
-    }
-    resolve(id) {
-        if (!this.isLoaded) {
-            return false;
-        }
-        if (this.isResolved) {
-            return true;
-        }
-        if (!id) {
-            id = Module.nextID++;
-        }
-        if (this.rID === id) {
-            let childrenResolved = true;
-            for (const iterator of this.dependencies) {
-                if (iterator === this.ignoreModule) {
-                    continue;
-                }
-                if (iterator.rID === id) {
-                    continue;
-                }
-                if (!iterator.resolve(id)) {
-                    childrenResolved = false;
-                    break;
-                }
-            }
-            return childrenResolved;
-        }
-        this.rID = id;
-        let allResolved = true;
-        for (const iterator of this.dependencies) {
-            if (iterator === this.ignoreModule) {
-                continue;
-            }
-            if (!iterator.resolve(id)) {
-                allResolved = false;
-                break;
-            }
-        }
-        if (!allResolved) {
-            this.rID = 0;
-            return false;
-        }
-        const i = AmdLoader.instance;
-        if (this.dependencyHooks) {
-            this.dependencyHooks[0]();
-            this.dependencyHooks = null;
-        }
-        if (this.resolveHooks) {
-            this.resolveHooks[0](this.getExports());
-            this.resolveHooks = null;
-            i.remove(this);
-            this.rID = 0;
-            return true;
-        }
-        this.rID = 0;
-        return false;
-    }
     addDependency(d) {
         if (d === this.ignoreModule) {
             return;
@@ -1108,9 +804,13 @@ class Module {
         return this.exports;
     }
     isDependentOn(m, visited) {
+        if (this.ignoreModule === m) {
+            return false;
+        }
+        visited = visited || {};
         visited[this.name] = true;
         for (const iterator of this.dependencies) {
-            if (iterator.name === m.name) {
+            if (iterator === m) {
                 return true;
             }
             if (visited[iterator.name]) {
@@ -1137,8 +837,6 @@ class AmdLoader {
         this.modules = {};
         this.pathMap = {};
         this.mockTypes = [];
-        this.lastTimeout = null;
-        this.dirty = false;
     }
     register(packages, modules) {
         for (const iterator of packages) {
@@ -1182,40 +880,20 @@ class AmdLoader {
         if (jsModule.exportVar) {
             jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
         }
-        this.push(jsModule);
         jsModule.isLoaded = true;
-        setTimeout(() => {
-            this.loadDependencies(jsModule);
-        }, 1);
-    }
-    loadDependencies(m) {
-        this.resolveModule(m).catch((e) => {
-            console.error(e);
-        });
-        if (m.dependencies.length) {
-            const all = m.dependencies.map((m1) => {
-                if (m1.isResolved) {
-                    return promiseDone;
-                }
-                return this.import(m1);
-            });
-            Promise.all(all).catch((e) => {
-                console.error(e);
-            }).then(() => {
-                m.resolve();
-            });
-        }
-        else {
-            m.resolve();
-        }
-        this.queueResolveModules(1);
     }
     replace(type, name, mock) {
         if (mock && !this.enableMock) {
             return;
         }
         const peek = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        name = this.resolveRelativePath(name, peek.name);
         const rt = new MockType(peek, type, name, mock);
+        rt.replacedModule = this.get(rt.moduleName);
+        rt.replacedModule.postExports = () => {
+            rt.replaced = rt.replacedModule.getExports()[rt.exportName];
+        };
+        (peek.dynamicImports = peek.dynamicImports || []).push(rt);
         this.mockTypes.push(rt);
     }
     resolveType(type) {
@@ -1354,24 +1032,63 @@ class AmdLoader {
         return module;
     }
     import(name) {
+        if (typeof require !== "undefined") {
+            return Promise.resolve(require(name));
+        }
+        const module = typeof name === "object" ? name : this.get(name);
+        if (module.importPromise) {
+            return module.importPromise;
+        }
+        if (module.isResolved) {
+            module.importPromise = Promise.resolve(module.getExports());
+            return module.importPromise;
+        }
+        module.importPromise = this.importAsync(module);
+        return module.importPromise;
+    }
+    importAsync(module) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof require !== "undefined") {
-                return Promise.resolve(require(name));
-            }
-            const module = typeof name === "object" ? name : this.get(name);
-            if (module.isResolved) {
-                return module.getExports();
-            }
+            console.log(`${module.name} Loading ...`);
             yield this.load(module);
-            const e = yield this.resolveModule(module);
-            return e;
+            console.log(`${module.name} Resolving ...`);
+            return yield this.resolve(module);
+        });
+    }
+    resolve(module) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ds = [];
+            const waiting = module.waiting = [];
+            for (const iterator of module.dependencies) {
+                if (iterator.isResolved
+                    || iterator.ignoreModule === module
+                    || iterator === module.ignoreModule
+                    || (iterator.importPromise && iterator.isDependentOn(module))) {
+                    continue;
+                }
+                waiting.push(iterator);
+                ds.push(this.import(iterator));
+            }
+            yield Promise.all(ds);
+            const exports = module.getExports();
+            module.isResolved = true;
+            if (module.postExports) {
+                module.postExports();
+            }
+            if (module.dynamicImports) {
+                for (const iterator of module.dynamicImports) {
+                    if (iterator.replacedModule.importPromise) {
+                        continue;
+                    }
+                    yield this.import(iterator.replacedModule);
+                }
+            }
+            return exports;
         });
     }
     load(module) {
         if (module.loader) {
             return module.loader;
         }
-        this.push(module);
         if (AmdLoader.isJson.test(module.url)) {
             const mUrl = module.package.url + module.url;
             module.loader = new Promise((resolve, reject) => {
@@ -1381,7 +1098,6 @@ class AmdLoader {
                             module.exports = JSON.parse(r);
                             module.emptyExports = module.exports;
                             module.isLoaded = true;
-                            setTimeout(() => this.loadDependencies(module), 1);
                             resolve();
                         }
                         catch (e) {
@@ -1424,9 +1140,6 @@ class AmdLoader {
                         AmdLoader.moduleProgress(module.name, this.modules, "loading");
                     }
                     module.isLoaded = true;
-                    setTimeout(() => {
-                        this.loadDependencies(module);
-                    }, 1);
                     resolve();
                 }
                 catch (e) {
@@ -1438,134 +1151,6 @@ class AmdLoader {
             });
         });
         return module.loader;
-    }
-    resolveModule(module) {
-        if (module.resolver) {
-            return module.resolver;
-        }
-        module.resolver = this._resolveModule(module);
-        return module.resolver;
-    }
-    remove(m) {
-        if (this.tail === m) {
-            this.tail = m.previous;
-        }
-        if (m.next) {
-            m.next.previous = m.previous;
-        }
-        if (m.previous) {
-            m.previous.next = m.next;
-        }
-        m.next = null;
-        m.previous = null;
-        this.dirty = true;
-        this.queueResolveModules();
-    }
-    queueResolveModules(n = 1) {
-        if (this.lastTimeout) {
-            return;
-        }
-        this.lastTimeout = setTimeout(() => {
-            this.lastTimeout = 0;
-            this.resolvePendingModules();
-        }, n);
-    }
-    watch() {
-        const id = setInterval(() => {
-            if (this.tail) {
-                const list = [];
-                for (const key in this.modules) {
-                    if (this.modules.hasOwnProperty(key)) {
-                        const element = this.modules[key];
-                        if (!element.isResolved) {
-                            list.push({
-                                name: element.name,
-                                dependencies: element.dependencies.map((x) => x.name)
-                            });
-                        }
-                    }
-                }
-                console.log("Pending modules");
-                console.log(JSON.stringify(list));
-                return;
-            }
-            clearInterval(id);
-        }, 10000);
-    }
-    resolvePendingModules() {
-        if (!this.tail) {
-            return;
-        }
-        this.dirty = false;
-        const pending = [];
-        let m = this.tail;
-        while (m) {
-            if (!m.dependencies.length) {
-                m.resolve();
-            }
-            else {
-                pending.push(m);
-            }
-            m = m.previous;
-        }
-        if (this.dirty) {
-            this.dirty = false;
-            return;
-        }
-        for (const iterator of pending) {
-            iterator.resolve();
-        }
-        if (this.dirty) {
-            this.dirty = false;
-            return;
-        }
-        if (this.tail) {
-            this.queueResolveModules();
-        }
-    }
-    push(m) {
-        if (this.tail) {
-            m.previous = this.tail;
-            this.tail.next = m;
-        }
-        this.tail = m;
-    }
-    _resolveModule(module) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.root) {
-                this.root = module;
-            }
-            yield new Promise((resolve, reject) => {
-                module.dependencyHooks = [resolve, reject];
-            });
-            const exports = module.getExports();
-            const pendingList = this.mockTypes.filter((t) => !t.loaded);
-            if (pendingList.length) {
-                for (const iterator of pendingList) {
-                    iterator.loaded = true;
-                }
-                const tasks = pendingList.map((iterator) => __awaiter(this, void 0, void 0, function* () {
-                    const containerModule = iterator.module;
-                    const resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                    const im = this.get(resolvedName);
-                    im.ignoreModule = module;
-                    const ex = yield this.import(im);
-                    const type = ex[iterator.exportName];
-                    iterator.replaced = type;
-                }));
-                yield Promise.all(tasks);
-            }
-            const setHooks = new Promise((resolve, reject) => {
-                module.resolveHooks = [resolve, reject];
-            });
-            yield setHooks;
-            if (this.root === module) {
-                this.root = null;
-                AmdLoader.moduleProgress(null, this.modules, "done");
-            }
-            module.isResolved = true;
-            return exports;
-        });
     }
 }
 AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg)$/i;
@@ -1701,9 +1286,6 @@ var define = (requiresOrFactory, factory, nested) => {
         const f = nested;
         const module = AmdLoader.instance.get(name);
         bindFactory(module, rList, f);
-        setTimeout(() => {
-            loader.loadDependencies(module);
-        }, 1);
         return;
     }
     AmdLoader.instance.define = () => {
@@ -1731,7 +1313,6 @@ class MockType {
         this.mock = mock;
         this.moduleName = moduleName;
         this.exportName = exportName;
-        this.loaded = false;
         this.name = name = name
             .replace("{lang}", UMD.lang)
             .replace("{platform}", UMD.viewPrefix);
@@ -1744,6 +1325,9 @@ class MockType {
             this.moduleName = name;
             this.exportName = "default";
         }
+    }
+    get loaded() {
+        return this.replacedModule.ignoreModule;
     }
 }
 class UMDClass {
@@ -1864,7 +1448,7 @@ const UMD = new UMDClass();
 
 AmdLoader.instance.register(
     ["@web-atoms/xf-samples", "@web-atoms/core", "@web-atoms/font-awesome", "@web-atoms/xf-controls", "@web-atoms/date-time", "@web-atoms/storage"],
-    ["@web-atoms/xf-samples/dist/Index", "@web-atoms/core/dist/Atom", "@web-atoms/core/dist/core/AtomList", "@web-atoms/core/dist/core/AtomBinder", "@web-atoms/core/dist/core/types", "@web-atoms/core/dist/core/AtomMap", "@web-atoms/xf-samples/dist/app-host/AppHost", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/ExpressionParser", "@web-atoms/core/dist/core/Colors", "@web-atoms/core/dist/core/XNode", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/clr/WA", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/clr/X", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/web/core/AtomUI", "@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage", "@web-atoms/core/dist/xf/controls/AtomXFControl", "@web-atoms/core/dist/core/AtomComponent", "@web-atoms/core/dist/App", "@web-atoms/core/dist/core/AtomDispatcher", "@web-atoms/core/dist/di/RegisterSingleton", "@web-atoms/core/dist/di/Register", "@web-atoms/core/dist/di/ServiceCollection", "@web-atoms/core/dist/di/TypeKey", "@web-atoms/core/dist/di/ServiceProvider", "@web-atoms/core/dist/core/TransientDisposable", "@web-atoms/core/dist/di/Inject", "@web-atoms/core/dist/services/BusyIndicatorService", "@web-atoms/core/dist/core/PropertyBinding", "@web-atoms/core/dist/core/AtomOnce", "@web-atoms/core/dist/core/AtomWatcher", "@web-atoms/core/dist/core/AtomDisposableList", "@web-atoms/core/dist/core/InheritedProperty", "@web-atoms/core/dist/core/PropertyMap", "@web-atoms/core/dist/services/NavigationService", "@web-atoms/core/dist/core/AtomUri", "@web-atoms/core/dist/core/FormattedString", "@web-atoms/core/dist/services/ReferenceService", "@web-atoms/core/dist/di/DISingleton", "@web-atoms/core/dist/web/styles/AtomStyle", "@web-atoms/core/dist/core/StringHelper", "@web-atoms/core/dist/web/styles/AtomStyleSheet", "@web-atoms/xf-samples/dist/app-host/AppHostViewModel", "@web-atoms/core/dist/core/AtomLoader", "@web-atoms/core/dist/services/JsonService", "@web-atoms/date-time/dist/DateTime", "@web-atoms/date-time/dist/TimeSpan", "@web-atoms/core/dist/view-model/AtomViewModel", "@web-atoms/core/dist/core/BindableProperty", "@web-atoms/core/dist/view-model/baseTypes", "@web-atoms/core/dist/view-model/AtomWindowViewModel", "@web-atoms/core/dist/view-model/Load", "@web-atoms/xf-samples/dist/samples/alert/AlertSamplePage", "@web-atoms/xf-samples/dist/samples/alert/AlertSample", "@web-atoms/xf-controls/dist/pages/AtomXFContentPage", "@web-atoms/xf-samples/dist/samples/alert/AlertSampleViewModel", "@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupSample", "@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupViewModel", "@web-atoms/xf-samples/dist/samples/box/BoxViewSample", "@web-atoms/xf-samples/dist/samples/box/BoxView", "@web-atoms/xf-samples/dist/samples/brushes/addBrushSamples", "@web-atoms/xf-samples/dist/samples/brushes/gradient/linear/LinearGradient", "@web-atoms/xf-samples/dist/samples/brushes/gradient/radial/RadialGradient", "@web-atoms/xf-samples/dist/samples/brushes/solid/SolidBrush", "@web-atoms/xf-samples/dist/samples/calendar/calendarSamples", "@web-atoms/xf-samples/dist/samples/calendar/Calendar", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendar", "@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox", "@web-atoms/xf-controls/dist/clr/RgPluginsPopup", "@web-atoms/xf-controls/dist/pages/AtomXFPopupPage", "@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel", "@web-atoms/xf-controls/dist/combo-box/SelectionList", "@web-atoms/xf-controls/dist/AtomContentView", "@web-atoms/xf-controls/dist/controls/AtomXFGrid", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendarStyle", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendarViewModel", "@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageSample", "@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageView", "@web-atoms/xf-controls/dist/pages/AtomXFCarouselPage", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselSample", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselView", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/CollectionViewSamplePage", "@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingSample", "@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterSample", "@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridSample", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListSample", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridSample", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListSample", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListViewModel", "@web-atoms/xf-samples/dist/samples/database/addDatabaseSamples", "@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlSample", "@web-atoms/font-awesome/dist/FontAwesomeRegular", "@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlViewModel", "@web-atoms/core/dist/view-model/Action", "@web-atoms/storage/dist/database/sqlite/SqliteService", "@web-atoms/storage/dist/query/Query", "@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditor", "@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditorViewModel", "@web-atoms/xf-samples/dist/samples/form/FormSamples", "@web-atoms/xf-samples/dist/samples/button/ButtonView", "@web-atoms/xf-samples/dist/samples/button/ButtonViewModel", "@web-atoms/xf-samples/dist/samples/button/image-button/ImageButtonView", "@web-atoms/xf-samples/dist/samples/check-box/CheckBoxView", "@web-atoms/xf-samples/dist/samples/check-box/CheckBoxSampleViewModel", "@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSample", "@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSampleViewModel", "@web-atoms/xf-samples/dist/samples/date-picker/DatePickerView", "@web-atoms/xf-samples/dist/samples/date-picker/DatePickerViewModel", "@web-atoms/xf-samples/dist/samples/editor/EditorView", "@web-atoms/xf-samples/dist/samples/editor/EditorViewModel", "@web-atoms/xf-samples/dist/samples/entry/EntryView", "@web-atoms/xf-samples/dist/samples/entry/EntryViewModel", "@web-atoms/xf-samples/dist/samples/label/LabelView", "@web-atoms/xf-samples/dist/samples/label/LabelViewModel", "@web-atoms/xf-samples/dist/samples/search-bar/SearchBarView", "@web-atoms/xf-samples/dist/samples/search-bar/SearchBarViewModel", "@web-atoms/xf-samples/dist/service/http/MovieService", "@web-atoms/core/dist/services/http/RestService", "@web-atoms/core/dist/services/http/AjaxOptions", "@web-atoms/core/dist/services/CacheService", "@web-atoms/core/dist/services/http/JsonError", "@web-atoms/xf-samples/dist/samples/slider/SliderView", "@web-atoms/xf-samples/dist/samples/slider/SliderViewModel", "@web-atoms/xf-samples/dist/samples/stepper/StepperView", "@web-atoms/xf-samples/dist/samples/stepper/StepperViewModel", "@web-atoms/xf-samples/dist/samples/form/simple/SimpleForm", "@web-atoms/xf-samples/dist/samples/form/simple/SimpleFormViewModel", "@web-atoms/xf-samples/dist/samples/image/ImageSample", "@web-atoms/xf-samples/dist/samples/image/ImageView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/LayoutSample", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/absolute-layout/AbsoluteLayoutView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/flex-layout/FlexLayoutView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/grid-layout/GridView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/stack-layout/StackLayoutView", "@web-atoms/xf-samples/dist/samples/layout/single-content/Sample", "@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/MainPage", "@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/ContentView", "@web-atoms/xf-samples/dist/samples/layout/single-content/frame/FrameSample", "@web-atoms/xf-samples/dist/samples/layout/single-content/scroll-view/ScrollViewSample", "@web-atoms/xf-samples/dist/samples/list/ListSamples", "@web-atoms/xf-samples/dist/samples/list/list-view/List", "@web-atoms/xf-samples/dist/samples/list/list-view/ListViewModel", "@web-atoms/xf-samples/dist/samples/list/template-selector/ListWithTemplates", "@web-atoms/xf-samples/dist/samples/menu-item/MenuSample", "@web-atoms/xf-samples/dist/samples/menu-item/MenuItemView", "@web-atoms/xf-samples/dist/samples/menu-item/MenuItemViewModel", "@web-atoms/xf-samples/dist/samples/popup/PopupSample", "@web-atoms/xf-samples/dist/samples/popup/PopupCallingPage", "@web-atoms/xf-samples/dist/samples/popup/PopupCallingPageViewModel", "@web-atoms/xf-samples/dist/samples/popup/PopupView", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewSample", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshView", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewModel", "@web-atoms/xf-samples/dist/samples/switch/SwitchSamplePage", "@web-atoms/xf-samples/dist/samples/switch/SwitchSample", "@web-atoms/xf-samples/dist/samples/switch/SwitchViewModel", "@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageSample", "@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageView", "@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage", "@web-atoms/xf-samples/dist/samples/table-view/TableViewSamplePage", "@web-atoms/xf-samples/dist/samples/table-view/TableViewSample", "@web-atoms/xf-samples/dist/samples/table-view/TableViewModel", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSamplePage", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSample", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerViewModel", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/addToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/custom/CustomToggleButtonBar", "@web-atoms/xf-controls/dist/toggle-button-bar/AtomXFToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBarViewModel", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemSample", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemView", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemViewModel", "@web-atoms/xf-samples/dist/samples/web-view/WebViewSample", "@web-atoms/xf-samples/dist/samples/web-view/WebView", "@web-atoms/xf-samples/dist/service/menu-service/MenuService", "@web-atoms/xf-samples/dist/service/menu-service/MenuItem", "@web-atoms/xf-samples/dist/app-host/home/Home", "@web-atoms/xf-samples/dist/app-host/home/HomeViewModel", "@web-atoms/core/dist/xf/XFApp", "@web-atoms/core/dist/xf/services/XFBusyIndicatorService", "@web-atoms/core/dist/xf/services/XFNavigationService"]);
+    ["@web-atoms/xf-samples/dist/Index", "@web-atoms/core/dist/Atom", "@web-atoms/core/dist/core/AtomList", "@web-atoms/core/dist/core/AtomBinder", "@web-atoms/core/dist/core/types", "@web-atoms/core/dist/core/AtomMap", "@web-atoms/xf-samples/dist/app-host/AppHost", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/ExpressionParser", "@web-atoms/core/dist/core/Colors", "@web-atoms/core/dist/core/XNode", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/clr/WA", "@web-atoms/xf-controls/dist/clr/RgPluginsPopup", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/clr/X", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/web/core/AtomUI", "@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage", "@web-atoms/core/dist/xf/controls/AtomXFControl", "@web-atoms/core/dist/core/AtomComponent", "@web-atoms/core/dist/App", "@web-atoms/core/dist/core/AtomDispatcher", "@web-atoms/core/dist/di/RegisterSingleton", "@web-atoms/core/dist/di/Register", "@web-atoms/core/dist/di/ServiceCollection", "@web-atoms/core/dist/di/TypeKey", "@web-atoms/core/dist/di/ServiceProvider", "@web-atoms/core/dist/core/TransientDisposable", "@web-atoms/core/dist/di/Inject", "@web-atoms/core/dist/services/BusyIndicatorService", "@web-atoms/core/dist/core/PropertyBinding", "@web-atoms/core/dist/core/AtomOnce", "@web-atoms/core/dist/core/AtomWatcher", "@web-atoms/core/dist/core/AtomDisposableList", "@web-atoms/core/dist/core/InheritedProperty", "@web-atoms/core/dist/core/PropertyMap", "@web-atoms/core/dist/services/NavigationService", "@web-atoms/core/dist/core/AtomUri", "@web-atoms/core/dist/core/FormattedString", "@web-atoms/core/dist/services/ReferenceService", "@web-atoms/core/dist/di/DISingleton", "@web-atoms/core/dist/web/styles/AtomStyle", "@web-atoms/core/dist/core/StringHelper", "@web-atoms/core/dist/web/styles/AtomStyleSheet", "@web-atoms/xf-samples/dist/app-host/AppHostViewModel", "@web-atoms/core/dist/core/AtomLoader", "@web-atoms/core/dist/services/JsonService", "@web-atoms/date-time/dist/DateTime", "@web-atoms/date-time/dist/TimeSpan", "@web-atoms/core/dist/view-model/AtomViewModel", "@web-atoms/core/dist/core/BindableProperty", "@web-atoms/core/dist/view-model/baseTypes", "@web-atoms/core/dist/view-model/AtomWindowViewModel", "@web-atoms/core/dist/view-model/Load", "@web-atoms/xf-samples/dist/samples/alert/AlertSamplePage", "@web-atoms/xf-samples/dist/samples/alert/AlertSample", "@web-atoms/xf-controls/dist/pages/AtomXFContentPage", "@web-atoms/xf-samples/dist/samples/alert/AlertSampleViewModel", "@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupSample", "@web-atoms/xf-samples/dist/samples/alert/custom-popup/CustomPopupViewModel", "@web-atoms/xf-samples/dist/samples/box/BoxViewSample", "@web-atoms/xf-samples/dist/samples/box/BoxView", "@web-atoms/xf-samples/dist/samples/brushes/addBrushSamples", "@web-atoms/xf-samples/dist/samples/brushes/gradient/linear/LinearGradient", "@web-atoms/xf-samples/dist/samples/brushes/gradient/radial/RadialGradient", "@web-atoms/xf-samples/dist/samples/brushes/solid/SolidBrush", "@web-atoms/xf-samples/dist/samples/calendar/calendarSamples", "@web-atoms/xf-samples/dist/samples/calendar/Calendar", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendar", "@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox", "@web-atoms/xf-controls/dist/pages/AtomXFPopupPage", "@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel", "@web-atoms/xf-controls/dist/combo-box/SelectionList", "@web-atoms/xf-controls/dist/AtomContentView", "@web-atoms/xf-controls/dist/controls/AtomXFGrid", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendarStyle", "@web-atoms/xf-controls/dist/calendar/AtomXFCalendarViewModel", "@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageSample", "@web-atoms/xf-samples/dist/samples/carousel/carousel-page/CarouselPageView", "@web-atoms/xf-controls/dist/pages/AtomXFCarouselPage", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselSample", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselView", "@web-atoms/xf-samples/dist/samples/carousel/carousel-view/CarouselViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/CollectionViewSamplePage", "@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingSample", "@web-atoms/xf-samples/dist/samples/collection-view/grouping/GroupingViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterSample", "@web-atoms/xf-samples/dist/samples/collection-view/header-footer/HeaderFooterViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridSample", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-grid/HorizontalGridViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListSample", "@web-atoms/xf-samples/dist/samples/collection-view/horizontal-list/HorizontalListViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridSample", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-grid/VerticalGridViewModel", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListSample", "@web-atoms/xf-samples/dist/samples/collection-view/vertical-list/VerticalListViewModel", "@web-atoms/xf-samples/dist/samples/database/addDatabaseSamples", "@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlSample", "@web-atoms/font-awesome/dist/FontAwesomeRegular", "@web-atoms/xf-samples/dist/samples/database/web-sql/WebSqlViewModel", "@web-atoms/core/dist/view-model/Action", "@web-atoms/storage/dist/database/sqlite/SqliteService", "@web-atoms/storage/dist/query/Query", "@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditor", "@web-atoms/xf-samples/dist/samples/database/web-sql/row-editor/RowEditorViewModel", "@web-atoms/xf-samples/dist/samples/form/FormSamples", "@web-atoms/xf-samples/dist/samples/button/ButtonView", "@web-atoms/xf-samples/dist/samples/button/ButtonViewModel", "@web-atoms/xf-samples/dist/samples/button/image-button/ImageButtonView", "@web-atoms/xf-samples/dist/samples/check-box/CheckBoxView", "@web-atoms/xf-samples/dist/samples/check-box/CheckBoxSampleViewModel", "@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSample", "@web-atoms/xf-samples/dist/samples/combo-box/ComboBoxSampleViewModel", "@web-atoms/xf-samples/dist/samples/date-picker/DatePickerView", "@web-atoms/xf-samples/dist/samples/date-picker/DatePickerViewModel", "@web-atoms/xf-samples/dist/samples/editor/EditorView", "@web-atoms/xf-samples/dist/samples/editor/EditorViewModel", "@web-atoms/xf-samples/dist/samples/entry/EntryView", "@web-atoms/xf-samples/dist/samples/entry/EntryViewModel", "@web-atoms/xf-samples/dist/samples/label/LabelView", "@web-atoms/xf-samples/dist/samples/label/LabelViewModel", "@web-atoms/xf-samples/dist/samples/search-bar/SearchBarView", "@web-atoms/xf-samples/dist/samples/search-bar/SearchBarViewModel", "@web-atoms/xf-samples/dist/service/http/MovieService", "@web-atoms/core/dist/services/http/RestService", "@web-atoms/core/dist/services/http/AjaxOptions", "@web-atoms/core/dist/services/CacheService", "@web-atoms/core/dist/services/http/JsonError", "@web-atoms/xf-samples/dist/samples/slider/SliderView", "@web-atoms/xf-samples/dist/samples/slider/SliderViewModel", "@web-atoms/xf-samples/dist/samples/stepper/StepperView", "@web-atoms/xf-samples/dist/samples/stepper/StepperViewModel", "@web-atoms/xf-samples/dist/samples/form/simple/SimpleForm", "@web-atoms/xf-samples/dist/samples/form/simple/SimpleFormViewModel", "@web-atoms/xf-samples/dist/samples/image/ImageSample", "@web-atoms/xf-samples/dist/samples/image/ImageView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/LayoutSample", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/absolute-layout/AbsoluteLayoutView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/flex-layout/FlexLayoutView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/grid-layout/GridView", "@web-atoms/xf-samples/dist/samples/layout/multiple-content/stack-layout/StackLayoutView", "@web-atoms/xf-samples/dist/samples/layout/single-content/Sample", "@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/MainPage", "@web-atoms/xf-samples/dist/samples/layout/single-content/content-view/ContentView", "@web-atoms/xf-samples/dist/samples/layout/single-content/frame/FrameSample", "@web-atoms/xf-samples/dist/samples/layout/single-content/scroll-view/ScrollViewSample", "@web-atoms/xf-samples/dist/samples/list/ListSamples", "@web-atoms/xf-samples/dist/samples/list/list-view/List", "@web-atoms/xf-samples/dist/samples/list/list-view/ListViewModel", "@web-atoms/xf-samples/dist/samples/list/template-selector/ListWithTemplates", "@web-atoms/xf-samples/dist/samples/menu-item/MenuSample", "@web-atoms/xf-samples/dist/samples/menu-item/MenuItemView", "@web-atoms/xf-samples/dist/samples/menu-item/MenuItemViewModel", "@web-atoms/xf-samples/dist/samples/popup/PopupSample", "@web-atoms/xf-samples/dist/samples/popup/PopupCallingPage", "@web-atoms/xf-samples/dist/samples/popup/PopupCallingPageViewModel", "@web-atoms/xf-samples/dist/samples/popup/PopupView", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewSample", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshView", "@web-atoms/xf-samples/dist/samples/refresh-view/RefreshViewModel", "@web-atoms/xf-samples/dist/samples/switch/SwitchSamplePage", "@web-atoms/xf-samples/dist/samples/switch/SwitchSample", "@web-atoms/xf-samples/dist/samples/switch/SwitchViewModel", "@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageSample", "@web-atoms/xf-samples/dist/samples/tabbed-page/TabbedPageView", "@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage", "@web-atoms/xf-samples/dist/samples/table-view/TableViewSamplePage", "@web-atoms/xf-samples/dist/samples/table-view/TableViewSample", "@web-atoms/xf-samples/dist/samples/table-view/TableViewModel", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSamplePage", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerSample", "@web-atoms/xf-samples/dist/samples/time-picker/TimePickerViewModel", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/addToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/custom/CustomToggleButtonBar", "@web-atoms/xf-controls/dist/toggle-button-bar/AtomXFToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBarViewModel", "@web-atoms/xf-samples/dist/samples/toggle-button-bar/simple/ToggleButtonBar", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemSample", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemView", "@web-atoms/xf-samples/dist/samples/toolbar-item/ToolbarItemViewModel", "@web-atoms/xf-samples/dist/samples/web-view/WebViewSample", "@web-atoms/xf-samples/dist/samples/web-view/WebView", "@web-atoms/xf-samples/dist/service/menu-service/MenuService", "@web-atoms/xf-samples/dist/service/menu-service/MenuItem", "@web-atoms/xf-samples/dist/app-host/home/Home", "@web-atoms/xf-samples/dist/app-host/home/HomeViewModel", "@web-atoms/core/dist/xf/XFApp", "@web-atoms/core/dist/xf/services/XFBusyIndicatorService", "@web-atoms/core/dist/xf/services/XFNavigationService"]);
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7372,175 +6956,343 @@ AmdLoader.instance.setup("@web-atoms/font-awesome/dist/FontAwesomeSolid");
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Xamarin = void 0;
     //tslint:disable
     const XNode_1 = require("@web-atoms/core/dist/core/XNode");
-    const XF = {
-        get BindableObject() { return this._BindableObject || (this._BindableObject = bridge.getClass('Xamarin.Forms.BindableObject, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Element() { return this._Element || (this._Element = bridge.getClass('Xamarin.Forms.Element, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get NavigableElement() { return this._NavigableElement || (this._NavigableElement = bridge.getClass('Xamarin.Forms.NavigableElement, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get VisualElement() { return this._VisualElement || (this._VisualElement = bridge.getClass('Xamarin.Forms.VisualElement, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get View() { return this._View || (this._View = bridge.getClass('Xamarin.Forms.View, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Layout() { return this._Layout || (this._Layout = bridge.getClass('Xamarin.Forms.Layout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get AbsoluteLayout() { return this._AbsoluteLayout || (this._AbsoluteLayout = bridge.getClass('Xamarin.Forms.AbsoluteLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ActivityIndicator() { return this._ActivityIndicator || (this._ActivityIndicator = bridge.getClass('Xamarin.Forms.ActivityIndicator, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get StateTriggerBase() { return this._StateTriggerBase || (this._StateTriggerBase = bridge.getClass('Xamarin.Forms.StateTriggerBase, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get AdaptiveTrigger() { return this._AdaptiveTrigger || (this._AdaptiveTrigger = bridge.getClass('Xamarin.Forms.AdaptiveTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Application() { return this._Application || (this._Application = bridge.getClass('Xamarin.Forms.Application, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get AppLinkEntry() { return this._AppLinkEntry || (this._AppLinkEntry = bridge.getClass('Xamarin.Forms.AppLinkEntry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get BaseMenuItem() { return this._BaseMenuItem || (this._BaseMenuItem = bridge.getClass('Xamarin.Forms.BaseMenuItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get BindableLayout() { return this._BindableLayout || (this._BindableLayout = bridge.getClass('Xamarin.Forms.BindableLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get BoxView() { return this._BoxView || (this._BoxView = bridge.getClass('Xamarin.Forms.BoxView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Brush() { return this._Brush || (this._Brush = bridge.getClass('Xamarin.Forms.Brush, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Button() { return this._Button || (this._Button = bridge.getClass('Xamarin.Forms.Button, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Page() { return this._Page || (this._Page = bridge.getClass('Xamarin.Forms.Page, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get CarouselPage() { return this._CarouselPage || (this._CarouselPage = bridge.getClass('Xamarin.Forms.CarouselPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Cell() { return this._Cell || (this._Cell = bridge.getClass('Xamarin.Forms.Cell, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get EntryCell() { return this._EntryCell || (this._EntryCell = bridge.getClass('Xamarin.Forms.EntryCell, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TextCell() { return this._TextCell || (this._TextCell = bridge.getClass('Xamarin.Forms.TextCell, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ImageCell() { return this._ImageCell || (this._ImageCell = bridge.getClass('Xamarin.Forms.ImageCell, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SwitchCell() { return this._SwitchCell || (this._SwitchCell = bridge.getClass('Xamarin.Forms.SwitchCell, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ViewCell() { return this._ViewCell || (this._ViewCell = bridge.getClass('Xamarin.Forms.ViewCell, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get CheckBox() { return this._CheckBox || (this._CheckBox = bridge.getClass('Xamarin.Forms.CheckBox, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get GestureRecognizer() { return this._GestureRecognizer || (this._GestureRecognizer = bridge.getClass('Xamarin.Forms.GestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ClickGestureRecognizer() { return this._ClickGestureRecognizer || (this._ClickGestureRecognizer = bridge.getClass('Xamarin.Forms.ClickGestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ColumnDefinition() { return this._ColumnDefinition || (this._ColumnDefinition = bridge.getClass('Xamarin.Forms.ColumnDefinition, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get CompareStateTrigger() { return this._CompareStateTrigger || (this._CompareStateTrigger = bridge.getClass('Xamarin.Forms.CompareStateTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get CompressedLayout() { return this._CompressedLayout || (this._CompressedLayout = bridge.getClass('Xamarin.Forms.CompressedLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TemplatedPage() { return this._TemplatedPage || (this._TemplatedPage = bridge.getClass('Xamarin.Forms.TemplatedPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ContentPage() { return this._ContentPage || (this._ContentPage = bridge.getClass('Xamarin.Forms.ContentPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ContentPresenter() { return this._ContentPresenter || (this._ContentPresenter = bridge.getClass('Xamarin.Forms.ContentPresenter, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TemplatedView() { return this._TemplatedView || (this._TemplatedView = bridge.getClass('Xamarin.Forms.TemplatedView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ContentView() { return this._ContentView || (this._ContentView = bridge.getClass('Xamarin.Forms.ContentView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ControlTemplate() { return this._ControlTemplate || (this._ControlTemplate = bridge.getClass('Xamarin.Forms.ControlTemplate, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get DataTemplate() { return this._DataTemplate || (this._DataTemplate = bridge.getClass('Xamarin.Forms.DataTemplate, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get DataTemplateSelector() { return this._DataTemplateSelector || (this._DataTemplateSelector = bridge.getClass('Xamarin.Forms.DataTemplateSelector, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get DatePicker() { return this._DatePicker || (this._DatePicker = bridge.getClass('Xamarin.Forms.DatePicker, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get DeviceStateTrigger() { return this._DeviceStateTrigger || (this._DeviceStateTrigger = bridge.getClass('Xamarin.Forms.DeviceStateTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get DragGestureRecognizer() { return this._DragGestureRecognizer || (this._DragGestureRecognizer = bridge.getClass('Xamarin.Forms.DragGestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get DropGestureRecognizer() { return this._DropGestureRecognizer || (this._DropGestureRecognizer = bridge.getClass('Xamarin.Forms.DropGestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get InputView() { return this._InputView || (this._InputView = bridge.getClass('Xamarin.Forms.InputView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Editor() { return this._Editor || (this._Editor = bridge.getClass('Xamarin.Forms.Editor, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Entry() { return this._Entry || (this._Entry = bridge.getClass('Xamarin.Forms.Entry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ImageSource() { return this._ImageSource || (this._ImageSource = bridge.getClass('Xamarin.Forms.ImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get FileImageSource() { return this._FileImageSource || (this._FileImageSource = bridge.getClass('Xamarin.Forms.FileImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get FlexLayout() { return this._FlexLayout || (this._FlexLayout = bridge.getClass('Xamarin.Forms.FlexLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get FlyoutPage() { return this._FlyoutPage || (this._FlyoutPage = bridge.getClass('Xamarin.Forms.FlyoutPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get MasterDetailPage() { return this._MasterDetailPage || (this._MasterDetailPage = bridge.getClass('Xamarin.Forms.MasterDetailPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get FontImageSource() { return this._FontImageSource || (this._FontImageSource = bridge.getClass('Xamarin.Forms.FontImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get FormattedString() { return this._FormattedString || (this._FormattedString = bridge.getClass('Xamarin.Forms.FormattedString, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Frame() { return this._Frame || (this._Frame = bridge.getClass('Xamarin.Forms.Frame, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get GestureElement() { return this._GestureElement || (this._GestureElement = bridge.getClass('Xamarin.Forms.GestureElement, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get GradientBrush() { return this._GradientBrush || (this._GradientBrush = bridge.getClass('Xamarin.Forms.GradientBrush, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get GradientStop() { return this._GradientStop || (this._GradientStop = bridge.getClass('Xamarin.Forms.GradientStop, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Grid() { return this._Grid || (this._Grid = bridge.getClass('Xamarin.Forms.Grid, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get WebViewSource() { return this._WebViewSource || (this._WebViewSource = bridge.getClass('Xamarin.Forms.WebViewSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get HtmlWebViewSource() { return this._HtmlWebViewSource || (this._HtmlWebViewSource = bridge.getClass('Xamarin.Forms.HtmlWebViewSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Image() { return this._Image || (this._Image = bridge.getClass('Xamarin.Forms.Image, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ImageButton() { return this._ImageButton || (this._ImageButton = bridge.getClass('Xamarin.Forms.ImageButton, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get IndicatorView() { return this._IndicatorView || (this._IndicatorView = bridge.getClass('Xamarin.Forms.IndicatorView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Behavior() { return this._Behavior || (this._Behavior = bridge.getClass('Xamarin.Forms.Behavior, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TriggerBase() { return this._TriggerBase || (this._TriggerBase = bridge.getClass('Xamarin.Forms.TriggerBase, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get DataTrigger() { return this._DataTrigger || (this._DataTrigger = bridge.getClass('Xamarin.Forms.DataTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get EventTrigger() { return this._EventTrigger || (this._EventTrigger = bridge.getClass('Xamarin.Forms.EventTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get MultiTrigger() { return this._MultiTrigger || (this._MultiTrigger = bridge.getClass('Xamarin.Forms.MultiTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Trigger() { return this._Trigger || (this._Trigger = bridge.getClass('Xamarin.Forms.Trigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ItemsView() { return this._ItemsView || (this._ItemsView = bridge.getClass('Xamarin.Forms.ItemsView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get CarouselView() { return this._CarouselView || (this._CarouselView = bridge.getClass('Xamarin.Forms.CarouselView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get StructuredItemsView() { return this._StructuredItemsView || (this._StructuredItemsView = bridge.getClass('Xamarin.Forms.StructuredItemsView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SelectableItemsView() { return this._SelectableItemsView || (this._SelectableItemsView = bridge.getClass('Xamarin.Forms.SelectableItemsView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get GroupableItemsView() { return this._GroupableItemsView || (this._GroupableItemsView = bridge.getClass('Xamarin.Forms.GroupableItemsView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get CollectionView() { return this._CollectionView || (this._CollectionView = bridge.getClass('Xamarin.Forms.CollectionView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ItemsLayout() { return this._ItemsLayout || (this._ItemsLayout = bridge.getClass('Xamarin.Forms.ItemsLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get GridItemsLayout() { return this._GridItemsLayout || (this._GridItemsLayout = bridge.getClass('Xamarin.Forms.GridItemsLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get LinearItemsLayout() { return this._LinearItemsLayout || (this._LinearItemsLayout = bridge.getClass('Xamarin.Forms.LinearItemsLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Label() { return this._Label || (this._Label = bridge.getClass('Xamarin.Forms.Label, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get LinearGradientBrush() { return this._LinearGradientBrush || (this._LinearGradientBrush = bridge.getClass('Xamarin.Forms.LinearGradientBrush, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ListView() { return this._ListView || (this._ListView = bridge.getClass('Xamarin.Forms.ListView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Menu() { return this._Menu || (this._Menu = bridge.getClass('Xamarin.Forms.Menu, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get MenuItem() { return this._MenuItem || (this._MenuItem = bridge.getClass('Xamarin.Forms.MenuItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get NavigationPage() { return this._NavigationPage || (this._NavigationPage = bridge.getClass('Xamarin.Forms.NavigationPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get OpenGLView() { return this._OpenGLView || (this._OpenGLView = bridge.getClass('Xamarin.Forms.OpenGLView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get OrientationStateTrigger() { return this._OrientationStateTrigger || (this._OrientationStateTrigger = bridge.getClass('Xamarin.Forms.OrientationStateTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PanGestureRecognizer() { return this._PanGestureRecognizer || (this._PanGestureRecognizer = bridge.getClass('Xamarin.Forms.PanGestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Picker() { return this._Picker || (this._Picker = bridge.getClass('Xamarin.Forms.Picker, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PinchGestureRecognizer() { return this._PinchGestureRecognizer || (this._PinchGestureRecognizer = bridge.getClass('Xamarin.Forms.PinchGestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ProgressBar() { return this._ProgressBar || (this._ProgressBar = bridge.getClass('Xamarin.Forms.ProgressBar, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RadialGradientBrush() { return this._RadialGradientBrush || (this._RadialGradientBrush = bridge.getClass('Xamarin.Forms.RadialGradientBrush, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RadioButton() { return this._RadioButton || (this._RadioButton = bridge.getClass('Xamarin.Forms.RadioButton, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RefreshView() { return this._RefreshView || (this._RefreshView = bridge.getClass('Xamarin.Forms.RefreshView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RelativeLayout() { return this._RelativeLayout || (this._RelativeLayout = bridge.getClass('Xamarin.Forms.RelativeLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RowDefinition() { return this._RowDefinition || (this._RowDefinition = bridge.getClass('Xamarin.Forms.RowDefinition, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ScrollView() { return this._ScrollView || (this._ScrollView = bridge.getClass('Xamarin.Forms.ScrollView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SearchBar() { return this._SearchBar || (this._SearchBar = bridge.getClass('Xamarin.Forms.SearchBar, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get BackButtonBehavior() { return this._BackButtonBehavior || (this._BackButtonBehavior = bridge.getClass('Xamarin.Forms.BackButtonBehavior, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get BaseShellItem() { return this._BaseShellItem || (this._BaseShellItem = bridge.getClass('Xamarin.Forms.BaseShellItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SearchHandler() { return this._SearchHandler || (this._SearchHandler = bridge.getClass('Xamarin.Forms.SearchHandler, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Shell() { return this._Shell || (this._Shell = bridge.getClass('Xamarin.Forms.Shell, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ShellContent() { return this._ShellContent || (this._ShellContent = bridge.getClass('Xamarin.Forms.ShellContent, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ShellGroupItem() { return this._ShellGroupItem || (this._ShellGroupItem = bridge.getClass('Xamarin.Forms.ShellGroupItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ShellItem() { return this._ShellItem || (this._ShellItem = bridge.getClass('Xamarin.Forms.ShellItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get FlyoutItem() { return this._FlyoutItem || (this._FlyoutItem = bridge.getClass('Xamarin.Forms.FlyoutItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TabBar() { return this._TabBar || (this._TabBar = bridge.getClass('Xamarin.Forms.TabBar, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ShellSection() { return this._ShellSection || (this._ShellSection = bridge.getClass('Xamarin.Forms.ShellSection, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Tab() { return this._Tab || (this._Tab = bridge.getClass('Xamarin.Forms.Tab, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Slider() { return this._Slider || (this._Slider = bridge.getClass('Xamarin.Forms.Slider, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SolidColorBrush() { return this._SolidColorBrush || (this._SolidColorBrush = bridge.getClass('Xamarin.Forms.SolidColorBrush, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Span() { return this._Span || (this._Span = bridge.getClass('Xamarin.Forms.Span, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get StackLayout() { return this._StackLayout || (this._StackLayout = bridge.getClass('Xamarin.Forms.StackLayout, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get StateTrigger() { return this._StateTrigger || (this._StateTrigger = bridge.getClass('Xamarin.Forms.StateTrigger, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Stepper() { return this._Stepper || (this._Stepper = bridge.getClass('Xamarin.Forms.Stepper, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get StreamImageSource() { return this._StreamImageSource || (this._StreamImageSource = bridge.getClass('Xamarin.Forms.StreamImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SwipeGestureRecognizer() { return this._SwipeGestureRecognizer || (this._SwipeGestureRecognizer = bridge.getClass('Xamarin.Forms.SwipeGestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SwipeItem() { return this._SwipeItem || (this._SwipeItem = bridge.getClass('Xamarin.Forms.SwipeItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SwipeItems() { return this._SwipeItems || (this._SwipeItems = bridge.getClass('Xamarin.Forms.SwipeItems, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SwipeItemView() { return this._SwipeItemView || (this._SwipeItemView = bridge.getClass('Xamarin.Forms.SwipeItemView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SwipeView() { return this._SwipeView || (this._SwipeView = bridge.getClass('Xamarin.Forms.SwipeView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Switch() { return this._Switch || (this._Switch = bridge.getClass('Xamarin.Forms.Switch, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TabbedPage() { return this._TabbedPage || (this._TabbedPage = bridge.getClass('Xamarin.Forms.TabbedPage, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TableSectionBase() { return this._TableSectionBase || (this._TableSectionBase = bridge.getClass('Xamarin.Forms.TableSectionBase, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TableRoot() { return this._TableRoot || (this._TableRoot = bridge.getClass('Xamarin.Forms.TableRoot, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TableSection() { return this._TableSection || (this._TableSection = bridge.getClass('Xamarin.Forms.TableSection, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TableView() { return this._TableView || (this._TableView = bridge.getClass('Xamarin.Forms.TableView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TapGestureRecognizer() { return this._TapGestureRecognizer || (this._TapGestureRecognizer = bridge.getClass('Xamarin.Forms.TapGestureRecognizer, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TimePicker() { return this._TimePicker || (this._TimePicker = bridge.getClass('Xamarin.Forms.TimePicker, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ToolbarItem() { return this._ToolbarItem || (this._ToolbarItem = bridge.getClass('Xamarin.Forms.ToolbarItem, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get UriImageSource() { return this._UriImageSource || (this._UriImageSource = bridge.getClass('Xamarin.Forms.UriImageSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get UrlWebViewSource() { return this._UrlWebViewSource || (this._UrlWebViewSource = bridge.getClass('Xamarin.Forms.UrlWebViewSource, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get WebView() { return this._WebView || (this._WebView = bridge.getClass('Xamarin.Forms.WebView, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get StyleSheet() { return this._StyleSheet || (this._StyleSheet = bridge.getClass('Xamarin.Forms.StyleSheets.StyleSheet, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PathSegment() { return this._PathSegment || (this._PathSegment = bridge.getClass('Xamarin.Forms.Shapes.PathSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ArcSegment() { return this._ArcSegment || (this._ArcSegment = bridge.getClass('Xamarin.Forms.Shapes.ArcSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get BezierSegment() { return this._BezierSegment || (this._BezierSegment = bridge.getClass('Xamarin.Forms.Shapes.BezierSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Transform() { return this._Transform || (this._Transform = bridge.getClass('Xamarin.Forms.Shapes.Transform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get CompositeTransform() { return this._CompositeTransform || (this._CompositeTransform = bridge.getClass('Xamarin.Forms.Shapes.CompositeTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Shape() { return this._Shape || (this._Shape = bridge.getClass('Xamarin.Forms.Shapes.Shape, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Ellipse() { return this._Ellipse || (this._Ellipse = bridge.getClass('Xamarin.Forms.Shapes.Ellipse, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Geometry() { return this._Geometry || (this._Geometry = bridge.getClass('Xamarin.Forms.Shapes.Geometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get EllipseGeometry() { return this._EllipseGeometry || (this._EllipseGeometry = bridge.getClass('Xamarin.Forms.Shapes.EllipseGeometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get GeometryGroup() { return this._GeometryGroup || (this._GeometryGroup = bridge.getClass('Xamarin.Forms.Shapes.GeometryGroup, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Line() { return this._Line || (this._Line = bridge.getClass('Xamarin.Forms.Shapes.Line, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get LineGeometry() { return this._LineGeometry || (this._LineGeometry = bridge.getClass('Xamarin.Forms.Shapes.LineGeometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get LineSegment() { return this._LineSegment || (this._LineSegment = bridge.getClass('Xamarin.Forms.Shapes.LineSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get MatrixTransform() { return this._MatrixTransform || (this._MatrixTransform = bridge.getClass('Xamarin.Forms.Shapes.MatrixTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Path() { return this._Path || (this._Path = bridge.getClass('Xamarin.Forms.Shapes.Path, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PathFigure() { return this._PathFigure || (this._PathFigure = bridge.getClass('Xamarin.Forms.Shapes.PathFigure, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PathGeometry() { return this._PathGeometry || (this._PathGeometry = bridge.getClass('Xamarin.Forms.Shapes.PathGeometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PolyBezierSegment() { return this._PolyBezierSegment || (this._PolyBezierSegment = bridge.getClass('Xamarin.Forms.Shapes.PolyBezierSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Polygon() { return this._Polygon || (this._Polygon = bridge.getClass('Xamarin.Forms.Shapes.Polygon, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Polyline() { return this._Polyline || (this._Polyline = bridge.getClass('Xamarin.Forms.Shapes.Polyline, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PolyLineSegment() { return this._PolyLineSegment || (this._PolyLineSegment = bridge.getClass('Xamarin.Forms.Shapes.PolyLineSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get PolyQuadraticBezierSegment() { return this._PolyQuadraticBezierSegment || (this._PolyQuadraticBezierSegment = bridge.getClass('Xamarin.Forms.Shapes.PolyQuadraticBezierSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get QuadraticBezierSegment() { return this._QuadraticBezierSegment || (this._QuadraticBezierSegment = bridge.getClass('Xamarin.Forms.Shapes.QuadraticBezierSegment, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get Rectangle() { return this._Rectangle || (this._Rectangle = bridge.getClass('Xamarin.Forms.Shapes.Rectangle, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RectangleGeometry() { return this._RectangleGeometry || (this._RectangleGeometry = bridge.getClass('Xamarin.Forms.Shapes.RectangleGeometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RotateTransform() { return this._RotateTransform || (this._RotateTransform = bridge.getClass('Xamarin.Forms.Shapes.RotateTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get RoundRectangleGeometry() { return this._RoundRectangleGeometry || (this._RoundRectangleGeometry = bridge.getClass('Xamarin.Forms.Shapes.RoundRectangleGeometry, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get ScaleTransform() { return this._ScaleTransform || (this._ScaleTransform = bridge.getClass('Xamarin.Forms.Shapes.ScaleTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get SkewTransform() { return this._SkewTransform || (this._SkewTransform = bridge.getClass('Xamarin.Forms.Shapes.SkewTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TransformGroup() { return this._TransformGroup || (this._TransformGroup = bridge.getClass('Xamarin.Forms.Shapes.TransformGroup, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); },
-        get TranslateTransform() { return this._TranslateTransform || (this._TranslateTransform = bridge.getClass('Xamarin.Forms.Shapes.TranslateTransform, Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null')); }
-    };
+    const assemblyName = `Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null`;
+    let ns = ``;
+    function create(name, ns) {
+        return {
+            configurable: true,
+            enumerable: true,
+            get() {
+                const t = bridge.getClass(`${ns}.${name}, ${assemblyName}`);
+                Object.defineProperty(this, name, {
+                    configurable: true,
+                    enumerable: true,
+                    writable: true,
+                    value: t
+                });
+                return t;
+            }
+        };
+    }
+    var XF;
+    (function (XF) {
+    })(XF || (XF = {}));
     exports.default = XF;
+    var Xamarin;
+    (function (Xamarin) {
+        let Forms;
+        (function (Forms) {
+            let PlatformConfiguration;
+            (function (PlatformConfiguration) {
+                let WindowsSpecific;
+                (function (WindowsSpecific) {
+                })(WindowsSpecific = PlatformConfiguration.WindowsSpecific || (PlatformConfiguration.WindowsSpecific = {}));
+                let TizenSpecific;
+                (function (TizenSpecific) {
+                })(TizenSpecific = PlatformConfiguration.TizenSpecific || (PlatformConfiguration.TizenSpecific = {}));
+                let macOSSpecific;
+                (function (macOSSpecific) {
+                })(macOSSpecific = PlatformConfiguration.macOSSpecific || (PlatformConfiguration.macOSSpecific = {}));
+                let iOSSpecific;
+                (function (iOSSpecific) {
+                })(iOSSpecific = PlatformConfiguration.iOSSpecific || (PlatformConfiguration.iOSSpecific = {}));
+                let GTKSpecific;
+                (function (GTKSpecific) {
+                })(GTKSpecific = PlatformConfiguration.GTKSpecific || (PlatformConfiguration.GTKSpecific = {}));
+                let AndroidSpecific;
+                (function (AndroidSpecific) {
+                    let AppCompat;
+                    (function (AppCompat) {
+                    })(AppCompat = AndroidSpecific.AppCompat || (AndroidSpecific.AppCompat = {}));
+                })(AndroidSpecific = PlatformConfiguration.AndroidSpecific || (PlatformConfiguration.AndroidSpecific = {}));
+            })(PlatformConfiguration = Forms.PlatformConfiguration || (Forms.PlatformConfiguration = {}));
+            let Internals;
+            (function (Internals) {
+            })(Internals = Forms.Internals || (Forms.Internals = {}));
+        })(Forms = Xamarin.Forms || (Xamarin.Forms = {}));
+    })(Xamarin = exports.Xamarin || (exports.Xamarin = {}));
+    ns = "XF";
+    Object.defineProperties(XF, {
+        AbsoluteLayout: create("AbsoluteLayout", "Xamarin.Forms"),
+        ActivityIndicator: create("ActivityIndicator", "Xamarin.Forms"),
+        AdaptiveTrigger: create("AdaptiveTrigger", "Xamarin.Forms"),
+        Application: create("Application", "Xamarin.Forms"),
+        AppLinkEntry: create("AppLinkEntry", "Xamarin.Forms"),
+        AutomationProperties: create("AutomationProperties", "Xamarin.Forms"),
+        BaseMenuItem: create("BaseMenuItem", "Xamarin.Forms"),
+        BindableLayout: create("BindableLayout", "Xamarin.Forms"),
+        BindableObject: create("BindableObject", "Xamarin.Forms"),
+        BoxView: create("BoxView", "Xamarin.Forms"),
+        Brush: create("Brush", "Xamarin.Forms"),
+        Button: create("Button", "Xamarin.Forms"),
+        CarouselPage: create("CarouselPage", "Xamarin.Forms"),
+        Cell: create("Cell", "Xamarin.Forms"),
+        EntryCell: create("EntryCell", "Xamarin.Forms"),
+        ImageCell: create("ImageCell", "Xamarin.Forms"),
+        SwitchCell: create("SwitchCell", "Xamarin.Forms"),
+        TextCell: create("TextCell", "Xamarin.Forms"),
+        ViewCell: create("ViewCell", "Xamarin.Forms"),
+        CheckBox: create("CheckBox", "Xamarin.Forms"),
+        ClickGestureRecognizer: create("ClickGestureRecognizer", "Xamarin.Forms"),
+        Color: create("Color", "Xamarin.Forms"),
+        ColumnDefinition: create("ColumnDefinition", "Xamarin.Forms"),
+        CompareStateTrigger: create("CompareStateTrigger", "Xamarin.Forms"),
+        CompressedLayout: create("CompressedLayout", "Xamarin.Forms"),
+        Constraint: create("Constraint", "Xamarin.Forms"),
+        ContentPage: create("ContentPage", "Xamarin.Forms"),
+        ContentPresenter: create("ContentPresenter", "Xamarin.Forms"),
+        ContentView: create("ContentView", "Xamarin.Forms"),
+        ControlTemplate: create("ControlTemplate", "Xamarin.Forms"),
+        DataTemplate: create("DataTemplate", "Xamarin.Forms"),
+        DataTemplateSelector: create("DataTemplateSelector", "Xamarin.Forms"),
+        DatePicker: create("DatePicker", "Xamarin.Forms"),
+        DeviceStateTrigger: create("DeviceStateTrigger", "Xamarin.Forms"),
+        DragGestureRecognizer: create("DragGestureRecognizer", "Xamarin.Forms"),
+        DropGestureRecognizer: create("DropGestureRecognizer", "Xamarin.Forms"),
+        Easing: create("Easing", "Xamarin.Forms"),
+        Editor: create("Editor", "Xamarin.Forms"),
+        Effect: create("Effect", "Xamarin.Forms"),
+        Element: create("Element", "Xamarin.Forms"),
+        ElementTemplate: create("ElementTemplate", "Xamarin.Forms"),
+        Entry: create("Entry", "Xamarin.Forms"),
+        FileImageSource: create("FileImageSource", "Xamarin.Forms"),
+        FlexLayout: create("FlexLayout", "Xamarin.Forms"),
+        FlyoutPage: create("FlyoutPage", "Xamarin.Forms"),
+        MasterDetailPage: create("MasterDetailPage", "Xamarin.Forms"),
+        FontImageSource: create("FontImageSource", "Xamarin.Forms"),
+        FormattedString: create("FormattedString", "Xamarin.Forms"),
+        Frame: create("Frame", "Xamarin.Forms"),
+        GestureElement: create("GestureElement", "Xamarin.Forms"),
+        GestureRecognizer: create("GestureRecognizer", "Xamarin.Forms"),
+        GradientBrush: create("GradientBrush", "Xamarin.Forms"),
+        GradientStop: create("GradientStop", "Xamarin.Forms"),
+        Grid: create("Grid", "Xamarin.Forms"),
+        HtmlWebViewSource: create("HtmlWebViewSource", "Xamarin.Forms"),
+        Image: create("Image", "Xamarin.Forms"),
+        ImageButton: create("ImageButton", "Xamarin.Forms"),
+        ImageSource: create("ImageSource", "Xamarin.Forms"),
+        IndicatorView: create("IndicatorView", "Xamarin.Forms"),
+        InputView: create("InputView", "Xamarin.Forms"),
+        Behavior: create("Behavior", "Xamarin.Forms"),
+        Behavior$Generic: create("Behavior`1", "Xamarin.Forms"),
+        DataTrigger: create("DataTrigger", "Xamarin.Forms"),
+        EventTrigger: create("EventTrigger", "Xamarin.Forms"),
+        MultiTrigger: create("MultiTrigger", "Xamarin.Forms"),
+        Trigger: create("Trigger", "Xamarin.Forms"),
+        TriggerBase: create("TriggerBase", "Xamarin.Forms"),
+        ItemsView$Generic: create("ItemsView`1", "Xamarin.Forms"),
+        CarouselView: create("CarouselView", "Xamarin.Forms"),
+        CollectionView: create("CollectionView", "Xamarin.Forms"),
+        GridItemsLayout: create("GridItemsLayout", "Xamarin.Forms"),
+        GroupableItemsView: create("GroupableItemsView", "Xamarin.Forms"),
+        ItemsLayout: create("ItemsLayout", "Xamarin.Forms"),
+        ItemsView: create("ItemsView", "Xamarin.Forms"),
+        LinearItemsLayout: create("LinearItemsLayout", "Xamarin.Forms"),
+        SelectableItemsView: create("SelectableItemsView", "Xamarin.Forms"),
+        StructuredItemsView: create("StructuredItemsView", "Xamarin.Forms"),
+        IValueConverter: create("IValueConverter", "Xamarin.Forms"),
+        Label: create("Label", "Xamarin.Forms"),
+        Layout$Generic: create("Layout`1", "Xamarin.Forms"),
+        Layout: create("Layout", "Xamarin.Forms"),
+        LayoutOptions: create("LayoutOptions", "Xamarin.Forms"),
+        LinearGradientBrush: create("LinearGradientBrush", "Xamarin.Forms"),
+        ListView: create("ListView", "Xamarin.Forms"),
+        Menu: create("Menu", "Xamarin.Forms"),
+        MenuItem: create("MenuItem", "Xamarin.Forms"),
+        MultiPage$Generic: create("MultiPage`1", "Xamarin.Forms"),
+        NameScopeExtensions: create("NameScopeExtensions", "Xamarin.Forms"),
+        NavigationPage: create("NavigationPage", "Xamarin.Forms"),
+        NullEffect: create("NullEffect", "Xamarin.Forms"),
+        OpenGLView: create("OpenGLView", "Xamarin.Forms"),
+        OrientationStateTrigger: create("OrientationStateTrigger", "Xamarin.Forms"),
+        Page: create("Page", "Xamarin.Forms"),
+        PanGestureRecognizer: create("PanGestureRecognizer", "Xamarin.Forms"),
+        Picker: create("Picker", "Xamarin.Forms"),
+        PinchGestureRecognizer: create("PinchGestureRecognizer", "Xamarin.Forms"),
+        PlatformEffect$Generic: create("PlatformEffect`2", "Xamarin.Forms"),
+        Point: create("Point", "Xamarin.Forms"),
+        ProgressBar: create("ProgressBar", "Xamarin.Forms"),
+        RadialGradientBrush: create("RadialGradientBrush", "Xamarin.Forms"),
+        RadioButton: create("RadioButton", "Xamarin.Forms"),
+        RadioButtonGroup: create("RadioButtonGroup", "Xamarin.Forms"),
+        Rect: create("Rect", "Xamarin.Forms"),
+        RefreshView: create("RefreshView", "Xamarin.Forms"),
+        RelativeLayout: create("RelativeLayout", "Xamarin.Forms"),
+        Routing: create("Routing", "Xamarin.Forms"),
+        RoutingEffect: create("RoutingEffect", "Xamarin.Forms"),
+        RowDefinition: create("RowDefinition", "Xamarin.Forms"),
+        ScrollView: create("ScrollView", "Xamarin.Forms"),
+        SearchBar: create("SearchBar", "Xamarin.Forms"),
+        BackButtonBehavior: create("BackButtonBehavior", "Xamarin.Forms"),
+        BaseShellItem: create("BaseShellItem", "Xamarin.Forms"),
+        NavigableElement: create("NavigableElement", "Xamarin.Forms"),
+        SearchHandler: create("SearchHandler", "Xamarin.Forms"),
+        Shell: create("Shell", "Xamarin.Forms"),
+        ShellContent: create("ShellContent", "Xamarin.Forms"),
+        ShellGroupItem: create("ShellGroupItem", "Xamarin.Forms"),
+        FlyoutItem: create("FlyoutItem", "Xamarin.Forms"),
+        TabBar: create("TabBar", "Xamarin.Forms"),
+        ShellItem: create("ShellItem", "Xamarin.Forms"),
+        Tab: create("Tab", "Xamarin.Forms"),
+        ShellSection: create("ShellSection", "Xamarin.Forms"),
+        Size: create("Size", "Xamarin.Forms"),
+        Slider: create("Slider", "Xamarin.Forms"),
+        SolidColorBrush: create("SolidColorBrush", "Xamarin.Forms"),
+        Span: create("Span", "Xamarin.Forms"),
+        StackLayout: create("StackLayout", "Xamarin.Forms"),
+        StateTrigger: create("StateTrigger", "Xamarin.Forms"),
+        StateTriggerBase: create("StateTriggerBase", "Xamarin.Forms"),
+        Stepper: create("Stepper", "Xamarin.Forms"),
+        StreamImageSource: create("StreamImageSource", "Xamarin.Forms"),
+        Style: create("Style", "Xamarin.Forms"),
+        SwipeGestureRecognizer: create("SwipeGestureRecognizer", "Xamarin.Forms"),
+        SwipeItem: create("SwipeItem", "Xamarin.Forms"),
+        SwipeItems: create("SwipeItems", "Xamarin.Forms"),
+        SwipeItemView: create("SwipeItemView", "Xamarin.Forms"),
+        SwipeView: create("SwipeView", "Xamarin.Forms"),
+        Switch: create("Switch", "Xamarin.Forms"),
+        TabbedPage: create("TabbedPage", "Xamarin.Forms"),
+        TableRoot: create("TableRoot", "Xamarin.Forms"),
+        TableSectionBase$Generic: create("TableSectionBase`1", "Xamarin.Forms"),
+        TableSection: create("TableSection", "Xamarin.Forms"),
+        TableSectionBase: create("TableSectionBase", "Xamarin.Forms"),
+        TableView: create("TableView", "Xamarin.Forms"),
+        TapGestureRecognizer: create("TapGestureRecognizer", "Xamarin.Forms"),
+        TemplatedPage: create("TemplatedPage", "Xamarin.Forms"),
+        TemplatedView: create("TemplatedView", "Xamarin.Forms"),
+        TimePicker: create("TimePicker", "Xamarin.Forms"),
+        ToolbarItem: create("ToolbarItem", "Xamarin.Forms"),
+        UriImageSource: create("UriImageSource", "Xamarin.Forms"),
+        UrlWebViewSource: create("UrlWebViewSource", "Xamarin.Forms"),
+        View: create("View", "Xamarin.Forms"),
+        VisualElement: create("VisualElement", "Xamarin.Forms"),
+        VisualStateManager: create("VisualStateManager", "Xamarin.Forms"),
+        WebView: create("WebView", "Xamarin.Forms"),
+        WebViewSource: create("WebViewSource", "Xamarin.Forms"),
+        StyleSheet: create("StyleSheet", "Xamarin.Forms.StyleSheets"),
+        ArcSegment: create("ArcSegment", "Xamarin.Forms.Shapes"),
+        BezierSegment: create("BezierSegment", "Xamarin.Forms.Shapes"),
+        CompositeTransform: create("CompositeTransform", "Xamarin.Forms.Shapes"),
+        Ellipse: create("Ellipse", "Xamarin.Forms.Shapes"),
+        EllipseGeometry: create("EllipseGeometry", "Xamarin.Forms.Shapes"),
+        Geometry: create("Geometry", "Xamarin.Forms.Shapes"),
+        GeometryGroup: create("GeometryGroup", "Xamarin.Forms.Shapes"),
+        GeometryHelper: create("GeometryHelper", "Xamarin.Forms.Shapes"),
+        Line: create("Line", "Xamarin.Forms.Shapes"),
+        LineGeometry: create("LineGeometry", "Xamarin.Forms.Shapes"),
+        LineSegment: create("LineSegment", "Xamarin.Forms.Shapes"),
+        MatrixTransform: create("MatrixTransform", "Xamarin.Forms.Shapes"),
+        Path: create("Path", "Xamarin.Forms.Shapes"),
+        PathFigure: create("PathFigure", "Xamarin.Forms.Shapes"),
+        PathGeometry: create("PathGeometry", "Xamarin.Forms.Shapes"),
+        PathSegment: create("PathSegment", "Xamarin.Forms.Shapes"),
+        PolyBezierSegment: create("PolyBezierSegment", "Xamarin.Forms.Shapes"),
+        Polygon: create("Polygon", "Xamarin.Forms.Shapes"),
+        Polyline: create("Polyline", "Xamarin.Forms.Shapes"),
+        PolyLineSegment: create("PolyLineSegment", "Xamarin.Forms.Shapes"),
+        PolyQuadraticBezierSegment: create("PolyQuadraticBezierSegment", "Xamarin.Forms.Shapes"),
+        QuadraticBezierSegment: create("QuadraticBezierSegment", "Xamarin.Forms.Shapes"),
+        Rectangle: create("Rectangle", "Xamarin.Forms.Shapes"),
+        RectangleGeometry: create("RectangleGeometry", "Xamarin.Forms.Shapes"),
+        RotateTransform: create("RotateTransform", "Xamarin.Forms.Shapes"),
+        RoundRectangleGeometry: create("RoundRectangleGeometry", "Xamarin.Forms.Shapes"),
+        ScaleTransform: create("ScaleTransform", "Xamarin.Forms.Shapes"),
+        Shape: create("Shape", "Xamarin.Forms.Shapes"),
+        SkewTransform: create("SkewTransform", "Xamarin.Forms.Shapes"),
+        Transform: create("Transform", "Xamarin.Forms.Shapes"),
+        TransformGroup: create("TransformGroup", "Xamarin.Forms.Shapes"),
+        TranslateTransform: create("TranslateTransform", "Xamarin.Forms.Shapes"),
+    });
+    ns = "Xamarin.Forms.PlatformConfiguration.WindowsSpecific";
+    Object.defineProperties(Xamarin.Forms.PlatformConfiguration.WindowsSpecific, {
+        Application: create("Application", ns),
+        FlyoutPage: create("FlyoutPage", ns),
+        MasterDetailPage: create("MasterDetailPage", ns),
+        InputView: create("InputView", ns),
+        Label: create("Label", ns),
+        ListView: create("ListView", ns),
+        Page: create("Page", ns),
+        RefreshView: create("RefreshView", ns),
+        SearchBar: create("SearchBar", ns),
+        TabbedPage: create("TabbedPage", ns),
+        VisualElement: create("VisualElement", ns),
+        WebView: create("WebView", ns),
+    });
+    ns = "Xamarin.Forms.PlatformConfiguration.TizenSpecific";
+    Object.defineProperties(Xamarin.Forms.PlatformConfiguration.TizenSpecific, {
+        Application: create("Application", ns),
+        Entry: create("Entry", ns),
+        Image: create("Image", ns),
+        ItemsView: create("ItemsView", ns),
+        Label: create("Label", ns),
+        NavigationPage: create("NavigationPage", ns),
+        Page: create("Page", ns),
+        ProgressBar: create("ProgressBar", ns),
+        ScrollView: create("ScrollView", ns),
+        Switch: create("Switch", ns),
+        VisualElement: create("VisualElement", ns),
+    });
+    ns = "Xamarin.Forms.PlatformConfiguration.macOSSpecific";
+    Object.defineProperties(Xamarin.Forms.PlatformConfiguration.macOSSpecific, {
+        NavigationPage: create("NavigationPage", ns),
+        Page: create("Page", ns),
+        TabbedPage: create("TabbedPage", ns),
+    });
+    ns = "Xamarin.Forms.PlatformConfiguration.iOSSpecific";
+    Object.defineProperties(Xamarin.Forms.PlatformConfiguration.iOSSpecific, {
+        Application: create("Application", ns),
+        Cell: create("Cell", ns),
+        DatePicker: create("DatePicker", ns),
+        Entry: create("Entry", ns),
+        FlyoutPage: create("FlyoutPage", ns),
+        MasterDetailPage: create("MasterDetailPage", ns),
+        ListView: create("ListView", ns),
+        NavigationPage: create("NavigationPage", ns),
+        Page: create("Page", ns),
+        Picker: create("Picker", ns),
+        ScrollView: create("ScrollView", ns),
+        SearchBar: create("SearchBar", ns),
+        Slider: create("Slider", ns),
+        SwipeView: create("SwipeView", ns),
+        TabbedPage: create("TabbedPage", ns),
+        TimePicker: create("TimePicker", ns),
+        VisualElement: create("VisualElement", ns),
+        ShadowEffect: create("ShadowEffect", ns),
+    });
+    ns = "Xamarin.Forms.PlatformConfiguration.GTKSpecific";
+    Object.defineProperties(Xamarin.Forms.PlatformConfiguration.GTKSpecific, {
+        BoxView: create("BoxView", ns),
+        NavigationPage: create("NavigationPage", ns),
+        TabbedPage: create("TabbedPage", ns),
+    });
+    ns = "Xamarin.Forms.PlatformConfiguration.AndroidSpecific";
+    Object.defineProperties(Xamarin.Forms.PlatformConfiguration.AndroidSpecific, {
+        Application: create("Application", ns),
+        Button: create("Button", ns),
+        Entry: create("Entry", ns),
+        ImageButton: create("ImageButton", ns),
+        ListView: create("ListView", ns),
+        SwipeView: create("SwipeView", ns),
+        TabbedPage: create("TabbedPage", ns),
+        ViewCell: create("ViewCell", ns),
+        VisualElement: create("VisualElement", ns),
+        WebView: create("WebView", ns),
+    });
+    ns = "Xamarin.Forms.PlatformConfiguration.AndroidSpecific.AppCompat";
+    Object.defineProperties(Xamarin.Forms.PlatformConfiguration.AndroidSpecific.AppCompat, {
+        Application: create("Application", ns),
+        NavigationPage: create("NavigationPage", ns),
+    });
+    ns = "Xamarin.Forms.Internals";
+    Object.defineProperties(Xamarin.Forms.Internals, {
+        CellExtensions: create("CellExtensions", ns),
+        NameScope: create("NameScope", ns),
+        TextTransformUtilites: create("TextTransformUtilites", ns),
+        TemplatedItemsList$Generic: create("TemplatedItemsList`2", ns),
+    });
 });
 //# sourceMappingURL=XF.js.map
 
@@ -7552,28 +7304,99 @@ AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/XF");
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "@web-atoms/core/dist/core/XNode", "./XF"], factory);
+        define(["require", "exports", "./XF"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    //tslint:disable
+    const XF_1 = require("./XF");
+    var RgPluginsPopup;
+    (function (RgPluginsPopup) {
+    })(RgPluginsPopup || (RgPluginsPopup = {}));
+    ;
+    const assemblyName = `Rg.Plugins.Popup`;
+    let ns = ``;
+    function create(name, ns) {
+        return {
+            configurable: true,
+            enumerable: true,
+            get() {
+                const t = bridge.getClass(`${ns}.${name}, ${assemblyName}`);
+                Object.defineProperty(this, name, {
+                    configurable: true,
+                    enumerable: true,
+                    writable: true,
+                    value: t
+                });
+                return t;
+            }
+        };
+    }
+    Object.defineProperties(RgPluginsPopup, {
+        PopupPage: create("PopupPage", "Rg.Plugins.Popup.Pages")
+    });
+    exports.default = RgPluginsPopup;
+});
+//# sourceMappingURL=RgPluginsPopup.js.map
+
+AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/RgPluginsPopup");
+
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "@web-atoms/core/dist/core/XNode", "./RgPluginsPopup", "./XF"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     const XNode_1 = require("@web-atoms/core/dist/core/XNode");
+    const RgPluginsPopup_1 = require("./RgPluginsPopup");
     const XF_1 = require("./XF");
     const NSAtoms = "WebAtoms.Controls";
     const NSAssembly = "WebAtoms.XF";
+    var WA;
+    (function (WA) {
+        ;
+    })(WA || (WA = {}));
     ;
-    const WA = {
-        get AtomRepeater() { return this._AtomRepeater || (this._AtomRepeater = bridge.getClass(`${NSAtoms}.AtomRepeater, ${NSAssembly}`)); },
-        get AtomToolbarItem() { return this._AtomToolbarItem || (this._AtomToolbarItem = bridge.getClass(`${NSAtoms}.AtomToolbarItem, ${NSAssembly}`)); },
-        get AtomView() { return this._AtomView || (this._AtomView = bridge.getClass(`${NSAtoms}.AtomView, ${NSAssembly}`)); },
-        get AtomViewCell() { return this._AtomViewCell || (this._AtomViewCell = bridge.getClass(`${NSAtoms}.AtomViewCell, ${NSAssembly}`)); },
-        get AtomForm() { return this._AtomForm || (this._AtomForm = bridge.getClass(`${NSAtoms}.AtomForm, ${NSAssembly}`)); },
-        get AtomField() { return this._AtomField || (this._AtomField = bridge.getClass(`${NSAtoms}.AtomField, ${NSAssembly}`)); },
-        get AtomTemplateSelector() { return this._AtomTemplateSelector || (this._AtomTemplateSelector = bridge.getClass(`${NSAtoms}.AtomTemplateSelector, ${NSAssembly}`)); },
-        get GroupBy() { return this._GroupBy || (this._GroupBy = bridge.getClass(`${NSAtoms}.GroupBy, ${NSAssembly}`)); },
-        get Markdown() { return this._Markdown || (this._Markdown = bridge.getClass(`${NSAtoms}.Markdown, ${NSAssembly}`)); }
-    };
+    function create(name) {
+        return {
+            configurable: true,
+            enumerable: true,
+            get() {
+                const t = bridge.getClass(`${NSAtoms}.${name}, ${NSAssembly}`);
+                Object.defineProperty(this, name, {
+                    enumerable: true,
+                    configurable: true,
+                    writable: true,
+                    value: t
+                });
+                return t;
+            }
+        };
+    }
+    Object.defineProperties(WA, {
+        AtomRepeater: create("AtomRepeater"),
+        AtomToolbarItem: create("AtomToolbarItem"),
+        AtomView: create("AtomView"),
+        AtomViewCell: create("AtomViewCell"),
+        AtomForm: create("AtomForm"),
+        AtomField: create("AtomField"),
+        GroupBy: create("GroupBy"),
+        Markdown: create("Markdown"),
+        AtomPopupPage: create("AtomPopupPage")
+        // get AtomToolbarItem(): typeof AtomToolbarItem { return this._AtomToolbarItem || (this._AtomToolbarItem = bridge.getClass(`${NSAtoms}.AtomToolbarItem, ${NSAssembly}`)); },
+        // get AtomView(): typeof  AtomView { return this._AtomView || (this._AtomView = bridge.getClass(`${NSAtoms}.AtomView, ${NSAssembly}`)); },
+        // get AtomViewCell(): typeof  AtomViewCell { return this._AtomViewCell || (this._AtomViewCell = bridge.getClass(`${NSAtoms}.AtomViewCell, ${NSAssembly}`)); },
+        // get AtomForm(): typeof AtomForm { return this._AtomForm || (this._AtomForm = bridge.getClass(`${NSAtoms}.AtomForm, ${NSAssembly}`)); },
+        // get AtomField(): typeof AtomField { return this._AtomField || (this._AtomField = bridge.getClass(`${NSAtoms}.AtomField, ${NSAssembly}`)) ; },
+        // get AtomTemplateSelector(): typeof AtomTemplateSelector { return this._AtomTemplateSelector || (this._AtomTemplateSelector = bridge.getClass(`${NSAtoms}.AtomTemplateSelector, ${NSAssembly}`)) ; },
+        // get GroupBy(): typeof GroupBy { return this._GroupBy || (this._GroupBy = bridge.getClass(`${NSAtoms}.GroupBy, ${NSAssembly}`)); },
+        // get Markdown(): typeof Markdown { return this._Markdown || (this._Markdown = bridge.getClass(`${NSAtoms}.Markdown, ${NSAssembly}`)); }
+    });
     exports.default = WA;
 });
 //# sourceMappingURL=WA.js.map
@@ -12672,7 +12495,7 @@ AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/gradient/ra
         create() {
             this.render(XNode_1.default.create(XF_1.default.ContentPage, null,
                 XNode_1.default.create(XF_1.default.Grid, { padding: 20 },
-                    XNode_1.default.create(XF_1.default.Frame, { borderColor: "LightGray", hasShadow: "True", cornerRadius: "12", background: "DarkBlue" }))));
+                    XNode_1.default.create(XF_1.default.Frame, { hasShadow: "True", cornerRadius: "12", backgroundColor: XF_1.default.Color.cyan }))));
         }
     }
     exports.default = SolidBrush;
@@ -12713,28 +12536,7 @@ AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/brushes/addBrushSam
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./XF"], factory);
-    }
-})(function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    const XF_1 = require("./XF");
-    const RgPluginsPopup = {
-        PopupPage: bridge.getClass("Rg.Plugins.Popup.Pages.PopupPage,Rg.Plugins.Popup")
-    };
-    exports.default = RgPluginsPopup;
-});
-//# sourceMappingURL=RgPluginsPopup.js.map
-
-AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/RgPluginsPopup");
-
-(function (factory) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        var v = factory(require, exports);
-        if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/Colors", "@web-atoms/core/dist/core/XNode", "@web-atoms/core/dist/xf/controls/AtomXFControl", "../clr/RgPluginsPopup", "../clr/X", "../clr/XF"], factory);
+        define(["require", "exports", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/Colors", "@web-atoms/core/dist/core/XNode", "@web-atoms/core/dist/xf/controls/AtomXFControl", "../clr/WA", "../clr/X", "../clr/XF"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -12744,7 +12546,7 @@ AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/RgPluginsPopup");
     const Colors_1 = require("@web-atoms/core/dist/core/Colors");
     const XNode_1 = require("@web-atoms/core/dist/core/XNode");
     const AtomXFControl_1 = require("@web-atoms/core/dist/xf/controls/AtomXFControl");
-    const RgPluginsPopup_1 = require("../clr/RgPluginsPopup");
+    const WA_1 = require("../clr/WA");
     const X_1 = require("../clr/X");
     const XF_1 = require("../clr/XF");
     const controlTemplate = XNode_1.default.create(XF_1.default.ControlTemplate, null,
@@ -12765,11 +12567,11 @@ AmdLoader.instance.setup("@web-atoms/xf-controls/dist/clr/RgPluginsPopup");
             XNode_1.default.create(XF_1.default.ContentPresenter, Object.assign({ padding: 5 }, XF_1.default.Grid.row(2), XF_1.default.Grid.column(1), XF_1.default.Grid.columnSpan(2)))));
     class AtomXFPopupPage extends AtomXFControl_1.AtomXFControl {
         constructor(a, e) {
-            super(a, e || AtomBridge_1.AtomBridge.instance.create(RgPluginsPopup_1.default.PopupPage));
+            super(a, e || AtomBridge_1.AtomBridge.instance.create(WA_1.default.AtomPopupPage));
         }
         preCreate() {
             super.preCreate();
-            this.render(XNode_1.default.create(RgPluginsPopup_1.default.PopupPage, { title: Bind_1.default.oneWay(() => this.viewModel.title), controlTemplate: controlTemplate }));
+            this.render(XNode_1.default.create(WA_1.default.AtomPopupPage, { title: Bind_1.default.oneWay(() => this.viewModel.title) }));
         }
     }
     exports.default = AtomXFPopupPage;
@@ -17649,6 +17451,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             this.methods = {};
             this.methodReturns = {};
             this.jsonOptions = null;
+            this.headers = null;
             this.jsonOptions = Object.assign({}, this.jsonService.options);
         }
         encodeData(o) {
@@ -17701,7 +17504,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                         options.headers = methodOptions.headers;
                         options.dataType = methodOptions.accept;
                     }
-                    const headers = options.headers = options.headers || {};
+                    const methodHeaders = (options.headers = options.headers || {});
+                    const headers = this.headers
+                        ? (Object.assign(Object.assign({}, this.headers), methodHeaders))
+                        : methodHeaders;
                     // this is necessary to support IsAjaxRequest in ASP.NET MVC
                     if (!headers["X-Requested-With"]) {
                         headers["X-Requested-With"] = "XMLHttpRequest";
@@ -18297,7 +18103,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
             this.viewModel = this.resolve(SimpleFormViewModel_1.default);
             this.render(XNode_1.default.create(XF_1.default.ContentPage, { title: "Simple Form", backgroundColor: "White", padding: "10" },
                 XNode_1.default.create(WA_1.default.AtomForm, null,
-                    XNode_1.default.create(WA_1.default.AtomField, { label: "Username:", isRequired: true, error: Bind_1.default.oneWay(() => this.viewModel.errorUsername), labelColor: "#2e2e2e" },
+                    XNode_1.default.create(WA_1.default.AtomField, { label: "Username:", isRequired: true, error: Bind_1.default.oneWay(() => this.viewModel.errorUsername), help: "Username should only be alpha/numeric and cannot contain space or any special character", labelColor: "#2e2e2e" },
                         XNode_1.default.create(XF_1.default.Entry, { text: Bind_1.default.twoWays(() => this.viewModel.model.username), placeholder: "Enter Username", placeholderColor: "#aaa", textColor: "#2e2e2e" })),
                     XNode_1.default.create(WA_1.default.AtomField, { label: "Password", isRequired: true, error: Bind_1.default.oneWay(() => this.viewModel.errorPassword), labelColor: "#2e2e2e" },
                         XNode_1.default.create(XF_1.default.Entry, { isPassword: true, text: Bind_1.default.twoWays(() => this.viewModel.model.password), placeholder: "Enter Password", placeholderColor: "#aaa", textColor: "#2e2e2e" })),
@@ -19700,7 +19506,7 @@ AmdLoader.instance.setup("@web-atoms/xf-samples/dist/samples/time-picker/TimePic
                 XNode_1.default.create(XF_1.default.StackLayout, Object.assign({ orientation: "Horizontal" }, XF_1.default.BindableLayout.itemsSource(Bind_1.default.oneWay(() => this.items))),
                     XNode_1.default.create(XF_1.default.BindableLayout.itemTemplate, null,
                         XNode_1.default.create(XF_1.default.DataTemplate, null,
-                            XNode_1.default.create(WA_1.default.AtomView, { backgroundColor: Colors_1.default.lightBlue, horizontalOptions: "FillAndExpand", dataTemplate: Bind_1.default.oneWay(() => this.itemTemplate) },
+                            XNode_1.default.create(WA_1.default.AtomView, { backgroundColor: Colors_1.default.white, horizontalOptions: "FillAndExpand", dataTemplate: Bind_1.default.oneWay(() => this.itemTemplate) },
                                 XNode_1.default.create(XF_1.default.View.gestureRecognizers, null,
                                     XNode_1.default.create(XF_1.default.TapGestureRecognizer, { command: Bind_1.default.event((x) => this.selectedItem = x.data) }))))))));
         }

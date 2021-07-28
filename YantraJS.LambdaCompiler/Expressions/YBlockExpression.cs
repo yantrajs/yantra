@@ -74,5 +74,34 @@ namespace YantraJS.Expressions
                 }
             }
         }
+
+        public Enumerator Enumerate() => new Enumerator(this.Expressions);
+
+        public ref struct Enumerator
+        {
+            private YExpression[] expressions;
+            private int index;
+            private int last;
+
+            public Enumerator(YExpression[] expressions)
+            {
+                this.expressions = expressions;
+                index = -1;
+                this.last = expressions.Length - 1;
+            }
+
+            public bool MoveNext(out YExpression? exp, out bool isLast)
+            {
+                if((this.index++)<= last)
+                {
+                    isLast = last == this.index;
+                    exp = expressions[index];
+                    return true;
+                }
+                isLast = false;
+                exp = default;
+                return false;
+            }
+        }
     }
 }
