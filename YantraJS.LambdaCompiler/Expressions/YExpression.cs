@@ -284,7 +284,7 @@ namespace YantraJS.Expressions
         {
             if (YConvertExpression.TryGetConversionMethod(exp.Type, type, out var method)) {
                 if (method == null)
-                    return exp;
+                    return new YTypeAsExpression(exp, type);
                 return new YConvertExpression(exp, type, method);
             }
             if (exp.Type.IsValueType && type == typeof(object))
