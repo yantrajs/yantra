@@ -121,6 +121,7 @@ namespace YantraJS.Core
         /// <param name="clrDelegate"></param>
         /// <param name="type"></param>
         internal JSFunction(JSFunctionDelegate clrDelegate, ClrType type)
+            : base(JSContext.Current?.FunctionPrototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = clrDelegate;
@@ -269,17 +270,14 @@ namespace YantraJS.Core
             return a.This;
         }
 
-        [Prototype("toString")]
-        public static JSValue ToString(in Arguments a)
-        {
-            var f = a.This as JSFunction;
-            return new JSString(f.source);
-        }
 
-        public override string ToString()
-        {
-            return source.Value;
-        }
+        //public override string ToString()
+        //{
+        //    var fx = this[KeyStrings.toString];
+        //    if (fx.IsNullOrUndefined)
+        //        return this.source.Value;
+        //    return fx.InvokeFunction(Arguments.Empty).ToString();
+        //}
 
         [Prototype("call", Length = 1)]
         public static JSValue Call(in Arguments a)
@@ -310,6 +308,14 @@ namespace YantraJS.Core
                 constructor = fOriginal.constructor
             };
             return fx;
+        }
+
+        [Prototype("toString", Length = 0)]
+        public static JSValue ToString(in Arguments a)
+        {
+            if (!(a.This is JSFunction fx))
+                throw JSContext.Current.NewTypeError($"Function.prototype.toString cannot be called with non function");
+            return new JSString(fx.source);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

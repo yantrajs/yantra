@@ -156,7 +156,7 @@ namespace YantraJS.Core
                     {
                         System.Diagnostics.Debug.WriteLine(ex);
                     }
-                    yield return (p.key.ToString(), v);
+                    yield return ( KeyStrings.GetNameString(p.key).Value , v);
                 }
             }
         }

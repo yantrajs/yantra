@@ -215,6 +215,13 @@ namespace YantraJS.Core
             return new KeyString(names[id] , id);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static StringSpan GetNameString(uint id)
+        {
+            return names[id];
+        }
+
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static JSString GetJSString(uint id)
