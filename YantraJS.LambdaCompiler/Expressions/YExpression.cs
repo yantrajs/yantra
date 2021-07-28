@@ -289,10 +289,10 @@ namespace YantraJS.Expressions
             return new YTypeAsExpression(exp, type);
         }
 
-        public static YConvertExpression Convert(YExpression exp, Type type, MethodInfo method)
-        {
-            return new YConvertExpression(exp, type, method);
-        }
+        //public static YConvertExpression Convert(YExpression exp, Type type, MethodInfo method)
+        //{
+        //    return new YConvertExpression(exp, type, method);
+        //}
 
         public static YExpression Continue(YLabelTarget @break)
         {
