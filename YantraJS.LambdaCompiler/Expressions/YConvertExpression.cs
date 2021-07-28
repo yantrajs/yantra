@@ -36,8 +36,6 @@ namespace YantraJS.Expressions
             : base(YExpressionType.Convert, type)
         {
             this.Target = exp;
-            if (method == null)
-                throw new ArgumentNullException($"Method {method} cannot be null to convert from {exp.Type} to {type}");
             Method = method;
         }
 

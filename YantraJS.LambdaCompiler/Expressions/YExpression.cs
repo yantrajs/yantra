@@ -282,8 +282,11 @@ namespace YantraJS.Expressions
 
         public static YExpression Convert(YExpression exp, Type type, bool cast = false)
         {
-            if(YConvertExpression.TryGetConversionMethod(exp.Type, type, out var method))
+            if (YConvertExpression.TryGetConversionMethod(exp.Type, type, out var method)) {
+                if (method == null)
+                    return exp;
                 return new YConvertExpression(exp, type, method);
+            }
             if (exp.Type.IsValueType && type == typeof(object))
                 return Box(exp);
             return new YTypeAsExpression(exp, type);
