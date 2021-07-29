@@ -24,5 +24,13 @@ namespace YantraJS.Core.Debug
             return f;
         }
 
+        [Prototype("error")]
+        public static JSValue Error(in Arguments a)
+        {
+            var f = a.Get1();
+            JSContext.Current.ReportLog(f);
+            return f;
+        }
+
     }
 }
