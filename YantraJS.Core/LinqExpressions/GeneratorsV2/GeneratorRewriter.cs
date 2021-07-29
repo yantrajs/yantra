@@ -321,7 +321,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         public static Expression New(int id)
         {
-            return Expression.New(_newFromValue, Expression.Constant(null, typeof(JSValue)), Expression.Constant(id));
+            return Expression.New(_newFromValue, JSUndefinedBuilder.Value, Expression.Constant(id));
         }
 
     }

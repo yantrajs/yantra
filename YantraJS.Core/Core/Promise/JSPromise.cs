@@ -175,8 +175,6 @@ namespace YantraJS.Core
                 return;
             }
 
-            value ??= JSUndefined.Value;
-
             pending.TryRemove(promiseID, out var __);
 
             // get then...

@@ -114,6 +114,10 @@ namespace YantraJS.Core.Generator
             {
                 c.Top = cg.StackItem;
                 cg.Next(replaceOld, out this.value, out this.done);
+                //if(this.done == true && this.value == null)
+                //{
+                //    throw new ArgumentNullException();
+                //}
                 return ValueObject;
             }finally
             {

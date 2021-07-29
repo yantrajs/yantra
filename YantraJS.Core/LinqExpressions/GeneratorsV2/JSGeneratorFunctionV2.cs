@@ -183,7 +183,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         public void Throw(int end)
         {
-            if(Root.End == end && lastError != null)
+            if(Root?.End == end && lastError != null)
             {
                 Pop();
                 throw lastError;
