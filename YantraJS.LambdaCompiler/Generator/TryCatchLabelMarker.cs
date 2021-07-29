@@ -24,6 +24,8 @@ namespace YantraJS.Generator
             t.Visit(body.Try);
             if (body.Catch != null)
                 t.Visit(body.Catch.Body);
+            if (body.Finally != null)
+                t.Visit(body.Finally);
         }
 
         protected override YExpression VisitLabel(YLabelExpression yLabelExpression)
