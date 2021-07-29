@@ -2,6 +2,6 @@
 try {
     console.log("a");
 } finally {
-    error = e;
+    error = "a";
 }
-assert(error, error);
+assert.strictEqual(error, "a");

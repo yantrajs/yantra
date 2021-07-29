@@ -181,7 +181,7 @@ namespace YantraJS
         {
 
             var derived = (type.Module as ModuleBuilder).DefineType(
-                ExpressionCompiler.GetUniqueName("Closures"),
+                ExpressionCompiler.GetUniqueName(lambdaExpression.Name.FullName ?? "Closures"),
                 TypeAttributes.Public,
                 typeof(Closures));
 
