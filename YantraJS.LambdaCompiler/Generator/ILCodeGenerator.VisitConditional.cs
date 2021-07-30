@@ -39,16 +39,18 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Br, trueEnd);
                 il.MarkLabel(falseBegin);
                 Visit(yConditionalExpression.@false);
-            } else
+                il.MarkLabel(trueEnd);
+            }
+            else
             {
-                // we will need to leave something on stack..
+                il.MarkLabel(trueEnd);
+                //// we will need to leave something on stack..
                 if (yConditionalExpression.@true.Type != typeof(void))
                 {
                     il.Emit(OpCodes.Ldnull);
                 }
             }
 
-            il.MarkLabel(trueEnd);
             return true;
         }
 
@@ -113,15 +115,17 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Br, trueEnd);
                 il.MarkLabel(falseBegin);
                 Visit(@false);
-            } else
+                il.MarkLabel(trueEnd);
+            }
+            else
             {
+                il.MarkLabel(trueEnd);
                 if (@true.Type != typeof(void))
                 {
                     il.Emit(OpCodes.Ldnull);
                 }
             }
 
-            il.MarkLabel(trueEnd);
             return true;
         }
     }
