@@ -1048,9 +1048,7 @@ class AmdLoader {
     }
     importAsync(module) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`${module.name} Loading ...`);
             yield this.load(module);
-            console.log(`${module.name} Resolving ...`);
             return yield this.resolve(module);
         });
     }
