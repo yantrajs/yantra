@@ -39,6 +39,13 @@ namespace YantraJS.Generator
                 il.Emit(OpCodes.Br, trueEnd);
                 il.MarkLabel(falseBegin);
                 Visit(yConditionalExpression.@false);
+
+                if(yConditionalExpression.@true.Type == typeof(void) 
+                    && yConditionalExpression.@false.Type != typeof(void))
+                {
+                    il.Emit(OpCodes.Pop);
+                }
+
                 il.MarkLabel(trueEnd);
             }
             else
@@ -112,6 +119,11 @@ namespace YantraJS.Generator
 
             if (@false != null)
             {
+                if(@false.Type != typeof(void) && @true.Type == typeof(void))
+                {
+                    il.Emit(OpCodes.Ldnull);
+                }
+
                 il.Emit(OpCodes.Br, trueEnd);
                 il.MarkLabel(falseBegin);
                 Visit(@false);

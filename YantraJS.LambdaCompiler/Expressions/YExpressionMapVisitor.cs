@@ -122,10 +122,10 @@ namespace YantraJS.Expressions
 
         protected override YExpression VisitBlock(YBlockExpression yBlockExpression)
         {
-            var pm = Modified(yBlockExpression.Variables, out var variables);
+            // var pm = Modified(yBlockExpression.Variables, out var variables);
             var sm = Modified(yBlockExpression.Expressions, out var expressions);
-            if (pm || sm)
-                return new YBlockExpression(variables, expressions);
+            if (sm)
+                return new YBlockExpression(yBlockExpression.Variables, expressions);
             return yBlockExpression;
         }
 

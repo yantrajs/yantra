@@ -93,16 +93,29 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             var (boxes, inits) = gw.LoadBoxes();
 
-            var newBody = Expression.Block(
-                boxes,
+            YBlockExpression newBody;
 
-                // load boxes...
-                inits,
+            if (boxes == null)
+            {
+                newBody = Expression.Block(jumpExp,
+                                innerBody,
+                                Expression.Label(gw.generatorReturn, GeneratorStateBuilder.New(0))
+                                );
+            }
+            else
+            {
 
-                jumpExp,
-                innerBody,
-                Expression.Label(gw.generatorReturn, GeneratorStateBuilder.New(0))
-                );
+                newBody = Expression.Block(
+                    boxes,
+
+                    // load boxes...
+                    inits,
+
+                    jumpExp,
+                    innerBody,
+                    Expression.Label(gw.generatorReturn, GeneratorStateBuilder.New(0))
+                    );
+            }
 
             return Expression.Lambda<JSGeneratorDelegateV2>(
                 in name, 
@@ -118,6 +131,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 vlist.Add(v.box);
                 boxes.Add(Expression.Assign( v.box, ClrGeneratorV2Builder.GetVariable(pe, v.index, v.original.Type )));
             }
+
+            if(vlist.Count == 0)
+            {
+                return (null, null);
+            }
+
             return (vlist.ToArray(), Expression.Block(boxes));
         }
 
@@ -136,6 +155,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         protected override Expression VisitBlock(YBlockExpression node)
         {
+            if (!YieldFinder.HasYield(node))
+                return base.VisitBlock(node);
             List<Expression> list = new List<Expression>();
             foreach (var v in node.Variables)
             {
@@ -255,6 +276,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         protected override Exp VisitTryCatchFinally(TryExpression node)
         {
+            if (!YieldFinder.HasYield(node))
+            {
+                return  base.VisitTryCatchFinally(node);
+            }
+
             var hasFinally = node.Finally != null;
             var @catch = node.Catch;
             var hasCatch = @catch != null;
@@ -264,7 +290,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             LabelTarget finallyLabel = null;
             int finallyId = 0;
 
-            var tryList = new List<Expression>();
+            var tryList = new YBlockBuilder();
             if (hasCatch)
             {
                 (catchLabel, catchId) = GetNextYieldJumpTarget();
@@ -278,31 +304,32 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             var (endLabel, endId) = GetNextYieldJumpTarget();
 
 
-            tryList.Add(ClrGeneratorV2Builder.Push(pe, catchId, finallyId, endId));
-            tryList.Add(Visit(node.Try));
-            tryList.Add(ClrGeneratorV2Builder.Pop(pe));
-            tryList.Add(Expression.Goto(hasFinally ? finallyLabel : endLabel));
+            tryList.AddExpression(ClrGeneratorV2Builder.Push(pe, catchId, finallyId, endId));
+            tryList.AddExpression(Visit(node.Try));
+            tryList.AddExpression(ClrGeneratorV2Builder.Pop(pe));
+            tryList.AddExpression(Expression.Goto(hasFinally ? finallyLabel : endLabel));
 
 
             if (hasCatch) {
-                tryList.Add(Expression.Label(catchLabel));
-                tryList.Add(Expression.Assign(Visit(@catch.Parameter), exception));
-                tryList.Add(Visit(@catch.Body));
-
+                tryList.AddExpression(Expression.Label(catchLabel));
+                tryList.AddExpression(Expression.Assign(Visit(@catch.Parameter), exception));
+                tryList.AddExpression(Visit(@catch.Body));
+                tryList.AddExpression(YExpression.Empty);
                 if (hasFinally)
                 {
-                    tryList.Add(Expression.Goto(finallyLabel));
+                    tryList.AddExpression(Expression.Goto(finallyLabel));
                 }
             }
 
             if (hasFinally)
             {
-                tryList.Add(Expression.Label(finallyLabel));
-                tryList.Add(Visit(node.Finally));
-                tryList.Add(ClrGeneratorV2Builder.Throw(pe, endId));
+                tryList.AddExpression(Expression.Label(finallyLabel));
+                tryList.AddExpression(Visit(node.Finally));
+                tryList.AddExpression(ClrGeneratorV2Builder.Throw(pe, endId));
             }
-            tryList.Add(Expression.Label(endLabel));
-            return Expression.Block(tryList);
+            tryList.AddExpression(Expression.Label(endLabel));
+            var b = tryList.Build();
+            return b;
         }
 
     }

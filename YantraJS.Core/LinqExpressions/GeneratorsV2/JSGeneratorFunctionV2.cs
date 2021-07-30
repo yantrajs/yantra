@@ -121,6 +121,17 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 value = v.Value;
 
                 if(v.NextJump == 0 || v.NextJump == -1) {
+
+                    // need to execute finally.. if it is there...
+                    if (this.Root != null)
+                    {
+                        v = GetNext(this.Root.Finally, value);
+                        //if (v.HasValue)
+                        //{
+                        //    value = v.Value;
+                        //}
+                    }
+
                     done = true;
                     return;
                 }

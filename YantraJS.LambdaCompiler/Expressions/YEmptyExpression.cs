@@ -11,7 +11,7 @@ namespace YantraJS.Expressions
 
         public override void Print(IndentedTextWriter writer)
         {
-            
+            writer.Write("<void>");
         }
     }
 }

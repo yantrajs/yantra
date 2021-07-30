@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -97,6 +98,19 @@ namespace YantraJS
 
         public T Visit(TIn input)
         {
+
+            // checking this is very slow.. 
+            // instead starting new thread and stopping it is faster...
+            //if (count == 0)
+            //{
+            //    try
+            //    {
+            //        RuntimeHelpers.EnsureSufficientExecutionStack();
+            //        count = 100;
+            //    } catch(InsufficientExecutionStackException) {
+                    
+            //    }
+            //}
 
             if (count == 0)
             {
