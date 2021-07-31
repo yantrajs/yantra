@@ -319,12 +319,9 @@ namespace YantraJS.Core
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static JSValue InvokeSuperConstructor(JSValue newTarget, in Arguments a)
+        public static JSValue InvokeSuperConstructor(JSValue newTarget, JSValue super, in Arguments a)
         {
             var target = newTarget;
-
-            // find parent constructor...
-            var super = target.prototypeChain.@object;
 
             var @this = a.This;
             var r = (super as JSFunction).f(a.OverrideThis(a.This, super));

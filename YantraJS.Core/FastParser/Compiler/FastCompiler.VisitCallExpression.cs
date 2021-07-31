@@ -158,7 +158,10 @@ namespace YantraJS.Core.FastParser.Compiler
                 if (isSuper)
                 {
                     var paramArray1 = VisitArguments(this.scope.Top.ThisExpression, in arguments);
-                    return JSFunctionBuilder.InvokeSuperConstructor(this.scope.Top.NewTarget, this.scope.Top.ThisExpression, paramArray1);
+                    return JSFunctionBuilder.InvokeSuperConstructor(
+                        this.scope.Top.NewTarget, 
+                        this.scope.Top.Super,
+                        this.scope.Top.ThisExpression, paramArray1);
                 }
 
                 var paramArray = VisitArguments(JSUndefinedBuilder.Value, in arguments);

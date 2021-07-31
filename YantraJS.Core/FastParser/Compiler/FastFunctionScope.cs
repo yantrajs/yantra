@@ -221,7 +221,9 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public LinkedStack<LoopScope> Loop;
 
-        public Expression Super => JSValueBuilder.PrototypeChain( JSValueBuilder.PrototypeChain(ThisExpression));
+        // public Expression Super => JSValueBuilder.PrototypeChain( JSValueBuilder.PrototypeChain(ThisExpression));
+
+        public Expression Super { get; set; }
 
         public IEnumerable<VariableScope> Variables
         {
@@ -330,6 +332,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var sID = Interlocked.Increment(ref scopeID);
             this.pool = pool.NewScope();
             this.Function = fx;
+            this.Super = super;
             if (fx?.Generator ?? false)
             {
                 Generator = Expression.Parameter(typeof(ClrGeneratorV2), "clrGenerator");
@@ -387,6 +390,7 @@ namespace YantraJS.Core.FastParser.Compiler
             this.Awaiter = p.Awaiter;
             this.TempVariables = p.TempVariables;
             // this.Scope = Expression.Parameter(typeof(Core.LexicalScope), "lexicalScope");
+            this.Super = p.Super;
             this.Context = p.Context;
             this.StackItem = p.StackItem;
             this.Closures = p.Closures;
