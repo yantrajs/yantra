@@ -98,7 +98,7 @@ namespace YantraJS.Core
 
         public IJSValue Evaluate(string script, string location = null)
         {
-            return CoreScript.Evaluate(script, location);
+            return FastEval(script, location);
         }
 
         public void RunOnUIThread(Func<Task> task)

@@ -54,7 +54,7 @@ namespace YantraJS.Core
         {
             get
             {
-                foreach (var (Key, Value) in this.GetAllEntries(false))
+                foreach (var (Key, Value) in this.GetAllEntries(true))
                 {
                     yield return new WebAtoms.JSProperty(Key.ToString(), Value);
                 }
@@ -143,7 +143,9 @@ namespace YantraJS.Core
 
         public T Unwrap<T>()
         {
-            return (T)(this as ClrProxy).value;
+            if (this is ClrProxy proxy)
+                return (T)proxy.value;
+            return (T)(object)null;
         }
 
         bool IJSValue.InstanceOf(IJSValue jsClass)

@@ -500,8 +500,20 @@ namespace YantraJS.Core
         // prevent recursive...
         public override string ToDetailString()
         {
-            var all = this.GetAllEntries(false).Select((e) => $"{e.Key}: {e.Value?.ToString()}");
-            return $"{{ {string.Join(", ", all)} }}";
+            var sb = new StringBuilder();
+            bool first = true;
+            sb.Append('{');
+            foreach(var (Key,Value) in this.GetAllEntries(false))
+            {                
+                if (Value == this)
+                    continue;
+                if (!first)
+                    sb.Append(", ");
+                first = false;
+                sb.Append($"{Key}: {Value?.ToDetailString()}");
+            }
+            sb.Append('}');
+            return sb.ToString();
         }
 
         public override double DoubleValue{

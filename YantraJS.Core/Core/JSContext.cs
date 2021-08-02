@@ -22,6 +22,7 @@ using YantraJS.Core.Core.Storage;
 using YantraJS.Core.CodeGen;
 using System.ComponentModel;
 using YantraJS.Core.Core.DataView;
+using YantraJS.Debugger;
 
 namespace YantraJS.Core
 {
@@ -109,16 +110,25 @@ namespace YantraJS.Core
 
     public delegate JSValue JSFunctionDelegate(in Arguments a);
 
+    public delegate void ConsoleEvent(JSContext context, string type, in Arguments a);
+
     public delegate void LogEventHandler(JSContext context, JSValue value);
 
     public delegate void ErrorEventHandler(JSContext context, Exception error);
 
+
     public partial class JSContext: JSObject, IDisposable
     {
+
+        private static long contextId = 1;
+
+        public long ID { get; set; } = Interlocked.Increment(ref contextId);
 
         [ThreadStatic]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static JSContext Current;
+
+        public JSDebugger Debugger;
 
         public static JSContext CurrentContext
         {
@@ -244,6 +254,8 @@ namespace YantraJS.Core
         public event LogEventHandler Log;
 
         public event ErrorEventHandler Error;
+
+        public event ConsoleEvent ConsoleEvent;
 
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         //internal int Push(string fileName, in StringSpan function, int line, int column)
@@ -416,14 +428,19 @@ namespace YantraJS.Core
 
             this.Fill<JSGlobalStatic>();
 
-            var c = new JSObject
-            {
-                BasePrototypeObject = (Bootstrap.Create("console", typeof(JSConsole))).prototype
-            };
-            this[KeyStrings.console] = c;
+            //var c = new JSObject
+            //{
+            //    BasePrototypeObject = (Bootstrap.Create("console", typeof(JSConsole))).prototype
+            //};
+            this[KeyStrings.console] = new Clr.ClrProxy(new JSConsole(this));
 
             this[KeyStrings.debug] = new JSFunction(this.Debug);
 
+        }
+
+        internal void FireConsoleEvent(string type, in Arguments a)
+        {
+            ConsoleEvent?.Invoke(this, type, in a);
         }
 
         private JSValue Debug(in Arguments a)
@@ -614,7 +631,24 @@ namespace YantraJS.Core
         /// <returns></returns>
         public JSValue FastEval(string code, string codeFilePath = null)
         {
-            return CoreScript.Evaluate(code, codeFilePath);
+            if (Debugger == null)
+            {
+
+
+                var fx = CoreScript.Compile(code, codeFilePath);
+                return fx(Arguments.Empty);
+            }
+
+            try
+            {
+                var f = CoreScript.Compile(code, codeFilePath);
+                Debugger.ScriptParsed(code, codeFilePath);
+                return f(Arguments.Empty);
+            } catch (Exception ex) {
+                this.ReportError(ex);
+                throw ex;
+            }
+            // return CoreScript.Evaluate(code, codeFilePath);
         }
 
 

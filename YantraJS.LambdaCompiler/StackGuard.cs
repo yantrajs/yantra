@@ -13,10 +13,15 @@ namespace YantraJS
         public static object Queue(object input, Func<object,object> func)
         {
             object r = null;
-            var thread = new Thread((i) => r = func(i), 10 * 1024 * 1024);
-            thread.Start(input);
-            thread.Join();
-            return r;
+            // var thread = new Thread((i) => r = func(i), 10 * 1024 * 1024);
+            // thread.Start(input);
+            // thread.Join();
+            TaskCompletionSource<object> result = new TaskCompletionSource<object>();
+            ThreadPool.QueueUserWorkItem((input) => {
+                result.SetResult(func(input));
+            }, input);
+            return result.Task.GetAwaiter().GetResult();
+            // return r;
         }
     }
 
@@ -91,7 +96,7 @@ namespace YantraJS
 
     public abstract class StackGuard<T,TIn> {
 
-        private const int MaxStackSize = 1024;
+        private const int MaxStackSize = 200;
 
 
         private int count = 200;
