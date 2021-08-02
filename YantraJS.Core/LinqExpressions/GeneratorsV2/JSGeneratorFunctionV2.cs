@@ -123,7 +123,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 if(v.NextJump == 0 || v.NextJump == -1) {
 
                     // need to execute finally.. if it is there...
-                    if (this.Root != null)
+                    if (this.Root != null && this.Root.Finally > 0)
                     {
                         v = GetNext(this.Root.Finally, value);
                         //if (v.HasValue)
@@ -150,7 +150,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 var r = @delegate(this, in this.arguments, nextJump, lastValue, nextExp);
                 // this is case of try end and catch end...
                 if (!r.HasValue && r.NextJump > 0)
-                    return GetNext(r.NextJump, lastValue);
+                {
+                    var s = GetNext(r.NextJump, lastValue);
+                    return s;
+                }
                 return r;
             } catch (Exception ex)
             {

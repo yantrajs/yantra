@@ -17,14 +17,15 @@ namespace YantraJS.Expressions
 
         public void AddVariable(YParameterExpression pe) => variables.Add(pe);
 
-        public void AddExpressionRange(IEnumerable<YExpression> exps)
+        public YBlockBuilder AddExpressionRange(IEnumerable<YExpression> exps)
         {
             foreach (var e in exps)
                 AddExpression(e);
+            return this;
         }
 
 
-        public void AddExpression(YExpression exp)
+        public YBlockBuilder AddExpression(YExpression exp)
         {
             switch(exp.NodeType)
             {
@@ -36,7 +37,7 @@ namespace YantraJS.Expressions
                     {
                         this.AddExpression(e);
                     }
-                    return;
+                    return this;
                 case YExpressionType.Return:
                     var @return = (exp as YReturnExpression)!;
                     if(@return.Default?.NodeType == YExpressionType.Block)
@@ -47,16 +48,16 @@ namespace YantraJS.Expressions
                         {
                             if (isLast)
                             {
-                                this.AddExpression(@return.Update(@return.Target, e));
-                                return;
+                                return this.AddExpression(@return.Update(@return.Target, e));
                             }
                             this.AddExpression(e);
                         }
-                        return;
+                        return this;
                     }
                     break;
             }
             expressions.Add(exp);
+            return this;
         }
 
         public YBlockExpression Build()
