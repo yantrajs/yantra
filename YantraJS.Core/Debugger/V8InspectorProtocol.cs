@@ -13,6 +13,14 @@ namespace YantraJS.Core.Debugger
 {
     public abstract class V8InspectorProtocol : JSDebugger, IDisposable
     {
+        private Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer()
+        {
+            ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+            {
+                NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
+            }
+            
+        };
 
         public abstract void Dispose();
         public abstract Task ConnectAsync();
@@ -44,6 +52,13 @@ namespace YantraJS.Core.Debugger
         {
             var cid = $"C-{a.ID}";
             Contexts[cid] = a;
+            a.ConsoleEvent += OnConsoleEvent;
+        }
+
+        private void OnConsoleEvent(JSContext context, string type, in Arguments a)
+        {
+            var id = $"C-{context.ID}";
+            this.Send(new V8Runtime.ConsoleApiCalled(id, context, type, in a));
         }
 
         void Add(string prefix, V8ProtocolObject p)
@@ -144,11 +159,13 @@ namespace YantraJS.Core.Debugger
             return p;
         }
 
+
+
         public void Send(V8ProtocolEvent e)
         {
             var sr = new JObject();
             sr.Add("method", e.EventName);
-            sr.Add("params", JObject.FromObject(e));
+            sr.Add("params", JObject.FromObject(e, serializer));
             SendMessage(sr.ToString());
         }
 
@@ -166,15 +183,23 @@ namespace YantraJS.Core.Debugger
 
             if(!protocols.TryGetValue(e.Method, out var vm))
             {
+                var sr = new JObject
+                {
+                    { "id", e.ID },
+                    { "error", "Not found" }
+                };
+                SendMessage(sr.ToString());
                 return;
             }
 
             try
             {
                 var r = await vm(e.Params);
-                var sr = new JObject();
-                sr.Add("id", e.ID);
-                sr.Add("result", r);
+                var sr = new JObject
+                {
+                    { "id", e.ID },
+                    { "result", r }
+                };
                 SendMessage(sr.ToString());
 
             } catch (Exception ex)

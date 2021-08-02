@@ -122,6 +122,8 @@ namespace YantraJS.Core
 
         public IJSValue Wrap(object value)
         {
+            if (value == this)
+                return this;
             var proxy = new ClrProxy(value);
             if (elementWrapper.appendChildFx == null)
             {

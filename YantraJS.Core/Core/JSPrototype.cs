@@ -11,14 +11,14 @@ namespace YantraJS.Core.Core
     public class JSPrototype
     {
 
-        private class JSPropertySet
+        internal class JSPropertySet
         {
             internal UInt32Map<(JSProperty property, JSPrototype owner)> properties;
             internal UInt32Map<(JSProperty property, JSPrototype owner)> elements;
             internal UInt32Map<(JSProperty property, JSPrototype owner)> symbols;
 
         }
-        private JSPropertySet propertySet;
+        internal JSPropertySet propertySet;
         public readonly JSObject @object;
         private bool dirty = true;
 
