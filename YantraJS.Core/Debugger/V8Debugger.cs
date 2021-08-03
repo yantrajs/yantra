@@ -6,34 +6,22 @@ using System.Threading.Tasks;
 
 namespace YantraJS.Core.Debugger
 {
-    public class V8Debugger : V8ProtocolObject
+    public partial class V8Debugger : V8ProtocolObject
     {
         public V8Debugger(V8InspectorProtocol inspectorContext) : base(inspectorContext)
         {
         }
 
-        public class EnableParams
-        {
-
-        }
-
-        public object Enable(EnableParams p)
+        public object Enable()
         {
             return new {
                 debuggerId = inspectorContext.ID
             };
         }
 
-        public class SetPauseOnExceptionsParams { 
-            public string State { get; set; }
-        }
-
         public object SetPauseOnExceptions(SetPauseOnExceptionsParams p)
         {
             return new { };
-        }
-
-        public class SetAsyncCallStackDepthParams { 
         }
 
         public object SetAsyncCallStackDepth(SetAsyncCallStackDepthParams p)

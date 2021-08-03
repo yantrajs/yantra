@@ -34,7 +34,7 @@ namespace YantraJS.Core.Debugger
 
         public Dictionary<string, JSContext> Contexts = new Dictionary<string, JSContext>();
 
-        
+        public Dictionary<string, JSFunctionDelegate> Scripts = new Dictionary<string, JSFunctionDelegate>();
 
         public V8InspectorProtocol()
         {
@@ -126,7 +126,7 @@ namespace YantraJS.Core.Debugger
             var fx = (Func<T, RT>)m.CreateDelegate(typeof(Func<T, RT>), p);
             Task<JToken> RunAsync(JObject e)
             {
-                var a = e.ToObject<T>();
+                var a = e == null ? default : e.ToObject<T>();
                 var r = fx(a);
                 return Task.FromResult(JToken.FromObject(r));
             }
@@ -188,6 +188,7 @@ namespace YantraJS.Core.Debugger
                     { "id", e.ID },
                     { "error", "Not found" }
                 };
+                System.Diagnostics.Debug.WriteLine($"Method {e.Method} not found");
                 SendMessage(sr.ToString());
                 return;
             }

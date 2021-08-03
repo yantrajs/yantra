@@ -21,11 +21,11 @@ namespace WebAtoms.XF
         {
             // DictionaryCodeCache.Current = AssemblyCodeCache.Instance;
             var a = new JSContext(SynchronizationContext.Current);
-            // V8InspectorProtocol p = V8InspectorProtocol.CreateInverseProxy(inverseWebSocketUri);
-            // p.ConnectAsync().ConfigureAwait(true);
-            // a.Debugger = p;
+            V8InspectorProtocol p = V8InspectorProtocol.CreateInverseProxy(inverseWebSocketUri);
+            p.ConnectAsync().ConfigureAwait(true);
+            a.Debugger = p;
             a[KeyStrings.global] = a;
-            // p.AddContext(a);
+            p.AddContext(a);
             return a;
         }
     }
