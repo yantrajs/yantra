@@ -1,1 +1,1 @@
-﻿// (async function () { await 1; })();
+﻿(async function () { await 1; })();

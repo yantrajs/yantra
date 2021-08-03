@@ -4,7 +4,7 @@ namespace YantraJS.Core.FastParser
     public class AstFunctionExpression : AstExpression
     {
         public bool Async;
-        public readonly bool Generator;
+        public bool Generator;
         public readonly AstIdentifier? Id;
         public readonly ArraySpan<VariableDeclarator> Params;
         public readonly AstStatement Body;

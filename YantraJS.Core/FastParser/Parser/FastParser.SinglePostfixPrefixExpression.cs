@@ -75,6 +75,13 @@ namespace YantraJS.Core.FastParser
                 else break;
             }
 
+            if(node.Type == FastNodeType.FunctionExpression)
+            {
+                var fx = node as AstFunctionExpression;
+                fx.Async = hasAsync;
+                fx.Generator = hasGenerator;
+            }
+
             return true;
 
             bool HasUnaryOperator(
