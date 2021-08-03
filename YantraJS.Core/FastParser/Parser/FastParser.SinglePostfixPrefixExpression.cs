@@ -78,8 +78,10 @@ namespace YantraJS.Core.FastParser
             if(node.Type == FastNodeType.FunctionExpression)
             {
                 var fx = node as AstFunctionExpression;
-                fx.Async = hasAsync;
-                fx.Generator = hasGenerator;
+                if(hasAsync)
+                    fx.Async = hasAsync;
+                if(hasGenerator)
+                    fx.Generator = hasGenerator;
             }
 
             return true;

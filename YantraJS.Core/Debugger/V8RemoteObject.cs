@@ -11,6 +11,8 @@ namespace YantraJS.Core.Debugger
         public string ObjectId { get; set; }
         public object Value { get; set; }
         public string ClassName { get; set; }
+        public string Description { get; set; }
+        public string SubType { get; set; }
 
         public static List<V8RemoteObject> From(in Arguments a)
         {
@@ -49,35 +51,62 @@ namespace YantraJS.Core.Debugger
             if(v.IsUndefined)
             {
                 Type = "undefined";
+                Description = "undefined";
                 return;
             }
             if (v.IsNull)
             {
                 Type = "object";
                 Value = "null";
+                Description = "null";
                 return;
             }
             if (v.IsString)
             {
                 Type = "string";
-                Value = v.ToString();
+                var t = v.ToString();
+                Value = t;
+                Description = t;
                 return;
             }
             if (v.IsNumber)
             {
                 Type = "number";
-                Value = v.ToString();
+                var t = v.DoubleValue;
+                Value = t;
+                Description = t.ToString();
                 return;
             }
             if (v.IsBoolean)
             {
                 Type = "boolean";
-                Value = v.BooleanValue;
+                var t = v.BooleanValue;
+                Value = t;
+                Description = t ? "true" : "false";
                 return;
             }
 
             Type = "object";
-            ObjectId = GCHandle.ToIntPtr(GCHandle.Alloc(v, GCHandleType.Weak)).ToInt64().ToString();
+            ObjectId = GCHandle.ToIntPtr(GCHandle.Alloc(v, GCHandleType.Normal)).ToInt64().ToString();
+
+            switch (v)
+            {
+                case JSContext:
+                    ClassName = "global";
+                    Description = "global";
+                    break;
+                case JSError:
+                    SubType = "error";
+                    Description = "Error";
+                    break;
+                case JSArray:
+                    SubType = "array";
+                    Description = "Array";
+                    break;
+                default:
+                    Description = "Object";
+                    break;
+            }
 
             var p = v.prototypeChain?.@object;
             if(p != null)
@@ -86,6 +115,7 @@ namespace YantraJS.Core.Debugger
                 if (!c.IsNullOrUndefined)
                 {
                     ClassName = c[KeyStrings.name].ToString();
+                    Description = ClassName;
                 }
             }
         }

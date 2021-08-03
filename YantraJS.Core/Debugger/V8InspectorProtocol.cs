@@ -11,30 +11,37 @@ using YantraJS.Debugger;
 
 namespace YantraJS.Core.Debugger
 {
+    public delegate Task<string> MessageProcessor(long id, JObject p);
+
     public abstract class V8InspectorProtocol : JSDebugger, IDisposable
     {
-        private Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer()
-        {
+        private static Newtonsoft.Json.JsonSerializerSettings serializer = new JsonSerializerSettings {
+        
             ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
             {
                 NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
-            }
-            
-        };
+            },
+            NullValueHandling = NullValueHandling.Ignore
+
+       };
 
         public abstract void Dispose();
         public abstract Task ConnectAsync();
 
-        private Dictionary<string, Func<JObject, Task<JToken>>> protocols
-            = new Dictionary<string, Func<JObject, Task<JToken>>>();
+        private Dictionary<string, MessageProcessor> protocols
+            = new Dictionary<string, MessageProcessor>();
 
         public string ID { get; }
 
         private static long id = 0;
 
-        public Dictionary<string, JSContext> Contexts = new Dictionary<string, JSContext>();
+        public Dictionary<long, JSContext> Contexts = new Dictionary<long, JSContext>();
 
-        public Dictionary<string, JSFunctionDelegate> Scripts = new Dictionary<string, JSFunctionDelegate>();
+        public Dictionary<string, JSFunctionDelegate> InjectedScripts = new Dictionary<string, JSFunctionDelegate>();
+
+        private static long nextScriptId = 1;
+
+        public Dictionary<string, string> Scripts = new Dictionary<string, string>();
 
         public V8InspectorProtocol()
         {
@@ -51,7 +58,7 @@ namespace YantraJS.Core.Debugger
         internal void AddContext(JSContext a)
         {
             var cid = $"C-{a.ID}";
-            Contexts[cid] = a;
+            Contexts[a.ID] = a;
             a.ConsoleEvent += OnConsoleEvent;
         }
 
@@ -72,19 +79,19 @@ namespace YantraJS.Core.Debugger
                     if(pl.Length == 0)
                     {
                         protocols[name] = createEmptyAsyncMethod.MakeGenericMethod(m.ReturnType.GetGenericArguments()[0])
-                            .Invoke(null, new object[] { p, m }) as Func<JObject, Task<JToken>>;
+                            .Invoke(null, new object[] { p, m }) as MessageProcessor;
                         continue;
                     }
                     protocols[name] = createAsyncMethod.MakeGenericMethod(pl[0].ParameterType, m.ReturnType.GetGenericArguments()[0])
-                        .Invoke(null, new object[] { p, m }) as Func<JObject, Task<JToken>>;
+                        .Invoke(null, new object[] { p, m }) as MessageProcessor;
                     continue;
                 }
                 if(pl.Length == 0)
                 {
-                    protocols[name] = createEmptyMethod.MakeGenericMethod(m.ReturnType).Invoke(null, new object[] { p, m }) as Func<JObject, Task<JToken>>;
+                    protocols[name] = createEmptyMethod.MakeGenericMethod(m.ReturnType).Invoke(null, new object[] { p, m }) as MessageProcessor;
                     continue;
                 }
-                protocols[name] = createMethod.MakeGenericMethod(pl[0].ParameterType, m.ReturnType).Invoke(null, new object[] { p, m }) as Func<JObject, Task<JToken>>;
+                protocols[name] = createMethod.MakeGenericMethod(pl[0].ParameterType, m.ReturnType).Invoke(null, new object[] { p, m }) as MessageProcessor;
             }
         }
 
@@ -94,54 +101,54 @@ namespace YantraJS.Core.Debugger
         private static MethodInfo createEmptyMethod = typeof(V8InspectorProtocol).GetMethod(nameof(CreateEmpty));
         private static MethodInfo createEmptyAsyncMethod = typeof(V8InspectorProtocol).GetMethod(nameof(CreateEmptyAsync));
 
-        public static Func<JObject, Task<JToken>> CreateEmpty<RT>(V8ProtocolObject p, MethodInfo m)
+        public static MessageProcessor CreateEmpty<RT>(V8ProtocolObject p, MethodInfo m)
         {
 
             var fx = (Func<RT>)m.CreateDelegate(typeof(Func<RT>), p);
-            Task<JToken> RunAsync(JObject e)
+            Task<string> RunAsync(long id, JObject e)
             {
-                var r = fx();
-                return Task.FromResult(JToken.FromObject(r));
+                var result = fx();
+                return Task.Run(() => JsonConvert.SerializeObject(new { id , result }, serializer));
             }
             return RunAsync;
         }
 
 
-        public static Func<JObject, Task<JToken>> CreateEmptyAsync<RT>(MethodInfo m)
+        public static MessageProcessor CreateEmptyAsync<RT>(MethodInfo m)
         {
 
             var fx = (Func<Task<RT>>)m.CreateDelegate(typeof(Func<Task<RT>>));
-            async Task<JToken> RunAsync(JObject e)
+            async Task<string> RunAsync(long id, JObject e)
             {
-                var r = await fx();
-                return JToken.FromObject(r);
+                var result = await fx();
+                return await Task.Run(() => JsonConvert.SerializeObject(new { id, result }, serializer));
             }
             return RunAsync;
         }
 
 
-        public static Func<JObject, Task<JToken>> Create<T, RT>(V8ProtocolObject p, MethodInfo m)
+        public static MessageProcessor Create<T, RT>(V8ProtocolObject p, MethodInfo m)
         {
 
             var fx = (Func<T, RT>)m.CreateDelegate(typeof(Func<T, RT>), p);
-            Task<JToken> RunAsync(JObject e)
+            Task<string> RunAsync(long id, JObject e)
             {
                 var a = e == null ? default : e.ToObject<T>();
-                var r = fx(a);
-                return Task.FromResult(JToken.FromObject(r));
+                var result = fx(a);
+                return Task.Run(() => JsonConvert.SerializeObject(new { id, result }, serializer));
             }
             return RunAsync;
         }
 
 
-        public static Func<JObject, Task<JToken>> CreateAsync<T, RT>(MethodInfo m) {
+        public static MessageProcessor CreateAsync<T, RT>(MethodInfo m) {
 
             var fx = (Func<T,Task<RT>>)m.CreateDelegate(typeof(Func<T, Task<RT>>));
-            async Task<JToken> RunAsync(JObject e)
+            async Task<string> RunAsync(long id, JObject e)
             {
                 var a = e.ToObject<T>();
-                var r = await fx(a);
-                return JToken.FromObject(r);
+                var result = await fx(a);
+                return await Task.Run(() => JsonConvert.SerializeObject(new { id, result }, serializer));
             }
             return RunAsync;
         }
@@ -163,10 +170,9 @@ namespace YantraJS.Core.Debugger
 
         public void Send(V8ProtocolEvent e)
         {
-            var sr = new JObject();
-            sr.Add("method", e.EventName);
-            sr.Add("params", JObject.FromObject(e, serializer));
-            SendMessage(sr.ToString());
+            Task.Run(() => {
+                SendMessage(JsonConvert.SerializeObject(new { method = e.EventName, @params = e }, serializer));
+            });
         }
 
         public override void ReportException(JSValue error)
@@ -176,7 +182,17 @@ namespace YantraJS.Core.Debugger
 
         public override void ScriptParsed(string code, string codeFilePath)
         {
-            
+            Task.Run(() =>
+            {
+                var id = $"S-{Interlocked.Increment(ref nextScriptId)}";
+                Scripts[id] = code;
+                Send(new V8Debugger.ScriptParsed
+                {
+                    ScriptId = id,
+                    Url = codeFilePath,
+                    ExecutionContextId = JSContext.Current.ID
+                });
+            });
         }
 
         public async Task OnMessageReceived(IncomingMessage e) {
@@ -195,13 +211,8 @@ namespace YantraJS.Core.Debugger
 
             try
             {
-                var r = await vm(e.Params);
-                var sr = new JObject
-                {
-                    { "id", e.ID },
-                    { "result", r }
-                };
-                SendMessage(sr.ToString());
+                var r = await vm(e.ID, e.Params);
+                SendMessage(r);
 
             } catch (Exception ex)
             {

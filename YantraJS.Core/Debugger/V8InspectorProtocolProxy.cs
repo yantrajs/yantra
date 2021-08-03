@@ -13,7 +13,7 @@ namespace YantraJS.Core.Debugger
     public class IncomingMessage
     {
         [JsonProperty("id")]
-        public string ID { get; set; }
+        public long ID { get; set; }
 
         [JsonProperty("method")]
         public string Method { get; set; }
@@ -27,24 +27,37 @@ namespace YantraJS.Core.Debugger
 
         readonly Uri uri;
         System.Net.WebSockets.ClientWebSocket client;
+        AsyncQueue<IncomingMessage> messages = new AsyncQueue<IncomingMessage>();
         CancellationTokenSource cancellationTokenSource;
+        private TaskCompletionSource<int> started;
+
         public V8InspectorProtocolProxy(Uri uri)
         {
             this.uri = uri;
             client = new System.Net.WebSockets.ClientWebSocket();
 
             cancellationTokenSource = new CancellationTokenSource();
+
+            this.started = new TaskCompletionSource<int>();
+            lastTask = this.started.Task;
         }
+
+        
 
         public override async Task ConnectAsync()
         {
-            var t = client.ConnectAsync(uri, cancellationTokenSource.Token);
-            lastTask = t;
-            await t;
+            await client.ConnectAsync(uri, cancellationTokenSource.Token);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             Task.Run(() => this.ReadMessagesAsync());
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+            started.TrySetResult(1);
+
+            await foreach (var item in messages.Process())
+            {
+                await OnMessageReceived(item);
+            }
         }
 
         private async Task ReadMessagesAsync()
@@ -62,9 +75,10 @@ namespace YantraJS.Core.Debugger
                     sb.Append(System.Text.Encoding.UTF8.GetString(buffer,0, r.Count));
                     if (r.EndOfMessage)
                     {
-
-                        var msg = JsonConvert.DeserializeObject<IncomingMessage>(sb.ToString());
-                        ProcessMessage(msg);
+                        var text = sb.ToString();
+                        var msg = JsonConvert.DeserializeObject<IncomingMessage>(text);
+                        System.Diagnostics.Debug.WriteLine($"Received {text}");
+                        messages.Enqueue(msg);
                         sb.Length = 0;
                     }
                 }
@@ -79,17 +93,6 @@ namespace YantraJS.Core.Debugger
             }
         }
 
-        private Task lastMsg;
-        private void ProcessMessage(IncomingMessage msg)
-        {
-            var p = lastMsg;
-            lastMsg = Task.Run(async () => {
-                if (p != null)
-                    await p;
-                await OnMessageReceived(msg);
-            });
-        }
-
         public override void Dispose()
         {
             client?.Dispose();
@@ -99,15 +102,19 @@ namespace YantraJS.Core.Debugger
 
         public override void SendMessage(string message)
         {
-            var p = lastTask;
-            lastTask = Task.Run(async () =>
+            lock (this)
             {
-                if (p != null)
-                    await p;
-                var bytes = System.Text.Encoding.UTF8.GetBytes(message);
-                var buffer = new ArraySegment<byte>(bytes);
-                await client.SendAsync(buffer, System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationTokenSource.Token);
-            });
+                var p = lastTask;
+                lastTask = Task.Run(async () =>
+                {
+                    if (p != null)
+                        await p;
+                    System.Diagnostics.Debug.WriteLine($"Sent {message}");
+                    var bytes = System.Text.Encoding.UTF8.GetBytes(message);
+                    var buffer = new ArraySegment<byte>(bytes);
+                    await client.SendAsync(buffer, System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationTokenSource.Token);
+                });
+            }
         }
     }
 }

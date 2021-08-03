@@ -31,7 +31,7 @@ namespace YantraJS.Core.Debugger
 
             public V8StackTrace StackTrace { get; set; }
 
-            internal override string EventName => "Runtime.consoleApiCalled";
+            internal override string EventName => "Runtime.consoleAPICalled";
         }
     }
 

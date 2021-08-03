@@ -21,7 +21,7 @@ namespace YantraJS.Core.Debugger
 
             public bool AwaitPromise { get; set; }
 
-            public string ExecutionContextId { get; set; }
+            public long ExecutionContextId { get; set; }
 
             public string ObjectGroup { get; set; }
         }

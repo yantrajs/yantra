@@ -28,5 +28,6 @@ namespace YantraJS.Core.Debugger
         public string ScriptId { get; set; }
         public object Result { get; set; }
         public string Id { get; set; }
+        public string ScriptSource { get; set; }
     }
 }

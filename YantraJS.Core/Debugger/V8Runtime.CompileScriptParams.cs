@@ -11,7 +11,7 @@
 
             public bool PersistScript { get; set; }
 
-            public string ExecutionContextId { get; set; }
+            public long ExecutionContextId { get; set; }
         }
 
         

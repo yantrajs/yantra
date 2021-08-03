@@ -17,6 +17,8 @@ namespace YantraJS.Core.Core
             internal UInt32Map<(JSProperty property, JSPrototype owner)> elements;
             internal UInt32Map<(JSProperty property, JSPrototype owner)> symbols;
 
+            internal List<KeyString> stringKeys = new List<KeyString>();
+            internal List<uint> uintKeys = new List<uint>();
         }
         internal JSPropertySet propertySet;
         public readonly JSObject @object;

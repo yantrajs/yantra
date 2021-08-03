@@ -13,7 +13,7 @@ namespace YantraJS.Core.Debugger
         {
         }
 
-        public object Enable(JSObject none)
+        public object Enable()
         {
             foreach (var entry in inspectorContext.Contexts)
             {
@@ -22,9 +22,9 @@ namespace YantraJS.Core.Debugger
                 {
                     Context = new V8Runtime.ExecutionContextDescription
                     {
-                        Id = cid,
-                        Name = cid,
-                        UniqueId = cid
+                        Id = entry.Value.ID,
+                        Name = cid.ToString(),
+                        UniqueId = cid.ToString()
                     }
                 });
             }
@@ -35,10 +35,14 @@ namespace YantraJS.Core.Debugger
         {
             try
             {
-                var v = V8RemoteObject.From(args.ObjectId) as JSObject;
+                var value = V8RemoteObject.From(args.ObjectId);
+                var v = value as JSObject;
                 var c = v;
                 var list = new List<V8PropertyDescriptor>();
-                do
+
+                // get elements
+
+                if (args.ownProperties)
                 {
                     ref var e = ref c.GetElements(false);
                     for (uint i = 0; i < e.Length; i++)
@@ -46,22 +50,37 @@ namespace YantraJS.Core.Debugger
                         ref var p = ref e.Get(i);
                         if (p.IsEmpty)
                             continue;
-                        list.Add(new V8PropertyDescriptor(i.ToString(), v, p, v == c));
+                        list.Add(new V8PropertyDescriptor(i.ToString(), v, p, true));
                     }
-                    c = v.prototypeChain?.@object;
-                } while (!args.ownProperties && c != null);
-                c = v;
-                do
-                {
-                    ref var ps = ref c.GetOwnProperties(false);
-                    foreach (var p in ps.properties)
+
+                    ref var op = ref c.GetOwnProperties(false);
+                    if (op.properties != null)
                     {
-                        if (p.IsEmpty)
-                            continue;
-                        list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(p.key).Value, v, in p, v == c));
+                        for (uint i = 0; i < op.properties.Length; i++)
+                        {
+                            ref var p = ref op.properties[i];
+                            if (p.IsEmpty)
+                                continue;
+                            list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(p.key).Value, v, p, true));
+                        }
                     }
-                    c = v.prototypeChain?.@object;
-                } while (!args.ownProperties && c != null);
+                    list.Add(new V8PropertyDescriptor(c.prototypeChain));
+                } else
+                {
+                    // list all accessors...
+                    var accessors = c.prototypeChain.propertySet;
+                    foreach(var (i, (pt,px)) in accessors.properties.AllValues())
+                    {
+                        if (pt.IsEmpty || !pt.IsProperty)
+                            continue;
+                        list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(pt.key).Value, v, pt));
+                    }
+
+                    ref var p = ref JSContext.Current.ObjectPrototype.GetOwnProperties(false).GetValue(KeyStrings.__proto__.Key);
+                    list.Add(new V8PropertyDescriptor("__proto__", c, p));
+                }
+
+
                 //c = v;
                 //do
                 //{
@@ -93,10 +112,11 @@ namespace YantraJS.Core.Debugger
 
         public V8ReturnValue CallFunctionOn(CallFunctionOnParams a)
         {
-
             if (!inspectorContext.Contexts.TryGetValue(a.ExecutionContextId, out var c))
             {
-                return new ArgumentOutOfRangeException($"Context not found");
+
+                // return new ArgumentOutOfRangeException($"Context not found");
+                c = inspectorContext.Contexts.Values.First();
             }
 
             try {
@@ -112,7 +132,7 @@ namespace YantraJS.Core.Debugger
                     {
                         args[i] = a.Arguments[i].ToJSValue();
                     }
-                    return fx(new Arguments(@this, args));
+                    return fx(Arguments.Empty).InvokeFunction(new Arguments(@this, args));
 
                 } finally {
                     JSContext.Current = previous;
@@ -133,7 +153,7 @@ namespace YantraJS.Core.Debugger
             try {
                 var injectedId = $"I-{Interlocked.Increment(ref nextInjectedId)}";
                 var fx = CoreScript.Compile(a.Expression);
-                inspectorContext.Scripts.Add(injectedId, fx);
+                inspectorContext.InjectedScripts.Add(injectedId, fx);
                 return new V8ReturnValue { 
                     ScriptId = injectedId
                 };
@@ -145,6 +165,13 @@ namespace YantraJS.Core.Debugger
 
         public V8ReturnValue Evaluate(EvaluateParams a)
         {
+
+            if(a.ThrowOnSideEffect && a.Expression == "(async function(){ await 1; })()")
+            {
+                // return an error...
+                return (new JSException("Has Side Effects", JSContext.Current.EvalErrorPrototype)).Error;
+            }
+
             if(!inspectorContext.Contexts.TryGetValue(a.ContextId, out var c))
             {
                 return new ArgumentOutOfRangeException($"{a.ContextId} context not found");
@@ -174,12 +201,12 @@ namespace YantraJS.Core.Debugger
 
         public V8ReturnValue RunScript(RunScriptArgs a)
         {
-            if (!inspectorContext.Scripts.TryGetValue(a.ScriptId, out var script))
+            if (!inspectorContext.InjectedScripts.TryGetValue(a.ScriptId, out var script))
                 return new ArgumentOutOfRangeException($"Script not found");
 
             JSContext c;
 
-            if (a.ExecutionContextId != null)
+            if (a.ExecutionContextId > 0)
             {
                 if (!inspectorContext.Contexts.TryGetValue(a.ExecutionContextId, out c))
                     return new ArgumentOutOfRangeException($"Context not found");

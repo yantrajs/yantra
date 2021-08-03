@@ -7,7 +7,7 @@
         {
             public string ScriptId { get; set; }
 
-            public string ExecutionContextId { get; set; }
+            public long ExecutionContextId { get; set; }
 
             public string ObjectGroup { get; set; }
 

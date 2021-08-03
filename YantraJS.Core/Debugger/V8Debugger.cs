@@ -29,9 +29,15 @@ namespace YantraJS.Core.Debugger
             return new { };
         }
 
-        public class ScriptParsed: V8ProtocolEvent
+        public V8ReturnValue GetScriptSource(GetScriptSourceArgs a)
         {
-            internal override string EventName => "Debugger.scriptParsed";
+            if(!inspectorContext.Scripts.TryGetValue(a.ScriptId, out var script))
+            {
+                return new V8ReturnValue { };
+            }
+            return new V8ReturnValue { 
+                ScriptSource = script
+            };
         }
     }
 }

@@ -13,13 +13,15 @@
 
             public bool Silent { get; set; }
 
-            public string ContextId { get; set; }
+            public long ContextId { get; set; }
 
             public bool ReturnByValue { get; set; }
 
             public bool UserGesture { get; set; }
 
             public bool AwaitPromise { get; set; }
+
+            public bool ThrowOnSideEffect { get; set; }
         }
 
         
