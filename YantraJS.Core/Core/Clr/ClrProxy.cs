@@ -25,9 +25,47 @@ namespace YantraJS.Core.Clr
         }
 
 
-        public override bool BooleanValue => this.value is bool bv 
-            ? bv
-            : this.DoubleValue != 0;
+        public override bool BooleanValue
+        {
+            get {
+                if (value == null)
+                    return false;
+                var t = Type.GetTypeCode(value.GetType());
+                switch (t)
+                {
+                    case TypeCode.Boolean:
+                        return (bool)value;
+                    case TypeCode.Byte:
+                        return (byte)value != 0;
+                    case TypeCode.Char:
+                        char ch = (char)value;
+                        return ch != 0 && !char.IsWhiteSpace(ch);
+                    case TypeCode.Decimal:
+                        return (decimal)value != 0;
+                    case TypeCode.Double:
+                        return (double)value != 0;
+                    case TypeCode.Int16:
+                        return (short)value != 0;
+                    case TypeCode.Int32:
+                        return (int)value != 0;
+                    case TypeCode.Int64:
+                        return (long)value != 0;
+                    case TypeCode.SByte:
+                        return (sbyte)value != 0;
+                    case TypeCode.Single:
+                        return (float)value != 0;
+                    case TypeCode.UInt16:
+                        return (ushort)value != 0;
+                    case TypeCode.UInt32:
+                        return (uint)value != 0;
+                    case TypeCode.UInt64:
+                        return (ulong)value != 0;
+                }
+                if (value is JSValue jv)
+                    return jv.BooleanValue;
+                return value.ToString().Length > 0;
+            }
+        }
 
         /// <summary>
         /// Todo improvise...
@@ -35,30 +73,37 @@ namespace YantraJS.Core.Clr
         public override double DoubleValue { 
             get
             {
-                switch(value)
+                if (value == null)
+                    return 0;
+                var t = Type.GetTypeCode(value.GetType());
+                switch (t)
                 {
-                    case double @double:
-                        return @double;
-                    case decimal @decimal:
-                        return (double)@decimal;
-                    case float @float:
-                        return @float;
-                    case int @int:
-                        return @int;
-                    case uint @int:
-                        return @int;
-                    case long @long:
-                        return @long;
-                    case ulong @ulong:
-                        return @ulong;
-                    case short @short:
-                        return @short;
-                    case ushort @ushort:
-                        return @ushort;
-                    case byte @byte:
-                        return @byte;
-                    case sbyte @sbyte:
-                        return @sbyte;
+                    case TypeCode.Boolean:
+                        return ((bool)value) ? 1 : 0;
+                    case TypeCode.Byte:
+                        return (byte)value;
+                    case TypeCode.Char:
+                        return (char)value;
+                    case TypeCode.Decimal:
+                        return (double)(decimal)value;
+                    case TypeCode.Double:
+                        return (double)value;
+                    case TypeCode.Int16:
+                        return (short)value;
+                    case TypeCode.Int32:
+                        return (int)value;
+                    case TypeCode.Int64:
+                        return (long)value;
+                    case TypeCode.SByte:
+                        return (sbyte)value;
+                    case TypeCode.Single:
+                        return (float)value;
+                    case TypeCode.UInt16:
+                        return (ushort)value;
+                    case TypeCode.UInt32:
+                        return (uint)value;
+                    case TypeCode.UInt64:
+                        return (ulong)value;
                 }
                 // coerce to double...
                 return NumberParser.CoerceToNumber(value.ToString());
@@ -118,36 +163,50 @@ namespace YantraJS.Core.Clr
         /// <returns></returns>
         public static JSValue Marshal(object value)
         {
+            if (value == null)
+                return JSNull.Value;
+
+            var t = Type.GetTypeCode(value.GetType());
+            switch (t)
+            {
+                case TypeCode.Boolean:
+                    return (bool)value ? JSBoolean.True : JSBoolean.False;
+                case TypeCode.Byte:
+                    return new JSNumber((byte)value);
+                case TypeCode.Char:
+                    return new JSString((char)value);
+                case TypeCode.DateTime:
+                    return new JSDate((DateTime)value);
+                case TypeCode.DBNull:
+                    return JSNull.Value;
+                case TypeCode.Decimal:
+                    return new JSNumber((double)(decimal)value);
+                case TypeCode.Double:
+                    return new JSNumber((double)value);
+                case TypeCode.Int16:
+                    return new JSNumber((short)value);
+                case TypeCode.Int32:
+                    return new JSNumber((int)value);
+                case TypeCode.Int64:
+                    return new JSNumber((long)value);
+                case TypeCode.SByte:
+                    return new JSNumber((sbyte)value);
+                case TypeCode.Single:
+                    return new JSNumber((float)value);
+                case TypeCode.String:
+                    return new JSString((string)value);
+                case TypeCode.UInt16:
+                    return new JSNumber((ushort)value);
+                case TypeCode.UInt32:
+                    return new JSNumber((uint)value);
+                case TypeCode.UInt64:
+                    return new JSNumber((long)value);
+            }
+
             switch (value)
             {
-                case null:
-                    return JSNull.Value;
                 case JSValue jsValue:
                     return jsValue;
-                case string @string:
-                    return new JSString(@string);
-                case int @int:
-                    return new JSNumber(@int);
-                case uint @uint:
-                    return new JSNumber(@uint);
-                case long @long:
-                    return new JSNumber(@long);
-                case ulong @ulong:
-                    return new JSNumber(@ulong);
-                case double @double:
-                    return new JSNumber(@double);
-                case float @float:
-                    return new JSNumber(@float);
-                case bool @bool:
-                    return @bool ? JSBoolean.True : JSBoolean.False;
-                case short @short:
-                    return new JSNumber(@short);
-                case byte @byte:
-                    return new JSNumber(@byte);
-                case sbyte @sbyte:
-                    return new JSNumber(@sbyte);
-                case DateTime dateTime:
-                    return new JSDate(dateTime.ToLocalTime());
                 case DateTimeOffset dateTimeOffset:
                     return new JSDate(dateTimeOffset);
                 case Type type:
