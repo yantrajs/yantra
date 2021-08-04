@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -180,17 +181,23 @@ namespace YantraJS.Core.Debugger
             
         }
 
+        private SHA256 hash = SHA256.Create();
+
         public override void ScriptParsed(string code, string codeFilePath)
         {
             Task.Run(() =>
             {
-                var id = $"S-{Interlocked.Increment(ref nextScriptId)}";
+                var id = codeFilePath ?? $"S-{Interlocked.Increment(ref nextScriptId)}";
                 Scripts[id] = code;
                 Send(new V8Debugger.ScriptParsed
                 {
                     ScriptId = id,
                     Url = codeFilePath,
-                    ExecutionContextId = JSContext.Current.ID
+                    ExecutionContextId = JSContext.Current.ID,
+                    Hash = hash.ComputeHash(code),
+                    HasSourceURL = !string.IsNullOrWhiteSpace(codeFilePath),
+                    Length = code.Length,
+                    ScriptLanguage = "JavaScript"
                 });
             });
         }

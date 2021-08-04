@@ -18,12 +18,7 @@ namespace YantraJS.Core.Debugger
             {
                 ExecutionContextId = id;
 
-                if (type== "error")
-                {
-                    // gather stack trace...
-                    this.StackTrace = new V8StackTrace(context);
-                }
-
+                this.StackTrace = new V8StackTrace(context);
                 Args = V8RemoteObject.From(in a);
 
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();

@@ -13,12 +13,13 @@ namespace YantraJS.Core.Debugger
             while(top != null)
             {
                 cflist.Add(new V8CallFrame { 
-                    FunctionName = top.Function,
+                    FunctionName = top.Function.Value,
                     ScriptId = top.FileName,
                     Url = top.FileName,
                     LineNumber = top.Line,
                     ColumnNumber = top.Column
                 });
+                top = top.Parent;
             }
             CallFrames = cflist;
         }
@@ -33,6 +34,6 @@ namespace YantraJS.Core.Debugger
         public int LineNumber { get; set; }
         public string Url { get; set; }
         public string ScriptId { get; set; }
-        public StringSpan FunctionName { get; set; }
+        public string FunctionName { get; set; }
     }
 }
