@@ -14,6 +14,8 @@ namespace YantraJS.Core.Debugger
         public string Description { get; set; }
         public string SubType { get; set; }
 
+        private static JSSymbol systemID = new JSSymbol("Debugger.ObjectID");
+
         public static List<V8RemoteObject> From(in Arguments a)
         {
             var list = new List<V8RemoteObject>();
@@ -87,7 +89,17 @@ namespace YantraJS.Core.Debugger
             }
 
             Type = "object";
-            ObjectId = GCHandle.ToIntPtr(GCHandle.Alloc(v, GCHandleType.Normal)).ToInt64().ToString();
+            var id = v[systemID];
+            if (!id.IsUndefined)
+            {
+                var idStr = GCHandle.ToIntPtr(GCHandle.Alloc(v, GCHandleType.Normal)).ToInt64().ToString();
+                v[systemID] = new JSString(idStr);
+                ObjectId = idStr;
+            }
+            else
+            {
+                ObjectId = id.ToString();
+            }
 
             switch (v)
             {
