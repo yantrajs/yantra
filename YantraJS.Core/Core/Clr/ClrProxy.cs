@@ -63,7 +63,7 @@ namespace YantraJS.Core.Clr
                 }
                 if (value is JSValue jv)
                     return jv.BooleanValue;
-                return value.ToString().Length > 0;
+                return true;
             }
         }
 
