@@ -27,7 +27,7 @@ namespace YantraJS.Core
             {
                 this.array = sequence.properties;
                 this.index = -1;
-                this.length = array.Length;
+                this.length = array == null ? 0 : array.Length;
                 this.showEnumerableOnly = showEnumerableOnly;
             }
 

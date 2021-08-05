@@ -59,7 +59,10 @@ namespace YantraJS.Core
                 var ai = a.GetAt(i);
                 if (!(ai is JSObject @object))
                     continue;
-                var en = @object.GetOwnProperties(false).GetEnumerator();
+                ref var props = ref @object.GetOwnProperties(false);
+                if (props.IsEmpty)
+                    continue;
+                var en = props.GetEnumerator();
                 while (en.MoveNext(out var keyString, out var value))
                 {
                     firstOwnProperties.Put(keyString.Key, @object.GetValue(value));
