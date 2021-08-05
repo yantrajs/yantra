@@ -155,7 +155,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         protected override Expression VisitBlock(YBlockExpression node)
         {
-            if (!YieldFinder.HasYield(node))
+            if (!node.HasYield())
                 return base.VisitBlock(node);
             List<Expression> list = new List<Expression>();
             foreach (var v in node.Variables)
@@ -276,7 +276,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         protected override Exp VisitTryCatchFinally(TryExpression node)
         {
-            if (!YieldFinder.HasYield(node))
+            if (!node.HasYield())
             {
                 return  base.VisitTryCatchFinally(node);
             }

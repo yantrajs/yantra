@@ -6,45 +6,63 @@ using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 
 namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 {
-    public class YieldFinder: YExpressionMapVisitor
+    public static class YieldFinderHelper
     {
+        private static object empty = new object();
 
-        public static bool HasYield(YExpression exp)
+        private static System.Runtime.CompilerServices.ConditionalWeakTable<YExpression, object>
+            cache = new System.Runtime.CompilerServices.ConditionalWeakTable<Exp, object>();
+
+        public static bool HasYield(this YExpression expression)
         {
-            var yf = new YieldFinder();
-            yf.Visit(exp);
-            return yf.hasYield;
+            if (cache.TryGetValue(expression, out var a))
+                return a != empty;
+            var r = YieldFinder.HasYield(expression);
+            cache.Add(expression, r ? empty : null);
+            return r;
         }
 
-        private bool hasYield = false;
 
-        public override Exp VisitIn(Exp exp)
+        public class YieldFinder : YExpressionMapVisitor
         {
-            if (hasYield)
-                return exp;
-            return base.VisitIn(exp);
-        }
 
-        protected override Exp VisitYield(YYieldExpression node)
-        {
-            hasYield = true;
-            return node;
-        }
+            public static bool HasYield(YExpression exp)
+            {
+                var yf = new YieldFinder();
+                yf.Visit(exp);
+                return yf.hasYield;
+            }
 
-        protected override Exp VisitReturn(YReturnExpression yReturnExpression)
-        {
-            hasYield = true;
-            return yReturnExpression;
-        }
+            private bool hasYield = false;
 
-        protected override Exp VisitLambda(YLambdaExpression yLambdaExpression)
-        {
-            return yLambdaExpression;
-        }
+            public override Exp VisitIn(Exp exp)
+            {
+                if (hasYield)
+                    return exp;
+                return base.VisitIn(exp);
+            }
 
-        protected override Exp VisitRelay(YRelayExpression relayExpression)
-        {
-            return relayExpression;
+            protected override Exp VisitYield(YYieldExpression node)
+            {
+                hasYield = true;
+                return node;
+            }
+
+            protected override Exp VisitReturn(YReturnExpression yReturnExpression)
+            {
+                hasYield = true;
+                return yReturnExpression;
+            }
+
+            protected override Exp VisitLambda(YLambdaExpression yLambdaExpression)
+            {
+                return yLambdaExpression;
+            }
+
+            protected override Exp VisitRelay(YRelayExpression relayExpression)
+            {
+                return relayExpression;
+            }
         }
     }
 
@@ -73,42 +91,123 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             protected override Expression VisitNew(YNewExpression node)
             {
-                if (YieldFinder.HasYield(node))
+                if (node.HasYield())
                 {
-                    var argList = new List<ParameterExpression>();
-                    var setup = new List<Expression>();
-                    foreach (var a in node.args)
+                    var bb = new YBlockBuilder();
+                    var args = new List<YExpression>();
+                    foreach (var item in node.args)
                     {
-                        var p = Expression.Parameter(a.Type);
-                        argList.Add(p);
-                        setup.Add(Expression.Assign(p, Visit(a)));
+                        var a = Visit(item);
+                        args.Add(bb.ConvertToVariable(a));
                     }
-                    setup.Add(Expression.New(node.constructor, argList));
-                    return Expression.Block(argList.ToArray(),
-                        setup);
+                    bb.AddExpression(Expression.New(node.constructor, args));
+                    return bb.Build();
 
                 }
                 return base.VisitNew(node);
             }
 
+            protected override Exp VisitField(YFieldExpression yFieldExpression)
+            {
+                if (yFieldExpression.Target == null)
+                    return yFieldExpression;
+                var target = Visit(yFieldExpression.Target);
+                if (target.HasYield())
+                {
+                    var tp = YExpression.Parameter(target.Type);
+                    var bb = new YBlockBuilder();
+                    bb.AddVariable(tp);
+                    bb.AddExpression(YExpression.Assign(tp, target));
+
+                }
+                return yFieldExpression;
+            }
+
+            protected override Exp VisitIndex(YIndexExpression yIndexExpression)
+            {
+                var hasYield = yIndexExpression.HasYield();
+                if(hasYield)
+                {
+                    var bb = new YBlockBuilder();
+                    var target = Visit(yIndexExpression.Target);
+                    if (target.HasYield())
+                    {
+                        var tp = YExpression.Parameter(target.Type);
+                        bb.AddVariable(tp);
+                        bb.AddExpression(YExpression.Assign(tp, target));
+                        target = tp;
+                    }
+
+                    var args = new List<YExpression>();
+
+                    foreach(var item in yIndexExpression.Arguments)
+                    {
+                        var e = Visit(item);
+                        args.Add(bb.ConvertToVariable(e));
+                    }
+
+                    bb.AddExpression(YExpression.Index(target, yIndexExpression.Property, args.ToArray()));
+                    return bb.Build();
+                }
+                return yIndexExpression;
+            }
+
+            protected override Exp VisitArrayIndex(YArrayIndexExpression yArrayIndexExpression)
+            {
+                var target = Visit(yArrayIndexExpression.Target);
+                var index = Visit(yArrayIndexExpression.Index);
+
+                var targetHasYield = target.HasYield();
+                var indexHasYield = index.HasYield();
+
+                if(targetHasYield || indexHasYield)
+                {
+                    var bb = new YBlockBuilder();
+                    
+                    if (targetHasYield)
+                    {
+                        var tp = YExpression.Parameter(target.Type);
+                        bb.AddVariable(tp);
+                        bb.AddExpression(YExpression.Assign(tp, target));
+                        target = tp;
+                    }
+                    if (indexHasYield)
+                    {
+                        var ip = Expression.Parameter(index.Type);
+                        bb.AddVariable(ip);
+                        bb.AddExpression(Expression.Assign(ip, index));
+                        index = ip;
+                    }
+                    bb.AddExpression(YExpression.ArrayIndex(target, index));
+                    return bb.Build();
+                }
+                return yArrayIndexExpression;
+            }
+
             protected override Expression VisitCall(YCallExpression node)
             {
-
-                if(YieldFinder.HasYield(node))
+                if(node.HasYield())
                 {
-                    // rewrite...
 
-                    var argList = new List<ParameterExpression>();
-                    var setup = new List<Expression>();
-                    foreach(var a in node.Arguments)
+                    // rewrite...
+                    var bb = new YBlockBuilder();
+
+                    var target = Visit(node.Target);
+                    if (target?.HasYield() ?? false)
                     {
-                        var p = Expression.Parameter(a.Type);
-                        argList.Add(p);
-                        setup.Add(Expression.Assign(p, Visit(a)));
+                        var tp = YExpression.Parameter(target.Type);
+                        bb.AddVariable(tp, target);
+                        target = tp;
                     }
-                    setup.Add(Expression.Call(node.Target, node.Method, argList));
-                    return Expression.Block(argList.ToArray(),
-                        setup);
+
+                    var args = new List<YExpression>();
+                    foreach(var item in node.Arguments)
+                    {
+                        var a = Visit(item);
+                        args.Add(bb.ConvertToVariable(a));
+                    }
+                    bb.AddExpression(Expression.Call(target, node.Method, args));
+                    return bb.Build();
                 }
 
                 return node;

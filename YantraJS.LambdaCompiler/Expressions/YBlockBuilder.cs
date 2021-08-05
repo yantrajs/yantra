@@ -17,6 +17,21 @@ namespace YantraJS.Expressions
 
         public void AddVariable(YParameterExpression pe) => variables.Add(pe);
 
+        public YBlockBuilder AddVariable(YParameterExpression pe, YExpression init)
+        {
+            variables.Add(pe);
+            return AddExpression(YExpression.Assign(pe, init));
+        }
+
+        public YExpression ConvertToVariable(YExpression exp)
+        {
+            if (exp.NodeType == YExpressionType.Parameter)
+                return exp;
+            var e = YExpression.Parameter(exp.Type);
+            AddVariable(e, exp);
+            return e;
+        }
+
         public YBlockBuilder AddExpressionRange(IEnumerable<YExpression> exps)
         {
             foreach (var e in exps)
