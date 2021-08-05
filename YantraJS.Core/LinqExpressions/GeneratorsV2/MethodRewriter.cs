@@ -8,7 +8,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 {
     public static class YieldFinderHelper
     {
-        private static object empty = new object();
+        private static object yes = new object();
+        private static object no = new object();
 
         private static System.Runtime.CompilerServices.ConditionalWeakTable<YExpression, object>
             cache = new System.Runtime.CompilerServices.ConditionalWeakTable<Exp, object>();
@@ -16,9 +17,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         public static bool HasYield(this YExpression expression)
         {
             if (cache.TryGetValue(expression, out var a))
-                return a != empty;
+            {
+                return System.Object.ReferenceEquals(a, yes);
+            }
             var r = YieldFinder.HasYield(expression);
-            cache.Add(expression, r ? empty : null);
+            cache.Add(expression, r ? yes : no);
             return r;
         }
 
