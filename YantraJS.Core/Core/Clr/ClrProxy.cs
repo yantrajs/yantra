@@ -147,8 +147,8 @@ namespace YantraJS.Core.Clr
                     return jsValue;
                 case DateTimeOffset dateTimeOffset:
                     return new JSDate(dateTimeOffset);
-                case Type type:
-                    return ClrType.From(type);
+                case Type valueType:
+                    return ClrType.From(valueType);
                 case Task<JSValue> task:
                     return task.ToPromise();
                 case Task task:
