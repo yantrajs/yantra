@@ -114,11 +114,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 var target = Visit(yFieldExpression.Target);
                 if (target.HasYield())
                 {
-                    var tp = YExpression.Parameter(target.Type);
                     var bb = new YBlockBuilder();
-                    bb.AddVariable(tp);
-                    bb.AddExpression(YExpression.Assign(tp, target));
-
+                    target = bb.ConvertToVariable(target);
+                    bb.AddExpression(YExpression.Field(target, yFieldExpression.FieldInfo));
+                    return bb.Build();
                 }
                 return yFieldExpression;
             }
@@ -132,10 +131,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     var target = Visit(yIndexExpression.Target);
                     if (target.HasYield())
                     {
-                        var tp = YExpression.Parameter(target.Type);
-                        bb.AddVariable(tp);
-                        bb.AddExpression(YExpression.Assign(tp, target));
-                        target = tp;
+                        target = bb.ConvertToVariable(target);
                     }
 
                     var args = new List<YExpression>();
@@ -166,17 +162,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     
                     if (targetHasYield)
                     {
-                        var tp = YExpression.Parameter(target.Type);
-                        bb.AddVariable(tp);
-                        bb.AddExpression(YExpression.Assign(tp, target));
-                        target = tp;
+                        target = bb.ConvertToVariable(target);
                     }
                     if (indexHasYield)
                     {
-                        var ip = Expression.Parameter(index.Type);
-                        bb.AddVariable(ip);
-                        bb.AddExpression(Expression.Assign(ip, index));
-                        index = ip;
+                        index = bb.ConvertToVariable(index);
                     }
                     bb.AddExpression(YExpression.ArrayIndex(target, index));
                     return bb.Build();
@@ -195,9 +185,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     var target = Visit(node.Target);
                     if (target?.HasYield() ?? false)
                     {
-                        var tp = YExpression.Parameter(target.Type);
-                        bb.AddVariable(tp, target);
-                        target = tp;
+                        target = bb.ConvertToVariable(target);
                     }
 
                     var args = new List<YExpression>();

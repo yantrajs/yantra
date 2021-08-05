@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace YantraJS.Expressions
@@ -75,8 +76,10 @@ namespace YantraJS.Expressions
             return this;
         }
 
-        public YBlockExpression Build()
+        public YExpression Build()
         {
+            if (variables.Count == 0 && expressions.Count == 1)
+                return expressions.First();
             return new YBlockExpression(variables, expressions.ToArray());
         }
 
