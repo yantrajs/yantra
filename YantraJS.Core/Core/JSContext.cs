@@ -645,7 +645,7 @@ namespace YantraJS.Core
             try
             {
                 var f = CoreScript.Compile(code, codeFilePath);
-                Debugger.ScriptParsed(code, codeFilePath);
+                Debugger.ScriptParsed(this.ID, code, codeFilePath);
                 return f(Arguments.Empty);
             } catch (Exception ex) {
                 this.ReportError(ex);

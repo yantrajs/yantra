@@ -40,9 +40,7 @@ namespace YantraJS.Core.Debugger
                 }
                 CancellationTokenSource c;
                 c = wait = new CancellationTokenSource();
-                try {
-                    await Task.Delay(15000, c.Token);
-                } catch (TaskCanceledException) { }
+                await DelayTask.For(15000, c.Token);
             }
         }
 

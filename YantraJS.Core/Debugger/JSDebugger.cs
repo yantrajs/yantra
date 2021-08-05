@@ -18,6 +18,6 @@ namespace YantraJS.Debugger
 
         public abstract void ReportException(JSValue error);
 
-        public abstract void ScriptParsed(string code, string codeFilePath);
+        public abstract void ScriptParsed(long id, string code, string codeFilePath);
     }
 }

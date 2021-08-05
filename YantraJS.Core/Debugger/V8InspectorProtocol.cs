@@ -183,7 +183,7 @@ namespace YantraJS.Core.Debugger
 
         private SHA256 hash = SHA256.Create();
 
-        public override void ScriptParsed(string code, string codeFilePath)
+        public override void ScriptParsed(long contextId, string code, string codeFilePath)
         {
             Task.Run(() =>
             {
@@ -193,7 +193,7 @@ namespace YantraJS.Core.Debugger
                 {
                     ScriptId = id,
                     Url = codeFilePath,
-                    ExecutionContextId = JSContext.Current.ID,
+                    ExecutionContextId = contextId,
                     Hash = hash.ComputeHash(code),
                     HasSourceURL = !string.IsNullOrWhiteSpace(codeFilePath),
                     Length = code.Length,
