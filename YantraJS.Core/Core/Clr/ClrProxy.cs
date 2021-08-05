@@ -30,39 +30,6 @@ namespace YantraJS.Core.Clr
             get {
                 if (value == null)
                     return false;
-                var t = Type.GetTypeCode(value.GetType());
-                switch (t)
-                {
-                    case TypeCode.Boolean:
-                        return (bool)value;
-                    case TypeCode.Byte:
-                        return (byte)value != 0;
-                    case TypeCode.Char:
-                        char ch = (char)value;
-                        return ch != 0 && !char.IsWhiteSpace(ch);
-                    case TypeCode.Decimal:
-                        return (decimal)value != 0;
-                    case TypeCode.Double:
-                        return (double)value != 0;
-                    case TypeCode.Int16:
-                        return (short)value != 0;
-                    case TypeCode.Int32:
-                        return (int)value != 0;
-                    case TypeCode.Int64:
-                        return (long)value != 0;
-                    case TypeCode.SByte:
-                        return (sbyte)value != 0;
-                    case TypeCode.Single:
-                        return (float)value != 0;
-                    case TypeCode.UInt16:
-                        return (ushort)value != 0;
-                    case TypeCode.UInt32:
-                        return (uint)value != 0;
-                    case TypeCode.UInt64:
-                        return (ulong)value != 0;
-                }
-                if (value is JSValue jv)
-                    return jv.BooleanValue;
                 return true;
             }
         }
@@ -75,37 +42,6 @@ namespace YantraJS.Core.Clr
             {
                 if (value == null)
                     return 0;
-                var t = Type.GetTypeCode(value.GetType());
-                switch (t)
-                {
-                    case TypeCode.Boolean:
-                        return ((bool)value) ? 1 : 0;
-                    case TypeCode.Byte:
-                        return (byte)value;
-                    case TypeCode.Char:
-                        return (char)value;
-                    case TypeCode.Decimal:
-                        return (double)(decimal)value;
-                    case TypeCode.Double:
-                        return (double)value;
-                    case TypeCode.Int16:
-                        return (short)value;
-                    case TypeCode.Int32:
-                        return (int)value;
-                    case TypeCode.Int64:
-                        return (long)value;
-                    case TypeCode.SByte:
-                        return (sbyte)value;
-                    case TypeCode.Single:
-                        return (float)value;
-                    case TypeCode.UInt16:
-                        return (ushort)value;
-                    case TypeCode.UInt32:
-                        return (uint)value;
-                    case TypeCode.UInt64:
-                        return (ulong)value;
-                }
-                // coerce to double...
                 return NumberParser.CoerceToNumber(value.ToString());
             }
         }
@@ -165,8 +101,10 @@ namespace YantraJS.Core.Clr
         {
             if (value == null)
                 return JSNull.Value;
-
-            var t = Type.GetTypeCode(value.GetType());
+            var type = value.GetType();
+            if (type.IsEnum)
+                return new JSString(value.ToString());
+            var t = Type.GetTypeCode(type);
             switch (t)
             {
                 case TypeCode.Boolean:
