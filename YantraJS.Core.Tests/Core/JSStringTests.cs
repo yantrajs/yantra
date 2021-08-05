@@ -21,7 +21,7 @@ let a = 4;
 let m;
 class A {
     *g1(n) {
-        m = a = yield n;
+        m = a = !(yield n);
     }
 }
 

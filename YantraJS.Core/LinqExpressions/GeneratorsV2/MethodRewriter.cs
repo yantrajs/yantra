@@ -143,6 +143,35 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 return base.VisitNew(node);
             }
 
+            protected override Exp VisitUnary(YUnaryExpression yUnaryExpression)
+            {
+                var target = yUnaryExpression.Target;
+                if (target.HasYield())
+                {
+                    // break...
+                    var bb = new YBlockBuilder();
+                    target = bb.ConvertToVariable(Visit(target));
+                    bb.AddExpression(new YUnaryExpression(target, yUnaryExpression.Operator));
+                    return bb.Build();
+                }
+                return base.VisitUnary(yUnaryExpression);
+            }
+
+            protected override Exp VisitConditional(YConditionalExpression yConditionalExpression)
+            {
+                var test = yConditionalExpression.test;
+                if (test.HasYield())
+                {
+                    var bb = new YBlockBuilder();
+                    test = bb.ConvertToVariable(Visit(test));
+                    bb.AddExpression(YExpression.Condition(test, 
+                        Visit(yConditionalExpression.@true), 
+                        Visit(yConditionalExpression.@false)));
+                    return bb.Build();
+                }
+                return base.VisitConditional(yConditionalExpression);
+            }
+
             protected override Exp VisitField(YFieldExpression yFieldExpression)
             {
                 if (yFieldExpression.Target == null)
