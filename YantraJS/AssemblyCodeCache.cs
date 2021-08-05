@@ -91,24 +91,23 @@ namespace YantraJS
                 System.IO.Directory.CreateDirectory(dir);
             }
 
-            var list = typeof(JSContext).Assembly.GetReferencedAssemblies()
-                .Select(x =>
-                {
-                    if(x.Name == "netstandard")
-                    {
-                        var a1 = typeof(System.String).Assembly;
-                        return a1;
-                    }
-                    var a = Assembly.Load(x);
-                    return a;
-                })
-                .ToList();
+            //var list = typeof(JSContext).Assembly.GetReferencedAssemblies()
+            //    .Select(x =>
+            //    {
+            //        if(x.Name == "netstandard")
+            //        {
+            //            var a1 = typeof(System.String).Assembly;
+            //            return a1;
+            //        }
+            //        var a = Assembly.Load(x);
+            //        return a;
+            //    })
+            //    .ToList();
 
-            list.Add(typeof(JSContext).Assembly);
+            //list.Add(typeof(JSContext).Assembly);
             
 
-            g.GenerateAssembly(m.DeclaringType.Assembly, 
-                list,
+            g.GenerateAssembly(m.DeclaringType.Assembly,
                 dll);
 
             System.IO.File.WriteAllText(js, code.Code.Value);

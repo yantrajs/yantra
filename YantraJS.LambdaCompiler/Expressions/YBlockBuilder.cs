@@ -21,6 +21,20 @@ namespace YantraJS.Expressions
         public YBlockBuilder AddVariable(YParameterExpression pe, YExpression init)
         {
             variables.Add(pe);
+            // break init if it is block..
+            if(init.NodeType == YExpressionType.Block)
+            {
+                var block = init as YBlockExpression;
+                this.variables.AddRange(block.FlattenVariables);
+                foreach(var (e, last) in block.FlattenExpressions)
+                {
+                    if (last)
+                    {
+                        return AddExpression(YExpression.Assign(pe, e));
+                    }
+                    AddExpression(e);
+                }
+            }
             return AddExpression(YExpression.Assign(pe, init));
         }
 

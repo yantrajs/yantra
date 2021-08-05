@@ -1446,7 +1446,7 @@ const UMD = new UMDClass();
 
 AmdLoader.instance.register(
     ["@castyy/web-app", "@web-atoms/core", "@web-atoms/xf-controls", "@web-atoms/font-awesome", "@web-atoms/date-time"],
-    ["@castyy/web-app/dist/mobile-app/app/XFIndex", "@web-atoms/core/dist/Atom", "@web-atoms/core/dist/core/AtomList", "@web-atoms/core/dist/core/AtomBinder", "@web-atoms/core/dist/core/types", "@web-atoms/core/dist/core/AtomMap", "@web-atoms/core/dist/core/XNode", "@web-atoms/core/dist/Pack", "@web-atoms/xf-controls/dist/clr/X", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/web/core/AtomUI", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/ExpressionParser", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage", "@web-atoms/core/dist/xf/controls/AtomXFControl", "@web-atoms/core/dist/core/AtomComponent", "@web-atoms/core/dist/App", "@web-atoms/core/dist/core/AtomDispatcher", "@web-atoms/core/dist/di/RegisterSingleton", "@web-atoms/core/dist/di/Register", "@web-atoms/core/dist/di/ServiceCollection", "@web-atoms/core/dist/di/TypeKey", "@web-atoms/core/dist/di/ServiceProvider", "@web-atoms/core/dist/core/TransientDisposable", "@web-atoms/core/dist/di/Inject", "@web-atoms/core/dist/services/BusyIndicatorService", "@web-atoms/core/dist/core/PropertyBinding", "@web-atoms/core/dist/core/AtomOnce", "@web-atoms/core/dist/core/AtomWatcher", "@web-atoms/core/dist/core/AtomDisposableList", "@web-atoms/core/dist/core/InheritedProperty", "@web-atoms/core/dist/core/PropertyMap", "@web-atoms/core/dist/services/NavigationService", "@web-atoms/core/dist/core/AtomUri", "@web-atoms/core/dist/core/FormattedString", "@web-atoms/core/dist/services/ReferenceService", "@web-atoms/core/dist/di/DISingleton", "@web-atoms/core/dist/web/styles/AtomStyle", "@web-atoms/core/dist/core/StringHelper", "@web-atoms/core/dist/web/styles/AtomStyleSheet", "@castyy/web-app/dist/mobile-app/app/drawer/XFDrawer", "@web-atoms/core/dist/core/Colors", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/pages/AtomXFContentPage", "@castyy/web-app/dist/common/controls/tab-host/services/MenuService", "@web-atoms/core/dist/core/BindableProperty", "@castyy/web-app/dist/common/controls/tab-host/models/MenuItem", "@castyy/web-app/dist/common/services/auth/AuthService", "@web-atoms/core/dist/services/http/RestService", "@web-atoms/core/dist/services/http/AjaxOptions", "@web-atoms/core/dist/services/CacheService", "@web-atoms/core/dist/services/JsonService", "@web-atoms/date-time/dist/DateTime", "@web-atoms/date-time/dist/TimeSpan", "@web-atoms/core/dist/services/http/JsonError", "@castyy/web-app/dist/mobile-app/app/home/XFHome", "@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage", "@castyy/web-app/dist/mobile-app/app/home/connections/XFConnections", "@castyy/web-app/dist/mobile-app/app/home/jobs/XFJobs", "@castyy/web-app/dist/mobile-app/app/home/social/XFSocial", "@castyy/web-app/dist/mobile-app/user/login/XFLogin", "@web-atoms/xf-controls/dist/clr/WA", "@web-atoms/xf-controls/dist/clr/RgPluginsPopup", "@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox", "@web-atoms/xf-controls/dist/pages/AtomXFPopupPage", "@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel", "@web-atoms/core/dist/view-model/AtomViewModel", "@web-atoms/core/dist/view-model/baseTypes", "@web-atoms/core/dist/view-model/AtomWindowViewModel", "@web-atoms/xf-controls/dist/combo-box/SelectionList", "@web-atoms/xf-controls/dist/AtomContentView", "@castyy/web-app/dist/common/controls/buttons/XFFontImageButton", "@castyy/web-app/dist/mobile-app/user/login/XFLoginViewModel", "@web-atoms/core/dist/view-model/Action", "@castyy/web-app/dist/common/models/model", "@castyy/web-app/dist/common/services/auth/AuthRestService", "@castyy/web-app/dist/common/services/auth/SignupService", "@castyy/web-app/dist/common/services/entity/EntityService", "@castyy/web-app/dist/common/models/entity/IEntityModel", "@castyy/web-app/dist/common/StringHelper", "@castyy/web-app/dist/common/services/entity/EntityRestService", "@castyy/web-app/dist/common/services/geo/GeoLocationService", "@castyy/web-app/dist/mobile-app/app/home/social/XFSocialViewModel", "@castyy/web-app/dist/common/services/file-picker/FilePickerService", "@castyy/web-app/dist/common/clr/CastyyTasks", "@castyy/web-app/dist/common/services/file-picker/XFEssentials", "@castyy/web-app/dist/common/services/file-picker/progress/XFUploadProgress", "@castyy/web-app/dist/common/services/file-picker/progress/XFUploadProgressViewModel", "@web-atoms/core/dist/view-model/Delay", "@web-atoms/core/dist/view-model/Load", "@castyy/web-app/dist/mobile-app/app/XFIndexViewModel", "@web-atoms/core/dist/core/AtomLoader", "@castyy/web-app/dist/mobile-app/user/addUserMenu", "@castyy/web-app/dist/mobile-app/user/login/logout/XFLogout", "@castyy/web-app/dist/mobile-app/app/uploads/XFUpload", "@web-atoms/font-awesome/dist/FontAwesomeRegular", "@castyy/web-app/dist/mobile-app/app/uploads/XFUploadViewModel", "@web-atoms/core/dist/xf/XFApp", "@web-atoms/core/dist/xf/services/XFBusyIndicatorService", "@web-atoms/core/dist/xf/services/XFNavigationService"]);
+    ["@castyy/web-app/dist/mobile-app/app/XFIndex", "@web-atoms/core/dist/Atom", "@web-atoms/core/dist/core/AtomList", "@web-atoms/core/dist/core/AtomBinder", "@web-atoms/core/dist/core/types", "@web-atoms/core/dist/core/AtomMap", "@web-atoms/core/dist/core/XNode", "@web-atoms/core/dist/Pack", "@web-atoms/xf-controls/dist/clr/X", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/web/core/AtomUI", "@web-atoms/core/dist/core/Bind", "@web-atoms/core/dist/core/ExpressionParser", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/pages/AtomXFFlyoutPage", "@web-atoms/core/dist/xf/controls/AtomXFControl", "@web-atoms/core/dist/core/AtomComponent", "@web-atoms/core/dist/App", "@web-atoms/core/dist/core/AtomDispatcher", "@web-atoms/core/dist/di/RegisterSingleton", "@web-atoms/core/dist/di/Register", "@web-atoms/core/dist/di/ServiceCollection", "@web-atoms/core/dist/di/TypeKey", "@web-atoms/core/dist/di/ServiceProvider", "@web-atoms/core/dist/core/TransientDisposable", "@web-atoms/core/dist/di/Inject", "@web-atoms/core/dist/services/BusyIndicatorService", "@web-atoms/core/dist/core/PropertyBinding", "@web-atoms/core/dist/core/AtomOnce", "@web-atoms/core/dist/core/AtomWatcher", "@web-atoms/core/dist/core/AtomDisposableList", "@web-atoms/core/dist/core/InheritedProperty", "@web-atoms/core/dist/core/PropertyMap", "@web-atoms/core/dist/services/NavigationService", "@web-atoms/core/dist/core/AtomUri", "@web-atoms/core/dist/core/FormattedString", "@web-atoms/core/dist/services/ReferenceService", "@web-atoms/core/dist/di/DISingleton", "@web-atoms/core/dist/web/styles/AtomStyle", "@web-atoms/core/dist/core/StringHelper", "@web-atoms/core/dist/web/styles/AtomStyleSheet", "@castyy/web-app/dist/mobile-app/app/drawer/XFDrawer", "@web-atoms/core/dist/core/Colors", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/pages/AtomXFContentPage", "@castyy/web-app/dist/common/controls/tab-host/services/MenuService", "@web-atoms/core/dist/core/BindableProperty", "@castyy/web-app/dist/common/controls/tab-host/models/MenuItem", "@castyy/web-app/dist/common/services/auth/AuthService", "@web-atoms/core/dist/services/http/RestService", "@web-atoms/core/dist/services/http/AjaxOptions", "@web-atoms/core/dist/services/CacheService", "@web-atoms/core/dist/services/JsonService", "@web-atoms/date-time/dist/DateTime", "@web-atoms/date-time/dist/TimeSpan", "@web-atoms/core/dist/services/http/JsonError", "@castyy/web-app/dist/mobile-app/app/home/XFHome", "@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage", "@castyy/web-app/dist/mobile-app/app/home/connections/XFConnections", "@castyy/web-app/dist/mobile-app/app/home/jobs/XFJobs", "@castyy/web-app/dist/mobile-app/app/home/social/XFSocial", "@castyy/web-app/dist/mobile-app/user/login/XFLogin", "@web-atoms/xf-controls/dist/clr/WA", "@web-atoms/xf-controls/dist/clr/RgPluginsPopup", "@web-atoms/xf-controls/dist/combo-box/AtomXFComboBox", "@web-atoms/xf-controls/dist/pages/AtomXFPopupPage", "@web-atoms/xf-controls/dist/combo-box/SearchPageViewModel", "@web-atoms/core/dist/view-model/AtomViewModel", "@web-atoms/core/dist/view-model/baseTypes", "@web-atoms/core/dist/view-model/AtomWindowViewModel", "@web-atoms/xf-controls/dist/combo-box/SelectionList", "@web-atoms/xf-controls/dist/AtomContentView", "@castyy/web-app/dist/common/controls/buttons/XFFontImageButton", "@castyy/web-app/dist/mobile-app/user/login/XFLoginViewModel", "@web-atoms/core/dist/view-model/Action", "@castyy/web-app/dist/common/models/model", "@castyy/web-app/dist/common/services/auth/AuthRestService", "@castyy/web-app/dist/common/services/auth/SignupService", "@castyy/web-app/dist/common/services/entity/EntityService", "@castyy/web-app/dist/common/models/entity/IEntityModel", "@castyy/web-app/dist/common/StringHelper", "@castyy/web-app/dist/common/services/entity/EntityRestService", "@castyy/web-app/dist/common/services/geo/GeoLocationService", "@castyy/web-app/dist/mobile-app/app/home/social/XFSocialViewModel", "@castyy/web-app/dist/common/services/file-picker/FilePickerService", "@castyy/web-app/dist/common/clr/CastyyTasks", "@castyy/web-app/dist/common/services/file-picker/XFEssentials", "@castyy/web-app/dist/common/services/file-picker/progress/XFUploadProgress", "@castyy/web-app/dist/common/services/file-picker/progress/XFUploadProgressViewModel", "@web-atoms/core/dist/view-model/Delay", "@web-atoms/core/dist/view-model/Load", "@castyy/web-app/dist/mobile-app/app/home/profile-page/XFProfilePage", "@castyy/web-app/dist/mobile-app/app/home/profile-page/XFProfilePageViewModel", "@castyy/web-app/dist/mobile-app/app/XFIndexViewModel", "@web-atoms/core/dist/core/AtomLoader", "@castyy/web-app/dist/mobile-app/user/addUserMenu", "@castyy/web-app/dist/mobile-app/user/login/logout/XFLogout", "@castyy/web-app/dist/mobile-app/app/uploads/XFUpload", "@web-atoms/font-awesome/dist/FontAwesomeRegular", "@castyy/web-app/dist/mobile-app/app/uploads/XFUploadViewModel", "@web-atoms/core/dist/xf/XFApp", "@web-atoms/core/dist/xf/services/XFBusyIndicatorService", "@web-atoms/core/dist/xf/services/XFNavigationService"]);
 
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -24173,13 +24173,118 @@ AmdLoader.instance.setup("@castyy/web-app/dist/mobile-app/app/home/social/XFSoci
 
 AmdLoader.instance.setup("@castyy/web-app/dist/mobile-app/app/home/social/XFSocial");
 
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/core/XNode", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage", "./connections/XFConnections", "./jobs/XFJobs", "./social/XFSocial"], factory);
+        define(["require", "exports", "@web-atoms/core/dist/view-model/AtomViewModel", "@web-atoms/core/dist/view-model/Load"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const AtomViewModel_1 = require("@web-atoms/core/dist/view-model/AtomViewModel");
+    const Load_1 = require("@web-atoms/core/dist/view-model/Load");
+    class XFProfilePageViewModel extends AtomViewModel_1.AtomViewModel {
+        initViewModel() {
+            //
+        }
+    }
+    __decorate([
+        Load_1.default({ init: true }),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", []),
+        __metadata("design:returntype", void 0)
+    ], XFProfilePageViewModel.prototype, "initViewModel", null);
+    exports.default = XFProfilePageViewModel;
+});
+//# sourceMappingURL=XFProfilePageViewModel.js.map
+
+AmdLoader.instance.setup("@castyy/web-app/dist/mobile-app/app/home/profile-page/XFProfilePageViewModel");
+
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "@web-atoms/core/dist/core/Colors", "@web-atoms/core/dist/core/XNode", "@web-atoms/font-awesome/dist/FontAwesomeSolid", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/pages/AtomXFContentPage", "./XFProfilePageViewModel"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const Colors_1 = require("@web-atoms/core/dist/core/Colors");
+    const XNode_1 = require("@web-atoms/core/dist/core/XNode");
+    const FontAwesomeSolid_1 = require("@web-atoms/font-awesome/dist/FontAwesomeSolid");
+    const XF_1 = require("@web-atoms/xf-controls/dist/clr/XF");
+    const AtomXFContentPage_1 = require("@web-atoms/xf-controls/dist/pages/AtomXFContentPage");
+    const XFProfilePageViewModel_1 = require("./XFProfilePageViewModel");
+    class XFProfilePage extends AtomXFContentPage_1.default {
+        create() {
+            this.viewModel = this.resolve(XFProfilePageViewModel_1.default);
+            this.render(XNode_1.default.create(XF_1.default.ContentPage, null,
+                XNode_1.default.create(XF_1.default.ContentPage.iconImageSource, null,
+                    XNode_1.default.create(XF_1.default.FontImageSource, { fontFamily: FontAwesomeSolid_1.default, glyph: FontAwesomeSolid_1.default.user })),
+                XNode_1.default.create(XF_1.default.Grid, null,
+                    XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Vertical" },
+                        XNode_1.default.create(XF_1.default.Label, { text: "Hello User", verticalTextAlignment: "Center", horizontalTextAlignment: "Center", textColor: Colors_1.default.darkOrange }),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Image, { source: FontAwesomeSolid_1.default.mask }),
+                            XNode_1.default.create(XF_1.default.Image, { source: FontAwesomeSolid_1.default.camera })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Label, { text: "Profile Meter", textColor: Colors_1.default.lightGray }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "How do I Improve my Profile Meter Ranking ?", textColor: Colors_1.default.blue })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Button, { text: FontAwesomeSolid_1.default.angleDown }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Photos Cloud", textColor: Colors_1.default.lightGray })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Label, { text: "Headshots(4)", textColor: Colors_1.default.black }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "BodyShots(5)", textColor: Colors_1.default.black }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Great Hair(5)", textColor: Colors_1.default.black })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Label, { text: "Terrific Smile(5)", textColor: Colors_1.default.black }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "6 Pac Abs(2)", textColor: Colors_1.default.black }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Puffy Lips(1)", textColor: Colors_1.default.black })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Button, { text: FontAwesomeSolid_1.default.angleDown }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Skills Cloud", textColor: Colors_1.default.lightGray })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Label, { text: "Actor(5)", textColor: Colors_1.default.black }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Anchor(2)", textColor: Colors_1.default.black }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Singer(7)", textColor: Colors_1.default.black })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Label, { text: "Dancer(4)", textColor: Colors_1.default.black })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Button, { text: FontAwesomeSolid_1.default.angleDown }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Audio Cloud", textColor: Colors_1.default.lightGray })),
+                        XNode_1.default.create(XF_1.default.StackLayout, { orientation: "Horizontal" },
+                            XNode_1.default.create(XF_1.default.Label, { text: "Voiceover(4)", textColor: Colors_1.default.black }),
+                            XNode_1.default.create(XF_1.default.Label, { text: "Singing(4)", textColor: Colors_1.default.black }))))));
+        }
+    }
+    exports.default = XFProfilePage;
+});
+//# sourceMappingURL=XFProfilePage.js.map
+
+AmdLoader.instance.setup("@castyy/web-app/dist/mobile-app/app/home/profile-page/XFProfilePage");
+
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "@web-atoms/core/dist/core/AtomBridge", "@web-atoms/core/dist/core/XNode", "@web-atoms/xf-controls/dist/clr/XF", "@web-atoms/xf-controls/dist/pages/AtomXFTabbedPage", "./connections/XFConnections", "./jobs/XFJobs", "./social/XFSocial", "./profile-page/XFProfilePage"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24191,6 +24296,7 @@ AmdLoader.instance.setup("@castyy/web-app/dist/mobile-app/app/home/social/XFSoci
     const XFConnections_1 = require("./connections/XFConnections");
     const XFJobs_1 = require("./jobs/XFJobs");
     const XFSocial_1 = require("./social/XFSocial");
+    const XFProfilePage_1 = require("./profile-page/XFProfilePage");
     class XFHome extends AtomXFTabbedPage_1.default {
         constructor(app, e) {
             super(app, e || AtomBridge_1.AtomBridge.instance.create(bridge.getClass("MobileCommon.BottomTabbedPage")));
@@ -24199,7 +24305,8 @@ AmdLoader.instance.setup("@castyy/web-app/dist/mobile-app/app/home/social/XFSoci
             this.render(XNode_1.default.create(XF_1.default.TabbedPage, { title: "Home" },
                 XNode_1.default.create(XFSocial_1.default, null),
                 XNode_1.default.create(XFJobs_1.default, null),
-                XNode_1.default.create(XFConnections_1.default, null)));
+                XNode_1.default.create(XFConnections_1.default, null),
+                XNode_1.default.create(XFProfilePage_1.default, null)));
         }
     }
     exports.default = XFHome;

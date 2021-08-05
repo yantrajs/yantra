@@ -92,6 +92,39 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 return relayExpression;
             }
 
+            protected override Exp VisitAssign(YAssignExpression yAssignExpression)
+            {
+                var right = yAssignExpression.Right;
+                // nested assign should be converted to block if it contains yield...
+                if(right.NodeType == YExpressionType.Assign && right.HasYield())
+                {
+                    // we need to break the right..
+                    right = BreakAssign(right as YAssignExpression);
+                    var bb = new YBlockBuilder();
+                    right = bb.ConvertToVariable(right);
+                    bb.AddExpression(YExpression.Assign(Visit(yAssignExpression.Left), right));
+                    return bb.Build();
+                }
+
+                return base.VisitAssign(yAssignExpression);
+            }
+
+            private Exp BreakAssign(YAssignExpression assign)
+            {
+                var bb = new YBlockBuilder();
+                var right = assign.Right;
+                if(right.NodeType == YExpressionType.Assign && right.HasYield())
+                {
+                    right = BreakAssign(right as YAssignExpression);
+                    right = bb.ConvertToVariable(right);
+                    bb.AddExpression(YExpression.Assign(Visit(assign.Left), right));
+                    return bb.Build();
+                }
+                right = bb.ConvertToVariable(right);
+                bb.AddExpression(YExpression.Assign(Visit(assign.Left), right));
+                return bb.Build();
+            }
+
             protected override Expression VisitNew(YNewExpression node)
             {
                 if (node.HasYield())
@@ -123,6 +156,21 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     return bb.Build();
                 }
                 return yFieldExpression;
+            }
+
+            protected override Exp VisitProperty(YPropertyExpression yPropertyExpression)
+            {
+                var target = yPropertyExpression.Target;
+                if (target == null)
+                    return yPropertyExpression;
+                if (target.HasYield())
+                {
+                    var bb = new YBlockBuilder();
+                    target = bb.ConvertToVariable(target);
+                    bb.AddExpression(YExpression.Property(target, yPropertyExpression.PropertyInfo));
+                    return bb.Build();
+                }
+                return yPropertyExpression;
             }
 
             protected override Exp VisitIndex(YIndexExpression yIndexExpression)

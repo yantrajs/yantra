@@ -17,6 +17,18 @@ namespace YantraJS.Tests.Core
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             this.context["array"] = new JSArray().Add(new JSNumber(1));
             this.context.Eval(@"
+let a = 4;
+let m;
+class A {
+    *g1(n) {
+        m = a = yield n;
+    }
+}
+
+var r = new A();
+
+var ra = Array.from(r.g1(5));
+assert.strictEqual(ra.toString(), '5');
 ");
         }
 
