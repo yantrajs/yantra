@@ -166,10 +166,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                         return GetNext(root.Catch, lastValue, ex);
                     }
 
-                    lastError = ex;
-                    var v = GetNext(root.Finally, lastValue);
-                    if (v.HasValue)
-                        return v;
+                    if (root.Finally > 0)
+                    {
+                        lastError = ex;
+                        var v = GetNext(root.Finally, lastValue);
+                        if (v.HasValue)
+                            return v;
+                    }
                     throw;
                 }
                 throw;
