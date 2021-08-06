@@ -61,6 +61,16 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         public ScriptInfo ScriptInfo;
         public JSVariable[] Closures;
         public CallStackItem StackItem;
+
+        private Exception lastError = null;
+        private Exception injectedException = null;
+
+
+        internal void InjectException(Exception ex)
+        {
+            this.injectedException = ex;
+        }
+
         public List<Box> Variables;
         private JSGeneratorFunctionV2 generator;
         private JSGeneratorDelegateV2 @delegate;
@@ -142,11 +152,17 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             value = default;
         }
 
-        private Exception lastError = null;
-
         private GeneratorState GetNext(int nextJump, JSValue lastValue, Exception nextExp = null)
         {
             try {
+
+                var ie = injectedException;
+                if(ie != null)
+                {
+                    this.injectedException = null;
+                    throw ie;
+                }
+
                 var r = @delegate(this, in this.arguments, nextJump, lastValue, nextExp);
                 // this is case of try end and catch end...
                 if (!r.HasValue && r.NextJump > 0)

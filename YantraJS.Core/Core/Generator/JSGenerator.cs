@@ -16,7 +16,6 @@ namespace YantraJS.Core.Generator
         private readonly string name;
 
         internal JSValue value;
-        private JSValue failed;
         internal bool done;
 
         public JSGenerator(IElementEnumerator en, string name) {
@@ -62,9 +61,8 @@ namespace YantraJS.Core.Generator
             //wait?.Dispose();
             //yield = null;
             //wait = null;
-            this.failed = value;
-            this.done = true;
-            return ValueObject;
+            cg.InjectException(JSException.FromValue(value));
+            return value;
         }
 
         public JSValue ValueObject => (JSObject.NewWithProperties())
@@ -96,8 +94,6 @@ namespace YantraJS.Core.Generator
 
         public JSValue Next(JSValue replaceOld = null)
         {
-            if (failed != null)
-                throw JSException.FromValue(failed);
             JSValue item;
             if (en != null) {
                 if (en.MoveNext(out item)) {

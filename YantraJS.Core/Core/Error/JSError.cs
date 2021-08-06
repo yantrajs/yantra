@@ -15,6 +15,15 @@ namespace YantraJS.Core
             return new JSError(new JSException(a.Get1().ToString()), JSContext.Current.ErrorPrototype);
         }
 
+        [Prototype("toString")]
+        public static JSValue ToString(in Arguments a)
+        {
+            if (!(a.This is JSError e))
+                throw JSContext.Current.NewTypeError($"{a.This} is not an Error");
+            var name = e.prototypeChain.@object[KeyStrings.constructor][KeyStrings.name];
+            return new JSString($"{name}: {e[KeyStrings.message]}");
+        }
+
 
         public const string Cannot_convert_undefined_or_null_to_object = "Cannot convert undefined or null to object";
 
