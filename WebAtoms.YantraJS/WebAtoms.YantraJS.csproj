@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>YantraJS.Core</AssemblyName>
+    <AssemblyName>WebAtoms.YantraJS</AssemblyName>
+    <RootNamespace>YantraJS.Core</RootNamespace>
     <PackageId>WebAtoms.YantraJS</PackageId>
     <PackageTags>yantra,yantrajs,javascript</PackageTags>
     <Version>1.0.1</Version>
