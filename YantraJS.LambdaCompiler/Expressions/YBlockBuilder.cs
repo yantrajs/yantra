@@ -18,9 +18,8 @@ namespace YantraJS.Expressions
 
         public void AddVariable(YParameterExpression pe) => variables.Add(pe);
 
-        public YBlockBuilder AddVariable(YParameterExpression pe, YExpression init)
+        private YParameterExpression AddVariable(YParameterExpression pe, YExpression init)
         {
-            variables.Add(pe);
             // break init if it is block..
             if(init.NodeType == YExpressionType.Block)
             {
@@ -30,21 +29,54 @@ namespace YantraJS.Expressions
                 {
                     if (last)
                     {
-                        return AddExpression(YExpression.Assign(pe, e));
+                        if(e.NodeType == YExpressionType.Parameter)
+                        {
+                            AddExpression(e);
+                            return e as YParameterExpression;
+                        }
+                        variables.Add(pe);
+                        AddExpression(YExpression.Assign(pe, e));
+                        return pe;
                     }
                     AddExpression(e);
                 }
             }
-            return AddExpression(YExpression.Assign(pe, init));
+            variables.Add(pe);
+            AddExpression(YExpression.Assign(pe, init));
+            return pe;
         }
 
-        public YExpression ConvertToVariable(YExpression exp)
+        public YExpression ConvertToVariable(YExpression init)
         {
-            if (exp.NodeType == YExpressionType.Parameter)
-                return exp;
-            var e = YExpression.Parameter(exp.Type);
-            AddVariable(e, exp);
-            return e;
+            if (init.NodeType == YExpressionType.Parameter)
+                return init;
+            YParameterExpression pe;
+            // break init if it is block..
+            if (init.NodeType == YExpressionType.Block)
+            {
+                var block = init as YBlockExpression;
+                this.variables.AddRange(block.FlattenVariables);
+                foreach (var (e, last) in block.FlattenExpressions)
+                {
+                    if (last)
+                    {
+                        if (e.NodeType == YExpressionType.Parameter)
+                        {
+                            AddExpression(e);
+                            return e as YParameterExpression;
+                        }
+                        pe = YExpression.Parameter(e.Type);
+                        variables.Add(pe);
+                        AddExpression(YExpression.Assign(pe, e));
+                        return pe;
+                    }
+                    AddExpression(e);
+                }
+            }
+            pe = YExpression.Parameter(init.Type);
+            variables.Add(pe);
+            AddExpression(YExpression.Assign(pe, init));
+            return pe;
         }
 
         public YBlockBuilder AddExpressionRange(IEnumerable<YExpression> exps)
