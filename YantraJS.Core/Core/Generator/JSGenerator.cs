@@ -9,13 +9,14 @@ using YantraJS.Core.LinqExpressions.GeneratorsV2;
 
 namespace YantraJS.Core.Generator
 {
-    public class JSGenerator : JSObject, IDisposable
+    public class JSGenerator : JSObject
     {
         readonly IElementEnumerator en;
         private ClrGeneratorV2 cg;
         private readonly string name;
 
         internal JSValue value;
+        private JSValue failed;
         internal bool done;
 
         public JSGenerator(IElementEnumerator en, string name) {
@@ -43,11 +44,6 @@ namespace YantraJS.Core.Generator
             return new JSString(a1.ToString());
         }
 
-        ~JSGenerator()
-        {
-            OnDispose(false);
-        }
-
 
         // Thread thread;
 
@@ -66,6 +62,8 @@ namespace YantraJS.Core.Generator
             //wait?.Dispose();
             //yield = null;
             //wait = null;
+            this.failed = value;
+            this.done = true;
             return ValueObject;
         }
 
@@ -98,6 +96,8 @@ namespace YantraJS.Core.Generator
 
         public JSValue Next(JSValue replaceOld = null)
         {
+            if (failed != null)
+                throw JSException.FromValue(failed);
             JSValue item;
             if (en != null) {
                 if (en.MoveNext(out item)) {
@@ -215,26 +215,8 @@ namespace YantraJS.Core.Generator
             {
                 throw JSContext.Current.NewTypeError($"receiver for Generator.prototype.next should be generator");
             }
-            return generator.Return(a.Get1());
+            return generator.Throw(a.Get1());
         }
 
-        private void OnDispose(bool supress = true)
-        {
-            //threadTop?.Pop(context);
-            //threadTop = null;
-            //yield?.Dispose();
-            //wait?.Dispose();
-            //yield = null;
-            //wait = null;
-            if (supress)
-            {
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        void IDisposable.Dispose()
-        {
-            OnDispose();
-        }
     }
 }
