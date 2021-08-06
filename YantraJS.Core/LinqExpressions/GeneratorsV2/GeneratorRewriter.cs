@@ -306,7 +306,6 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             tryList.AddExpression(ClrGeneratorV2Builder.Push(pe, catchId, finallyId, endId));
             tryList.AddExpression(Visit(node.Try));
-            tryList.AddExpression(ClrGeneratorV2Builder.Pop(pe));
             tryList.AddExpression(Expression.Goto(hasFinally ? finallyLabel : endLabel));
 
 
@@ -315,10 +314,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 tryList.AddExpression(Expression.Assign(Visit(@catch.Parameter), exception));
                 tryList.AddExpression(Visit(@catch.Body));
                 tryList.AddExpression(YExpression.Empty);
-                if (hasFinally)
-                {
-                    tryList.AddExpression(Expression.Goto(finallyLabel));
-                }
+                tryList.AddExpression(Expression.Goto(hasFinally ? finallyLabel : endLabel));
             }
 
             if (hasFinally)
@@ -328,6 +324,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 tryList.AddExpression(ClrGeneratorV2Builder.Throw(pe, endId));
             }
             tryList.AddExpression(Expression.Label(endLabel));
+            tryList.AddExpression(ClrGeneratorV2Builder.Pop(pe));
             var b = tryList.Build();
             return b;
         }

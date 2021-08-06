@@ -160,7 +160,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 var root = this.Root;
                 if(root != null)
                 {
-                    this.Root = root.Parent;
+                    // this.Root = root.Parent;
                     if (root.Catch > 0)
                     {
                         return GetNext(root.Catch, lastValue, ex);
