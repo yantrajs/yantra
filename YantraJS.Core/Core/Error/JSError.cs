@@ -9,6 +9,13 @@ namespace YantraJS.Core
     public class JSError : JSObject
     {
 
+        [Constructor]
+        public static JSValue Constructor(in Arguments a)
+        {
+            return new JSError(new JSException(a.Get1().ToString()), JSContext.Current.ErrorPrototype);
+        }
+
+
         public const string Cannot_convert_undefined_or_null_to_object = "Cannot convert undefined or null to object";
 
         public const string Parameter_is_not_an_object = "Parameter is not an object";
