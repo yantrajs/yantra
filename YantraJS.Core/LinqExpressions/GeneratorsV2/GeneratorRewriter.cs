@@ -311,6 +311,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             if (hasCatch) {
                 tryList.AddExpression(Expression.Label(catchLabel));
+                tryList.AddExpression(ClrGeneratorV2Builder.BeginCatch(pe));
                 tryList.AddExpression(Expression.Assign(Visit(@catch.Parameter), exception));
                 tryList.AddExpression(Visit(@catch.Body));
                 tryList.AddExpression(YExpression.Empty);
@@ -320,6 +321,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             if (hasFinally)
             {
                 tryList.AddExpression(Expression.Label(finallyLabel));
+                tryList.AddExpression(ClrGeneratorV2Builder.BeginFinally(pe));
                 tryList.AddExpression(Visit(node.Finally));
                 tryList.AddExpression(ClrGeneratorV2Builder.Throw(pe, endId));
             }
@@ -355,6 +357,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private static Type type = typeof(ClrGeneratorV2);
 
         private static MethodInfo _throw = type.PublicMethod(nameof(ClrGeneratorV2.Throw), typeof(int));
+        private static MethodInfo _beginCatch = type.PublicMethod(nameof(ClrGeneratorV2.BeginCatch));
+        private static MethodInfo _beginFinally = type.PublicMethod(nameof(ClrGeneratorV2.BeginFinally));
 
         private static MethodInfo _push = type.PublicMethod(
             nameof(ClrGeneratorV2.PushTry),
@@ -385,6 +389,14 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         internal static Expression Pop(ParameterExpression pe)
         {
             return Expression.Call(pe, _pop);
+        }
+        internal static Expression BeginCatch(ParameterExpression pe)
+        {
+            return Expression.Call(pe, _beginCatch);
+        }
+        internal static Expression BeginFinally(ParameterExpression pe)
+        {
+            return Expression.Call(pe, _beginFinally);
         }
         internal static Expression Throw(ParameterExpression pe, int id)
         {

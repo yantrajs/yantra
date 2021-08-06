@@ -53,6 +53,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         public int Catch;
         public int Finally;
         public int End;
+        public bool CatchBegan;
+        public bool FinallyBegan;
         public TryBlock Parent;
     }
 
@@ -176,6 +178,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 var root = this.Root;
                 if(root != null)
                 {
+
+                    if(root.CatchBegan || root.FinallyBegan)
+                    {
+                        throw;
+                    }
+
                     // this.Root = root.Parent;
                     if (root.Catch > 0)
                     {
@@ -221,6 +229,17 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 Pop();
                 throw lastError;
             }
+        }
+
+        public void BeginFinally()
+        {
+            this.Root.CatchBegan = false;
+            this.Root.FinallyBegan = true;
+        }
+
+        public void BeginCatch()
+        {
+            this.Root.CatchBegan = true;
         }
     }
 }
