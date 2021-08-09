@@ -12,6 +12,10 @@ namespace YantraJS.Expressions
                 return default;
             switch (exp.NodeType)
             {
+                case YExpressionType.Block:
+                    return VisitBlock(exp as YBlockExpression);
+                case YExpressionType.Call:
+                    return VisitCall(exp as YCallExpression);
                 case YExpressionType.Binary:
                     return VisitBinary(exp as YBinaryExpression);
                 case YExpressionType.Constant:
@@ -22,10 +26,6 @@ namespace YantraJS.Expressions
                     return VisitAssign(exp as YAssignExpression);
                 case YExpressionType.Parameter:
                     return VisitParameter(exp as YParameterExpression);
-                case YExpressionType.Block:
-                    return VisitBlock(exp as YBlockExpression);
-                case YExpressionType.Call:
-                    return VisitCall(exp as YCallExpression);
                 case YExpressionType.New:
                     return VisitNew(exp as YNewExpression);
                 case YExpressionType.Field:

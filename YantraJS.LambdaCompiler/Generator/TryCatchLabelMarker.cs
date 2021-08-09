@@ -52,5 +52,14 @@ namespace YantraJS.Generator
             return tryCatchFinallyExpression;
         }
 
+        protected override YExpression VisitLambda(YLambdaExpression yLambdaExpression)
+        {
+            return yLambdaExpression;
+        }
+
+        protected override YExpression VisitRelay(YRelayExpression relayExpression)
+        {
+            return relayExpression;
+        }
     }
 }
