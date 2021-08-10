@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using YantraJS.Expressions;
 
 namespace YantraJS
 {
@@ -69,6 +70,36 @@ namespace YantraJS
                 return $"{type.Name}<>";
             }
             return type.Name;
+        }
+
+        public static System.Reflection.Emit.MethodBuilder CreateMethod(
+            this System.Reflection.Emit.TypeBuilder type,
+            YLambdaExpression exp,
+            string name, bool hasThis)
+        {
+            var dt = exp.Type;// this is delegate type...
+            MethodInfo invoke = dt.GetMethod("Invoke");
+            var pa = invoke.GetParameters();
+            var pat = pa.Select(x => x.ParameterType).ToArray();
+            var m = type.DefineMethod(
+                name, 
+                MethodAttributes.Public, 
+                hasThis ? CallingConventions.HasThis : CallingConventions.Standard,
+                invoke.ReturnType,
+                pat);
+
+            for (int i = 0; i < pa.Length; i++)
+            {
+                var p = pa[i];
+                var pd = m.DefineParameter(i + 1, ParameterAttributes.None, p.Name);
+                //foreach(var cb in p.GetCustomAttributes())
+                //{
+                //    System.Diagnostics.Debug.WriteLine(cb);
+                //}
+            }
+
+
+            return m;
         }
     }
 

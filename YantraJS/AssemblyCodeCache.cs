@@ -43,11 +43,16 @@ namespace YantraJS
 
                 if (System.IO.File.ReadAllText(js) == code.Code.Value)
                 {
-                    var a = Assembly.LoadFile(dll);
+                    var a = AppDomain.CurrentDomain.Load(System.IO.File.ReadAllBytes(dll));
+                    // var a = Assembly.LoadFile(dll);
                     var t = a.GetType("JSScript");
                     var m = t.GetMethod("Run");
 
-                    return (JSFunctionDelegate) m.Invoke(null, null);
+                    var fx = (JSFunctionDelegate) m.Invoke(null, null);
+                    //var fxt = fx.GetType();
+                    //var fxm = fxt.GetMethod("Invoke");
+                    //System.Diagnostics.Debug.WriteLine(fxm.Name);
+                    return fx;
                 }
             }
         }

@@ -69,10 +69,12 @@ namespace YantraJS
                     as YLambdaExpression;
             }
 
-            var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
-                MethodAttributes.Public, CallingConventions.HasThis,
-                lambdaExpression.ReturnType,
-                lambdaExpression.ParameterTypes);
+            //var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
+            //    MethodAttributes.Public, CallingConventions.HasThis,
+            //    lambdaExpression.ReturnType,
+            //    lambdaExpression.ParameterTypes);
+
+            var method = type.CreateMethod(lambdaExpression, GetUniqueName(lambdaExpression.Name), true);
 
             var ln = lambdaExpression.Name;
             if (ln.Location != null)
