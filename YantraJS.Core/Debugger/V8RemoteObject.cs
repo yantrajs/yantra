@@ -90,7 +90,7 @@ namespace YantraJS.Core.Debugger
 
             Type = "object";
             var id = v[systemID];
-            if (!id.IsUndefined)
+            if (id.IsUndefined)
             {
                 var idStr = GCHandle.ToIntPtr(GCHandle.Alloc(v, GCHandleType.Normal)).ToInt64().ToString();
                 v[systemID] = new JSString(idStr);
