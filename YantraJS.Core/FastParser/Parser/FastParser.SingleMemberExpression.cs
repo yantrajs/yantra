@@ -54,8 +54,9 @@ namespace YantraJS.Core.FastParser
 
                     case TokenTypes.TemplateBegin:
                         var template = Template();
-                        node = new AstCallExpression(node,
-                            ArraySpan<AstExpression>.From(new AstTaggedTemplateExpression(template.Parts)));
+                        //node = new AstCallExpression(node,
+                        //    ArraySpan<AstExpression>.From(new AstTaggedTemplateExpression(node, template.Parts)));
+                        node = new AstTaggedTemplateExpression(node, template.Parts);
                         continue;
 
                     case TokenTypes.OptionalIndex:
