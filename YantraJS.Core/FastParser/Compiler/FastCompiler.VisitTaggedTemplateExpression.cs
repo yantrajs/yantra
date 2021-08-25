@@ -62,7 +62,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 // var a = JSTemplateArrayBuilder.New(parts, raw, expressions);
                 // return a;
 
-                if (callee is AstMemberExpression me)
+                if (callee.Type == FastNodeType.MemberExpression && callee is AstMemberExpression me)
                 {
                     // invoke method...
 

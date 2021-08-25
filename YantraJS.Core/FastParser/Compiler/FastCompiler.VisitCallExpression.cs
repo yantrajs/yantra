@@ -97,7 +97,7 @@ namespace YantraJS.Core.FastParser.Compiler
             , bool coalesce = false)
         {
 
-            if (callee is AstMemberExpression me)
+            if (callee.Type == FastNodeType.MemberExpression && callee is AstMemberExpression me)
             {
                 // invoke method...
 
