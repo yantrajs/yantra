@@ -54,7 +54,7 @@ namespace YantraJS.Core.FastParser
                     stream.Consume();
                     if (!Expression(out var fx))
                         throw stream.Unexpected();
-                    if (!(fx is AstFunctionExpression func))
+                    if (!(fx.IsFunction(out var func)))
                         throw stream.Unexpected();
                     func.Async = true;
                     node = func;

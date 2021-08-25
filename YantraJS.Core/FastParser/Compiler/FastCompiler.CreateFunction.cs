@@ -121,7 +121,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     var pe = functionDeclaration.Params.GetEnumerator();
                     while (pe.MoveNext(out var v, out var i))
                     {
-                        if (v.Identifier.Type == FastNodeType.SpreadElement && v.Identifier is AstSpreadElement spe)
+                        if (v.Identifier.IsSpreadElement(out var spe))
                         {
                             CreateAssignment(bodyInits, spe.Argument,
                                 ArgumentsBuilder.RestFrom(argumentElements, (uint)i)

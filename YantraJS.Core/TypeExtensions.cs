@@ -45,7 +45,7 @@ namespace YantraJS
             var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(int))
                 {
@@ -62,7 +62,7 @@ namespace YantraJS
             var result = new SparseList<Expression>(source.Count);
             foreach(var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(int))
                 {
@@ -79,7 +79,7 @@ namespace YantraJS
             var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(double))
                 {
@@ -96,7 +96,7 @@ namespace YantraJS
             var result = new SparseList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(double))
                 {
@@ -114,7 +114,7 @@ namespace YantraJS
             var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(string))
                 {
@@ -131,7 +131,7 @@ namespace YantraJS
             var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                 {
                     result.Add(exp);
                     continue;
@@ -158,7 +158,7 @@ namespace YantraJS
             var result = new SparseList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(string))
                 {
@@ -175,7 +175,7 @@ namespace YantraJS
             SparseList<Expression> result = new SparseList<Expression>(source.Count);
             foreach (var exp in source)
             {
-                if (!(exp is YConstantExpression ce))
+                if (!(exp.IsConstant(out var ce)))
                 {
                     result.Add(exp);
                     continue;
