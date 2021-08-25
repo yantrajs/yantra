@@ -53,6 +53,7 @@ namespace YantraJS.Expressions
             return r1 != node1 || r2 != node2 || r3 != node3 || r4 != node4;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Modified<T>(in T[] statements, out T[] list)
             where T : YExpression
         {
@@ -82,6 +83,7 @@ namespace YantraJS.Expressions
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Modified<T>(in T[] statements, Func<T, T> visitor, out T[] list)
         {
             list = statements;
