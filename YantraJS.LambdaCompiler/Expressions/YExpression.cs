@@ -329,6 +329,10 @@ namespace YantraJS.Expressions
         public static YBinaryExpression Greater(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.Greater, right);
 
+
+        public static YJumpSwitchExpression JumpSwitch(YExpression target, YLabelTarget[] cases)
+            => new YJumpSwitchExpression(target, cases);
+
         public static YLambdaExpression Lambda(
             Type type, 
             YExpression body,

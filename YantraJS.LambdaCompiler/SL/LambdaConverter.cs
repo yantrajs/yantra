@@ -187,6 +187,11 @@ namespace YantraJS.SL
             throw new NotImplementedException();
         }
 
+        protected override Expression VisitJumpSwitch(YJumpSwitchExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitLabel(YLabelExpression yLabelExpression)
         {
             throw new NotImplementedException();

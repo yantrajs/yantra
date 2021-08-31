@@ -89,7 +89,9 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
             // setup jump table...
 
-            var jumpExp = gw.GenerateJumps();
+            var @break = YExpression.Label("generatorEnd");
+
+            var jumpExp = gw.GenerateJumps(@break);
 
             var (boxes, inits) = gw.LoadBoxes();
 
@@ -112,6 +114,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     inits,
 
                     jumpExp,
+                    YExpression.Label(@break),
                     innerBody,
                     Expression.Label(gw.generatorReturn, GeneratorStateBuilder.New(0))
                     );
@@ -140,17 +143,24 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             return (vlist.ToArray(), Expression.Block(boxes));
         }
 
-        private Expression GenerateJumps()
+        private Expression GenerateJumps(YLabelTarget @break)
         {
             if (jumps.Count == 0)
                 return Expression.Empty;
-            var cases = new SwitchCase[jumps.Count];
+            var cases = new List<YLabelTarget>();
+            var offset = 1;
+            jumps = jumps.OrderBy(x => x.id).ToList();
             for (int i = 0; i < jumps.Count; i++)
             {
                 var (label, id) = jumps[i];
-                cases[i] = Expression.SwitchCase(Expression.Goto(label), Expression.Constant(id));
+                var index = id + offset;
+                while(index > cases.Count)
+                {
+                    cases.Add(@break);
+                }
+                cases.Add(label);
             }
-            return Expression.Switch(nextJump, cases);
+            return Expression.JumpSwitch( nextJump + offset, cases.ToArray());
         }
 
         protected override Expression VisitBlock(YBlockExpression node)

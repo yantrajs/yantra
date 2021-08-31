@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection.Emit;
+using System.Text;
+using YantraJS.Expressions;
+
+namespace YantraJS.Generator
+{
+    public partial class ILCodeGenerator
+    {
+        protected override CodeInfo VisitJumpSwitch(YJumpSwitchExpression node)
+        {
+
+            Visit(node.Target);
+            var cases = node.Cases;
+            int length = cases.Length;
+            var labels = new Label[length];
+            for (int i = 0; i < length; i++)
+            {
+                labels[i] = this.labels[cases[i]].Value;
+            }
+            il.Emit(OpCodes.Switch, labels);
+            return true;
+        }
+    }
+}

@@ -56,7 +56,10 @@ namespace YantraJS.Core
             }
         }
 
-
+        internal void Emit(in OpCode @switch, Label[] labels)
+        {
+            il.Emit(@switch, labels);
+        }
 
         public int ILOffset => il.ILOffset;
 

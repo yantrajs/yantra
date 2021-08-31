@@ -413,5 +413,12 @@ namespace YantraJS.Expressions
                 return new YYieldExpression(arg);
             return node;
         }
+
+        protected override YExpression VisitJumpSwitch(YJumpSwitchExpression node)
+        {
+            if (Modified(node.Target, out var target))
+                return new YJumpSwitchExpression(target, node.Cases);
+            return node;
+        }
     }
 }

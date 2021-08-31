@@ -42,6 +42,7 @@ namespace YantraJS.Expressions
         DebugInfo,
         ILOffset,
         Box,
-        Unbox
+        Unbox,
+        JumpSwitch
     }
 }
