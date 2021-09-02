@@ -125,38 +125,20 @@ namespace YantraJS.Core
             if (value == this)
                 return this;
             var proxy = new ClrProxy(value);
-            if (elementWrapper.appendChildFx == null)
-            {
-                elementWrapper.bridge = this["bridge"];
-                elementWrapper.appendChild = "appendChild";
-                elementWrapper.dispatchEvent = "dispatchEvent";
-                elementWrapper.addEventListener = "addEventListener";
-                elementWrapper.appendChildFx = new JSFunction(AppendChild);
-                elementWrapper.dispatchEventFx = new JSFunction(DispatchEvent);
-                elementWrapper.addEventListenerFx = new JSFunction(AddEventListener);
-            }
-            proxy[elementWrapper.appendChild] = elementWrapper.appendChildFx;
-            proxy[elementWrapper.dispatchEvent] = elementWrapper.dispatchEventFx;
-            proxy[elementWrapper.addEventListener] = elementWrapper.addEventListenerFx;
+            //if (elementWrapper.appendChildFx == null)
+            //{
+            //    elementWrapper.bridge = this["bridge"];
+            //    elementWrapper.appendChild = "appendChild";
+            //    elementWrapper.dispatchEvent = "dispatchEvent";
+            //    elementWrapper.addEventListener = "addEventListener";
+            //    elementWrapper.appendChildFx = new JSFunction(AppendChild);
+            //    elementWrapper.dispatchEventFx = new JSFunction(DispatchEvent);
+            //    elementWrapper.addEventListenerFx = new JSFunction(AddEventListener);
+            //}
+            //proxy[elementWrapper.appendChild] = elementWrapper.appendChildFx;
+            //proxy[elementWrapper.dispatchEvent] = elementWrapper.dispatchEventFx;
+            //proxy[elementWrapper.addEventListener] = elementWrapper.addEventListenerFx;
             return proxy;
-        }
-
-        private JSValue AppendChild(in Arguments a)
-        {
-            return elementWrapper.bridge.InvokeMethod(elementWrapper.appendChild,
-                new Arguments(elementWrapper.bridge, a.This, a.Get1()));
-        }
-
-        private JSValue DispatchEvent(in Arguments a)
-        {
-            return elementWrapper.bridge.InvokeMethod(elementWrapper.dispatchEvent,
-                new Arguments(elementWrapper.bridge, a.This, a.Get1()));
-        }
-
-        private JSValue AddEventListener(in Arguments a)
-        {
-            return elementWrapper.bridge.InvokeMethod(elementWrapper.addEventListener,
-                new Arguments(elementWrapper.bridge, a.This, a.Get1()));
         }
 
         public IJSValue CreateBoundFunction(int numberOfParameters, WJSBoundFunction func, string debugDescription)
