@@ -9,7 +9,7 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
-        int lastStatementPosition = 0;
+        FastToken lastStatementPosition;
         bool Statement(out AstStatement node)
         {
 

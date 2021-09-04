@@ -19,6 +19,9 @@ namespace YantraJS.Core.FastParser
         public readonly SpanLocation Start;
         public readonly SpanLocation End;
 
+        public FastToken Next;
+        public FastToken Previous;
+
         ///// <summary>
         ///// Marks current token ends with line
         ///// </summary>

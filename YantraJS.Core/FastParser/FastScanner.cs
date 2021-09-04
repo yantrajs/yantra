@@ -58,6 +58,8 @@ namespace YantraJS.Core.FastParser
 
             token = ReadToken();
             nextToken = ReadToken();
+            token.Next = nextToken;
+            nextToken.Previous = token;
         }
 
         
@@ -89,6 +91,8 @@ namespace YantraJS.Core.FastParser
                 token = nextToken;
                 nextToken = ReadToken();
             }
+            token.Next = nextToken;
+            nextToken.Previous = token;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

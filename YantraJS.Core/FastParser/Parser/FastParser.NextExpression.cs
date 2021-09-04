@@ -40,7 +40,7 @@ namespace YantraJS.Core.FastParser
         }
 
 
-        int lastNextExpressionPosition = 0;
+        FastToken lastNextExpressionPosition;
 
         /// <summary>
         /// NextExpression evaluates and reads next set of tokens,

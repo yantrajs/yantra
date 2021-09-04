@@ -19,7 +19,7 @@ namespace YantraJS.Core.FastParser
         /// </summary>
         private bool considerInOfAsOperators = true;
 
-        public StreamLocation BeginUndo() => new StreamLocation(this, stream.Position, stream.Current);
+        public StreamLocation BeginUndo() => new StreamLocation(this, stream.Current);
 
 
         public StreamLocation Location
@@ -27,7 +27,7 @@ namespace YantraJS.Core.FastParser
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return new StreamLocation(this, stream.Position, stream.Current);
+                return new StreamLocation(this, stream.Current);
             }
         }
 
@@ -43,19 +43,17 @@ namespace YantraJS.Core.FastParser
         public readonly struct StreamLocation
         {
             private readonly FastParser parser;
-            private readonly int position;
             public readonly FastToken Token;
 
-            public StreamLocation(FastParser parser, int index, FastToken token)
+            public StreamLocation(FastParser parser, FastToken token)
             {
                 this.parser = parser;
-                this.position = index;
                 this.Token = token;
             }
 
             public bool Reset()
             {
-                parser.stream.Reset(position);
+                parser.stream.Reset(Token);
                 return false;
             }
         }

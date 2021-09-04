@@ -27,14 +27,15 @@ namespace YantraJS.Core.FastParser
         }
 
         public readonly FastKeywordMap Keywords;
-        private readonly List<FastToken> tokens;
-        private int index;
+        // private readonly List<FastToken> tokens;
+        FastToken current;
+        // private int index;
 
         public FastTokenStream(in StringSpan text, FastKeywordMap keywords = null)
         {
             this.Pool = new FastPool();
-            tokens = new List<FastToken>(Math.Max(1, text.Length/4));
-            index = 0;
+            // tokens = new List<FastToken>(Math.Max(1, text.Length/4));
+            // index = 0;
             this.Keywords = keywords ?? FastKeywordMap.Instance;
             this.scanner = new FastScanner(Pool, text, Keywords);
         }
@@ -51,36 +52,36 @@ namespace YantraJS.Core.FastParser
         public FastTokenStream(FastPool pool, in StringSpan text, FastKeywordMap keywords = null)
         {
             this.Pool = pool;
-            tokens = new List<FastToken>(Math.Max(1, text.Length / 4));
-            index = 0;
+            // tokens = new List<FastToken>(Math.Max(1, text.Length / 4));
+            //  index = 0;
             this.Keywords = keywords ?? FastKeywordMap.Instance;
             this.scanner = new FastScanner(pool, text, Keywords);
         }
 
-        private FastToken this[int index]
-        {
-            get
-            {
-                while (tokens.Count <= index)
-                {
-                    tokens.Add(scanner.Token);
-                    scanner.ConsumeToken();
-                }
-                return tokens[index];
-            }
-        }
+        //private FastToken this[int index]
+        //{
+        //    get
+        //    {
+        //        while (tokens.Count <= index)
+        //        {
+        //            tokens.Add(scanner.Token);
+        //            scanner.ConsumeToken();
+        //        }
+        //        return tokens[index];
+        //    }
+        //}
 
-        public FastToken Current => this[index];
+        public FastToken Current => current ??= scanner.Token;
 
-        public FastToken Next => this[index + 1];
+        public FastToken Next => current.Next;
 
-        public FastToken Previous => this[index > 0 ? index - 1 : index];
+        public FastToken Previous => current.Previous ?? current;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastToken Expect(TokenTypes type)
         {
             SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.Type != type)
                 throw new FastParseException(c, $"Expecting {type} at {c.Start.Line}, {c.Start.Column}");
             Consume();
@@ -91,7 +92,7 @@ namespace YantraJS.Core.FastParser
         public FastToken Expect(FastKeywords type)
         {
             SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.Keyword != type)
                 throw new FastParseException(c, $"Expecting keyword {type} at {c.Start.Line}, {c.Start.Column}");
             Consume();
@@ -102,7 +103,7 @@ namespace YantraJS.Core.FastParser
         public FastToken ExpectContextualKeyword(FastKeywords type)
         {
             SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.ContextualKeyword != type) 
                 throw new FastParseException(c, $"Expecting keyword {type} at {c.Start.Line}, {c.Start.Column}");
             Consume();
@@ -114,7 +115,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsumeContextualKeyword(FastKeywords keyword)
         {
             var m = SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.ContextualKeyword == keyword)
             {
                 Consume();
@@ -129,7 +130,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsume(FastKeywords keyword)
         {
             var m = SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.Keyword == keyword)
             {
                 Consume();
@@ -143,7 +144,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsume(TokenTypes type)
         {
             var m = SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.Type == type)
             {
                 Consume();
@@ -157,7 +158,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2)
         {
             var m = SkipNewLines();
-            var c = this[index].Type;
+            var c = Current.Type;
             if (c == type1 ||  c == type2)
             {
                 Consume();
@@ -172,7 +173,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsumeWithLineTerminator(TokenTypes type)
         {
             var m = SkipNewLines();
-            var c = this[index].Type;
+            var c = Current.Type;
             if (c == type)
             {
                 Consume();
@@ -190,7 +191,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsumeWithLineTerminator(TokenTypes type1, TokenTypes type2)
         {
             var m = SkipNewLines();
-            var c = this[index].Type;
+            var c = Current.Type;
             if (c == type1 || c == type2)
             {
                 Consume();
@@ -209,7 +210,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2, TokenTypes type3)
         {
             var m = SkipNewLines();
-            var c = this[index].Type;
+            var c = Current.Type;
             if (c == type1 || c == type2 || c == type3)
             {
                 Consume();
@@ -224,7 +225,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsumeAny(TokenTypes type1, TokenTypes type2, TokenTypes type3, TokenTypes type4)
         {
             var m = SkipNewLines();
-            var ct = this[index].Type;
+            var ct = Current.Type;
             if (ct == type1 || ct == type2 || ct == type3 || ct == type4)
             {
                 Consume();
@@ -239,7 +240,7 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsume(TokenTypes type, out FastToken token)
         {
             var m = SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.Type == type)
             {
                 token = c;
@@ -254,10 +255,10 @@ namespace YantraJS.Core.FastParser
         public readonly struct Marker
         {
             private readonly FastTokenStream stream;
-            private readonly int index;
+            private readonly FastToken index;
             public readonly bool LinesSkipped;
 
-            public Marker(FastTokenStream stream, int index, bool linesSkipped)
+            public Marker(FastTokenStream stream, FastToken index, bool linesSkipped)
             {
                 this.stream = stream;
                 this.index = index;
@@ -266,14 +267,14 @@ namespace YantraJS.Core.FastParser
 
             public void Undo()
             {
-                stream.index = index;
+                stream.current = index;
             }
         }
 
         public Marker SkipNewLines()
         {
-            var index = this.index;
-            var c = this[index].Type;
+            var index = this.Current;
+            var c = index.Type;
             bool skipped = false;
             while(c == TokenTypes.LineTerminator)
             {
@@ -287,12 +288,12 @@ namespace YantraJS.Core.FastParser
         public bool CheckAndConsume(TokenTypes type1, TokenTypes type2, out FastToken token1, out FastToken token2)
         {
             var marker = SkipNewLines();
-            var c = this[index];
+            var c = Current;
             if (c.Type == type1)
             {
                 token1 = c;
                 SkipNewLines();
-                c = this[index + 1];
+                c = Next;
                 if(c.Type == type2)
                 {
                     Consume();
@@ -311,31 +312,32 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastToken Consume()
         {
-            index++;
-            return this[index];
+            if (current == scanner.Token)
+            {
+                scanner.ConsumeToken();
+                current = scanner.Token;
+            }
+            else
+            {
+                current = current.Next;
+                current ??= scanner.Token;
+            }
+
+            return current;
         }
 
         public CancellableDisposableAction UndoMark()
         {
-            var i = index;
+            var i = current;
             return new CancellableDisposableAction(() => {
-                index = i;
+                current = i;
             });
         }
 
-        public int Position
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return index;
-            }
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Reset(int position)
+        public bool Reset(FastToken position)
         {
-            index = position;
+            current = position;
             return false;
         }
     }

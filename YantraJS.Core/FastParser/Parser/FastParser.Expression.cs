@@ -9,12 +9,12 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void PreventStackoverFlow(ref int id) {
-            if (id > 0) {
-                if (id == stream.Position)
+        void PreventStackoverFlow(ref FastToken id) {
+            if (id != null) {
+                if (id == stream.Current)
                     throw stream.Unexpected();
             }
-            id = stream.Position;
+            id = stream.Current;
         }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace YantraJS.Core.FastParser
         /// position of token, any nested Expression must consume
         /// the current token.
         /// </summary>
-        private int lastExpressionIndex = 0;
+        private FastToken lastExpressionIndex;
 
         bool Expression(out AstExpression node)
         {

@@ -9,7 +9,7 @@ namespace YantraJS.Core.FastParser
     partial class FastParser
     {
 
-        int lastObjectPropertyIndex = 0;
+        FastToken lastObjectPropertyIndex;
 
         bool ObjectProperty(
             out AstClassProperty property, 

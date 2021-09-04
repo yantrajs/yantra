@@ -163,13 +163,13 @@ namespace YantraJS.Core
                 ? $"function {this.name}() {{ [native] }}"
                 : source;
             prototype = _prototype;
-            prototype[KeyStrings.constructor] = this;
+            prototype.GetOwnProperties(true).Put(KeyStrings.constructor, this);
             ownProperties.Put(KeyStrings.prototype, prototype);
 
-            this[KeyStrings.name] = name.IsEmpty 
+            ownProperties.Put(KeyStrings.name, name.IsEmpty 
                 ? new JSString("native")
-                : new JSString(name);
-            this[KeyStrings.length] = new JSNumber(0);
+                : new JSString(name));
+            ownProperties.Put(KeyStrings.length, JSNumber.Zero);
             constructor = this;
         }
 
