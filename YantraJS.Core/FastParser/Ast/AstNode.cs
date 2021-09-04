@@ -22,13 +22,21 @@ namespace YantraJS.Core.FastParser
         {
             get
             {
-                var start = this.Start.Span.Offset;
-                var end = this.End.Span.Offset;
-                var length = this.End.Span.Length;
+                var startSpan = this.Start.Span;
+                var start = startSpan.Offset;
+
+                if(this.End.Type == TokenTypes.EOF)
+                {
+                    return startSpan;
+                }
+
+                var endSpan = this.End.Span;
+                var end = endSpan.Offset;
+                var length = endSpan.Length;
 
                 var total = end + length - start;
 
-                return new StringSpan(this.Start.Span.Source,
+                return new StringSpan(startSpan.Source,
                     start,
                     total);
             }
