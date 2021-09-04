@@ -656,6 +656,18 @@ namespace YantraJS.Expressions
         }
 
 
+        public static YNativeSwitchExpression NativeSwitch(
+            YLabelTarget @break,
+            YExpression target,
+            YExpression? defaultBody,
+            MethodInfo method,
+            IEnumerable<YSwitchCaseExpression> cases)
+        {
+            return new YNativeSwitchExpression(@break, target, method, defaultBody, cases.ToArray());
+        }
+
+
+
         public static YSwitchCaseExpression SwitchCase(YExpression body, params YExpression[] testValues )
         {
             return new YSwitchCaseExpression(body, testValues);

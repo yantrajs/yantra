@@ -34,6 +34,12 @@ namespace YantraJS.Generator
             return base.VisitLabel(yLabelExpression);
         }
 
+        protected override YExpression VisitNativeSwitch(YNativeSwitchExpression node)
+        {
+            labels.Create(node.Break, tryBlock, false);
+            return base.VisitNativeSwitch(node);
+        }
+
         //protected override YExpression VisitReturn(YReturnExpression yReturnExpression)
         //{
         //    labels.Create(yReturnExpression.Target, tryBlock, false);

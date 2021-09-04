@@ -420,5 +420,16 @@ namespace YantraJS.Expressions
                 return new YJumpSwitchExpression(target, node.Cases);
             return node;
         }
+
+        protected override YExpression VisitNativeSwitch(YNativeSwitchExpression node)
+        {
+            var tOrdModified = Modified(node.Target, node.Default, out var target, out var @default);
+            var casesModified = Modified(node.Cases, VisitSwitchCase, out var cases);
+            if (tOrdModified || casesModified)
+            {
+                return new YNativeSwitchExpression(node.Break, target, node.CompareMethod, @default, cases);
+            }
+            return node;
+        }
     }
 }

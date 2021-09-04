@@ -28,7 +28,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
             public FastList<Exp> Tests;
             public FastList<Exp> Body;
-            public readonly LabelTarget Label = Exp.Label("case-start");
+            // public readonly LabelTarget Label = Exp.Label("case-start");
         }
 
         protected override Expression VisitSwitchStatement(AstSwitchStatement switchStatement) {
@@ -125,7 +125,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         if (body.Count > 0)
                         {
                             cases.Add(lastCase);
-                            body.Insert(0, Exp.Label(lastCase.Label));
+                            // body.Insert(0, Exp.Label(lastCase.Label));
                             lastCase.Body = body;
                             lastCase = new SwitchInfo(scope);
                         }
@@ -133,15 +133,15 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     System.Reflection.MethodInfo equalsMethod = null;
 
-                    SwitchInfo last = null;
+                    // SwitchInfo last = null;
                     foreach (var @case in cases)
                     {
                         // if last one is not break statement... make it fall through...
-                        if (last != null)
-                        {
-                            last.Body.Add(Exp.Goto(@case.Label));
-                        }
-                        last = @case;
+                        //if (last != null)
+                        //{
+                        //    last.Body.Add(Exp.Goto(@case.Label));
+                        //}
+                        // last = @case;
 
                         if (allNumbers)
                         {
@@ -200,22 +200,21 @@ namespace YantraJS.Core.FastParser.Compiler
                     var lastLine = switchStatement.Start.Start.Line;
                     if (defBody != null)
                     {
-                        var defLabel = Exp.Label($"default-start-{lastLine}");
-                        if (last != null)
-                        {
-                            last.Body.Add(Exp.Goto(defLabel));
-                        }
-                        defBody.Insert(0, Exp.Label(defLabel));
+                        //var defLabel = Exp.Label($"default-start-{lastLine}");
+                        //if (last != null)
+                        //{
+                        //    last.Body.Add(Exp.Goto(defLabel));
+                        //}
+                        // defBody.Insert(0, Exp.Label(defLabel));
                         d = Exp.Block(defBody);
                     }
 
-                    var r = Exp.Block(
-                        Exp.Switch(
+                    var r = Exp.NativeSwitch(
+                            @break,
                             testTarget,
                             d.ToJSValue() ?? JSUndefinedBuilder.Value,
                             equalsMethod,
-                            cases.Select(x => Exp.SwitchCase(Exp.Block(x.Body).ToJSValue(), x.Tests)).ToList()),
-                        Exp.Label(@break));
+                            cases.Select(x => Exp.SwitchCase(Exp.Block(x.Body).ToJSValue(), x.Tests)).ToList());
                     return r;
                 }
             } finally

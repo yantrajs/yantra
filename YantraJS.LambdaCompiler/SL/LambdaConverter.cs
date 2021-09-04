@@ -212,6 +212,11 @@ namespace YantraJS.SL
             throw new NotImplementedException();
         }
 
+        protected override Expression VisitNativeSwitch(YNativeSwitchExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitNew(YNewExpression yNewExpression)
         {
             throw new NotImplementedException();
