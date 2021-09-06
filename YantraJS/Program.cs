@@ -15,7 +15,7 @@ namespace Yantra
         public static async Task Main(string[] args)
         {
 
-            // DictionaryCodeCache.Current = new AssemblyCodeCache();
+            DictionaryCodeCache.Current = new AssemblyCodeCache();
 
             if (args.Length == 0)
             {
