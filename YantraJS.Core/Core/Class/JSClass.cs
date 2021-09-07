@@ -60,7 +60,7 @@ namespace YantraJS.Core
             if (@this.IsUndefined)
             {
                 @this = @object;
-                @this.prototypeChain = PrototypeObject;
+                @this.BasePrototypeObject = this.prototype;
             }
             return @this;
         }

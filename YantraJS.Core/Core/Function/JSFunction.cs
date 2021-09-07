@@ -79,7 +79,7 @@ namespace YantraJS.Core
             var r = cf(script, closures, in a1);
             if (r.IsObject)
             {
-                r.prototypeChain = PrototypeObject;
+                r.BasePrototypeObject = prototype;
                 return r;
             }
             return obj;
@@ -259,7 +259,7 @@ namespace YantraJS.Core
             var r = f(a1);
             if (r.IsObject)
             {
-                r.prototypeChain = this.PrototypeObject;
+                r.BasePrototypeObject = this.prototype;
                 return r;
             }
             return obj;
