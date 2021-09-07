@@ -50,14 +50,15 @@ namespace YantraJS.Core.Clr
         }
 
 
-        private Type type;
+        public readonly Type Type;
+
         (ConstructorInfo method, ParameterInfo[] parameters)[] constructorCache;
 
         public override bool ConvertTo(Type type, out object value)
         {
             if(type == typeof(Type))
             {
-                value = this.type;
+                value = this.Type;
                 return true;
             }
             return base.ConvertTo(type, out value);
@@ -390,7 +391,7 @@ namespace YantraJS.Core.Clr
                 new ClrPrototype())
         {
             this.f = Create;
-            this.type = type;
+            this.Type = type;
 
             Generate(this, type, true);
 
@@ -516,7 +517,7 @@ namespace YantraJS.Core.Clr
                 | BindingFlags.Static;
             if (a.Length == 1)
             {
-                method = type.GetMethod(name, flags);
+                method = Type.GetMethod(name, flags);
             } else {
                 types = new Type[a.Length - 1];
                 for (int i = 1; i < a.Length; i++)
@@ -524,10 +525,10 @@ namespace YantraJS.Core.Clr
                     var v = a.GetAt(i);
                     types[i-1] = (Type)v.ForceConvert(typeof(Type));
                 }
-                method = type.GetMethod(name, flags, null, types, null);
+                method = Type.GetMethod(name, flags, null, types, null);
             }
             if (method == null)
-                throw new JSException($"Method {name} not found on {type.Name}");
+                throw new JSException($"Method {name} not found on {Type.Name}");
             return new JSFunction(GenerateMethod(method), name, "native");
         }
 
@@ -566,7 +567,7 @@ namespace YantraJS.Core.Clr
             Type[] types = null;
             if (a.Length == 0)
             {
-                method = type.GetConstructor(new Type[] { });
+                method = Type.GetConstructor(new Type[] { });
             }
             else
             {
@@ -576,10 +577,10 @@ namespace YantraJS.Core.Clr
                     var v = a.GetAt(i);
                     types[i] = (Type)v.ForceConvert(typeof(Type));
                 }
-                method = type.GetConstructor(types);
+                method = Type.GetConstructor(types);
             }
             if (method == null) 
-                throw new JSException($"Constructor({string.Join(",", types.Select(x => x.Name))}) not found on {type.Name}");
+                throw new JSException($"Constructor({string.Join(",", types.Select(x => x.Name))}) not found on {Type.Name}");
             return new JSFunction(GenerateConstructor(method, this.prototype), this);
         }
 
@@ -627,7 +628,7 @@ namespace YantraJS.Core.Clr
                 var v = a.GetAt(i);
                 types[i] = (Type)v.ForceConvert(typeof(Type));
             }
-            return ClrType.From(type.MakeGenericType(types));
+            return ClrType.From(Type.MakeGenericType(types));
         }
 
         
