@@ -57,12 +57,12 @@ namespace YantraJS.Core
             };
             var ao = a.OverrideThis(@object, this);
             var @this = f(ao);
-            if (@this.IsUndefined)
+            if (!@this.IsUndefined)
             {
-                @this = @object;
                 @this.BasePrototypeObject = this.prototype;
+                return @this;
             }
-            return @this;
+            return @object;
         }
 
     }
