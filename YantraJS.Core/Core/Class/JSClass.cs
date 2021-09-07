@@ -58,7 +58,10 @@ namespace YantraJS.Core
             var ao = a.OverrideThis(@object, this);
             var @this = f(ao);
             if (@this.IsUndefined)
+            {
                 @this = @object;
+                @this.prototypeChain = PrototypeObject;
+            }
             return @this;
         }
 

@@ -254,8 +254,11 @@ namespace YantraJS.Core
             };
             var a1 = a.OverrideThis(obj, constructor);
             var r = f(a1);
-            if(r.IsObject)
+            if (r.IsObject)
+            {
+                r.prototypeChain = this.PrototypeObject;
                 return r;
+            }
             return obj;
         }
 
