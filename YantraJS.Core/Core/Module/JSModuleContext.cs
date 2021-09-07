@@ -134,6 +134,12 @@ namespace YantraJS.Core
             this[KeyStrings.global] = this;
         }
 
+        public void RegisterModule(in KeyString name, JSObject exports)
+        {
+            var n = name.ToString();
+            moduleCache.GetOrCreate(name.Value ,() => new JSModule(exports, n));
+        }
+
         /// <summary>
         /// Modules are isolated by Context and are identified by Id.
         /// 
