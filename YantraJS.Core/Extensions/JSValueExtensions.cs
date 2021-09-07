@@ -13,6 +13,16 @@ namespace YantraJS.Core
     public static partial class JSValueExtensions
     {
 
+        public static bool ConvertTo<T>(this JSValue @this, out T value)
+        {
+            if (@this.TryConvertTo(typeof(T), out var v) && v is T tv) {
+                value = tv;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
         /// <summary>
         /// Returns .net string if it is not undefined
         /// </summary>
