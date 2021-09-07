@@ -19,6 +19,16 @@ using YantraJS.Runtime;
 
 namespace YantraJS.Core.Clr
 {
+    public class JSNameAttribute: Attribute
+    {
+        public readonly string Name;
+
+        public JSNameAttribute(string name)
+        {
+            this.Name = name;
+        }
+    }
+
 
     /// <summary>
     /// We might improve statup time by moving reflection code (setting up methods/properties) to proxy.
@@ -103,7 +113,6 @@ namespace YantraJS.Core.Clr
 
             foreach (var property in declaredProperties
                 .GroupBy(x => x.Name)) {
-                var name = property.Key.ToCamelCase();
                 // only indexer property can have more items...
                 var list = property.ToList();
                 if (list.Count > 1)
@@ -114,6 +123,9 @@ namespace YantraJS.Core.Clr
                     var f = property.First();
                     if (f.PropertyType.IsGenericTypeDefinition)
                         continue;
+
+                    KeyString name = f.GetCustomAttribute<JSNameAttribute>()?.Name ?? f.Name.ToCamelCase();
+
                     var fgm = f.GetMethod;
                     var fsm = f.SetMethod;
                     if (fgm?.GetParameters().Length > 0)
