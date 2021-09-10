@@ -4,7 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>YantraJS</RootNamespace>
     <PackageId>YantraJS.ExpressionCompiler</PackageId>
-    <PackageTags>yantra,yantrajs,javascript</PackageTags>
+    <PackageTags>linq,expression,yantra,yantrajs,javascript,c#,standard,core,framework,.net</PackageTags>
+    <Description>Compile Simple IL Expression (YExpression) to MethodBuilder</Description>
     <Version>1.0.1</Version>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>

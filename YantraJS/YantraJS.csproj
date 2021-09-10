@@ -5,11 +5,13 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>YantraJS</AssemblyName>
     <PackageId>YantraJS</PackageId>
-    <PackageTags>yantra,yantrajs,javascript</PackageTags>
+    <PackageTags>yantra,yantrajs,javascript,c#,standard,core,framework,.net</PackageTags>
+    <Description>YantraJS JavaScript Engine with CSX Module Support</Description>
     <Version>1.0.1</Version>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
     <LangVersion>latest</LangVersion>
+    <EmbedAllSources>True</EmbedAllSources>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

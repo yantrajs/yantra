@@ -5,7 +5,8 @@
     <AssemblyName>WebAtoms.YantraJS</AssemblyName>
     <RootNamespace>YantraJS.Core</RootNamespace>
     <PackageId>WebAtoms.YantraJS</PackageId>
-    <PackageTags>yantra,yantrajs,javascript</PackageTags>
+    <PackageTags>yantra,yantrajs,javascript,c#,standard,core,framework,.net</PackageTags>
+    <Description>YantraJS JavaScript Engine for .NET Standard with support for Web Atoms</Description>
     <Version>1.0.1</Version>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <LangVersion>latest</LangVersion>
