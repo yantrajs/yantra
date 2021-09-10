@@ -1,6 +1,15 @@
 ﻿# YantraJS
 Yantra (Machine in Sanskrit) is a JavaScript Engine for .NET Standard
 
+# NuGet
+| Name                                               | Package                                                                                                                                                        |
+|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| YantraJS (With CSX Module Support)                              | [![NuGet](https://img.shields.io/nuget/v/YantraJS.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS)                           |
+| YantraJS.Core (Compiler)| [![NuGet](https://img.shields.io/nuget/v/YantraJS.Core.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.Core) |
+| YantraJS.ExpressionCompiler (IL Compiler)           | [![NuGet](https://img.shields.io/nuget/v/YantraJS.ExpressionCompiler.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.ExpressionCompiler) |
+| WebAtoms.YantraJS                 | [![NuGet](https://img.shields.io/nuget/v/WebAtoms.YantraJS.svg?label=NuGet)](https://www.nuget.org/packages/WebAtoms.YantraJS) |
+
+
 # Multi License
 1. Source code under this repository (except the git sub module for test262) are released under GNU LGPLv3 license. In order to build/distribute anything from this source code should not include test262 unless you obtain and comply license granted by owners of test262 library.
 2. Binaries on NuGet are released under BSD 3-clause.
