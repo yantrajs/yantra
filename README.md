@@ -1,17 +1,31 @@
 ﻿# YantraJS
-JavaScript Engine for .NET Standard
+Yantra (Machine in Sanskrit) is a JavaScript Engine for .NET Standard
+
+# Multi License
+1. Source code under this repository (except the git sub module for test262) are released under GNU LGPLv3 license. In order to build/distribute anything from this source code should not include test262 unless you obtain and comply license granted by owners of test262 library.
+2. Binaries on NuGet are released under BSD 3-clause.
+3. For different license, please contact us at support at neurospeech dot com.
+4. We will change license as this project grows and there is enough contribution from community.
+5. We are looking for sponsors to make this project available under MIT.
+
+# Special Thanks
+1. We are thankful to authors of Jurassic (we have incorporated number parser, promise and some unit tests from Jurassic.) https://github.com/paulbartrum/jurassic
+2. We are thankful for esprima, we initially built prototype over EsprimaDotNet, but due to licensing and our implementation had deferred little, we chose to build our parser/scanner from scratch.
 
 # Features
-1. Strict Mode JavaScript
-2. Module support
-3. Null coalesc
-4. Rest Parameters
-5. Generators
-6. Async/Await
-7. Optional parameters
-8. Many ES5 + ES6 features
-9. CommonJS Module Support
-10. CSX Module support
+1. Compiles JavaScript to .Net Assembly 
+2. Strict Mode Only JavaScript*
+3. Module support
+4. Null coalesce
+5. Rest Parameters
+6. Generators
+7. Async/Await
+8. Optional parameters
+9. Many ES5 + ES6 features
+10. CommonJS Module Support
+11. CSX Module support
+
+* Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 
 # CSX Module Support
 
@@ -81,7 +95,7 @@ public class JSUrl {
 
 Clr type exported to JavaScript will first find if method with a single parameter with `Arguments` struct with `in` modifier is present. If it has, it will call this method directly without any translation.
 
-Otherwise, YantrJS will try to find best possible match after calling `ConvertTo` on each of arguments, this may be slow if there are many methods with same name.
+Otherwise, YantraJS will try to find best possible match after calling `ConvertTo` on each of arguments, this may be slow if there are many methods with same name.
 
 Ideally, a single method and single constructor would be the best candidate to write CSX module.
 
@@ -106,7 +120,7 @@ This decision was taken based on following observation
 1. Every method call will require reference type in order to support JavaScript's advanced types.
 2. Generating code based on primitive type will anyway create a reference as every value will be sent in as `object`.
 3. So having JSNumber value holding a value as double is of exactly same cost as using double and passing it on as object.
-4. Supporting privimite type will also make code generation very complex as too much of condition checks will make further enhancement difficult.
+4. Supporting primitive type will also make code generation very complex as too much of condition checks will make further enhancement difficult.
 
 # Roadmap
 1. Add V8 Debugging protocol
@@ -139,7 +153,7 @@ We can import CSX modules, which can be compiled natively to give higher perform
  Based on above example, it seems every `is` operator is expensive as it makes first call to check if it is assignable from the given type. 
  It is not a simple call, it is series of calls to check if current type is same or current type is derived from assignable type.
 
- 2. Virtual properies are useful. As casting also requires a `call` instruction.
+ 2. Virtual properties are useful. As casting also requires a `call` instruction.
  3. Struct initializations can be improved by using `ref Put()` instead of Assignment or Set with `in` operator
  https://sharplab.io/#v2:C4LghgzgtgPgAgJgIwFgBQcDMACR2DC2A3utmbjnACzYCyAFAJTGnlsBuYATtmNgLzYAdgFMA7tgCCTANys25MADoAyiOD1REgFIqAClwD2ABxFdgAT3pIANAkaM5aBeXnYAvm7dZcNWgiYWZxdsTh4+QS0pWTc2ZQBxdUDI8WxdAxMzS3oqGwBWRzdPYLJvSgQpIJCfSRUAHnSjU3MLAD5eJxDsWPIAbTgkJQAlAFchYABLKBElfEMoYwmAGzM1LnYJgGMRCCVadQALQwATAEkFpfoB4bHJ6dn5xZWuNY3t3f3gI7OLgHljSaGIS7SQAc1BXB2EAm7BEpyESwmQiRoMYAF0ehRsJCAGZpfRNLIWbCJDTMEglLpwADs2JEeOUtE6LmKXX6g1G4ymMzmC2WqzMbx2e0OJ3Oxku105dx5j35L0FW2Fn2+4qW/0BwKUYIhUJhcIRSJR6MxWOo2DUGiR+IyzUsoTASxGInJpsUewEDqdImZLKKXkpPggwC4I02wCk9QAKu0KVScFG6L6PAG2D5sMHQ+GbYSWlUXD4kRGAGqO53JtM4IsW4BgYAjCAVvpS27ch5856vJUfUU/CVXDmt+68p4C9bdkVfMV/AETIEg8GQiDQ2HwxHIoSojGUys5zItejV9g2bDViCuncuUvez3sJsuFS1+sQT2N02s8jFdxAA==
 
