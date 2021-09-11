@@ -101,6 +101,47 @@ public class JSUrl {
 }
 ```
 
+# Usage
+
+## Synchronous JavaScript
+
+```c#
+var context = new JSContext();
+
+// create global function
+context["add"] = new JSFunction((in Arguments a) => {
+    return new JSNumber(
+         (a[0]?.IntValue ?? 0) + (a[1]?.IntValue ?? 0)
+    );
+});
+
+var result = context.FastEval("add(4,5)", "script.js");
+```
+
+## Asynchronous JavaScript
+
+There are two ways to execute asynchronous javascript code. First one is to use `FastEval` and convert it to Task and await on it.
+
+```c#
+var context = new JSContext();
+
+var r = context.FastEval("some async code", "script.js");
+
+var result = await (r is JSPromise promise).Task;
+```
+
+Second method is to call `Eval` which will create it's own SynchronizationContext and wait for the result.
+
+
+```c#
+var context = new JSContext();
+
+var result = context.Eval("some async code", "script.js");
+```
+## Marshal
+
+To convert any clr object to JSValue, you can use `ClrProxy.Marshal()` method, which will wrap object in `JSValue` wrapper and you will be able to call C# methods inside JavaScript with camel case.
+
 ### Argument conversion
 
 Clr type exported to JavaScript will first find if method with a single parameter with `Arguments` struct with `in` modifier is present. If it has, it will call this method directly without any translation.
@@ -159,13 +200,13 @@ We can import CSX modules, which can be compiled natively to give higher perform
  ## Performance Points
 
  1. Do not use Switch pattern matching for types, 
- https://sharplab.io/#v2:EYLgtghgzgLgpgJwDQxNMSAmIDUAfAAQCYBGAWACgCBmAAmNoGFaBvS2j29zm+gFloBZABQBKWgF4AfEJLCAdgFcANstEBubhy306BAYLkAlAPYmYtCOLYVOd2lADuASxgBjABbCrrHfc5u0HC0AIK0APokIH7+9owm8lAmynAAdADqCK5wwpGpAGYaMbGcwAhwEADWmrYlAUG0AEIRRNG1dXEJSSkZWfC5RAVF7R2l5VU1JQC+xUxdyWmZ2d6pAGLDdjMjOrz6QkTCpuaWojYlAG4QCLTAkrTCIaIQk7HxiQu9y8BDLxxbdrsDNRDmYLFYzq95j0lv0IGsNpwtltKLwIMBYAgIG4LAwjhYbDs6GiMViLM55BZVqxaABzOAwdS0JGUFFEUIgWh43ztXjkiz5O4kGqE2gmc6ILKYYJ82hU6S0fI1ZFUNmNDlciG6WgygUSWhEX5cEa8MUS5xS7UU2WSGSKyhTIA==
+ [Switch Pattern on SharpLab](https://sharplab.io/#v2:EYLgtghgzgLgpgJwDQxNMSAmIDUAfAAQCYBGAWACgCBmAAmNoGFaBvS2j29zm+gFloBZABQBKWgF4AfEJLCAdgFcANstEBubhy306BAYLkAlAPYmYtCOLYVOd2lADuASxgBjABbCrrHfc5u0HC0AIK0APokIH7+9owm8lAmynAAdADqCK5wwpGpAGYaMbGcwAhwEADWmrYlAUG0AEIRRNG1dXEJSSkZWfC5RAVF7R2l5VU1JQC+xUxdyWmZ2d6pAGLDdjMjOrz6QkTCpuaWojYlAG4QCLTAkrTCIaIQk7HxiQu9y8BDLxxbdrsDNRDmYLFYzq95j0lv0IGsNpwtltKLwIMBYAgIG4LAwjhYbDs6GiMViLM55BZVqxaABzOAwdS0JGUFFEUIgWh43ztXjkiz5O4kGqE2gmc6ILKYYJ82hU6S0fI1ZFUNmNDlciG6WgygUSWhEX5cEa8MUS5xS7UU2WSGSKyhTIA==)
  Based on above example, it seems every `is` operator is expensive as it makes first call to check if it is assignable from the given type. 
  It is not a simple call, it is series of calls to check if current type is same or current type is derived from assignable type.
 
  2. Virtual properties are useful. As casting also requires a `call` instruction.
  3. Struct initializations can be improved by using `ref Put()` instead of Assignment or Set with `in` operator
- https://sharplab.io/#v2:C4LghgzgtgPgAgJgIwFgBQcDMACR2DC2A3utmbjnACzYCyAFAJTGnlsBuYATtmNgLzYAdgFMA7tgCCTANys25MADoAyiOD1REgFIqAClwD2ABxFdgAT3pIANAkaM5aBeXnYAvm7dZcNWgiYWZxdsTh4+QS0pWTc2ZQBxdUDI8WxdAxMzS3oqGwBWRzdPYLJvSgQpIJCfSRUAHnSjU3MLAD5eJxDsWPIAbTgkJQAlAFchYABLKBElfEMoYwmAGzM1LnYJgGMRCCVadQALQwATAEkFpfoB4bHJ6dn5xZWuNY3t3f3gI7OLgHljSaGIS7SQAc1BXB2EAm7BEpyESwmQiRoMYAF0ehRsJCAGZpfRNLIWbCJDTMEglLpwADs2JEeOUtE6LmKXX6g1G4ymMzmC2WqzMbx2e0OJ3Oxku105dx5j35L0FW2Fn2+4qW/0BwKUYIhUJhcIRSJR6MxWOo2DUGiR+IyzUsoTASxGInJpsUewEDqdImZLKKXkpPggwC4I02wCk9QAKu0KVScFG6L6PAG2D5sMHQ+GbYSWlUXD4kRGAGqO53JtM4IsW4BgYAjCAVvpS27ch5856vJUfUU/CVXDmt+68p4C9bdkVfMV/AETIEg8GQiDQ2HwxHIoSojGUys5zItejV9g2bDViCuncuUvez3sJsuFS1+sQT2N02s8jFdxAA==
+ [Struct Ref on SharpLab](https://sharplab.io/#v2:C4LghgzgtgPgAgJgIwFgBQcDMACR2DC2A3utmbjnACzYCyAFAJTGnlsBuYATtmNgLzYAdgFMA7tgCCTANys25MADoAyiOD1REgFIqAClwD2ABxFdgAT3pIANAkaM5aBeXnYAvm7dZcNWgiYWZxdsTh4+QS0pWTc2ZQBxdUDI8WxdAxMzS3oqGwBWRzdPYLJvSgQpIJCfSRUAHnSjU3MLAD5eJxDsWPIAbTgkJQAlAFchYABLKBElfEMoYwmAGzM1LnYJgGMRCCVadQALQwATAEkFpfoB4bHJ6dn5xZWuNY3t3f3gI7OLgHljSaGIS7SQAc1BXB2EAm7BEpyESwmQiRoMYAF0ehRsJCAGZpfRNLIWbCJDTMEglLpwADs2JEeOUtE6LmKXX6g1G4ymMzmC2WqzMbx2e0OJ3Oxku105dx5j35L0FW2Fn2+4qW/0BwKUYIhUJhcIRSJR6MxWOo2DUGiR+IyzUsoTASxGInJpsUewEDqdImZLKKXkpPggwC4I02wCk9QAKu0KVScFG6L6PAG2D5sMHQ+GbYSWlUXD4kRGAGqO53JtM4IsW4BgYAjCAVvpS27ch5856vJUfUU/CVXDmt+68p4C9bdkVfMV/AETIEg8GQiDQ2HwxHIoSojGUys5zItejV9g2bDViCuncuUvez3sJsuFS1+sQT2N02s8jFdxAA==)
 
 
 ## Unit Testing
