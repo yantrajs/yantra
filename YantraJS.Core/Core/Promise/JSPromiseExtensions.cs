@@ -10,11 +10,11 @@ namespace YantraJS.Core
     {
 
         private static MethodInfo __convert =
-            typeof(JSPromise).GetMethod(nameof(Convert),
+            typeof(JSPromiseExtensions).GetMethod(nameof(Convert),
                 BindingFlags.Public | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
 
         private static MethodInfo __toTask =
-            typeof(JSPromise).GetMethod(nameof(ToTask),
+            typeof(JSPromiseExtensions).GetMethod(nameof(ToTask),
                 BindingFlags.Public | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
 
         public static JSPromise ToPromise(this Task task)
