@@ -22,7 +22,7 @@ namespace YantraJS.Core
             var type = task.GetType();
             if (type.IsConstructedGenericType)
             {
-                var factory = __convert.MakeGenericMethod(type.GetGenericArguments());
+                var factory = __convert.MakeGenericMethod(type.GenericTypeArguments[0]);
                 return new JSPromise(factory.Invoke(null, new object[] { task }) as Task<JSValue>);
             }
             return new JSPromise(ConvertToUndefined(task));
