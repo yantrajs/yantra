@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
 using YantraJS.Core.Clr;
@@ -10,11 +11,11 @@ namespace YantraJS.Core
 
         private static MethodInfo __convert =
             typeof(JSPromise).GetMethod(nameof(Convert),
-                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
+                BindingFlags.Public | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
 
         private static MethodInfo __toTask =
             typeof(JSPromise).GetMethod(nameof(ToTask),
-                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
+                BindingFlags.Public | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
 
         public static JSPromise ToPromise(this Task task)
         {
@@ -33,7 +34,8 @@ namespace YantraJS.Core
         }
 
 
-        internal static async Task<JSValue> ConvertToUndefined(Task task)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static async Task<JSValue> ConvertToUndefined(Task task)
         {
             await task;
             return JSUndefined.Value;
@@ -47,7 +49,8 @@ namespace YantraJS.Core
             return ClrProxy.Marshal(result);
         }
 
-        internal static object ToTaskInternal(this JSPromise promise, Type taskResultType)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static object ToTaskInternal(this JSPromise promise, Type taskResultType)
         {
             return __toTask.MakeGenericMethod(taskResultType.GetGenericArguments()).Invoke(null, new object[] { promise });
         }
