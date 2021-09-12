@@ -11,7 +11,7 @@ Yantra (Machine in Sanskrit) is a JavaScript Engine for .NET Standard
 
 
 # Multi License
-1. Source code under this repository (except the git sub module for test262) are released under GNU LGPLv3 license. In order to build/distribute anything from this source code should not include test262 unless you obtain and comply license granted by owners of test262 library.
+1. Source code under this repository (except the git sub module for test262) is released under GNU LGPLv3 license. In order to build/distribute anything from this source code test262 should be omitted unless you obtain and comply license granted by owners of test262 library.
 2. Binaries on NuGet are released under BSD 3-clause.
 3. For different license, please contact us at support at neurospeech dot com.
 4. We will change license as this project grows and there is enough contribution from community.
