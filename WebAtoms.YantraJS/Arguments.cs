@@ -133,6 +133,58 @@ namespace YantraJS.Core
 
         }
 
+        public Arguments(IJSValue thisArg, IList<IJSValue> args)
+        {
+            NewTarget = null;
+            This = thisArg.ToJSValue();
+            Length = args.Count;
+            switch (Length)
+            {
+                case 0:
+                    Arg0 = null;
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 1:
+                    Arg0 = args[0].ToJSValue();
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 2:
+                    Arg0 = args[0].ToJSValue();
+                    Arg1 = args[1].ToJSValue();
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 3:
+                    Arg0 = args[0].ToJSValue();
+                    Arg1 = args[1].ToJSValue();
+                    Arg2 = args[2].ToJSValue();
+                    Arg3 = null;
+                    Args = null;
+                    break;
+                case 4:
+                    Arg0 = args[0].ToJSValue();
+                    Arg1 = args[1].ToJSValue();
+                    Arg2 = args[2].ToJSValue();
+                    Arg3 = args[3].ToJSValue();
+                    Args = null;
+                    break;
+                default:
+                    Arg0 = null;
+                    Arg1 = null;
+                    Arg2 = null;
+                    Arg3 = null;
+                    Args = args.Select(x => x.ToJSValue()).ToArray();
+                    break;
+            }
+
+        }
 
     }
 }
