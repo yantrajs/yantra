@@ -77,29 +77,27 @@ namespace YantraJS.Core
 
 
         // private readonly KeyType Type;
-        public readonly StringSpan Value;
+        // public readonly StringSpan Value;
         public readonly uint Key;
 
         public bool HasValue
         {
             get
             {
-                return !Value.IsEmpty;
+                return Key != 0;
             }
         }
 
         internal KeyString(in StringSpan value, uint key)
         {
-            this.Value = value;
+            // this.Value = value;
             this.Key = key;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is KeyString k)
-                return Key == k.Key && Value.Equals(k.Value);
-            if (obj is string sv)
-                return Value.Equals(sv);
+                return Key == k.Key;
             return false;
         }
 
@@ -110,13 +108,15 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return Value.Value;
+            return KeyStrings.GetNameString(Key).Value;
         }
 
         public JSValue ToJSValue()
         {
-            return new JSString(Value, this);
+            return new JSString(KeyStrings.GetNameString(Key), this);
         }
+
+        public StringSpan Value => KeyStrings.GetNameString(Key);
 
         // public static (int size, int total, int next) Total =>
             // KeyStrings.Total;
