@@ -124,6 +124,27 @@ namespace Lokad.ILPack
 
             CreateCustomAttributes(assemblyHandle, assembly.GetCustomAttributesData());
 
+            // add resources...
+            //foreach(var rn in assembly.GetManifestResourceNames())
+            //{
+            //    var info = assembly.GetManifestResourceInfo(rn);
+            //    if (info.ResourceLocation != ResourceLocation.Embedded)
+            //        continue;
+
+            //    var s = assembly.GetManifestResourceStream(rn);
+            //    var length = s.Length;
+            //    var data = new byte[length];
+            //    s.Read(data, 0, data.Length);
+
+            //    var dh =_metadata.GetOrAddBlob(data);
+
+            //    var af = _metadata.Builder.AddAssemblyFile(_metadata.GetOrAddString(info.FileName), dh , false);
+
+            //    _metadata.Builder.AddManifestResource(
+            //        ManifestResourceAttributes.Public,
+            //        _metadata.GetOrAddString(info.FileName), af, 0);                
+            //}
+
             MethodDefinitionHandle entryPoint = default;
             if (_metadata.SourceAssembly.EntryPoint != null &&
                 _metadata.TryGetMethodDefinition(_metadata.SourceAssembly.EntryPoint, out var entryPointMetadata))
