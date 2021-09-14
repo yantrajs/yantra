@@ -202,6 +202,11 @@ namespace YantraJS.SL
             throw new NotImplementedException();
         }
 
+        protected override Expression VisitListInit(YListInitExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitLoop(YLoopExpression yLoopExpression)
         {
             throw new NotImplementedException();

@@ -15,7 +15,7 @@ namespace YantraJS.Tests.Core
 
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
-            this.context["array"] = new JSArray().Add(new JSNumber(1));
+            this.context["array"] = new JSArray( new JSNumber(1) );
             this.context.Eval(@"
 //let date = new Date(1970, 1, 1, 0, 0, 0);
 // Sun Feb 01 1970 00:00:00 GMT+0530 (India Standard Time)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.ExpHelper;
+using YantraJS.Expressions;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;
@@ -14,24 +15,39 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override Expression VisitArrayExpression(AstArrayExpression arrayExpression)
         {
             var e = arrayExpression.Elements.GetEnumerator();
-            var _new = JSArrayBuilder.New();
-            while(e.MoveNext(out var item))
+            var list = pool.AllocateList<YElementInit>();
+            try
             {
-                if(item == null)
+                while (e.MoveNext(out var item))
                 {
-                    // list.Add(Expression.Null);
-                    _new = JSArrayBuilder.Add(_new, Expression.Null);
-                    continue;
+                    if (item == null)
+                    {
+                        list.Add(YExpression.ElementInit(JSArrayBuilder._Add, new Exp[] { Expression.Null }));
+                        // _new = JSArrayBuilder.Add(_new, Expression.Null);
+                        continue;
+                    }
+                    if (item.Type == FastNodeType.SpreadElement)
+                    {
+                        var i = (item as AstSpreadElement).Argument;
+                        list.Add(YExpression.ElementInit(JSArrayBuilder._AddRange, new Exp[] { Visit(i) }));
+                        //_new = JSArrayBuilder.AddRange(_new, Visit(i));
+                        continue;
+                    }
+                    // _new = JSArrayBuilder.Add(_new, Visit(item));
+                    list.Add(YExpression.ElementInit(JSArrayBuilder._Add, new Exp[] { Visit(item) }));
                 }
-                if(item.Type == FastNodeType.SpreadElement)
+
+                if (list.Count > 0)
                 {
-                    var i = (item as AstSpreadElement).Argument;
-                    _new = JSArrayBuilder.AddRange(_new, Visit(i));
-                    continue;
+
+                    return Expression.ListInit(Expression.New(JSArrayBuilder._New), list.Release());
                 }
-                _new = JSArrayBuilder.Add(_new, Visit(item));
+
+                return Expression.New(JSArrayBuilder._New);
+            } finally
+            {
+                list.Dispose();
             }
-            return _new;
         }
     }
 }

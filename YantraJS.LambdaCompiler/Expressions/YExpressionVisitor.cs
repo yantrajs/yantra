@@ -90,11 +90,14 @@ namespace YantraJS.Expressions
                     return VisitUnbox(exp as YUnboxExpression);
                 case YExpressionType.JumpSwitch:
                     return VisitJumpSwitch(exp as YJumpSwitchExpression);
+                case YExpressionType.ListInit:
+                    return VisitListInit(exp as YListInitExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitListInit(YListInitExpression node);
         protected abstract T VisitJumpSwitch(YJumpSwitchExpression node);
         protected abstract T VisitUnbox(YUnboxExpression node);
         protected abstract T VisitBox(YBoxExpression node);

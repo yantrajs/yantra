@@ -420,5 +420,25 @@ namespace YantraJS.Expressions
                 return new YJumpSwitchExpression(target, node.Cases);
             return node;
         }
+
+        protected override YExpression VisitListInit(YListInitExpression node)
+        {
+            var nm = Modified(node.NewExpression, out var newExp);
+            var mm = Modified(node.Members, VisitElementInit, out var members);
+            if(nm || mm)
+            {
+                return new YListInitExpression(newExp, members);
+            }
+            return node;
+        }
+
+        protected virtual YElementInit VisitElementInit(YElementInit e)
+        {
+            if(Modified(e.Arguments, out var args))
+            {
+                return new YElementInit(e.AddMethod, args);
+            }
+            return e;
+        }
     }
 }

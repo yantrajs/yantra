@@ -12,6 +12,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
 
 namespace YantraJS.ExpHelper
 {
@@ -19,16 +20,16 @@ namespace YantraJS.ExpHelper
     {
         private static Type type = typeof(JSArray);
 
-        private static ConstructorInfo _New =
+        public static ConstructorInfo _New =
             type.GetConstructor(new Type[] { });
 
         private static ConstructorInfo _NewFromElementEnumerator =
             type.GetConstructor(new Type[] { typeof(IElementEnumerator) });
 
-        private static MethodInfo _Add =
+        public static MethodInfo _Add =
             type.GetMethod(nameof(Core.JSArray.Add), new Type[] { typeof(JSValue) });
 
-        private static MethodInfo _AddRange =
+        public static MethodInfo _AddRange =
             type.GetMethod(nameof(Core.JSArray.AddRange), new Type[] { typeof(JSValue) });
 
 
@@ -51,12 +52,18 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(IEnumerable<Expression> list)
         {
-            Expression start = Expression.New(_New);
-            foreach (var p in list)
+            List<YElementInit> ei = new List<YElementInit>(list.Count());
+            foreach (var e in list)
             {
-                start = Expression.Call(start, _Add, p);
+                ei.Add(Expression.ElementInit(_Add, new YExpression[] { e }));
             }
-            return start;
+            return Expression.ListInit(Expression.New(_New), ei.ToArray());
+            //Expression start = Expression.New(_New);
+            //foreach (var p in list)
+            //{
+            //    start = Expression.Call(start, _Add, p);
+            //}
+            //return start;
         }
 
         public static Expression NewFromElementEnumerator(Expression en)

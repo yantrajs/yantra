@@ -417,6 +417,12 @@ namespace YantraJS.Expressions
             return new YNewArrayBoundsExpression(type, size);
         }
 
+        public static YListInitExpression ListInit(YNewExpression newExp, YElementInit[] elements)
+            => new YListInitExpression(newExp, elements);
+
+        public static YElementInit ElementInit(MethodInfo addMethod, YExpression[] arguments)
+            => new YElementInit(addMethod, arguments);
+
         public static YLabelTarget Label(Type type, string? name = null)
         {
             return new YLabelTarget(name, type ?? typeof(void));

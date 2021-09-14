@@ -123,7 +123,7 @@ namespace YantraJS.Core
         }
 
 
-        public JSArray Add(JSValue item)
+        public void Add(JSValue item)
         {
             if (item == null)
             {
@@ -134,7 +134,7 @@ namespace YantraJS.Core
                 ref var elements = ref CreateElements();
                 elements.Put(this._length++, item);
             }
-            return this;
+            // return this;
         }
 
         //internal override bool TryRemove(uint i, out JSProperty p)
@@ -240,7 +240,7 @@ namespace YantraJS.Core
             }
         }
 
-        public JSValue AddRange(JSValue iterator)
+        public void AddRange(JSValue iterator)
         {
             ref var et = ref CreateElements();
             // var et = this.elements;
@@ -254,7 +254,7 @@ namespace YantraJS.Core
                     et.Put(el++, ary[i]);
                 }
                 this._length = el;
-                return this;
+                return;
             }
 
             var en = iterator.GetElementEnumerator();
@@ -269,8 +269,13 @@ namespace YantraJS.Core
                 }
             }
             this._length = el;
-            return this;
+            // return this;
         }
+
+        //IEnumerator IEnumerable.GetEnumerator()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 
 
