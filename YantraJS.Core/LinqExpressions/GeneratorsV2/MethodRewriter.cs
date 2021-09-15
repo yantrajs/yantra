@@ -79,6 +79,77 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             return base.VisitNew(node);
         }
 
+        protected override Exp VisitMemberInit(YMemberInitExpression node)
+        {
+            if (!node.HasYield())
+                return base.VisitMemberInit(node);
+
+            var bb = new YBlockBuilder();
+            var newExpression = node.Target;
+            if (newExpression.HasYield())
+            {
+                newExpression = newExpression.Update(newExpression.constructor, bb.ConvertToVariables(newExpression.args, this));
+            }
+
+            var args = new List<YBinding>();
+
+            foreach(var member in node.Bindings)
+            {
+                switch (member.BindingType)
+                {
+                    case BindingType.ElementInit:
+                        var ei = member as YElementInit;
+                        ei = new YElementInit(ei.AddMethod, bb.ConvertToVariables(ei.Arguments, this));
+                        args.Add(ei);
+                        break;
+                    case BindingType.MemberAssignment:
+                        var ma = member as YMemberAssignment;
+                        ma = new YMemberAssignment(ma.Member, bb.ConvertToVariable(Visit(ma.Value)));
+                        args.Add(ma);
+                        break;
+                    case BindingType.MemberListInit:
+                        var ml = member as YMemberElementInit;
+                        var el = new List<YElementInit>();
+                        foreach(var item in ml.Elements)
+                        {
+                            el.Add(new YElementInit(item.AddMethod, bb.ConvertToVariables( item.Arguments, this) ));
+                        }
+                        ml = new YMemberElementInit(ml.Member, el.ToArray());
+                        args.Add(ml);
+                        break;
+                }
+            }
+
+            bb.AddExpression(new YMemberInitExpression(newExpression, args.ToArray()));
+            return bb.Build();
+        }
+
+        protected override Exp VisitListInit(YListInitExpression node)
+        {
+            if (node.HasYield())
+            {
+                var bb = new YBlockBuilder();
+                var newExpression = node.NewExpression;
+                if (newExpression.HasYield())
+                {
+                    // do something here...
+                    newExpression = newExpression.Update(newExpression.constructor, bb.ConvertToVariables(newExpression.args, this));
+                }
+
+                // scope of improvement
+
+                var args = new List<YElementInit>();
+                foreach(var member in node.Members)
+                {
+                    args.Add(new YElementInit(member.AddMethod, bb.ConvertToVariables(member.Arguments, this)));
+                }
+
+                bb.AddExpression(new YListInitExpression(newExpression, args.ToArray()));
+                return bb.Build();
+            }
+            return node;
+        }
+
         protected override Exp VisitUnary(YUnaryExpression yUnaryExpression)
         {
             var target = yUnaryExpression.Target;

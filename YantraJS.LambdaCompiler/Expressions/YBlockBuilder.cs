@@ -46,6 +46,17 @@ namespace YantraJS.Expressions
             return pe;
         }
 
+        public YExpression[] ConvertToVariables(YExpression[] inputs, YExpressionMapVisitor visitor)
+        {
+            var newInputs = new List<YExpression>(inputs.Length);
+            foreach (var input in inputs)
+            {
+                newInputs.Add(ConvertToVariable(visitor.Visit(input)));
+            }
+            return newInputs.ToArray();
+        }
+
+
         public YExpression ConvertToVariable(YExpression init)
         {
             if (init.NodeType == YExpressionType.Parameter)
