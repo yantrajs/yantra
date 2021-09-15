@@ -5,9 +5,9 @@ namespace YantraJS.Expressions
     public class YMemberInitExpression: YExpression
     {
         public readonly YNewExpression Target;
-        public readonly YMemberAssignment[] Bindings;
+        public readonly YBinding[] Bindings;
 
-        public YMemberInitExpression(YNewExpression exp, YMemberAssignment[] list)
+        public YMemberInitExpression(YNewExpression exp, YBinding[] list)
             : base(YExpressionType.MemberInit, exp.Type)
         {
             this.Target = exp;
@@ -23,7 +23,7 @@ namespace YantraJS.Expressions
             {
                 writer.Write(b.Member.Name);
                 writer.Write(" = ");
-                b.Value.Print(writer);
+                // b.Value.Print(writer);
                 writer.WriteLine(",");
             }
             writer.Indent--;

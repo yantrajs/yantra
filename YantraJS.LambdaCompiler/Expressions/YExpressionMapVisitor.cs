@@ -246,11 +246,35 @@ namespace YantraJS.Expressions
         protected override YExpression VisitMemberInit(YMemberInitExpression memberInitExpression)
         {
             var ne = Modified(memberInitExpression.Target, out var target);
-            var be = Modified(memberInitExpression.Bindings, VisitMemberAssignment, out var bindings);
+            var be = Modified(memberInitExpression.Bindings, VisitMemberBinding, out var bindings);
             if (ne || be)
                 return new YMemberInitExpression(target, bindings);
             return memberInitExpression;
         }
+
+        protected virtual YBinding VisitMemberBinding(YBinding b)
+        {
+            switch (b.BindingType)
+            {
+                case BindingType.MemberAssignment:
+                    return VisitMemberAssignment(b as YMemberAssignment);
+                case BindingType.MemberListInit:
+                    return VisitMemberListBinding(b as YMemberElementInit);
+                case BindingType.ElementInit:
+                    return VisitElementInit(b as YElementInit);
+            }
+            throw new NotImplementedException();
+        }
+
+        protected virtual YMemberElementInit VisitMemberListBinding(YMemberElementInit a)
+        {
+            if(Modified(a.Elements, VisitElementInit, out var ea))
+            {
+                return new YMemberElementInit(a.Member, ea);
+            }
+            return a;
+        }
+
 
         protected virtual  YMemberAssignment VisitMemberAssignment(YMemberAssignment a)
         {

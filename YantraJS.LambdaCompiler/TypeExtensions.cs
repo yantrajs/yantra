@@ -47,7 +47,7 @@ namespace YantraJS
             }
             if (type.IsByRef)
             {
-                return type.Assembly.GetType(type.FullName.TrimEnd('&'));
+                return type.GetElementType();
             }
             return type;
         }

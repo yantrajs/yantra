@@ -39,7 +39,6 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 if (list.Count > 0)
                 {
-
                     return Expression.ListInit(Expression.New(JSArrayBuilder._New), list.Release());
                 }
 

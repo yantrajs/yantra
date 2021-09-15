@@ -13,6 +13,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
 
 namespace YantraJS.ExpHelper
 {
@@ -25,6 +26,14 @@ namespace YantraJS.ExpHelper
                 typeof(ScriptInfo),
                 typeof(JSVariable[]),
                 typeof(JSClosureFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
+
+        public static MethodInfo _AddConstructor =
+            type.PublicMethod(nameof(JSClass.AddConstructor), typeof(JSFunction));
+
+        public static YElementInit AddConstructor(YExpression exp)
+        {
+            return YExpression.ElementInit(_AddConstructor, exp);
+        }
 
         //private static MethodInfo _AddPrototypeProperty =
         //    type.PublicMethod(nameof(JSClass.AddPrototypeProperty), KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction));
@@ -40,19 +49,19 @@ namespace YantraJS.ExpHelper
         //private static MethodInfo _AddStaticMethod =
         //            type.PublicMethod(nameof(JSClass.AddStaticMethod), KeyStringsBuilder.RefType, typeof(JSValue));
 
-        public static Expression AddValue(Expression target, Expression  name, Expression value, bool isStatic)
-        {
-            return JSObjectBuilder.AddValue(isStatic 
-                ? target
-                : JSFunctionBuilder.Prototype(target), name, value, JSPropertyAttributes.ConfigurableValue);
-        }
+        //public static Expression AddValue(Expression target, Expression  name, Expression value, bool isStatic)
+        //{
+        //    return JSObjectBuilder.AddValue(isStatic 
+        //        ? target
+        //        : JSFunctionBuilder.Prototype(target), name, value, JSPropertyAttributes.ConfigurableValue);
+        //}
 
-        public static Expression AddProperty(Expression target, Expression name, Expression getter, Expression setter, bool isStatic)
-        {
-            return JSObjectBuilder.AddProperty( isStatic 
-                ? target 
-                : JSFunctionBuilder.Prototype(target), name, getter ?? Expression.Null, setter ?? Expression.Null, JSPropertyAttributes.ConfigurableProperty);
-        }
+        //public static Expression AddProperty(Expression target, Expression name, Expression getter, Expression setter, bool isStatic)
+        //{
+        //    return JSObjectBuilder.AddProperty( isStatic 
+        //        ? target 
+        //        : JSFunctionBuilder.Prototype(target), name, getter ?? Expression.Null, setter ?? Expression.Null, JSPropertyAttributes.ConfigurableProperty);
+        //}
 
         //public static Expression AddValue(
         //    Expression target,
@@ -115,7 +124,7 @@ namespace YantraJS.ExpHelper
         //}
 
 
-        public static Expression New(
+        public static YNewExpression New(
             Expression scriptInfo,
             Expression closures,
             Expression constructor,

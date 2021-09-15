@@ -25,6 +25,12 @@ namespace YantraJS.Core
             this.prototype.BasePrototypeObject = super.prototype;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void AddConstructor(JSFunction fx)
+        {
+            this.f = fx.f;
+        }
+
         private static JSClosureFunctionDelegate GetFactory(JSClosureFunctionDelegate fx, JSFunction super)
         {
             if (fx != null)

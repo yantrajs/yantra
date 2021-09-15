@@ -237,11 +237,11 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), block, in scriptFunctionName, new ParameterExpression[] {
                         cs.ScriptInfo, cs.Closures, cs.Arguments });
-                        if (createClass)
-                        {
-                            jsf = JSClassBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), super, className ?? "Unnamed");
-                        }
-                        else
+                        //if (createClass)
+                        //{
+                        //    jsf = JSClassBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), super, className ?? "Unnamed");
+                        //}
+                        //else
                         {
                             jsf = JSClosureFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code, functionDeclaration.Params.Count);
                         }

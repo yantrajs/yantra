@@ -13,6 +13,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -23,7 +24,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var callee = template.Tag;
 
             var args = pool.AllocateList<Expression>(template.Arguments.Length);
-            var parts = pool.AllocateList<Expression>(template.Arguments.Length);
+            var parts = pool.AllocateList<YElementInit>(template.Arguments.Length);
             var raw = pool.AllocateList<Expression>(template.Arguments.Length);
             try
             {
@@ -46,7 +47,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                 r = r.Substring(0, r.Length - 2);
                             }
                             raw.Add(JSStringBuilder.New(Expression.Constant(r)));
-                            parts.Add(JSStringBuilder.New(Expression.Constant(l.StringValue)));
+                            parts.Add(new YElementInit( JSArrayBuilder._Add, JSStringBuilder.New(Expression.Constant(l.StringValue))));
                             continue;
                         }
                     }
@@ -55,9 +56,12 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 // replace first node...
                 var rawArray = JSArrayBuilder.New(raw);
-                var partsArray = JSArrayBuilder.New(parts);
 
-                args[0] = JSObjectBuilder.AddValue(partsArray, KeyOfName("raw"), rawArray);
+                parts.Add(new YElementInit(JSObjectBuilder._FastAddValueKeyString, KeyOfName("raw"), rawArray, JSPropertyAttributesBuilder.EnumerableConfigurableValue));
+
+                var partsArray = JSArrayBuilder.New(parts.Release());
+
+                args[0] = partsArray;
 
                 // var a = JSTemplateArrayBuilder.New(parts, raw, expressions);
                 // return a;

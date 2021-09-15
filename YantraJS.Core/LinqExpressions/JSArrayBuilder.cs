@@ -49,6 +49,11 @@ namespace YantraJS.ExpHelper
             return Expression.Call(target, _AddRange, p);
         }
 
+        public static Expression New(YElementInit[] inits)
+        {
+            return Expression.ListInit(Expression.New(_New), inits);
+        }
+
 
         public static Expression New(IEnumerable<Expression> list)
         {

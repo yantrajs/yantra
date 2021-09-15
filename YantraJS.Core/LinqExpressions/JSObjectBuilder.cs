@@ -34,10 +34,29 @@ namespace YantraJS.ExpHelper
         //        .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance)
         //        .FirstOrDefault(x => x.GetIndexParameters().Length > 0);
 
+        readonly static MethodInfo _FastAddSetterUInt =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.FastAddSetter), typeof(JSObject), typeof(uint), typeof(JSFunction), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _FastAddGetterUInt =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.FastAddGetter), typeof(JSObject), typeof(uint), typeof(JSFunction), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _FastAddSetterKeyString =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.FastAddSetter), typeof(JSObject), typeof(KeyString), typeof(JSFunction), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _FastAddGetterKeyString =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.FastAddGetter), typeof(JSObject), typeof(KeyString), typeof(JSFunction), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _FastAddSetterValue =
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.FastAddSetter), typeof(JSObject), typeof(JSValue), typeof(JSFunction), typeof(JSPropertyAttributes));
+
+        readonly static MethodInfo _FastAddGetterValue=
+            typeExtensions.PublicMethod(nameof(JSObjectExtensions.FastAddGetter), typeof(JSObject), typeof(JSValue), typeof(JSFunction), typeof(JSPropertyAttributes));
+
+
         readonly static MethodInfo _FastAddValueUInt =
             type.PublicMethod(nameof(JSObject.FastAddValue), typeof(uint), typeof(JSValue), typeof(JSPropertyAttributes));
 
-        readonly static MethodInfo _FastAddValueKeyString =
+        public readonly static MethodInfo _FastAddValueKeyString =
             type.PublicMethod(nameof(JSObject.FastAddValue), typeof(KeyString), typeof(JSValue), typeof(JSPropertyAttributes));
 
         readonly static MethodInfo _FastAddValueKeySymbol =
@@ -58,7 +77,7 @@ namespace YantraJS.ExpHelper
         readonly static MethodInfo _FastAddPropertyValue =
             type.PublicMethod(nameof(JSObject.FastAddProperty), typeof(JSValue), typeof(JSFunction), typeof(JSFunction), typeof(JSPropertyAttributes));
 
-        readonly static MethodInfo _FastAddRange =
+        public readonly static MethodInfo _FastAddRange =
             type.PublicMethod(nameof(JSObject.FastAddRange), typeof(JSValue));
 
 
@@ -103,47 +122,87 @@ namespace YantraJS.ExpHelper
         //    type.PublicMethod(nameof(JSObject.AddProperty), new Type[] { KeyStringsBuilder.RefType, typeof(JSFunction), typeof(JSFunction) });
 
 
-        public static Expression AddValue(
-            Expression target, 
+        public static YElementInit AddValue(
             Expression key, 
             Expression value,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
             if(key.Type == typeof(JSValue))
             {
-                return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));
+                return new YElementInit(_FastAddValueKeyValue, key, value, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));
             }
             if(key.Type== typeof(uint))
             {
-                return Expression.Call(null, _AddValueUInt, target, key, value, Expression.Constant(attributes));
+                return new YElementInit(_FastAddValueUInt, key, value, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValueUInt, target, key, value, Expression.Constant(attributes));
             }
             if (key.Type == typeof(int))
             {
-                return Expression.Call(null, _AddValueUInt, target, Expression.Convert(key, typeof(uint)), value, Expression.Constant(attributes));
+                return new YElementInit(_FastAddValueUInt, Expression.Convert(key, typeof(uint)), value, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValueUInt, target, Expression.Convert(key, typeof(uint)), value, Expression.Constant(attributes));
             }
-            return Expression.Call(null, _AddValueString, target, key, value, Expression.Constant(attributes));
+            return new YElementInit(_FastAddValueKeyString, key, value, Expression.Constant(attributes));
+            // return Expression.Call(null, _AddValueString, target, key, value, Expression.Constant(attributes));
         }
 
-        public static Expression AddProperty(
-            Expression target, 
+        public static YElementInit AddSetter(
+            // Expression target, 
             Expression key, 
-            Expression getter, 
             Expression setter, 
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
             if (key.Type == typeof(JSValue))
             {
-                return Expression.Call(null, _AddProperty, target, key, getter, setter, Expression.Constant(attributes));
+                return new YElementInit(_FastAddSetterValue, key, setter, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));
             }
             if (key.Type == typeof(uint))
             {
-                return Expression.Call(null, _AddPropertyUInt, target, key, getter, setter, Expression.Constant(attributes));
+                return new YElementInit(_FastAddSetterUInt, key, setter, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValueUInt, target, key, value, Expression.Constant(attributes));
             }
             if (key.Type == typeof(int))
             {
-                return Expression.Call(null, _AddPropertyUInt, target, Expression.Convert(key, typeof(uint)), getter, setter, Expression.Constant(attributes));
+                return new YElementInit(_FastAddSetterUInt, Expression.Convert(key, typeof(uint)), setter, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValueUInt, target, Expression.Convert(key, typeof(uint)), value, Expression.Constant(attributes));
             }
-            return Expression.Call(null, _AddPropertyString, target, key, getter, setter, Expression.Constant(attributes));
+            return new YElementInit(_FastAddSetterKeyString, key, setter, Expression.Constant(attributes));
+        }
+
+        public static YElementInit AddGetter(
+            // Expression target, 
+            Expression key,
+            Expression getter,
+            JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        {
+            if (key.Type == typeof(JSValue))
+            {
+                return new YElementInit(_FastAddGetterValue, key, getter, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));
+            }
+            if (key.Type == typeof(uint))
+            {
+                return new YElementInit(_FastAddGetterUInt, key, getter, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValueUInt, target, key, value, Expression.Constant(attributes));
+            }
+            if (key.Type == typeof(int))
+            {
+                return new YElementInit(_FastAddGetterUInt, Expression.Convert(key, typeof(uint)), getter, Expression.Constant(attributes));
+                // return Expression.Call(null, _AddValueUInt, target, Expression.Convert(key, typeof(uint)), value, Expression.Constant(attributes));
+            }
+            return new YElementInit(_FastAddGetterKeyString, key, getter, Expression.Constant(attributes));
+        }
+
+        public static Expression New()
+        {
+            return Expression.New(_New);
+        }
+
+
+        public static Expression New(YElementInit[] elements)
+        {
+            return YExpression.ListInit(Expression.New(_New), elements);
         }
 
 

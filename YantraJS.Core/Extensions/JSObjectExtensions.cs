@@ -9,6 +9,106 @@ namespace YantraJS
 
     public static class JSObjectExtensions
     {
+
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddSetter(JSObject target, KeyString key, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            ref var pr = ref target.GetOwnProperties();
+            ref var existing = ref pr.Put(key.Key);
+            var getter = existing.get;
+            existing = new JSProperty(key, getter, setter, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddGetter(JSObject target, KeyString key, JSFunction getter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            ref var pr = ref target.GetOwnProperties();
+            ref var existing = ref pr.Put(key.Key);
+            var setter = existing.set;
+            existing = new JSProperty(key, getter, setter, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddSetter(JSObject target, JSSymbol key, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            ref var pr = ref target.GetSymbols();
+            ref var existing = ref pr.Put(key.Key);
+            var getter = existing.get;
+            existing = new JSProperty(key.Key, getter, setter, existing.value, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddGetter(JSObject target, JSSymbol key, JSFunction getter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            ref var pr = ref target.GetSymbols();
+            ref var existing = ref pr.Put(key.Key);
+            var setter = existing.set;
+            existing = new JSProperty(key.Key, getter, setter, existing.value, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddSetter(JSObject target, uint key, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            ref var pr = ref target.GetElements(true);
+            ref var existing = ref pr.Put(key);
+            if (target is JSArray a)
+                a._length = a._length > key ? a._length : key + 1;
+            var getter = existing.get;
+            existing = new JSProperty(key, getter, setter, existing.value, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddGetter(JSObject target, uint key, JSFunction getter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            ref var pr = ref target.GetElements(true);
+            ref var existing = ref pr.Put(key);
+            if (target is JSArray a)
+                a._length = a._length > key ? a._length : key + 1;
+            var setter = existing.set;
+            existing = new JSProperty(key, getter, setter, existing.value, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddSetter(JSObject target, JSValue key, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            var k = key.ToKey();
+            switch (k.Type)
+            {
+                case KeyType.String:
+                    FastAddSetter(target, k.KeyString, setter, attributes);
+                    return;
+                case KeyType.UInt:
+                    FastAddSetter(target, k.Index, setter, attributes);
+                    return;
+                case KeyType.Symbol:
+                    FastAddSetter(target, k.Symbol, setter, attributes);
+                    return;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void FastAddGetter(JSObject target, JSValue key, JSFunction getter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
+        {
+            var k = key.ToKey();
+            switch (k.Type)
+            {
+                case KeyType.String:
+                    FastAddGetter(target, k.KeyString, getter, attributes);
+                    return;
+                case KeyType.UInt:
+                    FastAddGetter(target, k.Index, getter, attributes);
+                    return;
+                case KeyType.Symbol:
+                    FastAddGetter(target, k.Symbol, getter, attributes);
+                    return;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static JSObject AddProperty(this JSObject target, in KeyString key, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {

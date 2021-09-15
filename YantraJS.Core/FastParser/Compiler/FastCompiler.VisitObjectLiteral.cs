@@ -14,6 +14,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -21,121 +22,124 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Expression VisitObjectLiteral(AstObjectLiteral objectExpression)
         {
-            var keys = new List<ExpressionHolder>(objectExpression.Properties.Count);
-            var properties = new Dictionary<string, ExpressionHolder>(objectExpression.Properties.Count);
-            foreach (AstNode pn in objectExpression.Properties)
+            // var keys = new List<ExpressionHolder>(objectExpression.Properties.Count);
+            // var properties = new Dictionary<string, ExpressionHolder>(objectExpression.Properties.Count);
+
+            var elements = pool.AllocateList<YElementInit>();
+
+            try
             {
 
-                switch (pn.Type)
+                foreach (AstNode pn in objectExpression.Properties)
                 {
-                    case FastNodeType.SpreadElement:
-                        var spread = pn as AstSpreadElement;
-                        keys.Add(new ExpressionHolder { 
-                            Spread = true,
-                            Value = Visit(spread.Argument)
-                        });
+
+                    switch (pn.Type)
+                    {
+                        case FastNodeType.SpreadElement:
+                            var spread = pn as AstSpreadElement;
+                            elements.Add(new YElementInit( JSObjectBuilder._FastAddRange, Visit(spread.Argument)));
+                            continue;
+                        case FastNodeType.ClassProperty:
+                            break;
+                        default:
+                            throw new FastParseException(pn.Start, $"Invalid token {pn.Start} in object literal");
+                    }
+
+                    AstClassProperty p = pn as AstClassProperty;
+
+                    Exp key = null;
+                    Exp value = null;
+                    string name = null;
+                    var pKey = p.Key;
+
+                    value = VisitExpression(p.Init);
+
+
+                    if (p.Computed)
+                    {
+                        if (p.Kind == AstPropertyKind.Get)
+                        {
+                            elements.Add(JSObjectBuilder.AddGetter(Visit(p.Key), value));
+                            continue;
+                        }
+                        if (p.Kind == AstPropertyKind.Set)
+                        {
+                            elements.Add(JSObjectBuilder.AddSetter(Visit(p.Key), value));
+                            continue;
+                        }
+                        elements.Add(JSObjectBuilder.AddValue(Visit(p.Key), value));
+
+                        //keys.Add(new ExpressionHolder
+                        //{
+                        //    Key = VisitExpression(p.Key),
+                        //    Value = value
+                        //});
+
                         continue;
-                    case FastNodeType.ClassProperty:
-                        break;
-                    default:
-                        throw new FastParseException(pn.Start, $"Invalid token {pn.Start} in object literal");
-                }
+                    }
 
-                AstClassProperty p = pn as AstClassProperty;
-
-                Exp key = null;
-                Exp value = null;
-                string name = null;
-                var pKey = p.Key;
-
-                value = VisitExpression(p.Init);
-
-
-                if (p.Computed)
-                {
-
-                    keys.Add(new ExpressionHolder { 
-                        Key = VisitExpression(p.Key),
-                        Value = value
-                    });
-
-                    continue;
-                }
-
-                switch (pKey.Type)
-                {
-                    case FastNodeType.Identifier: 
-                        var id = pKey as AstIdentifier;
-                        if (!p.Computed)
-                        {
-                            key = KeyOfName(id.Name);
-                            name = id.Name.Value;
-                        }
-                        else
-                        {
-                            key = this.scope.Top.GetVariable(id.Name).Expression;
-                            name = id.Name.Value;
-                        }
-                        break;
-                    case FastNodeType.Literal:
-                        var l = pKey as AstLiteral;
-                        if (l.TokenType == TokenTypes.String)
-                        {
-                            if (NumberParser.TryCoerceToUInt32(l.StringValue, out var ui))
+                    switch (pKey.Type)
+                    {
+                        case FastNodeType.Identifier:
+                            var id = pKey as AstIdentifier;
+                            if (!p.Computed)
                             {
-                                key = Exp.Constant(ui);
-
+                                key = KeyOfName(id.Name);
+                                name = id.Name.Value;
                             }
                             else
                             {
-                                key = KeyOfName(l.StringValue);
-                                name = l.StringValue;
+                                key = this.scope.Top.GetVariable(id.Name).Expression;
+                                name = id.Name.Value;
                             }
-                        }
-                        else if (l.TokenType == TokenTypes.Number)
-                        {
-                            key = Exp.Constant((uint)l.NumericValue);
-                        }
-                        else
-                            throw new NotSupportedException();
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-                if (p.Kind == AstPropertyKind.Get || p.Kind == AstPropertyKind.Set)
-                {
-                    if (!properties.TryGetValue(name, out var m))
-                    {
-                        m = new ExpressionHolder
-                        {
-                            Key = key,
-                            Getter = Exp.Constant(null, typeof(JSFunction)),
-                            Setter = Exp.Constant(null, typeof(JSFunction))
-                        };
-                        properties[name] = m;
-                        keys.Add(m);
-                    }
-                    if (p.Kind == AstPropertyKind.Get)
-                    {
-                        m.Getter = value;
-                    }
-                    else
-                    {
-                        m.Setter = value;
-                    }
-                    continue;
-                }
-                else
-                {
-                    keys.Add(new ExpressionHolder
-                    {
-                        Key = key,
-                        Value = value
-                    });
-                }
-            }
+                            break;
+                        case FastNodeType.Literal:
+                            var l = pKey as AstLiteral;
+                            if (l.TokenType == TokenTypes.String)
+                            {
+                                if (NumberParser.TryCoerceToUInt32(l.StringValue, out var ui))
+                                {
+                                    key = Exp.Constant(ui);
 
-            return ExpHelper.JSObjectBuilder.New(keys);
+                                }
+                                else
+                                {
+                                    key = KeyOfName(l.StringValue);
+                                    name = l.StringValue;
+                                }
+                            }
+                            else if (l.TokenType == TokenTypes.Number)
+                            {
+                                key = Exp.Constant((uint)l.NumericValue);
+                            }
+                            else
+                                throw new NotSupportedException();
+                            break;
+                        default:
+                            throw new NotSupportedException();
+                    }
+
+                    switch (p.Kind)
+                    {
+                        case AstPropertyKind.Get:
+                            elements.Add(JSObjectBuilder.AddGetter(key, value));
+                            break;
+                        case AstPropertyKind.Set:
+                            elements.Add(JSObjectBuilder.AddSetter(key, value));
+                            break;
+                        default:
+                            elements.Add(JSObjectBuilder.AddValue(key, value));
+                            break;
+                    }
+                }
+
+                if(elements.Any())
+                    return ExpHelper.JSObjectBuilder.New(elements.Release());
+                return JSObjectBuilder.New();
+            } finally
+            {
+                elements.Dispose();
+            }
         }
     }
 }

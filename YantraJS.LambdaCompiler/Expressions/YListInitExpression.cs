@@ -6,17 +6,7 @@ using System.Text;
 
 namespace YantraJS.Expressions
 {
-    public class YElementInit
-    {
-        public readonly MethodInfo AddMethod;
-        public readonly YExpression[] Arguments;
 
-        public YElementInit(MethodInfo addMethod, YExpression[] arguments)
-        {
-            this.AddMethod = addMethod;
-            this.Arguments = arguments;
-        }
-    }
 
     public class YListInitExpression : YExpression
     {

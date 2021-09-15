@@ -245,7 +245,7 @@ namespace YantraJS.Expressions
 
         public static YMemberInitExpression MemberInit(
             YNewExpression exp,
-            params YMemberAssignment[] list)
+            params YBinding[] list)
         {
             return new YMemberInitExpression(exp, list);
         }
@@ -417,7 +417,12 @@ namespace YantraJS.Expressions
             return new YNewArrayBoundsExpression(type, size);
         }
 
-        public static YListInitExpression ListInit(YNewExpression newExp, YElementInit[] elements)
+        public static YMemberElementInit ListBind(MemberInfo member, YElementInit[] elements)
+        {
+            return new YMemberElementInit(member, elements);
+        }
+
+        public static YExpression ListInit(YNewExpression newExp, YElementInit[] elements)
             => new YListInitExpression(newExp, elements);
 
         public static YElementInit ElementInit(MethodInfo addMethod, params YExpression[] arguments)
