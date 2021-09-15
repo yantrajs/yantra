@@ -211,11 +211,110 @@ namespace YantraJS.Core
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public JSObject AddElement(uint index, JSValue value)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddValue(uint index, JSValue value, JSPropertyAttributes attributes)
         {
-            elements.Put(index, value);
-            return this;
+            elements.Put(index, value, attributes);
         }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddProperty(uint index, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
+        {
+            elements.Put(index) = new JSProperty(index, getter, setter, getter, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddValue(KeyString key, JSValue value, JSPropertyAttributes attributes)
+        {
+            ref var pr = ref GetOwnProperties(true);
+            pr.Put(key.Key) = new JSProperty(key.Key, value, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddProperty(KeyString key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
+        {
+            ref var pr = ref GetOwnProperties(true);
+            pr.Put(key.Key) = new JSProperty(key,getter, setter, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddValue(JSSymbol key, JSValue value, JSPropertyAttributes attributes)
+        {
+            ref var pr = ref GetSymbols();
+            pr.Put(key.Key) = new JSProperty(key.Key, value, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddProperty(JSSymbol key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
+        {
+            ref var pr = ref GetSymbols();
+            pr.Put(key.Key) = new JSProperty(key.Key, getter, setter, getter, attributes);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddValue(JSValue key, JSValue value, JSPropertyAttributes attributes)
+        {
+            var k = key.ToKey(true);
+            switch(k.Type)
+            {
+                case KeyType.String:
+                    FastAddValue(k.KeyString, value, attributes);
+                    return;
+                case KeyType.UInt:
+                    FastAddValue(k.Index, value, attributes);
+                    return;
+                default:
+                    FastAddValue(k.Symbol, value, attributes);
+                    return;
+            }
+        }
+
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastAddProperty(JSValue key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
+        {
+            var k = key.ToKey(true);
+            switch (k.Type)
+            {
+                case KeyType.String:
+                    FastAddProperty(k.KeyString, getter, setter, attributes);
+                    return;
+                case KeyType.UInt:
+                    FastAddProperty(k.Index, getter,setter, attributes);
+                    return;
+                default:
+                    FastAddProperty(k.Symbol, getter, setter, attributes);
+                    return;
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void FastAddRange(JSValue value)
+        {
+            if (!(value is JSObject target))
+                return;
+            var pe = new PropertyEnumerator(target, true, false);
+            while (pe.MoveNext(out var key, out var val))
+            {
+                this[key] = val;
+            }
+            var en = new ElementEnumerator(target);
+            while (en.MoveNext(out var hasValue, out var val, out var index))
+            {
+                if (hasValue)
+                {
+                    this[index] = val;
+                }
+            }
+        }
+
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSObject Merge(JSValue value)

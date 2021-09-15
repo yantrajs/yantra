@@ -420,7 +420,7 @@ namespace YantraJS.Expressions
         public static YListInitExpression ListInit(YNewExpression newExp, YElementInit[] elements)
             => new YListInitExpression(newExp, elements);
 
-        public static YElementInit ElementInit(MethodInfo addMethod, YExpression[] arguments)
+        public static YElementInit ElementInit(MethodInfo addMethod, params YExpression[] arguments)
             => new YElementInit(addMethod, arguments);
 
         public static YLabelTarget Label(Type type, string? name = null)
