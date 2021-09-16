@@ -45,7 +45,7 @@ namespace YantraJS.Core.Runtime
         public static JSSymbol unscopables = new JSSymbol("Symbol.unscopables");
 
         private static ConcurrentStringMap<JSSymbol> globals
-            = new ConcurrentStringMap<JSSymbol>();
+            = ConcurrentStringMap<JSSymbol>.Create();
 
         public static JSSymbol GlobalSymbol(string name)
         {

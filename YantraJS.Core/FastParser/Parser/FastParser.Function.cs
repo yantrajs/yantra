@@ -12,14 +12,14 @@ namespace YantraJS.Core.FastParser
         bool Function(out AstStatement statement, bool isAsync = false)
         {
             statement = default;
-            if (!FunctionExpression(out var expression, isAsync))
+            if (!FunctionExpression(out var expression, isAsync, isStatement: true))
                 return false;
             statement = new AstExpressionStatement(expression);
             return true;
         }
 
 
-        bool FunctionExpression(out AstExpression node, bool isAsync = false)
+        bool FunctionExpression(out AstExpression node, bool isAsync = false, bool isStatement = false)
         {
             var begin = stream.Current;
             node = default;
@@ -31,7 +31,7 @@ namespace YantraJS.Core.FastParser
             }
 
             if(Identitifer(out var id)) {
-                this.variableScope.Top.AddVariable(id.Start, id.Name, FastVariableKind.Let);
+                this.variableScope.Top.AddVariable(id.Start, id.Name, isStatement ? FastVariableKind.Let : FastVariableKind.Var);
             }
 
             stream.Expect(TokenTypes.BracketStart);
