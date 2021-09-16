@@ -74,6 +74,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 }
                 args.Add(e);
             }
+            if (vars.Count == 0)
+            {
+                return Expression.New(node.constructor, args);
+            }
             list.Add(Expression.New(node.constructor, args));
             // return base.VisitNew(node);
             return Expression.Block(vars, list);
