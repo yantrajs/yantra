@@ -582,14 +582,21 @@ namespace YantraJS.Core
             PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
         }
 
+        private bool toStringCalled = false;
         public override string ToString()
         {
             var px = GetMethod(KeyStrings.toString);
             if (px != null)
             {
+                if (toStringCalled)
+                {
+                    return "Stack overflow";
+                }
+                toStringCalled = true;
                 var v = px(new Arguments(this));
                 if (v != this)
                 {
+                    toStringCalled = false;
                     return v.ToString();
                 }
             }

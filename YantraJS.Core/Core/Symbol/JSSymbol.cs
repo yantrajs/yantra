@@ -13,9 +13,11 @@ namespace YantraJS.Core
 
         private static int SymbolID = 1;
         private readonly string name;
-        internal readonly uint Key;
+        public readonly uint Key;
 
         public override bool BooleanValue => true;
+
+        public override bool IsSymbol => true;
 
         public override double DoubleValue => throw JSContext.Current.NewTypeError("Cannot convert a Symbol value to a number.");
 

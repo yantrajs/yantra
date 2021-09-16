@@ -71,7 +71,7 @@ namespace YantraJS.Core
             }
         }
 
-        public string DebugView => this.ToDetailString();
+        public string DebugView => "JSValue";
 
         public IJSValue CreateNewInstance(params IJSValue[] args)
         {

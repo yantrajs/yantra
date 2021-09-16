@@ -124,7 +124,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         name = VisitMemberExpression(me.Property as AstMemberExpression);
                         break;
                     default:
-                        throw new NotImplementedException($"{me.Property}");
+                        name = Visit(me.Property);
+                        break;
                 }
 
                 // var id = me.Property.As<Esprima.Ast.Identifier>();

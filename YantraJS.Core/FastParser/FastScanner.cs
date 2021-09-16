@@ -153,6 +153,17 @@ namespace YantraJS.Core.FastParser
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool CanConsumeNext(char ch)
+        {
+            if (ch == Next())
+            {
+                Consume();
+                return true;
+            }
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanConsume(char ch1, char ch2) {
             var ch = Peek();
             if (ch == ch1 || ch == ch2) {
@@ -535,7 +546,7 @@ namespace YantraJS.Core.FastParser
                 case '\n':
                     return true;
                 case 'u':
-                    if(CanConsume('{'))
+                    if(CanConsumeNext('{'))
                     {
                         t.Append(ScanUnicodeCodePointEscape());
                         return true;
@@ -571,35 +582,7 @@ namespace YantraJS.Core.FastParser
             t.Append(next);
             return true;
 
-            string ScanUnicodeCodePointEscape()
-            {
-                var ch = Consume();
-                int code = 0;
-
-                // At least, one hex digit is required.
-                if (ch == '}')
-                {
-                    throw Unexpected();
-                }
-
-                while (ch != char.MaxValue)
-                {
-                    if (!ch.IsDigitPart(true,false))
-                    {
-                        break;
-                    }
-                    code = code * 16 + ch.HexValue();
-                    ch = Consume();
-                }
-
-                if (code > 0x10FFFF || ch != '}')
-                {
-                    throw Unexpected();
-                }
-
-                return code.FromCodePoint();
-            }
-
+            
             bool ScanHexEscape(char prefix, out char result)
             {
                 var len = (prefix == 'u') ? 4 : 2;
@@ -630,6 +613,49 @@ namespace YantraJS.Core.FastParser
                 result = (char)code;
                 return true;
             }
+        }
+
+        private string ScanUnicodeCodePointEscape()
+        {
+            var ch = Consume();
+            // int code = 0;
+
+            // At least, one hex digit is required.
+            if (ch == '}')
+            {
+                throw Unexpected();
+            }
+
+            Span<char> text = stackalloc char[10];
+            int i = 0;
+            text.Fill('0');
+            text[0] = '\\';
+            text[1] = 'U';
+            while (ch != char.MaxValue)
+            {
+                if (!ch.IsDigitPart(true, false))
+                {
+                    break;
+                }
+                // code = code * 16 + ch.HexValue();
+
+                for (int j = i; j > 0; j--)
+                {
+                    text[9-j] = text[10-j];
+                }
+
+                text[9] = ch;
+                ch = Consume();
+                i++;
+            }
+
+
+            if (ch != '}')
+            {
+                throw Unexpected();
+            }
+
+            return new string(text.ToArray());
         }
 
         private FastToken ReadTemplateString(State state, TokenTypes part = TokenTypes.TemplateBegin)
@@ -811,6 +837,19 @@ namespace YantraJS.Core.FastParser
                                 {
                                     t.Append('\\');
                                     t.Append('/');
+                                    break;
+                                }
+                                if(first == 'u')
+                                {
+                                    first = Consume();
+                                    if(CanConsume('{'))
+                                    {
+                                        t.Append(ScanUnicodeCodePointEscape());
+                                        break;
+                                    }
+                                    t.Append('\\');
+                                    t.Append('u');
+                                    t.Append(first);
                                     break;
                                 }
                                 if (CanConsume('\n'))

@@ -58,7 +58,7 @@ namespace YantraJS.Core
                     key = KeyStrings.GetOrCreate(this.Name);
                 }
                 var old = JSContext.Current[key];
-                if (old != value)
+                if (old != value && !value.IsUndefined)
                 {
                     JSContext.Current[key] = value;
                 }

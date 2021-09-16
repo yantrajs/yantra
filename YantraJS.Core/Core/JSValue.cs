@@ -40,6 +40,8 @@ namespace YantraJS.Core {
 
         public virtual bool IsObject => false;
 
+        public virtual bool IsSymbol => false;
+
         public virtual bool IsArray => false;
 
         public virtual bool IsString => false;

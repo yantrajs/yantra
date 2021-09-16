@@ -300,6 +300,10 @@ namespace YantraJS.Core
                         options |= RegexOptions.Multiline;
                         multiline = true;
                     }
+                    else if (flag == 'u')
+                    {
+                        // don't know what to do....
+                    }
                     else
                     {
                         throw JSContext.Current.NewSyntaxError($"Unknown flag {flag}");
