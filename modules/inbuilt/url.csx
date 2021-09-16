@@ -1,4 +1,4 @@
-#r "nuget: YantraJS.Core,1.0.18"
+#r "nuget: YantraJS.Core,1.1.106"
 using System;
 using System.Linq;
 using YantraJS.Core;
