@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test262Runner", "Test262Run
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.YantraJS", "WebAtoms.YantraJS\WebAtoms.YantraJS.csproj", "{7D928FB3-6E58-4418-A3D0-16865B58D6CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YantraJS.NodePollyfill", "YantraJS.NodePollyfill\YantraJS.NodePollyfill.csproj", "{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{7D928FB3-6E58-4418-A3D0-16865B58D6CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D928FB3-6E58-4418-A3D0-16865B58D6CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D928FB3-6E58-4418-A3D0-16865B58D6CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
