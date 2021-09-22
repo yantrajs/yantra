@@ -76,7 +76,7 @@ namespace YantraJS.Core.Generator
             var top = c.Top;
             try
             {
-                c.Top = cg.StackItem;
+                // c.Top = cg.StackItem;
                 cg.Next(replaceOld, out item, out this.done);
                 this.value = item;
                 if (!this.done) {
@@ -108,7 +108,7 @@ namespace YantraJS.Core.Generator
             var top = c.Top;
             try
             {
-                c.Top = cg.StackItem;
+                // c.Top = cg.StackItem;
                 cg.Next(replaceOld, out this.value, out this.done);
                 //if(this.done == true && this.value == null)
                 //{
