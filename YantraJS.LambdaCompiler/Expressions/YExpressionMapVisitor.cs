@@ -170,6 +170,15 @@ namespace YantraJS.Expressions
             return yCoalesceExpression;
         }
 
+        protected override YExpression VisitCoalesceCall(YCoalesceCallExpression node)
+        {
+            var tm = Modified(node.Target, out var target);
+            var am = Modified(node.Arguments, out var args);
+            if (tm || am)
+                return new YCoalesceCallExpression(target, node.BooleanMember, node.Method, args);
+            return node;
+        }
+
         protected override YExpression VisitConstant(YConstantExpression yConstantExpression)
         {
             return yConstantExpression;

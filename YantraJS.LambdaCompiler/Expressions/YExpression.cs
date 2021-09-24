@@ -136,6 +136,33 @@ namespace YantraJS.Expressions
             return new YCoalesceExpression(left, right);
         }
 
+        /// <summary>
+        /// This works in following fashion...
+        /// 
+        /// var returnValue = if(!target.Member) ? target : target.Call(method, arguments);
+        /// 
+        /// Here target is not read again, it is only read once and it's value is duplicated.
+        /// 
+        /// It is equivalent to 
+        /// 
+        /// var targetValue  = target?.Call(method, arguments);
+        /// 
+        /// if member is null. For JavaScript, we can introduce null and undefined check using a field or property check
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="member"></param>
+        /// <param name="method"></param>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
+        public static YCoalesceCallExpression CoalesceCall(
+            YExpression target, 
+            MemberInfo member,
+            MethodInfo method,
+            params YExpression[] arguments)
+        {
+            return new YCoalesceCallExpression(target, member, method, arguments);
+        }
+
         public static YDebugInfoExpression DebugInfo(in Position start, in Position end)
         {
             return new YDebugInfoExpression(start, end);

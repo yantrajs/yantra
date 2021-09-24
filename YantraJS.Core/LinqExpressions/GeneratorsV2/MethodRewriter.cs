@@ -179,6 +179,19 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             return base.VisitConditional(yConditionalExpression);
         }
 
+        protected override Exp VisitCoalesceCall(YCoalesceCallExpression node)
+        {
+            if (node.HasYield())
+            {
+                var bb = new YBlockBuilder();
+                var target = bb.ConvertToVariable(Visit(node.Target));
+                var args = bb.ConvertToVariables(node.Arguments, this);
+                bb.AddExpression(YExpression.CoalesceCall(target, node.BooleanMember, node.Method, args));
+                return bb.Build();
+            }
+            return base.VisitCoalesceCall(node);
+        }
+
         protected override Exp VisitField(YFieldExpression yFieldExpression)
         {
             if (yFieldExpression.Target == null)

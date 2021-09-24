@@ -44,6 +44,7 @@ namespace YantraJS.Expressions
         Box,
         Unbox,
         JumpSwitch,
-        ListInit
+        ListInit,
+        CoalesceCall
     }
 }

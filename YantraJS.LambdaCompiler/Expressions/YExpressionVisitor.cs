@@ -92,11 +92,14 @@ namespace YantraJS.Expressions
                     return VisitJumpSwitch(exp as YJumpSwitchExpression);
                 case YExpressionType.ListInit:
                     return VisitListInit(exp as YListInitExpression);
+                case YExpressionType.CoalesceCall:
+                    return VisitCoalesceCall(exp as YCoalesceCallExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitCoalesceCall(YCoalesceCallExpression node);
         protected abstract T VisitListInit(YListInitExpression node);
         protected abstract T VisitJumpSwitch(YJumpSwitchExpression node);
         protected abstract T VisitUnbox(YUnboxExpression node);
