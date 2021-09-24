@@ -14,7 +14,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
-
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -24,31 +24,67 @@ namespace YantraJS.Core.FastParser.Compiler
         {
 
             var @operator = binaryExpression.Operator;
-            Expression left;
-            Expression right;
+
+            if (@operator > TokenTypes.BeginAssignTokens && @operator < TokenTypes.EndAssignTokens)
+                return VisitAssignmentExpression(
+                    binaryExpression.Left, @operator, binaryExpression.Right);
+
+
+            Expression left = ToNativeExpression(binaryExpression.Left);
+            Expression right = ToNativeExpression(binaryExpression.Right);
+
+
+            switch (@operator)
+            {
+                case TokenTypes.Plus:
+                    if(left.Type == typeof(double))
+                    {
+                        return JSValueBuilder.AddDouble(right, left);
+                    }
+                    if(right.Type == typeof(double))
+                    {
+                        return JSValueBuilder.AddDouble(left, right);
+                    }
+
+                    break;
+            }
+
+            // both literal should be fixed at parsing 
 
             if (@operator == TokenTypes.Plus)
             {
-                left = Visit(binaryExpression.Left);
-                var r = binaryExpression.Right;
                 if(r.Type == FastNodeType.Literal && r is AstLiteral literal)
                 {
-                    if(literal.TokenType == TokenTypes.Number) {
+                    if (literal.TokenType == TokenTypes.Number) {
+                        left = Visit(binaryExpression.Left);
                         return JSValueBuilder.AddDouble(left, Expression.Constant(literal.NumericValue));
                     }
                     if (literal.TokenType == TokenTypes.String)
                     {
+                        left = Visit(binaryExpression.Left);
                         return JSValueBuilder.AddString(left, Expression.Constant(literal.StringValue));
                     }
                 }
 
+                if(l.Type == FastNodeType.Literal && l is AstLiteral leftLiteral)
+                {
+                    if(leftLiteral.TokenType == TokenTypes.Number)
+                    {
+                        right = Visit(binaryExpression.Right);
+                        return JSValueBuilder.AddDouble(right, Expression.Constant(leftLiteral.NumericValue));
+                    }
+                    if (leftLiteral.TokenType == TokenTypes.String)
+                    {
+                        right = Visit(binaryExpression.Right);
+                        return JSValueBuilder.AddString(right, Expression.Constant(leftLiteral.NumericValue));
+                    }
+                }
+
+                left = Visit(binaryExpression.Left);
                 right = Visit(binaryExpression.Right);
                 return JSValueBuilder.Add(left, right);
-            }            
-            
-            if(@operator > TokenTypes.BeginAssignTokens && @operator < TokenTypes.EndAssignTokens)
-                return VisitAssignmentExpression(
-                    binaryExpression.Left, @operator, binaryExpression.Right);
+            }
+
 
             left = Visit(binaryExpression.Left);
             right = Visit(binaryExpression.Right);
@@ -61,5 +97,41 @@ namespace YantraJS.Core.FastParser.Compiler
 
         }
 
+        public Expression ToDoubleExpression(Expression exp)
+        {
+            if (exp.Type == typeof(double))
+                return exp;
+            if (exp.Type == typeof(string))
+                return Expression.Constant( double.Parse(((YConstantExpression)exp).Value.ToString()) );
+            return JSValueBuilder.DoubleValue(exp);
+        }
+
+        public Expression ToStringExpression(Expression exp)
+        {
+            if (exp.Type == typeof(string))
+                return exp;
+            if (exp.Type == typeof(double))
+                return Expression.Constant(((YConstantExpression)exp).Value.ToString());
+            return ObjectBuilder.ToString(exp);
+        }
+
+
+        public Expression ToNativeExpression(AstExpression ast)
+        {
+            if(ast.Type == FastNodeType.Literal && ast is AstLiteral a) {
+                switch (a.TokenType)
+                {
+                    case TokenTypes.String:
+                        return Expression.Constant(a.StringValue);
+                    case TokenTypes.True:
+                        return Expression.Constant(true);
+                    case TokenTypes.False:
+                        return Expression.Constant(false);
+                    case TokenTypes.Number:
+                        return Expression.Constant(a.NumericValue);
+                }
+            }
+            return Visit(ast);
+        }
     }
 }
