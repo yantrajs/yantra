@@ -12,14 +12,44 @@ namespace YantraJS.Core.String
             sb = new StringBuilder(size);
         }
 
+        public void Add(string t)
+        {
+            sb.Append(t);
+        }
+
+        public unsafe void Add(JSValue value)
+        {
+            if (value is JSString @string)
+            {
+                var span = @string.value;
+                fixed (char* start = span.Source)
+                {
+                    char* ch1 = start + (span.Offset);
+                    sb.Append(ch1, span.Length);
+                }
+                return;
+            }
+            sb.Append(value.ToString());
+        }
+
         public JSTemplateString AddQuasi(string text)
         {
             sb.Append(text);
             return this;
         }
 
-        public JSTemplateString AddExpression(JSValue value)
+        public unsafe JSTemplateString AddExpression(JSValue value)
         {
+            if (value is JSString @string)
+            {
+                var span = @string.value;
+                fixed (char* start = span.Source)
+                {
+                    char* ch1 = start + (span.Offset);
+                    sb.Append(ch1, span.Length);
+                }
+                return this;
+            }
             sb.Append(value.ToString());
             return this;
         }

@@ -129,6 +129,11 @@ namespace YantraJS.SL
             return Expression.Coalesce(Visit(yCoalesceExpression.Left), Visit(yCoalesceExpression.Right));
         }
 
+        protected override Expression VisitCoalesceCall(YCoalesceCallExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitConditional(YConditionalExpression yConditionalExpression)
         {
             return Expression.Condition(

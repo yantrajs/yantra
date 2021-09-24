@@ -14,6 +14,7 @@ using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Expressions;
+using YantraJS.Core;
 
 namespace YantraJS.ExpHelper
 {
@@ -33,50 +34,58 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _toJSString =
             type.GetMethod(nameof(JSTemplateString.ToJSString));
 
+        private static MethodInfo _addString =
+            type.PublicMethod(nameof(JSTemplateString.Add), typeof(string));
+
+        private static MethodInfo _addValue =
+            type.PublicMethod(nameof(JSTemplateString.Add), typeof(JSValue));
+
         public static Expression New(IEnumerable<Expression> select, int total)
         {
-            Expression exp = Expression.New(_new, Expression.Constant(total));
+            var list = new List<YElementInit>();
+            var newExp = Expression.New(_new, Expression.Constant(total));
             var en = select.GetEnumerator();
             while (en.MoveNext())
             {
                 var current = en.Current;
                 if (current.NodeType == YExpressionType.Constant)
                 {
-                    exp = Expression.Call(exp, _addQuasi, current);
+                    // exp = Expression.Call(exp, _addQuasi, current);
+                    list.Add(YExpression.ElementInit(_addString, current));
                     continue;
                 }
-                exp = Expression.Call(exp, _addExpression, current);
+                list.Add(YExpression.ElementInit(_addValue, current));
             }
-            return Expression.Call(exp, _toJSString);
+            return Expression.Call( Expression.ListInit(newExp, list.ToArray()), _toJSString);
         }
 
-        public static Expression New(List<string> quasis, IEnumerable<Expression> select)
-        {
-            var total = quasis.Sum(x => x.Length);
-            Expression exp = Expression.New(_new, Expression.Constant(total));
-            var qn = quasis.GetEnumerator();
-            var en = select.GetEnumerator();
-            bool end = false;
-            while (!end)
-            {
-                end = true;
-                if (qn.MoveNext())
-                {
-                    var ec = qn.Current;
-                    if (ec.Length > 0)
-                    {
-                        exp = Expression.Call(exp, _addQuasi, Expression.Constant(ec));
-                    }
-                    end = false;
-                }
-                if (en.MoveNext())
-                {
-                    var ec = en.Current;
-                    exp = Expression.Call(exp, _addExpression, ec);
-                }
-            }
-            return Expression.Call(exp, _toJSString);
-        }
+        //public static Expression New(List<string> quasis, IEnumerable<Expression> select)
+        //{
+        //    var total = quasis.Sum(x => x.Length);
+        //    Expression exp = Expression.New(_new, Expression.Constant(total));
+        //    var qn = quasis.GetEnumerator();
+        //    var en = select.GetEnumerator();
+        //    bool end = false;
+        //    while (!end)
+        //    {
+        //        end = true;
+        //        if (qn.MoveNext())
+        //        {
+        //            var ec = qn.Current;
+        //            if (ec.Length > 0)
+        //            {
+        //                exp = Expression.Call(exp, _addQuasi, Expression.Constant(ec));
+        //            }
+        //            end = false;
+        //        }
+        //        if (en.MoveNext())
+        //        {
+        //            var ec = en.Current;
+        //            exp = Expression.Call(exp, _addExpression, ec);
+        //        }
+        //    }
+        //    return Expression.Call(exp, _toJSString);
+        //}
 
     }
 }
