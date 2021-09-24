@@ -46,6 +46,22 @@ namespace YantraJS.Core
 
         public override bool IsString => true;
 
+        public override JSValue AddValue(double value)
+        {
+            var sb = new StringBuilder();
+            sb.Append(this.value);
+            sb.Append(value);
+            return new JSString(sb.ToString());
+        }
+
+        public override JSValue AddValue(string value)
+        {
+            var sb = new StringBuilder();
+            sb.Append(this.value);
+            sb.Append(value);
+            return new JSString(sb.ToString());
+        }
+
         public override bool ConvertTo(Type type, out object value)
         {
             if (type == typeof(string))

@@ -52,10 +52,10 @@ namespace YantraJS.Core.FastParser.Compiler
                 switch (updateExpression.Operator)
                 {
                     case UnaryOperator.Increment:
-                        list.Add(Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Add(DoubleValue(right), Exp.Constant((double)1)))));
+                        list.Add(Exp.Assign(right, ExpHelper.JSValueBuilder.AddDouble(right, Exp.Constant((double)1))));
                         break;
                     case UnaryOperator.Decrement:
-                        list.Add(Exp.Assign(right, ExpHelper.JSNumberBuilder.New(Exp.Subtract(DoubleValue(right), Exp.Constant((double)1)))));
+                        list.Add(Exp.Assign(right, ExpHelper.JSValueBuilder.AddDouble(right, Exp.Constant((double)-1))));
                         break;
                 }
                 if (!updateExpression.Prefix)

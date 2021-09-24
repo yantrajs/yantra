@@ -42,13 +42,32 @@ namespace YantraJS.Core.FastParser.Compiler
                     var leftExp = CreateMemberExpression(tmp.Expression, mem.Property, mem.Computed);
                     return Expression.Block(
                         Expression.Assign(tmp.Expression, Visit(mem.Object)),
-                        BinaryOperation.Assign(leftExp, Visit(right), assignmentOperator),
+                        Assign(leftExp, right, assignmentOperator),
                         tmp.Expression
                         );
 
                 }
             }
-            return BinaryOperation.Assign(Visit(left), Visit(right), assignmentOperator);
+            return Assign(Visit(left), right, assignmentOperator);
+        }
+
+        private Exp Assign(Expression exp, AstExpression right, TokenTypes assignmentOperator)
+        {
+            if(assignmentOperator == TokenTypes.AssignAdd)
+            {
+                if(right.Type == FastNodeType.Literal && right is AstLiteral literal)
+                {
+                    if(literal.TokenType == TokenTypes.String)
+                    {
+                        return Expression.Assign(exp, JSValueBuilder.AddString(exp, Expression.Constant(literal.StringValue)));
+                    }
+                    if (literal.TokenType == TokenTypes.Number)
+                    {
+                        return Expression.Assign(exp, JSValueBuilder.AddDouble(exp, Expression.Constant(literal.NumericValue)));
+                    }
+                }
+            }
+            return BinaryOperation.Assign(exp, Visit(right), assignmentOperator);
         }
 
         private Exp CreateAssignment(

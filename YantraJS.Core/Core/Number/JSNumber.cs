@@ -232,6 +232,19 @@ namespace YantraJS.Core
             return new JSNumber(this.value + value.DoubleValue);
         }
 
+        public override JSValue AddValue(double value)
+        {
+            return new JSNumber(this.value + value);
+        }
+
+        public override JSValue AddValue(string value)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append(this.value);
+            sb.Append(value);
+            return new JSString(sb.ToString());
+        }
+
 
         //public override JSValue AddValue(JSValue value)
         //{

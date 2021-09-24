@@ -30,6 +30,18 @@ namespace YantraJS.Core.FastParser.Compiler
             if (@operator == TokenTypes.Plus)
             {
                 left = Visit(binaryExpression.Left);
+                var r = binaryExpression.Right;
+                if(r.Type == FastNodeType.Literal && r is AstLiteral literal)
+                {
+                    if(literal.TokenType == TokenTypes.Number) {
+                        return JSValueBuilder.AddDouble(left, Expression.Constant(literal.NumericValue));
+                    }
+                    if (literal.TokenType == TokenTypes.String)
+                    {
+                        return JSValueBuilder.AddString(left, Expression.Constant(literal.StringValue));
+                    }
+                }
+
                 right = Visit(binaryExpression.Right);
                 return JSValueBuilder.Add(left, right);
             }            

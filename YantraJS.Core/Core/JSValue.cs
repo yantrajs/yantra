@@ -179,22 +179,29 @@ namespace YantraJS.Core {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public JSValue AddValue(double value)
+        public virtual JSValue AddValue(double value)
         {
-            if (this.CanBeNumber)
-                return new JSNumber(this.DoubleValue + value);
-            return new JSString(this.ToString() + value.ToString());
+            var self = this.ValueOf();
+            if (self.CanBeNumber)
+            {
+                return new JSNumber(self.DoubleValue + value);
+            }
+            if (value.ToString().Length == 0)
+                return self.IsString ? self : new JSString(self.StringValue);
+            return new JSString(self.StringValue + value);
         }
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public JSValue AddValue(string value)
+        public virtual JSValue AddValue(string value)
         {
-            if (value.Length == 0)
-                return this.IsString ? this : new JSString(this.ToString());
-            return new JSString(this.ToString() + value);
+            var self = this.ValueOf();
+
+            if (value.ToString().Length == 0)
+                return self.IsString ? self : new JSString(self.StringValue);
+            return new JSString(self.StringValue + value);
         }
 
 

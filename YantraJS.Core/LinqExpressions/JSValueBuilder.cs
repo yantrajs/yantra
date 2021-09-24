@@ -46,6 +46,21 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _ValueOf
             = type.PublicMethod(nameof(Core.JSValue.ValueOf));
 
+        private static MethodInfo _AddString
+            = type.PublicMethod(nameof(JSValue.AddValue), typeof(string));
+
+        private static MethodInfo _AddDouble
+            = type.PublicMethod(nameof(JSValue.AddValue), typeof(double));
+
+        public static Expression AddString(Expression target, Expression @string)
+        {
+            return Expression.Call(target, _AddString, @string);
+        }
+        public static Expression AddDouble(Expression target, Expression @double)
+        {
+            return Expression.Call(target, _AddDouble, @double);
+        }
+
         public static Expression ToKey(Expression exp)
         {
             return Expression.Call(exp, _ToKey, Expression.Constant(true));
