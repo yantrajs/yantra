@@ -359,6 +359,21 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
+        public override bool EqualsLiteral(double value)
+        {
+            return this.value == value;
+        }
+
+        public override bool EqualsLiteral(string value)
+        {
+            return this.value.ToString() == value || this.value == NumberParser.CoerceToNumber(value);
+        }
+
+        public override bool StrictEqualsLiteral(double value)
+        {
+            return this.value == value;
+        }
+
         public override JSValue InvokeFunction(in Arguments a)
         {
             throw JSContext.Current.NewTypeError($"{this.value} is not a function");

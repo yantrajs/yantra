@@ -867,6 +867,16 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
+        public override bool EqualsLiteral(double value)
+        {
+            return DoubleValue == value;
+        }
+
+        public override bool EqualsLiteral(string value)
+        {
+            return this.ToString() == value;
+        }
+
         public override JSBoolean StrictEquals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))

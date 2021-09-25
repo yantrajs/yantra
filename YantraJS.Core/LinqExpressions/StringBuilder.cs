@@ -12,13 +12,26 @@ using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 namespace YantraJS.ExpHelper
 {
-    public class StringBuilder
+    public class ClrStringBuilder
+
     {
         private static Type type = typeof(string);
 
         private static MethodInfo _Compare =
             type.StaticMethod(nameof(String.Compare), typeof(string), typeof(string));
 
+        private static MethodInfo _Equals =
+            type.PublicMethod(nameof(String.Equals), typeof(string));
+
+        public static Expression Equal(Expression left, Expression right)
+        {
+            // return Expression.Equal( Expression.Call(null, _Compare, left, right), Expression.Constant(0) );
+            return Expression.Call(left, _Equals, right);
+        }
+        public static Expression NotEqual(Expression left, Expression right)
+        {
+            return Expression.Not(Equal(left,right));
+        }
         public static Expression Compare(Expression left, Expression right)
         {
             return Expression.Call(null, _Compare, left, right);

@@ -15,6 +15,7 @@ using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Core.FastParser;
+using YantraJS.Expressions;
 
 namespace YantraJS.ExpHelper
 {
@@ -51,6 +52,15 @@ namespace YantraJS.ExpHelper
 
         private static MethodInfo _AddDouble
             = type.PublicMethod(nameof(JSValue.AddValue), typeof(double));
+
+        private static MethodInfo _EqualsLiteralDouble
+            = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(double));
+        private static MethodInfo _EqualsLiteralString
+            = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(string));
+        private static MethodInfo _StrictEqualsLiteralDouble
+            = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(double));
+        private static MethodInfo _StrictEqualsLiteralString
+            = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(string));
 
         public static Expression AddString(Expression target, Expression @string)
         {
@@ -110,6 +120,13 @@ namespace YantraJS.ExpHelper
             type.Property(nameof(JSValue.BooleanValue));
         public static Expression BooleanValue(Expression exp)
         {
+            if(exp.NodeType == Expressions.YExpressionType.Conditional && exp is YConditionalExpression ce)
+            {
+                if (ce.@true == JSBooleanBuilder.True && ce.@false == JSBooleanBuilder.False)
+                    return ce.test;
+                if (ce.@true == JSBooleanBuilder.False && ce.@false == JSBooleanBuilder.True)
+                    return Expression.Not( ce.test);
+            }
             return Expression.Property(exp, _BooleanValue);
         }
 
@@ -339,11 +356,21 @@ namespace YantraJS.ExpHelper
 
         public static Expression Equals(Expression target, Expression value)
         {
+            if (value.Type == typeof(string))
+                return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralString, value));
+            if (value.Type == typeof(double))
+                return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralDouble, value));
             return Expression.Call(target, _Equals, value);
         }
 
         public static Expression NotEquals(Expression target, Expression value)
         {
+            if (value.Type == typeof(string))
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    Expression.Not(Expression.Call(target, _EqualsLiteralString, value)));
+            if (value.Type == typeof(double))
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    Expression.Not( Expression.Call(target, _EqualsLiteralDouble, value)));
             return
                 ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
                     Expression.Not(
@@ -357,11 +384,21 @@ namespace YantraJS.ExpHelper
 
         public static Expression StrictEquals(Expression target, Expression value)
         {
+            if (value.Type == typeof(string))
+                return JSBooleanBuilder.NewFromCLRBoolean( Expression.Call(target, _StrictEqualsLiteralString, value));
+            if (value.Type == typeof(double))
+                return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _StrictEqualsLiteralDouble, value));
             return Expression.Call(target, _StrictEquals, value);
         }
 
         public static Expression NotStrictEquals(Expression target, Expression value)
         {
+            if (value.Type == typeof(string))
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    Expression.Not(Expression.Call(target, _StrictEqualsLiteralString, value)));
+            if (value.Type == typeof(double))
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    Expression.Not(Expression.Call(target, _StrictEqualsLiteralDouble, value)));
             return
                 ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
                 Expression.Not(

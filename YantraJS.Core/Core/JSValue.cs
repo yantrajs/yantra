@@ -469,6 +469,25 @@ namespace YantraJS.Core {
 
         public abstract JSBoolean Equals(JSValue value);
 
+        public virtual bool EqualsLiteral (string value)
+        {
+            return false;
+        }
+        public virtual bool EqualsLiteral(double value)
+        {
+            return false;
+        }
+
+        public virtual bool StrictEqualsLiteral(string value)
+        {
+            return false;
+        }
+        public virtual bool StrictEqualsLiteral(double value)
+        {
+            return false;
+        }
+
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static bool StaticEquals(JSValue left, JSValue right)
         {

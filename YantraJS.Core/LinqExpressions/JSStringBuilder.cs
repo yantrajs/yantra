@@ -36,7 +36,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression ConcatBasicStrings(Expression left, Expression right)
         {
-            return Expression.New(_New, StringBuilder.Concat(left, right));
+            return Expression.New(_New, ClrStringBuilder.Concat(left, right));
         }
 
     }

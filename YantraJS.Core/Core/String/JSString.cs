@@ -48,7 +48,7 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(double value)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(this.value.Length + 20);
             sb.Append(this.value);
             sb.Append(value);
             return new JSString(sb.ToString());
@@ -56,7 +56,7 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(string value)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(this.value.Length + value.Length);
             sb.Append(this.value);
             sb.Append(value);
             return new JSString(sb.ToString());
@@ -215,6 +215,21 @@ namespace YantraJS.Core
                     return JSBoolean.True;
             }
             return JSBoolean.False;
+        }
+
+        public override bool EqualsLiteral(double value)
+        {
+            return this.DoubleValue == value || this.value.CompareTo(value.ToString()) == 0;
+        }
+
+        public override bool EqualsLiteral(string value)
+        {
+            return this.value.Equals(value);
+        }
+
+        public override bool StrictEqualsLiteral(string value)
+        {
+            return this.value.Equals(value);
         }
 
         public override JSBoolean Less(JSValue value)

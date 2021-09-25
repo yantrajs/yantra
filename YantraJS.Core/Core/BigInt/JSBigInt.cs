@@ -43,6 +43,17 @@ namespace YantraJS.Core.BigInt
             return this.value == bigint.value ? JSBoolean.True : JSBoolean.False;
         }
 
+        public override bool EqualsLiteral(string value)
+        {
+            return this.value.ToString() == value;
+        }
+
+        public override bool EqualsLiteral(double value)
+        {
+            return this.value == value;
+        }
+        
+
         public override JSValue TypeOf()
         {
             return JSConstants.BigInt;
