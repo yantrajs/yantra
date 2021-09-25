@@ -233,11 +233,9 @@ namespace YantraJS.Core.Typed
 
         public override bool BooleanValue => true;
         public override double DoubleValue => double.NaN;
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
-            if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return Object.ReferenceEquals(this, value);
         }
 
         public override JSValue InvokeFunction(in Arguments a)
@@ -245,11 +243,9 @@ namespace YantraJS.Core.Typed
             throw JSContext.Current.NewTypeError($"{this} is not a function");
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
-            if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return Object.ReferenceEquals(this, value);
         }
 
         public override string ToString()

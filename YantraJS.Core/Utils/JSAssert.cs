@@ -28,7 +28,7 @@ namespace YantraJS.Utils
         public static JSValue StrictEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
-            if (!left.StrictEquals(right).BooleanValue)
+            if (!left.StrictEquals(right))
             {
                 var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
                 throw new JSException(msg);
@@ -40,7 +40,7 @@ namespace YantraJS.Utils
         public static JSValue NotStrictEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
-            if (left.StrictEquals(right).BooleanValue)
+            if (left.StrictEquals(right))
             {
                 var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are same";
                 throw new JSException(msg);
@@ -52,7 +52,7 @@ namespace YantraJS.Utils
         public static JSValue Equal(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
-            if (!left.Equals(right).BooleanValue)
+            if (!left.Equals(right))
             {
                 var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are not same";
                 throw new JSException(msg);
@@ -80,7 +80,7 @@ namespace YantraJS.Utils
         public static JSValue NotEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
-            if (left.Equals(right).BooleanValue)
+            if (left.Equals(right))
             {
                 var msg = !(msgObj.IsUndefined) ? msgObj.ToString() : $"Values {left},{right} are same";
                 throw new JSException(msg);

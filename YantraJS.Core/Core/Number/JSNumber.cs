@@ -293,70 +293,70 @@ namespace YantraJS.Core
             return base.Equals(obj);
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
             {
                 if (double.IsNaN(this.value))
-                    return JSBoolean.False;
-                return JSBoolean.True;
+                    return false;
+                return true;
             }
             switch (value)
             {
                 case JSNumber number:
                     if (double.IsNaN(this.value) || double.IsNaN(number.value))
-                        return JSBoolean.False;
+                        return false;
                     if(this.value == number.value)
-                        return JSBoolean.True;
-                    return JSBoolean.False;
+                        return true;
+                    return false;
                 case JSString @string
                     when (this.value == @string.DoubleValue):
-                    return JSBoolean.True;
+                    return true;
                 case JSNull _
                     when (this.value == 0D):
-                    return JSBoolean.True;
+                    return true;
                 case JSBoolean boolean
                     when (this.value == (boolean._value ? 1D : 0D)):
-                    return JSBoolean.True;
+                    return true;
             }
             // Added for this TC ExpressionTests.cs Assert.AreEqual(true, Evaluate("2 == [2]"));
             if (this.ToString() == value.ToString())
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return true;
+            return false;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
             
             if (object.ReferenceEquals(this, value)) {
                 if (double.IsNaN(this.value))
-                    return JSBoolean.False;
-                return JSBoolean.True;
+                    return false;
+                return true;
             }
             if (value is JSNumber n)
             {
                 if (double.IsNaN(this.value) || double.IsNaN(n.value))
-                    return JSBoolean.False;
+                    return false;
                 if (this.value == n.value)
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
-        public override JSBoolean SameValueZero(JSValue value)
+        public override bool SameValueZero(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
             {
-                return JSBoolean.True;
+                return true;
             }
             if (value is JSNumber n)
             {
                 if (double.IsNaN(this.value) && double.IsNaN(n.value))
-                    return JSBoolean.True;
+                    return true;
                 if (this.value == n.value)
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
         public override bool EqualsLiteral(double value)

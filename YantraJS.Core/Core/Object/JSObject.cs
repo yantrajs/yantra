@@ -855,16 +855,16 @@ namespace YantraJS.Core
             return JSBoolean.True;
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             if (value is JSString str)
                 if (this.ToString() == str.value)
-                    return JSBoolean.True;
+                    return true;
             if (DoubleValue == value.DoubleValue)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return true;
+            return false;
         }
 
         public override bool EqualsLiteral(double value)
@@ -877,11 +877,9 @@ namespace YantraJS.Core
             return this.ToString() == value;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
-            if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return Object.ReferenceEquals(this, value);
         }
 
         public override JSValue InvokeFunction(in Arguments a)
@@ -889,53 +887,53 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError($"{this} is not a function");
         }
 
-        public override JSBoolean Less(JSValue value)
+        public override bool Less(JSValue value)
         {
             switch(value)
             {
                 case JSString strValue:
                     if (this.ToString().CompareTo(strValue.value) < 0)
-                        return JSBoolean.True;
+                        return true;
                     break;
             }
-            return JSBoolean.False;
+            return false;
         }
 
-        public override JSBoolean LessOrEqual(JSValue value)
+        public override bool LessOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) <= 0):
-                        return JSBoolean.True;
+                        return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
-        public override JSBoolean Greater(JSValue value)
+        public override bool Greater(JSValue value)
         {
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) > 0):
-                        return JSBoolean.True;
+                        return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
-        public override JSBoolean GreaterOrEqual(JSValue value)
+        public override bool GreaterOrEqual(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             switch (value)
             {
                 case JSString strValue
                     when (this.ToString().CompareTo(strValue.value) >= 0):
-                        return JSBoolean.True;
+                        return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
         internal override bool TryGetValue(uint i, out JSProperty value)

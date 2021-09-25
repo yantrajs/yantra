@@ -30,25 +30,25 @@ namespace YantraJS.Core.FastParser.Compiler
                     binaryExpression.Left, @operator, binaryExpression.Right);
 
 
-            Expression left = ToNativeExpression(binaryExpression.Left);
-            Expression right = ToNativeExpression(binaryExpression.Right);
+            var (isLeftString, isLeftNumber, left) = ToNativeExpression(binaryExpression.Left);
+            var (isRightString, isRightNumber, right) = ToNativeExpression(binaryExpression.Right);
 
 
             switch (@operator)
             {
                 case TokenTypes.Plus:
-                    if (left.Type == typeof(double) && right.Type == typeof(double))
+                    if (isLeftNumber && isRightNumber)
                             return JSNumberBuilder.New( Expression.Add(left, right) );
                     
-                    if (left.Type == typeof(string) && right.Type == typeof(string))
+                    if (isLeftString && isRightString)
                     {
                         return JSStringBuilder.New(ClrStringBuilder.Concat(left, right));
                     }
-                    if (right.Type == typeof(double))
+                    if (isRightNumber)
                     {
                         return JSValueBuilder.AddDouble(ToJSValueExpression(left), right);
                     }
-                    if (right.Type == typeof(string))
+                    if (isRightString)
                     {
                         return JSValueBuilder.AddString(ToJSValueExpression(left), right);
                     }
@@ -56,66 +56,66 @@ namespace YantraJS.Core.FastParser.Compiler
                         ToJSValueExpression(left), 
                         ToJSValueExpression(right));
                 case TokenTypes.Equal:
-                    if (left.Type == typeof(double))
+                    if (isLeftNumber)
                     {
                         // to do
                         // Add cocering...
-                        if(right.Type == typeof(double))
+                        if(isRightNumber)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 Expression.Equal(left, right));
                     }
-                    if (left.Type == typeof(string))
+                    if (isLeftString)
                     {
-                        if(right.Type == typeof(string))
+                        if(isRightString)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 ClrStringBuilder.Equal(left, right));
                     }
                     return JSValueBuilder.Equals(ToJSValueExpression(left), right);
                 case TokenTypes.NotEqual:
-                    if (left.Type == typeof(double))
+                    if (isLeftNumber)
                     {
                         // to do
                         // Add cocering...
-                        if (right.Type == typeof(double))
+                        if (isRightNumber)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 Expression.NotEqual(left, right));
                     }
-                    if (left.Type == typeof(string))
+                    if (isLeftString)
                     {
-                        if (right.Type == typeof(string))
+                        if (isRightString)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 ClrStringBuilder.NotEqual(left, right));
                     }
                     return JSValueBuilder.NotEquals(ToJSValueExpression(left), right);
 
                 case TokenTypes.StrictlyEqual:
-                    if (left.Type == typeof(double))
+                    if (isLeftNumber)
                     {
                         // to do
                         // Add cocering...
-                        if (right.Type == typeof(double))
+                        if (isRightNumber)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 Expression.Equal(left, right));
                     }
-                    if (left.Type == typeof(string))
+                    if (isLeftString)
                     {
-                        if (right.Type == typeof(string))
+                        if (isRightString)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 ClrStringBuilder.Equal(left, right));
                     }
                     return JSValueBuilder.StrictEquals(ToJSValueExpression(left), right);
                 case TokenTypes.StrictlyNotEqual:
-                    if (left.Type == typeof(double))
+                    if (isLeftNumber)
                     {
                         // to do
                         // Add cocering...
-                        if (right.Type == typeof(double))
+                        if (isRightNumber)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 Expression.NotEqual(left, right));
                     }
-                    if (left.Type == typeof(string))
+                    if (isLeftString)
                     {
-                        if (right.Type == typeof(string))
+                        if (isRightString)
                             return JSBooleanBuilder.NewFromCLRBoolean(
                                 ClrStringBuilder.NotEqual(left, right));
                     }
@@ -143,48 +143,22 @@ namespace YantraJS.Core.FastParser.Compiler
             throw new NotImplementedException();
         }
 
-        public Expression ToDoubleExpression(Expression exp)
-        {
-            if (exp.Type == typeof(double))
-                return exp;
-            if (exp.Type == typeof(string) && exp is YConstantExpression ce)
-            {
-                var ds = ce.Value.ToString();
-                return Expression.Constant(double.TryParse(ds, out var d)
-                    ? d
-                    : string.IsNullOrWhiteSpace(ds) 
-                        ? 0.0
-                        : 1);
-            }
-            return JSValueBuilder.DoubleValue(exp);
-        }
-
-        public Expression ToStringExpression(Expression exp)
-        {
-            if (exp.Type == typeof(string))
-                return exp;
-            if (exp.Type == typeof(double))
-                return Expression.Constant(((YConstantExpression)exp).Value.ToString());
-            return ObjectBuilder.ToString(exp);
-        }
-
-
-        public Expression ToNativeExpression(AstExpression ast)
+        public (bool isString, bool isNumber, Expression exp) ToNativeExpression(AstExpression ast)
         {
             if(ast.Type == FastNodeType.Literal && ast is AstLiteral a) {
                 switch (a.TokenType)
                 {
                     case TokenTypes.String:
-                        return Expression.Constant(a.StringValue);
+                        return (true, false,Expression.Constant(a.StringValue));
                     //case TokenTypes.True:
                     //    return Expression.Constant(true);
                     //case TokenTypes.False:
                     //    return Expression.Constant(false);
                     case TokenTypes.Number:
-                        return Expression.Constant(a.NumericValue);
+                        return (false, true, Expression.Constant(a.NumericValue));
                 }
             }
-            return Visit(ast);
+            return (false, false, Visit(ast));
         }
     }
 }

@@ -467,7 +467,7 @@ namespace YantraJS.Core {
         }
 
 
-        public abstract JSBoolean Equals(JSValue value);
+        public abstract bool Equals(JSValue value);
 
         public virtual bool EqualsLiteral (string value)
         {
@@ -491,10 +491,10 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static bool StaticEquals(JSValue left, JSValue right)
         {
-            return left.Equals(right).BooleanValue;
+            return left.Equals(right);
         }
 
-        public abstract JSBoolean StrictEquals(JSValue value);
+        public abstract bool StrictEquals(JSValue value);
 
         /// <summary>
         /// 1. NaN is considered equal to NaN.
@@ -502,68 +502,68 @@ namespace YantraJS.Core {
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public virtual JSBoolean SameValueZero(JSValue value) {
+        public virtual bool SameValueZero(JSValue value) {
             return this.StrictEquals(value);
         }
 
-        public virtual JSBoolean Less(JSValue value)
+        public virtual bool Less(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue < value.DoubleValue)
-                        return JSBoolean.True;
+                        return true;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) < 0)
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
 
         }
-        public virtual JSBoolean LessOrEqual(JSValue value)
+        public virtual bool LessOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue <= value.DoubleValue)
-                        return JSBoolean.True;
+                        return true;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) <= 0)
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
 
         }
 
-        public virtual JSBoolean Greater(JSValue value)
+        public virtual bool Greater(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined))
             {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue > value.DoubleValue)
-                        return JSBoolean.True;
+                        return true;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) > 0)
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
 
         }
-        public virtual JSBoolean GreaterOrEqual(JSValue value)
+        public virtual bool GreaterOrEqual(JSValue value)
         {
             if (!(this.IsUndefined || value.IsUndefined)) {
                 if (this.CanBeNumber || value.CanBeNumber)
                 {
                     if (this.DoubleValue >= value.DoubleValue)
-                        return JSBoolean.True;
+                        return true;
                 }
                 else if (this.ToString().CompareTo(value.ToString()) >= 0)
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
         //internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)

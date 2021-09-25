@@ -106,20 +106,18 @@ namespace YantraJS.Core
         //    return new JSString("null" + value);
         //}
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if (value.IsNull)
-                return JSBoolean.True;
+                return true;
             if (value.IsUndefined)
-                return JSBoolean.True;
-            return JSBoolean.False;
+                return true;
+            return false;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
-            if (value.IsNull)
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return Object.ReferenceEquals(this, value);
         }
 
         public override JSValue CreateInstance(in Arguments a)

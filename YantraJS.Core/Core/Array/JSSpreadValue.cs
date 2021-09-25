@@ -28,7 +28,7 @@ namespace YantraJS.Core.Core.Array
 
         public JSValue Value { get; }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             throw new NotImplementedException();
         }
@@ -38,7 +38,7 @@ namespace YantraJS.Core.Core.Array
             throw new NotImplementedException();
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
             throw new NotImplementedException();
         }

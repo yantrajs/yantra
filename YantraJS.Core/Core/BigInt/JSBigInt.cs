@@ -21,14 +21,14 @@ namespace YantraJS.Core.BigInt
             this.value = value;
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if(value is JSBigInt bigint)
             {
-                return this.value == bigint.value ? JSBoolean.True : JSBoolean.False;
+                return this.value == bigint.value;
             }
             var n = (long)value.DoubleValue;
-            return this.value == n ? JSBoolean.False : JSBoolean.False;
+            return this.value == n;
         }
 
         public override JSValue InvokeFunction(in Arguments a)
@@ -36,11 +36,11 @@ namespace YantraJS.Core.BigInt
             throw new NotImplementedException();
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
             if (!(value is JSBigInt bigint))
-                return JSBoolean.False;
-            return this.value == bigint.value ? JSBoolean.True : JSBoolean.False;
+                return false;
+            return this.value == bigint.value;
         }
 
         public override bool EqualsLiteral(string value)

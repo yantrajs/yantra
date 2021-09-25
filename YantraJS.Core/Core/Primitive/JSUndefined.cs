@@ -68,20 +68,17 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
-            if (value.IsNull)
-                return JSBoolean.True;
-            if (value.IsUndefined)
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return value.IsNullOrUndefined;
+            //if (value.IsUndefined)
+            //    return true;
+            //return false;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
-            if (value.IsUndefined)
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return ReferenceEquals(this, value);
         }
 
         public override JSValue CreateInstance(in Arguments a)

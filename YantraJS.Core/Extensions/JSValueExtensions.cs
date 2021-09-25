@@ -271,7 +271,7 @@ namespace YantraJS.Core
             var c = p[KeyStrings.constructor];
             if (c.IsUndefined)
                 return JSBoolean.False;
-            if (c.StrictEquals(value).BooleanValue)
+            if (c.StrictEquals(value))
                 return JSBoolean.True;
             return p.InstanceOf(value);
         }

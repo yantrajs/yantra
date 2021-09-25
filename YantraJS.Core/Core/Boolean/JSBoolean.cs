@@ -95,24 +95,24 @@ namespace YantraJS.Core
             return base.Equals(obj);
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             if (!this._value)
             {
                 if (value.IsNullOrUndefined)
-                    return JSBoolean.False;
+                    return false;
             }
             if (this._value) {
                 if (value.DoubleValue == 1)
-                    return JSBoolean.True;
+                    return true;
             } else
             {
                 if (value.DoubleValue == 0)
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
         public override bool EqualsLiteral(double value)
@@ -129,11 +129,9 @@ namespace YantraJS.Core
                 : value == "0";
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
-            if (value.IsBoolean && value.BooleanValue == this._value)
-                return JSBoolean.True;
-            return JSBoolean.False; 
+            return Object.ReferenceEquals(this, value);
         }
 
         public override JSValue InvokeFunction(in Arguments a)

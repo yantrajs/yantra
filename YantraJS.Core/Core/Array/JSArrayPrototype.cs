@@ -378,7 +378,7 @@ namespace YantraJS.Core
                     continue;
                 if (hasValue)
                 {
-                    if (item.SameValueZero(first).BooleanValue)
+                    if (item.SameValueZero(first))
                         return JSBoolean.True;
 
                 }
@@ -406,7 +406,7 @@ namespace YantraJS.Core
 
                 if (!hasValue)
                     continue;
-                if (first.StrictEquals(item).BooleanValue)
+                if (first.StrictEquals(item))
                     return new JSNumber(index);
             }
             return JSNumber.MinusOne;
@@ -466,7 +466,7 @@ namespace YantraJS.Core
                 
                 if (!@this.TryGetElement((uint)i, out var item))
                     continue;
-                if (item.StrictEquals(first).BooleanValue)
+                if (item.StrictEquals(first))
                     return new JSNumber(i);
                 
             }

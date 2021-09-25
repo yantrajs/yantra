@@ -247,7 +247,7 @@ namespace YantraJS.Core.Typed
             var en = @this.GetElementEnumerator(startIndex);
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
-                if (hasValue && item.Equals(searchElement).BooleanValue)
+                if (hasValue && item.Equals(searchElement))
                     return JSBoolean.True;
             }
             return JSBoolean.False;
@@ -279,7 +279,7 @@ namespace YantraJS.Core.Typed
             {
                 if (!hasValue)
                     continue;
-                if (searchElement.StrictEquals(item).BooleanValue)
+                if (searchElement.StrictEquals(item))
                     return new JSNumber(index);
             }
             return JSNumber.MinusOne;
@@ -342,7 +342,7 @@ namespace YantraJS.Core.Typed
             while (i >= 0)
             {
                 var item = @this[i];
-                if (item.StrictEquals(element).BooleanValue)
+                if (item.StrictEquals(element))
                     return new JSNumber(i);
                 if (i == 0)
                     break;

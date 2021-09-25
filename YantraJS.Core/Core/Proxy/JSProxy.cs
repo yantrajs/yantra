@@ -20,7 +20,7 @@ namespace YantraJS.Core
         public override bool BooleanValue => target.BooleanValue;
 
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             return target.Equals(value);
         }
@@ -30,7 +30,7 @@ namespace YantraJS.Core
             return target.InvokeFunction(a);
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
             return target.StrictEquals(value);
         }

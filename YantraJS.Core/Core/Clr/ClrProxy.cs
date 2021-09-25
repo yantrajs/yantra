@@ -160,55 +160,55 @@ namespace YantraJS.Core.Clr
             return new ClrProxy(value);
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             if (value is  ClrProxy proxy)
             {
                 if (this.value == proxy.value)
-                    return JSBoolean.True;
+                    return true;
                 if (this.value.Equals(proxy.value))
-                    return JSBoolean.True;
+                    return true;
                 // convert to string to compare...
                 if (this.value.ToString() == proxy.value.ToString())
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             switch(value)
             {
                 case ClrProxy proxy:
                     if (this.value == proxy.value)
-                        return JSBoolean.True;
+                        return true;
                     if (this.value.Equals(proxy.value))
-                        return JSBoolean.True;
+                        return true;
                     // convert to string to compare...
                     if (this.value.ToString() == proxy.value.ToString())
-                        return JSBoolean.True;
+                        return true;
                     break;
                 case JSString @string when this.value.ToString() == @string.value:
-                    return JSBoolean.True;
+                    return true;
                 case JSNumber number:
                     switch (this.value)
                     {
                         case int @int when @int == (int)number.value:
-                            return JSBoolean.True;
+                            return true;
                         case uint @uint when @uint == (uint)number.value:
-                            return JSBoolean.True;
+                            return true;
                         case long @long when @long == (long)number.value:
-                            return JSBoolean.True;
+                            return true;
                         case ulong @ulong when @ulong == (ulong)number.value:
-                            return JSBoolean.True;
+                            return true;
                         case double @double when @double == number.value:
-                            return JSBoolean.True;
+                            return true;
                         case float @float when @float == (float)number.value:
-                            return JSBoolean.True;
+                            return true;
                     }
                     break;
             }
@@ -216,7 +216,7 @@ namespace YantraJS.Core.Clr
             // in case left side is not ClrProxy but maybe a string/number/bool/bigint
 
 
-            return JSBoolean.False;
+            return false;
         }
 
         public override JSValue this[uint name]

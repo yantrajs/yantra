@@ -196,25 +196,25 @@ namespace YantraJS.Core
             return base.Equals(obj);
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             switch (value)
             {
                 case JSString strValue:
                     if(this.value == strValue.value)
-                        return JSBoolean.True;
-                    return JSBoolean.False;
+                        return true;
+                    return false;
                 case JSNumber number
                     when ((this.DoubleValue == number.value)
                         || (this.value.CompareTo(number.value.ToString()) == 0)):
-                    return JSBoolean.True;
+                    return true;
                 case JSBoolean boolean
                     when (this.DoubleValue == (boolean._value ? 1D : 0D)):
-                    return JSBoolean.True;
+                    return true;
             }
-            return JSBoolean.False;
+            return false;
         }
 
         public override bool EqualsLiteral(double value)
@@ -232,76 +232,60 @@ namespace YantraJS.Core
             return this.value.Equals(value);
         }
 
-        public override JSBoolean Less(JSValue value)
+        public override bool Less(JSValue value)
         {
             if (value.IsUndefined)
-                return JSBoolean.False;
+                return false;
             if (value.CanBeNumber)
             {
-                return (this.DoubleValue < value.DoubleValue)
-                    ? JSBoolean.True
-                    : JSBoolean.False;
+                return this.DoubleValue < value.DoubleValue;
             }
             int n = this.value.CompareTo(value.ToString());
-            return n < 0
-                ? JSBoolean.True
-                : JSBoolean.False;
+            return n < 0;
 
         }
 
-        public override JSBoolean LessOrEqual(JSValue value)
+        public override bool LessOrEqual(JSValue value)
         {
             if (value.IsUndefined)
-                return JSBoolean.False;
+                return false;
             if (value.CanBeNumber)
             {
-                return (this.DoubleValue <= value.DoubleValue)
-                    ? JSBoolean.True
-                    : JSBoolean.False;
+                return (this.DoubleValue <= value.DoubleValue);
             }
-            return this.value.CompareTo(value.ToString()) <= 0
-                ? JSBoolean.True
-                : JSBoolean.False;
+            return this.value.CompareTo(value.ToString()) <= 0;
         }
 
-        public override JSBoolean Greater(JSValue value)
+        public override bool Greater(JSValue value)
         {
             if (value.IsUndefined)
-                return JSBoolean.False;
+                return false;
             if (value.CanBeNumber)
             {
-                return (this.DoubleValue > value.DoubleValue)
-                    ? JSBoolean.True
-                    : JSBoolean.False;
+                return (this.DoubleValue > value.DoubleValue);
             }
-            return this.value.CompareTo(value.ToString()) > 0
-                ? JSBoolean.True
-                : JSBoolean.False;
+            return this.value.CompareTo(value.ToString()) > 0;
         }
 
-        public override JSBoolean GreaterOrEqual(JSValue value)
+        public override bool GreaterOrEqual(JSValue value)
         {
             if (value.IsUndefined)
-                return JSBoolean.False;
+                return false;
             if (value.CanBeNumber)
             {
-                return (this.DoubleValue >= value.DoubleValue)
-                    ? JSBoolean.True
-                    : JSBoolean.False;
+                return (this.DoubleValue >= value.DoubleValue);
             }
-            return this.value.CompareTo(value.ToString()) >= 0
-                ? JSBoolean.True
-                : JSBoolean.False;
+            return this.value.CompareTo(value.ToString()) >= 0;
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             if (value is JSString s)
                 if (s.value == this.value)
-                    return JSBoolean.True;
-            return JSBoolean.False;
+                    return true;
+            return false;
         }
 
         public override JSValue InvokeFunction(in Arguments a)

@@ -360,7 +360,7 @@ namespace YantraJS.ExpHelper
                 return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralString, value));
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralDouble, value));
-            return Expression.Call(target, _Equals, value);
+            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _Equals, value));
         }
 
         public static Expression NotEquals(Expression target, Expression value)
@@ -374,7 +374,7 @@ namespace YantraJS.ExpHelper
             return
                 ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
                     Expression.Not(
-                    ExpHelper.JSValueBuilder.BooleanValue(Expression.Call(target, _Equals, value))
+                    Expression.Call(target, _Equals, value)
                 ));
         }
 
@@ -388,7 +388,7 @@ namespace YantraJS.ExpHelper
                 return JSBooleanBuilder.NewFromCLRBoolean( Expression.Call(target, _StrictEqualsLiteralString, value));
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _StrictEqualsLiteralDouble, value));
-            return Expression.Call(target, _StrictEquals, value);
+            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _StrictEquals, value));
         }
 
         public static Expression NotStrictEquals(Expression target, Expression value)
@@ -401,8 +401,7 @@ namespace YantraJS.ExpHelper
                     Expression.Not(Expression.Call(target, _StrictEqualsLiteralDouble, value)));
             return
                 ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
-                Expression.Not(
-                ExpHelper.JSValueBuilder.BooleanValue(Expression.Call(target, _StrictEquals, value))));
+                Expression.Not(Expression.Call(target, _StrictEquals, value)));
         }
 
         private static MethodInfo _Less
@@ -410,7 +409,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression Less(Expression target, Expression value)
         {
-            return Expression.Call(ValueOf(target), _Less, ValueOf(value));
+            return JSBooleanBuilder.NewFromCLRBoolean( Expression.Call(ValueOf(target), _Less, ValueOf(value)));
         }
 
         private static MethodInfo _LessOrEqual
@@ -418,21 +417,21 @@ namespace YantraJS.ExpHelper
 
         public static Expression LessOrEqual(Expression target, Expression value)
         {
-            return Expression.Call(ValueOf(target), _LessOrEqual, ValueOf(value));
+            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _LessOrEqual, ValueOf(value)));
         }
 
         private static MethodInfo _Greater
             = type.PublicMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
         public static Expression Greater(Expression target, Expression value)
         {
-            return Expression.Call(ValueOf(target), _Greater, ValueOf(value));
+            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _Greater, ValueOf(value)));
         }
 
         private static MethodInfo _GreaterOrEqual
             = type.PublicMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
-            return Expression.Call(ValueOf(target), _GreaterOrEqual, ValueOf(value));
+            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _GreaterOrEqual, ValueOf(value)));
         }
 
         public static Expression ValueOf(Expression target) {

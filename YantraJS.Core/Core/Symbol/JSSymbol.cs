@@ -48,11 +48,12 @@ namespace YantraJS.Core
             return false;
         }
 
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
-            if (value == this)
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return ReferenceEquals(this, value);
+            //if (value == this)
+            //    return JSBoolean.True;
+            //return JSBoolean.False;
         }
 
         public override int GetHashCode()
@@ -73,11 +74,9 @@ namespace YantraJS.Core
             throw new NotSupportedException();
         }
 
-        public override JSBoolean StrictEquals(JSValue value)
+        public override bool StrictEquals(JSValue value)
         {
-            if (value == this)
-                return JSBoolean.True;
-            return JSBoolean.False;
+            return ReferenceEquals(this, value);
         }
 
         public override string ToString()

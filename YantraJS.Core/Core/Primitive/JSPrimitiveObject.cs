@@ -70,13 +70,13 @@ namespace YantraJS.Core.Core.Primitive
        /// <param name="value"></param>
        /// <returns></returns>
     
-        public override JSBoolean Equals(JSValue value)
+        public override bool Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))
-                return JSBoolean.True;
+                return true;
             if (value is JSPrimitiveObject)
             {
-                return JSBoolean.False;
+                return false;
             }
             return base.Equals(value);
         }
