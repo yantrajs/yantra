@@ -186,8 +186,8 @@ namespace YantraJS.Core {
             {
                 return new JSNumber(self.DoubleValue + value);
             }
-            if (value.ToString().Length == 0)
-                return self.IsString ? self : new JSString(self.StringValue);
+            //if (value.ToString().Length == 0)
+            //    return self.IsString ? self : new JSString(self.StringValue);
             return new JSString(self.StringValue + value);
         }
         /// <summary>
@@ -199,7 +199,7 @@ namespace YantraJS.Core {
         {
             var self = this.ValueOf();
 
-            if (value.ToString().Length == 0)
+            if (value.Length == 0)
                 return self.IsString ? self : new JSString(self.StringValue);
             return new JSString(self.StringValue + value);
         }

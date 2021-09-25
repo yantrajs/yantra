@@ -239,10 +239,7 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(string value)
         {
-            var sb = new System.Text.StringBuilder();
-            sb.Append(this.value);
-            sb.Append(value);
-            return new JSString(sb.ToString());
+            return new JSString(this.value.ToString() + value);
         }
 
 

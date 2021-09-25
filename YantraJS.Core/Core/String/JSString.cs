@@ -48,18 +48,12 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(double value)
         {
-            var sb = new StringBuilder(this.value.Length + 20);
-            sb.Append(this.value);
-            sb.Append(value);
-            return new JSString(sb.ToString());
+            return new JSString( StringSpan.Concat(this.value, value.ToString()) );
         }
 
         public override JSValue AddValue(string value)
         {
-            var sb = new StringBuilder(this.value.Length + value.Length);
-            sb.Append(this.value);
-            sb.Append(value);
-            return new JSString(sb.ToString());
+            return new JSString( StringSpan.Concat(this.value, value));
         }
 
         public override bool ConvertTo(Type type, out object value)

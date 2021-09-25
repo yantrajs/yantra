@@ -93,6 +93,32 @@ namespace YantraJS.Core
             }
         }
 
+        public unsafe static string Concat(in StringSpan a, string value)
+        {
+            var alen = a.Length;
+            var n = alen + value.Length;
+            var s = new string('\0', n);
+            fixed (char* dest = s)
+            {
+                fixed(char* aa = a.Source)
+                {
+                    char* astart = aa + a.Offset;
+                    for (int i = 0; i < alen; i++)
+                    {
+                        dest[i] = astart[i];
+                    }
+                }
+                fixed(char* aa = value)
+                {
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        dest[alen + i] = aa[i];
+                    }
+                }
+            }
+            return s;
+        }
+
         public static int Compare(in StringSpan a, in StringSpan b, StringComparison comparisonType)
         {
             int minLength = Math.Min(a.Length, b.Length);
@@ -115,6 +141,10 @@ namespace YantraJS.Core
             return obj is StringSpan segment && Equals(in segment, StringComparison.Ordinal);
         }
 
+        public ReadOnlySpan<Char> AsSpan()
+        {
+            return Source.AsSpan().Slice(Offset, Length);
+        }
 
         public override string ToString()
         {
