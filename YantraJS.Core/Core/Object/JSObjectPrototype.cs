@@ -84,6 +84,14 @@ namespace YantraJS.Core
                 ref var elements = ref @object.GetElements();
                 if (elements.HasKey(key.Index))
                     return JSBoolean.True;
+                return JSBoolean.False;
+            }
+            if (key.IsSymbol)
+            {
+                ref var symbols = ref @object.GetSymbols();
+                if (symbols.HasKey(key.Symbol.Key))
+                    return JSBoolean.True;
+                return JSBoolean.False;
             }
             ref var op = ref @object.GetOwnProperties(false);
             if (op.HasKey(key.KeyString.Key))
