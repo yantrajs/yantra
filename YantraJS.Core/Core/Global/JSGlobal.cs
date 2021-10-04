@@ -70,7 +70,9 @@ namespace YantraJS.Core
         [Static("isNaN", Length = 1)]
         public static JSValue IsNaN(in Arguments a)
         {
-            return JSNumberStatic.IsNaN(a);
+            return double.IsNaN( a.Get1().DoubleValue) 
+                ? JSBoolean.True
+                : JSBoolean.False;
         }
 
         [Static("parseFloat", Length = 1)]

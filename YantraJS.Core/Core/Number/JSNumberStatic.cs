@@ -45,13 +45,9 @@ namespace YantraJS.Core.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsNaN(in Arguments a)
         {
-            //ExpressionTests.cs - // Too few arguments are passed as "undefined". This was added
-            if (a.Length == 0)
-                return JSBoolean.True;
-            if (a.Get1() is JSNumber n)
-            {
-                if (double.IsNaN(n.value))
-                    return JSBoolean.True;
+            var first = a.GetAt(0);
+            if (first.IsNumber) {
+                return double.IsNaN(first.DoubleValue) ? JSBoolean.True : JSBoolean.False;
             }
             return JSBoolean.False;
         }
