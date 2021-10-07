@@ -40,6 +40,8 @@ namespace YantraJS.Generator
 
             valueType = valueType ?? value.GetType();
 
+            valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
+
             switch (Type.GetTypeCode(valueType))
             {
                 case TypeCode.Boolean:
@@ -121,6 +123,17 @@ namespace YantraJS.Generator
 
             throw new NotSupportedException($"Constant of type  {value.GetType()} not supported, you must use a factory to create value of specified type");
 
+        }
+
+        public static void EmitConstant(this ILWriter il, MethodInfo method)
+        {
+            il.Emit(OpCodes.Ldftn, method);
+        }
+
+        public static void EmitConstant(this ILWriter il, Type type)
+        {
+            il.Emit(OpCodes.Ldtoken, type);
+            il.Emit(OpCodes.Call, typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle)));
         }
 
         public static void EmitConstant(this ILWriter il,decimal value)
@@ -360,6 +373,11 @@ namespace YantraJS.Generator
         {
             il.Emit(OpCodes.Ldstr, @string);
         }
+
+        //public static void EmitConstant(this ILWriter il, byte b)
+        //{
+
+        //}
 
         public static void EmitConstant(this ILWriter il,int i)
         {

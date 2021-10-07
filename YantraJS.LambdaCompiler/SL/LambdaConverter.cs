@@ -124,6 +124,11 @@ namespace YantraJS.SL
             return Expression.Convert(Visit(node.Target), typeof(object));
         }
 
+        protected override Expression VisitByteConstant(YByteConstantExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitCall(YCallExpression yCallExpression)
         {
             return Expression.Call(Visit(yCallExpression.Target), yCallExpression.Method, yCallExpression.Arguments.Select(Visit));
@@ -247,6 +252,11 @@ namespace YantraJS.SL
             throw new NotImplementedException();
         }
 
+        protected override Expression VisitMethodConstant(YMethodConstantExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitNew(YNewExpression yNewExpression)
         {
             throw new NotImplementedException();
@@ -303,6 +313,11 @@ namespace YantraJS.SL
         }
 
         protected override Expression VisitTypeAs(YTypeAsExpression yTypeAsExpression)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Expression VisitTypeConstant(YTypeConstantExpression node)
         {
             throw new NotImplementedException();
         }

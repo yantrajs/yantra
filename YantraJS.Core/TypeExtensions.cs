@@ -45,6 +45,18 @@ namespace YantraJS
             var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
+                switch (exp.NodeType)
+                {
+                    case YExpressionType.Int32Constant:
+                    case YExpressionType.UInt32Constant:
+                    case YExpressionType.Int64Constant:
+                    case YExpressionType.UInt64Constant:
+                        result.Add(exp);
+                        continue;
+                    case YExpressionType.DoubleConstant:
+                        result.Add(YExpression.Constant((int)(exp as YDoubleConstantExpression).Value));
+                        continue;
+                }
                 if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(int))
@@ -62,6 +74,15 @@ namespace YantraJS
             var result = new SparseList<Expression>(source.Count);
             foreach(var exp in source)
             {
+                switch (exp.NodeType)
+                {
+                    case YExpressionType.Int32Constant:
+                    case YExpressionType.UInt32Constant:
+                    case YExpressionType.Int64Constant:
+                    case YExpressionType.UInt64Constant:
+                        result.Add(exp);
+                        continue;
+                }
                 if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(int))
@@ -114,6 +135,11 @@ namespace YantraJS
             var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
+                if(exp.NodeType == YExpressionType.StringConstant)
+                {
+                    result.Add(exp);
+                    continue;
+                }
                 if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
                 if (ce.Type == typeof(string))

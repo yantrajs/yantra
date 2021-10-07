@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace YantraJS.Expressions
@@ -110,11 +111,54 @@ namespace YantraJS.Expressions
             writer.Write(Value);
         }
     }
+
+    public class YByteConstantExpression : YExpression
+    {
+        public readonly byte Value;
+
+        public YByteConstantExpression(byte value) : base(YExpressionType.ByteConstant, typeof(byte))
+        {
+            this.Value = value;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write(Value);
+        }
+    }
     public class YStringConstantExpression : YExpression
     {
         public readonly string Value;
 
         public YStringConstantExpression(string value) : base(YExpressionType.StringConstant, typeof(string))
+        {
+            this.Value = value;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write(Value);
+        }
+    }
+
+    public class YTypeConstantExpression: YExpression
+    {
+        public readonly Type Value;
+        public YTypeConstantExpression(Type value) : base(YExpressionType.TypeConstant, typeof(Type))
+        {
+            this.Value = value;
+        }
+
+        public override void Print(IndentedTextWriter writer)
+        {
+            writer.Write(Value);
+        }
+    }
+
+    public class YMethodConstantExpression : YExpression
+    {
+        public readonly MethodInfo Value;
+        public YMethodConstantExpression(MethodInfo value) : base(YExpressionType.MethodConstant, typeof(Type))
         {
             this.Value = value;
         }

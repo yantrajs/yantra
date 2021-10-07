@@ -112,11 +112,20 @@ namespace YantraJS.Expressions
                     return VisitBooleanConstant(exp as YBooleanConstantExpression);
                 case YExpressionType.StringConstant:
                     return VisitStringConstant(exp as YStringConstantExpression);
+                case YExpressionType.ByteConstant:
+                    return VisitByteConstant(exp as YByteConstantExpression);
+                case YExpressionType.TypeConstant:
+                    return VisitTypeConstant(exp as YTypeConstantExpression);
+                case YExpressionType.MethodConstant:
+                    return VisitMethodConstant(exp as YMethodConstantExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitMethodConstant(YMethodConstantExpression node);
+        protected abstract T VisitTypeConstant(YTypeConstantExpression node);
+        protected abstract T VisitByteConstant(YByteConstantExpression node);
         protected abstract T VisitStringConstant(YStringConstantExpression node);
         protected abstract T VisitBooleanConstant(YBooleanConstantExpression node);
         protected abstract T VisitFloatConstant(YFloatConstantExpression node);

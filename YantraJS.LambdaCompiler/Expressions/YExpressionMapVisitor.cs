@@ -513,5 +513,20 @@ namespace YantraJS.Expressions
         {
             return node;
         }
+
+        protected override YExpression VisitByteConstant(YByteConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitTypeConstant(YTypeConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitMethodConstant(YMethodConstantExpression node)
+        {
+            return node;
+        }
     }
 }

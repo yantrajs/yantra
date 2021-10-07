@@ -56,5 +56,23 @@ namespace YantraJS.Generator
             il.EmitConstant(node.Value);
             return true;
         }
+
+        protected override CodeInfo VisitByteConstant(YByteConstantExpression node)
+        {
+            il.EmitConstant(node.Value);
+            return true;
+        }
+
+        protected override CodeInfo VisitTypeConstant(YTypeConstantExpression node)
+        {
+            il.EmitConstant(node.Value);
+            return true;
+        }
+
+        protected override CodeInfo VisitMethodConstant(YMethodConstantExpression node)
+        {
+            il.EmitConstant(node.Value);
+            return true;
+        }
     }
 }

@@ -159,7 +159,7 @@ namespace YantraJS.Generator
                     cm = StringEqualsMethod;
                     void CompareString(YExpression test, ILWriterLabel target)
                     {
-                        var hash = (test as YConstantExpression).Value.ToString().UnsafeGetHashCode();
+                        var hash = (test as YStringConstantExpression).Value.ToString().UnsafeGetHashCode();
                         Visit(test);
                         il.EmitConstant(hash);
                         il.EmitCall(HashMatch);

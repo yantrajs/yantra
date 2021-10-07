@@ -53,6 +53,9 @@ namespace YantraJS.Expressions
         DoubleConstant,
         FloatConstant,
         BooleanConstant,
-        StringConstant
+        StringConstant,
+        ByteConstant,
+        TypeConstant,
+        MethodConstant
     }
 }

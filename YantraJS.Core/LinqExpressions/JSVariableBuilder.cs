@@ -22,7 +22,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(Expression value, string name)
         {
-            return Expression.New(_New, value, Expression.Constant(name, typeof(string)));
+            return Expression.New(_New, value, Expression.Constant(name));
         }
 
         public static Expression New(Expression value, in StringSpan name)
@@ -36,7 +36,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression NewFromException(Expression value, string name)
         {
-            return Expression.New(_NewFromException, value, Expression.Constant(name, typeof(string)));
+            return Expression.New(_NewFromException, value, Expression.Constant(name));
         }
 
         static readonly ConstructorInfo _NewFromArgument

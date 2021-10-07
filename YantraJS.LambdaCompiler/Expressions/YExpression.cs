@@ -59,6 +59,15 @@ namespace YantraJS.Expressions
             return YExpression.Binary(left, YOperator.Subtract, YExpression.Constant(right));
         }
 
+        public static YExpression operator +(YExpression left, int right)
+        {
+            return YExpression.Binary(left, YOperator.Add, YExpression.Constant(right));
+        }
+        public static YExpression operator -(YExpression left, int right)
+        {
+            return YExpression.Binary(left, YOperator.Subtract, YExpression.Constant(right));
+        }
+
 
         public static YExpression operator >(YExpression left, YExpression right)
         {
@@ -244,6 +253,14 @@ namespace YantraJS.Expressions
         public static YDoubleConstantExpression Constant(double value) => new YDoubleConstantExpression(value);
 
         public static YFloatConstantExpression Constant(float value) => new YFloatConstantExpression(value);
+
+        public static YByteConstantExpression Constant(byte value) => new YByteConstantExpression(value);
+
+        public static YTypeConstantExpression Constant(Type value) => new YTypeConstantExpression(value);
+
+        public static YMethodConstantExpression Constant(MethodInfo value) => new YMethodConstantExpression(value);
+
+        public static YInt32ConstantExpression Constant(Enum value) => new YInt32ConstantExpression(System.Convert.ToInt32(value));
 
         public static YConstantExpression Constant(object value, Type? type = null)
         {
