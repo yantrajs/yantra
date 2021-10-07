@@ -114,6 +114,11 @@ namespace YantraJS.SL
             }
         }
 
+        protected override Expression VisitBooleanConstant(YBooleanConstantExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitBox(YBoxExpression node)
         {
             return Expression.Convert(Visit(node.Target), typeof(object));
@@ -162,6 +167,11 @@ namespace YantraJS.SL
             throw new NotImplementedException();
         }
 
+        protected override Expression VisitDoubleConstant(YDoubleConstantExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitEmpty(YEmptyExpression exp)
         {
             return Expression.Empty();
@@ -170,6 +180,11 @@ namespace YantraJS.SL
         protected override Expression VisitField(YFieldExpression yFieldExpression)
         {
             return Expression.Field(Visit(yFieldExpression.Target), yFieldExpression.FieldInfo);
+        }
+
+        protected override Expression VisitFloatConstant(YFloatConstantExpression node)
+        {
+            throw new NotImplementedException();
         }
 
         protected override Expression VisitGoto(YGoToExpression yGoToExpression)
@@ -183,6 +198,16 @@ namespace YantraJS.SL
         }
 
         protected override Expression VisitIndex(YIndexExpression yIndexExpression)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Expression VisitInt32Constant(YInt32ConstantExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Expression VisitInt64Constant(YInt64ConstantExpression node)
         {
             throw new NotImplementedException();
         }
@@ -257,6 +282,11 @@ namespace YantraJS.SL
             throw new NotImplementedException();
         }
 
+        protected override Expression VisitStringConstant(YStringConstantExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitSwitch(YSwitchExpression node)
         {
             throw new NotImplementedException();
@@ -278,6 +308,16 @@ namespace YantraJS.SL
         }
 
         protected override Expression VisitTypeIs(YTypeIsExpression yTypeIsExpression)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Expression VisitUInt32Constant(YUInt32ConstantExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Expression VisitUInt64Constant(YUInt64ConstantExpression node)
         {
             throw new NotImplementedException();
         }

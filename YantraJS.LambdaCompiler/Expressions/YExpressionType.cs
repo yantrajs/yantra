@@ -45,6 +45,14 @@ namespace YantraJS.Expressions
         Unbox,
         JumpSwitch,
         ListInit,
-        CoalesceCall
+        CoalesceCall,
+        Int32Constant,
+        UInt32Constant,
+        Int64Constant,
+        UInt64Constant,
+        DoubleConstant,
+        FloatConstant,
+        BooleanConstant,
+        StringConstant
     }
 }

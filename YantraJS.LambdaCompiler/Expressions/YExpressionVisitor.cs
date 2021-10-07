@@ -94,11 +94,37 @@ namespace YantraJS.Expressions
                     return VisitListInit(exp as YListInitExpression);
                 case YExpressionType.CoalesceCall:
                     return VisitCoalesceCall(exp as YCoalesceCallExpression);
+                //case YExpressionType.TypeEqual:
+                //    break;
+                case YExpressionType.Int32Constant:
+                    return VisitInt32Constant(exp as YInt32ConstantExpression);
+                case YExpressionType.UInt32Constant:
+                    return VisitUInt32Constant(exp as YUInt32ConstantExpression);
+                case YExpressionType.Int64Constant:
+                    return VisitInt64Constant(exp as YInt64ConstantExpression);
+                case YExpressionType.UInt64Constant:
+                    return VisitUInt64Constant(exp as YUInt64ConstantExpression);
+                case YExpressionType.DoubleConstant:
+                    return VisitDoubleConstant(exp as YDoubleConstantExpression);
+                case YExpressionType.FloatConstant:
+                    return VisitFloatConstant(exp as YFloatConstantExpression);
+                case YExpressionType.BooleanConstant:
+                    return VisitBooleanConstant(exp as YBooleanConstantExpression);
+                case YExpressionType.StringConstant:
+                    return VisitStringConstant(exp as YStringConstantExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitStringConstant(YStringConstantExpression node);
+        protected abstract T VisitBooleanConstant(YBooleanConstantExpression node);
+        protected abstract T VisitFloatConstant(YFloatConstantExpression node);
+        protected abstract T VisitDoubleConstant(YDoubleConstantExpression node);
+        protected abstract T VisitUInt64Constant(YUInt64ConstantExpression node);
+        protected abstract T VisitInt64Constant(YInt64ConstantExpression node);
+        protected abstract T VisitUInt32Constant(YUInt32ConstantExpression node);
+        protected abstract T VisitInt32Constant(YInt32ConstantExpression node);
         protected abstract T VisitCoalesceCall(YCoalesceCallExpression node);
         protected abstract T VisitListInit(YListInitExpression node);
         protected abstract T VisitJumpSwitch(YJumpSwitchExpression node);

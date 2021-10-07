@@ -473,5 +473,45 @@ namespace YantraJS.Expressions
             }
             return e;
         }
+
+        protected override YExpression VisitStringConstant(YStringConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitBooleanConstant(YBooleanConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitFloatConstant(YFloatConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitDoubleConstant(YDoubleConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitUInt64Constant(YUInt64ConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitInt64Constant(YInt64ConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitUInt32Constant(YUInt32ConstantExpression node)
+        {
+            return node;
+        }
+
+        protected override YExpression VisitInt32Constant(YInt32ConstantExpression node)
+        {
+            return node;
+        }
     }
 }
