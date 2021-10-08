@@ -670,12 +670,15 @@ namespace YantraJS.Core.FastParser
                     switch(ch)
                     {
                         case '$':
-                                if (ConsumeAndNext('{')) {
+                                ch = Consume();
+                                if (ch == '{') {
+                                    Consume();
                                     // template part begin...
                                     templateParts++;
                                     return state.Commit(part, t);
                                     // return state.Commit(TokenTypes.TemplatePart, t);
                                 }
+                                t.Append('$');
                                 t.Append(ch);
                                 continue;
                         case '`':
