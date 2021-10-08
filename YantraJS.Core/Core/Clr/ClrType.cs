@@ -310,30 +310,80 @@ namespace YantraJS.Core.Clr
 
         }
 
+        public static JSFunctionDelegate SetValue<TOwner, TValue>(Action<TOwner, TValue> setter)
+        {
+            return (in Arguments a) =>
+            {
+                var owner = a.This;
+                var value = a.Get1();
+                setter(
+                    (TOwner)owner.ForceConvert(typeof(TOwner)),
+                    (TValue)value.ForceConvert(typeof(TValue)));
+                return JSUndefined.Value;
+            };
+        }
+
+        public static JSFunctionDelegate SetStaticValue<TValue>(Action<TValue> setter)
+        {
+            return (in Arguments a) =>
+            {
+                var value = a.Get1();
+                setter(
+                    (TValue)value.ForceConvert(typeof(TValue)));
+                return JSUndefined.Value;
+            };
+        }
+
         private static JSFunctionDelegate GeneratePropertySetter(bool isStatic, PropertyInfo property)
         {
             //if (property.GetIndexParameters()?.Length > 0)
             //{
             //    return PrepareIndexedPropertySetter(property);
             //}
-            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            var a1 = ArgumentsBuilder.Get1(args);
-            var target = Expression.Parameter(property.PropertyType);
-            var convert = isStatic
-                ? null
-                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
 
-            var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
+            if (isStatic)
+            {
+                var m1 = typeof(Action<>).MakeGenericType(property.PropertyType);
+                var method1 = typeof(ClrType)
+                    .GetMethod(nameof(SetStaticValue))
+                    .MakeGenericMethod(property.PropertyType).Invoke(null, new object[] { property.SetMethod.CreateDelegate(m1) });
 
-            var body = Expression.Block(new ParameterExpression[] { target },
+                return method1 as JSFunctionDelegate;
+
+            }
+
+            var m = typeof(Action<,>).MakeGenericType(property.DeclaringType, property.PropertyType);
+            var method = typeof(ClrType)
+                .GetMethod(nameof(SetValue))
+                .MakeGenericMethod(property.DeclaringType, property.PropertyType).Invoke(null, new object[] { property.SetMethod.CreateDelegate(m) });
+
+            return method as JSFunctionDelegate;
+
+            //property.SetMethod.CreateDelegate(m);
+
+            //return (in Arguments a) => {
                 
-                Expression.Assign(
-                    Expression.Property(
-                        convert, property),
-                    clrArg1).ToJSValue());
+            //    return JSUndefined.Value;
+            //};
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
-            return lambda.Compile();
+            //var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            //var a1 = ArgumentsBuilder.Get1(args);
+            //var target = Expression.Parameter(property.PropertyType);
+            //var convert = isStatic
+            //    ? null
+            //    : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
+
+            //var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
+
+            //var body = Expression.Block(new ParameterExpression[] { target },
+                
+            //    Expression.Assign(
+            //        Expression.Property(
+            //            convert, property),
+            //        clrArg1).ToJSValue());
+
+            //var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
+            //return lambda.Compile();
         }
 
         private static Func<object,uint,JSValue> GenerateIndexedGetter(PropertyInfo property)
