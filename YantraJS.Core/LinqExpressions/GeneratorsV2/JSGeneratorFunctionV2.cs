@@ -73,7 +73,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             this.injectedException = ex;
         }
 
-        public List<Box> Variables;
+        public Box[] Variables;
         private JSGeneratorFunctionV2 generator;
         private JSGeneratorDelegateV2 @delegate;
         private readonly Arguments arguments;
@@ -103,16 +103,15 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             this.@delegate = @delegate;
             this.arguments = arguments;
             this.Context = JSContext.Current;
-            Variables = new List<Box>();
+        }
+
+        public void InitVariables(int i)
+        {
+            Variables ??= new Box[i];
         }
 
         public Box<T> GetVariable<T>(int i)
         {
-            while (Variables.Count <= i)
-            {
-                Variables.Add(null);
-            }
-
             var b = Variables[i];
             if (b == null)
             {

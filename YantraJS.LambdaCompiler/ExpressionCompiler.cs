@@ -248,8 +248,6 @@ namespace YantraJS
 
             icg.Emit(create);
 
-            var il1 = icg.ToString();
-
             return m;
         }
     }

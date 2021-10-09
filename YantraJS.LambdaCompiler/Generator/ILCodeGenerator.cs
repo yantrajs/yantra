@@ -15,6 +15,8 @@ namespace YantraJS.Generator
     {
         private readonly ILWriter il;
 
+        public static bool GenerateLogs = false;
+
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
@@ -35,6 +37,11 @@ namespace YantraJS.Generator
 
         public ILCodeGenerator(ILGenerator il, TextWriter? writer = null, TextWriter? expressionWriter = null)
         {
+            if(!GenerateLogs)
+            {
+                writer = null;
+                expressionWriter = null;
+            }
             this.il = new ILWriter(il, writer);
             this.variables = new VariableInfo(il);
             this.labels = new LabelInfo(this.il);

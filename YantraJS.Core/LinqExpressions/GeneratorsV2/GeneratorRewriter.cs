@@ -128,6 +128,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private (ParameterExpression[] boxes, Expression init) LoadBoxes()
         {
             List<Expression> boxes = new List<Expression>(lifted.Count);
+            boxes.Add(ClrGeneratorV2Builder.InitVariables(pe, lifted.Count));
             List<ParameterExpression> vlist = new List<ParameterExpression>(lifted.Count);
             foreach(var v in lifted)
             {
@@ -382,6 +383,9 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         private static MethodInfo _GetVariable
             = type.GetMethod("GetVariable");
+        private static MethodInfo _InitVariables
+            = type.GetMethod("InitVariables");
+
 
         public static Expression Push(Expression exp, int c, int f, int e)
         {
@@ -394,6 +398,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         internal static Expression GetVariable(ParameterExpression pe, int id, Type type)
         {
             return Expression.Call(pe, _GetVariable.MakeGenericMethod(type), Expression.Constant(id));
+        }
+
+        internal static Expression InitVariables(ParameterExpression pe, int count)
+        {
+            return Expression.Call(pe, _InitVariables, Expression.Constant(count));
         }
 
         internal static Expression Pop(ParameterExpression pe)

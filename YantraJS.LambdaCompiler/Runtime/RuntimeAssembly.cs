@@ -16,12 +16,7 @@ namespace YantraJS.Runtime
 
         public static object Compile(this YLambdaExpression exp)
         {
-            var originalTypes = exp.ParameterTypes;
-            string expString = exp.ToString();
             exp = exp.WithThis(typeof(Closures));
-
-            //var f = new FlattenVisitor();
-            //exp = f.Visit(exp) as YLambdaExpression;
 
             var method = new DynamicMethod(exp.Name.FullName, exp.ReturnType, exp.ParameterTypesWithThis, typeof(Closures), true);
             
@@ -30,17 +25,13 @@ namespace YantraJS.Runtime
             ILCodeGenerator icg = new ILCodeGenerator(ilg);
             icg.Emit(exp);
 
-            string il = icg.ToString();
-
-            var c = new Closures(null, il, expString);
+            var c = new Closures(null, null, null);
 
             return (object)method.CreateDelegate(exp.Type, c);
         }
 
         public static T Compile<T>(this YExpression<T> exp)
         {
-            var originalTypes = exp.ParameterTypes;
-            string expString = exp.ToString();
             exp = exp.WithThis<T>(typeof(Closures));
 
             // var f = new FlattenVisitor();
