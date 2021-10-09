@@ -133,13 +133,13 @@ namespace YantraJS.Core
                 ? $"function {type.name}() {{ [clr-native] }}"
                 : source;
             prototype = type.prototype;
-            prototype[KeyStrings.constructor] = type;
+            prototype.FastAddValue(KeyStrings.constructor, type, JSPropertyAttributes.EnumerableConfigurableValue);
             ownProperties.Put(KeyStrings.prototype.Key) = JSProperty.Property(KeyStrings.prototype, prototype);
 
-            this[KeyStrings.name] = name.IsEmpty
+            this.FastAddValue(KeyStrings.name, name.IsEmpty
                 ? new JSString("native")
-                : new JSString(name);
-            this[KeyStrings.length] = new JSNumber(0);
+                : new JSString(name), JSPropertyAttributes.EnumerableConfigurableValue);
+            this.FastAddValue(KeyStrings.length, new JSNumber(0), JSPropertyAttributes.EnumerableConfigurableValue);
             constructor = this;
         }
 
@@ -207,7 +207,7 @@ namespace YantraJS.Core
             {
                 prototype = new JSObject();
                 // prototype[KeyStrings.constructor] = this;
-                prototype.DefineProperty(KeyStrings.constructor, JSProperty.Property(this, JSPropertyAttributes.ConfigurableValue));
+                prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
                 // ref var opp = ref prototype.GetOwnProperties(true);
                 // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
                 ownProperties.Put(KeyStrings.prototype, prototype);

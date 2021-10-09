@@ -69,7 +69,8 @@ namespace YantraJS.Core
                     if (cx.function != null && r.f == JSFunction.empty)
                     {
                         r.f = cx.function;
-                        r[KeyStrings.length] = new JSNumber(cx.length);
+                        r.FastAddValue(KeyStrings.length, new JSNumber(cx.length), JSPropertyAttributes.EnumerableConfigurableValue);
+                        // r[KeyStrings.length] = new JSNumber(cx.length);
                         
                     }
 
@@ -77,7 +78,8 @@ namespace YantraJS.Core
                     if (cx.function != null && r.f == JSFunction.empty)
                     {
                         r.f = cx.function;
-                        r[KeyStrings.length] = new JSNumber(cx.length);
+                        r.FastAddValue(KeyStrings.length, new JSNumber(cx.length), JSPropertyAttributes.EnumerableConfigurableValue);
+                        // r[KeyStrings.length] = new JSNumber(cx.length);
                     }
                 }
 
@@ -148,15 +150,15 @@ namespace YantraJS.Core
                 var getterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", getterBody, pe);
                 getter = getterLambda.Compile();
             }
-            if (property.CanWrite)
-            {
-                var setterBody = Expression.Assign(
-                    Expression.Property(coalesce, property),
-                    JSValueBuilder.ForceConvert(arg1, rType));
-                var setterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", Expression.Block(peList,
-                    setterBody), pe);
-                setter = setterLambda.Compile();
-            }
+            //if (property.CanWrite)
+            //{
+            //    var setterBody = Expression.Assign(
+            //        Expression.Property(coalesce, property),
+            //        JSValueBuilder.ForceConvert(arg1, rType));
+            //    var setterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", Expression.Block(peList,
+            //        setterBody), pe);
+            //    setter = setterLambda.Compile();
+            //}
             setter = (in Arguments a) =>
             {
                 var f = a.Get1();
