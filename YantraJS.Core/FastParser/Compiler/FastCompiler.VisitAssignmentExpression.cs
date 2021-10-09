@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using YantraJS.Core.LinqExpressions;
@@ -77,13 +78,10 @@ namespace YantraJS.Core.FastParser.Compiler
             bool newScope = false)
         {
             var inits = pool.AllocateList<Exp>();
-            try {
-                CreateAssignment(inits, pattern, init, createVariable, newScope);
-                return Exp.Block(inits);
-            } finally
-            {
-                inits.Clear();
-            }
+            CreateAssignment(inits, pattern, init, createVariable, newScope);
+            var span = inits.ToArray();
+            inits.Clear();
+            return Exp.Block(span);
         }
 
         private void CreateAssignment(

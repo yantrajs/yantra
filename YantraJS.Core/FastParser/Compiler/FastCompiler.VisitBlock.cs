@@ -27,8 +27,8 @@ namespace YantraJS.Core.FastParser.Compiler
             var blockList = pool.AllocateList<Expression>();
             var hoistingScope = block.HoistingScope;
             var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
-            try
-            {
+            //try
+            //{
                 if (hoistingScope != null)
                 {
                     var en = hoistingScope.Value.GetEnumerator();
@@ -52,13 +52,16 @@ namespace YantraJS.Core.FastParser.Compiler
                     blockList.Add(CallStackItemBuilder.Step(scope.StackItem, stmt.Start.Start.Line, stmt.Start.Start.Column));
                     blockList.Add(exp);
                 }
-                return Scoped(scope, blockList);
-            }
-            finally
-            {
+                var result = Scoped(scope, blockList);
                 blockList.Clear();
                 scope.Dispose();
-            }
+                return result;
+            //}
+            //finally
+            //{
+            //    blockList.Clear();
+            //    scope.Dispose();
+            //}
         }
     }
 }
