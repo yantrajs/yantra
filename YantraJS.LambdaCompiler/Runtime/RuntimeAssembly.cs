@@ -48,13 +48,7 @@ namespace YantraJS.Runtime
             string il = sw.ToString();
 
             var c = new Closures(null, il, expWriter.ToString());
-            try
-            {
-                return (T)(object)method.CreateDelegate(typeof(T), c);
-            } catch (Exception ex)
-            {
-                throw;
-            }
+            return (T)(object)method.CreateDelegate(typeof(T), c);
         }
 
 

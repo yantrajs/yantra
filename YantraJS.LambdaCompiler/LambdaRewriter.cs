@@ -157,6 +157,11 @@ namespace YantraJS
             }
         }
 
+        protected override YExpression VisitRelay(YRelayExpression relayExpression)
+        {
+            return relayExpression;
+        }
+
         public static YExpression Relay(
             in FunctionName name,
             YExpression[] closures,
@@ -185,8 +190,8 @@ namespace YantraJS
 
             // let us find out lifted variables...
 
-            var list = new List<YParameterExpression>();
-            var statements = new List<YExpression>();
+            var list = new List<YParameterExpression>(node.Variables.Length);
+            var statements = new List<YExpression>(node.Expressions.Length);
             foreach (var (e, p) in node.Variables.Select(v => stack.AccessParameter(v))) { 
                 if(e == p)
                 {
