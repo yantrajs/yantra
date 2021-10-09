@@ -122,35 +122,40 @@ namespace YantraJS.Core
                 name = name.Substring(2);
             }
 
-            var peList = new List<ParameterExpression>();
-            ParameterExpression targetExp = null;
-            var toType = m.method.DeclaringType;
-            targetExp = Expression.Parameter(typeof(JSValue));
-            // var target = JSVariable.ValueExpression(targetExp);
-            var target = targetExp;
-            // this is a set method...
-            peList.Add(targetExp);
-            var rType = property.PropertyType;
+            //var peList = new List<ParameterExpression>();
+            //ParameterExpression targetExp = null;
+            //var toType = m.method.DeclaringType;
+            //targetExp = Expression.Parameter(typeof(JSValue));
+            //// var target = JSVariable.ValueExpression(targetExp);
+            //var target = targetExp;
+            //// this is a set method...
+            //peList.Add(targetExp);
+            //var rType = property.PropertyType;
 
             // wrap...
-            var pe = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            var peThis = ArgumentsBuilder.This(pe);
-            var arg1 = ArgumentsBuilder.Get1(pe);
-            var coalesce = Expression.Coalesce(
-                Expression.TypeAs(peThis, toType),
-                Expression.Throw(
-                    JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
+            //var pe = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            //var peThis = ArgumentsBuilder.This(pe);
+            //var arg1 = ArgumentsBuilder.Get1(pe);
+            //var coalesce = Expression.Coalesce(
+            //    Expression.TypeAs(peThis, toType),
+            //    Expression.Throw(
+            //        JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
 
             JSFunctionDelegate getter = null;
             JSFunctionDelegate setter = null;
 
             if (property.CanRead)
             {
-                var getterBody = Expression.Property(coalesce, property);
-                var getterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", getterBody, pe);
-                getter = getterLambda.Compile();
+                //var getterBody = Expression.Property(coalesce, property);
+                //var getterLambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", getterBody, pe);
+                //getter = getterLambda.Compile();
+                getter = DelegateHelper.CreatePropertyGetter(property);
             }
-            //if (property.CanWrite)
+            if (property.CanWrite)
+            {
+                setter = DelegateHelper.CreatePropertySetter(property);
+            }
+            //if (property.CanWrite) 
             //{
             //    var setterBody = Expression.Assign(
             //        Expression.Property(coalesce, property),
@@ -159,13 +164,13 @@ namespace YantraJS.Core
             //        setterBody), pe);
             //    setter = setterLambda.Compile();
             //}
-            setter = (in Arguments a) =>
-            {
-                var f = a.Get1();
-                var tx = f.ForceConvert(property.PropertyType);
-                property.SetValue(a.This, tx);
-                return f;
-            };
+            //setter = (in Arguments a) =>
+            //{
+            //    var f = a.Get1();
+            //    var tx = f.ForceConvert(property.PropertyType);
+            //    property.SetValue(a.This, tx);
+            //    return f;
+            //};
             return (getter, setter);
         }
 
@@ -201,32 +206,34 @@ namespace YantraJS.Core
                 name = name.Substring(2);
             }
 
-            var peList = new List<ParameterExpression>();
-            ParameterExpression targetExp = null;
-            var toType = m.method.DeclaringType;
-            var paramList = m.method.GetParameters();
-            if (paramList?.Length > 0)
-            {
-                targetExp = Expression.Parameter(typeof(JSValue));
-                // this is a set method...
-                peList.Add(targetExp);
-            }
-            var rType = m.method.GetParameters()?.FirstOrDefault()?.ParameterType;
+            return DelegateHelper.CreateMethod(method);
 
-            // wrap...
-            var pe = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            var peThis = ArgumentsBuilder.This(pe);
-            var arg1 = ArgumentsBuilder.Get1(pe);
-            var coalesce = Expression.Coalesce(
-                Expression.TypeAs(peThis, toType), 
-                Expression.Throw(
-                    JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
-            var body = Expression.Block( peList, targetExp == null
-                ? Expression.Call(coalesce, method)
-                : Expression.Call(coalesce, method, JSValueBuilder.Coalesce(arg1, rType, targetExp, p.Name.ToString())),
-                peThis);
-            var lambda = Expression.Lambda<JSFunctionDelegate>(method.Name, body, pe);
-            return lambda.Compile();
+            //var peList = new List<ParameterExpression>();
+            //ParameterExpression targetExp = null;
+            //var toType = m.method.DeclaringType;
+            //var paramList = m.method.GetParameters();
+            //if (paramList?.Length > 0)
+            //{
+            //    targetExp = Expression.Parameter(typeof(JSValue));
+            //    // this is a set method...
+            //    peList.Add(targetExp);
+            //}
+            //var rType = m.method.GetParameters()?.FirstOrDefault()?.ParameterType;
+
+            //// wrap...
+            //var pe = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            //var peThis = ArgumentsBuilder.This(pe);
+            //var arg1 = ArgumentsBuilder.Get1(pe);
+            //var coalesce = Expression.Coalesce(
+            //    Expression.TypeAs(peThis, toType), 
+            //    Expression.Throw(
+            //        JSExceptionBuilder.New($"{name}.prototype.{p.Name} called with object not of type {name}"), toType));
+            //var body = Expression.Block( peList, targetExp == null
+            //    ? Expression.Call(coalesce, method)
+            //    : Expression.Call(coalesce, method, JSValueBuilder.Coalesce(arg1, rType, targetExp, p.Name.ToString())),
+            //    peThis);
+            //var lambda = Expression.Lambda<JSFunctionDelegate>(method.Name, body, pe);
+            //return lambda.Compile();
         }
 
         public static (JSFunctionDelegate function, int length) Fill(Type type, JSObject target)
