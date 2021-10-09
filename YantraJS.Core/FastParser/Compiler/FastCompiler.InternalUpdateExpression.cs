@@ -29,8 +29,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
             FastFunctionScope.VariableScope target = null;
             FastFunctionScope.VariableScope @return = null;
-            try
-            {
+            // try
+            // {
                 var right = VisitExpression(updateExpression.Argument);
 
                 switch (right.NodeType)
@@ -68,13 +68,16 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
 
                 var r = Exp.Block(list);
-                return r;
-            } finally
-            {
                 @return?.Dispose();
                 target?.Dispose();
                 list.Clear();
-            }
+                return r;
+            //} finally
+            //{
+            //    @return?.Dispose();
+            //    target?.Dispose();
+            //    list.Clear();
+            //}
         }
     }
 }
