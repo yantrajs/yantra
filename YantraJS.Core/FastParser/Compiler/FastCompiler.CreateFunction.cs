@@ -50,9 +50,10 @@ namespace YantraJS.Core.FastParser.Compiler
             var bodyInits = pool.AllocateList<Exp>();
             var vList = pool.AllocateList<ParameterExpression>();
 
-            try
-            {
-                using (var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis, super)))
+            //try
+            //{
+            // using (var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis, super)))
+            var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis, super));
                 {
                     var lexicalScopeVar = cs.Context;
 
@@ -247,6 +248,11 @@ namespace YantraJS.Core.FastParser.Compiler
                         }
                     }
 
+                bodyInits.Clear();
+                sList.Clear();
+                vList.Clear();
+                cs.Dispose();
+
                     if (jsFVarScope != null)
                     {
                         jsFVarScope.SetPostInit(jsf);
@@ -254,12 +260,12 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     return jsf;
                 }
-            } finally
-            {
-                bodyInits.Clear();
-                sList.Clear();
-                vList.Clear();
-            }
+            //} finally
+            //{
+            //    bodyInits.Clear();
+            //    sList.Clear();
+            //    vList.Clear();
+            //}
         }
 
     }

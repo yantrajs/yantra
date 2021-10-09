@@ -64,8 +64,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 if (argsList != null && jScript.HoistingScope != null) {
                     var list = pool.AllocateList<StringSpan>(jScript.HoistingScope.Value.Length);
-                    try
-                    {
+                    //try
+                    //{
                         var e = jScript.HoistingScope.Value.GetEnumerator();
                         while (e.MoveNext(out var a))
                         {
@@ -74,10 +74,11 @@ namespace YantraJS.Core.FastParser.Compiler
                             list.Add(a);
                         }
                         jScript.HoistingScope = list.ToSpan();
-                    } finally
-                    {
-                        list.Clear();
-                    }
+                    list.Clear();
+                    //} finally
+                    //    {
+                    //        list.Clear();
+                    //    }
                 }
 
                 var scriptInfo = fx.ScriptInfo;

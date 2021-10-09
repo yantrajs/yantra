@@ -16,8 +16,8 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             var e = arrayExpression.Elements.GetEnumerator();
             var list = pool.AllocateList<YElementInit>();
-            try
-            {
+            //try
+            //{
                 while (e.MoveNext(out var item))
                 {
                     if (item == null)
@@ -39,14 +39,17 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 if (list.Count > 0)
                 {
-                    return Expression.ListInit(Expression.New(JSArrayBuilder._New), list.Release());
+                    var r = list.Release();
+                    list.Dispose();
+                    return Expression.ListInit(Expression.New(JSArrayBuilder._New), r);
                 }
 
-                return Expression.New(JSArrayBuilder._New);
-            } finally
-            {
                 list.Dispose();
-            }
+                return Expression.New(JSArrayBuilder._New);
+            //} finally
+            //{
+            //    list.Dispose();
+            //}
         }
     }
 }
