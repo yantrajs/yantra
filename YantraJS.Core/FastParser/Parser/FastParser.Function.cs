@@ -11,9 +11,11 @@ namespace YantraJS.Core.FastParser
 
         bool Function(out AstStatement statement, bool isAsync = false)
         {
-            statement = default;
             if (!FunctionExpression(out var expression, isAsync, isStatement: true))
+            {
+                statement = default;
                 return false;
+            }
             statement = new AstExpressionStatement(expression);
             return true;
         }

@@ -130,12 +130,10 @@ namespace YantraJS.Core.FastParser
             if (node.Type == FastNodeType.EmptyExpression)
                 return ArraySpan<VariableDeclarator>.Empty;
             var list = pool.AllocateList<VariableDeclarator>();
-            try {
-                Fill(list, node);
-                return list.ToSpan();
-            } finally {
-                list.Clear();
-            }
+            Fill(list, node);
+            var result = list.ToSpan();
+            list.Clear();
+            return result;
         }
 
 

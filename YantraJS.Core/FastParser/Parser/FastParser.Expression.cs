@@ -10,10 +10,10 @@ namespace YantraJS.Core.FastParser
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void PreventStackoverFlow(ref FastToken id) {
-            if (id != null) {
+//            if (id != null) {
                 if (id == stream.Current)
                     throw stream.Unexpected();
-            }
+//            }
             id = stream.Current;
         }
 
@@ -74,25 +74,21 @@ namespace YantraJS.Core.FastParser
             if(stream.CheckAndConsume(TokenTypes.Lambda))
             {
                 var scope = this.variableScope.Push(token, FastNodeType.FunctionExpression);
-                try {
-                    // create parameters now...
-                    var parameters = VariableDeclarator.From(Pool, node);
-                    if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart)) {
-                        if (!Block(out var block))
-                            throw stream.Unexpected();
-                        node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
-                            VariableDeclarator.From(Pool, node), block);
-                        return true;
-                    }
-                    if (!Expression(out var r))
+                // create parameters now...
+                var parameters = VariableDeclarator.From(Pool, node);
+                if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart)) {
+                    if (!Block(out var block))
                         throw stream.Unexpected();
                     node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
-                        parameters, new AstReturnStatement(r.Start, r.End, r));
+                        VariableDeclarator.From(Pool, node), block);
                     return true;
-                } finally {
-                    scope.Dispose();
                 }
-
+                if (!Expression(out var r))
+                    throw stream.Unexpected();
+                node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
+                    parameters, new AstReturnStatement(r.Start, r.End, r));
+                scope.Dispose();
+                return true;
             }
 
             if (node.End.Type == TokenTypes.SemiColon)
