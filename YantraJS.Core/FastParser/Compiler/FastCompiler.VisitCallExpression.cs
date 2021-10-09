@@ -25,8 +25,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
             var args = pool.AllocateList<Exp>(arguments.Count);
             bool hasSpread = false;
-            try
-            {
+            //try
+            //{
                 var e = arguments.GetEnumerator();
                 while (e.MoveNext(out var ae))
                 {
@@ -41,14 +41,16 @@ namespace YantraJS.Core.FastParser.Compiler
                     hasSpread = true;
                 }
 
-                return args.Any()
+                var result = args.Any()
                     ? (args.ToSpan(), hasSpread)
                     : (ArraySpan<Expression>.Empty, false);
-            }
-            finally
-            {
                 args.Clear();
-            }
+                return result;
+            //}
+            //finally
+            //{
+            //    args.Clear();
+            //}
         }
 
         protected Expression VisitArguments(
@@ -58,7 +60,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
             var args = pool.AllocateList<Exp>(arguments.Count);
             bool hasSpread = false;
-            try {
+            // try {
                 var e = arguments.GetEnumerator();
                 while(e.MoveNext(out var ae)) {
                     if (ae.Type != FastNodeType.SpreadElement) {
@@ -82,13 +84,17 @@ namespace YantraJS.Core.FastParser.Compiler
                 thisArg ??= JSUndefinedBuilder.Value;
                 if(hasSpread)
                 {
-                    return ArgumentsBuilder.Spread(thisArg, args);
+                    var r = ArgumentsBuilder.Spread(thisArg, args);
+                    args.Clear();
+                    return r;
                 }
 
-                return ArgumentsBuilder.New(thisArg, args);
-            } finally {
+                var result = ArgumentsBuilder.New(thisArg, args);
                 args.Clear();
-            }
+                return result;
+            //} finally {
+            //    args.Clear();
+            //}
         }
 
         protected Exp VisitCallExpression(

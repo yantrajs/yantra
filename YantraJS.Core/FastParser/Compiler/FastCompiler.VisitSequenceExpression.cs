@@ -13,6 +13,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using System.Linq;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -21,16 +22,14 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override Expression VisitSequenceExpression(AstSequenceExpression sequenceExpression)
         {
             var list = pool.AllocateList<Exp>();
-            try {
-                var e = sequenceExpression.Expressions.GetEnumerator();
-                while (e.MoveNext(out var exp))
-                {
-                    if (exp != null) list.Add(Visit(exp));
-                }
-                return Exp.Block(list.ToSpan());
-            } finally {
-                list.Clear();
+            var e = sequenceExpression.Expressions.GetEnumerator();
+            while (e.MoveNext(out var exp))
+            {
+                if (exp != null) list.Add(Visit(exp));
             }
+            var r = Exp.Block(list.ToArray());
+            list.Clear();
+            return r;
         }
     }
 }

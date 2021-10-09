@@ -13,6 +13,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using System.Linq;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -177,7 +178,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     if (init == null)
                     {
                         return Exp.Loop(
-                            Exp.Block(innerBody.ToSpan()),
+                            Exp.Block(innerBody.ToArray()),
                             breakTarget);
                     }
 
@@ -186,7 +187,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     return Exp.Block(
                         init,
                         Exp.Loop(
-                            Exp.Block(innerBody.ToSpan()),
+                            Exp.Block(innerBody.ToArray()),
                             breakTarget)
                         );
                 }

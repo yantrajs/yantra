@@ -55,15 +55,10 @@ namespace YantraJS.Core.FastParser.Compiler
         {
 
             var list = pool.AllocateList<StringSpan>();
-            try {
-
-                ExtractName(list, expression);
-
-                return list.ToSpan();
-            } finally
-            {
-                list.Clear();
-            }
+            ExtractName(list, expression);
+            var result = list.ToSpan();
+            list.Clear();
+            return result;
         }
 
         protected override Exp VisitExportStatement(AstExportStatement exportStatement)
