@@ -82,7 +82,7 @@ namespace YantraJS.ExpHelper
             return Expression.Call(null, _spread, @this, Expression.NewArrayInit(typeof(JSValue),args));
         }
 
-        public static Expression New(Expression @this, in ArraySpan<Expression> args, bool spread)
+        public static Expression New(Expression @this, Expression[] args, bool spread)
         {
             if (spread)
             {
@@ -90,7 +90,7 @@ namespace YantraJS.ExpHelper
             }
             var newList = new List<Expression>() { @this };
             newList.AddRange(args);
-            switch (args.Count)
+            switch (args.Length)
             {
                 case 0:
                     return Expression.New(_New0, newList);

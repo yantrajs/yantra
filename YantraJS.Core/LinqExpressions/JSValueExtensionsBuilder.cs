@@ -108,7 +108,7 @@ namespace YantraJS.ExpHelper
                 type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), typeof(JSValue[]))
                     };
 
-        public static Expression InvokeMethod(Expression target, Expression method, in ArraySpan<Expression> args, bool hasSpread)
+        public static Expression InvokeMethod(Expression target, Expression method, Expression[] args, bool hasSpread)
         {
 
             var methods = method.Type == typeof(KeyString)
@@ -125,7 +125,8 @@ namespace YantraJS.ExpHelper
                 var finalArgs = new Expression[args.Length + 2];
                 finalArgs[0] = target;
                 finalArgs[1] = method;
-                args.Copy(finalArgs, 2);
+                Array.Copy(args, 0, finalArgs, 2, args.Length);
+                // args.Copy(finalArgs, 2);
 
                 return Expression.Call(null, m, finalArgs);
             }

@@ -191,11 +191,11 @@ namespace YantraJS.ExpHelper
         public static Expression InvokeMethod(
             Expression targetTemp,
             Expression methodTemp, 
-            Expression target, Expression name, in ArraySpan<Expression> args, bool spread, bool coalesce)
+            Expression target, Expression name, Expression[] args, bool spread, bool coalesce)
         {
             if (!coalesce)
             {
-                return JSValueExtensionsBuilder.InvokeMethod(target, name, in args, spread);
+                return JSValueExtensionsBuilder.InvokeMethod(target, name, args, spread);
             }
             var method = _PropertyOrUndefined;
             if(name.Type == typeof(KeyString))

@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
             return ce;
         }
 
-        protected (ArraySpan<Expression> args, bool hasSpread) VisitArguments(in ArraySpan<AstExpression> arguments)
+        protected (Expression[] args, bool hasSpread) VisitArguments(in ArraySpan<AstExpression> arguments)
         {
 
             var args = pool.AllocateList<Exp>(arguments.Count);
@@ -42,8 +42,8 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
 
                 var result = args.Any()
-                    ? (args.ToSpan(), hasSpread)
-                    : (ArraySpan<Expression>.Empty, false);
+                    ? (args.ToArray(), hasSpread)
+                    : (Array.Empty<Expression>(), false);
                 args.Clear();
                 return result;
             //}

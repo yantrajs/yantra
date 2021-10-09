@@ -25,45 +25,47 @@ namespace YantraJS.Core.FastParser.Compiler
             var top = this.scope.Top;
             var newScope = variableDeclaration.Kind == FastVariableKind.Const
                 || variableDeclaration.Kind == FastVariableKind.Let;
-            try {
-                var ed = variableDeclaration.Declarators.GetEnumerator();
-                while(ed.MoveNext(out var d)) {
-                    switch(d.Identifier.Type) {
-                        case FastNodeType.Identifier:
-                            var id = d.Identifier as AstIdentifier;
-                            var v = top.CreateVariable(id.Name, JSVariableBuilder.New(id.Name.Value), newScope);
-                            if(d.Init==null) {
-                                list.Add(v.Expression);
-                            } else {
-                                list.Add(Exp.Assign(v.Expression, Visit(d.Init)));
-                            }
-                            break;
-                        case FastNodeType.ObjectPattern:
-                            var objectPattern = d.Identifier as AstObjectPattern;
-                            using (var temp = top.GetTempVariable()) {
-                                if (d.Init != null)
-                                    list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
-                                list.Add(CreateAssignment(objectPattern, temp.Expression, true, newScope));
-                            }
-                            break;
-                        case FastNodeType.ArrayPattern: 
-                            var arrayPattern = d.Identifier as AstArrayPattern;
-                            using (var temp = this.scope.Top.GetTempVariable()) {
-                                if(d.Init != null )
-                                    list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
-                                list.Add(CreateAssignment(arrayPattern, temp.Expression, true, newScope));
-                            }
-                            break;
-                        default:
-                            throw new FastParseException(d.Identifier.Start, $"Invalid pattern {d.Identifier.Type}");
-                    }
+            var ed = variableDeclaration.Declarators.GetEnumerator();
+            while(ed.MoveNext(out var d)) {
+                switch(d.Identifier.Type) {
+                    case FastNodeType.Identifier:
+                        var id = d.Identifier as AstIdentifier;
+                        var v = top.CreateVariable(id.Name, JSVariableBuilder.New(id.Name.Value), newScope);
+                        if(d.Init==null) {
+                            list.Add(v.Expression);
+                        } else {
+                            list.Add(Exp.Assign(v.Expression, Visit(d.Init)));
+                        }
+                        break;
+                    case FastNodeType.ObjectPattern:
+                        var objectPattern = d.Identifier as AstObjectPattern;
+                        using (var temp = top.GetTempVariable()) {
+                            if (d.Init != null)
+                                list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
+                            list.Add(CreateAssignment(objectPattern, temp.Expression, true, newScope));
+                        }
+                        break;
+                    case FastNodeType.ArrayPattern: 
+                        var arrayPattern = d.Identifier as AstArrayPattern;
+                        using (var temp = this.scope.Top.GetTempVariable()) {
+                            if(d.Init != null )
+                                list.Add(Exp.Assign(temp.Variable, Visit(d.Init)));
+                            list.Add(CreateAssignment(arrayPattern, temp.Expression, true, newScope));
+                        }
+                        break;
+                    default:
+                        throw new FastParseException(d.Identifier.Start, $"Invalid pattern {d.Identifier.Type}");
                 }
-                if (list.Count == 1)
-                    return list[0];
-                return Exp.Block(list);
-            } finally {
-                list.Clear();
             }
+            if (list.Count == 1)
+            {
+                var e = list[0];
+                list.Clear();
+                return e;
+            }
+            var r = Exp.Block(list);
+            list.Clear();
+            return r;
         }
     }
 }

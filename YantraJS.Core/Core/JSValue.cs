@@ -62,12 +62,14 @@ namespace YantraJS.Core {
         }
 
         public object ForceConvert(Type type) { 
-            if (type.IsAssignableFrom(typeof(JSValue)))
+            if (type.IsAssignableFrom(GetType()))
             {
                 return this;
             }
             if (ConvertTo(type, out var value))
                 return value;
+            //if (type.IsAssignableFrom(this.GetType()))
+            //    return this;
             throw JSContext.Current.NewTypeError($"Cannot convert {this} to type {type.Name}");
         }
 

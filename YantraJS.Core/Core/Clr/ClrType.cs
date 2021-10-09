@@ -286,6 +286,8 @@ namespace YantraJS.Core.Clr
 
             var fieldExp = Expression.Field(convert, field);
 
+            // todo
+            // not working for `char`
             var assign = Expression.Assign(fieldExp, clrArg1).ToJSValue();
 
             var body = assign;
