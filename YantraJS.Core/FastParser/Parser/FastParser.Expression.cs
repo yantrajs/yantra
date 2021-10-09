@@ -81,6 +81,7 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
                         VariableDeclarator.From(Pool, node), block);
+                    scope.Dispose();
                     return true;
                 }
                 if (!Expression(out var r))
