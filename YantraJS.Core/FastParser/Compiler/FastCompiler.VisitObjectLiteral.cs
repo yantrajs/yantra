@@ -27,8 +27,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
             var elements = pool.AllocateList<YElementInit>();
 
-            try
-            {
+            //try
+            //{
 
                 foreach (AstNode pn in objectExpression.Properties)
                 {
@@ -133,13 +133,17 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                 }
 
-                if(elements.Any())
-                    return ExpHelper.JSObjectBuilder.New(elements.Release());
+                if (elements.Any()) {
+                    var r = ExpHelper.JSObjectBuilder.New(elements.Release());
+                    elements.Clear();
+                    return r;
+                }
+                elements.Clear();
                 return JSObjectBuilder.New();
-            } finally
-            {
-                elements.Dispose();
-            }
+            //} finally
+            //{
+            //    elements.Dispose();
+            //}
         }
     }
 }

@@ -153,7 +153,7 @@ namespace YantraJS.Core.FastParser.Compiler
             Exp init = Visit(forStatement.Init);
             var innerBody = pool.AllocateList<Exp>();
 
-            try {
+            // try {
                 var update = Visit(forStatement.Update);
                 var test = Visit(forStatement.Test);
 
@@ -177,23 +177,28 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     if (init == null)
                     {
-                        return Exp.Loop(
+                        var r1 = Exp.Loop(
                             Exp.Block(innerBody.ToArray()),
                             breakTarget);
+                        
+                        innerBody.Clear();
+                        return r1;
                     }
 
                     // return Loop(null, breakTarget, continueTarget, init, innerBody, update);
 
-                    return Exp.Block(
+                    var r = Exp.Block(
                         init,
                         Exp.Loop(
                             Exp.Block(innerBody.ToArray()),
                             breakTarget)
                         );
+                innerBody.Clear(); ;
+                return r;
                 }
-            } finally {
-                innerBody.Clear();
-            }
+            //} finally {
+                
+            //}
         }
 
     }

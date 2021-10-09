@@ -68,6 +68,11 @@ namespace YantraJS.Core
                 value = this.value.Value;
                 return true;
             }
+            if(type == typeof(char))
+            {
+                value = this.value[0];
+                return true;
+            }
             if (type.IsAssignableFrom(typeof(JSString)))
             {
                 value = this;
