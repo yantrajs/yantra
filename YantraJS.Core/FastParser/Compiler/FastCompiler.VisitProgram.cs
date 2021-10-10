@@ -53,7 +53,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
             }
 
-            var se = program.Statements.GetEnumerator();
+            var se = program.Statements.GetFastEnumerator();
             while (se.MoveNext(out var stmt)) {
                 var exp = Visit(stmt);
                 if (exp == null)

@@ -27,7 +27,7 @@ namespace YantraJS.Core.Tests.Parser
             //Parse("a + c()");
             //Parse("a() + c()");
             var x = Parse("a.a() + c().m");
-            var exp = (x.Statements[0] as AstExpressionStatement).Expression;
+            var exp = (x.Statements.First() as AstExpressionStatement).Expression;
         }
 
         [TestMethod]

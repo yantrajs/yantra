@@ -21,7 +21,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitBlock(AstBlock block) {
 
-            if (block.Statements.Length == 0)
+            if (block.Statements.Count == 0)
                 return Expression.Empty;
 
             var blockList = pool.AllocateList<Expression>();
@@ -38,7 +38,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                 }
 
-                var se = block.Statements.GetEnumerator();
+                var se = block.Statements.GetFastEnumerator();
                 while (se.MoveNext(out var stmt))
                 {
                     //LexicalScopeBuilder.Update(

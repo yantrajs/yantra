@@ -117,7 +117,7 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     if (newScope && declaration != null)
                     {
-                        (beginNode, statement, update, test) = Desugar(declaration, in block.Statements, update, test);
+                        (beginNode, statement, update, test) = Desugar(declaration, block.Statements, update, test);
                     }
                     else
                     {
@@ -128,7 +128,7 @@ namespace YantraJS.Core.FastParser
                 {
                     if (newScope && declaration != null)
                     {
-                        (beginNode, statement, update, test) = Desugar(declaration, ArraySpan<AstStatement>.From(statement), update, test);
+                        (beginNode, statement, update, test) = Desugar(declaration, new Sequence<AstStatement>(1) { statement }, update, test);
                     }
                 }
                 else throw stream.Unexpected();
@@ -242,12 +242,14 @@ namespace YantraJS.Core.FastParser
 
             (AstNode beginNode, AstStatement statement, AstExpression? update, AstExpression? test) Desugar(
                 AstVariableDeclaration declaration, 
-                in ArraySpan<AstStatement> body,
+                IFastEnumerable<AstStatement> body,
                 AstExpression? update,
                 AstExpression? test)
             {
-                var statementList = new AstStatement[body.Length + 1];
-                body.Copy(statementList, 1);
+                var statementList = new Sequence<AstStatement>(body.Count + 1);
+                // body.Copy(statementList, 1);
+                statementList.Add(null!);
+                statementList.AddRange(body);
 
                 // for-of and for-in does not require identifier replacement
                 // instead they need single identifier as a temp variable
@@ -305,8 +307,8 @@ namespace YantraJS.Core.FastParser
 
                     var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations);
 
-                    var last = body.Length == 0 ? declaration :  body[body.Length - 1];
-                    var block = new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList));
+                    var last = body.Count == 0 ? declaration :  body.Last();
+                    var block = new AstBlock(r.Start, last.End, statementList);
                     if (requiresReplacement)
                     {
                         block.HoistingScope = hoisted.ToSpan();

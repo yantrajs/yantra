@@ -54,7 +54,7 @@ namespace YantraJS.Core.FastParser
             {
 
                 var pl = new ObjectProperty[literal.Properties.Count];
-                var e = literal.Properties.GetEnumerator();
+                var e = literal.Properties.GetFastEnumerator();
                 int i = 0;
                 while (e.MoveNext(out var px))
                 {

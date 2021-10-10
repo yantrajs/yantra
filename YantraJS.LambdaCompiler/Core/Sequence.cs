@@ -44,6 +44,10 @@ namespace YantraJS.Core
         int Count { get; }
 
         FastEnumerator<T> GetFastEnumerator();
+
+        T First();
+
+        T Last();
     }
 
     public abstract class FastEnumerator<T>: IEnumerator<T>
@@ -106,6 +110,16 @@ namespace YantraJS.Core
                     start = start.Next;
                 }
                 return start.Items[index];
+            } set {
+                if (index >= count)
+                    throw new IndexOutOfRangeException();
+                var start = head;
+                while (index >= start.Count)
+                {
+                    index -= start.Count;
+                    start = start.Next;
+                }
+                start.Items[index] = value;
             }
         }
 
@@ -210,7 +224,16 @@ namespace YantraJS.Core
             {
                 return head.Items[0];
             }
-            return default;
+            throw new IndexOutOfRangeException();
+        }
+
+        public T Last()
+        {
+            if (tail != null && tail.Count>0)
+            {
+                return tail.Items[tail.Count - 1];
+            }
+            throw new IndexOutOfRangeException();
         }
 
         public T FirstOrDefault(Func<T,bool> predicate)
