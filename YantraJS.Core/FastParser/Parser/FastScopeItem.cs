@@ -7,14 +7,14 @@ namespace YantraJS.Core.FastParser
     public partial class FastScopeItem: LinkedStackItem<FastScopeItem>
     {
         private StringMap<(StringSpan name, FastVariableKind kind)> Variables;
-        private readonly FastToken token;
+        // private readonly FastToken token;
         public readonly FastNodeType NodeType;
-        private readonly FastPool pool;
-        public FastScopeItem(FastToken token, FastNodeType nodeType, FastPool pool)
+        // private readonly FastPool pool;
+        public FastScopeItem(FastNodeType nodeType)
         {
-            this.token = token;
+            // this.token = token;
             this.NodeType = nodeType;
-            this.pool = pool;
+            // this.pool = pool;
         }
 
         //public void CreateVariable(AstExpression d, FastVariableKind kind)

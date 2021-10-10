@@ -62,7 +62,7 @@ namespace YantraJS.Core.FastParser
         {
             this.stream = stream;
             // this.Pool = stream.Pool;
-            this.variableScope = new FastScope(stream.Pool);
+            this.variableScope = new FastScope();
         }
 
         public AstProgram ParseProgram()
