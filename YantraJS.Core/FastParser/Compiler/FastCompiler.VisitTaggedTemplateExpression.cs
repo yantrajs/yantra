@@ -24,12 +24,12 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             var callee = template.Tag;
 
-            var args = pool.AllocateList<Expression>(template.Arguments.Length);
-            var parts = pool.AllocateList<YElementInit>(template.Arguments.Length);
-            var raw = pool.AllocateList<Expression>(template.Arguments.Length);
+            var args = pool.AllocateList<Expression>(template.Arguments.Count);
+            var parts = pool.AllocateList<YElementInit>(template.Arguments.Count);
+            var raw = pool.AllocateList<Expression>(template.Arguments.Count);
             try
             {
-                var e = template.Arguments.GetEnumerator();
+                var e = template.Arguments.GetFastEnumerator();
                 args.Add(null);
                 while(e.MoveNext(out var p)) {
                     if(p.Type == FastNodeType.Literal)

@@ -98,7 +98,7 @@ namespace YantraJS.Core.FastParser
                     return true;
                 case TokenTypes.TemplateEnd:
                     stream.Consume();
-                    node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(new AstLiteral(token.Type, token)));
+                    node = new AstTemplateExpression(token, token, new Sequence<AstExpression>(1) { new AstLiteral(token.Type, token) });
                     return true;
                 case TokenTypes.EOF:
                 case TokenTypes.Comma:

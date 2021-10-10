@@ -22,7 +22,7 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             var items = pool.AllocateList<Exp>();
             try {
-                var e = templateExpression.Parts.GetEnumerator();
+                var e = templateExpression.Parts.GetFastEnumerator();
                 int size = 0;
                 while(e.MoveNext(out  var item))
                 {
