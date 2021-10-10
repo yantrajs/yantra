@@ -256,15 +256,15 @@ namespace YantraJS.Core.FastParser
 
                 var requiresReplacement = update != null || test != null;
 
-                var tempDeclarations = Pool.AllocateList<VariableDeclarator>();
-                var scopedDeclarations = Pool.AllocateList<VariableDeclarator>();
+                var tempDeclarations = new Sequence<VariableDeclarator>();
+                var scopedDeclarations = new Sequence<VariableDeclarator>();
                 var list = Pool.AllocateList<(string id, AstIdentifier temp)>();
                 var hoisted = Pool.AllocateList<StringSpan>();
                 try {
-
-                    for (int i = 0; i < declaration.Declarators.Length; i++)
+                    var en = declaration.Declarators.GetFastEnumerator();
+                    while(en.MoveNext(out var d))
                     {
-                        ref var d = ref declaration.Declarators[i];
+                        // ref var d = ref declaration.Declarators[i];
                         if (requiresReplacement)
                         {
                             var id = AssignTempNames(list , hoisted, d.Identifier);
@@ -314,8 +314,8 @@ namespace YantraJS.Core.FastParser
                     return (r, block, update, test);
 
                 } finally {
-                    tempDeclarations.Clear();
-                    scopedDeclarations.Clear();
+                    // tempDeclarations.Clear();
+                    // scopedDeclarations.Clear();
                     list.Clear();
                     hoisted.Clear();
                 }

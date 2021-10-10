@@ -25,7 +25,7 @@ namespace YantraJS.Core.FastParser.Compiler
             {
                 case FastNodeType.VariableDeclaration:
                     var vd = node as AstVariableDeclaration;
-                    var ve = vd.Declarators.GetEnumerator();
+                    var ve = vd.Declarators.GetFastEnumerator();
                     while (ve.MoveNext(out var d))
                         ExtractName(list, d.Identifier);
                     return;

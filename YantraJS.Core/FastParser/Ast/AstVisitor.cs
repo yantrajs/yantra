@@ -108,6 +108,58 @@ namespace YantraJS.Core.FastParser.Ast
             return true;
         }
 
+        private bool Modified<T>(IFastEnumerable<T> statements, out IFastEnumerable<T> list)
+            where T : AstNode
+        {
+            list = statements;
+            var length = statements.Count;
+            if (length == 0)
+            {
+                return false;
+            }
+            bool dirty = false;
+            var r = new Sequence<T>(length);
+            var en = statements.GetFastEnumerator();
+            while(en.MoveNext(out var item))
+            {
+                var visited = Visit(item);
+                if (visited != item)
+                    dirty = true;
+                r.Add(visited as T);
+            }
+            if (!dirty)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
+        private bool Modified<T>(IFastEnumerable<T> statements, Func<T, T> visitor, out IFastEnumerable<T> list) {
+            list = statements;
+            var length = statements.Count;
+            if (length == 0)
+            {
+                return false;
+            }
+            bool dirty = false;
+            var r = new Sequence<T>(length);
+            var en = statements.GetFastEnumerator();
+            while (en.MoveNext(out var item))
+            {
+                var visited = visitor(item);
+                if (!visited.Equals(item))
+                    dirty = true;
+                r.Add(visited);
+            }
+            if (!dirty)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
         private bool Modified<T>(in ArraySpan<T> statements, Func<T, T> visitor, out ArraySpan<T> list)
         {
             list = statements;

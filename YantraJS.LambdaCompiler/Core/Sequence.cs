@@ -6,8 +6,43 @@ using System.Text;
 
 namespace YantraJS.Core
 {
-    public  interface IFastEnumerable<T>
+    public static class FastEnumerableExtensions
     {
+        public static T[] ToArray<T>(this IFastEnumerable<T> enumerable)
+        {
+            var total = enumerable.Count;
+            var en = enumerable.GetFastEnumerator();
+            var items = new T[total];
+            int index = 0;
+            while(en.MoveNext(out var item))
+            {
+                items[index++] = item;
+            }
+            return items;
+        }
+        public static string Join<T>(this IFastEnumerable<T> enumerable, string separator = ", ")
+        {
+            var sb = new StringBuilder();
+            var en = enumerable.GetFastEnumerator();
+            bool first = true;
+            while (en.MoveNext(out var item))
+            {
+                if (!first)
+                {
+                    sb.Append(separator);
+                }
+                first = false;
+                sb.Append(item);
+            }
+            return sb.ToString();
+        }
+
+    }
+
+    public  interface IFastEnumerable<T>: IEnumerable<T>
+    {
+        int Count { get; }
+
         FastEnumerator<T> GetFastEnumerator();
     }
 
@@ -23,6 +58,8 @@ namespace YantraJS.Core
         }
 
         public abstract bool MoveNext(out T item);
+
+        public virtual bool MoveNext(out T item, out int index) => throw new NotImplementedException();
 
         public bool MoveNext()
         {
@@ -40,27 +77,35 @@ namespace YantraJS.Core
         }
     }
 
+    internal class Chain<T>
+    {
+        public T[] Items;
+        public int Count;
+        public Chain<T> Next;
+    }
+
     public class Sequence<T>: IReadOnlyList<T>, IFastEnumerable<T>
     {
 
-        private T[] items;
-        private Sequence<T> next;
+        public static Sequence<T> Empty = new Sequence<T>();
+
+
+        private Chain<T> head;
+        private Chain<T> tail;
         private int count;
 
         public T this[int index]
         {
             get {
-                var start = this;
-                while(index >= start.count)
+                if (index >= count)
+                    throw new IndexOutOfRangeException();
+                var start = head;
+                while(index >= start.Count)
                 {
-                    index -= start.count;
-                    start = start.next;
-                    if (start == null)
-                        throw new IndexOutOfRangeException();
+                    index -= start.Count;
+                    start = start.Next;
                 }
-                if (start.count <= index)
-                    throw new IndexOutOfRangeException($"{index}");
-                return start.items[index];
+                return start.Items[index];
             }
         }
 
@@ -82,32 +127,63 @@ namespace YantraJS.Core
             }
         }
 
-        public Sequence(bool allocate = false)
+        public Sequence()
         {
-            if (allocate)
-                items = new T[8];
         }
 
         public Sequence(int capacity)
         {
-            this.items = new T[capacity];
+            this.head = new Chain<T> { 
+                Items = new T[capacity]
+            };
+            this.tail = this.head;
+        }
+
+        public string Join(string separator = ", ")
+        {
+            var sb = new StringBuilder();
+            var en = new FastSequenceEnumerator(head);
+            bool first = true;
+            while(en.MoveNext(out var item))
+            {
+                if (!first)
+                {
+                    sb.Append(separator);
+                }
+                first = false;
+                sb.Append(item);
+            }
+            return sb.ToString();
         }
 
         public void Add(T item)
         {
-            if (items == null)
+            if(tail == null)
             {
-                items = new T[8];
-                items[count++] = item;
+                var h = new Chain<T> { 
+                    Items = new T[8],
+                    Count = 1
+                };
+                h.Items[0] = item;
+                head = h;
+                tail = h;
+                count++;
                 return;
             }
-            if (count < items.Length)
+            if (tail.Count < tail.Items.Length)
             {
-                items[count++] = item;
+                tail.Items[tail.Count++] = item;
+                count++;
                 return;
             }
-            next ??= new Sequence<T>();
-            next.Add(item);
+            var t = new Chain<T> { 
+                Items = new T[8],
+                Count = 1
+            };
+            t.Items[0] = item;
+            tail.Next = t;
+            tail = t;
+            count++;
         }
 
         public void AddRange(IEnumerable<T> range)
@@ -126,20 +202,20 @@ namespace YantraJS.Core
         }
 
 
-        public int Count => count + (next?.Count ?? 0);
+        public int Count => count;
 
         public T First()
         {
             if(count > 0)
             {
-                return items[0];
+                return head.Items[0];
             }
             return default;
         }
 
         public T FirstOrDefault(Func<T,bool> predicate)
         {
-            var e = new FastSequenceEnumerator(this);
+            var e = new FastSequenceEnumerator(head);
             while(e.MoveNext(out var item))
             {
                 if (predicate(item))
@@ -150,7 +226,7 @@ namespace YantraJS.Core
 
         public T FirstOrDefault<T1>(T1 param, Func<T, T1, bool> predicate)
         {
-            var e = new FastSequenceEnumerator(this);
+            var e = new FastSequenceEnumerator(head);
             while (e.MoveNext(out var item))
             {
                 if (predicate(item, param))
@@ -162,19 +238,18 @@ namespace YantraJS.Core
         public T[] ToArray()
         {
             var items = new T[Count];
-            var start = this;
+            var start = this.head;
             int index = 0;
             while (start != null)
             {
-                for (int i = 0; i < start.count; i++)
+                for (int i = 0; i < start.Count; i++)
                 {
-                    items[index++] = start.items[i];
+                    items[index++] = start.Items[i];
                 }
-                start = start.next;
+                start = start.Next;
             }
             return items;
         }
-
 
         public IEnumerator<T> GetEnumerator()
         {
@@ -188,33 +263,53 @@ namespace YantraJS.Core
 
         public FastEnumerator<T> GetFastEnumerator()
         {
-            return new FastSequenceEnumerator(this);
+            return new FastSequenceEnumerator(head);
         }
 
         public class FastSequenceEnumerator : FastEnumerator<T>
         {
-            private Sequence<T> start;
+            private Chain<T> start;
+            private int position;
             private int index;
 
-            public FastSequenceEnumerator(Sequence<T> start)
+            internal FastSequenceEnumerator(Chain<T> start)
             {
                 this.start = start;
+                this.position = 0;
                 this.index = 0;
+            }
+
+            public override bool MoveNext(out T item, out int index)
+            {
+                if (start == null || start.Count <= position)
+                {
+                    item = default;
+                    index = default;
+                    return false;
+                }
+                item = start.Items[position++];
+                index = this.index++;
+                if (position == start.Items.Length)
+                {
+                    start = start.Next;
+                    position = 0;
+                }
+                return true;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override bool MoveNext(out T item)
             {
-                if(start == null || start.count <= index)
+                if(start == null || start.Count <= position)
                 {
                     item = default;
                     return false;
                 }
-                item = start.items[index++];
-                if (index == start.items.Length)
+                item = start.Items[position++];
+                if (position == start.Items.Length)
                 {
-                    start = start.next;
-                    index = 0;
+                    start = start.Next;
+                    position = 0;
                 }
                 return true;
             }

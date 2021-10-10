@@ -119,7 +119,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     var argumentElements = args;
 
-                    var pe = functionDeclaration.Params.GetEnumerator();
+                    var pe = functionDeclaration.Params.GetFastEnumerator();
                     while (pe.MoveNext(out var v, out var i))
                     {
                         if (v.Identifier.IsSpreadElement(out var spe))

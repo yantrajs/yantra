@@ -114,7 +114,7 @@ namespace YantraJS.Core.FastParser
             return $"{Identifier} = {Init}";
         }
 
-        private static void Fill(FastList<VariableDeclarator> args, AstExpression exp) {
+        private static void Fill(Sequence<VariableDeclarator> args, AstExpression exp) {
             if(exp.Type == FastNodeType.SequenceExpression && exp is AstSequenceExpression se) {
                 var e = se.Expressions.GetEnumerator();
                 while(e.MoveNext(out var item)) {
@@ -125,26 +125,24 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        public static ArraySpan<VariableDeclarator> From(FastPool pool, AstExpression node)
+        public static Sequence<VariableDeclarator> From(FastPool pool, AstExpression node)
         {
             if (node.Type == FastNodeType.EmptyExpression)
-                return ArraySpan<VariableDeclarator>.Empty;
-            var list = pool.AllocateList<VariableDeclarator>();
+                return Sequence<VariableDeclarator>.Empty;
+            var list = new Sequence<VariableDeclarator>();
             Fill(list, node);
-            var result = list.ToSpan();
-            list.Clear();
-            return result;
+            return list;
         }
 
 
-        public static ArraySpan<VariableDeclarator> From(FastPool pool, in ArraySpan<AstExpression> nodes)
+        public static Sequence<VariableDeclarator> From(FastPool pool, in ArraySpan<AstExpression> nodes)
         {
-            var r = new VariableDeclarator[nodes.Length];
+            var r = new Sequence<VariableDeclarator>(nodes.Length);
             for (int i = 0; i < nodes.Length; i++)
             {
-                r[i] = new VariableDeclarator(nodes[i].ToPattern());
+                r.Add(new VariableDeclarator(nodes[i].ToPattern()));
             }
-            return r.ToArraySpan();
+            return r;
         }
     }
 }
