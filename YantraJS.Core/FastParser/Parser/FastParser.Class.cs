@@ -53,7 +53,7 @@ namespace YantraJS.Core.FastParser
             stream.Expect(TokenTypes.CurlyBracketStart);
             
 
-            var nodes = Pool.AllocateList<AstClassProperty>();
+            var nodes = new Sequence<AstClassProperty>();
             try
             {
 
@@ -71,7 +71,7 @@ namespace YantraJS.Core.FastParser
             }
             finally
             {
-                nodes.Clear();
+                //nodes.Clear();
             }
 
 
