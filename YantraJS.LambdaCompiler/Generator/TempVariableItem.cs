@@ -31,7 +31,7 @@ namespace YantraJS.Generator
 
         public class TempVariableItem : LinkedStackItem<TempVariableItem>
         {
-            private List<IDisposable> disposables = new List<IDisposable>();
+            private Sequence<IDisposable> disposables = new Sequence<IDisposable>();
             private readonly ILWriter writer;
 
             public TempVariableItem(ILWriter writer)
@@ -50,7 +50,8 @@ namespace YantraJS.Generator
             public override void Dispose()
             {
                 base.Dispose();
-                foreach (var d in disposables)
+                var en = disposables.GetFastEnumerator();
+                while(en.MoveNext(out var d))
                     d.Dispose();
             }
         }

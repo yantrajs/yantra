@@ -22,8 +22,8 @@ namespace YantraJS.Generator
         private readonly TempVariables tempVariables;
         private readonly TextWriter? expressionWriter;
 
-        public List<ILDebugInfo> SequencePoints { get; }
-            = new List<ILDebugInfo>();
+        public Sequence<ILDebugInfo> SequencePoints { get; }
+            = new Sequence<ILDebugInfo>();
 
         /// <summary>
         /// IL code must load the address

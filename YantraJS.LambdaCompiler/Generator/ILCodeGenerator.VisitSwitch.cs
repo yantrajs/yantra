@@ -12,7 +12,7 @@ namespace YantraJS.Generator
 {
     public class ActionList : IDisposable
     {
-        List<Action> actions = new List<Action>();
+        Sequence<Action> actions = new Sequence<Action>();
 
         public void Add(Action action)
         {
@@ -21,7 +21,8 @@ namespace YantraJS.Generator
 
         public void Dispose()
         {
-            foreach(var a in actions)
+            var en = actions.GetFastEnumerator();
+            while(en.MoveNext(out var a))
             {
                 a();
             }

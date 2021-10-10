@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using YantraJS.Core;
 
 namespace YantraJS
 {
@@ -11,8 +12,8 @@ namespace YantraJS
         public string IL;
         public string Exp;
 
-        private List<(DynamicMethod method, string il, string exp, Type type)> delegates
-            = new List<(DynamicMethod method, string il, string exp, Type type)>();
+        private Sequence<(DynamicMethod method, string il, string exp, Type type)> delegates
+            = new Sequence<(DynamicMethod method, string il, string exp, Type type)>();
 
 
         public int RegisterNew(DynamicMethod d, string il, string exp, Type type)

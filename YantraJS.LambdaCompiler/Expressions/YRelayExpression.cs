@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
@@ -18,8 +19,8 @@ namespace YantraJS.Expressions
 
         private static Type PrepareType(YLambdaExpression inner)
         {
-            List<Type> types = new List<Type>();
             var pa = inner.Parameters;
+            var types = new Sequence<Type>(pa.Length);
             for (int i = 0; i < pa.Length; i++)
             {
                 if (i == 0)

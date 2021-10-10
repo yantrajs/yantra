@@ -14,8 +14,8 @@ namespace YantraJS.Core
         internal readonly ILWriter il;
         private readonly ILWriterLabel label;
 
-        private List<(ILWriterLabel hop, ILWriterLabel final, int localIndex)> pendingJumps 
-            = new List<(ILWriterLabel,ILWriterLabel, int)>();
+        private Sequence<(ILWriterLabel hop, ILWriterLabel final, int localIndex)> pendingJumps 
+            = new Sequence<(ILWriterLabel,ILWriterLabel, int)>();
         
         internal int SavedLocal;
 

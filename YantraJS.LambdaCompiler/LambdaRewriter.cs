@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using YantraJS.Core;
 using YantraJS.Expressions;
 
 namespace YantraJS
@@ -57,14 +58,14 @@ namespace YantraJS
 
             YExpression PostVisit(YLambdaExpression n, ClosureScopeStack.ClosureScopeItem top)
             {
-                List<YExpression> stmts = new List<YExpression>();
-                List<YParameterExpression> localBoxes = new List<YParameterExpression>();
+                var stmts = new Sequence<YExpression>();
+                var localBoxes = new Sequence<YParameterExpression>();
                 var localClosures 
-                    = new List<(YParameterExpression, YParameterExpression)>();
+                    = new Sequence<(YParameterExpression, YParameterExpression)>();
 
                 YParameterExpression? closures = null;
 
-                List<YExpression> closureSetup = new List<YExpression>();
+                var closureSetup = new Sequence<YExpression>();
 
                 var selfRepository = repository as YExpression;
 
@@ -190,8 +191,8 @@ namespace YantraJS
 
             // let us find out lifted variables...
 
-            var list = new List<YParameterExpression>(node.Variables.Length);
-            var statements = new List<YExpression>(node.Expressions.Length);
+            var list = new Sequence<YParameterExpression>(node.Variables.Length);
+            var statements = new Sequence<YExpression>(node.Expressions.Length);
             foreach (var (e, p) in node.Variables.Select(v => stack.AccessParameter(v))) { 
                 if(e == p)
                 {

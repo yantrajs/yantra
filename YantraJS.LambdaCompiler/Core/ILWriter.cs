@@ -18,7 +18,7 @@ namespace YantraJS.Core
         private readonly ILGenerator il;
         private TextWriter? writer = null;
 
-        private List<TempVariable> temps = new List<TempVariable>();
+        private Sequence<TempVariable> temps = new Sequence<TempVariable>();
 
         public TempVariable NewTemp(Type type) => TempVariable.New(this, type);
 
@@ -38,7 +38,7 @@ namespace YantraJS.Core
 
             public static TempVariable New(ILWriter writer, Type type)
             {
-                var f = writer.temps.FirstOrDefault(x => x.IsBusy == false && x.Local.LocalType == type);
+                var f = writer.temps.FirstOrDefault(type, (x, t) => x.IsBusy == false && x.Local.LocalType == t);
                 if (f != null)
                 {
                     f.IsBusy = true;

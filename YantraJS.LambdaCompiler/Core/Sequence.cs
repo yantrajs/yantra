@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core
@@ -50,15 +51,15 @@ namespace YantraJS.Core
         {
             get {
                 var start = this;
-                while(index > 8)
+                while(index >= start.count)
                 {
-                    index -= 8;
+                    index -= start.count;
                     start = start.next;
                     if (start == null)
                         throw new IndexOutOfRangeException();
                 }
                 if (start.count <= index)
-                    throw new IndexOutOfRangeException();
+                    throw new IndexOutOfRangeException($"{index}");
                 return start.items[index];
             }
         }
@@ -87,6 +88,11 @@ namespace YantraJS.Core
                 items = new T[8];
         }
 
+        public Sequence(int capacity)
+        {
+            this.items = new T[capacity];
+        }
+
         public void Add(T item)
         {
             if (items == null)
@@ -104,7 +110,71 @@ namespace YantraJS.Core
             next.Add(item);
         }
 
+        public void AddRange(IEnumerable<T> range)
+        {
+            foreach(var item in range)
+            {
+                Add(item);
+            }
+        }
+
+        public void AddRange(Sequence<T> range)
+        {
+            var en = range.GetFastEnumerator();
+            while (en.MoveNext(out var item))
+                Add(item);
+        }
+
+
         public int Count => count + (next?.Count ?? 0);
+
+        public T First()
+        {
+            if(count > 0)
+            {
+                return items[0];
+            }
+            return default;
+        }
+
+        public T FirstOrDefault(Func<T,bool> predicate)
+        {
+            var e = new FastSequenceEnumerator(this);
+            while(e.MoveNext(out var item))
+            {
+                if (predicate(item))
+                    return item;
+            }
+            return default;
+        }
+
+        public T FirstOrDefault<T1>(T1 param, Func<T, T1, bool> predicate)
+        {
+            var e = new FastSequenceEnumerator(this);
+            while (e.MoveNext(out var item))
+            {
+                if (predicate(item, param))
+                    return item;
+            }
+            return default;
+        }
+
+        public T[] ToArray()
+        {
+            var items = new T[Count];
+            var start = this;
+            int index = 0;
+            while (start != null)
+            {
+                for (int i = 0; i < start.count; i++)
+                {
+                    items[index++] = start.items[i];
+                }
+                start = start.next;
+            }
+            return items;
+        }
+
 
         public IEnumerator<T> GetEnumerator()
         {
@@ -131,6 +201,8 @@ namespace YantraJS.Core
                 this.start = start;
                 this.index = 0;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override bool MoveNext(out T item)
             {
                 if(start == null || start.count <= index)

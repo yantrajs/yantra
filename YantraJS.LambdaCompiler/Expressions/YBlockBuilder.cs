@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
     public class YBlockBuilder
     {
 
-        private List<YExpression> expressions = new List<YExpression>();
-        private List<YParameterExpression> variables = new List<YParameterExpression>();
+        private Sequence<YExpression> expressions = new Sequence<YExpression>();
+        private Sequence<YParameterExpression> variables = new Sequence<YParameterExpression>();
 
         public YBlockBuilder()
         {
@@ -48,7 +49,7 @@ namespace YantraJS.Expressions
 
         public YExpression[] ConvertToVariables(YExpression[] inputs, YExpressionMapVisitor visitor)
         {
-            var newInputs = new List<YExpression>(inputs.Length);
+            var newInputs = new Sequence<YExpression>(inputs.Length);
             foreach (var input in inputs)
             {
                 newInputs.Add(ConvertToVariable(visitor.Visit(input)));

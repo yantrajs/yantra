@@ -13,7 +13,7 @@ namespace YantraJS.Generator
     {
         private Action EmitParameters(MethodBase method, YExpression[] args, Type returnType)
         {
-            List<(int temp, YExpression exp)>? saveList = null;
+            Sequence<(int temp, YExpression exp)>? saveList = null;
 
             var pa = method.GetParameters();
             for (int i = 0; i < pa.Length; i++)
@@ -30,7 +30,7 @@ namespace YantraJS.Generator
                         if(a.NodeType == YExpressionType.Property)
                         {
                             var temp = tempVariables[p.ParameterType];
-                            saveList ??= new List<(int temp, YExpression exp)>();
+                            saveList ??= new Sequence<(int temp, YExpression exp)>();
                             saveList.Add((temp.LocalIndex, a));
                             Visit(a);
                             il.EmitSaveLocal(temp.LocalIndex);
