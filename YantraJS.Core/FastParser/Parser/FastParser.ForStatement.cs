@@ -160,38 +160,32 @@ namespace YantraJS.Core.FastParser
                 var list = new Sequence<AstExpression>();
                 var token = stream.Current;
                 node = null;
-                try
+                considerInOfAsOperators = false;
+                while (true)
                 {
-                    considerInOfAsOperators = false;
-                    while (true)
-                    {
-                        if (stream.CheckAndConsume(TokenTypes.SemiColon))
-                            break;
-                        if (!Expression(out node))
-                            throw stream.Unexpected();
+                    if (stream.CheckAndConsume(TokenTypes.SemiColon))
+                        break;
+                    if (!Expression(out node))
+                        throw stream.Unexpected();
 
-                        var c = stream.Current;
-                        if (c.Type == TokenTypes.In || c.ContextualKeyword == FastKeywords.of)
-                            break;
-                        if (stream.CheckAndConsume(TokenTypes.SemiColon))
-                            break;
-                        if (stream.CheckAndConsume(TokenTypes.Comma))
-                        {
-                            list.Add(node);
-                            continue;
-                        }
-                    }
-
-                    if (list.Any())
+                    var c = stream.Current;
+                    if (c.Type == TokenTypes.In || c.ContextualKeyword == FastKeywords.of)
+                        break;
+                    if (stream.CheckAndConsume(TokenTypes.SemiColon))
+                        break;
+                    if (stream.CheckAndConsume(TokenTypes.Comma))
                     {
-                        node = new AstSequenceExpression(token, list.Last().End, list);
+                        list.Add(node);
+                        continue;
                     }
-                    return true;
-                } finally
-                {
-                    considerInOfAsOperators = true;
-                    // list.Clear();
                 }
+
+                if (list.Any())
+                {
+                    node = new AstSequenceExpression(token, list.Last().End, list);
+                }
+                considerInOfAsOperators = true;
+                return true;
             }
 
 
