@@ -35,13 +35,13 @@ namespace YantraJS.Core.FastParser.Compiler
                     return;
                 case FastNodeType.ArrayPattern:
                     var ap = node as AstArrayPattern;
-                    var ae = ap.Elements.GetEnumerator();
+                    var ae = ap.Elements.GetFastEnumerator();
                     while (ae.MoveNext(out var aitem))
                         ExtractName(list, aitem);
                     return;
                 case FastNodeType.ObjectPattern:
                     var op = node as AstObjectPattern;
-                    var oe = op.Properties.GetEnumerator();
+                    var oe = op.Properties.GetFastEnumerator();
                     while(oe.MoveNext(out var oitem))
                     {
                         ExtractName(list, oitem.Value);

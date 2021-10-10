@@ -50,7 +50,7 @@ namespace YantraJS.Core.FastParser
                 AstExpression left;
                 AstExpression right;
                 AstExpression init = null;
-                var nodes = Pool.AllocateList<ObjectProperty>();
+                var nodes = new Sequence<ObjectProperty>();
                 try
                 {
                     do
@@ -101,7 +101,7 @@ namespace YantraJS.Core.FastParser
                     objectPattern = new AstObjectPattern(begin, PreviousToken, nodes);
                     return true;
                 } finally {
-                    nodes.Clear();
+                    // nodes.Clear();
                 }
             }
 
@@ -109,7 +109,7 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = stream.Current;
                 arrayPattern = default;
-                var nodes = Pool.AllocateList<AstExpression>();
+                var nodes = new Sequence<AstExpression>();
                 try
                 {
                     do
@@ -143,7 +143,7 @@ namespace YantraJS.Core.FastParser
                 }
                 finally
                 {
-                    nodes.Clear();
+                    // nodes.Clear();
                 }
             }
         }

@@ -210,10 +210,11 @@ namespace YantraJS.Core.FastParser
                         return new AstSpreadElement(spreadElement!.Start,spreadElement.End, AssignTempNames(list, hoisted, spreadElement.Argument));
                     case FastNodeType.ObjectPattern: 
                         var pattern = e as AstObjectPattern;
-                        for (int i = 0; i < pattern!.Properties.Length; i++)
+                        var pat = (pattern!.Properties as Sequence<ObjectProperty>)!;
+                        for (int i = 0; i < pat.Count; i++)
                         {
-                            ref var property = ref pattern.Properties[i];
-                            pattern.Properties[i] = 
+                            var property = pat[i];
+                            pat[i] = 
                                 new ObjectProperty(
                                     property.Key, 
                                     AssignTempNames(list, hoisted, property.Value), property.Init, property.Spread);
@@ -221,10 +222,11 @@ namespace YantraJS.Core.FastParser
                         return pattern;
                     case FastNodeType.ArrayPattern:
                         var arrayPattern = e as AstArrayPattern;
-                        for (int i = 0; i < arrayPattern!.Elements.Length; i++)
+                        var elements = (arrayPattern!.Elements as Sequence<AstExpression>)!;
+                        for (int i = 0; i < elements.Count; i++)
                         {
-                            ref var property = ref arrayPattern.Elements[i];
-                            arrayPattern.Elements[i] = AssignTempNames(list, hoisted, property);
+                            var property = elements[i];
+                            elements[i] = AssignTempNames(list, hoisted, property);
                         }
                         return arrayPattern;
                     default:

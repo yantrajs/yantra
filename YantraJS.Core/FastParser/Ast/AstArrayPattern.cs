@@ -2,9 +2,9 @@
 {
     public class AstArrayPattern : AstBindingPattern
     {
-        public readonly ArraySpan<AstExpression> Elements;
+        public readonly IFastEnumerable<AstExpression> Elements;
 
-        public AstArrayPattern(FastToken start, FastToken end, in ArraySpan<AstExpression> elements) 
+        public AstArrayPattern(FastToken start, FastToken end, IFastEnumerable<AstExpression> elements) 
             : base(start, FastNodeType.ArrayPattern, end)
         {
             this.Elements = elements;

@@ -174,6 +174,39 @@ namespace YantraJS.Core
             return sb.ToString();
         }
 
+        public ref T AddGetRef()
+        {
+            if (tail == null)
+            {
+                var h = new Chain<T>
+                {
+                    Items = new T[8],
+                    Count = 1
+                };
+                // h.Items[0] = item;
+                head = h;
+                tail = h;
+                count++;
+                return ref h.Items[0];
+            }
+            if (tail.Count < tail.Items.Length)
+            {
+                count++;
+                return ref tail.Items[tail.Count++];
+                // return;
+            }
+            var t = new Chain<T>
+            {
+                Items = new T[8],
+                Count = 1
+            };
+            // t.Items[0] = item;
+            tail.Next = t;
+            tail = t;
+            count++;
+            return ref t.Items[0];
+        }
+
         public void Add(T item)
         {
             if(tail == null)

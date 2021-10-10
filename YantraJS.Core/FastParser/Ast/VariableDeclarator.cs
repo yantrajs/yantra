@@ -40,25 +40,23 @@ namespace YantraJS.Core.FastParser
 
             static AstExpression ArrayToPattern(AstArrayExpression array)
             {
-                var pl = new AstExpression?[array.Elements.Count];
+                var pl = new Sequence<AstExpression>(array.Elements.Count);
                 var e = array.Elements.GetFastEnumerator();
-                int i = 0;
                 while(e.MoveNext(out var item))
                 {
-                    pl[i++] = item.ToPattern();
+                    pl.Add(item.ToPattern());
                 }
-                return new AstArrayPattern(array.Start, array.End, ArraySpan<AstExpression?>.From(pl));
+                return new AstArrayPattern(array.Start, array.End, pl);
             }
 
             static AstExpression LiteralToPattern(AstObjectLiteral literal)
             {
 
-                var pl = new ObjectProperty[literal.Properties.Count];
+                var pl = new Sequence<ObjectProperty>(literal.Properties.Count);
                 var e = literal.Properties.GetFastEnumerator();
-                int i = 0;
                 while (e.MoveNext(out var px))
                 {
-                    ObjectProperty property;
+                    ref var property = ref pl.AddGetRef();
                     switch (px.Type)
                     {
                         case FastNodeType.SpreadElement:
@@ -80,9 +78,9 @@ namespace YantraJS.Core.FastParser
                         default:
                             throw new NotSupportedException();
                     }
-                    pl[i++] = property;
+                    // pl.Add(property);
                 }
-                return new AstObjectPattern(literal.Start, literal.End, ArraySpan<ObjectProperty>.From(pl));
+                return new AstObjectPattern(literal.Start, literal.End, pl);
             }
         }
 
