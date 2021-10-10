@@ -192,8 +192,8 @@ namespace YantraJS.Core.FastParser
 
             // modify the node as well...
             AstExpression AssignTempNames(
-                FastList<(string id, AstIdentifier temp)> list, 
-                FastList<StringSpan> hoisted,
+                Sequence<(string id, AstIdentifier temp)> list,
+                Sequence<StringSpan> hoisted,
                 AstExpression e)
             {
                 switch (e.Type)
@@ -256,8 +256,8 @@ namespace YantraJS.Core.FastParser
 
                 var tempDeclarations = new Sequence<VariableDeclarator>();
                 var scopedDeclarations = new Sequence<VariableDeclarator>();
-                var list = Pool.AllocateList<(string id, AstIdentifier temp)>();
-                var hoisted = Pool.AllocateList<StringSpan>();
+                var list = new Sequence<(string id, AstIdentifier temp)>();
+                var hoisted = new Sequence<StringSpan>();
                 try {
                     var en = declaration.Declarators.GetFastEnumerator();
                     while(en.MoveNext(out var d))
@@ -276,7 +276,7 @@ namespace YantraJS.Core.FastParser
                         }
                     }
 
-                    var changes = list.ToSpan();
+                    var changes = list;
 
                     if (requiresReplacement)
                     {
@@ -288,12 +288,12 @@ namespace YantraJS.Core.FastParser
 
                         if (update != null)
                         {
-                            update = AstIdentifierReplacer.Replace(update, in changes)
+                            update = AstIdentifierReplacer.Replace(update, changes)
                                 as AstExpression;
                         }
                         if (test != null)
                         {
-                            test = AstIdentifierReplacer.Replace(test, in changes)
+                            test = AstIdentifierReplacer.Replace(test, changes)
                                 as AstExpression;
                         }
                     }
@@ -307,15 +307,15 @@ namespace YantraJS.Core.FastParser
                     var block = new AstBlock(r.Start, last.End, statementList);
                     if (requiresReplacement)
                     {
-                        block.HoistingScope = hoisted.ToSpan();
+                        block.HoistingScope = hoisted;
                     }
                     return (r, block, update, test);
 
                 } finally {
                     // tempDeclarations.Clear();
                     // scopedDeclarations.Clear();
-                    list.Clear();
-                    hoisted.Clear();
+                    // list.Clear();
+                    // hoisted.Clear();
                 }
             }
         }

@@ -123,7 +123,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        public static Sequence<VariableDeclarator> From(FastPool pool, AstExpression node)
+        public static Sequence<VariableDeclarator> From(AstExpression node)
         {
             if (node.Type == FastNodeType.EmptyExpression)
                 return Sequence<VariableDeclarator>.Empty;
@@ -133,7 +133,7 @@ namespace YantraJS.Core.FastParser
         }
 
 
-        public static Sequence<VariableDeclarator> From(FastPool pool, in ArraySpan<AstExpression> nodes)
+        public static Sequence<VariableDeclarator> From(in ArraySpan<AstExpression> nodes)
         {
             var r = new Sequence<VariableDeclarator>(nodes.Length);
             for (int i = 0; i < nodes.Length; i++)

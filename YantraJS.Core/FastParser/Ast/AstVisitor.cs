@@ -9,28 +9,29 @@ namespace YantraJS.Core.FastParser.Ast
 
     public class AstIdentifierReplacer : AstReduce
     {
-        private readonly ArraySpan<(string from, AstIdentifier temp)> changes;
+        private readonly IFastEnumerable<(string from, AstIdentifier temp)> changes;
 
-        private AstIdentifierReplacer(in ArraySpan<(string from, AstIdentifier temp)> changes)
+        private AstIdentifierReplacer(IFastEnumerable<(string from, AstIdentifier temp)> changes)
         {
             this.changes = changes;
         }
 
         protected override AstNode VisitIdentifier(AstIdentifier identifier)
         {
-            foreach (var (from, to) in changes)
+            var e = changes.GetFastEnumerator();
+            while(e.MoveNext(out var item))
             {
-                if (identifier.Name.Equals(from))
+                if (identifier.Name.Equals(item.from))
                 {
-                    return to;
+                    return item.temp;
                 }
             }
             return identifier;
         }
 
-        public static AstNode Replace(AstNode node, in ArraySpan<(string from, AstIdentifier temp)> changes)
+        public static AstNode Replace(AstNode node, IFastEnumerable<(string from, AstIdentifier temp)> changes)
         {
-            var ast = new AstIdentifierReplacer(in changes);
+            var ast = new AstIdentifierReplacer(changes);
             return ast.Visit(node);
         }
     }

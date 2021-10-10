@@ -63,18 +63,18 @@ namespace YantraJS.Core.FastParser.Compiler
                 var lScope = fx.Context;
 
                 if (argsList != null && jScript.HoistingScope != null) {
-                    var list = pool.AllocateList<StringSpan>(jScript.HoistingScope.Value.Length);
+                    var list = new Sequence<StringSpan>(jScript.HoistingScope.Count);
                     //try
                     //{
-                        var e = jScript.HoistingScope.Value.GetEnumerator();
+                        var e = jScript.HoistingScope.GetFastEnumerator();
                         while (e.MoveNext(out var a))
                         {
                             if (argsList.Contains(a.Value))
                                 continue;
                             list.Add(a);
                         }
-                        jScript.HoistingScope = list.ToSpan();
-                    list.Clear();
+                        jScript.HoistingScope = list;
+                    // list.Clear();
                     //} finally
                     //    {
                     //        list.Clear();

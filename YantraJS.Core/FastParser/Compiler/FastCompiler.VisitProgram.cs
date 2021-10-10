@@ -41,7 +41,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
             if (hoistingScope != null)
             {
-                var en = hoistingScope.Value.GetEnumerator();
+                var en = hoistingScope.GetFastEnumerator();
                 var top = this.scope.Top;
                 while (en.MoveNext(out var v))
                 {

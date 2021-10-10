@@ -95,9 +95,9 @@ namespace YantraJS.Core.FastParser
 
         }
 
-        public ArraySpan<StringSpan> GetVariables()
+        public IFastEnumerable<StringSpan> GetVariables()
         {
-            var list = pool.AllocateList<StringSpan>();
+            var list = new Sequence<StringSpan>();
             try
             {
                 foreach (var node in Variables.AllValues())
@@ -105,11 +105,11 @@ namespace YantraJS.Core.FastParser
                     list.Add(node.Value.name);
                 }
                 if (list.Count == 0)
-                    return ArraySpan<StringSpan>.Empty;
-                return list.ToSpan();
+                    return Sequence<StringSpan>.Empty;
+                return list;
             } finally
             {
-                list.Clear();
+                // list.Clear();
             }
 
         }

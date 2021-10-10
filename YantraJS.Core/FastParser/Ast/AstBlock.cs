@@ -6,7 +6,7 @@
         /// <summary>
         /// 
         /// </summary>
-        public ArraySpan<StringSpan>? HoistingScope;
+        public IFastEnumerable<StringSpan>? HoistingScope;
 
 
         public readonly IFastEnumerable<AstStatement> Statements;

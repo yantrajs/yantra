@@ -47,7 +47,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
             if(importStatement.Members != null)
             {
-                var ve = importStatement.Members.Value.GetEnumerator();
+                var ve = importStatement.Members.GetFastEnumerator();
                 while(ve.MoveNext(out var item)) {
                     imported = this.scope.Top.CreateVariable(item.asName);
                     var prop = JSValueBuilder.Index(tempRequire, KeyOfName(item.name));
