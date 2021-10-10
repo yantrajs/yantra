@@ -14,7 +14,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Expression VisitArrayExpression(AstArrayExpression arrayExpression)
         {
-            var e = arrayExpression.Elements.GetEnumerator();
+            var e = arrayExpression.Elements.GetFastEnumerator();
             var list = pool.AllocateList<YElementInit>();
             //try
             //{

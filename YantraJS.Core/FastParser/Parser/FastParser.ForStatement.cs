@@ -157,7 +157,7 @@ namespace YantraJS.Core.FastParser
             bool ExpressionList(
                 out AstExpression? node)
             {
-                var list = Pool.AllocateList<AstExpression>();
+                var list = new Sequence<AstExpression>();
                 var token = stream.Current;
                 node = null;
                 try
@@ -184,13 +184,13 @@ namespace YantraJS.Core.FastParser
 
                     if (list.Any())
                     {
-                        node = new AstSequenceExpression(token, list.Last().End, list.ToSpan());
+                        node = new AstSequenceExpression(token, list.Last().End, list);
                     }
                     return true;
                 } finally
                 {
                     considerInOfAsOperators = true;
-                    list.Clear();
+                    // list.Clear();
                 }
             }
 

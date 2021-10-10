@@ -47,7 +47,11 @@ namespace YantraJS.Core
 
         T First();
 
+        T FirstOrDefault();
+
         T Last();
+
+        T LastOrDefault();
     }
 
     public abstract class FastEnumerator<T>: IEnumerator<T>
@@ -227,6 +231,15 @@ namespace YantraJS.Core
             throw new IndexOutOfRangeException();
         }
 
+        public T FirstOrDefault()
+        {
+            if (count > 0)
+            {
+                return head.Items[0];
+            }
+            return default;
+        }
+
         public T Last()
         {
             if (tail != null && tail.Count>0)
@@ -234,6 +247,15 @@ namespace YantraJS.Core
                 return tail.Items[tail.Count - 1];
             }
             throw new IndexOutOfRangeException();
+        }
+
+        public T LastOrDefault()
+        {
+            if (tail != null && tail.Count > 0)
+            {
+                return tail.Items[tail.Count - 1];
+            }
+            return default;
         }
 
         public T FirstOrDefault(Func<T,bool> predicate)

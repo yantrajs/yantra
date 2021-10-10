@@ -41,7 +41,7 @@ namespace YantraJS.Core.FastParser
             static AstExpression ArrayToPattern(AstArrayExpression array)
             {
                 var pl = new AstExpression?[array.Elements.Count];
-                var e = array.Elements.GetEnumerator();
+                var e = array.Elements.GetFastEnumerator();
                 int i = 0;
                 while(e.MoveNext(out var item))
                 {
@@ -116,7 +116,7 @@ namespace YantraJS.Core.FastParser
 
         private static void Fill(Sequence<VariableDeclarator> args, AstExpression exp) {
             if(exp.Type == FastNodeType.SequenceExpression && exp is AstSequenceExpression se) {
-                var e = se.Expressions.GetEnumerator();
+                var e = se.Expressions.GetFastEnumerator();
                 while(e.MoveNext(out var item)) {
                     args.Add(new VariableDeclarator(item.ToPattern()));
                 }
