@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Exp VisitNewExpression(AstNewExpression newExpression) {
             var constructor = VisitExpression(newExpression.Callee);
-            var args = VisitArguments(null, in newExpression.Arguments);
+            var args = VisitArguments(null, newExpression.Arguments);
             return ExpHelper.JSValueBuilder.CreateInstance(constructor, args);
         }
     }

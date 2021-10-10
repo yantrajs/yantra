@@ -16,18 +16,18 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Exp VisitCallExpression(AstCallExpression callExpression)
         {
-            var ce = VisitCallExpression(callExpression.Callee, in callExpression.Arguments, callExpression.Coalesce);
+            var ce = VisitCallExpression(callExpression.Callee, callExpression.Arguments, callExpression.Coalesce);
             return ce;
         }
 
-        protected (Expression[] args, bool hasSpread) VisitArguments(in ArraySpan<AstExpression> arguments)
+        protected (Expression[] args, bool hasSpread) VisitArguments(IFastEnumerable<AstExpression> arguments)
         {
 
-            var args = pool.AllocateList<Exp>(arguments.Count);
+            var args = new Sequence<Exp>(arguments.Count);
             bool hasSpread = false;
             //try
             //{
-                var e = arguments.GetEnumerator();
+                var e = arguments.GetFastEnumerator();
                 while (e.MoveNext(out var ae))
                 {
                     if (ae.Type != FastNodeType.SpreadElement)
@@ -44,7 +44,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 var result = args.Any()
                     ? (args.ToArray(), hasSpread)
                     : (Array.Empty<Expression>(), false);
-                args.Clear();
+                // args.Clear();
                 return result;
             //}
             //finally
@@ -55,13 +55,13 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected Expression VisitArguments(
             Expression? thisArg,
-            in ArraySpan<AstExpression> arguments,
+            IFastEnumerable<AstExpression> arguments,
             Expression? newTarget = null) {
 
-            var args = pool.AllocateList<Exp>(arguments.Count);
+            var args = new Sequence<Exp>(arguments.Count);
             bool hasSpread = false;
             // try {
-                var e = arguments.GetEnumerator();
+                var e = arguments.GetFastEnumerator();
                 while(e.MoveNext(out var ae)) {
                     if (ae.Type != FastNodeType.SpreadElement) {
                         args.Add(Visit(ae));
@@ -84,13 +84,13 @@ namespace YantraJS.Core.FastParser.Compiler
                 thisArg ??= JSUndefinedBuilder.Value;
                 if(hasSpread)
                 {
-                    var r = ArgumentsBuilder.Spread(thisArg, args);
-                    args.Clear();
+                    var r = ArgumentsBuilder.Spread(thisArg, args.ToArray());
+                    // args.Clear();
                     return r;
                 }
 
-                var result = ArgumentsBuilder.New(thisArg, args);
-                args.Clear();
+                var result = ArgumentsBuilder.New(thisArg, args.ToArray());
+                // args.Clear();
                 return result;
             //} finally {
             //    args.Clear();
@@ -98,8 +98,8 @@ namespace YantraJS.Core.FastParser.Compiler
         }
 
         protected Exp VisitCallExpression(
-            AstExpression callee, 
-            in ArraySpan<AstExpression> arguments
+            AstExpression callee,
+            IFastEnumerable<AstExpression> arguments
             , bool coalesce = false)
         {
 
@@ -146,12 +146,12 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     var paramArray = VisitArguments(
                                             isSuper ? target : null,
-                                            in arguments);
+                                            arguments);
 
                     var superMethod = JSValueBuilder.Index(super, name, me.Coalesce);
                     return JSFunctionBuilder.InvokeFunction(superMethod, paramArray, me.Coalesce);
                 }
-                var (args, spread) = VisitArguments(in arguments);
+                var (args, spread) = VisitArguments(arguments);
                 using var te = this.scope.Top.GetTempVariable(typeof(JSValue));
                 using var te2 = this.scope.Top.GetTempVariable(typeof(JSValue));
                 return JSValueBuilder.InvokeMethod(te.Variable, te2.Variable, target, name, args, spread, me.Coalesce || coalesce);
@@ -164,14 +164,14 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 if (isSuper)
                 {
-                    var paramArray1 = VisitArguments(this.scope.Top.ThisExpression, in arguments);
+                    var paramArray1 = VisitArguments(this.scope.Top.ThisExpression, arguments);
                     return JSFunctionBuilder.InvokeSuperConstructor(
                         this.scope.Top.NewTarget, 
                         this.scope.Top.Super,
                         this.scope.Top.ThisExpression, paramArray1);
                 }
 
-                var paramArray = VisitArguments(JSUndefinedBuilder.Value, in arguments);
+                var paramArray = VisitArguments(JSUndefinedBuilder.Value, arguments);
                 var target = VisitExpression(callee);
                 return JSFunctionBuilder.InvokeFunction(target, paramArray, coalesce);
             }
