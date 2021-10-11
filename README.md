@@ -25,7 +25,6 @@ There are three kind of licenses available for `YantraJS.Core`, `YantraJS` and `
 You can use NuGet packages mentioned above if you distribute your application in accordance to LGPL terms. In short, as long as you make your product open source and the source code must be available through open git repository. Please note, you cannot use this license if you are selling a solution to your customer along with the source code. The source code must be publicly available to any user.
 ### Restrictions
 * Application must be open source
-* Application can be commercial
 
 ## Runtime License
 For any application, if you are executing JavaScript automatically such as server side rendering, where your end users are not authoring any JavaScript code, you can purchase Runtime License. You can use other tools to automatically generate the code, but your users cannot. You can also use ExpressionCompiler to dynamically generate IL, save and execute it.
