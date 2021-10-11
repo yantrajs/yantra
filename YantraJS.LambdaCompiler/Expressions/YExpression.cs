@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using YantraJS.Core;
 using YantraJS.Runtime;
 
 namespace YantraJS.Expressions
@@ -170,15 +169,6 @@ namespace YantraJS.Expressions
             MethodInfo method,
             params YExpression[] arguments)
         {
-            return new YCoalesceCallExpression(target, member, method, arguments.AsSequence());
-        }
-
-        public static YCoalesceCallExpression CoalesceCall(
-            YExpression target,
-            MemberInfo member,
-            MethodInfo method,
-            IFastEnumerable<YExpression> arguments)
-        {
             return new YCoalesceCallExpression(target, member, method, arguments);
         }
 
@@ -259,7 +249,7 @@ namespace YantraJS.Expressions
         public static YBooleanConstantExpression Constant(bool value) => new YBooleanConstantExpression(value);
 
         public static YExpression Constant(string value) => value == null 
-            ? new YConstantExpression(null, typeof(string)) 
+            ? new YConstantExpression(null, typeof(string))
             : new YStringConstantExpression(value);
 
         public static YDoubleConstantExpression Constant(double value) => new YDoubleConstantExpression(value);
@@ -274,10 +264,12 @@ namespace YantraJS.Expressions
 
         public static YInt32ConstantExpression Constant(Enum value) => new YInt32ConstantExpression(System.Convert.ToInt32(value));
 
-        public static YConstantExpression Constant(object value, Type? type = null)
+        public static YExpression Constant(object value, Type? type = null)
         {
             if (value is YConstantExpression)
                 throw new NotSupportedException();
+            if (value is string @string)
+                return new YStringConstantExpression(@string);
             return new YConstantExpression(value, type ?? value?.GetType() ?? typeof(object));
         }
 
@@ -315,19 +307,12 @@ namespace YantraJS.Expressions
             return pl;
         }
 
+
         public static YMemberInitExpression MemberInit(
             YNewExpression exp,
-            IFastEnumerable<YBinding> list)
+            params YBinding[] list)
         {
             return new YMemberInitExpression(exp, list);
-        }
-
-
-        public static YMemberInitExpression MemberInit(
-            YNewExpression exp,
-            IEnumerable<YBinding> list)
-        {
-            return new YMemberInitExpression(exp, list.AsSequence());
         }
 
         public static YMemberAssignment Bind(MemberInfo field, YExpression value)
@@ -335,40 +320,28 @@ namespace YantraJS.Expressions
             return new YMemberAssignment(field, value);
         }
 
-        public static YMemberInitExpression MemberInit(
-            YNewExpression exp,
-            params YBinding[] list)
-        {
-            return new YMemberInitExpression(exp, list.AsSequence());
-        }
-
-        //public static YMemberAssignment Bind(MemberInfo field, YExpression value)
-        //{
-        //    return new YMemberAssignment(field, value);
-        //}
-
         public static YBlockExpression Block(
-            IFastEnumerable<YParameterExpression>? variables,
+            IEnumerable<YParameterExpression>? variables,
             params YExpression[] expressions)
-        {
-            return new YBlockExpression(variables, expressions.AsSequence());
-        }
-
-        public static YBlockExpression Block(
-            IFastEnumerable<YParameterExpression>? variables,
-            IFastEnumerable<YExpression> expressions)
         {
             return new YBlockExpression(variables, expressions);
         }
 
-        public static YBlockExpression Block(IFastEnumerable<YExpression> expressions)
+        public static YBlockExpression Block(
+            IEnumerable<YParameterExpression>? variables,
+            IEnumerable<YExpression> expressions)
         {
-            return new YBlockExpression(null, expressions);
+            return new YBlockExpression(variables, expressions.ToArray());
+        }
+
+        public static YBlockExpression Block(IEnumerable<YExpression> expressions)
+        {
+            return new YBlockExpression(null, expressions.ToArray());
         }
 
         public static YBlockExpression Block(params YExpression[] expressions)
         {
-            return new YBlockExpression(null, expressions.AsSequence());
+            return new YBlockExpression(null, expressions);
         }
 
 
@@ -406,7 +379,7 @@ namespace YantraJS.Expressions
         internal static YNewExpression CallNew(
             ConstructorInfo constructor, params YExpression[] args)
         {
-            return new YNewExpression(constructor, args.AsSequence(), true);
+            return new YNewExpression(constructor, args, true);
         }
 
         public static YBinaryExpression Or(YExpression left, YExpression right)
@@ -442,35 +415,23 @@ namespace YantraJS.Expressions
         public static YBinaryExpression LessOrEqual(YExpression left, YExpression right)
              => YExpression.Binary(left, YOperator.LessOrEqual, right);
 
-        public static YCallExpression Call(YExpression? target, MethodInfo method, IFastEnumerable<YExpression> args)
+        public static YCallExpression Call(YExpression? target, MethodInfo method, IEnumerable<YExpression> args)
+        {
+            return new YCallExpression(target, method, args.ToArray());
+        }
+        public static YCallExpression Call(YExpression? target, MethodInfo method, params YExpression[] args)
         {
             return new YCallExpression(target, method, args);
         }
 
-
-        public static YCallExpression Call(YExpression? target, MethodInfo method, IEnumerable<YExpression> args)
-        {
-            return new YCallExpression(target, method, args.AsSequence());
-        }
-        public static YCallExpression Call(YExpression? target, MethodInfo method, params YExpression[] args)
-        {
-            return new YCallExpression(target, method, args.AsSequence());
-        }
-
-        public static YNewExpression New(ConstructorInfo constructor, IFastEnumerable<YExpression> args)
-        {
-            return new YNewExpression(constructor, args);
-        }
-
-
         public static YNewExpression New(ConstructorInfo constructor, IEnumerable<YExpression> args)
         {
-            return new YNewExpression(constructor, args.AsSequence());
+            return new YNewExpression(constructor, args.ToArray());
         }
         public static YNewExpression New(Type type, params YExpression[] args)
         {
             var constructor = type.GetConstructor(args.Select(x => x.Type).ToArray());
-            return new YNewExpression(constructor, args.AsSequence());
+            return new YNewExpression(constructor, args.ToArray());
         }
         public static YNewExpression New(ConstructorInfo constructor, params YExpression[] args)
         {
@@ -489,19 +450,11 @@ namespace YantraJS.Expressions
             return new YFieldExpression(target, field);
         }
 
-        public static YInvokeExpression Invoke(YExpression target, IFastEnumerable<YExpression> args)
-        {
-            var t = target.Type;
-            var type = t.GetMethod("Invoke").ReturnType;
-            return new YInvokeExpression(target, args, type);
-        }
-
-
         public static YInvokeExpression Invoke(YExpression target, params YExpression[] args)
         {
             var t = target.Type;
             var type = t.GetMethod("Invoke").ReturnType;
-            return new YInvokeExpression(target, args.AsSequence(), type);
+            return new YInvokeExpression(target, args, type);
         }
 
         public static YParameterExpression Variable(Type type, string? name = null)
@@ -514,20 +467,14 @@ namespace YantraJS.Expressions
             return new YPropertyExpression(target, field);
         }
 
-        public static YNewArrayExpression NewArray(Type type, IFastEnumerable<YExpression> elements)
+        public static YNewArrayExpression NewArray(Type type, params YExpression[] elements)
         {
             return new YNewArrayExpression(type, elements);
         }
 
-
-        public static YNewArrayExpression NewArray(Type type, params YExpression[] elements)
-        {
-            return new YNewArrayExpression(type, elements.AsSequence());
-        }
-
         public static YNewArrayExpression NewArrayInit(Type type, IEnumerable<YExpression> elements)
         {
-            return new YNewArrayExpression(type, elements.AsSequence());
+            return new YNewArrayExpression(type, elements.ToArray());
         }
 
         public static YNewArrayBoundsExpression NewArrayBounds(Type type, YExpression size)
@@ -539,12 +486,6 @@ namespace YantraJS.Expressions
         {
             return new YMemberElementInit(member, elements);
         }
-
-        public static YExpression ListInit(YNewExpression newExp, IFastEnumerable<YElementInit> elements)
-            => new YListInitExpression(newExp, elements.ToArray());
-
-        public static YExpression ListInit(YNewExpression newExp, IEnumerable<YElementInit> elements)
-            => new YListInitExpression(newExp, elements.ToArray());
 
         public static YExpression ListInit(YNewExpression newExp, YElementInit[] elements)
             => new YListInitExpression(newExp, elements);
@@ -687,30 +628,11 @@ namespace YantraJS.Expressions
             return new YArrayLengthExpression(target);
         }
 
-        public static YIndexExpression Index(YExpression target, PropertyInfo propertyInfo, IFastEnumerable<YExpression> args)
-        {
-            return new YIndexExpression(target, propertyInfo, args);
-        }
-
-
         public static YIndexExpression Index(YExpression target, PropertyInfo propertyInfo, params YExpression[] args)
         {
-            return new YIndexExpression(target, propertyInfo, args.AsSequence());
-        }
-
-        public static YIndexExpression Index(YExpression target, IFastEnumerable<YExpression> args)
-        {
-            var types = args.Select(x => x.Type).ToArray();
-            PropertyInfo propertyInfo =
-                target.Type.GetType()
-                    .GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.GetProperty)
-                    .FirstOrDefault(x => x.GetIndexParameters().Select(p => p.ParameterType).SequenceEqual(types));
-            if (propertyInfo == null)
-            {
-                throw new NotSupportedException($"Index[{string.Join(",", types.Select(n => n.Name))}] not found on {target.Type.GetFriendlyName()}");
-            }
             return new YIndexExpression(target, propertyInfo, args);
         }
+
 
         public static YIndexExpression Index(YExpression target, params YExpression[] args)
         {
@@ -723,7 +645,7 @@ namespace YantraJS.Expressions
             {
                 throw new NotSupportedException($"Index[{string.Join(",",types.Select(n => n.Name))}] not found on {target.Type.GetFriendlyName()}");
             }
-            return new YIndexExpression(target, propertyInfo, args.AsSequence());
+            return new YIndexExpression(target, propertyInfo, args);
         }
 
         public static YUnaryExpression Not(YExpression exp)
@@ -780,7 +702,7 @@ namespace YantraJS.Expressions
         }
 
         internal static YRelayExpression Relay(
-            IFastEnumerable<YExpression> box, 
+            YExpression[] box, 
             YLambdaExpression inner)
         {
             return new YRelayExpression(box, inner);
