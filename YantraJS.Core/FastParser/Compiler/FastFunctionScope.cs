@@ -330,7 +330,6 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             TopScope = this;
             var sID = Interlocked.Increment(ref scopeID);
-            this.pool = pool.NewScope();
             this.Function = fx;
             this.Super = super;
             if (fx?.Generator ?? false)
@@ -373,7 +372,7 @@ namespace YantraJS.Core.FastParser.Compiler
             this.Closures = Expression.Parameter(typeof(JSVariable[]), $"{nameof(Closures)}{sID}");
             this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), $"{nameof(ScriptInfo)}{sID}");
             this.Loop = new LinkedStack<LoopScope>();
-            TempVariables = pool.AllocateList<VariableScope>();
+            TempVariables = new Sequence<VariableScope>();
             ReturnLabel = Expression.Label(typeof(YantraJS.Core.JSValue));
         }
 
@@ -383,7 +382,7 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             this.Function = p.Function;
             this.TopScope = p.TopScope;
-            this.pool = p.pool.NewScope();
+            // this.pool = p.pool.NewScope();
             // this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
             this.Generator = p.Generator;
@@ -418,8 +417,8 @@ namespace YantraJS.Core.FastParser.Compiler
             return v;
         }
 
-        private FastList<VariableScope> TempVariables;
-        private readonly FastPool.Scope pool;
+        private Sequence<VariableScope> TempVariables;
+        // private readonly FastPool.Scope pool;
 
         private static int id;
 
@@ -490,11 +489,11 @@ namespace YantraJS.Core.FastParser.Compiler
         }
 
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            pool.Dispose();
-        }
+        //public override void Dispose()
+        //{
+        //    base.Dispose();
+        //    pool.Dispose();
+        //}
 
         //public VariableScope AddVariable(
         //    string name, 
@@ -513,7 +512,7 @@ namespace YantraJS.Core.FastParser.Compiler
         //    return v;
         //}
 
-        public FastList<VariableScope> ClosureList
+        public Sequence<VariableScope> ClosureList
         {
             get; private set;
         }
@@ -550,7 +549,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var v = p.GetVariable(name);
             if (v == null)
                 return null;
-            ClosureList = ClosureList ?? pool.AllocateList<VariableScope>();
+            ClosureList = ClosureList ?? new Sequence<VariableScope>();
             var v1 = new VariableScope()
             {
                 Variable = Expression.Parameter(typeof(JSVariable), name.Value),
