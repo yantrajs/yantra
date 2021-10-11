@@ -356,6 +356,11 @@ namespace YantraJS.Core
             }
         }
 
+        internal Sequence(IEnumerable<T> items)
+        {
+            AddRange(items);
+        }
+
         public Sequence(IFastEnumerable<T> items)
         {
             var all = items.ToArray();
