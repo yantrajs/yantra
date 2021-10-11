@@ -54,7 +54,7 @@ This license grants you permission to execute any JavaScript code or use Express
 10. CommonJS Module Support
 11. CSX Module support
 
-* Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
+`*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 
 # CSX Module Support
 
