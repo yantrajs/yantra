@@ -115,7 +115,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var script = Visit(jScript);
 
-                var sList = new List<Exp>() {
+                var sList = new Sequence<Exp>() {
                     Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
                     Exp.Assign(lScope, JSContextBuilder.Current)
                 };

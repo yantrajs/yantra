@@ -24,9 +24,9 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             var callee = template.Tag;
 
-            var args = pool.AllocateList<Expression>(template.Arguments.Count);
-            var parts = pool.AllocateList<YElementInit>(template.Arguments.Count);
-            var raw = pool.AllocateList<Expression>(template.Arguments.Count);
+            var args = new Sequence<Expression>(template.Arguments.Count);
+            var parts = new Sequence<YElementInit>(template.Arguments.Count);
+            var raw = new Sequence<Expression>(template.Arguments.Count);
             try
             {
                 var e = template.Arguments.GetFastEnumerator();
@@ -60,7 +60,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 parts.Add(new YElementInit(JSObjectBuilder._FastAddValueKeyString, KeyOfName("raw"), rawArray, JSPropertyAttributesBuilder.EnumerableConfigurableValue));
 
-                var partsArray = JSArrayBuilder.New(parts.Release());
+                var partsArray = JSArrayBuilder.New(parts);
 
                 args[0] = partsArray;
 
@@ -135,9 +135,9 @@ namespace YantraJS.Core.FastParser.Compiler
                         ArgumentsBuilder.New(JSUndefinedBuilder.Value, args));
                 }
             } finally {
-                parts.Clear();
-                raw.Clear();
-                args.Clear();
+                //parts.Clear();
+                //raw.Clear();
+                //args.Clear();
             }
         }
     }

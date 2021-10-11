@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Expression VisitTemplateExpression(AstTemplateExpression templateExpression)
         {
-            var items = pool.AllocateList<Exp>();
+            var items = new Sequence<Exp>(templateExpression.Parts.Count);
             try {
                 var e = templateExpression.Parts.GetFastEnumerator();
                 int size = 0;
@@ -39,7 +39,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
                 return JSTemplateStringBuilder.New(items, size);
             } finally {
-                items.Clear();
+                // items.Clear();
             }
         }
     }

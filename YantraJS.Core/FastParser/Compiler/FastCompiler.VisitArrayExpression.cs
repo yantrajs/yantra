@@ -15,7 +15,7 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override Expression VisitArrayExpression(AstArrayExpression arrayExpression)
         {
             var e = arrayExpression.Elements.GetFastEnumerator();
-            var list = pool.AllocateList<YElementInit>();
+            var list = new Sequence<YElementInit>();
             //try
             //{
                 while (e.MoveNext(out var item))
@@ -39,12 +39,12 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 if (list.Count > 0)
                 {
-                    var r = list.Release();
-                    list.Dispose();
-                    return Expression.ListInit(Expression.New(JSArrayBuilder._New), r);
+                    // var r = list.Release();
+                    // list.Dispose();
+                    return Expression.ListInit(Expression.New(JSArrayBuilder._New), list);
                 }
 
-                list.Dispose();
+                // list.Dispose();
                 return Expression.New(JSArrayBuilder._New);
             //} finally
             //{

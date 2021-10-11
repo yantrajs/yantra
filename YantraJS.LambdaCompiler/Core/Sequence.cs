@@ -252,6 +252,8 @@ namespace YantraJS.Core
                 Add(item);
         }
 
+        public bool Any() => count > 0;
+
 
         public int Count => count;
 

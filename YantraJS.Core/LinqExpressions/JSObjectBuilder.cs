@@ -200,7 +200,7 @@ namespace YantraJS.ExpHelper
         }
 
 
-        public static Expression New(YElementInit[] elements)
+        public static Expression New(IFastEnumerable<YElementInit> elements)
         {
             return YExpression.ListInit(Expression.New(_New), elements);
         }

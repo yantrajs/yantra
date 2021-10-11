@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using YantraJS.Core;
 using YantraJS.Runtime;
 
 namespace YantraJS.Expressions
@@ -493,6 +494,12 @@ namespace YantraJS.Expressions
         {
             return new YMemberElementInit(member, elements);
         }
+
+        public static YExpression ListInit(YNewExpression newExp, IFastEnumerable<YElementInit> elements)
+            => new YListInitExpression(newExp, elements.ToArray());
+
+        public static YExpression ListInit(YNewExpression newExp, IEnumerable<YElementInit> elements)
+            => new YListInitExpression(newExp, elements.ToArray());
 
         public static YExpression ListInit(YNewExpression newExp, YElementInit[] elements)
             => new YListInitExpression(newExp, elements);

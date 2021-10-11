@@ -25,7 +25,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var require = this.scope.Top.GetVariable("require");
             var source = VisitExpression(importStatement.Source);
             var args = ArgumentsBuilder.New(JSUndefinedBuilder.Value, source);
-            var stmts = pool.AllocateList<Exp>();
+            var stmts = new Sequence<Exp>();
             stmts.Add(Exp.Assign(tempRequire, JSFunctionBuilder.InvokeFunction(require.Expression, args) ));
             FastFunctionScope.VariableScope imported;
 

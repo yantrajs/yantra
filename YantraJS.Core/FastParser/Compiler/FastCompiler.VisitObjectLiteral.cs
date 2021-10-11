@@ -25,7 +25,7 @@ namespace YantraJS.Core.FastParser.Compiler
             // var keys = new List<ExpressionHolder>(objectExpression.Properties.Count);
             // var properties = new Dictionary<string, ExpressionHolder>(objectExpression.Properties.Count);
 
-            var elements = pool.AllocateList<YElementInit>();
+            var elements = new Sequence<YElementInit>();
 
             //try
             //{
@@ -134,11 +134,11 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
 
                 if (elements.Any()) {
-                    var r = ExpHelper.JSObjectBuilder.New(elements.Release());
-                    elements.Clear();
+                    var r = ExpHelper.JSObjectBuilder.New(elements);
+                    // elements.Clear();
                     return r;
                 }
-                elements.Clear();
+                // elements.Clear();
                 return JSObjectBuilder.New();
             //} finally
             //{

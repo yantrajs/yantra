@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void ExtractName(FastList<StringSpan> list, AstNode node) {
+        void ExtractName(Sequence<StringSpan> list, AstNode node) {
             switch (node.Type)
             {
                 case FastNodeType.VariableDeclaration:
@@ -51,14 +51,14 @@ namespace YantraJS.Core.FastParser.Compiler
         }
 
 
-        ArraySpan<StringSpan> Names(AstNode expression)
+        IFastEnumerable<StringSpan> Names(AstNode expression)
         {
 
-            var list = pool.AllocateList<StringSpan>();
+            var list = new Sequence<StringSpan>();
             ExtractName(list, expression);
-            var result = list.ToSpan();
-            list.Clear();
-            return result;
+            // var result = list.ToSpan();
+            // list.Clear();
+            return list;
         }
 
         protected override Exp VisitExportStatement(AstExportStatement exportStatement)
@@ -73,7 +73,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 return Exp.Assign(defExports, Visit(declaration));
             }
 
-            var list = pool.AllocateList<Exp>();
+            var list = new Sequence<Exp>();
 
             try
             {
@@ -117,7 +117,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 throw new FastParseException(exportStatement.Start, $"Unexpected export type {exportStatement.Declaration.Type}");
             }finally
             {
-                list.Clear();
+                // list.Clear();
             }
         }
     }
