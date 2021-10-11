@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
@@ -52,6 +53,64 @@ namespace YantraJS.Expressions
             r4 = Visit(node4) as T4;
             return r1 != node1 || r2 != node2 || r3 != node3 || r4 != node4;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Modified<T>(IFastEnumerable<T> statements, out IFastEnumerable<T> list)
+            where T : YExpression
+        {
+            list = statements;
+            if (statements.Count == 0)
+            {
+                return false;
+            }
+            bool dirty = false;
+            var r = new Sequence<T>(statements.Count);
+            var en = statements.GetFastEnumerator();
+            while(en.MoveNext(out var item))
+            {
+                var visitedItem = Visit(item);
+                var visited = visitedItem as T;
+                if (visited == null)
+                    throw new ArgumentNullException();
+                if (visited != item)
+                    dirty = true;
+                r.Add(visited);
+            }
+            if (!dirty)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Modified<T>(IFastEnumerable<T> statements, Func<T, T> visitor, out IFastEnumerable<T> list)
+        {
+            list = statements;
+            if (statements.Count == 0)
+            {
+                return false;
+            }
+            bool dirty = false;
+            var r = new Sequence<T>(statements.Count);
+            var en = statements.GetFastEnumerator();
+            while (en.MoveNext(out var item))
+            {
+                var visitedItem = visitor(item);
+                var visited = visitedItem;
+                if (!visited.Equals(item))
+                    dirty = true;
+                r.Add(visited);
+            }
+            if (!dirty)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Modified<T>(in T[] statements, out T[] list)

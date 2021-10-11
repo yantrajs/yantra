@@ -138,7 +138,7 @@ namespace YantraJS.Expressions
         {
             if (variables.Count == 0 && expressions.Count == 1)
                 return expressions.First();
-            return new YBlockExpression(variables, expressions.ToArray());
+            return new YBlockExpression(variables, expressions);
         }
 
     }

@@ -27,6 +27,21 @@ namespace YantraJS.Utils
         }
 
         [TestMethod]
+        public void Insert()
+        {
+            var sequence = new Sequence<int>(2) {
+                2,
+                3,
+                4
+            };
+
+            sequence.Insert(0, 1);
+
+            Assert.AreEqual("1,2,3,4", sequence.Description);
+
+        }
+
+        [TestMethod]
         public void ThreeLevels()
         {
             var sequence = new Sequence<int>();

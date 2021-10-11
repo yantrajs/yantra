@@ -81,9 +81,7 @@ namespace YantraJS.Core.FastParser.Compiler
             {
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
-                var pList = new ParameterExpression[] {
-                    en
-                };
+                var pList = en.AsSequence();
 
                 
 
@@ -123,9 +121,7 @@ namespace YantraJS.Core.FastParser.Compiler
             {
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
-                var pList = new ParameterExpression[] {
-                    en
-                };
+                var pList = en.AsSequence();
 
                 var body = VisitStatement(forOfStatement.Body);
 

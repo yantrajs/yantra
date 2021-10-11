@@ -48,7 +48,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var superVar = Exp.Parameter(typeof(JSFunction));
             var superPrototypeVar = Exp.Parameter(typeof(JSObject));
 
-            var stmts = scope.AllocateList<Exp>();
+            var stmts = new Sequence<Exp>(body.Members.Count);
 
 
             stmts.Add(Exp.Assign(superVar, Exp.TypeAs(superExp, typeof(JSFunction))));
@@ -207,7 +207,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 stmts.Add(retValue);
             }
 
-            var result = Exp.Block(new ParameterExpression[] { superVar, superPrototypeVar }, stmts);
+            var result = Exp.Block(new Sequence<ParameterExpression> { superVar, superPrototypeVar }, stmts);
             scope.Dispose();
             return result;
         }

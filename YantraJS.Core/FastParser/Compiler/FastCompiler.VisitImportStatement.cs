@@ -56,7 +56,7 @@ namespace YantraJS.Core.FastParser.Compiler
             }
 
             var importExp =  Exp.Block(
-                new ParameterExpression[] { tempRequire },
+                tempRequire.AsSequence(),
                 stmts);
             return importExp;
         }

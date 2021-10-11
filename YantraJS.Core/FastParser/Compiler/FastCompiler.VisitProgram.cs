@@ -29,7 +29,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 throw new InvalidOperationException();
             if (!list.Any())
                 return Exp.Empty;
-            var r = Exp.Block(scope.VariableParameters, list);
+            var r = Exp.Block(scope.VariableParameters.AsSequence(), list);
             // list.Clear();
             return r;
         }

@@ -38,11 +38,11 @@ namespace YantraJS
     {
 
 
-        internal static Core.FastParser.FastList<Expression> ConvertToInteger(
-            this IList<Expression> source, 
+        internal static Sequence<Expression> ConvertToInteger(
+            this IFastEnumerable<Expression> source, 
             Core.FastParser.FastPool.Scope scope)
         {
-            var result = scope.AllocateList<Expression>(source.Count);
+            var result = new Sequence<Expression>(source.Count);
             foreach (var exp in source)
             {
                 switch (exp.NodeType)
@@ -69,9 +69,9 @@ namespace YantraJS
             return result;
         }
 
-        internal static SparseList<Expression> ConvertToInteger(this IList<Expression> source)
+        internal static Sequence<Expression> ConvertToInteger(this IFastEnumerable<Expression> source)
         {
-            var result = new SparseList<Expression>(source.Count);
+            var result = new Sequence<Expression>(source.Count);
             foreach(var exp in source)
             {
                 switch (exp.NodeType)
@@ -95,9 +95,9 @@ namespace YantraJS
             return result;
         }
 
-        internal static FastList<Expression> ConvertToNumber(this FastList<Expression> source, FastPool.Scope scope)
+        internal static Sequence<Expression> ConvertToNumber(this IFastEnumerable<Expression> source, FastPool.Scope scope)
         {
-            var result = scope.AllocateList<Expression>(source.Count);
+            var result = new Sequence<Expression>(source.Count);
             foreach (var exp in source)
             {
                 if (!(exp.IsConstant(out var ce)))
@@ -130,9 +130,9 @@ namespace YantraJS
         }
 
 
-        internal static FastList<Expression> ConvertToString(this FastList<Expression> source, FastPool.Scope scope)
+        internal static Sequence<Expression> ConvertToString(this IFastEnumerable<Expression> source, FastPool.Scope scope)
         {
-            var result = scope.AllocateList<Expression>(source.Count);
+            var result = new Sequence<Expression>(source.Count);
             foreach (var exp in source)
             {
                 if(exp.NodeType == YExpressionType.StringConstant)
@@ -152,9 +152,9 @@ namespace YantraJS
             return result;
         }
 
-        internal static FastList<Expression> ConvertToJSValue(this FastList<Expression> source, FastPool.Scope scope)
+        internal static Sequence<Expression> ConvertToJSValue(this IFastEnumerable<Expression> source, FastPool.Scope scope)
         {
-            var result = scope.AllocateList<Expression>(source.Count);
+            var result = new Sequence<Expression>(source.Count);
             foreach (var exp in source)
             {
                 if (!(exp.IsConstant(out var ce)))

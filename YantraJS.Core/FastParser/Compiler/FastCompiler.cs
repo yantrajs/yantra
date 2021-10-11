@@ -90,7 +90,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 var stackItem = fx.StackItem;
 
-                var vList = new SparseList<ParameterExpression>() {
+                var vList = new Sequence<ParameterExpression>() {
                     scriptInfo,
                     lScope,
                     stackItem

@@ -249,7 +249,9 @@ namespace YantraJS.Expressions
 
         public static YBooleanConstantExpression Constant(bool value) => new YBooleanConstantExpression(value);
 
-        public static YStringConstantExpression Constant(string value) => new YStringConstantExpression(value);
+        public static YExpression Constant(string value) => value == null 
+            ? new YConstantExpression(null, typeof(string)) 
+            : new YStringConstantExpression(value);
 
         public static YDoubleConstantExpression Constant(double value) => new YDoubleConstantExpression(value);
 
@@ -329,27 +331,27 @@ namespace YantraJS.Expressions
         //}
 
         public static YBlockExpression Block(
-            IEnumerable<YParameterExpression>? variables,
+            IFastEnumerable<YParameterExpression>? variables,
             params YExpression[] expressions)
+        {
+            return new YBlockExpression(variables, expressions.AsSequence());
+        }
+
+        public static YBlockExpression Block(
+            IFastEnumerable<YParameterExpression>? variables,
+            IFastEnumerable<YExpression> expressions)
         {
             return new YBlockExpression(variables, expressions);
         }
 
-        public static YBlockExpression Block(
-            IEnumerable<YParameterExpression>? variables,
-            IEnumerable<YExpression> expressions)
+        public static YBlockExpression Block(IFastEnumerable<YExpression> expressions)
         {
-            return new YBlockExpression(variables, expressions.ToArray());
-        }
-
-        public static YBlockExpression Block(IEnumerable<YExpression> expressions)
-        {
-            return new YBlockExpression(null, expressions.ToArray());
+            return new YBlockExpression(null, expressions);
         }
 
         public static YBlockExpression Block(params YExpression[] expressions)
         {
-            return new YBlockExpression(null, expressions);
+            return new YBlockExpression(null, expressions.AsSequence());
         }
 
 

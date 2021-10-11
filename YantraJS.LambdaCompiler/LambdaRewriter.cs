@@ -191,8 +191,8 @@ namespace YantraJS
 
             // let us find out lifted variables...
 
-            var list = new Sequence<YParameterExpression>(node.Variables.Length);
-            var statements = new Sequence<YExpression>(node.Expressions.Length);
+            var list = new Sequence<YParameterExpression>(node.Variables.Count);
+            var statements = new Sequence<YExpression>(node.Expressions.Count);
             foreach (var (e, p) in node.Variables.Select(v => stack.AccessParameter(v))) { 
                 if(e == p)
                 {
@@ -206,7 +206,7 @@ namespace YantraJS
                 statements.Add(Visit(s));
             }
 
-            return new YBlockExpression(list, statements.ToArray());
+            return new YBlockExpression(list, statements);
         }
 
         protected override YExpression VisitParameter(YParameterExpression node)

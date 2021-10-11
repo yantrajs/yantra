@@ -66,6 +66,7 @@ namespace YantraJS.LambdaCompiler.Tests
         [TestMethod]
         public void SaveLocal()
         {
+            Generator.ILCodeGenerator.GenerateLogs = true;
             var p1 = YExpression.Parameter(typeof(int));
             var p2 = YExpression.Parameter(typeof(int));
 
@@ -84,7 +85,7 @@ namespace YantraJS.LambdaCompiler.Tests
                 YExpression.Assign(temp, YExpression.Binary(temp, YOperator.Add, p2)),
                 YExpression.Assign(p2, YExpression.Binary(p2, YOperator.Subtract, one)));
 
-            var body = YExpression.Block(new YParameterExpression[] { temp },
+            var body = YExpression.Block(temp.AsSequence(),
                 YExpression.Assign(temp, zero),
                 YExpression.Loop(loop, @break, @continue),
                 temp) ;

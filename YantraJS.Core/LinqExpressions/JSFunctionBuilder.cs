@@ -104,7 +104,7 @@ namespace YantraJS.ExpHelper
                 var pes = Expression.Parameters(typeof(JSValue));
                 var pe = pes[0];
                 return Expression.Block(
-                    pes,
+                    pes.AsSequence(),
                     Expression.Assign(pe, target),
                     Expression.Condition(JSValueBuilder.IsNullOrUndefined(pe),
                     JSUndefinedBuilder.Value,

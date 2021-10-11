@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -92,10 +93,195 @@ namespace YantraJS.Core
         public Chain<T> Next;
     }
 
+    public class EnumerableSequence<T> : IFastEnumerable<T>
+    {
+        private readonly IEnumerable<T> enumerable;
+
+        public EnumerableSequence(IEnumerable<T> enumerable)
+        {
+            this.enumerable = enumerable;
+        }
+
+        public int Count => enumerable.Count();
+
+        public T First()
+        {
+            return enumerable.First();
+        }
+
+        public T FirstOrDefault()
+        {
+            return enumerable.FirstOrDefault();
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return enumerable.GetEnumerator();
+        }
+
+        public FastEnumerator<T> GetFastEnumerator()
+        {
+            return new EnumerableEnumerator(enumerable.GetEnumerator());
+        }
+
+        public T Last()
+        {
+            return enumerable.Last();
+        }
+
+        public T LastOrDefault()
+        {
+            return enumerable.LastOrDefault();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public class EnumerableEnumerator : FastEnumerator<T>
+        {
+            private readonly IEnumerator<T> en;
+            private int index;
+
+            public EnumerableEnumerator(IEnumerator<T> en)
+            {
+                this.en = en;
+                this.index = 0;
+            }
+
+            public override bool MoveNext(out T item)
+            {
+                if (en.MoveNext())
+                {
+                    item = en.Current;
+                    return true;
+                }
+                item = default;
+                return false;
+            }
+
+            public override bool MoveNext(out T item, out int index)
+            {
+                if (en.MoveNext())
+                {
+                    item = en.Current;
+                    index = this.index++;
+                    return true;
+                }
+                item = default;
+                index = default;
+                return false;
+
+            }
+        }
+    }
+
+    public static class Sequence
+    {
+
+        public static IFastEnumerable<T> AsSequence<T>(this IEnumerable<T> items)
+        {
+            return new EnumerableSequence<T>(items);
+        }
+
+        public static Sequence<T> AsSequence<T>(this T[] items)
+        {
+            return new Sequence<T>(items);
+        }
+
+        public static SingleElementSequence<T> AsSequence<T>(this T item) => new SingleElementSequence<T>(item);
+    }
+
+    public class SingleElementSequence<T> : IFastEnumerable<T>
+    {
+        private readonly T item;
+
+        public SingleElementSequence(T item)
+        {
+            this.item = item;
+        }
+
+        public int Count => 1;
+
+        public T First()
+        {
+            return item;
+        }
+
+        public T FirstOrDefault()
+        {
+            return item;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return GetFastEnumerator();
+        }
+
+        public FastEnumerator<T> GetFastEnumerator()
+        {
+            return new SingleSequenceEnumerator(item);
+        }
+
+        public T Last()
+        {
+            return item;
+        }
+
+        public T LastOrDefault()
+        {
+            return item;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetFastEnumerator();
+        }
+
+        private class SingleSequenceEnumerator : FastEnumerator<T>
+        {
+            private readonly T item;
+            private bool done;
+
+            public SingleSequenceEnumerator(T item)
+            {
+                this.item = item;
+            }
+
+            public override bool MoveNext(out T item)
+            {
+                if (done)
+                {
+                    item = default;
+                    return false;
+                }
+                done = true;
+                item = this.item;
+                return true;
+            }
+
+            public override bool MoveNext(out T item, out int index)
+            {
+                index = 0;
+                if (done)
+                {
+                    item = default;
+                    return false;
+                }
+                done = true;
+                item = this.item;
+                return true;
+            }
+        }
+    }
+
     public class Sequence<T>: IReadOnlyList<T>, IFastEnumerable<T>
     {
 
         public static Sequence<T> Empty = new Sequence<T>();
+
+        // public static implicit operator Sequence<T>(T[] items) => new Sequence<T>(items);
 
 
         private Chain<T> head;
@@ -149,12 +335,47 @@ namespace YantraJS.Core
         {
         }
 
+        public Sequence(T[] items)
+        {
+            if (items.Length > 0)
+            {
+                var t = new Chain<T>
+                {
+                    Items = items,
+                    Count = items.Length
+                };
+                this.count = items.Length;
+                this.head = t;
+                this.tail = t;
+            }
+        }
+
+        public Sequence(IFastEnumerable<T> items)
+        {
+            var all = items.ToArray();
+            if (all.Length > 0)
+            {
+                var t = new Chain<T>
+                {
+                    Items = all,
+                    Count = all.Length
+                };
+                this.count = all.Length;
+                this.head = t;
+                this.tail = t;
+            }
+        }
+
         public Sequence(int capacity)
         {
-            this.head = new Chain<T> { 
-                Items = new T[capacity]
-            };
-            this.tail = this.head;
+            if (capacity > 0)
+            {
+                this.head = new Chain<T>
+                {
+                    Items = new T[capacity]
+                };
+                this.tail = this.head;
+            }
         }
 
         public string Join(string separator = ", ")
@@ -205,6 +426,16 @@ namespace YantraJS.Core
             tail = t;
             count++;
             return ref t.Items[0];
+        }
+
+        public void Insert(int i, T item)
+        {
+            Add(default);
+            for (int index = count - 2 ; index >= i; index--)
+            {
+                this[index + 1] = this[index];
+            }
+            this[i] = item;
         }
 
         public void Add(T item)
@@ -350,13 +581,13 @@ namespace YantraJS.Core
         {
             private Chain<T> start;
             private int position;
-            private int index;
+            private int current;
 
             internal FastSequenceEnumerator(Chain<T> start)
             {
                 this.start = start;
                 this.position = 0;
-                this.index = 0;
+                this.current = 0;
             }
 
             public override bool MoveNext(out T item, out int index)
@@ -368,7 +599,7 @@ namespace YantraJS.Core
                     return false;
                 }
                 item = start.Items[position++];
-                index = this.index++;
+                index = this.current++;
                 if (position == start.Items.Length)
                 {
                     start = start.Next;

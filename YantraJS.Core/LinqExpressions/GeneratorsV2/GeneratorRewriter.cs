@@ -125,11 +125,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 newBody, generator, gw.args, gw.nextJump, gw.nextValue, gw.exception);
         }
 
-        private (ParameterExpression[] boxes, Expression init) LoadBoxes()
+        private (Sequence<ParameterExpression> boxes, Expression init) LoadBoxes()
         {
-            List<Expression> boxes = new List<Expression>(lifted.Count);
+            var boxes = new Sequence<Expression>(lifted.Count);
             boxes.Add(ClrGeneratorV2Builder.InitVariables(pe, lifted.Count));
-            List<ParameterExpression> vlist = new List<ParameterExpression>(lifted.Count);
+            var vlist = new Sequence<ParameterExpression>(lifted.Count);
             foreach(var v in lifted)
             {
                 vlist.Add(v.box);
@@ -141,7 +141,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 return (null, null);
             }
 
-            return (vlist.ToArray(), Expression.Block(boxes));
+            return (vlist, Expression.Block(boxes));
         }
 
         private Expression GenerateJumps(YLabelTarget @break)
@@ -168,7 +168,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         {
             if (!node.HasYield())
                 return base.VisitBlock(node);
-            List<Expression> list = new List<Expression>();
+            var list = new Sequence<Expression>(node.Variables.Count + node.Expressions.Count);
             foreach (var v in node.Variables)
             {
                 int index = lifted.Count;

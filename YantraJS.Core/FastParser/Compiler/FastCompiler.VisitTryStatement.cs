@@ -29,7 +29,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 var pe = scope.Top.CreateException(id.Name.Value);
                 var v = scope.Top.CreateVariable(id.Name);
 
-                var catchBlock = Exp.Block(new ParameterExpression[] { v.Variable },
+                var catchBlock = Exp.Block(v.Variable.AsSequence(),
                     Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.NewFromException(pe.Variable, id.Name.Value)),
                     VisitStatement(cb));
                 var cbExp = Exp.Catch(pe.Variable, catchBlock.ToJSValue());
