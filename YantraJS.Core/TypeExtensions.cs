@@ -157,6 +157,15 @@ namespace YantraJS
             var result = scope.AllocateList<Expression>(source.Count);
             foreach (var exp in source)
             {
+                switch (exp.NodeType)
+                {
+                    case YExpressionType.StringConstant:
+                        result.Add(JSStringBuilder.New(exp as YStringConstantExpression));
+                        continue;
+                    case YExpressionType.DoubleConstant:
+                        result.Add(JSStringBuilder.New(exp as YDoubleConstantExpression));
+                        continue;
+                }
                 if (!(exp.IsConstant(out var ce)))
                 {
                     result.Add(exp);

@@ -248,7 +248,9 @@ namespace YantraJS.Expressions
 
         public static YBooleanConstantExpression Constant(bool value) => new YBooleanConstantExpression(value);
 
-        public static YStringConstantExpression Constant(string value) => new YStringConstantExpression(value);
+        public static YExpression Constant(string value) => value == null 
+            ? new YConstantExpression(null, typeof(string))
+            : new YStringConstantExpression(value);
 
         public static YDoubleConstantExpression Constant(double value) => new YDoubleConstantExpression(value);
 
@@ -262,10 +264,12 @@ namespace YantraJS.Expressions
 
         public static YInt32ConstantExpression Constant(Enum value) => new YInt32ConstantExpression(System.Convert.ToInt32(value));
 
-        public static YConstantExpression Constant(object value, Type? type = null)
+        public static YExpression Constant(object value, Type? type = null)
         {
             if (value is YConstantExpression)
                 throw new NotSupportedException();
+            if (value is string @string)
+                return new YStringConstantExpression(@string);
             return new YConstantExpression(value, type ?? value?.GetType() ?? typeof(object));
         }
 
