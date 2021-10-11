@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
             return ce;
         }
 
-        protected (Expression[] args, bool hasSpread) VisitArguments(IFastEnumerable<AstExpression> arguments)
+        protected (IFastEnumerable<Expression> args, bool hasSpread) VisitArguments(IFastEnumerable<AstExpression> arguments)
         {
 
             var args = new Sequence<Exp>(arguments.Count);
@@ -42,8 +42,8 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
 
                 var result = args.Any()
-                    ? (args.ToArray(), hasSpread)
-                    : (Array.Empty<Expression>(), false);
+                    ? (args, hasSpread)
+                    : (Sequence<Exp>.Empty, false);
                 // args.Clear();
                 return result;
             //}

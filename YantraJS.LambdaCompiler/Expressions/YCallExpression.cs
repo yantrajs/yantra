@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
@@ -10,14 +11,14 @@ namespace YantraJS.Expressions
     {
         public readonly YExpression? Target;
         public readonly MethodInfo Method;
-        public readonly YExpression[] Arguments;
+        public readonly IFastEnumerable<YExpression> Arguments;
 
-        public YCallExpression(YExpression? target, MethodInfo method, IList<YExpression> args)
+        public YCallExpression(YExpression? target, MethodInfo method, IFastEnumerable<YExpression> args)
             : base(YExpressionType.Call, method.ReturnType)
         {
             this.Target = target;
             this.Method = method;
-            this.Arguments = args.ToArray();
+            this.Arguments = args;
         }
 
         public override void Print(IndentedTextWriter writer)

@@ -191,7 +191,7 @@ namespace YantraJS.ExpHelper
         public static Expression InvokeMethod(
             Expression targetTemp,
             Expression methodTemp, 
-            Expression target, Expression name, Expression[] args, bool spread, bool coalesce)
+            Expression target, Expression name, IFastEnumerable<Expression> args, bool spread, bool coalesce)
         {
             if (!coalesce)
             {

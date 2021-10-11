@@ -113,7 +113,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     using var te = this.scope.Top.GetTempVariable(typeof(JSValue));
                     using var te2 = this.scope.Top.GetTempVariable(typeof(JSValue));
-                    return JSValueBuilder.InvokeMethod(te.Variable, te2.Variable, target, name, args.ToArray(), false, me.Coalesce);
+                    return JSValueBuilder.InvokeMethod(te.Variable, te2.Variable, target, name, args, false, me.Coalesce);
 
                 }
                 else

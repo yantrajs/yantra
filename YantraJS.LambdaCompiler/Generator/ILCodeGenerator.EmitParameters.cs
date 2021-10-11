@@ -11,7 +11,7 @@ namespace YantraJS.Generator
 {
     public partial class ILCodeGenerator
     {
-        private Action EmitParameters(MethodBase method, YExpression[] args, Type returnType)
+        private Action EmitParameters(MethodBase method, IFastEnumerable<YExpression> args, Type returnType)
         {
             Sequence<(int temp, YExpression exp)>? saveList = null;
 
@@ -21,7 +21,7 @@ namespace YantraJS.Generator
 
                 var p = pa[i];
 
-                if (i < args.Length)
+                if (i < args.Count)
                 {
                     var a = args[i];
 

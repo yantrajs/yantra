@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
@@ -11,13 +12,13 @@ namespace YantraJS.Expressions
         public readonly YExpression Target;
         public readonly MemberInfo BooleanMember;
         public readonly MethodInfo Method;
-        public readonly YExpression[] Arguments;
+        public readonly IFastEnumerable<YExpression> Arguments;
 
         public YCoalesceCallExpression(
             YExpression target, 
             MemberInfo booleanMember,
             MethodInfo method,
-            YExpression[] arguments) : base(YExpressionType.CoalesceCall, method.ReturnType)
+            IFastEnumerable<YExpression> arguments) : base(YExpressionType.CoalesceCall, method.ReturnType)
         {
             this.Target = target;
             this.BooleanMember = booleanMember;

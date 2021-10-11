@@ -47,14 +47,14 @@ namespace YantraJS.Expressions
             return pe;
         }
 
-        public YExpression[] ConvertToVariables(YExpression[] inputs, YExpressionMapVisitor visitor)
+        public Sequence<YExpression> ConvertToVariables(IFastEnumerable<YExpression> inputs, YExpressionMapVisitor visitor)
         {
-            var newInputs = new Sequence<YExpression>(inputs.Length);
+            var newInputs = new Sequence<YExpression>(inputs.Count);
             foreach (var input in inputs)
             {
                 newInputs.Add(ConvertToVariable(visitor.Visit(input)));
             }
-            return newInputs.ToArray();
+            return newInputs;
         }
 
 

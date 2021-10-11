@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
@@ -25,13 +26,21 @@ namespace YantraJS.Expressions
     public class YElementInit: YBinding
     {
         public readonly MethodInfo AddMethod;
-        public readonly YExpression[] Arguments;
+        public readonly IFastEnumerable<YExpression> Arguments;
+
+        public YElementInit(MethodInfo addMethod, IFastEnumerable<YExpression> arguments)
+            : base(addMethod, BindingType.ElementInit)
+        {
+            this.AddMethod = addMethod;
+            this.Arguments = arguments;
+        }
+
 
         public YElementInit(MethodInfo addMethod, params YExpression[] arguments)
             : base(addMethod, BindingType.ElementInit)
         {
             this.AddMethod = addMethod;
-            this.Arguments = arguments;
+            this.Arguments = arguments.AsSequence();
         }
     }
 

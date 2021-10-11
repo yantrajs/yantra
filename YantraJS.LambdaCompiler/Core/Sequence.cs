@@ -44,6 +44,8 @@ namespace YantraJS.Core
     {
         int Count { get; }
 
+        T this[int index] { get; }
+
         FastEnumerator<T> GetFastEnumerator();
 
         T First();
@@ -101,6 +103,8 @@ namespace YantraJS.Core
         {
             this.enumerable = enumerable;
         }
+
+        public T this[int index] => enumerable.ElementAt(index);
 
         public int Count => enumerable.Count();
 
@@ -201,6 +205,8 @@ namespace YantraJS.Core
         {
             this.item = item;
         }
+
+        public T this[int index] => index == 0 ? item : throw new IndexOutOfRangeException();
 
         public int Count => 1;
 

@@ -1,13 +1,14 @@
 ﻿using System.CodeDom.Compiler;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
     public class YMemberInitExpression: YExpression
     {
         public readonly YNewExpression Target;
-        public readonly YBinding[] Bindings;
+        public readonly IFastEnumerable<YBinding> Bindings;
 
-        public YMemberInitExpression(YNewExpression exp, YBinding[] list)
+        public YMemberInitExpression(YNewExpression exp, IFastEnumerable<YBinding> list)
             : base(YExpressionType.MemberInit, exp.Type)
         {
             this.Target = exp;
