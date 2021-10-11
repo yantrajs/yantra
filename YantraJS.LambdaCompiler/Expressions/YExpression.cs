@@ -303,6 +303,17 @@ namespace YantraJS.Expressions
             return pl;
         }
 
+        public static YMemberInitExpression MemberInit(
+            YNewExpression exp,
+            IEnumerable<YBinding> list)
+        {
+            return new YMemberInitExpression(exp, list.ToArray());
+        }
+
+        public static YMemberAssignment Bind(MemberInfo field, YExpression value)
+        {
+            return new YMemberAssignment(field, value);
+        }
 
         public static YMemberInitExpression MemberInit(
             YNewExpression exp,
@@ -311,10 +322,10 @@ namespace YantraJS.Expressions
             return new YMemberInitExpression(exp, list);
         }
 
-        public static YMemberAssignment Bind(MemberInfo field, YExpression value)
-        {
-            return new YMemberAssignment(field, value);
-        }
+        //public static YMemberAssignment Bind(MemberInfo field, YExpression value)
+        //{
+        //    return new YMemberAssignment(field, value);
+        //}
 
         public static YBlockExpression Block(
             IEnumerable<YParameterExpression>? variables,

@@ -46,9 +46,9 @@ namespace YantraJS.Core.FastParser.Compiler
                 ScriptInfoBuilder.Code(parentScriptInfo),
                 nodeCode.Offset ,
                 nodeCode.Length);
-            var sList = pool.AllocateList<Exp>();
-            var bodyInits = pool.AllocateList<Exp>();
-            var vList = pool.AllocateList<ParameterExpression>();
+            var sList = new Sequence<Exp>();
+            var bodyInits = new Sequence<Exp>();
+            var vList = new Sequence<ParameterExpression>();
 
             //try
             //{
@@ -248,9 +248,9 @@ namespace YantraJS.Core.FastParser.Compiler
                         }
                     }
 
-                bodyInits.Clear();
-                sList.Clear();
-                vList.Clear();
+                //bodyInits.Clear();
+                //sList.Clear();
+                //vList.Clear();
                 cs.Dispose();
 
                     if (jsFVarScope != null)

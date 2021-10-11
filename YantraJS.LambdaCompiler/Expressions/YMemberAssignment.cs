@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace YantraJS.Expressions
 {
@@ -36,6 +38,13 @@ namespace YantraJS.Expressions
     public class YMemberElementInit : YBinding
     {
         public readonly YElementInit[] Elements;
+
+        public YMemberElementInit(MemberInfo member, IEnumerable<YElementInit> inits)
+            : base(member, BindingType.MemberListInit)
+        {
+            this.Elements = inits.ToArray();
+        }
+
 
         public YMemberElementInit(MemberInfo member, YElementInit[] inits)
             :base(member, BindingType.MemberListInit)

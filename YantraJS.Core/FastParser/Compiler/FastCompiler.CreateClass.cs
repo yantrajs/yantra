@@ -27,8 +27,8 @@ namespace YantraJS.Core.FastParser.Compiler
             var scope = pool.NewScope();
             var tempVar = this.scope.Top.GetTempVariable(typeof(JSClass));
 
-            var prototypeElements = scope.AllocateList<YElementInit>();
-            var staticElements = scope.AllocateList<YBinding>();
+            var prototypeElements = new Sequence<YElementInit>();
+            var staticElements = new Sequence<YBinding>();
 
             Dictionary<string, string> added = new Dictionary<string, string>();
 
@@ -183,11 +183,11 @@ namespace YantraJS.Core.FastParser.Compiler
 
             if (prototypeElements.Any())
             {
-                staticElements.Add(new YMemberElementInit(JSFunctionBuilder._prototype, prototypeElements.Release()));
+                staticElements.Add(new YMemberElementInit(JSFunctionBuilder._prototype, prototypeElements));
             }
 
             YExpression retVal = staticElements.Any() 
-                ? YExpression.MemberInit(_new, staticElements.Release())
+                ? YExpression.MemberInit(_new, staticElements)
                 : _new;
 
             stmts.Add(
