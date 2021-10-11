@@ -7,10 +7,10 @@ namespace YantraJS.Expressions
 {
     public class YRelayExpression: YExpression
     {
-        public readonly YExpression[] Closures;
+        public readonly IFastEnumerable<YExpression> Closures;
         public readonly YLambdaExpression InnerLambda;
 
-        public YRelayExpression(YExpression[] closures, YLambdaExpression inner)
+        public YRelayExpression(IFastEnumerable<YExpression> closures, YLambdaExpression inner)
             : base(YExpressionType.Relay, PrepareType(inner))
         {
             this.Closures = closures;

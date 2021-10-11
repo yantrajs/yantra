@@ -477,14 +477,20 @@ namespace YantraJS.Expressions
             return new YPropertyExpression(target, field);
         }
 
-        public static YNewArrayExpression NewArray(Type type, params YExpression[] elements)
+        public static YNewArrayExpression NewArray(Type type, IFastEnumerable<YExpression> elements)
         {
             return new YNewArrayExpression(type, elements);
         }
 
+
+        public static YNewArrayExpression NewArray(Type type, params YExpression[] elements)
+        {
+            return new YNewArrayExpression(type, elements.AsSequence());
+        }
+
         public static YNewArrayExpression NewArrayInit(Type type, IEnumerable<YExpression> elements)
         {
-            return new YNewArrayExpression(type, elements.ToArray());
+            return new YNewArrayExpression(type, elements.AsSequence());
         }
 
         public static YNewArrayBoundsExpression NewArrayBounds(Type type, YExpression size)
@@ -718,7 +724,7 @@ namespace YantraJS.Expressions
         }
 
         internal static YRelayExpression Relay(
-            YExpression[] box, 
+            IFastEnumerable<YExpression> box, 
             YLambdaExpression inner)
         {
             return new YRelayExpression(box, inner);

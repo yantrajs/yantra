@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Runtime;
 
@@ -23,7 +24,7 @@ namespace YantraJS
             = type.GetMethod(nameof(IMethodRepository.Create));
 
 
-        public YExpression Relay(YExpression[] closures, YLambdaExpression innerLambda)
+        public YExpression Relay(IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
         {
             if (innerLambda.Repository == null)
                 throw new NotSupportedException($"Compile with Method Repository");

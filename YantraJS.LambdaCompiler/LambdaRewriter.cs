@@ -131,7 +131,7 @@ namespace YantraJS
                     return YExpression.InlineLambda( 
                         n.Type,
                         n.Name, 
-                        YExpression.Block(localBoxes, stmts.ToArray()), 
+                        YExpression.Block(localBoxes, stmts), 
                         repository!,
                         n.Parameters,
                         selfRepository,
@@ -142,12 +142,12 @@ namespace YantraJS
                 if (stmts.Count > 0 || localBoxes.Count > 0)
                 {
                     stmts.Add(body);
-                    body = YExpression.Block(localBoxes, stmts.ToArray());
+                    body = YExpression.Block(localBoxes, stmts);
                 }
 
                 var x = Relay(
                     n.Name, 
-                    closureSetup.ToArray(), 
+                    closureSetup, 
                     closures, 
                     n.Parameters, 
                     body, 
@@ -165,7 +165,7 @@ namespace YantraJS
 
         public static YExpression Relay(
             in FunctionName name,
-            YExpression[] closures,
+            IFastEnumerable<YExpression> closures,
             YParameterExpression c,
             YParameterExpression[] parameters,
             YExpression body,
