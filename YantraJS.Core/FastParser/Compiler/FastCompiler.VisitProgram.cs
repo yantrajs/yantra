@@ -21,8 +21,8 @@ namespace YantraJS.Core.FastParser.Compiler
     {
 
 
-        private Expression Scoped(FastFunctionScope scope, FastList<Expression> body) {
-            var list = pool.AllocateList<Exp>();
+        private Expression Scoped(FastFunctionScope scope, IFastEnumerable<Expression> body) {
+            var list = new Sequence<Exp>();
             list.AddRange(scope.InitList);
             list.AddRange(body);
             if (scope.VariableParameters.Any() && !list.Any())
@@ -30,13 +30,13 @@ namespace YantraJS.Core.FastParser.Compiler
             if (!list.Any())
                 return Exp.Empty;
             var r = Exp.Block(scope.VariableParameters, list);
-            list.Clear();
+            // list.Clear();
             return r;
         }
 
 
         protected override Expression VisitProgram(AstProgram program) {
-            var blockList = pool.AllocateList<Expression>();
+            var blockList = new Sequence<Expression>(program.Statements.Count);
             ref var hoistingScope = ref program.HoistingScope;
             var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
             if (hoistingScope != null)
@@ -62,7 +62,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 blockList.Add(exp);
             }
             var r = Scoped(scope, blockList);
-            blockList.Clear();
+            // blockList.Clear();
             scope.Dispose();
             return r;
         }
