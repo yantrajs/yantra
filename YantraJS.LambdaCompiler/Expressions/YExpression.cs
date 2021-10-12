@@ -247,16 +247,18 @@ namespace YantraJS.Expressions
 
         public static YBoxExpression Box(YExpression target) => new YBoxExpression(target);
 
-        public static YInt32ConstantExpression Constant(int value) => new YInt32ConstantExpression(value);
+        public static YInt32ConstantExpression Constant(int value) => YInt32ConstantExpression.For(value);
 
-        public static YUInt32ConstantExpression Constant(uint value) => new YUInt32ConstantExpression(value);
+        public static YUInt32ConstantExpression Constant(uint value) => YUInt32ConstantExpression.For(value);
 
         public static YInt64ConstantExpression Constant(long value) => new YInt64ConstantExpression(value);
 
         public static YUInt64ConstantExpression Constant(ulong value) => new YUInt64ConstantExpression(value);
 
 
-        public static YBooleanConstantExpression Constant(bool value) => new YBooleanConstantExpression(value);
+        public static YBooleanConstantExpression Constant(bool value) => value 
+            ? YBooleanConstantExpression.True
+            : YBooleanConstantExpression.False;
 
         public static YExpression Constant(string value) => value == null
             ? new YConstantExpression(null, typeof(string))
