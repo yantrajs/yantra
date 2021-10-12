@@ -75,12 +75,12 @@ namespace YantraJS.Core.FastParser
             {
                 var scope = this.variableScope.Push(token, FastNodeType.FunctionExpression);
                 // create parameters now...
-                var parameters = VariableDeclarator.From(Pool, node);
+                var parameters = VariableDeclarator.From(node);
                 if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart)) {
                     if (!Block(out var block))
                         throw stream.Unexpected();
                     node = new AstFunctionExpression(token, PreviousToken, true, isAsync, isGenerator, null,
-                        VariableDeclarator.From(Pool, node), block);
+                        VariableDeclarator.From(node), block);
                     scope.Dispose();
                     return true;
                 }

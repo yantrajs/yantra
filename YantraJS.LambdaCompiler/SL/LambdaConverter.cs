@@ -12,28 +12,30 @@ namespace YantraJS.SL
     {
         private Dictionary<YParameterExpression, ParameterExpression> cache = new Dictionary<YParameterExpression, ParameterExpression>();
 
-        public (ParameterExpression[] pe, IDisposable disposable) Register(YParameterExpression[] plist)
+        public (IFastEnumerable<ParameterExpression> pe, IDisposable disposable) Register(IFastEnumerable<YParameterExpression> plist)
         {
             if (plist == null)
             {
                 return (null, null);
             }
 
-            var pe = new ParameterExpression[plist.Length];
-
-            for (int i = 0; i < plist.Length; i++)
+            var pe = new Sequence<ParameterExpression>(plist.Count);
+            var en = plist.GetFastEnumerator();
+            while(en.MoveNext(out var e))
             {
-                var e = plist[i];
+                // var e = plist[i];
                 var p = Expression.Parameter(e.Type, e.Name);
-                pe[i] = p;
+                // pe[i] = p;
+                pe.Add(p);
                 cache[e] = p;
             }
 
             var d = new DisposableAction(() => {
                 var a = plist;
-                for (int i = 0; i < a.Length; i++)
+                var en = plist.GetFastEnumerator();
+                while(en.MoveNext(out var item))
                 {
-                    cache.Remove(a[i]);
+                    cache.Remove(item);
                 }
             });
 

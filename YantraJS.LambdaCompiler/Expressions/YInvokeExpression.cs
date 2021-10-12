@@ -1,15 +1,16 @@
 ﻿#nullable enable
 using System;
 using System.CodeDom.Compiler;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
     public class YInvokeExpression: YExpression
     {
         public readonly YExpression Target;
-        public readonly YExpression[] Arguments;
+        public readonly IFastEnumerable<YExpression> Arguments;
 
-        public YInvokeExpression(YExpression target, YExpression[] args, Type type)
+        public YInvokeExpression(YExpression target, IFastEnumerable<YExpression> args, Type type)
             : base(YExpressionType.Invoke, type)
         {
             this.Target = target;

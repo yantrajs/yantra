@@ -22,7 +22,7 @@ namespace YantraJS.Core.FastParser
             bool allowEmpty = false)
         {
             var begin = stream.Current;
-            var nodes = Pool.AllocateList<AstExpression>();
+            var nodes = new Sequence<AstExpression>();
             try
             {
                 do
@@ -60,7 +60,7 @@ namespace YantraJS.Core.FastParser
                 return true;
             } finally
             {
-                nodes.Clear();
+                //nodes.Clear();
             }
         }
 

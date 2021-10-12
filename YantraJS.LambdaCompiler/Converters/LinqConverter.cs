@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using YantraJS.Core;
 using YantraJS.Expressions;
 
 namespace YantraJS.Converters
@@ -16,9 +17,9 @@ namespace YantraJS.Converters
         private LabelMap labels
             = new LabelMap();
 
-        private IList<YParameterExpression> Register(IList<ParameterExpression> plist)
+        private IFastEnumerable<YParameterExpression> Register(IList<ParameterExpression> plist)
         {
-            var list = new List<YParameterExpression>();
+            var list = new Sequence<YParameterExpression>();
             foreach (var p in plist)
             {
                 var t = p.IsByRef && !p.Type.IsByRef ? p.Type.MakeByRefType() : p.Type;

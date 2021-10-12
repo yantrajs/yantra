@@ -6,7 +6,7 @@ namespace YantraJS.Core.FastParser
         public bool Async;
         public bool Generator;
         public readonly AstIdentifier? Id;
-        public readonly ArraySpan<VariableDeclarator> Params;
+        public readonly IFastEnumerable<VariableDeclarator> Params;
         public readonly AstStatement Body;
         public readonly bool IsArrowFunction;
 
@@ -16,8 +16,8 @@ namespace YantraJS.Core.FastParser
             bool isArrow,
             bool isAsync, 
             bool generator, 
-            AstIdentifier? id, 
-            in ArraySpan<VariableDeclarator> declarators, AstStatement body)
+            AstIdentifier? id,
+            IFastEnumerable<VariableDeclarator> declarators, AstStatement body)
             : base(token, FastNodeType.FunctionExpression, previousToken)
         {
             // detect duplicate parameter names...

@@ -21,14 +21,14 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Expression VisitSequenceExpression(AstSequenceExpression sequenceExpression)
         {
-            var list = pool.AllocateList<Exp>();
-            var e = sequenceExpression.Expressions.GetEnumerator();
+            var list = new Sequence<Exp>();
+            var e = sequenceExpression.Expressions.GetFastEnumerator();
             while (e.MoveNext(out var exp))
             {
                 if (exp != null) list.Add(Visit(exp));
             }
-            var r = Exp.Block(list.ToArray());
-            list.Clear();
+            var r = Exp.Block(list);
+            // list.Clear();
             return r;
         }
     }

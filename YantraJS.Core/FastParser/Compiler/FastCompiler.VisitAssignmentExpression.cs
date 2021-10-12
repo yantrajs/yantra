@@ -77,15 +77,15 @@ namespace YantraJS.Core.FastParser.Compiler
             bool createVariable = false,
             bool newScope = false)
         {
-            var inits = pool.AllocateList<Exp>();
+            var inits = new Sequence<Exp>();
             CreateAssignment(inits, pattern, init, createVariable, newScope);
-            var span = inits.ToArray();
-            inits.Clear();
-            return Exp.Block(span);
+            // var span = inits.ToArray();
+            // inits.Clear();
+            return Exp.Block(inits);
         }
 
         private void CreateAssignment(
-            FastList<Exp> inits,
+            Sequence<Exp> inits,
             AstExpression pattern,
             Exp init,
             bool createVariable = false,

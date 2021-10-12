@@ -108,7 +108,7 @@ namespace YantraJS.ExpHelper
                 type.PublicMethod(nameof(JSValueExtensions.InvokeMethod), typeof(JSValue), typeof(JSValue), typeof(JSValue[]))
                     };
 
-        public static Expression InvokeMethod(Expression target, Expression method, Expression[] args, bool hasSpread)
+        public static Expression InvokeMethod(Expression target, Expression method, IFastEnumerable<Expression> args, bool hasSpread)
         {
 
             var methods = method.Type == typeof(KeyString)
@@ -118,19 +118,23 @@ namespace YantraJS.ExpHelper
                     : _InvokeMethodJSValue;
 
 
-            var m = hasSpread ? methods[0] : methods[args.Length <= 4 ? args.Length + 1 : 6];
+            var m = hasSpread ? methods[0] : methods[args.Count <= 4 ? args.Count + 1 : 6];
 
-            if (!hasSpread && args.Length <= 4)
+            if (!hasSpread && args.Count <= 4)
             {
-                var finalArgs = new Expression[args.Length + 2];
-                finalArgs[0] = target;
-                finalArgs[1] = method;
-                Array.Copy(args, 0, finalArgs, 2, args.Length);
+                var finalArgs = new Sequence<Expression>(args.Count + 2) { 
+                    target,
+                    method
+                };
+                finalArgs.AddRange(args);
+                // finalArgs[0] = target;
+                // finalArgs[1] = method;
+                // Array.Copy(args, 0, finalArgs, 2, args.Length);
                 // args.Copy(finalArgs, 2);
 
                 return Expression.Call(null, m, finalArgs);
             }
-            return Expression.Call(null, m, target, method, Expression.NewArray(typeof(JSValue), args.ToArray()));
+            return Expression.Call(null, m, target, method, Expression.NewArray(typeof(JSValue), args));
         }
 
 

@@ -7,14 +7,14 @@ namespace YantraJS.Core.FastParser
     public partial class FastScopeItem: LinkedStackItem<FastScopeItem>
     {
         private StringMap<(StringSpan name, FastVariableKind kind)> Variables;
-        private readonly FastToken token;
+        // private readonly FastToken token;
         public readonly FastNodeType NodeType;
-        private readonly FastPool pool;
-        public FastScopeItem(FastToken token, FastNodeType nodeType, FastPool pool)
+        // private readonly FastPool pool;
+        public FastScopeItem(FastNodeType nodeType)
         {
-            this.token = token;
+            // this.token = token;
             this.NodeType = nodeType;
-            this.pool = pool;
+            // this.pool = pool;
         }
 
         //public void CreateVariable(AstExpression d, FastVariableKind kind)
@@ -95,9 +95,9 @@ namespace YantraJS.Core.FastParser
 
         }
 
-        public ArraySpan<StringSpan> GetVariables()
+        public IFastEnumerable<StringSpan> GetVariables()
         {
-            var list = pool.AllocateList<StringSpan>();
+            var list = new Sequence<StringSpan>();
             try
             {
                 foreach (var node in Variables.AllValues())
@@ -105,11 +105,11 @@ namespace YantraJS.Core.FastParser
                     list.Add(node.Value.name);
                 }
                 if (list.Count == 0)
-                    return ArraySpan<StringSpan>.Empty;
-                return list.ToSpan();
+                    return Sequence<StringSpan>.Empty;
+                return list;
             } finally
             {
-                list.Clear();
+                // list.Clear();
             }
 
         }

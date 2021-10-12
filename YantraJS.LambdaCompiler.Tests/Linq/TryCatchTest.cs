@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YantraJS.Core;
 using YantraJS.Expressions;
+using YantraJS.Generator;
 using YantraJS.Runtime;
 
 namespace YantraJS.Linq
@@ -25,6 +27,8 @@ namespace YantraJS.Linq
                 null,
                 YExpression.Call(null, method)                
                 );
+
+            ILCodeGenerator.GenerateLogs = true;
 
             var r = YExpression.Lambda<Func<int,int>>("finallyTest",
                 @try, new YParameterExpression[] { i });
@@ -74,7 +78,7 @@ namespace YantraJS.Linq
                     );
 
             var loop = YExpression.Block( 
-                new YParameterExpression[] { i, r }, 
+                (new YParameterExpression[] { i, r }).AsSequence(), 
                     YExpression.Loop(tryCatch,@break),
                     r);
 

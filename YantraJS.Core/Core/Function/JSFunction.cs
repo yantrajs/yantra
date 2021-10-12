@@ -395,9 +395,9 @@ namespace YantraJS.Core
             var rt = method.ReturnType;
             var rtt = rt == typeof(void) ? typeof(object) : rt;
             var pa = method.GetParameters();
-            var veList = new List<ParameterExpression>(pa.Length + 1);
-            var peList = new List<ParameterExpression>(pa.Length);
-            var stmts = new List<Expression>();
+            var veList = new Sequence<ParameterExpression>(pa.Length + 1);
+            var peList = new Sequence<ParameterExpression>(pa.Length);
+            var stmts = new Sequence<Expression>();
             foreach (var p in method.GetParameters())
             {
                 var inP = Expression.Parameter(p.ParameterType, p.Name);

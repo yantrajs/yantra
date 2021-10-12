@@ -21,11 +21,11 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitVariableDeclaration(AstVariableDeclaration variableDeclaration)
         {
-            var list = pool.AllocateList<Exp>();
+            var list = new Sequence<Exp>();
             var top = this.scope.Top;
             var newScope = variableDeclaration.Kind == FastVariableKind.Const
                 || variableDeclaration.Kind == FastVariableKind.Let;
-            var ed = variableDeclaration.Declarators.GetEnumerator();
+            var ed = variableDeclaration.Declarators.GetFastEnumerator();
             while(ed.MoveNext(out var d)) {
                 switch(d.Identifier.Type) {
                     case FastNodeType.Identifier:
@@ -60,11 +60,11 @@ namespace YantraJS.Core.FastParser.Compiler
             if (list.Count == 1)
             {
                 var e = list[0];
-                list.Clear();
+                // list.Clear();
                 return e;
             }
             var r = Exp.Block(list);
-            list.Clear();
+            // list.Clear();
             return r;
         }
     }

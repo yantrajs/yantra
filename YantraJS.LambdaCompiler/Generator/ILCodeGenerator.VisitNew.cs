@@ -37,15 +37,16 @@ namespace YantraJS.Generator
                 var elementType = yNewArrayExpression.ElementType;
 
                 // store length...
-                il.EmitConstant(ea.Length);
+                il.EmitConstant(ea.Count);
 
                 il.Emit(OpCodes.Newarr, elementType);
 
-                for (int i = 0; i < ea.Length; i++)
+                var ve = yNewArrayExpression.Elements.GetFastEnumerator();
+                while(ve.MoveNext(out var e, out var i))
                 {
                     il.Emit(OpCodes.Dup);
                     il.EmitConstant(i);
-                    Visit(ea[i]);
+                    Visit(e);
                     il.Emit(OpCodes.Stelem, elementType);
                 }
 

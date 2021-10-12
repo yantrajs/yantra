@@ -3,15 +3,16 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
     public class YNewArrayExpression: YExpression
     {
-        public readonly YExpression[]? Elements;
+        public readonly IFastEnumerable<YExpression>? Elements;
         public readonly Type ElementType;
 
-        public YNewArrayExpression(Type type, YExpression[] elements)
+        public YNewArrayExpression(Type type, IFastEnumerable<YExpression> elements)
             : base( YExpressionType.NewArray, type.MakeArrayType())
         {
             this.ElementType = type;
@@ -20,7 +21,7 @@ namespace YantraJS.Expressions
 
         public override void Print(IndentedTextWriter writer)
         {
-            if (Elements == null || Elements.Length == 0){
+            if (Elements == null || Elements.Count == 0){
                 writer.WriteLine($"new {ElementType.GetFriendlyName()} [] {{}}");
                 return;
             }

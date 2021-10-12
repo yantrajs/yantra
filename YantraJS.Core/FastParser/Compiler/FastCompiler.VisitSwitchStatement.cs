@@ -23,11 +23,11 @@ namespace YantraJS.Core.FastParser.Compiler
 
             public SwitchInfo(FastPool.Scope scope)
             {
-                Tests = scope.AllocateList<Exp>();
+                Tests = new Sequence<Exp>();
             }
 
-            public FastList<Exp> Tests;
-            public FastList<Exp> Body;
+            public Sequence<Exp> Tests;
+            public Sequence<Exp> Body;
             public readonly LabelTarget Label = Exp.Label("case-start");
         }
 
@@ -42,17 +42,17 @@ namespace YantraJS.Core.FastParser.Compiler
             try
             {
 
-                FastList<Exp> defBody = null;
+                Sequence<Exp> defBody = null;
                 var @continue = this.scope.Top.Loop?.Top?.Continue;
                 var @break = Exp.Label();
                 var ls = new LoopScope(@break, @continue, true);
-                FastList<SwitchInfo> cases = scope.AllocateList<SwitchInfo>(switchStatement.Cases.Count + 2);
+                var cases = new Sequence<SwitchInfo>(switchStatement.Cases.Count + 2);
                 using (var bt = this.scope.Top.Loop.Push(ls))
                 {
                     SwitchInfo lastCase = new SwitchInfo(scope);
                     foreach (var c in switchStatement.Cases)
                     {
-                        var body = pool.AllocateList<Exp>(c.Statements.Count);
+                        var body = new Sequence<Exp>(c.Statements.Count);
                         foreach (var es in c.Statements)
                         {
                             switch (es)

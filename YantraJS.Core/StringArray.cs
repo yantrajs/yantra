@@ -8,7 +8,7 @@ namespace YantraJS
     {
         private StringMap<uint> map;
         
-        public List<StringSpan> List { get; } = new List<StringSpan>();
+        public Sequence<StringSpan> List { get; } = new Sequence<StringSpan>();
         
         public uint GetOrAdd(in StringSpan code)
         {

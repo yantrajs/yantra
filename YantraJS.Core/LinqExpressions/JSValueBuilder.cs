@@ -191,7 +191,7 @@ namespace YantraJS.ExpHelper
         public static Expression InvokeMethod(
             Expression targetTemp,
             Expression methodTemp, 
-            Expression target, Expression name, Expression[] args, bool spread, bool coalesce)
+            Expression target, Expression name, IFastEnumerable<Expression> args, bool spread, bool coalesce)
         {
             if (!coalesce)
             {
@@ -307,7 +307,7 @@ namespace YantraJS.ExpHelper
                 // we need to use a block...
                 var pes = Expression.Parameters(typeof(JSValue));
                 var pe = pes[0];
-                return Expression.Block(pes,
+                return Expression.Block(pes.AsSequence(),
                     Expression.Assign(pe, target),
                     Expression.Condition(
                         JSValueBuilder.IsNullOrUndefined(pe),

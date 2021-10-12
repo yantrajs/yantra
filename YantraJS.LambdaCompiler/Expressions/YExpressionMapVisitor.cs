@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
@@ -54,28 +55,40 @@ namespace YantraJS.Expressions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Modified<T>(in T[] statements, out T[] list)
+        private bool Modified<T>(IFastEnumerable<T> statements, out IFastEnumerable<T> list)
             where T : YExpression
         {
             list = statements;
-            if (statements.Length == 0)
+            if (statements.Count == 0)
             {
                 return false;
             }
-            bool dirty = false;
-            var r = new T[statements.Length];
-            for (int i = 0; i < statements.Length; i++)
+            // we will create new sequence only if any expression has been modified
+            // this will prevent allocations
+            Sequence<T> r = null;
+            var en = statements.GetFastEnumerator();
+            while(en.MoveNext(out var item))
             {
-                ref var item = ref statements[i];
-                var visitedItem = Visit(item);
-                var visited = visitedItem as T;
-                if (visited == null)
-                    throw new ArgumentNullException();
-                if (visited != item)
-                    dirty = true;
-                r[i] = visited;
+                var visited = Visit(item) as T ?? throw new ArgumentNullException();
+                if (visited == item)
+                {
+                    r?.Add(item);
+                    continue;
+                }
+                if (r == null)
+                {
+                    r = new Sequence<T>(statements.Count);
+                    var ec = statements.GetFastEnumerator();
+                    while(ec.MoveNext(out var previous))
+                    {
+                        if (previous == item)
+                            break;
+                        r.Add(previous);
+                    }
+                }
+                r.Add(visited);
             }
-            if (!dirty)
+            if (r == null)
             {
                 return false;
             }
@@ -84,24 +97,119 @@ namespace YantraJS.Expressions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Modified<T>(in T[] statements, Func<T, T> visitor, out T[] list)
+        private bool Modified<T>(IFastEnumerable<T> statements, Func<T, T> visitor, out IFastEnumerable<T> list)
+        {
+            list = statements;
+            if (statements.Count == 0)
+            {
+                return false;
+            }
+            // we will create new sequence only if any expression has been modified
+            // this will prevent allocations
+            Sequence<T> r = null;
+            var en = statements.GetFastEnumerator();
+            while (en.MoveNext(out var item, out var index))
+            {
+                var visitedItem = visitor(item);
+                if (visitedItem.Equals(item))
+                {
+                    r?.Add(item);
+                    continue;
+                }
+                if (r == null)
+                {
+                    r = new Sequence<T>(statements.Count);
+                    var ec = statements.GetFastEnumerator();
+                    while (ec.MoveNext(out var previous, out var i))
+                    {
+                        if (index == i)
+                            break;
+                        r.Add(previous);
+                    }
+                }
+                r.Add(visitedItem);
+            }
+            if (r == null)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Modified<T>(T[] statements, out T[] list)
+            where T : YExpression
         {
             list = statements;
             if (statements.Length == 0)
             {
                 return false;
             }
-            bool dirty = false;
-            var r = new T[statements.Length];
+            T[] r = null;
+            for (int i = 0; i < statements.Length; i++)
+            {
+                ref var item = ref statements[i];
+                var visited = Visit(item) as T ?? throw new ArgumentNullException();
+                if (visited == item)
+                {
+                    if(r != null)
+                    {
+                        r[i] = visited;
+                    }
+                    continue;
+                }
+                if(r == null)
+                {
+                    r = new T[statements.Length];
+                    for (int j = 0; j < i; j++)
+                    {
+                        r[j] = statements[j];
+                    }
+                }
+                r[i] = visited;
+            }
+            if (r == null)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Modified<T>(T[] statements, Func<T, T> visitor, out T[] list)
+        {
+            list = statements;
+            if (statements.Length == 0)
+            {
+                return false;
+            }
+            T[] r = null;
             for (int i = 0; i < statements.Length; i++)
             {
                 ref var item = ref statements[i];
                 var visited = visitor(item);
-                if (!visited.Equals(item))
-                    dirty = true;
+                if (visited.Equals(item))
+                {
+                    if(r != null)
+                    {
+                        r[i] = visited;
+                    }
+                    continue;
+                }
+                if (r == null)
+                {
+                    r = new T[statements.Length];
+                    for (int j = 0; j < i; j++)
+                    {
+                        r[j] = statements[j];
+                    }
+                }
                 r[i] = visited;
             }
-            if (!dirty)
+            if (r == null)
             {
                 return false;
             }

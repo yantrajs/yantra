@@ -3,19 +3,20 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
     public class YBlockExpression: YExpression
     {
-        public readonly YParameterExpression[] Variables;
-        public readonly YExpression[] Expressions;
+        public readonly IFastEnumerable<YParameterExpression> Variables;
+        public readonly IFastEnumerable<YExpression> Expressions;
 
-        public YBlockExpression(IEnumerable<YParameterExpression>? variables, 
-            YExpression[] expressions)
+        public YBlockExpression(IFastEnumerable<YParameterExpression>? variables,
+            IFastEnumerable<YExpression> expressions)
             :base(YExpressionType.Block, expressions.Last().Type)
         {
-            this.Variables = variables?.ToArray() ?? (new YParameterExpression[] { });
+            this.Variables = variables ?? Sequence<YParameterExpression>.Empty;
             if (this.Variables.Any(v => v == null))
                 throw new ArgumentNullException();
             this.Expressions = expressions;
@@ -42,9 +43,11 @@ namespace YantraJS.Expressions
         {
             get
             {
-                foreach (var v in Variables)
+                var ve = Variables.GetFastEnumerator();
+                while(ve.MoveNext(out var v))
                     yield return v;
-                foreach(var s in Expressions)
+                var ee = Expressions.GetFastEnumerator();
+                while(ee.MoveNext(out var s))
                 {
                     if(s.NodeType == YExpressionType.Block && s is YBlockExpression b)
                     {
@@ -59,11 +62,12 @@ namespace YantraJS.Expressions
         {
             get
             {
-                var l = Expressions.Length;
-                for (int i = 0; i < l; i++)
+                var l = Expressions.Count - 1;
+                var en = Expressions.GetFastEnumerator();
+                while (en.MoveNext(out var e, out var i))
                 {
-                    bool last = i == l - 1;
-                    var e = Expressions[i];
+                    bool last = i == l;
+                    // var e = Expressions[i];
                     if (e.NodeType == YExpressionType.Block && e is YBlockExpression b) {
                         foreach (var (item, isLast) in b.FlattenExpressions)
                             yield return (item, isLast && last);
@@ -79,25 +83,30 @@ namespace YantraJS.Expressions
 
         public ref struct Enumerator
         {
-            private YExpression[] expressions;
+            private FastEnumerator<YExpression> expressions;
             private int index;
             private int last;
 
-            public Enumerator(YExpression[] expressions)
+            public Enumerator(IFastEnumerable<YExpression> expressions)
             {
-                this.expressions = expressions;
+                this.expressions = expressions.GetFastEnumerator();
                 index = -1;
-                this.last = expressions.Length - 1;
+                this.last = expressions.Count - 1;
             }
 
             public bool MoveNext(out YExpression? exp, out bool isLast)
             {
-                if((this.index++)<= last)
+                if(expressions.MoveNext(out exp, out var index))
                 {
-                    isLast = last == this.index;
-                    exp = expressions[index];
+                    isLast = index == last;
                     return true;
                 }
+                //if((this.index++)<= last)
+                //{
+                //    isLast = last == this.index;
+                //    exp = expressions[index];
+                //    return true;
+                //}
                 isLast = false;
                 exp = default;
                 return false;

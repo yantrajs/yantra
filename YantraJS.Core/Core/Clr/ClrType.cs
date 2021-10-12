@@ -223,7 +223,7 @@ namespace YantraJS.Core.Clr
                 ? null
                 : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), method.DeclaringType, target, method.Name);
 
-            var body = Expression.Block(new ParameterExpression[] { target },
+            var body = Expression.Block(target.AsSequence(),
                 JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(
                     Expression.Call(
                         convert, method, args))));

@@ -111,7 +111,7 @@ namespace YantraJS.Core.FastParser
 
             if (asNew)
             {
-                node = new AstNewExpression(token, node, ArraySpan<AstExpression>.Empty);
+                node = new AstNewExpression(token, node, Sequence<AstExpression>.Empty);
             }
 
 

@@ -91,7 +91,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 newExpression = newExpression.Update(newExpression.constructor, bb.ConvertToVariables(newExpression.args, this));
             }
 
-            var args = new List<YBinding>();
+            var args = new Sequence<YBinding>();
 
             foreach(var member in node.Bindings)
             {
@@ -120,7 +120,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 }
             }
 
-            bb.AddExpression(new YMemberInitExpression(newExpression, args.ToArray()));
+            bb.AddExpression(new YMemberInitExpression(newExpression, args));
             return bb.Build();
         }
 

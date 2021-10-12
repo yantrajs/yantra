@@ -27,8 +27,8 @@ namespace YantraJS.Core.FastParser.Compiler
             var scope = pool.NewScope();
             var tempVar = this.scope.Top.GetTempVariable(typeof(JSClass));
 
-            var prototypeElements = scope.AllocateList<YElementInit>();
-            var staticElements = scope.AllocateList<YBinding>();
+            var prototypeElements = new Sequence<YElementInit>();
+            var staticElements = new Sequence<YBinding>();
 
             Dictionary<string, string> added = new Dictionary<string, string>();
 
@@ -48,7 +48,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var superVar = Exp.Parameter(typeof(JSFunction));
             var superPrototypeVar = Exp.Parameter(typeof(JSObject));
 
-            var stmts = scope.AllocateList<Exp>();
+            var stmts = new Sequence<Exp>(body.Members.Count);
 
 
             stmts.Add(Exp.Assign(superVar, Exp.TypeAs(superExp, typeof(JSFunction))));
@@ -183,11 +183,11 @@ namespace YantraJS.Core.FastParser.Compiler
 
             if (prototypeElements.Any())
             {
-                staticElements.Add(new YMemberElementInit(JSFunctionBuilder._prototype, prototypeElements.Release()));
+                staticElements.Add(new YMemberElementInit(JSFunctionBuilder._prototype, prototypeElements));
             }
 
             YExpression retVal = staticElements.Any() 
-                ? YExpression.MemberInit(_new, staticElements.Release())
+                ? YExpression.MemberInit(_new, staticElements)
                 : _new;
 
             stmts.Add(
@@ -207,7 +207,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 stmts.Add(retValue);
             }
 
-            var result = Exp.Block(new ParameterExpression[] { superVar, superPrototypeVar }, stmts);
+            var result = Exp.Block(new Sequence<ParameterExpression> { superVar, superPrototypeVar }, stmts);
             scope.Dispose();
             return result;
         }

@@ -51,8 +51,8 @@ namespace YantraJS.Core
 
         internal PromiseState state = PromiseState.Pending;
 
-        private List<Reaction> thenList;
-        private List<Reaction> rejectList;
+        private Sequence<Reaction> thenList;
+        private Sequence<Reaction> rejectList;
         JSFunction resolveFunction;
         JSFunction rejectFunction;
         internal JSValue result = JSUndefined.Value;
@@ -294,8 +294,8 @@ namespace YantraJS.Core
 
             if(state == PromiseState.Pending)
             {
-                this.rejectList ??= new List<Reaction>();
-                this.thenList ??= new List<Reaction>();
+                this.rejectList ??= new Sequence<Reaction>();
+                this.thenList ??= new Sequence<Reaction>();
                 rejectList.Add(rejected);
                 thenList.Add(resolved);
             } else if(state == PromiseState.Resolved)

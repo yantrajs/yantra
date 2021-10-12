@@ -75,7 +75,7 @@ namespace YantraJS.Utils
                 {
                     condition = Expression.Condition(
                         Expression.TypeIs(right, @case.Type),
-                        Expression.Block(new ParameterExpression[] { bp },
+                        Expression.Block(bp.AsSequence(),
                             @case.TrueCase(bp)
                         ),
                         condition,
@@ -85,7 +85,7 @@ namespace YantraJS.Utils
                 }
 
                 var nbt = Expression.Constant(null, @case.Type);
-                condition = Expression.Block(new ParameterExpression[] { bp },
+                condition = Expression.Block(bp.AsSequence(),
                     Expression.Assign(bp, Expression.TypeAs(right, @case.Type)),
                     Expression.Condition(
                         Expression.NotEqual(nbt, bp),

@@ -98,7 +98,7 @@ namespace YantraJS.Core.FastParser
                     return true;
                 case TokenTypes.TemplateEnd:
                     stream.Consume();
-                    node = new AstTemplateExpression(token, token, ArraySpan<AstExpression>.From(new AstLiteral(token.Type, token)));
+                    node = new AstTemplateExpression(token, token, new Sequence<AstExpression>(1) { new AstLiteral(token.Type, token) });
                     return true;
                 case TokenTypes.EOF:
                 case TokenTypes.Comma:
@@ -117,12 +117,12 @@ namespace YantraJS.Core.FastParser
             {
                 node = default;
                 if(ExpressionList(out var nodes, out var start, out var end, TokenTypes.BracketEnd)) {
-                    if(nodes.Length == 0)
+                    if(nodes.Count == 0)
                     {
                         node = new AstEmptyExpression(PreviousToken);
-                    } else if(nodes.Length == 1)
+                    } else if(nodes.Count == 1)
                     {
-                        node = nodes[0];
+                        node = nodes.First();
                     } else
                     {
                         node = new AstSequenceExpression(start, end, nodes);
@@ -146,7 +146,7 @@ namespace YantraJS.Core.FastParser
             }
 
             bool ExpressionList(
-                out ArraySpan<AstExpression> node, 
+                out IFastEnumerable<AstExpression> node, 
                 out FastToken start, 
                 out FastToken end, 
                 TokenTypes endType,
@@ -155,7 +155,7 @@ namespace YantraJS.Core.FastParser
                 var begin = stream.Current;
                 start = begin;
                 stream.Consume();
-                var nodes = Pool.AllocateList<AstExpression>();
+                var nodes = new Sequence<AstExpression>();
                 try
                 {
 
@@ -184,13 +184,13 @@ namespace YantraJS.Core.FastParser
                             break;
                         throw stream.Unexpected();
                     }
-                    node = nodes.ToSpan();
+                    node = nodes;
                     end = PreviousToken;
                     return true;
 
                 } finally
                 {
-                    nodes.Clear();
+                    // nodes.Clear();
                 }
             }
 

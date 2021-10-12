@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Runtime;
 
@@ -21,7 +22,7 @@ namespace YantraJS.Linq
 
             var f = YExpression.Lambda<Func<Func<int,int>>>("fib_outer", 
                 YExpression.Block(
-                    fibs,
+                    fibs.AsSequence(),
                     YExpression.Assign(fib, YExpression.Lambda<Func<int, int>>("fib",
                         YExpression.Block(
                                 YExpression.Conditional(

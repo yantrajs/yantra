@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using YantraJS.Core;
 using YantraJS.Expressions;
 
 namespace YantraJS
@@ -26,7 +27,7 @@ namespace YantraJS
 
             public readonly PendingReplacements PendingReplacements;
 
-            public void Register(YParameterExpression[] list)
+            public void Register(IFastEnumerable<YParameterExpression> list)
             {
                 foreach (var item in list)
                 {

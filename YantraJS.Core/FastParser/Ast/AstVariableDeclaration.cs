@@ -13,7 +13,7 @@ namespace YantraJS.Core.FastParser
 
     public class AstVariableDeclaration: AstStatement
     {
-        public readonly ArraySpan<VariableDeclarator> Declarators;
+        public readonly IFastEnumerable<VariableDeclarator> Declarators;
 
         public readonly FastVariableKind Kind;
 
@@ -24,7 +24,7 @@ namespace YantraJS.Core.FastParser
             FastVariableKind kind = FastVariableKind.Var)
             : base(begin, FastNodeType.VariableDeclaration, previousToken)
         {
-            this.Declarators = ArraySpan<VariableDeclarator>.From(declarator);
+            this.Declarators = new Sequence<VariableDeclarator>(1) { declarator };
             this.Kind = kind;
         }
 
@@ -32,7 +32,7 @@ namespace YantraJS.Core.FastParser
         public AstVariableDeclaration(
             FastToken begin, 
             FastToken previousToken, 
-            in ArraySpan<VariableDeclarator> declarators, 
+            IFastEnumerable<VariableDeclarator> declarators, 
             FastVariableKind kind = FastVariableKind.Var)
             :base(begin, FastNodeType.VariableDeclaration, previousToken)
         {

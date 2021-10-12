@@ -8,11 +8,11 @@ namespace YantraJS.Core
     public class DisposableList : IDisposable
     {
 
-        private List<IDisposable>? list;
+        private Sequence<IDisposable>? list;
 
         public void Register(IDisposable d)
         {
-            list = list ?? new List<IDisposable>();
+            list = list ?? new Sequence<IDisposable>();
             list.Add(d);
         }
 

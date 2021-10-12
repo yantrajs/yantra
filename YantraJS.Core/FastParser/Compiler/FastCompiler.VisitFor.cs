@@ -81,9 +81,7 @@ namespace YantraJS.Core.FastParser.Compiler
             {
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
-                var pList = new ParameterExpression[] {
-                    en
-                };
+                var pList = en.AsSequence();
 
                 
 
@@ -123,9 +121,7 @@ namespace YantraJS.Core.FastParser.Compiler
             {
                 var en = Exp.Variable(typeof(IElementEnumerator));
 
-                var pList = new ParameterExpression[] {
-                    en
-                };
+                var pList = en.AsSequence();
 
                 var body = VisitStatement(forOfStatement.Body);
 
@@ -151,7 +147,7 @@ namespace YantraJS.Core.FastParser.Compiler
             // this will create a variable if needed...
             // desugar takes care of let so do not worry
             Exp init = Visit(forStatement.Init);
-            var innerBody = pool.AllocateList<Exp>();
+            var innerBody = new Sequence<Exp>();
 
             // try {
                 var update = Visit(forStatement.Update);
@@ -178,10 +174,10 @@ namespace YantraJS.Core.FastParser.Compiler
                     if (init == null)
                     {
                         var r1 = Exp.Loop(
-                            Exp.Block(innerBody.ToArray()),
+                            Exp.Block(innerBody),
                             breakTarget);
                         
-                        innerBody.Clear();
+                        // innerBody.Clear();
                         return r1;
                     }
 
@@ -190,10 +186,10 @@ namespace YantraJS.Core.FastParser.Compiler
                     var r = Exp.Block(
                         init,
                         Exp.Loop(
-                            Exp.Block(innerBody.ToArray()),
+                            Exp.Block(innerBody),
                             breakTarget)
                         );
-                innerBody.Clear(); ;
+                // innerBody.Clear(); ;
                 return r;
                 }
             //} finally {

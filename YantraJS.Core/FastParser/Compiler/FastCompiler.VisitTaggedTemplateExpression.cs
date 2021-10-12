@@ -24,12 +24,12 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             var callee = template.Tag;
 
-            var args = pool.AllocateList<Expression>(template.Arguments.Length);
-            var parts = pool.AllocateList<YElementInit>(template.Arguments.Length);
-            var raw = pool.AllocateList<Expression>(template.Arguments.Length);
+            var args = new Sequence<Expression>(template.Arguments.Count);
+            var parts = new Sequence<YElementInit>(template.Arguments.Count);
+            var raw = new Sequence<Expression>(template.Arguments.Count);
             try
             {
-                var e = template.Arguments.GetEnumerator();
+                var e = template.Arguments.GetFastEnumerator();
                 args.Add(null);
                 while(e.MoveNext(out var p)) {
                     if(p.Type == FastNodeType.Literal)
@@ -60,7 +60,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 parts.Add(new YElementInit(JSObjectBuilder._FastAddValueKeyString, KeyOfName("raw"), rawArray, JSPropertyAttributesBuilder.EnumerableConfigurableValue));
 
-                var partsArray = JSArrayBuilder.New(parts.Release());
+                var partsArray = JSArrayBuilder.New(parts);
 
                 args[0] = partsArray;
 
@@ -113,7 +113,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     using var te = this.scope.Top.GetTempVariable(typeof(JSValue));
                     using var te2 = this.scope.Top.GetTempVariable(typeof(JSValue));
-                    return JSValueBuilder.InvokeMethod(te.Variable, te2.Variable, target, name, args.ToArray(), false, me.Coalesce);
+                    return JSValueBuilder.InvokeMethod(te.Variable, te2.Variable, target, name, args, false, me.Coalesce);
 
                 }
                 else
@@ -135,9 +135,9 @@ namespace YantraJS.Core.FastParser.Compiler
                         ArgumentsBuilder.New(JSUndefinedBuilder.Value, args));
                 }
             } finally {
-                parts.Clear();
-                raw.Clear();
-                args.Clear();
+                //parts.Clear();
+                //raw.Clear();
+                //args.Clear();
             }
         }
     }

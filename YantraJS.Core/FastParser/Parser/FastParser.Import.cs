@@ -27,7 +27,7 @@ namespace YantraJS.Core.FastParser
 
             }
             AstIdentifier all = null;
-            ArraySpan<(StringSpan, StringSpan)>? names = null;
+            IFastEnumerable<(StringSpan, StringSpan)>? names = null;
             if(Identitifer(out id))
             {
                 if(stream.CheckAndConsume(TokenTypes.Comma))
@@ -67,7 +67,7 @@ namespace YantraJS.Core.FastParser
 
             throw stream.Unexpected();
 
-            bool ImportNames(out ArraySpan<(StringSpan,StringSpan)>? names)
+            bool ImportNames(out IFastEnumerable<(StringSpan,StringSpan)>? names)
             {
                 if (!stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
                 {
@@ -75,7 +75,7 @@ namespace YantraJS.Core.FastParser
                     return false;
                 }
 
-                var list = Pool.AllocateList<(StringSpan, StringSpan)>();
+                var list = new Sequence<(StringSpan, StringSpan)>();
 
                 try {
 
@@ -101,11 +101,11 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     }
 
-                    names = list.ToSpan();
+                    names = list;
                     return true;
                 } finally
                 {
-                    list.Clear();
+                    // list.Clear();
                 }
             }
         }

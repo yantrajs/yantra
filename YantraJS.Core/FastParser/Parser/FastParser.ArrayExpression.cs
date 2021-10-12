@@ -12,9 +12,9 @@ namespace YantraJS.Core.FastParser
         /// <param name="nodes"></param>
         /// <param name="endsWith"></param>
         /// <returns></returns>
-        bool ArrayExpression(out ArraySpan<AstExpression> nodes, TokenTypes endsWith = TokenTypes.BracketEnd)
+        bool ArrayExpression(out IFastEnumerable<AstExpression> nodes, TokenTypes endsWith = TokenTypes.BracketEnd)
         {
-            var list = Pool.AllocateList<AstExpression>();
+            var list = new Sequence<AstExpression>();
             try
             {
                 do
@@ -41,12 +41,12 @@ namespace YantraJS.Core.FastParser
                         continue;
                     throw stream.Unexpected();
                 } while (true);
-                nodes = list.ToSpan();
+                nodes = list;
                 return true;
             }
             finally
             {
-                list.Clear();
+                //list.Clear();
             }
         }
     }

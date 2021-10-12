@@ -10,7 +10,7 @@ namespace YantraJS.Core.FastParser
     {
         private readonly FastTokenStream stream;
 
-        public readonly FastPool Pool;
+        // public readonly FastPool Pool;
 
         public readonly FastScope variableScope;
 
@@ -61,8 +61,8 @@ namespace YantraJS.Core.FastParser
         public FastParser(FastTokenStream stream)
         {
             this.stream = stream;
-            this.Pool = stream.Pool;
-            this.variableScope = new FastScope(Pool);
+            // this.Pool = stream.Pool;
+            this.variableScope = new FastScope();
         }
 
         public AstProgram ParseProgram()

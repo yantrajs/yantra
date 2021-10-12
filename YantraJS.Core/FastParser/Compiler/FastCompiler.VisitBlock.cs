@@ -21,24 +21,25 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitBlock(AstBlock block) {
 
-            if (block.Statements.Length == 0)
+            int count = block.Statements.Count;
+            if (count == 0)
                 return Expression.Empty;
 
-            var blockList = pool.AllocateList<Expression>();
+            var blockList = new Sequence<Expressions.YExpression>(count);
             var hoistingScope = block.HoistingScope;
             var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
             //try
             //{
                 if (hoistingScope != null)
                 {
-                    var en = hoistingScope.Value.GetEnumerator();
+                    var en = hoistingScope.GetFastEnumerator();
                     while (en.MoveNext(out var v))
                     {
                         scope.CreateVariable(v, null, true);
                     }
                 }
 
-                var se = block.Statements.GetEnumerator();
+                var se = block.Statements.GetFastEnumerator();
                 while (se.MoveNext(out var stmt))
                 {
                     //LexicalScopeBuilder.Update(
@@ -53,7 +54,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     blockList.Add(exp);
                 }
                 var result = Scoped(scope, blockList);
-                blockList.Clear();
+                // blockList.Clear();
                 scope.Dispose();
                 return result;
             //}

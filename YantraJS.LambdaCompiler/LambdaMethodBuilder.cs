@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Generator;
 
@@ -18,7 +19,7 @@ namespace YantraJS
             this.typeBuilder = (TypeBuilder)builder.DeclaringType;
         }
 
-        public YExpression Relay(YExpression[] closures, YLambdaExpression innerLambda)
+        public YExpression Relay(IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
         {
 
             var derived = (typeBuilder.Module as ModuleBuilder).DefineType(

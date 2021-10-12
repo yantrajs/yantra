@@ -5,14 +5,14 @@ namespace YantraJS.Core.FastParser
     {
         public readonly AstIdentifier? Default;
         public readonly AstIdentifier? All;
-        public readonly ArraySpan<(StringSpan name, StringSpan asName)>? Members;
+        public readonly IFastEnumerable<(StringSpan name, StringSpan asName)>? Members;
         public readonly AstLiteral Source;
 
         public AstImportStatement(
             FastToken token,
             AstIdentifier? defaultIdentifier,
             AstIdentifier? all,
-            ArraySpan<(StringSpan, StringSpan)>? members,
+            IFastEnumerable<(StringSpan, StringSpan)>? members,
             AstLiteral source)
             : base(token, FastNodeType.ImportStatement, source.End)
         {

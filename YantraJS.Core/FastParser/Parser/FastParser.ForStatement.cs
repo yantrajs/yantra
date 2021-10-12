@@ -117,7 +117,7 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     if (newScope && declaration != null)
                     {
-                        (beginNode, statement, update, test) = Desugar(declaration, in block.Statements, update, test);
+                        (beginNode, statement, update, test) = Desugar(declaration, block.Statements, update, test);
                     }
                     else
                     {
@@ -128,7 +128,7 @@ namespace YantraJS.Core.FastParser
                 {
                     if (newScope && declaration != null)
                     {
-                        (beginNode, statement, update, test) = Desugar(declaration, ArraySpan<AstStatement>.From(statement), update, test);
+                        (beginNode, statement, update, test) = Desugar(declaration, new Sequence<AstStatement>(1) { statement }, update, test);
                     }
                 }
                 else throw stream.Unexpected();
@@ -157,49 +157,43 @@ namespace YantraJS.Core.FastParser
             bool ExpressionList(
                 out AstExpression? node)
             {
-                var list = Pool.AllocateList<AstExpression>();
+                var list = new Sequence<AstExpression>();
                 var token = stream.Current;
                 node = null;
-                try
+                considerInOfAsOperators = false;
+                while (true)
                 {
-                    considerInOfAsOperators = false;
-                    while (true)
-                    {
-                        if (stream.CheckAndConsume(TokenTypes.SemiColon))
-                            break;
-                        if (!Expression(out node))
-                            throw stream.Unexpected();
+                    if (stream.CheckAndConsume(TokenTypes.SemiColon))
+                        break;
+                    if (!Expression(out node))
+                        throw stream.Unexpected();
 
-                        var c = stream.Current;
-                        if (c.Type == TokenTypes.In || c.ContextualKeyword == FastKeywords.of)
-                            break;
-                        if (stream.CheckAndConsume(TokenTypes.SemiColon))
-                            break;
-                        if (stream.CheckAndConsume(TokenTypes.Comma))
-                        {
-                            list.Add(node);
-                            continue;
-                        }
-                    }
-
-                    if (list.Any())
+                    var c = stream.Current;
+                    if (c.Type == TokenTypes.In || c.ContextualKeyword == FastKeywords.of)
+                        break;
+                    if (stream.CheckAndConsume(TokenTypes.SemiColon))
+                        break;
+                    if (stream.CheckAndConsume(TokenTypes.Comma))
                     {
-                        node = new AstSequenceExpression(token, list.Last().End, list.ToSpan());
+                        list.Add(node);
+                        continue;
                     }
-                    return true;
-                } finally
-                {
-                    considerInOfAsOperators = true;
-                    list.Clear();
                 }
+
+                if (list.Any())
+                {
+                    node = new AstSequenceExpression(token, list.Last().End, list);
+                }
+                considerInOfAsOperators = true;
+                return true;
             }
 
 
 
             // modify the node as well...
             AstExpression AssignTempNames(
-                FastList<(string id, AstIdentifier temp)> list, 
-                FastList<StringSpan> hoisted,
+                Sequence<(string id, AstIdentifier temp)> list,
+                Sequence<StringSpan> hoisted,
                 AstExpression e)
             {
                 switch (e.Type)
@@ -216,10 +210,11 @@ namespace YantraJS.Core.FastParser
                         return new AstSpreadElement(spreadElement!.Start,spreadElement.End, AssignTempNames(list, hoisted, spreadElement.Argument));
                     case FastNodeType.ObjectPattern: 
                         var pattern = e as AstObjectPattern;
-                        for (int i = 0; i < pattern!.Properties.Length; i++)
+                        var pat = (pattern!.Properties as Sequence<ObjectProperty>)!;
+                        for (int i = 0; i < pat.Count; i++)
                         {
-                            ref var property = ref pattern.Properties[i];
-                            pattern.Properties[i] = 
+                            var property = pat[i];
+                            pat[i] = 
                                 new ObjectProperty(
                                     property.Key, 
                                     AssignTempNames(list, hoisted, property.Value), property.Init, property.Spread);
@@ -227,10 +222,11 @@ namespace YantraJS.Core.FastParser
                         return pattern;
                     case FastNodeType.ArrayPattern:
                         var arrayPattern = e as AstArrayPattern;
-                        for (int i = 0; i < arrayPattern!.Elements.Length; i++)
+                        var elements = (arrayPattern!.Elements as Sequence<AstExpression>)!;
+                        for (int i = 0; i < elements.Count; i++)
                         {
-                            ref var property = ref arrayPattern.Elements[i];
-                            arrayPattern.Elements[i] = AssignTempNames(list, hoisted, property);
+                            var property = elements[i];
+                            elements[i] = AssignTempNames(list, hoisted, property);
                         }
                         return arrayPattern;
                     default:
@@ -242,12 +238,14 @@ namespace YantraJS.Core.FastParser
 
             (AstNode beginNode, AstStatement statement, AstExpression? update, AstExpression? test) Desugar(
                 AstVariableDeclaration declaration, 
-                in ArraySpan<AstStatement> body,
+                IFastEnumerable<AstStatement> body,
                 AstExpression? update,
                 AstExpression? test)
             {
-                var statementList = new AstStatement[body.Length + 1];
-                body.Copy(statementList, 1);
+                var statementList = new Sequence<AstStatement>(body.Count + 1);
+                // body.Copy(statementList, 1);
+                statementList.Add(null!);
+                statementList.AddRange(body);
 
                 // for-of and for-in does not require identifier replacement
                 // instead they need single identifier as a temp variable
@@ -256,15 +254,15 @@ namespace YantraJS.Core.FastParser
 
                 var requiresReplacement = update != null || test != null;
 
-                var tempDeclarations = Pool.AllocateList<VariableDeclarator>();
-                var scopedDeclarations = Pool.AllocateList<VariableDeclarator>();
-                var list = Pool.AllocateList<(string id, AstIdentifier temp)>();
-                var hoisted = Pool.AllocateList<StringSpan>();
+                var tempDeclarations = new Sequence<VariableDeclarator>();
+                var scopedDeclarations = new Sequence<VariableDeclarator>();
+                var list = new Sequence<(string id, AstIdentifier temp)>();
+                var hoisted = new Sequence<StringSpan>();
                 try {
-
-                    for (int i = 0; i < declaration.Declarators.Length; i++)
+                    var en = declaration.Declarators.GetFastEnumerator();
+                    while(en.MoveNext(out var d))
                     {
-                        ref var d = ref declaration.Declarators[i];
+                        // ref var d = ref declaration.Declarators[i];
                         if (requiresReplacement)
                         {
                             var id = AssignTempNames(list , hoisted, d.Identifier);
@@ -278,7 +276,7 @@ namespace YantraJS.Core.FastParser
                         }
                     }
 
-                    var changes = list.ToSpan();
+                    var changes = list;
 
                     if (requiresReplacement)
                     {
@@ -290,12 +288,12 @@ namespace YantraJS.Core.FastParser
 
                         if (update != null)
                         {
-                            update = AstIdentifierReplacer.Replace(update, in changes)
+                            update = AstIdentifierReplacer.Replace(update, changes)
                                 as AstExpression;
                         }
                         if (test != null)
                         {
-                            test = AstIdentifierReplacer.Replace(test, in changes)
+                            test = AstIdentifierReplacer.Replace(test, changes)
                                 as AstExpression;
                         }
                     }
@@ -305,19 +303,19 @@ namespace YantraJS.Core.FastParser
 
                     var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations);
 
-                    var last = body.Length == 0 ? declaration :  body[body.Length - 1];
-                    var block = new AstBlock(r.Start, last.End, ArraySpan<AstStatement>.From(statementList));
+                    var last = body.Count == 0 ? declaration :  body.Last();
+                    var block = new AstBlock(r.Start, last.End, statementList);
                     if (requiresReplacement)
                     {
-                        block.HoistingScope = hoisted.ToSpan();
+                        block.HoistingScope = hoisted;
                     }
                     return (r, block, update, test);
 
                 } finally {
-                    tempDeclarations.Clear();
-                    scopedDeclarations.Clear();
-                    list.Clear();
-                    hoisted.Clear();
+                    // tempDeclarations.Clear();
+                    // scopedDeclarations.Clear();
+                    // list.Clear();
+                    // hoisted.Clear();
                 }
             }
         }

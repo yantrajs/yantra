@@ -25,7 +25,7 @@ namespace YantraJS.Expressions
         public static bool IsConstant(this YExpression exp, out YConstantExpression c)
             => Is<YConstantExpression>(exp, YExpressionType.Constant, out c);
 
-        public static void PrintCSV<T>(this IndentedTextWriter writer, IList<T> items)
+        public static void PrintCSV<T>(this IndentedTextWriter writer, IEnumerable<T> items)
             where T: YExpression
         {
             bool first = true;

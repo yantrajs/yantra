@@ -2,16 +2,16 @@
 {
     public partial class FastScope: LinkedStack<FastScopeItem>
     {
-        private readonly FastPool pool;
+        // private readonly FastPool pool;
 
-        public FastScope(FastPool pool)
+        public FastScope()
         {
-            this.pool = pool;
+            // this.pool = pool;
         }
 
         public FastScopeItem Push(FastToken token, FastNodeType nodeType)
         {
-            var n = new FastScopeItem(token, nodeType, pool);
+            var n = new FastScopeItem(nodeType);
             return Push(n);
         }
     }

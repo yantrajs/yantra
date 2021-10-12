@@ -10,7 +10,7 @@ namespace YantraJS.Core.FastParser
         {
             var begin = stream.Current;
             stream.Consume();
-            var nodes = Pool.AllocateList<AstExpression>();
+            var nodes = new Sequence<AstExpression>();
             try
             {
                 nodes.Add(new AstLiteral(TokenTypes.TemplatePart, begin));
@@ -33,11 +33,11 @@ namespace YantraJS.Core.FastParser
                     }
                     throw stream.Unexpected();
                 }
-                return new AstTemplateExpression(begin, PreviousToken, nodes.ToSpan());
+                return new AstTemplateExpression(begin, PreviousToken, nodes);
             }
             finally
             {
-                nodes.Clear();
+                // nodes.Clear();
             }
         }
 

@@ -8,9 +8,9 @@ namespace YantraJS.Core.FastParser
     public readonly struct AstCase
     {
         public readonly AstExpression Test;
-        public readonly ArraySpan<AstStatement> Statements;
+        public readonly IFastEnumerable<AstStatement> Statements;
 
-        public AstCase(AstExpression test, in ArraySpan<AstStatement> last)
+        public AstCase(AstExpression test, IFastEnumerable<AstStatement> last)
         {
             this.Test = test;
             this.Statements = last;
@@ -34,8 +34,8 @@ namespace YantraJS.Core.FastParser
             stream.Expect(TokenTypes.BracketEnd);
 
             stream.Expect(TokenTypes.CurlyBracketStart);
-            var nodes = Pool.AllocateList<AstCase>();
-            var statements = Pool.AllocateList<AstStatement>();
+            var nodes = new Sequence<AstCase>();
+            var statements = new Sequence<AstStatement>();
             AstExpression test = null;
             bool hasDefault = false;
             try
@@ -46,7 +46,8 @@ namespace YantraJS.Core.FastParser
                     {
                         if (test != null)
                         {
-                            nodes.Add(new AstCase(test, statements.ToSpan()));
+                            nodes.Add(new AstCase(test, statements));
+                            statements = new Sequence<AstStatement>();
                         }
                         if (!Expression(out test))
                             throw stream.Unexpected();
@@ -55,7 +56,8 @@ namespace YantraJS.Core.FastParser
                     {
                         stream.Expect(TokenTypes.Colon);
                         if (test != null) {
-                            nodes.Add(new AstCase(test, statements.ToSpan()));
+                            nodes.Add(new AstCase(test, statements));
+                            statements = new Sequence<AstStatement>();
                         }
                         test = null;
                         hasDefault = true;
@@ -65,7 +67,8 @@ namespace YantraJS.Core.FastParser
 
                 if(test != null || hasDefault)
                 {
-                    nodes.Add(new AstCase(test, statements.ToSpan()));
+                    nodes.Add(new AstCase(test, statements));
+                    // statements = new Sequence<AstStatement>();
                 }
 
                 node = new AstSwitchStatement(begin, PreviousToken, target, nodes);
@@ -73,8 +76,8 @@ namespace YantraJS.Core.FastParser
 
             } finally
             {
-                nodes.Clear();
-                statements.Clear();
+                // nodes.Clear();
+                // statements.Clear();
             }
         }
 

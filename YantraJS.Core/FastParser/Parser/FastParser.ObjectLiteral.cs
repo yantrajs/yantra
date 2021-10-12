@@ -138,34 +138,27 @@ namespace YantraJS.Core.FastParser
             var begin = stream.Current;
             node = default;
             stream.Consume();
-            var nodes = Pool.AllocateList<AstNode>();
-            try
+            var nodes = new Sequence<AstNode>();
+            SkipNewLines();
+
+            while (!stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
             {
                 SkipNewLines();
-
-                while (!stream.CheckAndConsumeAny(TokenTypes.CurlyBracketEnd, TokenTypes.EOF))
+                var current = this.stream.Current;
+                if (stream.CheckAndConsume(TokenTypes.TripleDots))
                 {
-                    SkipNewLines();
-                    var current = this.stream.Current;
-                    if (stream.CheckAndConsume(TokenTypes.TripleDots))
-                    {
-                        if (!Expression(out var exp))
-                            throw stream.Unexpected();
-                        nodes.Add(new AstSpreadElement(current, exp.End, exp));
-                        continue;
-                    }
-                    if (ObjectProperty(out var property))
-                        nodes.Add(property);
-                    if (stream.CheckAndConsume(TokenTypes.Comma))
-                        continue;
+                    if (!Expression(out var exp))
+                        throw stream.Unexpected();
+                    nodes.Add(new AstSpreadElement(current, exp.End, exp));
+                    continue;
                 }
-
-                node = new AstObjectLiteral(begin, PreviousToken, nodes.ToSpan());
-
-            } finally {
-                nodes.Clear();
+                if (ObjectProperty(out var property))
+                    nodes.Add(property);
+                if (stream.CheckAndConsume(TokenTypes.Comma))
+                    continue;
             }
 
+            node = new AstObjectLiteral(begin, PreviousToken, nodes);
             return true;
         }
 

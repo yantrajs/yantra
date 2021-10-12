@@ -40,25 +40,23 @@ namespace YantraJS.Core.FastParser
 
             static AstExpression ArrayToPattern(AstArrayExpression array)
             {
-                var pl = new AstExpression?[array.Elements.Count];
-                var e = array.Elements.GetEnumerator();
-                int i = 0;
+                var pl = new Sequence<AstExpression>(array.Elements.Count);
+                var e = array.Elements.GetFastEnumerator();
                 while(e.MoveNext(out var item))
                 {
-                    pl[i++] = item.ToPattern();
+                    pl.Add(item.ToPattern());
                 }
-                return new AstArrayPattern(array.Start, array.End, ArraySpan<AstExpression?>.From(pl));
+                return new AstArrayPattern(array.Start, array.End, pl);
             }
 
             static AstExpression LiteralToPattern(AstObjectLiteral literal)
             {
 
-                var pl = new ObjectProperty[literal.Properties.Count];
-                var e = literal.Properties.GetEnumerator();
-                int i = 0;
+                var pl = new Sequence<ObjectProperty>(literal.Properties.Count);
+                var e = literal.Properties.GetFastEnumerator();
                 while (e.MoveNext(out var px))
                 {
-                    ObjectProperty property;
+                    ref var property = ref pl.AddGetRef();
                     switch (px.Type)
                     {
                         case FastNodeType.SpreadElement:
@@ -80,9 +78,9 @@ namespace YantraJS.Core.FastParser
                         default:
                             throw new NotSupportedException();
                     }
-                    pl[i++] = property;
+                    // pl.Add(property);
                 }
-                return new AstObjectPattern(literal.Start, literal.End, ArraySpan<ObjectProperty>.From(pl));
+                return new AstObjectPattern(literal.Start, literal.End, pl);
             }
         }
 
@@ -114,9 +112,9 @@ namespace YantraJS.Core.FastParser
             return $"{Identifier} = {Init}";
         }
 
-        private static void Fill(FastList<VariableDeclarator> args, AstExpression exp) {
+        private static void Fill(Sequence<VariableDeclarator> args, AstExpression exp) {
             if(exp.Type == FastNodeType.SequenceExpression && exp is AstSequenceExpression se) {
-                var e = se.Expressions.GetEnumerator();
+                var e = se.Expressions.GetFastEnumerator();
                 while(e.MoveNext(out var item)) {
                     args.Add(new VariableDeclarator(item.ToPattern()));
                 }
@@ -125,26 +123,24 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        public static ArraySpan<VariableDeclarator> From(FastPool pool, AstExpression node)
+        public static Sequence<VariableDeclarator> From(AstExpression node)
         {
             if (node.Type == FastNodeType.EmptyExpression)
-                return ArraySpan<VariableDeclarator>.Empty;
-            var list = pool.AllocateList<VariableDeclarator>();
+                return Sequence<VariableDeclarator>.Empty;
+            var list = new Sequence<VariableDeclarator>();
             Fill(list, node);
-            var result = list.ToSpan();
-            list.Clear();
-            return result;
+            return list;
         }
 
 
-        public static ArraySpan<VariableDeclarator> From(FastPool pool, in ArraySpan<AstExpression> nodes)
+        public static Sequence<VariableDeclarator> From(in ArraySpan<AstExpression> nodes)
         {
-            var r = new VariableDeclarator[nodes.Length];
+            var r = new Sequence<VariableDeclarator>(nodes.Length);
             for (int i = 0; i < nodes.Length; i++)
             {
-                r[i] = new VariableDeclarator(nodes[i].ToPattern());
+                r.Add(new VariableDeclarator(nodes[i].ToPattern()));
             }
-            return r.ToArraySpan();
+            return r;
         }
     }
 }

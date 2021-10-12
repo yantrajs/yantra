@@ -25,7 +25,7 @@ namespace YantraJS.Core.FastParser.Compiler
             updateExpression.Argument.VerifyIdentifierForUpdate();
 
 
-            var list = pool.AllocateList<Exp>();
+            var list = new Sequence<Exp>();
 
             FastFunctionScope.VariableScope target = null;
             FastFunctionScope.VariableScope @return = null;
@@ -70,7 +70,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 var r = Exp.Block(list);
                 @return?.Dispose();
                 target?.Dispose();
-                list.Clear();
+                // list.Clear();
                 return r;
             //} finally
             //{

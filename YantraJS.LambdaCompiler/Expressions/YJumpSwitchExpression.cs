@@ -2,15 +2,16 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
     public class YJumpSwitchExpression : YExpression
     {
         public readonly YExpression Target;
-        public readonly YLabelTarget[] Cases;
+        public readonly IFastEnumerable<YLabelTarget> Cases;
 
-        public YJumpSwitchExpression(YExpression target, YLabelTarget[] cases) : base(YExpressionType.JumpSwitch, typeof(void))
+        public YJumpSwitchExpression(YExpression target, IFastEnumerable<YLabelTarget> cases) : base(YExpressionType.JumpSwitch, typeof(void))
         {
             this.Target = target;
             this.Cases = cases;
