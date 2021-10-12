@@ -77,7 +77,7 @@ namespace YantraJS.ExpHelper
             return Expression.New(_New1, @this, arg0, arg2);
         }
 
-        public static Expression Spread(Expression @this, IList<Expression> args)
+        public static Expression Spread(Expression @this, IFastEnumerable<Expression> args)
         {
             return Expression.Call(null, _spread, @this, Expression.NewArrayInit(typeof(JSValue),args));
         }

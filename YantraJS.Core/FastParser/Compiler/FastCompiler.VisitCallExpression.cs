@@ -84,12 +84,12 @@ namespace YantraJS.Core.FastParser.Compiler
                 thisArg ??= JSUndefinedBuilder.Value;
                 if(hasSpread)
                 {
-                    var r = ArgumentsBuilder.Spread(thisArg, args.ToArray());
+                    var r = ArgumentsBuilder.Spread(thisArg, args);
                     // args.Clear();
                     return r;
                 }
 
-                var result = ArgumentsBuilder.New(thisArg, args.ToArray());
+                var result = ArgumentsBuilder.New(thisArg, args);
                 // args.Clear();
                 return result;
             //} finally {

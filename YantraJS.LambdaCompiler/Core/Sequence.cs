@@ -356,7 +356,7 @@ namespace YantraJS.Core
             }
         }
 
-        internal Sequence(IEnumerable<T> items)
+        public Sequence(IEnumerable<T> items)
         {
             AddRange(items);
         }

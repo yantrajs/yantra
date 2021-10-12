@@ -46,7 +46,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 var @continue = this.scope.Top.Loop?.Top?.Continue;
                 var @break = Exp.Label();
                 var ls = new LoopScope(@break, @continue, true);
-                FastList<SwitchInfo> cases = scope.AllocateList<SwitchInfo>(switchStatement.Cases.Count + 2);
+                var cases = new Sequence<SwitchInfo>(switchStatement.Cases.Count + 2);
                 using (var bt = this.scope.Top.Loop.Push(ls))
                 {
                     SwitchInfo lastCase = new SwitchInfo(scope);

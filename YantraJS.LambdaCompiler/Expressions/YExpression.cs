@@ -425,7 +425,7 @@ namespace YantraJS.Expressions
              => YExpression.Binary(left, YOperator.Greater, right);
 
 
-        public static YJumpSwitchExpression JumpSwitch(YExpression target, YLabelTarget[] cases)
+        public static YJumpSwitchExpression JumpSwitch(YExpression target, IFastEnumerable<YLabelTarget> cases)
             => new YJumpSwitchExpression(target, cases);
 
         public static YLambdaExpression Lambda(
@@ -531,6 +531,12 @@ namespace YantraJS.Expressions
         public static YNewArrayExpression NewArrayInit(Type type, IEnumerable<YExpression> elements)
         {
             return new YNewArrayExpression(type, elements.AsSequence());
+        }
+
+
+        public static YNewArrayExpression NewArrayInit(Type type, IFastEnumerable<YExpression> elements)
+        {
+            return new YNewArrayExpression(type, elements);
         }
 
         public static YNewArrayBoundsExpression NewArrayBounds(Type type, YExpression size)

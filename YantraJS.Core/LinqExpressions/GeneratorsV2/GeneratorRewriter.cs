@@ -32,14 +32,14 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private readonly YFieldExpression ScriptInfo;
         private readonly YFieldExpression Closures;
         private LabelTarget generatorReturn;
-        private readonly List<(ParameterExpression original, ParameterExpression box, int index)> lifted;
+        private readonly Sequence<(ParameterExpression original, ParameterExpression box, int index)> lifted;
         private LabelTarget @return;
         private readonly ParameterExpression replaceArgs;
         private readonly ParameterExpression replaceStackItem;
         private readonly ParameterExpression replaceContext;
         private readonly ParameterExpression replaceScriptInfo;
         private readonly ParameterExpression replaceClosures;
-        private List<(LabelTarget label, int id)> jumps = new List<(LabelTarget label, int id)>();
+        private Sequence<(LabelTarget label, int id)> jumps = new Sequence<(LabelTarget label, int id)>();
 
         public GeneratorRewriter(
             ParameterExpression pe, 
@@ -66,7 +66,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             this.replaceClosures = replaceClosures;
             this.@return = @return;
             this.generatorReturn = Expression.Label(typeof(GeneratorState), "RETURN");
-            this.lifted = new List<(ParameterExpression original, ParameterExpression box, int index)>();
+            this.lifted = new Sequence<(ParameterExpression original, ParameterExpression box, int index)>();
         }
 
         public static LambdaExpression Rewrite(
@@ -148,20 +148,21 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         {
             if (jumps.Count == 0)
                 return Expression.Empty;
-            var cases = new List<YLabelTarget>();
-            var offset = 1;
-            jumps = jumps.OrderBy(x => x.id).ToList();
+            var cases = new Sequence<YLabelTarget>();
+            var offset = 1;            
+            jumps = new  Sequence<(LabelTarget label, int id)>(jumps.OrderBy(x => x.id));
             for (int i = 0; i < jumps.Count; i++)
             {
                 var (label, id) = jumps[i];
                 var index = id + offset;
+                // this will fill the gap in between jumps, if any
                 while(index > cases.Count)
                 {
                     cases.Add(@break);
                 }
                 cases.Add(label);
             }
-            return Expression.JumpSwitch( nextJump + offset, cases.ToArray());
+            return Expression.JumpSwitch( nextJump + offset, cases);
         }
 
         protected override Expression VisitBlock(YBlockExpression node)
