@@ -14,8 +14,14 @@ namespace YantraJS
 {
     public class AssemblyCodeCache : ICodeCache
     {
-        private DirectoryInfo cacheFolder = new DirectoryInfo(".\\cache");
+        public AssemblyCodeCache(string path = ".\\cache")
+        {
+            cacheFolder = new DirectoryInfo(path);
+            this.version = this.GetType().Assembly.GetName().Version?.ToString();
+        }
 
+        private readonly DirectoryInfo cacheFolder;
+        private readonly string version;
         private SHA256 sha = SHA256.Create();
 
         static AssemblyCodeCache()
@@ -25,8 +31,8 @@ namespace YantraJS
 
         public JSFunctionDelegate GetOrCreate(in JSCode code)
         {
-
-            var hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(code.Code.Value));
+            
+            var hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(version + "\r\n" + code.Code.Value));
             string name = string.Join("", hash.Select(x => x.ToString("X2")));
             var i = 0;
             while (true)
