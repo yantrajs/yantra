@@ -109,26 +109,43 @@ namespace YantraJS.Core.FastParser.Ast
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Modified<T>(IFastEnumerable<T> statements, out IFastEnumerable<T> list)
             where T : AstNode
         {
             list = statements;
-            var length = statements.Count;
-            if (length == 0)
+            if (statements.Count == 0)
             {
                 return false;
             }
-            bool dirty = false;
-            var r = new Sequence<T>(length);
+            // we will create new sequence only if any expression has been modified
+            // this will prevent allocations
+            Sequence<T> r = null;
             var en = statements.GetFastEnumerator();
-            while(en.MoveNext(out var item))
+            while (en.MoveNext(out var item))
             {
-                var visited = Visit(item);
-                if (visited != item)
-                    dirty = true;
-                r.Add(visited as T);
+                var visited = Visit(item) as T ?? throw new ArgumentNullException();
+                if (visited == item)
+                {
+                    r?.Add(item);
+                    continue;
+                }
+                if (r == null)
+                {
+                    r = new Sequence<T>(statements.Count);
+                    var ec = statements.GetFastEnumerator();
+                    while (ec.MoveNext(out var previous))
+                    {
+                        if (previous == item)
+                            break;
+                        r.Add(previous);
+                    }
+                    r.Add(visited);
+                    continue;
+                }
+                r.Add(visited);
             }
-            if (!dirty)
+            if (r == null)
             {
                 return false;
             }
@@ -136,24 +153,113 @@ namespace YantraJS.Core.FastParser.Ast
             return true;
         }
 
-        private bool Modified<T>(IFastEnumerable<T> statements, Func<T, T> visitor, out IFastEnumerable<T> list) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Modified<T>(IFastEnumerable<T> statements, Func<T, T> visitor, out IFastEnumerable<T> list)
+        {
             list = statements;
-            var length = statements.Count;
-            if (length == 0)
+            if (statements.Count == 0)
             {
                 return false;
             }
-            bool dirty = false;
-            var r = new Sequence<T>(length);
+            // we will create new sequence only if any expression has been modified
+            // this will prevent allocations
+            Sequence<T> r = null;
             var en = statements.GetFastEnumerator();
-            while (en.MoveNext(out var item))
+            while (en.MoveNext(out var item, out var index))
             {
-                var visited = visitor(item);
-                if (!visited.Equals(item))
-                    dirty = true;
-                r.Add(visited);
+                var visitedItem = visitor(item);
+                if (visitedItem.Equals(item)) {
+                    r?.Add(item);
+                    continue;
+                }
+                if (r == null)
+                {
+                    r = new Sequence<T>(statements.Count);
+                    var ec = statements.GetFastEnumerator();
+                    while (ec.MoveNext(out var previous, out var i))
+                    {
+                        if (index == i)
+                            break;
+                        r.Add(previous);
+                    }
+                    r.Add(visitedItem);
+                    continue;
+                }
+                r.Add(visitedItem);
             }
-            if (!dirty)
+            if (r == null)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Modified<T>(T[] statements, out T[] list)
+            where T : AstExpression
+        {
+            list = statements;
+            if (statements.Length == 0)
+            {
+                return false;
+            }
+            T[] r = null;
+            for (int i = 0; i < statements.Length; i++)
+            {
+                ref var item = ref statements[i];
+                var visited = Visit(item) as T ?? throw new ArgumentNullException();
+                if (visited == item)
+                {
+                    if (r != null)
+                        r[i] = item;
+                    continue;
+                }
+                if (r == null)
+                {
+                    r = new T[statements.Length];
+                    for (int j = 0; j < i; j++)
+                    {
+                        r[j] = statements[j];
+                    }
+                }
+                r[i] = visited;
+            }
+            if (r == null)
+            {
+                return false;
+            }
+            list = r;
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Modified<T>(T[] statements, Func<T, T> visitor, out T[] list)
+        {
+            list = statements;
+            if (statements.Length == 0)
+            {
+                return false;
+            }
+            T[] r = null;
+            for (int i = 0; i < statements.Length; i++)
+            {
+                ref var item = ref statements[i];
+                var visited = visitor(item);
+                if (visited.Equals(item))
+                    continue;
+                if (r == null)
+                {
+                    r = new T[statements.Length];
+                    for (int j = 0; j < i; j++)
+                    {
+                        r[j] = statements[j];
+                    }
+                }
+                r[i] = visited;
+            }
+            if (r == null)
             {
                 return false;
             }
