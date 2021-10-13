@@ -1359,7 +1359,8 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("TypeError", EvaluateExceptionType("String.raw(5, 0, 1, 2)"));
         }
 
-        //[TestMethod]
+        // TODO
+        // [TestMethod]
         public void iterator()
         {
             // The length of "😂!" is three because 😂 is U+1F602 (which encodes to two characters

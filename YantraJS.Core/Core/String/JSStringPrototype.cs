@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using YantraJS.Core.Core.Primitive;
+using YantraJS.Core.Generator;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -127,6 +128,13 @@ namespace YantraJS.Core
         {
             return a.Get1();
         }
+
+        [Symbol("@@iterator")]
+        public static JSValue Iterator(in Arguments a)
+        {
+            return new JSGenerator(a.This.GetElementEnumerator(), "Array Iterator");
+        }
+
 
         [Prototype("charCodeAt", Length =1)]
         internal static JSValue CharCodeAt(in Arguments a)
