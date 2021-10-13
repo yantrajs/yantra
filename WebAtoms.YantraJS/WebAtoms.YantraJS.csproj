@@ -55,7 +55,7 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\YantraJS.LambdaCompiler\YantraJS.ExpressionCompiler.csproj" />
+    <ProjectReference Include="..\YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj" />
   </ItemGroup>
 
 </Project>
