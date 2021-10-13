@@ -56,16 +56,6 @@ namespace YantraJS.ExpHelper
             return LexicalScopeBuilder.Pop(stack, context);
         }
 
-        internal static Expression Update(ParameterExpression stack, int line, int column, Expression next)
-        {
-            return LexicalScopeBuilder.Update(stack, line, column, next);
-            //return Expression.Block(
-            //    Expression.Assign(Expression.Field(stack, _Line), Expression.Constant(line)),
-            //    Expression.Assign(Expression.Field(stack, _Column), Expression.Constant(column)),
-            //    next
-            //    );
-        }
-
     }
 
     public class JSContextBuilder

@@ -36,7 +36,16 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.Null:
                     return ExpHelper.JSNullBuilder.Value;
                 case TokenTypes.Number:
-                    return ExpHelper.JSNumberBuilder.New(Exp.Constant(literal.NumericValue));
+                    var n = literal.NumericValue;
+                    if (double.IsNaN(n))
+                        return JSNumberBuilder.NaN;
+                    if (n == 1)
+                        return JSNumberBuilder.One;
+                    if (n == 2)
+                        return JSNumberBuilder.Two;
+                    if (n == 0 && n != -0)
+                        return JSNumberBuilder.Zero;
+                    return ExpHelper.JSNumberBuilder.New(Exp.Constant(n));
             }
             throw new NotImplementedException();
         }

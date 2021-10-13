@@ -42,7 +42,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(IEnumerable<Expression> select, int total)
         {
-            var list = new List<YElementInit>();
+            var list = new Sequence<YElementInit>();
             var newExp = Expression.New(_new, Expression.Constant(total));
             var en = select.GetEnumerator();
             while (en.MoveNext())
@@ -56,7 +56,7 @@ namespace YantraJS.ExpHelper
                 }
                 list.Add(YExpression.ElementInit(_addValue, current));
             }
-            return Expression.Call( Expression.ListInit(newExp, list.ToArray()), _toJSString);
+            return Expression.Call( Expression.ListInit(newExp, list), _toJSString);
         }
 
         //public static Expression New(List<string> quasis, IEnumerable<Expression> select)

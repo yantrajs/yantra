@@ -417,7 +417,7 @@ namespace YantraJS.Core
             var @delegate = function.f;
             var d = Expression.Constant(@delegate);
             var @this = Expression.Constant(function);
-            var nargs = ArgumentsBuilder.New(@this, veList.ToList<Expression>());
+            var nargs = ArgumentsBuilder.New(@this, veList.AsSequence<Expression>());
 
 
             stmts.Add(JSValueBuilder.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));

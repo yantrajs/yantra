@@ -60,14 +60,14 @@ namespace YantraJS.ExpHelper
         }
 
 
-        public static Expression New(IEnumerable<Expression> list)
+        public static Expression New(IFastEnumerable<Expression> list)
         {
-            List<YElementInit> ei = new List<YElementInit>(list.Count());
+            var ei = new Sequence<YElementInit>(list.Count());
             foreach (var e in list)
             {
                 ei.Add(Expression.ElementInit(_Add, new YExpression[] { e }));
             }
-            return Expression.ListInit(Expression.New(_New), ei.ToArray());
+            return Expression.ListInit(Expression.New(_New), ei);
             //Expression start = Expression.New(_New);
             //foreach (var p in list)
             //{

@@ -74,7 +74,7 @@ namespace YantraJS.Core.LinqExpressions
 
         public static Expression Build(Expression scriptInfo, StringArray keyStrings)
         {
-            List<Expression> list = new List<Expression>(keyStrings.List.Count);
+            Sequence<Expression> list = new Sequence<Expression>(keyStrings.List.Count);
             foreach(var item in keyStrings.List)
             {
                 var code = Code(scriptInfo);

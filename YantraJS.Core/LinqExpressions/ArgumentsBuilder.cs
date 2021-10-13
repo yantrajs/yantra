@@ -113,7 +113,7 @@ namespace YantraJS.ExpHelper
             {
                 return Expression.Call(null, _spread, @this, Expression.NewArrayInit(typeof(JSValue), args));
             }
-            var newList = new List<Expression>() { @this };
+            var newList = new Sequence<Expression>() { @this };
             newList.AddRange(args);
             switch (args.Length)
             {
@@ -155,7 +155,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(Expression @this, IList<Expression> args)
         {
-            var newList = new List<Expression>() { @this };
+            var newList = new Sequence<Expression>() { @this };
             newList.AddRange(args);
             switch (args.Count)
             {

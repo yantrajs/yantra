@@ -22,6 +22,18 @@ namespace YantraJS.ExpHelper
         public static Expression NaN =
             Expression.Field(null, type.GetField(nameof(JSNumber.NaN)));
 
+        public static Expression Zero =
+            Expression.Field(null, type.GetField(nameof(JSNumber.Zero)));
+
+        public static Expression One =
+            Expression.Field(null, type.GetField(nameof(JSNumber.One)));
+
+        public static Expression MinusOne =
+            Expression.Field(null, type.GetField(nameof(JSNumber.MinusOne)));
+
+        public static Expression Two =
+            Expression.Field(null, type.GetField(nameof(JSNumber.Two)));
+
         private static FieldInfo _Value =
             type.InternalField(nameof(Core.JSNumber.value));
 
