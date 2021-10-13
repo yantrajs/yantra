@@ -285,10 +285,11 @@ namespace YantraJS.Core.Core.Storage
                     // if create...
                     if (node.Key > originalKey)
                     {
-                        node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
                         var oldKey = node.Key;
                         var oldValue = node.value;
                         node.Key = originalKey;
+                        node.value = default;
+                        node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
 
                         ref var child = ref this.GetNode(oldKey, create);
                         child.Key = oldKey;

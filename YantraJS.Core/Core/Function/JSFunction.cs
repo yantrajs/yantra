@@ -146,14 +146,18 @@ namespace YantraJS.Core
         internal void Seal()
         {
             ref var ownProperties = ref this.GetOwnProperties();
-            for (int i = 0; i < ownProperties.properties.Length; i++)
-            {
-                ref var p = ref ownProperties.properties[i];
-                if (p.IsValue)
-                {
-                    ownProperties.properties[i] = new JSProperty(p.key, p.get, p.set, p.value, JSPropertyAttributes.ReadonlyValue);
-                }
-            }
+            ownProperties.Update((uint key, ref JSProperty p) => {
+                if(p.IsValue)
+                    p = new JSProperty(key, p.get, p.set, p.value, JSPropertyAttributes.ReadonlyValue);
+            });
+            //for (int i = 0; i < ownProperties.properties.Length; i++)
+            //{
+            //    ref var p = ref ownProperties.properties[i];
+            //    if (p.IsValue)
+            //    {
+            //        ownProperties.properties[i] = new JSProperty(p.key, p.get, p.set, p.value, JSPropertyAttributes.ReadonlyValue);
+            //    }
+            //}
         }
 
         protected JSFunction(StringSpan name, StringSpan source, JSObject _prototype)

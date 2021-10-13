@@ -76,8 +76,8 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref PropertySequence GetOwnProperties(bool create = true)
         {
-            if (ownProperties.IsEmpty && create)
-                ownProperties = new PropertySequence(4);
+            //if (ownProperties.IsEmpty && create)
+            //    ownProperties = new PropertySequence(4);
             return ref ownProperties;
         }
 
@@ -146,18 +146,23 @@ namespace YantraJS.Core
                 }
 
                 var ownProperties = GetOwnProperties();
-                for(int i = 0; i< ownProperties.properties.Length; i++)
+                var en = new PropertySequence.ValueEnumerator(this, false);
+                while(en.MoveNext(out var value, out var key))
                 {
-                    var p = ownProperties.properties[i];
-                    JSValue v = null;
-                    try {
-                        v = this.GetValue(p);
-                    } catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(ex);
-                    }
-                    yield return ( KeyStrings.GetNameString(p.key).Value , v);
+                    yield return (KeyStrings.GetNameString(key.Key).Value, value);
                 }
+                //for(int i = 0; i< ownProperties.properties.Length; i++)
+                //{
+                //    var p = ownProperties.properties[i];
+                //    JSValue v = null;
+                //    try {
+                //        v = this.GetValue(p);
+                //    } catch (Exception ex)
+                //    {
+                //        System.Diagnostics.Debug.WriteLine(ex);
+                //    }
+                //    yield return ( KeyStrings.GetNameString(p.key).Value , v);
+                //}
             }
         }
 
@@ -172,7 +177,7 @@ namespace YantraJS.Core
 
         public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.Current?.ObjectPrototype)
         {
-            ownProperties = new PropertySequence(4);
+            // ownProperties = new PropertySequence(4);
             foreach (var p in entries)
             {
                 ownProperties.Put(p.key) = p;
@@ -184,7 +189,7 @@ namespace YantraJS.Core
         {
             var o = new JSObject
             {
-                ownProperties = new PropertySequence(4)
+                // ownProperties = new PropertySequence(4)
             };
             return o;
         }
@@ -204,7 +209,7 @@ namespace YantraJS.Core
         {
             var o = new JSObject
             {
-                ownProperties = new PropertySequence(4),
+                // ownProperties = new PropertySequence(4),
                 // elements = new ElementArray(4)
             };
             return o;

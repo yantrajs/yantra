@@ -53,16 +53,10 @@ namespace YantraJS.Core.Debugger
                         list.Add(new V8PropertyDescriptor(i.ToString(), v, p, true));
                     }
 
-                    ref var op = ref c.GetOwnProperties(false);
-                    if (op.properties != null)
+                    var en = new PropertySequence.PropertyEnumerator(c.GetOwnProperties(), false);
+                    while (en.MoveNext(out var key, out var p))
                     {
-                        for (uint i = 0; i < op.properties.Length; i++)
-                        {
-                            ref var p = ref op.properties[i];
-                            if (p.IsEmpty)
-                                continue;
-                            list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(p.key).Value, v, p, true));
-                        }
+                        list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(key.Key).Value, v, p, true));
                     }
                     list.Add(new V8PropertyDescriptor(c.prototypeChain));
                 } else

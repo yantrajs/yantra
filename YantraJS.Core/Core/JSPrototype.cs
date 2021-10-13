@@ -69,12 +69,9 @@ namespace YantraJS.Core.Core
 
             @object.PropertyChanged += @object_PropertyChanged;
             ref var objectProperties = ref @object.GetOwnProperties(false);
-            if (objectProperties.properties != null)
-            {
-                var ve = objectProperties.GetEnumerator(false);
-                while(ve.MoveNext(out var key, out var value)){
-                    ps.properties.Put(key.Key) = (value.ToNotReadOnly(),target);
-                }
+            var ve = objectProperties.GetEnumerator(false);
+            while(ve.MoveNext(out var key, out var value)){
+                ps.properties.Put(key.Key) = (value.ToNotReadOnly(),target);
             }
 
             ref var objectElements = ref @object.GetElements(false);

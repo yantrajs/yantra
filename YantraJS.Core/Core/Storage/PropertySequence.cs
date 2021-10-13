@@ -8,6 +8,16 @@ using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
+    public struct JSObjectProperty
+    {
+        public JSProperty Property;
+        public uint Next;
+
+        public static JSObjectProperty Empty;
+    }
+
+    public delegate void Updater<TKey, TValue>(TKey key, ref TValue value);
+
     public struct PropertySequence
     {
 
@@ -18,95 +28,103 @@ namespace YantraJS.Core
 
         public struct PropertyEnumerator
         {
+            private UInt32Map<JSObjectProperty> map;
+            private readonly uint tail;
             private readonly bool showEnumerableOnly;
-            private JSProperty[] array;
-            private int index;
-            private int length;
+            private uint start;
 
             public PropertyEnumerator(PropertySequence sequence, bool showEnumerableOnly)
             {
-                this.array = sequence.properties;
-                this.index = -1;
-                this.length = array == null ? 0 : array.Length;
+                this.map = sequence.map;
+                this.start = sequence.head;
+                this.tail = sequence.tail;
                 this.showEnumerableOnly = showEnumerableOnly;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext(out JSProperty property)
             {
-                while (true)
+                while (start>0)
                 {
-                    index++;
-                    if (index >= length)
-                    {
-                        property = default;
-                        return false;
-                    }
-                    ref var p = ref this.array[index];
+                    ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                    ref var p = ref objP.Property;
                     if (p.IsEmpty)
                     {
+                        start = objP.Next;
                         continue;
                     }
                     if (showEnumerableOnly)
                     {
                         if (!p.IsEnumerable)
+                        {
+                            start = objP.Next;
                             continue;
+                        }
                     }
                     property = p;
+                    start = objP.Next;
                     return true;
                 }
+                property = JSProperty.Empty;
+                return false;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext(out KeyString key, out JSProperty property)
             {
-                while (true)
+                while (start > 0)
                 {
-                    index++;
-                    if (index >= length)
-                    {
-                        key = default;
-                        property = default;
-                        return false;
-                    }
-                    ref var p = ref this.array[index];
-                    if (p.IsEmpty) {
-                        continue;
-                    }
-                    if (showEnumerableOnly) {
-                        if (!p.IsEnumerable)
-                            continue;
-                    }
-                    key = KeyStrings.GetName(p.key);
-                    property = p;
-                    return true;
-                }
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool MoveNextKey(out KeyString key)
-            {
-                while (true)
-                {
-                    index++;
-                    if (index >= length)
-                    {
-                        key = default;
-                        return false;
-                    }
-                    ref var p = ref this.array[index];
+                    ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                    ref var p = ref objP.Property;
                     if (p.IsEmpty)
                     {
+                        start = objP.Next;
                         continue;
                     }
                     if (showEnumerableOnly)
                     {
                         if (!p.IsEnumerable)
+                        {
+                            start = objP.Next;
                             continue;
+                        }
                     }
-                    key = KeyStrings.GetName(p.key);
+                    property = p;
+                    key = KeyStrings.GetName(start);
+                    start = objP.Next;
                     return true;
                 }
+                property = JSProperty.Empty;
+                key = KeyString.Empty;
+                return false;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNextKey(out KeyString key)
+            {
+                while (start > 0)
+                {
+                    ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                    ref var p = ref objP.Property;
+                    if (p.IsEmpty)
+                    {
+                        start = objP.Next;
+                        continue;
+                    }
+                    if (showEnumerableOnly)
+                    {
+                        if (!p.IsEnumerable)
+                        {
+                            start = objP.Next;
+                            continue;
+                        }
+                    }
+                    key = KeyStrings.GetName(start);
+                    start = objP.Next;
+                    return true;
+                }
+                key = KeyString.Empty;
+                return false;
             }
         }
 
@@ -114,42 +132,40 @@ namespace YantraJS.Core
         public struct ValueEnumerator
         {
             public JSObject target;
-            int index;
-            readonly JSProperty[] array;
-            readonly int size;
-            readonly bool enumerableOnly;
+            private UInt32Map<JSObjectProperty> map;
+            private uint start;
+            readonly bool showEnumerableOnly;
             public ValueEnumerator(JSObject target, bool showEnumerableOnly)
             {
-                enumerableOnly = showEnumerableOnly;
-                index = -1;
+                this.showEnumerableOnly = showEnumerableOnly;
                 this.target = target;
-                ref var op = ref target.GetOwnProperties(false);
-                var array = op.properties;
-                this.array = array;
-                this.size = array?.Length ?? 0;
+                ref var properties = ref target.GetOwnProperties();
+                this.map = properties.map;
+                this.start = properties.head;
             }
 
             public bool MoveNext(out KeyString key)
             {
-                if (this.array != null)
+                while (start > 0)
                 {
-                    while ((++index) < size)
+                    ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                    ref var p = ref objP.Property;
+                    if (p.IsEmpty)
                     {
-                        ref var current = ref array[index];
-                        //if (current.Attributes == JSPropertyAttributes.Empty)
-                        //    continue;
-                        if (current.IsEmpty)
-                            continue;
-                        if (enumerableOnly)
-                        {
-                            if (!current.IsEnumerable)
-                                continue;
-                        }
-                        key = KeyStrings.GetName( current.key);
-                        return true;
+                        start = objP.Next;
+                        continue;
                     }
-
+                    if (showEnumerableOnly && !p.IsEnumerable)
+                    {
+                        start = objP.Next;
+                        continue;
+                    }
+                    // property = p;
+                    key = KeyStrings.GetName(start);
+                    start = objP.Next;
+                    return true;
                 }
+                // property = JSProperty.Empty;
                 key = KeyString.Empty;
                 return false;
             }
@@ -157,25 +173,24 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value, out KeyString key)
             {
-                if (this.array != null)
+                while (start > 0)
                 {
-                    while ((++index) < size)
+                    ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                    ref var p = ref objP.Property;
+                    if (p.IsEmpty)
                     {
-                        ref var current = ref array[index];
-                        //if (current.Attributes == JSPropertyAttributes.Deleted)
-                        //    continue;
-                        if (current.IsEmpty)
-                            continue;
-                        if (enumerableOnly)
-                        {
-                            if (!current.IsEnumerable)
-                                continue;
-                        }
-                        value = target.GetValue(current);
-                        key = KeyStrings.GetName(current.key);
-                        return true;
+                        start = objP.Next;
+                        continue;
                     }
-
+                    if (showEnumerableOnly && !p.IsEnumerable)
+                    {
+                        start = objP.Next;
+                        continue;
+                    }
+                    value = target.GetValue(in p);
+                    key = KeyStrings.GetName(start);
+                    start = objP.Next;
+                    return true;
                 }
                 value = null;
                 key = KeyString.Empty;
@@ -184,27 +199,26 @@ namespace YantraJS.Core
 
             public bool MoveNextProperty(out JSProperty value, out KeyString key)
             {
-                if (this.array != null)
+                while (start > 0)
                 {
-                    while ((++index) < size)
+                    ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                    ref var p = ref objP.Property;
+                    if (p.IsEmpty)
                     {
-                        ref var current = ref array[index];
-                        //if (current.Attributes == JSPropertyAttributes.Deleted)
-                        //    continue;
-                        if (current.IsEmpty)
-                            continue;
-                        if (enumerableOnly)
-                        {
-                            if (!current.IsEnumerable)
-                                continue;
-                        }
-                        value = current;
-                        key = KeyStrings.GetName(current.key);
-                        return true;
+                        start = objP.Next;
+                        continue;
                     }
-
+                    if (showEnumerableOnly && !p.IsEnumerable)
+                    {
+                        start = objP.Next;
+                        continue;
+                    }
+                    value = p;
+                    key = KeyStrings.GetName(start);
+                    start = objP.Next;
+                    return true;
                 }
-                value = new JSProperty { };
+                value = JSProperty.Empty;
                 key = KeyString.Empty;
                 return false;
             }
@@ -213,138 +227,166 @@ namespace YantraJS.Core
         #endregion
 
 
-        private UInt32Map<uint> map;
-        internal JSProperty[] properties;
-        private int length;
+        private UInt32Map<JSObjectProperty> map;
+        private uint head;
+        private uint tail;
 
-        public PropertySequence(int size)
+        public bool IsEmpty => head == 0;
+
+        public void Update(Updater<uint, JSProperty> func)
         {
-            this.length = 0;
-            map = UInt32Map<uint>.Null;
-            properties = new JSProperty[size];
-        }
-
-        public bool IsEmpty => properties == null;
-
-        public void Update(Func<uint, JSProperty, (bool update, JSProperty v)> func)
-        {
-            if (properties != null)
+            var start = this.head;
+            while(start > 0)
             {
-                int i = 0;
-                foreach (var p in properties)
+                ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                ref var p = ref objP.Property;
+                if (p.IsEmpty)
                 {
-                    var update = func((p.key), p);
-                    if (update.update)
-                    {
-                        properties[i] = update.v;
-                    }
-                    i++;
+                    start = objP.Next;
+                    continue;
                 }
+                func(start, ref p);
+                start = objP.Next;
             }
+            //if (properties != null)
+            //{
+            //    int i = 0;
+            //    foreach (var p in properties)
+            //    {
+            //        var update = func((p.key), p);
+            //        if (update.update)
+            //        {
+            //            properties[i] = update.v;
+            //        }
+            //        i++;
+            //    }
+            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasKey(uint key)
         {
-            if (properties == null)
-                return false;
-            if (map.IsNull)
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    ref var p = ref properties[i];
-                    if (p.key == key && p.Attributes != JSPropertyAttributes.Empty)
-                        return true;
-                }
-                return false;
-            }
+            //if (properties == null)
+            //    return false;
+            //if (map.IsNull)
+            //{
+            //    for (int i = 0; i < length; i++)
+            //    {
+            //        ref var p = ref properties[i];
+            //        if (p.key == key && p.Attributes != JSPropertyAttributes.Empty)
+            //            return true;
+            //    }
+            //    return false;
+            //}
             return map.HasKey(key);
         }
 
         public bool RemoveAt(uint key)
         {
-            if (properties == null)
+            ref var objectProperty = ref map.GetRefOrDefault(key, ref JSObjectProperty.Empty);
+            ref var property = ref objectProperty.Property;
+            if (property.IsEmpty)
                 return false;
-            if (map.IsNull)
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    ref var p = ref properties[i];
-                    if (p.key == key)
-                    {
-                        if (p.IsReadOnly || !p.IsConfigurable)
-                        {
-                            throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
-                        }
-                        p = JSProperty.Empty;
-                        return true;
-                    }
-                }
-                return false;
-            }
-            if (map.TryRemove(key, out var pkey))
-            {
-                ref var p = ref properties[pkey];
-                if (p.IsReadOnly || !p.IsConfigurable)
-                {
-                    throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
-                }
-                // move all properties up...
-                properties[pkey] = JSProperty.Empty;
-            }
-            return false;
+            if (property.IsReadOnly || !property.IsConfigurable)
+                throw JSContext.Current.NewTypeError($"Cannot delete property {KeyStrings.GetNameString(key)} of {this}");
+            property = JSProperty.Empty;
+            return true;
+            //if (properties == null)
+            //    return false;
+            //if (map.IsNull)
+            //{
+            //    for (int i = 0; i < length; i++)
+            //    {
+            //        ref var p = ref properties[i];
+            //        if (p.key == key)
+            //        {
+            //            if (p.IsReadOnly || !p.IsConfigurable)
+            //            {
+            //                throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
+            //            }
+            //            p = JSProperty.Empty;
+            //            return true;
+            //        }
+            //    }
+            //    return false;
+            //}
+            //if (map.TryRemove(key, out var pkey))
+            //{
+            //    ref var p = ref properties[pkey];
+            //    if (p.IsReadOnly || !p.IsConfigurable)
+            //    {
+            //        throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
+            //    }
+            //    // move all properties up...
+            //    properties[pkey] = JSProperty.Empty;
+            //}
+            // return false;
         }
 
         public ref JSProperty GetValue(uint key)
         {
-            if (properties == null)
+            ref var objectProperty = ref map.GetRefOrDefault(key, ref JSObjectProperty.Empty);
+            ref var property = ref objectProperty.Property;
+            if (property.IsEmpty)
                 return ref JSProperty.Empty;
-            if (map.IsNull)
-            {
-                // look up array...
-                for (int i = 0; i < length; i++)
-                {
-                    ref var p = ref properties[i];
-                    if(p.key == key && p.Attributes != JSPropertyAttributes.Empty)
-                    {
-                        return ref p;
-                    }
-                }
-            } else if (map.TryGetValue(key, out var pkey))
-            {
-                ref var obj = ref properties[pkey];
-                if (obj.Attributes != JSPropertyAttributes.Empty)
-                    return ref obj;
-            }
-            return ref JSProperty.Empty;
+            return ref property;
+            //if (properties == null)
+            //    return ref JSProperty.Empty;
+            //if (map.IsNull)
+            //{
+            //    // look up array...
+            //    for (int i = 0; i < length; i++)
+            //    {
+            //        ref var p = ref properties[i];
+            //        if(p.key == key && p.Attributes != JSPropertyAttributes.Empty)
+            //        {
+            //            return ref p;
+            //        }
+            //    }
+            //} else if (map.TryGetValue(key, out var pkey))
+            //{
+            //    ref var obj = ref properties[pkey];
+            //    if (obj.Attributes != JSPropertyAttributes.Empty)
+            //        return ref obj;
+            //}
+            // return ref JSProperty.Empty;
         }
 
         public bool TryGetValue(uint key, out JSProperty obj)
         {
-            if (properties == null)
+            ref var objectProperty = ref map.GetRefOrDefault(key, ref JSObjectProperty.Empty);
+            ref var property = ref objectProperty.Property;
+            if (property.IsEmpty)
             {
                 obj = JSProperty.Empty;
                 return false;
             }
-            if (map.IsNull)
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    ref var p = ref properties[i];
-                    if (p.key == key && p.Attributes != JSPropertyAttributes.Empty)
-                    {
-                        obj = p;
-                        return true;
-                    }
-                }
-            } else 
-            if (map.TryGetValue(key, out var pkey))
-            {
-                obj = properties[pkey];
-                return obj.Attributes != JSPropertyAttributes.Empty;
-            }
-            obj = new JSProperty();
-            return false;
+            obj = property;
+            return true;
+            //if (properties == null)
+            //{
+            //    obj = JSProperty.Empty;
+            //    return false;
+            //}
+            //if (map.IsNull)
+            //{
+            //    for (int i = 0; i < length; i++)
+            //    {
+            //        ref var p = ref properties[i];
+            //        if (p.key == key && p.Attributes != JSPropertyAttributes.Empty)
+            //        {
+            //            obj = p;
+            //            return true;
+            //        }
+            //    }
+            //} else 
+            //if (map.TryGetValue(key, out var pkey))
+            //{
+            //    obj = properties[pkey];
+            //    return obj.Attributes != JSPropertyAttributes.Empty;
+            //}
+            //obj = new JSProperty();
+            //return false;
         }
         public void Put(uint key, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
@@ -376,43 +418,61 @@ namespace YantraJS.Core
         /// <returns></returns>
         public ref JSProperty Put(uint key)
         {
-            if (length < 8)
+            if(head == 0)
             {
-                for (int i = 0; i < length; i++)
-                {
-                    ref var p = ref properties[i];
-                    if (p.key == key)
-                    {
-                        // set value..
-                        return ref properties[i];
-                    }
-                }
-                if (length >= properties.Length)
-                    Array.Resize(ref properties, properties.Length + 4);
-                return ref properties[length++];
+                tail = head = key;
+                ref var objP = ref map.Put(key);
+                return ref objP.Property;
             }
-            uint pkey;
-            if (map.IsNull)
+
+            ref var @new = ref map.Put(key);
+            // when tail is same as key, it means last key was added twice..
+            // it should not create a loop
+            if(@new.Next == 0 && tail != key)
             {
-                map = new UInt32Map<uint>();
-                // copy..
-                for (uint i = 0; i < length; i++)
-                {
-                    ref var p = ref properties[i];
-                    map.Save(p.key, i);
-                }
+                ref var last = ref map.GetRefOrDefault(tail, ref JSObjectProperty.Empty);
+                last.Next = key;
+                tail = key;
             }
-            if (map.TryGetValue(key, out pkey))
-            {
-                return ref properties[pkey];
-            }
-            pkey = (uint)length++;
-            if (pkey >= properties.Length)
-            {
-                Array.Resize(ref properties, properties.Length + 4);
-            }
-            map.Save(key, pkey);
-            return ref properties[pkey];
+            return ref @new.Property;
+
+            //if (length < 8)
+            //{
+            //    for (int i = 0; i < length; i++)
+            //    {
+            //        ref var p = ref properties[i];
+            //        if (p.key == key)
+            //        {
+            //            // set value..
+            //            return ref properties[i];
+            //        }
+            //    }
+            //    if (length >= properties.Length)
+            //        Array.Resize(ref properties, properties.Length + 4);
+            //    return ref properties[length++];
+            //}
+            //uint pkey;
+            //if (map.IsNull)
+            //{
+            //    map = new UInt32Map<uint>();
+            //    // copy..
+            //    for (uint i = 0; i < length; i++)
+            //    {
+            //        ref var p = ref properties[i];
+            //        map.Save(p.key, i);
+            //    }
+            //}
+            //if (map.TryGetValue(key, out pkey))
+            //{
+            //    return ref properties[pkey];
+            //}
+            //pkey = (uint)length++;
+            //if (pkey >= properties.Length)
+            //{
+            //    Array.Resize(ref properties, properties.Length + 4);
+            //}
+            //map.Save(key, pkey);
+            //return ref properties[pkey];
         }
 
         public JSProperty this[uint key]
@@ -428,46 +488,48 @@ namespace YantraJS.Core
             [Obsolete("Use Put")]
             set
             {
-                if (length < 8)
-                {
-                    for (int i = 0; i < length; i++)
-                    {
-                        ref var p = ref properties[i];
-                        if (p.key == key)
-                        {
-                            // set value..
-                            properties[i] = value;
-                            return;
-                        }
-                    }
-                    if (length >= properties.Length)
-                        Array.Resize(ref properties, properties.Length + 4);
-                    properties[length++] = value;
-                    return;
-                }
-                uint pkey;
-                if (map.IsNull)
-                {
-                    map = new UInt32Map<uint>();
-                    // copy..
-                    for (uint i = 0; i < length; i++)
-                    {
-                        ref var p = ref properties[i];
-                        map.Save(p.key, i);
-                    }
-                } 
-                if (map.TryGetValue(key, out pkey))
-                {
-                    properties[pkey] = value;
-                    return;
-                }
-                pkey = (uint)length++;
-                if (pkey >= properties.Length)
-                {
-                    Array.Resize(ref properties, properties.Length + 4);
-                }
-                map.Save(key, pkey);
-                properties[pkey] = value;
+                ref var p = ref this.Put(key);
+                p = value;
+                //if (length < 8)
+                //{
+                //    for (int i = 0; i < length; i++)
+                //    {
+                //        ref var p = ref properties[i];
+                //        if (p.key == key)
+                //        {
+                //            // set value..
+                //            properties[i] = value;
+                //            return;
+                //        }
+                //    }
+                //    if (length >= properties.Length)
+                //        Array.Resize(ref properties, properties.Length + 4);
+                //    properties[length++] = value;
+                //    return;
+                //}
+                //uint pkey;
+                //if (map.IsNull)
+                //{
+                //    map = new UInt32Map<uint>();
+                //    // copy..
+                //    for (uint i = 0; i < length; i++)
+                //    {
+                //        ref var p = ref properties[i];
+                //        map.Save(p.key, i);
+                //    }
+                //} 
+                //if (map.TryGetValue(key, out pkey))
+                //{
+                //    properties[pkey] = value;
+                //    return;
+                //}
+                //pkey = (uint)length++;
+                //if (pkey >= properties.Length)
+                //{
+                //    Array.Resize(ref properties, properties.Length + 4);
+                //}
+                //map.Save(key, pkey);
+                //properties[pkey] = value;
             }
         }
 

@@ -300,11 +300,10 @@ namespace YantraJS.Core
             if (!(first is JSObject @object))
                 return first;
             @object.status |= ObjectStatus.Sealed;
-            @object.GetOwnProperties().Update((x, v) =>
+            @object.GetOwnProperties().Update((uint x, ref JSProperty v) =>
             {
                 // v.Attributes &= ~(JSPropertyAttributes.Configurable);
-                v = new JSProperty(v.key, v.get, v.set, v.value, v.Attributes & (~JSPropertyAttributes.Configurable));
-                return (true, v);
+                v = new JSProperty(x, v.get, v.set, v.value, v.Attributes & (~JSPropertyAttributes.Configurable));
             });
             return first;
         }
