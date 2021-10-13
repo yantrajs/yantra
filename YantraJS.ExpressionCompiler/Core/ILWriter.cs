@@ -338,6 +338,15 @@ namespace YantraJS.Core
             il.Emit(code, value);
         }
 
+        internal void Emit(in OpCode code, long value)
+        {
+            // UpdateStack(code);
+            PrintOffset();
+            writer?.WriteLine($"{code.Name} {value}");
+            il.Emit(code, value);
+        }
+
+
         internal void MarkLabel(ILWriterLabel label)
         {
             label.Offset = il.ILOffset;

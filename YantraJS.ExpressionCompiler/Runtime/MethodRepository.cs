@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using YantraJS.Core;
 
 namespace YantraJS
@@ -12,22 +13,39 @@ namespace YantraJS
         public string IL;
         public string Exp;
 
-        private Sequence<(DynamicMethod method, string il, string exp, Type type)> delegates
-            = new Sequence<(DynamicMethod method, string il, string exp, Type type)>();
-
-
-        public int RegisterNew(DynamicMethod d, string il, string exp, Type type)
+        public class RuntimeMethod
         {
-            int i = delegates.Count;
-            delegates.Add((d, il, exp, type));
-            return i;
+            public DynamicMethod Method;
+            public string IL;
+            public string Exp;
+            public Type Type;
         }
 
-        public object Create(Box[] boxes, int id)
+        //private Sequence<(DynamicMethod method, string il, string exp, Type type)> delegates
+        //    = new Sequence<(DynamicMethod method, string il, string exp, Type type)>();
+
+
+        public ulong RegisterNew(DynamicMethod d, string il, string exp, Type type)
         {
-            var (m, il, exp,t) = delegates[id];
-            var c = new Closures(boxes, il, exp);
-            return m.CreateDelegate(t, c);
+            //int i = delegates.Count;
+            //delegates.Add((d, il, exp, type));
+            //return i;
+            var x = GCHandle.Alloc(new RuntimeMethod { 
+                Method = d,
+                IL = il,
+                Exp = exp,
+                Type = type
+            });
+            return (ulong)(IntPtr)x;
+        }
+
+        public object Create(Box[] boxes, ulong id)
+        {
+            //var (m, il, exp,t) = delegates[id];
+            //return m.CreateDelegate(t, c);
+            var rm = GCHandle.FromIntPtr((IntPtr)id).Target as RuntimeMethod;
+            var c = new Closures(boxes, rm.IL, rm.Exp);
+            return rm.Method.CreateDelegate(rm.Type, c);
         }
     }
 }
