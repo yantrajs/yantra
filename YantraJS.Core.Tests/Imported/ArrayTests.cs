@@ -1489,7 +1489,7 @@ namespace YantraJS.Core.Tests.Imported
         public void from()
         {
             // Iterable.
-            /*
+            
             Assert.AreEqual("1,2,3,4,5", Evaluate(@"
                 var range = {
                   from: 1,
@@ -1514,7 +1514,7 @@ namespace YantraJS.Core.Tests.Imported
                   };
                 };
                 Array.from(range).toString();"));
-            */
+            
             // Array-like.
             Assert.AreEqual("5,6", Evaluate("var x = { length: 2 }; x[0] = 5; x[1] = 6; Array.from(x).toString()"));
             Assert.AreEqual(2, Evaluate("var x = { length: 2 }; x[0] = 5; x[1] = 6; Array.from(x).length"));
