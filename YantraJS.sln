@@ -21,9 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.Core", "YantraJS.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.Core.Tests", "YantraJS.Core.Tests\YantraJS.Core.Tests.csproj", "{6EAFC69D-8930-46E2-B83F-12551E878FBF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ExpressionCompiler", "YantraJS.LambdaCompiler\YantraJS.ExpressionCompiler.csproj", "{1A17F57A-C7B1-4C49-85D4-36FF973C9222}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.LambdaCompiler.Tests", "YantraJS.LambdaCompiler.Tests\YantraJS.LambdaCompiler.Tests.csproj", "{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ExpressionCompiler", "YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj", "{1A17F57A-C7B1-4C49-85D4-36FF973C9222}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test262Runner", "Test262Runner", "{0F0852BD-9906-4ABC-9BA8-7F49E63728A0}"
 EndProject
@@ -31,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test262Runner", "Test262Run
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.YantraJS", "WebAtoms.YantraJS\WebAtoms.YantraJS.csproj", "{7D928FB3-6E58-4418-A3D0-16865B58D6CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YantraJS.NodePollyfill", "YantraJS.NodePollyfill\YantraJS.NodePollyfill.csproj", "{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.NodePollyfill", "YantraJS.NodePollyfill\YantraJS.NodePollyfill.csproj", "{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ExpressionCompiler.Tests", "YantraJS.ExpressionCompiler.Tests\YantraJS.ExpressionCompiler.Tests.csproj", "{56196EFB-172B-4C4F-AC0A-3C6C5BCF72F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +59,6 @@ Global
 		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EBC5A092-B208-45EA-A0B7-D1916B3A68F3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{15F50837-F0DF-4A16-BDC5-E02921C61B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{15F50837-F0DF-4A16-BDC5-E02921C61B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15F50837-F0DF-4A16-BDC5-E02921C61B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -75,6 +71,10 @@ Global
 		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56196EFB-172B-4C4F-AC0A-3C6C5BCF72F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56196EFB-172B-4C4F-AC0A-3C6C5BCF72F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56196EFB-172B-4C4F-AC0A-3C6C5BCF72F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56196EFB-172B-4C4F-AC0A-3C6C5BCF72F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,7 +8,7 @@ using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Runtime;
 
-namespace YantraJS.LambdaCompiler.Tests
+namespace YantraJS.ExpressionCompiler.Tests
 {
     [TestClass]
     public class ILBinaryTest: BaseTest
