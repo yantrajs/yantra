@@ -151,9 +151,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             var cases = new Sequence<YLabelTarget>();
             var offset = 1;            
             jumps = new  Sequence<(LabelTarget label, int id)>(jumps.OrderBy(x => x.id));
-            for (int i = 0; i < jumps.Count; i++)
+            var en = jumps.GetFastEnumerator();
+            while(en.MoveNext(out var jump, out var i))
             {
-                var (label, id) = jumps[i];
+                var (label, id) = jump;
                 var index = id + offset;
                 // this will fill the gap in between jumps, if any
                 while(index > cases.Count)
