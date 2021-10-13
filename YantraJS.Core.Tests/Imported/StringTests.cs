@@ -249,16 +249,16 @@ namespace YantraJS.Core.Tests.Imported
             //Not implemented as on 11/23/2020
             Assert.AreEqual("6.1234300", Evaluate("x = new Number(6.1234); x.f = ''.concat; x.f(300)"));
             //Not working as on 11/23/2020 - Should work!!!
-            //Assert.AreEqual("first", Evaluate(@"
-            //    obj1 = { toString: function() { throw 'first' } };
-            //    obj2 = { toString: function() { throw 'second' } };
-            //    obj1.concat = String.prototype.concat;
-            //    try {
-            //        obj1.concat(obj2);
-            //    }
-            //    catch (e) {
-            //        e;
-            //    }"));
+            Assert.AreEqual("first", Evaluate(@"
+                obj1 = { toString: function() { throw 'first' } };
+                obj2 = { toString: function() { throw 'second' } };
+                obj1.concat = String.prototype.concat;
+                try {
+                    obj1.concat(obj2);
+                }
+                catch (e) {
+                    e;
+                }"));
 
             // Undefined and null are not allowed as the "this" object.
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.concat.call(undefined)"));
