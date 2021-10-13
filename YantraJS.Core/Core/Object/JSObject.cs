@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using YantraJS.Core.Core;
+using YantraJS.Core.Core.Generator;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
 using YantraJS.Core.Runtime;
@@ -1037,7 +1038,7 @@ namespace YantraJS.Core
             if (this.HasIterator)
             {
                 var v = this.GetValue(this.symbols[JSSymbolStatic.iterator.Key]);
-                return v.InvokeFunction(Arguments.Empty).GetElementEnumerator();
+                return new JSIterator(v.InvokeFunction(new Arguments(this)));
             }
             return new ElementEnumerator(this);
         }
