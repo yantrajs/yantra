@@ -1352,7 +1352,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("t0e1s2t", Evaluate("String.raw({ raw: 'test' }, 0, 1, 2)"));
 
             // Calling it via a template literal.
-//            Assert.AreEqual(@"one\r\ntwo\r\nthree", Evaluate(@"String.raw`one\r\n${'two'}\r\nthree`"));
+            Assert.AreEqual(@"one\r\ntwo\r\nthree", Evaluate(@"String.raw`one\r\n${'two'}\r\nthree`"));
 
             // The first parameter must be an object with a "raw" property.
             Assert.AreEqual("TypeError", EvaluateExceptionType("String.raw({}, 0, 1, 2)"));
