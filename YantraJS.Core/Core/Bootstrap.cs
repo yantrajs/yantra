@@ -174,16 +174,17 @@ namespace YantraJS.Core
             return (getter, setter);
         }
 
-        private static JSFunction CreateJSFunction(in this (MethodInfo method, PrototypeAttribute attribute) m)
+        private static JSFunction CreateJSFunction(in this (MethodInfo method, PrototypeAttribute attribute, SymbolAttribute _) m, string name = null)
         {
-            var pr = m.attribute;
-            return new JSFunction(CreateJSFunctionDelegate(m), pr.Name.Value, $"{pr.Name}() {{ native }}", pr.Length, false);
+            name ??= m.attribute.Name.ToString();
+            var length = m.attribute?.Length ?? 0;
+            return new JSFunction(CreateJSFunctionDelegate(m), name, $"{name}() {{ native }}", length, false);
         }
 
 
-        private static JSFunctionDelegate CreateJSFunctionDelegate(in this (MethodInfo method, PrototypeAttribute attribute) m)
+        private static JSFunctionDelegate CreateJSFunctionDelegate(in this (MethodInfo method, PrototypeAttribute attribute, SymbolAttribute s) m)
         {
-            var (method, p) = m;
+            var (method, p, _) = m;
             if (method.IsStatic)
             {
                 return (JSFunctionDelegate)method.CreateDelegate(typeof(JSFunctionDelegate));
@@ -251,21 +252,35 @@ namespace YantraJS.Core
                     | BindingFlags.Public
                     | BindingFlags.Static
                     | BindingFlags.Instance)
-                .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
-                .Where(x => x.attribute != null)
-                .GroupBy(x => x.attribute.Name).ToList();
+                .Select(x => (
+                    method: x,
+                    attribute: x.GetCustomAttribute<PrototypeAttribute>(),
+                    symbol: x.GetCustomAttribute<SymbolAttribute>()))
+                .Where(x => x.attribute != null || x.symbol != null)
+                .GroupBy(x => x.attribute?.Name ?? x.symbol.Name);
             foreach (var mg in all)
             {
 
                 var f = mg.First();
+                var (m, pr, symbol) = f;
 
                 //if (mg.Any((x => !x.method.IsStatic)))
                 //    throw new NotSupportedException($"{f.method.Name} should be static method");
 
-                if (ownProperties.TryGetValue(f.attribute.Name.Key, out var _))
+                if(pr == null)
+                {
+                    ref var symbols = ref target.GetSymbols();
+                    var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
+                    if (symbols.TryGetValue(globalSymbol.Key, out var x))
+                        continue;
+                    var smf = f.CreateJSFunction(symbol.Name);
+                    symbols.Put(globalSymbol.Key) = JSProperty.Property(globalSymbol.Key, smf, JSPropertyAttributes.ConfigurableValue);
+                    continue;
+                }
+
+                if (ownProperties.TryGetValue(pr.Name.Key, out var _))
                     continue;
 
-                var (m, pr) = f;
 
                 if (pr is ConstructorAttribute)
                 {
@@ -282,7 +297,7 @@ namespace YantraJS.Core
                         jsf, pr.ConfigurableValue);
 
                     ownProperties.Put(pr.Name.Key) = fxp;
-                    if (f.method.HasAttribute<SymbolAttribute>(out var symbol))
+                    if (symbol != null)
                     {
                         ref var symbols = ref target.GetSymbols();
                         var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
@@ -399,7 +414,7 @@ namespace YantraJS.Core
                     | BindingFlags.Public
                     | BindingFlags.Static
                     | BindingFlags.Instance)
-                .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>()))
+                .Select(x => (method: x, attribute: x.GetCustomAttribute<PrototypeAttribute>(), symbol: x.GetCustomAttribute<SymbolAttribute>()))
                 .Where(x => x.attribute != null && x.method.DeclaringType == type)
                 .GroupBy(x => x.attribute.Name).ToList();
 
@@ -420,7 +435,7 @@ namespace YantraJS.Core
                 //if (mg.Any((x => !x.method.IsStatic)))
                 //    throw new NotSupportedException($"{f.method.Name} should be static method");
 
-                var (m, pr) = f;
+                var (m, pr, symbol) = f;
 
                 if (pr is ConstructorAttribute ca)
                 {
@@ -439,7 +454,7 @@ namespace YantraJS.Core
                     functionMembers?.Add(jsf);
                     target.Put(pr.Name.Key) = fxp;
 
-                    if(f.method.HasAttribute<SymbolAttribute>(out var symbol))
+                    if(symbol != null)
                     {
                         ref var symbols = ref (pr.IsStatic ? ref r.GetSymbols() : ref p.GetSymbols());
                         var globalSymbol = JSSymbolStatic.GlobalSymbol(symbol.Name);
