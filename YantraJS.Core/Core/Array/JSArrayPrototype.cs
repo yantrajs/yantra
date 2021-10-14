@@ -1014,7 +1014,9 @@ namespace YantraJS.Core
         [GetProperty("length")]
         internal static JSValue GetLength(in Arguments a)
         {
-            return new JSNumber((a.This as JSArray)._length);
+            if (a.This is JSArray array)
+                return new JSNumber(array._length);
+            return new JSNumber(a.This.Length);
         }
 
         [SetProperty("length")]

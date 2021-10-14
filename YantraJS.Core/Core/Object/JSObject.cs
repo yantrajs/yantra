@@ -652,6 +652,13 @@ namespace YantraJS.Core
             {
                 try
                 {
+                    //var px = this.GetInternalProperty(KeyStrings.length);
+                    //if (!px.IsEmpty)
+                    //{
+                    //    var n = this.GetValue(px);
+                    //    var nValue = ((uint)n.DoubleValue) >> 0;
+                    //    return (int)nValue;
+                    //}
                     ref var ownp = ref this.ownProperties;
                     if (ownp.IsEmpty)
                     {

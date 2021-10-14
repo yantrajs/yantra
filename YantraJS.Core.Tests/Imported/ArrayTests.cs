@@ -110,11 +110,11 @@ namespace YantraJS.Core.Tests.Imported
             Evaluate("var array = Object.create(['one', 'two', 'three'])");
             Assert.AreEqual(false, Evaluate("array.hasOwnProperty(0)"));
             // Not Implemented
-         //   Assert.AreEqual(3, Evaluate("array.length"));
-         //   Assert.AreEqual("one", Evaluate("array[0]"));
-         //   Assert.AreEqual("one", Evaluate("array['0']"));
-         //   Assert.AreEqual("two", Evaluate("array[1]"));
-        //    Assert.AreEqual("three", Evaluate("array[2]"));
+            // Assert.AreEqual(3, Evaluate("array.length"));
+            Assert.AreEqual("one", Evaluate("array[0]"));
+            Assert.AreEqual("one", Evaluate("array['0']"));
+            Assert.AreEqual("two", Evaluate("array[1]"));
+            Assert.AreEqual("three", Evaluate("array[2]"));
 
             // Access via a string index.
             Assert.AreEqual("three", Evaluate("var array = ['one', 'two', 'three']; var x = String.fromCharCode(50); array[x]"));
