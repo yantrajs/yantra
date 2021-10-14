@@ -168,21 +168,9 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value)
             {
-                ref var elements = ref array.GetElements();
                 if ((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
                 {
-                    if (elements.TryGetValue(index, out var property))
-                    {
-                        value = property.IsEmpty
-                            ? null
-                            : (property.IsValue
-                            ? property.value
-                            : (property.set.InvokeFunction(new Arguments(this.array))));
-                    }
-                    else
-                    {
-                        value = JSUndefined.Value;
-                    }
+                    value = array[index];
                     return true;
                 }
                 value = JSUndefined.Value;
