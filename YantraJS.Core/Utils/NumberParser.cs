@@ -60,13 +60,34 @@ namespace YantraJS.Utils
         }
 
         internal static bool TryCoerceToUInt32(in StringSpan input, out uint value) {
+
+            if(input.Length == 0)
+            {
+                value = 0;
+                return false;
+            }
+            char ch = input[0];
+            if (ch == '0')
+            {
+                if (input.Equals("0"))
+                {
+                    value = 0;
+                    return true;
+                }
+                var next = input[1];
+                if (char.IsDigit(next))
+                {
+                    value = 0;
+                    return false;
+                }
+            }
             var d = CoerceToNumber(in input);
             if (d == 0 && input.Value.Trim().Length == 0)
             {
                 value = 0;
                 return false;
             }
-            if (Math.Floor(d) == d)
+            if (d < uint.MaxValue && (d % 1 ) ==0)
             {
                 value = (uint)d;
                 return true;

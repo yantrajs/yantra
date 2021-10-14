@@ -58,10 +58,18 @@ namespace YantraJS.Core.FastParser.Compiler
                             super,
                             KeyOfName(l.StringValue), memberExpression.Coalesce);
                         case TokenTypes.String:
+                            var text = l.StringValue;
+                            if(Utils.NumberParser.TryCoerceToUInt32(text, out var d))
+                            {
+                                return ExpHelper.JSValueBuilder.Index(
+                                    target,
+                                    super,
+                                    d, memberExpression.Coalesce);
+                            }
                             return ExpHelper.JSValueBuilder.Index(
                             target,
                             super,
-                            KeyOfName(l.StringValue), memberExpression.Coalesce);
+                            KeyOfName(text), memberExpression.Coalesce);
                         case TokenTypes.Number:
                             var number = l.NumericValue;
                             if (number >= 0 && number < uint.MaxValue && (number % 1) == 0)

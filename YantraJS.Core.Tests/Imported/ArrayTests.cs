@@ -95,7 +95,7 @@ namespace YantraJS.Core.Tests.Imported
                 Assert.AreEqual(3, Evaluate("array[2]"));
                 Assert.AreEqual("twenty", Evaluate("array[20]"));
                 // Not Implemented / working - parser has issues 
-                //Assert.AreEqual("twenty", Evaluate("array['20']"));
+                Assert.AreEqual("twenty", Evaluate("array['20']"));
                 Assert.AreEqual(Undefined.Value, Evaluate("array['020']"));
                 // Not Implemented / working - parser has issues 
                 //Assert.AreEqual("1,two,3", Evaluate("array.toString()"));
