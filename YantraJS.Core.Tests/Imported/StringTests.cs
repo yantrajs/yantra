@@ -711,7 +711,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("sh", Evaluate("parameterValues[0][0]"));
             Assert.AreEqual("s", Evaluate("parameterValues[0][1]"));
             Assert.AreEqual("undefined", Evaluate("typeof(parameterValues[0][2])"));
-//            Assert.AreEqual(true, Evaluate("parameterValues[0].hasOwnProperty(2)"));
+            Assert.AreEqual(true, Evaluate("parameterValues[0].hasOwnProperty(2)"));
             Assert.AreEqual(2, Evaluate("parameterValues[0][3]"));
             Assert.AreEqual("A short string", Evaluate("parameterValues[0][4]"));
             Assert.AreEqual(5, Evaluate("parameterValues[1].length"));
