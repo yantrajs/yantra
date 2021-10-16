@@ -1,4 +1,4 @@
-APPLICATION RUNTIME LICENSE
+YantraJS Expression Compiler Standard LICENSE
 
 (last updated October 12, 2021)
 
@@ -68,7 +68,10 @@ As part of the DEVELOPER LICENSE WITH SUBSCRIPTION AND SOURCE CODE you are grant
 · You acknowledge that the SOFTWARE’s source code contains valuable and proprietary trade secrets of NEUROSPEECH. All individuals employed by or belonging to your entity agree to expend every effort to insure its confidentiality. You agree to assume full responsibility for such employees’ or contractors’ use, or misuse, of such disclosed source code as if it was your use. These obligations shall not apply to any information generally available to the public, independently developed or obtained without reliance on NEUROSPEECH information, or approved in writing for release by NEUROSPEECH without restriction.
 
 II. LICENSE LIMITATIONS
+
 . The SOFTWARE may not be used for multiple application/websites. Web site referes to a single application running on a single domain name. Application refers to single application name on single platform.
+
+. The SOFTWARE may not be used to compile/generate/execute code created by any other individuals other than the developer(s) of licensed app.
 
 · At no time may the SOFTWARE be used for development purposes by individuals other than the developer(s) of licensed app.
 
