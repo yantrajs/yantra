@@ -1,5 +1,5 @@
 ﻿# YantraJS
-Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard written complely in C#.
+Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard written completely in C#.
 
 # NuGet
 | Name                                               | Package                                                                                                                                                        |
