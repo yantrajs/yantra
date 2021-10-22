@@ -195,12 +195,12 @@ namespace YantraJS.Core
         }
 
         public JSFunction(
-            JSObject prototype,
+            JSObject basePrototype,
             JSFunctionDelegate f,
             in StringSpan name,
             in StringSpan source,
             int length = 0,
-            bool createPrototype = true) : base(prototype)
+            bool createPrototype = true) : base(basePrototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
