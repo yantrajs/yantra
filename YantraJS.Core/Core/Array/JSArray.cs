@@ -16,6 +16,12 @@ namespace YantraJS.Core
     {
         internal uint _length;
 
+        internal JSArray(JSObject prototype) : base(prototype)
+        {
+
+        }
+
+
         public JSArray(): base(JSContext.Current.ArrayPrototype)
         {
             

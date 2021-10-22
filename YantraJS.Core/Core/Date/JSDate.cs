@@ -28,6 +28,12 @@ namespace YantraJS.Core
             set => this.value = value;
         }
 
+        internal JSDate(JSObject prototype, DateTimeOffset time) : base(prototype)
+        {
+            this.value = time;
+        }
+
+
         public JSDate(DateTimeOffset time): base(JSContext.Current.DatePrototype)
         {
             this.value = time;

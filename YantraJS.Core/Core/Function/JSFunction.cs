@@ -195,6 +195,41 @@ namespace YantraJS.Core
         }
 
         public JSFunction(
+            JSObject prototype,
+            JSFunctionDelegate f,
+            in StringSpan name,
+            in StringSpan source,
+            int length = 0,
+            bool createPrototype = true) : base(prototype)
+        {
+            ref var ownProperties = ref this.GetOwnProperties();
+            this.f = f;
+            this.name = name.IsEmpty ? "native" : name;
+            this.source = source.IsEmpty
+                ? $"function {this.name}() {{ [native] }}"
+                : source;
+            if (createPrototype)
+            {
+                prototype = new JSObject();
+                // prototype[KeyStrings.constructor] = this;
+                prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
+                // ref var opp = ref prototype.GetOwnProperties(true);
+                // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
+                ownProperties.Put(KeyStrings.prototype, prototype);
+            }
+
+            //this[KeyStrings.name] = name.IsEmpty
+            //    ? new JSString("native")
+            //    : new JSString(name);
+            // this[KeyStrings.length] = new JSNumber(length);
+            ownProperties.Put(KeyStrings.name, name.IsEmpty
+                ? new JSString("native")
+                : new JSString(name));
+            ownProperties.Put(KeyStrings.length, new JSNumber(length));
+            constructor = this;
+        }
+
+        public JSFunction(
             JSFunctionDelegate f,
             in StringSpan name,
             in StringSpan source,

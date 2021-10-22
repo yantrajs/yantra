@@ -60,20 +60,28 @@ namespace YantraJS.Core
 
         public IJSArray CreateArray()
         {
-            return new AtomEnumerable(new JSArray());
+            return new AtomEnumerable(new JSArray(ArrayPrototype));
         }
 
         public IJSValue CreateDate(DateTime value)
         {
-            return new JSDate(value);
+            return new JSDate(DatePrototype, value);
+        }
+
+        public IJSValue CreateConstructor(int numberOfParameters, Func<IJSContext, IList<IJSValue>, IJSValue> func, string debugDescription)
+        {
+            return new JSFunction(FunctionPrototype, (in Arguments a) =>
+            {
+                return func(this, a.ToList()).ToJSValue();
+            }, debugDescription, StringSpan.Empty, numberOfParameters);
         }
 
         public IJSValue CreateFunction(int numberOfParameters, Func<IJSContext, IList<IJSValue>, IJSValue> func, string debugDescription)
         {
-            return new JSFunction((in Arguments a) =>
+            return new JSFunction(FunctionPrototype, (in Arguments a) =>
             {
                 return func(this, a.ToList()).ToJSValue();
-            }, debugDescription, numberOfParameters);
+            }, debugDescription, StringSpan.Empty, numberOfParameters);
         }
 
         public IJSValue CreateNumber(double number)
@@ -83,12 +91,12 @@ namespace YantraJS.Core
 
         public IJSValue CreateObject()
         {
-            return new JSObject();
+            return new JSObject(ObjectPrototype);
         }
 
         public IJSValue CreateString(string text)
         {
-            return new JSString(text);
+            return new JSString(StringPrototype, text);
         }
 
         public IJSValue CreateSymbol(string name)
@@ -143,10 +151,10 @@ namespace YantraJS.Core
 
         public IJSValue CreateBoundFunction(int numberOfParameters, WJSBoundFunction func, string debugDescription)
         {
-            return new JSFunction((in Arguments a) =>
+            return new JSFunction(FunctionPrototype, (in Arguments a) =>
             {
                 return func(this, a.This, a.ToList()).ToJSValue();
-            }, debugDescription, numberOfParameters);
+            }, debugDescription, StringSpan.Empty, numberOfParameters);
         }
 
     }

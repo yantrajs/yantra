@@ -28,6 +28,11 @@ namespace YantraJS.Core
 
         }
 
+        protected JSPrimitive(JSObject prototype): base(prototype)
+        {
+
+        }
+
         public override JSValue this[JSSymbol symbol] {
             get
             {

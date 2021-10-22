@@ -114,6 +114,10 @@ namespace YantraJS.Core
         {
             this.value = value;
         }
+        public JSString(JSObject prototype, string value): base(prototype)
+        {
+            this.value = value;
+        }
 
         public JSString(in StringSpan value) : base()
         {
