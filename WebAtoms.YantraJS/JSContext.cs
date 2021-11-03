@@ -109,6 +109,11 @@ namespace YantraJS.Core
             return FastEval(script, location);
         }
 
+        public Task EvaluateAsync(string script, string location = null)
+        {
+            return Task.Run(() => FastEval(script, location));
+        }
+
         public void RunOnUIThread(Func<Task> task)
         {
             var current = this;
