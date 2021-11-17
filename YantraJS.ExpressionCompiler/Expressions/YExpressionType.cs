@@ -56,6 +56,7 @@ namespace YantraJS.Expressions
         StringConstant,
         ByteConstant,
         TypeConstant,
-        MethodConstant
+        MethodConstant,
+        AddressOf
     }
 }

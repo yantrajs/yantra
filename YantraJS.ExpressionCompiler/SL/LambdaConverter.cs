@@ -42,6 +42,11 @@ namespace YantraJS.SL
             return (pe, d);
         }
 
+        protected override Expression VisitAddressOf(YAddressOfExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Expression VisitArrayIndex(YArrayIndexExpression yArrayIndexExpression)
         {
             return Expression.ArrayIndex(Visit(yArrayIndexExpression.Target), Visit(yArrayIndexExpression.Index));

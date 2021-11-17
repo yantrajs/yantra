@@ -118,11 +118,14 @@ namespace YantraJS.Expressions
                     return VisitTypeConstant(exp as YTypeConstantExpression);
                 case YExpressionType.MethodConstant:
                     return VisitMethodConstant(exp as YMethodConstantExpression);
+                case YExpressionType.AddressOf:
+                    return VisitAddressOf(exp as YAddressOfExpression);
                 default:
                     throw new NotImplementedException($"{exp.NodeType}");
             }
         }
 
+        protected abstract T VisitAddressOf(YAddressOfExpression node);
         protected abstract T VisitMethodConstant(YMethodConstantExpression node);
         protected abstract T VisitTypeConstant(YTypeConstantExpression node);
         protected abstract T VisitByteConstant(YByteConstantExpression node);

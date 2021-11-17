@@ -10,6 +10,11 @@ namespace YantraJS.Generator
     public partial class ILCodeGenerator
     {
 
+        protected override CodeInfo VisitAddressOf(YAddressOfExpression node)
+        {
+            return LoadAddress(node.Target);
+        }
+
         private CodeInfo LoadAddress(YExpression exp)
         {
             switch (exp.NodeType)

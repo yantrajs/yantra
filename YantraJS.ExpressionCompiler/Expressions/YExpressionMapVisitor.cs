@@ -636,5 +636,12 @@ namespace YantraJS.Expressions
         {
             return node;
         }
+
+        protected override YExpression VisitAddressOf(YAddressOfExpression node)
+        {
+            if (Modified(node.Target, out var target))
+                return new YAddressOfExpression(target);
+            return node;
+        }
     }
 }
