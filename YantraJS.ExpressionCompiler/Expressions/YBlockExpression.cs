@@ -83,14 +83,12 @@ namespace YantraJS.Expressions
 
         public ref struct Enumerator
         {
-            private FastEnumerator<YExpression> expressions;
-            private int index;
+            private IFastEnumerator<YExpression> expressions;
             private int last;
 
             public Enumerator(IFastEnumerable<YExpression> expressions)
             {
                 this.expressions = expressions.GetFastEnumerator();
-                index = -1;
                 this.last = expressions.Count - 1;
             }
 

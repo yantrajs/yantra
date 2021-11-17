@@ -1,286 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace YantraJS.Core
 {
-    public static class FastEnumerableExtensions
-    {
-        public static T[] ToArray<T>(this IFastEnumerable<T> enumerable)
-        {
-            var total = enumerable.Count;
-            var en = enumerable.GetFastEnumerator();
-            var items = new T[total];
-            int index = 0;
-            while(en.MoveNext(out var item))
-            {
-                items[index++] = item;
-            }
-            return items;
-        }
-        public static string Join<T>(this IFastEnumerable<T> enumerable, string separator = ", ")
-        {
-            var sb = new StringBuilder();
-            var en = enumerable.GetFastEnumerator();
-            bool first = true;
-            while (en.MoveNext(out var item))
-            {
-                if (!first)
-                {
-                    sb.Append(separator);
-                }
-                first = false;
-                sb.Append(item);
-            }
-            return sb.ToString();
-        }
-
-    }
-
-    public  interface IFastEnumerable<T>: IEnumerable<T>
-    {
-        int Count { get; }
-
-        T this[int index] { get; }
-
-        FastEnumerator<T> GetFastEnumerator();
-
-        T First();
-
-        T FirstOrDefault();
-
-        T Last();
-
-        T LastOrDefault();
-    }
-
-    public abstract class FastEnumerator<T>: IEnumerator<T>
-    {
-        public T Current { get; set; }
-
-        object IEnumerator.Current => Current;
-
-        public void Dispose()
-        {
-            
-        }
-
-        public abstract bool MoveNext(out T item);
-
-        public virtual bool MoveNext(out T item, out int index) => throw new NotImplementedException();
-
-        public bool MoveNext()
-        {
-            if(MoveNext(out var item))
-            {
-                Current = item;
-                return true;
-            }
-            return false;
-        }
-
-        public void Reset()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    internal class Chain<T>
-    {
-        public T[] Items;
-        public int Count;
-        public Chain<T> Next;
-    }
-
-    public class EnumerableSequence<T> : IFastEnumerable<T>
-    {
-        private readonly IEnumerable<T> enumerable;
-
-        public EnumerableSequence(IEnumerable<T> enumerable)
-        {
-            this.enumerable = enumerable;
-        }
-
-        public T this[int index] => enumerable.ElementAt(index);
-
-        public int Count => enumerable.Count();
-
-        public T First()
-        {
-            return enumerable.First();
-        }
-
-        public T FirstOrDefault()
-        {
-            return enumerable.FirstOrDefault();
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            return enumerable.GetEnumerator();
-        }
-
-        public FastEnumerator<T> GetFastEnumerator()
-        {
-            return new EnumerableEnumerator(enumerable.GetEnumerator());
-        }
-
-        public T Last()
-        {
-            return enumerable.Last();
-        }
-
-        public T LastOrDefault()
-        {
-            return enumerable.LastOrDefault();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public class EnumerableEnumerator : FastEnumerator<T>
-        {
-            private readonly IEnumerator<T> en;
-            private int index;
-
-            public EnumerableEnumerator(IEnumerator<T> en)
-            {
-                this.en = en;
-                this.index = 0;
-            }
-
-            public override bool MoveNext(out T item)
-            {
-                if (en.MoveNext())
-                {
-                    item = en.Current;
-                    return true;
-                }
-                item = default;
-                return false;
-            }
-
-            public override bool MoveNext(out T item, out int index)
-            {
-                if (en.MoveNext())
-                {
-                    item = en.Current;
-                    index = this.index++;
-                    return true;
-                }
-                item = default;
-                index = default;
-                return false;
-
-            }
-        }
-    }
-
-    public static class Sequence
-    {
-
-        public static IFastEnumerable<T> AsSequence<T>(this IEnumerable<T> items)
-        {
-            return new EnumerableSequence<T>(items);
-        }
-
-        public static Sequence<T> AsSequence<T>(this T[] items)
-        {
-            return new Sequence<T>(items);
-        }
-
-        public static SingleElementSequence<T> AsSequence<T>(this T item) => new SingleElementSequence<T>(item);
-    }
-
-    public class SingleElementSequence<T> : IFastEnumerable<T>
-    {
-        private readonly T item;
-
-        public SingleElementSequence(T item)
-        {
-            this.item = item;
-        }
-
-        public T this[int index] => index == 0 ? item : throw new IndexOutOfRangeException();
-
-        public int Count => 1;
-
-        public T First()
-        {
-            return item;
-        }
-
-        public T FirstOrDefault()
-        {
-            return item;
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            return GetFastEnumerator();
-        }
-
-        public FastEnumerator<T> GetFastEnumerator()
-        {
-            return new SingleSequenceEnumerator(item);
-        }
-
-        public T Last()
-        {
-            return item;
-        }
-
-        public T LastOrDefault()
-        {
-            return item;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetFastEnumerator();
-        }
-
-        private class SingleSequenceEnumerator : FastEnumerator<T>
-        {
-            private readonly T item;
-            private bool done;
-
-            public SingleSequenceEnumerator(T item)
-            {
-                this.item = item;
-            }
-
-            public override bool MoveNext(out T item)
-            {
-                if (done)
-                {
-                    item = default;
-                    return false;
-                }
-                done = true;
-                item = this.item;
-                return true;
-            }
-
-            public override bool MoveNext(out T item, out int index)
-            {
-                index = 0;
-                if (done)
-                {
-                    item = default;
-                    return false;
-                }
-                done = true;
-                item = this.item;
-                return true;
-            }
-        }
-    }
 
     public class Sequence<T>: IReadOnlyList<T>, IFastEnumerable<T>
     {
@@ -564,18 +289,16 @@ namespace YantraJS.Core
             int index = 0;
             while (start != null)
             {
-                for (int i = 0; i < start.Count; i++)
-                {
-                    items[index++] = start.Items[i];
-                }
+                Array.Copy(start.Items, 0, items, index, start.Count);
+                index += start.Count;
                 start = start.Next;
             }
             return items;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return GetFastEnumerator();
+            return new FastSequenceEnumerator(head);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -583,25 +306,47 @@ namespace YantraJS.Core
             return GetFastEnumerator();
         }
 
-        public FastEnumerator<T> GetFastEnumerator()
+        public FastSequenceEnumerator GetEnumerator()
         {
             return new FastSequenceEnumerator(head);
         }
 
-        public class FastSequenceEnumerator : FastEnumerator<T>
+        public FastSequenceEnumerator GetFastEnumerator()
+        {
+            return new FastSequenceEnumerator(head);
+        }
+
+
+        IFastEnumerator<T> IFastEnumerable<T>.GetFastEnumerator()
+        {
+            return new FastSequenceEnumerator(head);
+        }
+
+        public struct FastSequenceEnumerator : IFastEnumerator<T>
         {
             private Chain<T> start;
             private int position;
             private int current;
+            private T currentItem;
 
             internal FastSequenceEnumerator(Chain<T> start)
             {
                 this.start = start;
                 this.position = 0;
                 this.current = 0;
+                currentItem = default;
             }
 
-            public override bool MoveNext(out T item, out int index)
+            public T Current => currentItem;
+
+            object IEnumerator.Current => currentItem;
+
+            public void Dispose()
+            {
+                
+            }
+
+            public bool MoveNext(out T item, out int index)
             {
                 if (start == null || start.Count <= position)
                 {
@@ -609,7 +354,8 @@ namespace YantraJS.Core
                     index = default;
                     return false;
                 }
-                item = start.Items[position++];
+                this.currentItem = start.Items[position++];
+                item = this.currentItem;
                 index = this.current++;
                 if (position == start.Items.Length)
                 {
@@ -620,20 +366,31 @@ namespace YantraJS.Core
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override bool MoveNext(out T item)
+            public bool MoveNext(out T item)
             {
                 if(start == null || start.Count <= position)
                 {
                     item = default;
                     return false;
                 }
-                item = start.Items[position++];
+                this.currentItem = start.Items[position++];
+                item = this.currentItem;
                 if (position == start.Items.Length)
                 {
                     start = start.Next;
                     position = 0;
                 }
                 return true;
+            }
+
+            public bool MoveNext()
+            {
+                return MoveNext(out var _);
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
             }
         }
     }
