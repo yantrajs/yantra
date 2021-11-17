@@ -19,6 +19,8 @@ namespace YantraJS.Core
         T LastOrDefault();
 
         bool Any();
+
+        T[] ToArray();
     }
     
     

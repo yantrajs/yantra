@@ -67,6 +67,11 @@ namespace YantraJS.Core
             return true;
         }
 
+        public T[] ToArray()
+        {
+            return new T[] { item };
+        }
+
         public struct SingleSequenceEnumerator : IFastEnumerator<T>
         {
             private readonly T item;
