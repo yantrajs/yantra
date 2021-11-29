@@ -127,6 +127,14 @@ namespace YantraJS.ExpHelper
                 if (ce.@true == JSBooleanBuilder.False && ce.@false == JSBooleanBuilder.True)
                     return Expression.Not( ce.test);
             }
+            if (exp == JSBooleanBuilder.True)
+            {
+                return YExpression.Constant(true);
+            }
+            if (exp == JSBooleanBuilder.False)
+            {
+                return YExpression.Constant(false);
+            }
             return Expression.Property(exp, _BooleanValue);
         }
 
