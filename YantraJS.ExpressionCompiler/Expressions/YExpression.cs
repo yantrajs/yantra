@@ -365,8 +365,10 @@ namespace YantraJS.Expressions
             return new YBlockExpression(variables, expressions);
         }
 
-        public static YBlockExpression Block(IFastEnumerable<YExpression> expressions)
+        public static YExpression Block(IFastEnumerable<YExpression> expressions)
         {
+            if (expressions.Count == 1)
+                return expressions.First();
             return new YBlockExpression(null, expressions);
         }
 
