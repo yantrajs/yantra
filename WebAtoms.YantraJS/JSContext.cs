@@ -13,14 +13,6 @@ namespace YantraJS.Core
     public partial class JSContext : IJSContext
     {
 
-        (JSFunction appendChildFx,
-            JSFunction dispatchEventFx,
-            JSFunction addEventListenerFx,
-            KeyString appendChild,
-            KeyString dispatchEvent,
-            KeyString addEventListener,
-            JSValue bridge) elementWrapper;
-
         IJSValue IJSContext.this[string name]
         {
             get => this[name];
@@ -44,6 +36,8 @@ namespace YantraJS.Core
         public IJSValue True => JSBoolean.True;
 
         public IJSValue False => JSBoolean.False;
+
+        public ClrClassFactory ClassFactory { get; set; } = ClrClassFactory.Default;
 
         public string Stack => new JSException("").JSStackTrace.ToString();
 
@@ -138,19 +132,6 @@ namespace YantraJS.Core
             if (value == this)
                 return this;
             var proxy = new ClrProxy(value);
-            //if (elementWrapper.appendChildFx == null)
-            //{
-            //    elementWrapper.bridge = this["bridge"];
-            //    elementWrapper.appendChild = "appendChild";
-            //    elementWrapper.dispatchEvent = "dispatchEvent";
-            //    elementWrapper.addEventListener = "addEventListener";
-            //    elementWrapper.appendChildFx = new JSFunction(AppendChild);
-            //    elementWrapper.dispatchEventFx = new JSFunction(DispatchEvent);
-            //    elementWrapper.addEventListenerFx = new JSFunction(AddEventListener);
-            //}
-            //proxy[elementWrapper.appendChild] = elementWrapper.appendChildFx;
-            //proxy[elementWrapper.dispatchEvent] = elementWrapper.dispatchEventFx;
-            //proxy[elementWrapper.addEventListener] = elementWrapper.addEventListenerFx;
             return proxy;
         }
 
@@ -164,11 +145,3 @@ namespace YantraJS.Core
 
     }
 }
-
-//namespace YantraJS.Core.Clr { 
-//    public partial class ClrProxy
-//    {
-
-//    }
-//}
-
