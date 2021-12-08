@@ -554,13 +554,14 @@ namespace YantraJS.Expressions
         }
 
         public static YExpression ListInit(YNewExpression newExp, IFastEnumerable<YElementInit> elements)
-            => new YListInitExpression(newExp, elements.ToArray());
+            => new YListInitExpression(newExp, elements);
 
         public static YExpression ListInit(YNewExpression newExp, IEnumerable<YElementInit> elements)
-            => new YListInitExpression(newExp, elements.ToArray());
+            => new YListInitExpression(newExp, elements.AsSequence());
 
+        [Obsolete("Use Sequence<T>")]
         public static YExpression ListInit(YNewExpression newExp, YElementInit[] elements)
-            => new YListInitExpression(newExp, elements);
+            => new YListInitExpression(newExp, elements.AsSequence());
 
         public static YElementInit ElementInit(MethodInfo addMethod, params YExpression[] arguments)
             => new YElementInit(addMethod, arguments);

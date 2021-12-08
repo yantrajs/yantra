@@ -54,12 +54,6 @@ namespace YantraJS.ExpHelper
             return Expression.ListInit(Expression.New(_New), inits);
         }
 
-        public static Expression New(YElementInit[] inits)
-        {
-            return Expression.ListInit(Expression.New(_New), inits);
-        }
-
-
         public static Expression New(IFastEnumerable<Expression> list)
         {
             var ei = new Sequence<YElementInit>(list.Count());

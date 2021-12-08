@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using YantraJS.Core;
 
 namespace YantraJS.Expressions
 {
@@ -11,11 +12,11 @@ namespace YantraJS.Expressions
     public class YListInitExpression : YExpression
     {
         public readonly YNewExpression NewExpression;
-        public readonly YElementInit[] Members;
+        public readonly IFastEnumerable<YElementInit> Members;
 
         public YListInitExpression(
             YNewExpression newExpression,
-            YElementInit[] parameters) : base(YExpressionType.ListInit, newExpression.Type)
+            IFastEnumerable<YElementInit> parameters) : base(YExpressionType.ListInit, newExpression.Type)
         {
             this.NewExpression = newExpression;
             this.Members = parameters;

@@ -91,7 +91,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 newExpression = newExpression.Update(newExpression.constructor, bb.ConvertToVariables(newExpression.args, this));
             }
 
-            var args = new Sequence<YBinding>();
+            var args = new Sequence<YBinding>(node.Bindings.Count);
 
             foreach(var member in node.Bindings)
             {
@@ -138,13 +138,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
                 // scope of improvement
 
-                var args = new List<YElementInit>();
+                var args = new Sequence<YElementInit>(node.Members.Count);
                 foreach(var member in node.Members)
                 {
                     args.Add(new YElementInit(member.AddMethod, bb.ConvertToVariables(member.Arguments, this)));
                 }
 
-                bb.AddExpression(new YListInitExpression(newExpression, args.ToArray()));
+                bb.AddExpression(new YListInitExpression(newExpression, args));
                 return bb.Build();
             }
             return node;
@@ -234,7 +234,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     target = bb.ConvertToVariable(target);
                 }
 
-                var args = new List<YExpression>();
+                var args = new Sequence<YExpression>(yIndexExpression.Arguments.Count);
 
                 foreach(var item in yIndexExpression.Arguments)
                 {
@@ -242,7 +242,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     args.Add(bb.ConvertToVariable(e));
                 }
 
-                bb.AddExpression(YExpression.Index(target, yIndexExpression.Property, args.ToArray()));
+                bb.AddExpression(YExpression.Index(target, yIndexExpression.Property, args));
                 return bb.Build();
             }
             return yIndexExpression;
@@ -288,7 +288,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     target = bb.ConvertToVariable(target);
                 }
 
-                var args = new List<YExpression>();
+                var args = new Sequence<YExpression>(node.Arguments.Count);
                 foreach(var item in node.Arguments)
                 {
                     var a = Visit(item);

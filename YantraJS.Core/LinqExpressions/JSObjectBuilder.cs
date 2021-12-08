@@ -208,7 +208,7 @@ namespace YantraJS.ExpHelper
 
         public static Expression New(IList<ExpressionHolder> keyValues)
         {
-            var list = new List<YElementInit>();
+            var list = new Sequence<YElementInit>();
 
             foreach(var v in keyValues)
             {
@@ -245,7 +245,7 @@ namespace YantraJS.ExpHelper
                 list.Add(YExpression.ElementInit(_FastAddPropertyValue, v.Key, v.Getter, v.Setter, JSPropertyAttributesBuilder.EnumerableConfigurableProperty));
             }
 
-            return YExpression.ListInit(YExpression.New(_New), list.ToArray());
+            return YExpression.ListInit(YExpression.New(_New), list);
 
             // let the default be NewWithProperties
             //bool addProperties = false;
