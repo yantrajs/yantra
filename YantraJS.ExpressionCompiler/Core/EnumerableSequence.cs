@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace YantraJS.Core
 {
-    public class EnumerableSequence<T> : IFastEnumerable<T>
+    public struct EnumerableSequence<T> : IFastEnumerable<T>
     {
         private readonly IEnumerable<T> enumerable;
 

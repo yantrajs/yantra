@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace YantraJS.Core
 {
-    public class SingleElementSequence<T> : IFastEnumerable<T>
+    public struct SingleElementSequence<T> : IFastEnumerable<T>
     {
         private readonly T item;
 
