@@ -415,27 +415,38 @@ namespace YantraJS.Core
         [Prototype("join", Length = 1)]
         public static JSValue Join(in Arguments a)
         {
-            var @this = a.This;
+            var @this = a.This as JSObject;
             var first = a.Get1();
             var sep = first.IsUndefined ? "," : first.ToString();
             var sb = new StringBuilder();
-            bool isFirst = true;
-            var en = @this.GetElementEnumerator();
-            while(en.MoveNext(out var item))
+            var length = (uint)@this.Length;
+            for (uint i = 0; i < length; i++)
             {
-
-                if (!isFirst)
+                var item = @this[i];
+                if  (i != 0)
                 {
                     sb.Append(sep);
                 }
-                else
-                {
-                    isFirst = false;
-                }
-                if (item == null || item.IsNullOrUndefined)
+                if (item.IsNullOrUndefined)
                     continue;
                 sb.Append(item.ToString());
             }
+            //var en = @this.GetElementEnumerator();
+            //while(en.MoveNext(out var item))
+            //{
+
+            //    if (!isFirst)
+            //    {
+            //        sb.Append(sep);
+            //    }
+            //    else
+            //    {
+            //        isFirst = false;
+            //    }
+            //    if (item == null || item.IsNullOrUndefined)
+            //        continue;
+            //    sb.Append(item.ToString());
+            //}
             return new JSString(sb.ToString());
         }
 
@@ -476,23 +487,27 @@ namespace YantraJS.Core
         [Prototype("map", Length = 1)]
         public static JSValue Map(in Arguments a)
         {
-            var @this = a.This;
+            if (!(a.This is JSObject @this))
+                throw JSContext.Current.NewTypeError($"{a.This} is not an object or an array");
             var callback = a.Get1();
             if (!(callback is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
+            ref var te = ref @this.GetElements();
             var r = new JSArray();
             ref var relements = ref r.GetElements();
-            var en = @this.GetElementEnumerator();
-            while (en.MoveNext(out var hasValue, out var item, out var index))
+            var length = (uint)@this.Length;
+            for (uint i = 0; i < length; i++)
             {
-                if (!hasValue)
+                ref var e = ref te.Get(i);
+                if (e.IsEmpty)
                 {
-                    r._length++;
                     continue;
                 }
-                var itemArgs = new Arguments(@this, item, new JSNumber(index), @this);
-                relements.Put(r._length++, fn.f(itemArgs));
-            }            
+                var item = @this.GetValue(e);
+                var itemArgs = new Arguments(@this, item, new JSNumber(i), @this);
+                relements.Put(i, fn.f(itemArgs));
+            }
+            r._length = length;
             return r;
         }
 
@@ -618,7 +633,7 @@ namespace YantraJS.Core
         [Prototype("reverse")]
         public static JSValue Reverse(in Arguments a)
         {
-            var @this = a.This;
+            var @this = a.This as JSObject;
             //var r = new JSArray();
             //for (int i = @this.Length - 1 ; i >= 0; i--)
             //{
@@ -627,10 +642,11 @@ namespace YantraJS.Core
             //return r;
             var i = 0;
             var j = @this.Length - 1;
+            ref var elements = ref @this.GetElements();
             while (i < j) {
-                var swap = @this[(uint)i];
-                @this[(uint)i++] = @this[(uint)j];
-                @this[(uint)j--] = swap;
+                var swap = elements[(uint)i];
+                elements.Put((uint)i++) = elements[(uint)j];
+                elements.Put((uint)j--) = swap;
 
             }
             // Assert.AreEqual(false, Evaluate("x.hasOwnProperty('0')")); This TC fails
@@ -644,40 +660,28 @@ namespace YantraJS.Core
             var @this = a.This;
             JSValue first = JSUndefined.Value;
 
-            if (@this is JSArray ary)
-            {
-                if (ary.IsSealedOrFrozen())
-                    throw JSContext.Current.NewTypeError("Cannot modify property length");
+            //if (@this is JSArray ary)
+            //{
+            //    if (ary.IsSealedOrFrozen())
+            //        throw JSContext.Current.NewTypeError("Cannot modify property length");
 
-                //Return undefined if the array is empty
-                if (ary.Length == 0) { 
-                    @this.Length = 0;
-                    return first;
-                }
-
-                var en = ary.GetElementEnumerator();
-                ref var elements = ref ary.GetElements();
-                if (en.MoveNext(out var hasValue, out var item, out var index))
-                {
-                    if(index > 0)
-                    {
-                        // shift...
-                        elements.Put(index - 1) = elements[index];
-                        elements.RemoveAt(index);
-                    } else
-                    {
-                        first = item;
-                        elements.RemoveAt(0);
-                    }
-                }
-                while (en.MoveNext(out hasValue, out item, out index))
-                {
-                    elements.Put(index - 1) = elements[index];
-                    elements.RemoveAt(index);
-                }
-                ary._length -= 1;
-                return first;
-            }
+            //    //Return undefined if the array is empty
+            //    if (ary.Length == 0) { 
+            //        @this.Length = 0;
+            //        return first;
+            //    }
+            //    var last = ary._length - 1;
+            //    first = ary[0];
+            //    ref var elements = ref ary.GetElements();
+            //    for (var i = last; i >= 1; i--)
+            //    {
+            //        ref var a1 = ref elements.Get(i);
+            //        elements.Put(i - 1) = a1;
+            //    }
+            //    elements.RemoveAt(last);
+            //    ary._length -= 1;
+            //    return first;
+            //}
 
             if (!(@this is JSObject @object))
                 return first;
@@ -685,21 +689,20 @@ namespace YantraJS.Core
             if (@object.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError("Cannot modify property length");
 
-            var n = @this.Length;
+            var n = (uint)@this.Length;
             if (n == 0)
                 return first;
             ref var oe = ref @object.GetElements();
             if (oe.IsNull)
                 return first;
             first = @this[0];
-            for(uint i = 1; i <= n - 1; i++)
+            var last = n - 1;
+            for(uint i = 1; i < n; i++)
             {
-                if (oe.TryRemove(i, out var p))
-                { 
-                    oe.Put(i - 1) = p;
-                }
+                oe.Put(i - 1) = oe[i];
             }
-            @this.Length = n - 1;
+            oe.RemoveAt(last);
+            @this.Length = (int)last;
             return first;
 
         }

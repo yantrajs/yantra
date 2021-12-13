@@ -860,6 +860,13 @@ namespace YantraJS.Core
         {
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
+            ref var element = ref elements.Get(key);
+            //if (!element.IsEmpty)
+            //{
+            //    PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
+            //    element = JSProperty.Empty;
+            //    return JSBoolean.True;
+            //}
             if (elements.RemoveAt(key))
             {
                 PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
