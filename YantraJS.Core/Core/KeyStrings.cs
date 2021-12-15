@@ -61,6 +61,8 @@ namespace YantraJS.Core
 
         public readonly static KeyString RegExp;
         public readonly static KeyString test;
+        public readonly static KeyString index;
+        public readonly static KeyString input;
         public readonly static KeyString lastIndex;
 
         public readonly static KeyString Error;

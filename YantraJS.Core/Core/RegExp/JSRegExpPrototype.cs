@@ -129,8 +129,8 @@ namespace YantraJS.Core
                     result[(uint)i] = new JSString(group.Value);
                 }
             }
-            result["index"] = new JSNumber(match.Index);
-            result["input"] = a.Get1();
+            result[KeyStrings.index] = new JSNumber(match.Index);
+            result[KeyStrings.input] = a.Get1();
             return result;
         }
 

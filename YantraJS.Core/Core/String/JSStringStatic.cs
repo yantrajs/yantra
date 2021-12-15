@@ -58,7 +58,7 @@ namespace YantraJS.Core
             if (!(template is JSObject))
                 throw JSContext.Current.NewTypeError($"Cannot convert undefined or null to object");
             
-            var raw = template["raw"];
+            var raw = template[KeyStrings.raw];
             if (! (raw.IsString || raw.IsArray)) {
                 throw JSContext.Current.NewTypeError($"Cannot convert undefined or null to object");
             }

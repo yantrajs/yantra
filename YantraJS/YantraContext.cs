@@ -63,7 +63,7 @@ namespace YantraJS
             // reverse priority, select csx before js.
             this.extensions = new string[] { ".csx", ".js"  };
 
-            this["console"] = (typeof(YantraConsole)).Marshal();
+            this[KeyStrings.console] = (typeof(YantraConsole)).Marshal();
         }
 
         private async Task<JSModuleDelegate> LoadDelegate(string assemblyPath)
@@ -91,7 +91,7 @@ namespace YantraJS
                 if (export.Name == null) {
                     void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname)
                     {
-                        module["exports"] = ClrType.From(type);
+                        module[KeyStrings.exports] = ClrType.From(type);
                     }
                     return Module;
                 }

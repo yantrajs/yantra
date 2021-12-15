@@ -76,8 +76,8 @@ namespace YantraJS.Core.Tests.Imported
 
 
                 // Constructor and __proto__
-                // Assert.AreEqual(true, Evaluate("new Number().constructor === Number"));
-                // Assert.AreEqual(true, Evaluate("Object.getPrototypeOf(new Number()) === Number.prototype"));
+                Assert.AreEqual(true, Evaluate("new Number().constructor === Number"));
+                Assert.AreEqual(true, Evaluate("Object.getPrototypeOf(new Number()) === Number.prototype"));
 
                 // No initial enumerable properties.
                 Assert.AreEqual("", Evaluate("y = ''; for (var x in Number) { y += x } y"));
