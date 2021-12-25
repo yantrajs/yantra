@@ -10,6 +10,8 @@ namespace YantraJS.Core
     public class Sequence<T>: IReadOnlyList<T>, IFastEnumerable<T>
     {
 
+        public const int DefaultCapacity = 4;
+
         public static Sequence<T> Empty = new Sequence<T>();
 
         // public static implicit operator Sequence<T>(T[] items) => new Sequence<T>(items);
@@ -152,14 +154,15 @@ namespace YantraJS.Core
         {
             if (tailArray == null)
             {
-                tailArray = new T[8];
+                tailArray = new T[DefaultCapacity];
+                ref var item1 = ref tailArray[0];
                 tailCount = 1;
                 head = new Chain<T> {
                     Items = tailArray
                 };
                 tail = head;
                 count++;
-                return ref tailArray[0];
+                return ref item1;
             }
             if(tailCount < tailArray.Length)
             {
@@ -167,6 +170,7 @@ namespace YantraJS.Core
                 return ref tailArray[tailCount++];
             }
             tailArray = new T[tailArray.Length * 2];
+            ref var item = ref tailArray[0];
             tailCount = 1;
 
             var t = new Chain<T>
@@ -177,7 +181,7 @@ namespace YantraJS.Core
             tail.Next = t;
             tail = t;
             count++;
-            return ref tailArray[0];
+            return ref item;
         }
 
         public void Insert(int i, T item)
@@ -194,7 +198,8 @@ namespace YantraJS.Core
         {
             if (tailArray == null)
             {
-                tailArray = new T[8];
+                tailArray = new T[DefaultCapacity];
+                tailArray[0] = item;
                 tailCount = 1;
                 head = new Chain<T>
                 {
@@ -202,27 +207,25 @@ namespace YantraJS.Core
                 };
                 tail = head;
                 count++;
-                tailArray[0] = item;
                 return;
             }
             if (tailCount < tailArray.Length)
             {
-                count++;
                 tailArray[tailCount++] = item;
+                count++;
                 return;
             }
             tailArray = new T[tailArray.Length * 2];
+            tailArray[0] = item;
             tailCount = 1;
 
             var t = new Chain<T>
             {
                 Items = tailArray,
             };
-            // t.Items[0] = item;
             tail.Next = t;
             tail = t;
             count++;
-            tailArray[0] = item;
         }
 
         public void AddRange(IEnumerable<T> range)
