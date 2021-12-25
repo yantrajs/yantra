@@ -154,7 +154,7 @@ namespace YantraJS.Core
             }
             var t = new Chain<T>
             {
-                Items = new T[8],
+                Items = new T[tail.Count*2],
                 Count = 1
             };
             // t.Items[0] = item;
@@ -195,7 +195,7 @@ namespace YantraJS.Core
                 return;
             }
             var t = new Chain<T> { 
-                Items = new T[8],
+                Items = new T[tail.Count*2],
                 Count = 1
             };
             t.Items[0] = item;
