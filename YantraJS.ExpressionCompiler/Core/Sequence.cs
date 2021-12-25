@@ -17,11 +17,16 @@ namespace YantraJS.Core
         // public static implicit operator Sequence<T>(T[] items) => new Sequence<T>(items);
 
 
-        private Chain<T> head;
-        private Chain<T> tail;
-        private T[] tailArray;
-        private int tailCount;
+        class Node
+        {
+            internal T[] Items;
+            internal Node Next;
+        }
         private int count;
+        private Node head;
+        private Node tail;
+        private T[] tailArray = Array.Empty<T>();
+        private int tailCount;
 
         public T this[int index]
         {
@@ -87,7 +92,7 @@ namespace YantraJS.Core
             {
                 tailArray = items;
                 tailCount = items.Length;
-                var t = new Chain<T>
+                var t = new Node
                 {
                     Items = items,
                 };
@@ -109,7 +114,7 @@ namespace YantraJS.Core
             {
                 tailArray = all;
                 tailCount = all.Length;
-                var t = new Chain<T>
+                var t = new Node
                 {
                     Items = all,
                 };
@@ -124,7 +129,7 @@ namespace YantraJS.Core
             if (capacity > 0)
             {
                 tailArray = new T[capacity];
-                this.head = new Chain<T>
+                this.head = new Node
                 {
                     Items = tailArray
                 };
@@ -152,36 +157,36 @@ namespace YantraJS.Core
 
         public ref T AddGetRef()
         {
-            if (tailArray == null)
-            {
-                tailArray = new T[DefaultCapacity];
-                ref var item1 = ref tailArray[0];
-                tailCount = 1;
-                head = new Chain<T> {
-                    Items = tailArray
-                };
-                tail = head;
-                count++;
-                return ref item1;
-            }
-            if(tailCount < tailArray.Length)
+            if (tailCount < tailArray.Length)
             {
                 count++;
                 return ref tailArray[tailCount++];
             }
-            tailArray = new T[tailArray.Length * 2];
-            ref var item = ref tailArray[0];
-            tailCount = 1;
 
-            var t = new Chain<T>
+            if (head == null)
             {
-                Items = tailArray,
-            };
-            // t.Items[0] = item;
-            tail.Next = t;
-            tail = t;
+                tailArray = new T[DefaultCapacity];
+                tailCount = 1;
+                var t = new Node
+                {
+                    Items = tailArray,
+                };
+                head = t;
+                tail = t;
+            }
+            else
+            {
+                tailArray = new T[tailArray.Length * 2];
+                tailCount = 1;
+                var t = new Node
+                {
+                    Items = tailArray,
+                };
+                tail.Next = t;
+                tail = t;
+            }
             count++;
-            return ref item;
+            return ref tailArray[0];
         }
 
         public void Insert(int i, T item)
@@ -196,35 +201,37 @@ namespace YantraJS.Core
 
         public void Add(T item)
         {
-            if (tailArray == null)
-            {
-                tailArray = new T[DefaultCapacity];
-                tailArray[0] = item;
-                tailCount = 1;
-                head = new Chain<T>
-                {
-                    Items = tailArray
-                };
-                tail = head;
-                count++;
-                return;
-            }
             if (tailCount < tailArray.Length)
             {
                 tailArray[tailCount++] = item;
                 count++;
                 return;
             }
-            tailArray = new T[tailArray.Length * 2];
-            tailArray[0] = item;
-            tailCount = 1;
 
-            var t = new Chain<T>
+            if (head == null)
             {
-                Items = tailArray,
-            };
-            tail.Next = t;
-            tail = t;
+                tailArray = new T[DefaultCapacity];
+                tailArray[0] = item;
+                tailCount = 1;
+                var t = new Node
+                {
+                    Items = tailArray,
+                };
+                head = t;
+                tail = t;
+            }
+            else
+            {
+                tailArray = new T[tailArray.Length * 2];
+                tailArray[0] = item;
+                tailCount = 1;
+                var t = new Node
+                {
+                    Items = tailArray,
+                };
+                tail.Next = t;
+                tail = t;
+            }
             count++;
         }
 
@@ -354,7 +361,7 @@ namespace YantraJS.Core
 
         public struct FastSequenceEnumerator : IFastEnumerator<T>
         {
-            private Chain<T> start;
+            private Node start;
             private readonly int max;
             private int position;
             private int current;
