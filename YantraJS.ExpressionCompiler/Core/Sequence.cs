@@ -176,7 +176,7 @@ namespace YantraJS.Core
             }
             else
             {
-                tailArray = new T[tailArray.Length * 2];
+                tailArray = new T[count];
                 tailCount = 1;
                 var t = new Node
                 {
@@ -222,7 +222,7 @@ namespace YantraJS.Core
             }
             else
             {
-                tailArray = new T[tailArray.Length * 2];
+                tailArray = new T[count];
                 tailArray[0] = item;
                 tailCount = 1;
                 var t = new Node
