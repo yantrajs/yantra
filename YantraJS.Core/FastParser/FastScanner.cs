@@ -984,7 +984,7 @@ namespace YantraJS.Core.FastParser
                         }
                         return ReadToken();
                     case '*':
-                        ch = Consume();
+                        while ((ch = Consume()) == '*') ;
                         if (ch == '/')
                         {
                             Consume();

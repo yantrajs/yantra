@@ -18,10 +18,7 @@ namespace YantraJS.Tests.Core
             this.context["array"] = new JSArray( new JSNumber(1) );
             this.context.Eval(@"
 
-var key = 'name';
-var field = `_$_${key}`;
-assert.strictEqual('_$_name', field);
-
+(function(){return 1; /***/ })()
 ");
         }
 

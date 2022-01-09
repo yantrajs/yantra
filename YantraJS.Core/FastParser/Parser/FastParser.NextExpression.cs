@@ -259,6 +259,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.Xor:
                 case TokenTypes.LeftShift:
                 case TokenTypes.RightShift:
+                case TokenTypes.UnsignedRightShift:
                 case TokenTypes.Less:
                 case TokenTypes.LessOrEqual:
                 case TokenTypes.Greater:
