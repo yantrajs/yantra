@@ -9,6 +9,33 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 | YantraJS.ExpressionCompiler (IL Compiler)           | [![NuGet](https://img.shields.io/nuget/v/YantraJS.ExpressionCompiler.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.ExpressionCompiler) |
 | WebAtoms.YantraJS                 | [![NuGet](https://img.shields.io/nuget/v/WebAtoms.YantraJS.svg?label=NuGet)](https://www.nuget.org/packages/WebAtoms.YantraJS) |
 
+# Features
+1. Compiles JavaScript to .Net Assembly 
+2. Strict Mode Only JavaScript*
+3. Arrow functions
+4. Classes
+5. Enhanced object literals
+6. Template strings and tagged templates
+7. Destructuring
+8. `let` `const`
+9. Map, Set, WeakMap, WeakSet
+10. Symbols
+11. Subclassable built-ins
+12. Binary and Octal literals
+13. Module support
+14. Null coalesce
+15. Optional property chain `identifier?.[]`, `identifier?.(`, `identifier?.identifier`
+16. Rest, Default and Spread Parameters
+17. Generators, iterators, for..of
+18. Async/Await
+19. Optional parameters
+20. Many ES5 + ES6 features
+21. CommonJS Module Support
+21. Easily marshal CLR Object to JavaScript and other way around
+23. CSX Module support
+
+`*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
+
 # Documentation
 
 1. [Introduction](https://github.com/yantrajs/yantra/wiki)
