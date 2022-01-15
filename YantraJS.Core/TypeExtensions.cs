@@ -163,7 +163,7 @@ namespace YantraJS
                         result.Add(JSStringBuilder.New(exp as YStringConstantExpression));
                         continue;
                     case YExpressionType.DoubleConstant:
-                        result.Add(JSStringBuilder.New(exp as YDoubleConstantExpression));
+                        result.Add(JSNumberBuilder.New(exp as YDoubleConstantExpression));
                         continue;
                 }
                 if (!(exp.IsConstant(out var ce)))

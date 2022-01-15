@@ -78,6 +78,44 @@ namespace YantraJS.Core.FastParser.Compiler
                         Exp test = null;
                         switch (c.Test.Type)
                         {
+                            case FastNodeType.UnaryExpression:
+                                var unary = c.Test as AstUnaryExpression;
+                                var isTestSet = false;
+                                switch (unary.Operator)
+                                {
+                                    case UnaryOperator.Plus:
+                                    case UnaryOperator.Minus:
+                                        if (unary.Argument.Type == FastNodeType.Literal)
+                                        {
+                                            var l = unary.Argument as AstLiteral;
+                                            if (l.TokenType == TokenTypes.Number)
+                                            {
+                                                var n = l.NumericValue;
+                                                if ((n % 1) != 0)
+                                                {
+                                                    allIntegers = false;
+                                                }
+                                                var ln = l.NumericValue;
+                                                if (unary.Operator ==  UnaryOperator.Minus)
+                                                {
+                                                    ln = -ln;
+                                                }
+                                                test = Exp.Constant(ln);
+                                                isTestSet = true;
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                }
+                                if (!isTestSet)
+                                {
+                                    test = VisitExpression(c.Test);
+                                    allNumbers = false;
+                                    allStrings = false;
+                                    allIntegers = false;
+                                }
+                                break;
+
                             case FastNodeType.Literal:
                                 var literal = c.Test as AstLiteral;
 
