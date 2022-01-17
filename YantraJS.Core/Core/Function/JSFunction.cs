@@ -376,6 +376,7 @@ namespace YantraJS.Core
         [Constructor]
         internal static JSValue Constructor(in Arguments args)
         {
+
             var len = args.Length;
             if (len == 0) {
                 return new JSFunction(JSFunction.empty, "anonymous", "function anonymous() {\n\n}");
@@ -399,6 +400,9 @@ namespace YantraJS.Core
             }
 
             var bodyText = body is JSString @string ? @string.value : body.ToString();
+            string location = null;
+            JSContext.Current.DispatchEvalEvent(ref bodyText, ref location);
+
             var fx = new JSFunction(JSFunction.empty, "internal", bodyText);
 
 

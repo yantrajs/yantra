@@ -116,6 +116,14 @@ namespace YantraJS.Core
 
     public delegate void ErrorEventHandler(JSContext context, Exception error);
 
+    public class EvalEventArgs: EventArgs
+    {
+        public JSContext Context { get; set; }
+
+        public StringSpan Script { get; set; }
+
+        public string Location { get; set; }
+    }
 
     public partial class JSContext: JSObject, IDisposable
     {
@@ -158,6 +166,20 @@ namespace YantraJS.Core
         }
 
         internal CallStackItem Top;
+
+        public event EventHandler<EvalEventArgs> EvalEvent;
+
+        internal void DispatchEvalEvent(ref StringSpan script, ref string location)
+        {
+            var ee = EvalEvent;
+            if (ee != null)
+            {
+                var e = new EvalEventArgs { Context = this, Script = script, Location = location };
+                EvalEvent.Invoke(this, e);
+                script = e.Script;
+                location = e.Location;
+            }
+        }
 
         public void Dispose()
         {
