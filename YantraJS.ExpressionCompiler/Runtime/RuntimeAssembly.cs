@@ -22,7 +22,7 @@ namespace YantraJS.Runtime
             
             var ilg = method.GetILGenerator();
 
-            ILCodeGenerator icg = new ILCodeGenerator(ilg);
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, null);
             icg.Emit(exp);
 
             var c = new Closures(null, null, null);
@@ -42,7 +42,7 @@ namespace YantraJS.Runtime
 
             var sw = new StringWriter();
             var expWriter = new StringWriter();
-            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw, expWriter);
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, null, sw, expWriter);
             icg.Emit(exp);
 
             string il = sw.ToString();
@@ -53,7 +53,7 @@ namespace YantraJS.Runtime
 
 
         internal static (DynamicMethod, string il, string exp) CompileToBoundDynamicMethod(
-            this YLambdaExpression exp, Type boundType = null)
+            this YLambdaExpression exp, Type boundType = null, IMethodBuilder methodBuilder = null)
         {
             // create closure...
 
@@ -67,7 +67,7 @@ namespace YantraJS.Runtime
             var ilg = method.GetILGenerator();
             StringWriter sw = new StringWriter();
             var expWriter = new StringWriter();
-            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw, expWriter);
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, methodBuilder,  sw, expWriter);
             icg.Emit(exp);
 
             string il = sw.ToString();
@@ -92,18 +92,18 @@ namespace YantraJS.Runtime
             //var f = new FlattenVisitor();
             //outerLambda = f.Visit(outerLambda) as YLambdaExpression;
 
-            outerLambda = LambdaRewriter.Rewrite(outerLambda)
-                as YLambdaExpression;
+            //outerLambda = LambdaRewriter.Rewrite(outerLambda)
+            //    as YLambdaExpression;
 
 
 
             var runtimeMethodBuilder = new RuntimeMethodBuilder(repository);
 
-            NestedRewriter nw = new NestedRewriter(outerLambda, runtimeMethodBuilder);
+            // NestedRewriter nw = new NestedRewriter(outerLambda, runtimeMethodBuilder);
 
-            outerLambda = nw.Visit(outerLambda) as YLambdaExpression;
+            // outerLambda = nw.Visit(outerLambda) as YLambdaExpression;
 
-            var (outer, il, exp) = outerLambda.CompileToBoundDynamicMethod(typeof(MethodRepository));
+            var (outer, il, exp) = outerLambda.CompileToBoundDynamicMethod(typeof(MethodRepository), runtimeMethodBuilder);
 
             repository.IL = il;
             repository.Exp = exp;

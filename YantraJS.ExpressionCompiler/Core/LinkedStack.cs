@@ -1,7 +1,41 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace YantraJS
 {
+    public class ScopedStack<T>
+    {
+        public ScopedItem Top { get; private set; }
+
+        public T TopItem => Top.Item;
+
+        public ScopedItem Push(T item)
+        {
+            return new ScopedItem(item, this);
+        }
+
+        public class ScopedItem: IDisposable
+        {
+            public readonly T Item;
+            public readonly ScopedItem Parent;
+            private readonly ScopedStack<T> owner;
+
+            public ScopedItem(T item, ScopedStack<T> owner)
+            {
+                this.Item = item;
+                this.owner = owner;
+                this.Parent = owner.Top;
+                owner.Top = this;
+            }
+
+            public void Dispose()
+            {
+                owner.Top = this.Parent;
+            }
+        }
+    }
+
+
     public class LinkedStack<T>
         where T : LinkedStackItem<T>
     {

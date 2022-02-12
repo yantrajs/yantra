@@ -63,11 +63,11 @@ namespace YantraJS
             if (!lambdaExpression.This.Type.IsAssignableFrom(type))
                 throw new NotSupportedException($"First parameter of an instance method must be same as the owner type");
 
-            if (rewriteNestedLambda)
-            {
-                lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
-                    as YLambdaExpression;
-            }
+            //if (rewriteNestedLambda)
+            //{
+            //    lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
+            //        as YLambdaExpression;
+            //}
 
             //var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
             //    MethodAttributes.Public, CallingConventions.HasThis,
@@ -83,13 +83,13 @@ namespace YantraJS
                 method.SetCustomAttribute(cb);
             }
 
-            NestedRewriter nw = new NestedRewriter(lambdaExpression, new LambdaMethodBuilder(method));
-            lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
+            //NestedRewriter nw = new NestedRewriter(lambdaExpression, new LambdaMethodBuilder(method));
+            //lambdaExpression = nw.Visit(lambdaExpression) as YLambdaExpression;
 
             var ilw = new StringWriter();
             var ew = new StringWriter();
 
-            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator(), ilw, ew);
+            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator(), new LambdaMethodBuilder(method), ilw, ew);
             icg.Emit(lambdaExpression);
 
             return (method, ilw.ToString(), ew.ToString());
@@ -152,13 +152,13 @@ namespace YantraJS
                 return CompileToStaticMethod(lambdaExpression, type, m, debug);
             }
 
-            var exp = LambdaRewriter.Rewrite(lambdaExpression)
-                as YLambdaExpression;
+            //var exp = LambdaRewriter.Rewrite(lambdaExpression)
+            //    as YLambdaExpression;
 
             var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name), 
                 MethodAttributes.Public | MethodAttributes.Static,
-                exp.ReturnType,
-                exp.ParameterTypes);
+                lambdaExpression.ReturnType,
+                lambdaExpression.ParameterTypes);
 
             var ln = lambdaExpression.Name;
             if(ln.Location != null)
@@ -167,11 +167,11 @@ namespace YantraJS
                 method.SetCustomAttribute(cb);
             }
 
-            NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(method));
-            exp = nw.Visit(exp) as YLambdaExpression;
+            //NestedRewriter nw = new NestedRewriter(exp, new LambdaMethodBuilder(method));
+            //exp = nw.Visit(exp) as YLambdaExpression;
 
-            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator());
-            icg.Emit(exp);
+            ILCodeGenerator icg = new ILCodeGenerator(method.GetILGenerator(), new LambdaMethodBuilder(method));
+            icg.Emit(lambdaExpression);
 
             return method;
         }
@@ -204,7 +204,7 @@ namespace YantraJS
                 YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
-            var cnstrIL = new ILCodeGenerator(cnstr.GetILGenerator());
+            var cnstrIL = new ILCodeGenerator(cnstr.GetILGenerator(), null);
             cnstrIL.EmitConstructor(cnstrLambda);
 
             // string cnstrILText = cnstrIL.ToString();
@@ -244,7 +244,7 @@ namespace YantraJS
                 m.SetCustomAttribute(cb);
             }
 
-            var icg = new ILCodeGenerator(m.GetILGenerator());
+            var icg = new ILCodeGenerator(m.GetILGenerator(), null);
 
             icg.Emit(create);
 

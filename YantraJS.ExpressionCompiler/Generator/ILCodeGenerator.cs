@@ -20,6 +20,7 @@ namespace YantraJS.Generator
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
+        private readonly IMethodBuilder methodBuilder;
         private readonly TextWriter? expressionWriter;
 
         public Sequence<ILDebugInfo> SequencePoints { get; }
@@ -35,7 +36,10 @@ namespace YantraJS.Generator
             return il.ToString();
         }
 
-        public ILCodeGenerator(ILGenerator il, TextWriter? writer = null, TextWriter? expressionWriter = null)
+        public ILCodeGenerator(
+            ILGenerator il,
+            IMethodBuilder methodBuilder,
+            TextWriter? writer = null, TextWriter? expressionWriter = null)
         {
             if(!GenerateLogs)
             {
@@ -46,6 +50,7 @@ namespace YantraJS.Generator
             this.variables = new VariableInfo(il);
             this.labels = new LabelInfo(this.il);
             this.tempVariables = new TempVariables(this.il);
+            this.methodBuilder = methodBuilder;
             this.expressionWriter = expressionWriter;
         }
 

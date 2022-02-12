@@ -12,6 +12,8 @@ namespace YantraJS.Generator
 
         protected override CodeInfo VisitParameter(YParameterExpression yParameterExpression)
         {
+            // check if it is marked as a closure...
+
             var v = variables[yParameterExpression];
             il.Comment($"Load {v.Name}");
             var isValueType = yParameterExpression.Type.IsValueType;
