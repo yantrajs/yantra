@@ -79,6 +79,17 @@ namespace YantraJS.Generator
                 variables.Create(p, true, i++);
             }
 
+            // add temporary replacements
+            short ci = 0;
+            foreach(var (source, e) in exp.GetClosureRepository().Replacements)
+            {
+                var v = variables.Create(e, false, i++);
+
+                // load this...
+                il.EmitLoadArg(0);
+                
+            }
+
             using (tempVariables.Push())
             {
                 body = ReWriteTryCatch(body);

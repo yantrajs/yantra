@@ -30,8 +30,8 @@ namespace YantraJS
         public readonly Dictionary<YParameterExpression, YParameterExpression> Replaced
             = new Dictionary<YParameterExpression, YParameterExpression>();
 
-        public readonly List<(YParameterExpression Source, YParameterExpression Expression)> Replacements
-            = new List<(YParameterExpression Source, YParameterExpression Expression)>();
+        public readonly List<YExpression> Replacements
+            = new List<YExpression>();
         
         private YLambdaExpression lambda;
 
@@ -62,7 +62,7 @@ namespace YantraJS
                 return value;
             var s = source();
             var exp = YExpression.Parameter(pe.Type, pe.Name + "`");
-            Replacements.Add((s, exp));
+            // Replacements.Add(YExpression.Assign(exp, lambda.This, YExpression.Property( ));
             Inherited[pe] = exp;
             return exp;
         }
