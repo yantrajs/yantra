@@ -24,11 +24,14 @@ namespace YantraJS
         private static System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository> cache =
             new System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository>();
 
-        public readonly Dictionary<YParameterExpression, (int Index, YParameterExpression Expression)> Inherited
-            = new Dictionary<YParameterExpression, (int Index, YParameterExpression Expression)>();
+        public readonly Dictionary<YParameterExpression, YParameterExpression> Inherited
+            = new Dictionary<YParameterExpression, YParameterExpression>();
 
         public readonly Dictionary<YParameterExpression, YParameterExpression> Replaced
             = new Dictionary<YParameterExpression, YParameterExpression>();
+
+        public readonly List<(YParameterExpression Source, YParameterExpression Expression)> Replacements
+            = new List<(YParameterExpression Source, YParameterExpression Expression)>();
         
         private YLambdaExpression lambda;
 
@@ -46,13 +49,31 @@ namespace YantraJS
             return value;
         }
 
-        internal YParameterExpression Get(YParameterExpression pe, YParameterExpression fromParent)
+        internal YParameterExpression Get(YParameterExpression pe)
         {
             if (Replaced.TryGetValue(pe, out var ve))
                 return ve;
-            if (Inherited.TryGetValue(pe, out var item))
-                return item.Expression;
-            throw new NotImplementedException();
+            return pe;
+        }
+
+        internal YParameterExpression Setup(YParameterExpression pe, Func<YParameterExpression> source)
+        {
+            if (Inherited.TryGetValue(pe, out var value))
+                return value;
+            var s = source();
+            var exp = YExpression.Parameter(pe.Type, pe.Name + "`");
+            Replacements.Add((s, exp));
+            Inherited[pe] = exp;
+            return exp;
+        }
+
+        internal YParameterExpression Convert(YParameterExpression pe)
+        {
+            if (Replaced.TryGetValue(pe, out var value))
+                return value;
+            value = YExpression.Parameter(pe.Type, pe.Name + "`");
+            Replaced[pe] = value;
+            return value;
         }
     }
 
@@ -123,15 +144,19 @@ namespace YantraJS
         private YParameterExpression CheckForClosure(ScopedStack<Scope>.ScopedItem current, YParameterExpression pe, bool setup = false)
         {
             if (current.Item.Variables.Contains(pe))
+            {
+                if (setup)
+                {
+                    return current.Item.Root.GetClosureRepository().Convert(pe);
+                }
                 return pe;
+            }
             var parent = current.Parent;
             if (parent == null)
                 throw new InvalidProgramException();
 
-            var fromParent = CheckForClosure(parent, pe, true);
-
             var repository = current.Item.Root.GetClosureRepository();
-            return repository.Get(pe, fromParent, setup);
+            return repository.Setup(pe, () => CheckForClosure(parent,pe,true));
         }
 
         public static YExpression Rewrite(YLambdaExpression convert)
