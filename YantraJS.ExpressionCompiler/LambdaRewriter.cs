@@ -11,6 +11,51 @@ using YantraJS.Expressions;
 
 namespace YantraJS
 {
+    public static class ClosureRepositoryExtensions
+    {
+        public static ClosureRepository GetClosureRepository(this YLambdaExpression lambda)
+        {
+            return ClosureRepository.For(lambda);
+        }
+    }
+
+    public class ClosureRepository
+    {
+        private static System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository> cache =
+            new System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository>();
+
+        public readonly Dictionary<YParameterExpression, (int Index, YParameterExpression Expression)> Inherited
+            = new Dictionary<YParameterExpression, (int Index, YParameterExpression Expression)>();
+
+        public readonly Dictionary<YParameterExpression, YParameterExpression> Replaced
+            = new Dictionary<YParameterExpression, YParameterExpression>();
+        
+        private YLambdaExpression lambda;
+
+        protected ClosureRepository(YLambdaExpression lambda)
+        {
+            this.lambda = lambda;
+        }
+
+        public static ClosureRepository For(YLambdaExpression lambda)
+        {
+            if (cache.TryGetValue(lambda, out var value))
+                return value;
+            value = new ClosureRepository(lambda);
+            cache.Add(lambda, value);
+            return value;
+        }
+
+        internal YParameterExpression Get(YParameterExpression pe, YParameterExpression fromParent)
+        {
+            if (Replaced.TryGetValue(pe, out var ve))
+                return ve;
+            if (Inherited.TryGetValue(pe, out var item))
+                return item.Expression;
+            throw new NotImplementedException();
+        }
+    }
+
 
     public class LambdaRewriter: YExpressionMapVisitor
     {
@@ -71,14 +116,22 @@ namespace YantraJS
 
         protected override YExpression VisitParameter(YParameterExpression yParameterExpression)
         {
-            if (!Root.Variables.Contains(yParameterExpression))
-            {
-                // mark it as closure..
-                yParameterExpression.MarkAsClosure();
-                // mark it as relay..
-                Root.Root.MarkAsRelay();
-            }
+            CheckForClosure(this.lambdaStack.Top, yParameterExpression);
             return base.VisitParameter(yParameterExpression);
+        }
+
+        private YParameterExpression CheckForClosure(ScopedStack<Scope>.ScopedItem current, YParameterExpression pe, bool setup = false)
+        {
+            if (current.Item.Variables.Contains(pe))
+                return pe;
+            var parent = current.Parent;
+            if (parent == null)
+                throw new InvalidProgramException();
+
+            var fromParent = CheckForClosure(parent, pe, true);
+
+            var repository = current.Item.Root.GetClosureRepository();
+            return repository.Get(pe, fromParent, setup);
         }
 
         public static YExpression Rewrite(YLambdaExpression convert)
