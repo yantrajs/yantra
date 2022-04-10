@@ -10,6 +10,11 @@ namespace YantraJS.Core
             return new EnumerableSequence<T>(items);
         }
 
+        public static IFastEnumerable<T> AsSequence<T>(this List<T> items)
+        {
+            return new EnumerableSequence<T>(items);
+        }
+
         public static Sequence<T> AsSequence<T>(this T[] items)
         {
             return new Sequence<T>(items);
