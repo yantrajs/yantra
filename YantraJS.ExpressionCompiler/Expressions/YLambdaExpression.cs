@@ -14,7 +14,8 @@ namespace YantraJS.Expressions
         public readonly YExpression Body;
         public new readonly YParameterExpression[] Parameters;
         public readonly Type ReturnType;
-        public readonly YParameterExpression? This;
+        private YParameterExpression? _This;
+        public YParameterExpression This => _This;
 
         internal YExpression<T> As<T>()
         {
@@ -51,7 +52,7 @@ namespace YantraJS.Expressions
         {
             this.Name = name;
             this.Body = body;
-            this.This = @this;
+            this._This = @this;
             this.ReturnType = returnType ?? body.Type;
             if (parameters != null)
                 this.Parameters = parameters;
@@ -67,6 +68,14 @@ namespace YantraJS.Expressions
             writer.Write(") => ");
 
             Body.Print(writer);
+        }
+
+        internal void SetupAsClosure()
+        {
+            if (_This == null)
+            {
+                _This = YParameterExpression.Parameter(typeof(Closures), "this");
+            }
         }
 
         internal YLambdaExpression WithThis(Type type)
