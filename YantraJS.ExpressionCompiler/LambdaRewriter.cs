@@ -24,15 +24,12 @@ namespace YantraJS
         private static System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository> cache =
             new System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository>();
 
-        public readonly Dictionary<YParameterExpression, YParameterExpression> Inherited
-            = new Dictionary<YParameterExpression, YParameterExpression>();
+        public readonly Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index)>
+            Closures = new Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index)>();
 
-        public readonly Dictionary<YParameterExpression, YParameterExpression> Replaced
-            = new Dictionary<YParameterExpression, YParameterExpression>();
+        public List<YParameterExpression> Inputs 
+            = new List<YParameterExpression>();
 
-        public readonly List<YExpression> Replacements
-            = new List<YExpression>();
-        
         private YLambdaExpression lambda;
 
         protected ClosureRepository(YLambdaExpression lambda)
@@ -49,31 +46,37 @@ namespace YantraJS
             return value;
         }
 
-        internal YParameterExpression Get(YParameterExpression pe)
+        internal bool TryGet(YParameterExpression pe, out YExpression exp)
         {
-            if (Replaced.TryGetValue(pe, out var ve))
-                return ve;
-            return pe;
+            if (Closures.TryGetValue(pe, out var ve))
+            {
+                exp = ve.value;
+                return true;
+            }
+            exp = default!;
+            return false;
         }
 
         internal YParameterExpression Setup(YParameterExpression pe, Func<YParameterExpression> source)
         {
-            if (Inherited.TryGetValue(pe, out var value))
-                return value;
+            if (Closures.TryGetValue(pe, out var value))
+                return value.local;
             var s = source();
-            var exp = YExpression.Parameter(pe.Type, pe.Name + "`");
-            // Replacements.Add(YExpression.Assign(exp, lambda.This, YExpression.Property( ));
-            Inherited[pe] = exp;
-            return exp;
+            var converted = YExpression.Parameter(pe.Type, pe.Name + "`");
+            var valueField = YExpression.Field(converted, "Value");
+            Closures[pe] = (converted, valueField, Inputs.Count);
+            Inputs.Add(s);
+            return converted;
         }
 
         internal YParameterExpression Convert(YParameterExpression pe)
         {
-            if (Replaced.TryGetValue(pe, out var value))
-                return value;
-            value = YExpression.Parameter(pe.Type, pe.Name + "`");
-            Replaced[pe] = value;
-            return value;
+            if (Closures.TryGetValue(pe, out var value))
+                return value.local;
+            var converted = YExpression.Parameter(pe.Type, pe.Name + "`");
+            var valueField = YExpression.Field(converted, "Value");
+            Closures[pe] = (converted, valueField, -1);
+            return converted;
         }
     }
 

@@ -15,17 +15,21 @@ namespace YantraJS
         public abstract YExpression New();
         public abstract YExpression New(YExpression value);
 
+        public abstract ConstructorInfo Constructor { get; }
+
     }
 
     public class BoxHelper<T>: BoxHelper
     {
         private static Type boxType = typeof(Box<T>);
 
-        private static ConstructorInfo _new
+        public static readonly ConstructorInfo _new
             = boxType.GetConstructor(Array.Empty<Type>());
 
         private static ConstructorInfo _newFromValue
             = boxType.GetConstructor(new Type[] { typeof(T) });
+
+        public override ConstructorInfo Constructor => _new;
 
         public override YExpression New()
         {

@@ -14,6 +14,11 @@ namespace YantraJS.Generator
         {
             // check if it is marked as a closure...
 
+            if (closureRepository.TryGet(yParameterExpression, out var ve))
+            {
+                return Visit(ve);
+            }
+
             var v = variables[yParameterExpression];
             il.Comment($"Load {v.Name}");
             var isValueType = yParameterExpression.Type.IsValueType;

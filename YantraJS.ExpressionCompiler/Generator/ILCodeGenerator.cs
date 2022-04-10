@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
@@ -16,7 +17,7 @@ namespace YantraJS.Generator
         private readonly ILWriter il;
 
         public static bool GenerateLogs = false;
-
+        private ClosureRepository closureRepository;
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
@@ -79,15 +80,47 @@ namespace YantraJS.Generator
                 variables.Create(p, true, i++);
             }
 
-            // add temporary replacements
-            short ci = 0;
-            foreach(var (source, e) in exp.GetClosureRepository().Replacements)
+            this.closureRepository = exp.GetClosureRepository();
+            var closures = closureRepository.Closures;
+            if (closures.Any())
             {
-                var v = variables.Create(e, false, i++);
 
+                // add temporary replacements
                 // load this...
                 il.EmitLoadArg(0);
-                
+
+                foreach (var kvp in closures.Where(x => x.Value.index != -1))
+                {
+                    var (local, _, index) = kvp.Value;
+
+                    variables.Create(local, false, i);
+
+
+                    if (index != -1)
+                    {
+                        il.Emit(OpCodes.Dup);
+                        il.Emit(OpCodes.Ldfld, Closures.boxesField);
+                        il.Emit(OpCodes.Ldelem, index);
+                        // save it in field...
+                        il.EmitSaveLocal(i);
+                    }
+
+                    i++;
+                }
+                il.Emit(OpCodes.Pop);
+
+                foreach (var kvp in closures.Where(x => x.Value.index == -1))
+                {
+                    var (local, _, index) = kvp.Value;
+
+                    variables.Create(local, false, i);
+
+                    il.EmitNew(BoxHelper.For(local.Type).Constructor);
+                    il.EmitSaveLocal(i);
+
+                    i++;
+                }
+
             }
 
             using (tempVariables.Push())
