@@ -10,6 +10,8 @@ namespace YantraJS
     public class MethodRepository : IMethodRepository
     {
 
+        public static ConstructorInfo constructor = typeof(MethodRepository).GetConstructor();
+
         public string IL;
         public string Exp;
 

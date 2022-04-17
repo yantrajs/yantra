@@ -24,8 +24,8 @@ namespace YantraJS
         private static System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository> cache =
             new System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository>();
 
-        public readonly Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index)>
-            Closures = new Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index)>();
+        public readonly Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index, int argIndex)>
+            Closures = new Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index, int argIndex)>();
 
         public List<YParameterExpression> Inputs 
             = new List<YParameterExpression>();
@@ -62,9 +62,10 @@ namespace YantraJS
             if (Closures.TryGetValue(pe, out var value))
                 return value.local;
             var s = source();
-            var converted = YExpression.Parameter(pe.Type, pe.Name + "`");
+            var boxType = BoxHelper.For(pe.Type).BoxType;
+            var converted = YExpression.Parameter(boxType, pe.Name + "`");
             var valueField = YExpression.Field(converted, "Value");
-            Closures[pe] = (converted, valueField, Inputs.Count);
+            Closures[pe] = (converted, valueField, Inputs.Count, -1);
             Inputs.Add(s);
             return converted;
         }
@@ -73,9 +74,18 @@ namespace YantraJS
         {
             if (Closures.TryGetValue(pe, out var value))
                 return value.local;
-            var converted = YExpression.Parameter(pe.Type, pe.Name + "`");
+            var boxType = BoxHelper.For(pe.Type).BoxType;
+            var converted = YExpression.Parameter(boxType, pe.Name + "`");
             var valueField = YExpression.Field(converted, "Value");
-            Closures[pe] = (converted, valueField, -1);
+            var argIndex = -1;
+            if (lambda.This == pe)
+            {
+                argIndex = 0;
+            } else
+            {
+                argIndex = Array.IndexOf(lambda.Parameters, pe) + 1;
+            }
+            Closures[pe] = (converted, valueField, -1, argIndex);
             return converted;
         }
     }
@@ -129,6 +139,11 @@ namespace YantraJS
             ///     global repository as AssemblyBuilder will become Method 
             ///     Repository
             using var scope = lambdaStack.Push(node);
+            if (node.This != null)
+            {
+                Root.Register(node.This.AsSequence());
+            }
+            Root.Register(node.Parameters.AsSequence());
             return base.VisitLambda(node);
         }
 

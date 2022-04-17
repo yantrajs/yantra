@@ -201,7 +201,11 @@ namespace YantraJS
             var boxes = YExpression.Parameter(typeof(Box[]));
 
             var cnstrLambda = YExpression.Lambda(lambdaExpression.Type, "cnstr",
-                YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant(il), YExpression.Constant(exp)),
+                YExpression.CallNew(Closures.constructor,
+                    YExpression.New(MethodRepository.constructor),
+                    boxes,
+                    YExpression.Constant(il),
+                    YExpression.Constant(exp)),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
             var cnstrIL = new ILCodeGenerator(cnstr.GetILGenerator(), null);

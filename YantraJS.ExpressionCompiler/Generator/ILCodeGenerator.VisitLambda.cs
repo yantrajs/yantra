@@ -17,6 +17,7 @@ namespace YantraJS.Generator
             var closureRepository = yLambdaExpression.GetClosureRepository();
             var captures = closureRepository.Inputs.OfType<YExpression>().AsSequence();
             yLambdaExpression.SetupAsClosure();
+
             return Visit(methodBuilder.Relay(This, captures, yLambdaExpression));
 
             //// check if it is a relay...

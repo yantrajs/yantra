@@ -91,9 +91,10 @@ namespace YantraJS.Generator
                 // load this...
                 il.EmitLoadArg(0);
 
+                // Outer Closures
                 foreach (var kvp in closures.Where(x => x.Value.index != -1))
                 {
-                    var (local, _, index) = kvp.Value;
+                    var (local, _, index, isArg) = kvp.Value;
 
                     variables.Create(local, false, i);
 
@@ -102,7 +103,8 @@ namespace YantraJS.Generator
                     {
                         il.Emit(OpCodes.Dup);
                         il.Emit(OpCodes.Ldfld, Closures.boxesField);
-                        il.Emit(OpCodes.Ldelem, index);
+                        il.EmitConstant(index);
+                        il.Emit(OpCodes.Ldelem, local.Type);
                         // save it in field...
                         il.EmitSaveLocal(i);
                     }
@@ -111,13 +113,21 @@ namespace YantraJS.Generator
                 }
                 il.Emit(OpCodes.Pop);
 
+                // Self Closures (Needs initialization by parameters)
                 foreach (var kvp in closures.Where(x => x.Value.index == -1))
                 {
-                    var (local, _, index) = kvp.Value;
+                    var (local, original, index, argIndex) = kvp.Value;
 
                     variables.Create(local, false, i);
 
-                    il.EmitNew(BoxHelper.For(local.Type).Constructor);
+                    if (argIndex != -1)
+                    {
+                        il.EmitLoadArg(argIndex);
+                        il.EmitNew(local.Type.GetConstructor(original.Type));
+                    } else
+                    {
+                        il.EmitNew(local.Type.GetConstructor());
+                    }
                     il.EmitSaveLocal(i);
 
                     i++;

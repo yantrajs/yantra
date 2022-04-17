@@ -67,6 +67,7 @@ namespace YantraJS.Runtime
             var ilg = method.GetILGenerator();
             StringWriter sw = new StringWriter();
             var expWriter = new StringWriter();
+            ILCodeGenerator.GenerateLogs = true;
             ILCodeGenerator icg = new ILCodeGenerator(ilg, methodBuilder,  sw, expWriter);
             icg.Emit(exp);
 
@@ -84,7 +85,7 @@ namespace YantraJS.Runtime
                 .InstanceLambda<Func<T>>(
                     expression.Name + "_outer", 
                     expression, 
-                    YExpression.Parameter(typeof(MethodRepository))
+                    YExpression.Parameter(typeof(Closures))
                     , new YParameterExpression[] { })
                 as YLambdaExpression;
 
@@ -92,7 +93,7 @@ namespace YantraJS.Runtime
             //var f = new FlattenVisitor();
             //outerLambda = f.Visit(outerLambda) as YLambdaExpression;
 
-            //outerLambda = LambdaRewriter.Rewrite(outerLambda)
+            LambdaRewriter.Rewrite(outerLambda);
             //    as YLambdaExpression;
 
 
@@ -103,13 +104,14 @@ namespace YantraJS.Runtime
 
             // outerLambda = nw.Visit(outerLambda) as YLambdaExpression;
 
-            var (outer, il, exp) = outerLambda.CompileToBoundDynamicMethod(typeof(MethodRepository), runtimeMethodBuilder);
+            var (outer, il, exp) = outerLambda.CompileToBoundDynamicMethod(typeof(Closures), runtimeMethodBuilder);
 
             repository.IL = il;
             repository.Exp = exp;
+            var root = new Closures(repository, null, il, exp);
 
             // var fx = Delegate.CreateDelegate(typeof(Func<T>), repository, outer, true);
-            var func = outer.CreateDelegate(typeof(Func<T>), repository) as Func<T>;
+            var func = outer.CreateDelegate(typeof(Func<T>), root) as Func<T>;
 
             return func();
 
