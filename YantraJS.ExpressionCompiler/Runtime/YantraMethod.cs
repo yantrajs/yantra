@@ -11,7 +11,7 @@ namespace YantraJS.Runtime
     {
         private List<object> list = new List<object>();
 
-        public YExpression Relay(IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
+        public YExpression Relay(YExpression @this, IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
         {
             throw new NotImplementedException();
         }

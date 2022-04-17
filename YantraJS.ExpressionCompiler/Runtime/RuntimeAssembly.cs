@@ -25,7 +25,7 @@ namespace YantraJS.Runtime
             ILCodeGenerator icg = new ILCodeGenerator(ilg, null);
             icg.Emit(exp);
 
-            var c = new Closures(null, null, null);
+            var c = new Closures(null, null, null, null);
 
             return (object)method.CreateDelegate(exp.Type, c);
         }
@@ -47,7 +47,7 @@ namespace YantraJS.Runtime
 
             string il = sw.ToString();
 
-            var c = new Closures(null, il, expWriter.ToString());
+            var c = new Closures(null, null, il, expWriter.ToString());
             return (T)(object)method.CreateDelegate(typeof(T), c);
         }
 

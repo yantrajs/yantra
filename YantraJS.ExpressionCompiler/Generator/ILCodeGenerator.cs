@@ -18,6 +18,7 @@ namespace YantraJS.Generator
 
         public static bool GenerateLogs = false;
         private ClosureRepository closureRepository;
+        private YParameterExpression? This;
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
@@ -81,6 +82,7 @@ namespace YantraJS.Generator
             }
 
             this.closureRepository = exp.GetClosureRepository();
+            this.@This = exp.This;
             var closures = closureRepository.Closures;
             if (closures.Any())
             {

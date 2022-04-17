@@ -21,7 +21,7 @@ namespace YantraJS
 
             var inner = Visit(relayExpression.InnerLambda);
             if(inner.NodeType == YExpressionType.Lambda)
-                return lambdaMethodBuilder.Relay(relayExpression.Closures, inner as YLambdaExpression);
+                return lambdaMethodBuilder.Relay(null, relayExpression.Closures, inner as YLambdaExpression);
             return inner;
             // return base.VisitRelay(relayExpression);
         }
