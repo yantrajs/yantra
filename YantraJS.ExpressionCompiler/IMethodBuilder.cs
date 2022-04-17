@@ -6,6 +6,6 @@ namespace YantraJS
 {
     public interface IMethodBuilder
     {
-        YExpression Relay(IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda);
+        YExpression Relay(YExpression @this, IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda);
     }
 }

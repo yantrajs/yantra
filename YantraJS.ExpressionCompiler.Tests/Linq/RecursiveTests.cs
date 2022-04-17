@@ -12,8 +12,6 @@ namespace YantraJS.Linq
         [TestMethod]
         public void Fib()
         {
-            var a = YExpression.Parameters(typeof(int));
-
             var fibs = YExpression.Parameters(typeof(Func<int,int>));
             var fib = fibs[0];
 
@@ -39,7 +37,7 @@ namespace YantraJS.Linq
                         ,
                         fibp) )
                     )
-                , a); ;
+                ); ;
 
             var outer = f.CompileInAssembly();
 

@@ -12,25 +12,33 @@ namespace YantraJS
             return Activator.CreateInstance(typeof(BoxHelper<>).MakeGenericType(type)) as BoxHelper;
         }
 
-        public abstract YExpression New();
+        public abstract Type BoxType { get; }
+
+        // public abstract YExpression New();
         public abstract YExpression New(YExpression value);
+
+        public abstract ConstructorInfo Constructor { get; }
 
     }
 
     public class BoxHelper<T>: BoxHelper
     {
-        private static Type boxType = typeof(Box<T>);
+        public static readonly  Type _BoxType = typeof(Box<T>);
 
-        private static ConstructorInfo _new
-            = boxType.GetConstructor(Array.Empty<Type>());
+        public override Type BoxType => _BoxType;
+
+        public static readonly ConstructorInfo _new
+            = _BoxType.GetConstructor(Array.Empty<Type>());
 
         private static ConstructorInfo _newFromValue
-            = boxType.GetConstructor(new Type[] { typeof(T) });
+            = _BoxType.GetConstructor(new Type[] { typeof(T) });
 
-        public override YExpression New()
-        {
-            return YExpression.New(_new);
-        }
+        public override ConstructorInfo Constructor => _new;
+
+        //public override YExpression New()
+        //{
+        //    return YExpression.New(_new);
+        //}
 
         public override YExpression New(YExpression value)
         {

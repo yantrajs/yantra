@@ -10,6 +10,8 @@ namespace YantraJS
     public class MethodRepository : IMethodRepository
     {
 
+        public static ConstructorInfo constructor = typeof(MethodRepository).GetConstructor();
+
         public string IL;
         public string Exp;
 
@@ -44,7 +46,7 @@ namespace YantraJS
             //var (m, il, exp,t) = delegates[id];
             //return m.CreateDelegate(t, c);
             var rm = GCHandle.FromIntPtr((IntPtr)id).Target as RuntimeMethod;
-            var c = new Closures(boxes, rm.IL, rm.Exp);
+            var c = new Closures(this, boxes, rm.IL, rm.Exp);
             return rm.Method.CreateDelegate(rm.Type, c);
         }
     }

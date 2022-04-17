@@ -24,21 +24,17 @@ namespace YantraJS
             = type.GetMethod(nameof(IMethodRepository.Create));
 
 
-        public YExpression Relay(IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
+        public YExpression Relay(YExpression @this, IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
         {
-            if (innerLambda.Repository == null)
-                throw new NotSupportedException($"Compile with Method Repository");
-            var (method, il, exp) = innerLambda.CompileToBoundDynamicMethod();
-            //List<Type> types = new List<Type>();
-            //types.AddRange(innerLambda.ParameterTypes);
-            //types.Add(method.ReturnType);
-            //types.RemoveAt(0);
-            //var dt = System.Linq.Expressions.Expression.GetDelegateType(types.ToArray());
+
+            var (method, il, exp) = innerLambda.CompileToBoundDynamicMethod(methodBuilder: this);
+
+            var repository = YExpression.Field(@this, Closures.repositoryField);
 
             var id = methods.RegisterNew(method, il, exp, innerLambda.Type);
             return YExpression.Call(
-                innerLambda.Repository, 
-                create , 
+                repository, 
+                create,
                 closures == null ? YExpression.Null : (YExpression)YExpression.NewArray(typeof(Box), closures),
                 YExpression.Constant(id));
         }

@@ -19,7 +19,7 @@ namespace YantraJS
             this.typeBuilder = (TypeBuilder)builder.DeclaringType;
         }
 
-        public YExpression Relay(IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
+        public YExpression Relay(YExpression @this, IFastEnumerable<YExpression> closures, YLambdaExpression innerLambda)
         {
 
             var derived = (typeBuilder.Module as ModuleBuilder).DefineType(
@@ -40,10 +40,10 @@ namespace YantraJS
             // il = null;
 
             var cnstrLambda = YExpression.Lambda(innerLambda.Type, "cnstr",
-                YExpression.CallNew(Closures.constructor, boxes, YExpression.Constant((string)null), YExpression.Constant((string)null)),
+                YExpression.CallNew(Closures.constructor, YExpression.Null, boxes, YExpression.Constant((string)null), YExpression.Constant((string)null)),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
-            var cnstrIL = new ILCodeGenerator( cnstr.GetILGenerator());
+            var cnstrIL = new ILCodeGenerator( cnstr.GetILGenerator(), null);
             cnstrIL.EmitConstructor(cnstrLambda);
 
             var dt = innerLambda.Type;

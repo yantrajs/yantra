@@ -11,6 +11,11 @@ namespace YantraJS.Generator
     {
         private CodeInfo AssignParameter(DataSource exp, YParameterExpression yParameterExpression, int savedIndex)
         {
+            if (closureRepository.TryGet(yParameterExpression, out var ve))
+            {
+                return Assign(ve, exp, savedIndex);
+            }
+
             VisitSave(exp, savedIndex);
 
 

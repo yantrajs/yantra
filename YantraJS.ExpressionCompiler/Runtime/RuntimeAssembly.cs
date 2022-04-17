@@ -22,10 +22,10 @@ namespace YantraJS.Runtime
             
             var ilg = method.GetILGenerator();
 
-            ILCodeGenerator icg = new ILCodeGenerator(ilg);
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, null);
             icg.Emit(exp);
 
-            var c = new Closures(null, null, null);
+            var c = new Closures(null, null, null, null);
 
             return (object)method.CreateDelegate(exp.Type, c);
         }
@@ -42,18 +42,18 @@ namespace YantraJS.Runtime
 
             var sw = new StringWriter();
             var expWriter = new StringWriter();
-            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw, expWriter);
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, null, sw, expWriter);
             icg.Emit(exp);
 
             string il = sw.ToString();
 
-            var c = new Closures(null, il, expWriter.ToString());
+            var c = new Closures(null, null, il, expWriter.ToString());
             return (T)(object)method.CreateDelegate(typeof(T), c);
         }
 
 
         internal static (DynamicMethod, string il, string exp) CompileToBoundDynamicMethod(
-            this YLambdaExpression exp, Type boundType = null)
+            this YLambdaExpression exp, Type boundType = null, IMethodBuilder methodBuilder = null)
         {
             // create closure...
 
@@ -67,7 +67,8 @@ namespace YantraJS.Runtime
             var ilg = method.GetILGenerator();
             StringWriter sw = new StringWriter();
             var expWriter = new StringWriter();
-            ILCodeGenerator icg = new ILCodeGenerator(ilg, sw, expWriter);
+            ILCodeGenerator.GenerateLogs = true;
+            ILCodeGenerator icg = new ILCodeGenerator(ilg, methodBuilder,  sw, expWriter);
             icg.Emit(exp);
 
             string il = sw.ToString();
@@ -84,7 +85,7 @@ namespace YantraJS.Runtime
                 .InstanceLambda<Func<T>>(
                     expression.Name + "_outer", 
                     expression, 
-                    YExpression.Parameter(typeof(MethodRepository))
+                    YExpression.Parameter(typeof(Closures))
                     , new YParameterExpression[] { })
                 as YLambdaExpression;
 
@@ -92,24 +93,25 @@ namespace YantraJS.Runtime
             //var f = new FlattenVisitor();
             //outerLambda = f.Visit(outerLambda) as YLambdaExpression;
 
-            outerLambda = LambdaRewriter.Rewrite(outerLambda)
-                as YLambdaExpression;
+            LambdaRewriter.Rewrite(outerLambda);
+            //    as YLambdaExpression;
 
 
 
             var runtimeMethodBuilder = new RuntimeMethodBuilder(repository);
 
-            NestedRewriter nw = new NestedRewriter(outerLambda, runtimeMethodBuilder);
+            // NestedRewriter nw = new NestedRewriter(outerLambda, runtimeMethodBuilder);
 
-            outerLambda = nw.Visit(outerLambda) as YLambdaExpression;
+            // outerLambda = nw.Visit(outerLambda) as YLambdaExpression;
 
-            var (outer, il, exp) = outerLambda.CompileToBoundDynamicMethod(typeof(MethodRepository));
+            var (outer, il, exp) = outerLambda.CompileToBoundDynamicMethod(typeof(Closures), runtimeMethodBuilder);
 
             repository.IL = il;
             repository.Exp = exp;
+            var root = new Closures(repository, null, il, exp);
 
             // var fx = Delegate.CreateDelegate(typeof(Func<T>), repository, outer, true);
-            var func = outer.CreateDelegate(typeof(Func<T>), repository) as Func<T>;
+            var func = outer.CreateDelegate(typeof(Func<T>), root) as Func<T>;
 
             return func();
 

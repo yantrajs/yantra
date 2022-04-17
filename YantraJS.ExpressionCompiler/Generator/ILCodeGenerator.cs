@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
@@ -16,10 +17,12 @@ namespace YantraJS.Generator
         private readonly ILWriter il;
 
         public static bool GenerateLogs = false;
-
+        private ClosureRepository closureRepository;
+        private YParameterExpression? This;
         private readonly VariableInfo variables;
         private readonly LabelInfo labels;
         private readonly TempVariables tempVariables;
+        private readonly IMethodBuilder methodBuilder;
         private readonly TextWriter? expressionWriter;
 
         public Sequence<ILDebugInfo> SequencePoints { get; }
@@ -35,7 +38,10 @@ namespace YantraJS.Generator
             return il.ToString();
         }
 
-        public ILCodeGenerator(ILGenerator il, TextWriter? writer = null, TextWriter? expressionWriter = null)
+        public ILCodeGenerator(
+            ILGenerator il,
+            IMethodBuilder methodBuilder,
+            TextWriter? writer = null, TextWriter? expressionWriter = null)
         {
             if(!GenerateLogs)
             {
@@ -46,6 +52,7 @@ namespace YantraJS.Generator
             this.variables = new VariableInfo(il);
             this.labels = new LabelInfo(this.il);
             this.tempVariables = new TempVariables(this.il);
+            this.methodBuilder = methodBuilder;
             this.expressionWriter = expressionWriter;
         }
 
@@ -72,6 +79,60 @@ namespace YantraJS.Generator
             foreach(var p in exp.Parameters)
             {
                 variables.Create(p, true, i++);
+            }
+
+            this.closureRepository = exp.GetClosureRepository();
+            this.@This = exp.This;
+            var closures = closureRepository.Closures;
+            if (closures.Any())
+            {
+
+                // add temporary replacements
+                // load this...
+                il.EmitLoadArg(0);
+
+                // Outer Closures
+                foreach (var kvp in closures.Where(x => x.Value.index != -1))
+                {
+                    var (local, _, index, isArg) = kvp.Value;
+
+                    variables.Create(local, false, i);
+
+
+                    if (index != -1)
+                    {
+                        il.Emit(OpCodes.Dup);
+                        il.Emit(OpCodes.Ldfld, Closures.boxesField);
+                        il.EmitConstant(index);
+                        il.Emit(OpCodes.Ldelem, local.Type);
+                        // save it in field...
+                        il.EmitSaveLocal(i);
+                    }
+
+                    i++;
+                }
+                il.Emit(OpCodes.Pop);
+
+                // Self Closures (Needs initialization by parameters)
+                foreach (var kvp in closures.Where(x => x.Value.index == -1))
+                {
+                    var (local, original, index, argIndex) = kvp.Value;
+
+                    variables.Create(local, false, i);
+
+                    if (argIndex != -1)
+                    {
+                        il.EmitLoadArg(argIndex);
+                        il.EmitNew(local.Type.GetConstructor(original.Type));
+                    } else
+                    {
+                        il.EmitNew(local.Type.GetConstructor());
+                    }
+                    il.EmitSaveLocal(i);
+
+                    i++;
+                }
+
             }
 
             using (tempVariables.Push())
