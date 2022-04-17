@@ -77,14 +77,7 @@ namespace YantraJS
             var boxType = BoxHelper.For(pe.Type).BoxType;
             var converted = YExpression.Parameter(boxType, pe.Name + "`");
             var valueField = YExpression.Field(converted, "Value");
-            var argIndex = -1;
-            if (lambda.This == pe)
-            {
-                argIndex = 0;
-            } else
-            {
-                argIndex = Array.IndexOf(lambda.Parameters, pe) + 1;
-            }
+            var argIndex = Array.IndexOf(lambda.Parameters, pe) + 1;
             Closures[pe] = (converted, valueField, -1, argIndex);
             return converted;
         }

@@ -63,11 +63,10 @@ namespace YantraJS
             if (!lambdaExpression.This.Type.IsAssignableFrom(type))
                 throw new NotSupportedException($"First parameter of an instance method must be same as the owner type");
 
-            //if (rewriteNestedLambda)
-            //{
-            //    lambdaExpression = LambdaRewriter.Rewrite(lambdaExpression)
-            //        as YLambdaExpression;
-            //}
+            if (rewriteNestedLambda)
+            {
+                LambdaRewriter.Rewrite(lambdaExpression);
+            }
 
             //var method = type.DefineMethod(GetUniqueName(lambdaExpression.Name),
             //    MethodAttributes.Public, CallingConventions.HasThis,
