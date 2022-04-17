@@ -34,10 +34,6 @@ namespace YantraJS.Expressions
         }
 
         internal readonly YExpression? Repository;
-
-        private PendingReplacements? m_PendingReplacements = null;
-        internal PendingReplacements PendingReplacements =>
-            m_PendingReplacements ?? (m_PendingReplacements = new PendingReplacements());
             
 
         public YLambdaExpression(
