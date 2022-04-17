@@ -53,6 +53,24 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _AddDouble
             = type.PublicMethod(nameof(JSValue.AddValue), typeof(double));
 
+        private static PropertyInfo _IsNumber
+            = type.Property(nameof(JSValue.IsNumber));
+
+        private static PropertyInfo _IsString
+            = type.Property(nameof(JSValue.IsString));
+
+        private static PropertyInfo _IsBoolean
+            = type.Property(nameof(JSValue.IsBoolean));
+
+        private static PropertyInfo _IsSymbol
+            = type.Property(nameof(JSValue.IsSymbol));
+
+        private static PropertyInfo _IsFunction
+            = type.Property(nameof(JSValue.IsFunction));
+
+        private static PropertyInfo _IsObject
+            = type.Property(nameof(JSValue.IsObject));
+
         private static MethodInfo _EqualsLiteralDouble
             = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(double));
         private static MethodInfo _EqualsLiteralString
@@ -74,6 +92,36 @@ namespace YantraJS.ExpHelper
         public static Expression ToKey(Expression exp)
         {
             return Expression.Call(exp, _ToKey, Expression.Constant(true));
+        }
+
+        public static Expression IsNumber(Expression exp)
+        {
+            return Expression.Property(exp, _IsNumber);
+        }
+
+        public static Expression IsString(Expression exp)
+        {
+            return Expression.Property(exp, _IsString);
+        }
+
+        public static Expression IsBoolean(Expression exp)
+        {
+            return Expression.Property(exp, _IsBoolean);
+        }
+
+        public static Expression IsSymbol(Expression exp)
+        {
+            return Expression.Property(exp, _IsSymbol);
+        }
+
+        public static Expression IsFunction(Expression exp)
+        {
+            return Expression.Property(exp, _IsFunction);
+        }
+
+        public static Expression IsObjectType(Expression exp)
+        {
+            return Expression.And(Expression.Property(exp, _IsObject), Expression.Not(Expression.Property(exp, _IsFunction)));
         }
 
         public static Expression IsNullOrUndefined(Expression target)

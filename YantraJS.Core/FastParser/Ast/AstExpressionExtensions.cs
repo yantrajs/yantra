@@ -36,5 +36,27 @@ namespace YantraJS.Core
             => Is(node, FastNodeType.SpreadElement, out value);
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsUnaryExpression(this AstNode exp, out AstUnaryExpression unary)
+            => Is(exp, FastNodeType.UnaryExpression, out unary);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsBinaryExpression(this AstNode exp, out AstBinaryExpression binary)
+            => Is(exp, FastNodeType.BinaryExpression, out binary);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsStringLiteral(this AstNode exp, out string value)
+        {
+            if (Is<AstLiteral>(exp, FastNodeType.Literal, out var literall))
+            {
+                if (literall.TokenType == TokenTypes.String)
+                {
+                    value = literall.StringValue;
+                    return true;
+                }
+            }
+            value = default;
+            return false;
+        }
     }
 }
