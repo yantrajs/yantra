@@ -25,7 +25,7 @@ namespace YantraJS
             new System.Runtime.CompilerServices.ConditionalWeakTable<YLambdaExpression, ClosureRepository>();
 
         public readonly Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index, int argIndex)>
-            Closures = new Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index, int argIndex)>();
+            Closures = new Dictionary<YParameterExpression, (YParameterExpression local, YExpression value, int index, int argIndex)>(ReferenceEqualityComparer.Instance);
 
         public List<YParameterExpression> Inputs 
             = new List<YParameterExpression>();

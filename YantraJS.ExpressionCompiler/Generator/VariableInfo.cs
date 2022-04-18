@@ -15,7 +15,7 @@ namespace YantraJS.Generator
         }
 
         private Dictionary<YParameterExpression, Variable> variables 
-            = new Dictionary<YParameterExpression, Variable>();
+            = new Dictionary<YParameterExpression, Variable>(ReferenceEqualityComparer.Instance);
         private readonly ILGenerator il;
 
         public Variable this[YParameterExpression exp]
