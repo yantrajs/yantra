@@ -9,10 +9,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 {
     public class FlattenBlocks: YExpressionMapVisitor
     {
-        protected override Exp VisitRelay(YRelayExpression relayExpression)
-        {
-            return relayExpression;
-        }
+        //protected override Exp VisitRelay(YRelayExpression relayExpression)
+        //{
+        //    return relayExpression;
+        //}
 
         protected override Exp VisitLambda(YLambdaExpression yLambdaExpression)
         {

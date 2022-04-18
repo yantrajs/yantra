@@ -794,12 +794,12 @@ namespace YantraJS.Expressions
             return new YLambdaExpression(delegateType, name, body, null, parameters.ToArray(), null, repository);
         }
 
-        internal static YRelayExpression Relay(
-            IFastEnumerable<YExpression> box,
-            YLambdaExpression inner)
-        {
-            return new YRelayExpression(box, inner);
-        }
+        //internal static YRelayExpression Relay(
+        //    IFastEnumerable<YExpression> box,
+        //    YLambdaExpression inner)
+        //{
+        //    return new YRelayExpression(box, inner);
+        //}
 
         public static YSwitchExpression Switch(
             YExpression target,

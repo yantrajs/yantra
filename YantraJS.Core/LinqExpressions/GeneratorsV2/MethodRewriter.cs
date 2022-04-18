@@ -23,10 +23,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             return yLambdaExpression;
         }
 
-        protected override Exp VisitRelay(YRelayExpression relayExpression)
-        {
-            return relayExpression;
-        }
+        //protected override Exp VisitRelay(YRelayExpression relayExpression)
+        //{
+        //    return relayExpression;
+        //}
 
         protected override Exp VisitAssign(YAssignExpression yAssignExpression)
         {

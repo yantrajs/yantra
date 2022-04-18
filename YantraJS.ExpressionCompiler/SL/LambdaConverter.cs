@@ -289,10 +289,10 @@ namespace YantraJS.SL
             throw new NotImplementedException();
         }
 
-        protected override Expression VisitRelay(YRelayExpression yRelayExpression)
-        {
-            throw new NotImplementedException();
-        }
+        //protected override Expression VisitRelay(YRelayExpression yRelayExpression)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         protected override Expression VisitReturn(YReturnExpression yReturnExpression)
         {

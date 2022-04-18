@@ -72,8 +72,8 @@ namespace YantraJS.Expressions
                     return VisitDelegate(exp as YDelegateExpression);
                 case YExpressionType.MemberInit:
                     return VisitMemberInit(exp as YMemberInitExpression);
-                case YExpressionType.Relay:
-                    return VisitRelay(exp as YRelayExpression);
+                //case YExpressionType.Relay:
+                //    return VisitRelay(exp as YRelayExpression);
                 case YExpressionType.Empty:
                     return VisitEmpty(exp as YEmptyExpression);
                 case YExpressionType.Switch:
@@ -147,7 +147,7 @@ namespace YantraJS.Expressions
         protected abstract T VisitYield(YYieldExpression node);
         protected abstract T VisitSwitch(YSwitchExpression node);
         protected abstract T VisitEmpty(YEmptyExpression exp);
-        protected abstract T VisitRelay(YRelayExpression yRelayExpression);
+        // protected abstract T VisitRelay(YRelayExpression yRelayExpression);
         protected abstract T VisitMemberInit(YMemberInitExpression memberInitExpression);
         protected abstract T VisitDelegate(YDelegateExpression yDelegateExpression);
         protected abstract T VisitInvoke(YInvokeExpression invokeExpression);

@@ -429,14 +429,14 @@ namespace YantraJS.Expressions
             return yPropertyExpression;
         }
 
-        protected override YExpression VisitRelay(YRelayExpression relayExpression)
-        {
-            var cm = Modified(relayExpression.Closures, out var closures);
-            var lm = Modified(relayExpression.InnerLambda, out var lambda);
-                if(cm || lm ) 
-                return new YRelayExpression(closures, lambda);
-            return relayExpression;
-        }
+        //protected override YExpression VisitRelay(YRelayExpression relayExpression)
+        //{
+        //    var cm = Modified(relayExpression.Closures, out var closures);
+        //    var lm = Modified(relayExpression.InnerLambda, out var lambda);
+        //        if(cm || lm ) 
+        //        return new YRelayExpression(closures, lambda);
+        //    return relayExpression;
+        //}
 
         protected override YExpression VisitReturn(YReturnExpression yReturnExpression)
         {

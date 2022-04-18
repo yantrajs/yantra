@@ -57,9 +57,9 @@ namespace YantraJS.Generator
             return yLambdaExpression;
         }
 
-        protected override YExpression VisitRelay(YRelayExpression relayExpression)
-        {
-            return relayExpression;
-        }
+        //protected override YExpression VisitRelay(YRelayExpression relayExpression)
+        //{
+        //    return relayExpression;
+        //}
     }
 }

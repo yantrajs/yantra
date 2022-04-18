@@ -19,15 +19,6 @@ namespace YantraJS.Generator
             yLambdaExpression.SetupAsClosure();
 
             return Visit(methodBuilder.Relay(This, captures, yLambdaExpression));
-
-            //// check if it is a relay...
-            //if (yLambdaExpression.IsRelay())
-            //{
-            //    // get all internally passed parameters...
-            //    var captures = yLambdaExpression.GetRelayCaptures().Select(x => x as YExpression).AsSequence();
-            //    return Visit(methodBuilder.Relay(captures, yLambdaExpression));
-            //}
-            //return Visit(methodBuilder.Relay(Sequence<YExpression>.Empty, yLambdaExpression));
         }
     }
 }
