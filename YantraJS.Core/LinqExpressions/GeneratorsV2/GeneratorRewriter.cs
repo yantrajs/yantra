@@ -38,7 +38,6 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private readonly ParameterExpression replaceStackItem;
         private readonly ParameterExpression replaceContext;
         private readonly ParameterExpression replaceScriptInfo;
-        private readonly ParameterExpression replaceClosures;
         private Sequence<(LabelTarget label, int id)> jumps = new Sequence<(LabelTarget label, int id)>();
 
         public GeneratorRewriter(
@@ -47,8 +46,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             ParameterExpression replaceArguments,
             ParameterExpression replaceStackItem,
             ParameterExpression replaceContext,
-            ParameterExpression replaceScriptInfo,
-            ParameterExpression replaceClosures)
+            ParameterExpression replaceScriptInfo)
         {
             this.pe = pe;
             this.args = Expression.Parameter(typeof(Arguments).MakeByRefType(), "args");
@@ -63,7 +61,6 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             this.replaceStackItem = replaceStackItem;
             this.replaceContext = replaceContext;
             this.replaceScriptInfo = replaceScriptInfo;
-            this.replaceClosures = replaceClosures;
             this.@return = @return;
             this.generatorReturn = Expression.Label(typeof(GeneratorState), "RETURN");
             this.lifted = new Sequence<(ParameterExpression original, ParameterExpression box, int index)>();
@@ -77,10 +74,9 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
            ParameterExpression replaceArgs,
            ParameterExpression replaceStackItem,
            ParameterExpression replaceContext,
-           ParameterExpression replaceScriptInfo,
-           ParameterExpression replaceClosures)
+           ParameterExpression replaceScriptInfo)
         {
-            var gw = new GeneratorRewriter(generator, r, replaceArgs, replaceStackItem, replaceContext, replaceScriptInfo, replaceClosures);
+            var gw = new GeneratorRewriter(generator, r, replaceArgs, replaceStackItem, replaceContext, replaceScriptInfo);
 
             body = MethodRewriter.Rewrite(body);
 
@@ -231,8 +227,6 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 return Context;
             if (node == replaceScriptInfo)
                 return ScriptInfo;
-            if (node == replaceClosures)
-                return Closures;
             foreach(var l in lifted)
             {
                 if (l.original == node)

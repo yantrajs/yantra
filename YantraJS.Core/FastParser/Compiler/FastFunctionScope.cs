@@ -213,7 +213,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public ParameterExpression StackItem { get; }
 
-        public ParameterExpression Closures { get; }
+        // public ParameterExpression Closures { get; }
 
         public ParameterExpression ScriptInfo { get; }
 
@@ -369,7 +369,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
             this.Context = Expression.Parameter(typeof(JSContext), $"{nameof(Context)}{sID}");
             this.StackItem = Expression.Parameter(typeof(CallStackItem), $"{nameof(StackItem)}{sID}");
-            this.Closures = Expression.Parameter(typeof(JSVariable[]), $"{nameof(Closures)}{sID}");
+            // this.Closures = Expression.Parameter(typeof(JSVariable[]), $"{nameof(Closures)}{sID}");
             this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), $"{nameof(ScriptInfo)}{sID}");
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new Sequence<VariableScope>();
@@ -392,7 +392,7 @@ namespace YantraJS.Core.FastParser.Compiler
             this.Super = p.Super;
             this.Context = p.Context;
             this.StackItem = p.StackItem;
-            this.Closures = p.Closures;
+            // this.Closures = p.Closures;
             this.ScriptInfo = p.ScriptInfo;
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
@@ -512,62 +512,58 @@ namespace YantraJS.Core.FastParser.Compiler
         //    return v;
         //}
 
-        public Sequence<VariableScope> ClosureList
-        {
-            get; private set;
-        }
+        //public Sequence<VariableScope> ClosureList
+        //{
+        //    get; private set;
+        //}
 
         public VariableScope GetVariable(in StringSpan name, bool createClosure = true)
         {
 
             var start = this;
-            while (true)
+            while (start != null)
             {
 
                 if (start.variableScopeList.TryGetValue(name, out var result))
                 {
                     return result;
                 }
-                if (start.Parent == null)
-                    return null;
-                if (start.Parent.Function != start.Function)
-                    break;
                 start = start.Parent;
             }
 
             if (!createClosure)
                 throw new ArgumentOutOfRangeException($"{name} not found in current variable scope");
 
-            return start.CreateClosure(name);
+            return null;
         }
 
-        private VariableScope CreateClosure(in StringSpan name)
-        {
-            var p = Parent;
-            if (p == null)
-                return null;
-            var v = p.GetVariable(name);
-            if (v == null)
-                return null;
-            ClosureList = ClosureList ?? new Sequence<VariableScope>();
-            var v1 = new VariableScope()
-            {
-                Variable = Expression.Parameter(typeof(JSVariable), name.Value),
-                Name = name.Value
-            };
-            int index = ClosureList.Count;
-            if (v.Expression.NodeType == Expressions.YExpressionType.Field)
-            {
-                v1.Expression = JSVariable.ValueExpression(v1.Variable);
-            } else
-            {
-                v1.Expression = JSVariableBuilder.Property(v1.Variable);
-            }
-            v1.SetInit(Expression.ArrayIndex(Closures, Expression.Constant(index)));
-            ClosureList.Add(v);
-            this.variableScopeList[name] = v1;
-            return v1;
-        }
+        //private VariableScope CreateClosure(in StringSpan name)
+        //{
+        //    var p = Parent;
+        //    if (p == null)
+        //        return null;
+        //    var v = p.GetVariable(name);
+        //    if (v == null)
+        //        return null;
+        //    ClosureList = ClosureList ?? new Sequence<VariableScope>();
+        //    var v1 = new VariableScope()
+        //    {
+        //        Variable = Expression.Parameter(typeof(JSVariable), name.Value),
+        //        Name = name.Value
+        //    };
+        //    int index = ClosureList.Count;
+        //    if (v.Expression.NodeType == Expressions.YExpressionType.Field)
+        //    {
+        //        v1.Expression = JSVariable.ValueExpression(v1.Variable);
+        //    } else
+        //    {
+        //        v1.Expression = JSVariableBuilder.Property(v1.Variable);
+        //    }
+        //    v1.SetInit(Expression.ArrayIndex(Closures, Expression.Constant(index)));
+        //    ClosureList.Add(v);
+        //    this.variableScopeList[name] = v1;
+        //    return v1;
+        //}
 
 
     }

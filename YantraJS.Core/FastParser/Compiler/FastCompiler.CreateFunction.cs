@@ -208,8 +208,7 @@ namespace YantraJS.Core.FastParser.Compiler
                             replaceArgs: cs.Arguments,
                             replaceStackItem: cs.StackItem,
                             replaceContext: cs.Context, 
-                            replaceScriptInfo: cs.ScriptInfo,
-                            replaceClosures: cs.Closures);
+                            replaceScriptInfo: cs.ScriptInfo);
 
                         jsf = JSGeneratorFunctionBuilderV2.New(parentScriptInfo, closureArray, lambda, fxName, code);
 
@@ -223,8 +222,7 @@ namespace YantraJS.Core.FastParser.Compiler
                             replaceArgs: cs.Arguments,
                             replaceStackItem: cs.StackItem,
                             replaceContext: cs.Context,
-                            replaceScriptInfo: cs.ScriptInfo,
-                            replaceClosures: cs.Closures);
+                            replaceScriptInfo: cs.ScriptInfo);
 
                         jsf = JSAsyncFunctionBuilder.Create(
                             JSGeneratorFunctionBuilderV2.New(parentScriptInfo, closureArray, lambda, fxName, code));
