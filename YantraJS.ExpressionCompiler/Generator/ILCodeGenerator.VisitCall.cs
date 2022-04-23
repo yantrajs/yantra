@@ -19,19 +19,15 @@ namespace YantraJS.Generator
             if (parameters.Any(p => p.IsOut))
                 return false;
 
-            // il.EmptyStack();
-
             if (callExpression.Target != null)
                 Visit(callExpression.Target);
 
             EmitParameters(callExpression.Method, callExpression.Arguments, callExpression.Type);
-            // for some reason it is not working !!
-            // il.Emit(OpCodes.Tailcall);
+            il.Emit(OpCodes.Tailcall);
             il.Emit(!callExpression.Method.IsStatic
                 ? OpCodes.Callvirt
                 : OpCodes.Call, callExpression.Method);
             il.Emit(OpCodes.Ret);
-            // il.ClearStack();
             return true;
         }
 

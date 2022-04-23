@@ -99,11 +99,9 @@ namespace YantraJS.Generator
             var closures = closureRepository.Closures;
             if (closures.Any())
             {
-
+                bool isThisLoaded = false;
                 // add temporary replacements
                 // load this...
-                il.EmitLoadArg(0);
-                il.Emit(OpCodes.Ldfld, Closures.boxesField);
 
                 // Outer Closures
                 foreach (var kvp in closures.Where(x => x.Value.index != -1))
@@ -115,6 +113,12 @@ namespace YantraJS.Generator
 
                     if (index != -1)
                     {
+                        if (!isThisLoaded)
+                        {
+                            isThisLoaded = true;
+                            il.EmitLoadArg(0);
+                            il.Emit(OpCodes.Ldfld, Closures.boxesField);
+                        }
                         il.Emit(OpCodes.Dup);
                         il.EmitConstant(index);
                         il.Emit(OpCodes.Ldelem, local.Type);
@@ -124,7 +128,10 @@ namespace YantraJS.Generator
 
                     i++;
                 }
-                il.Emit(OpCodes.Pop);
+                if (isThisLoaded)
+                {
+                    il.Emit(OpCodes.Pop);
+                }
 
                 // Self Closures (Needs initialization by parameters)
                 foreach (var kvp in closures.Where(x => x.Value.index == -1))

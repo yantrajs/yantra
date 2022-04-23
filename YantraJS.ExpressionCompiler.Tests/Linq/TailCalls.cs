@@ -2,6 +2,8 @@
 using System;
 using System.Reflection;
 using YantraJS.Expressions;
+using YantraJS.Generator;
+using YantraJS.Runtime;
 
 namespace YantraJS.Linq
 {
@@ -19,7 +21,10 @@ namespace YantraJS.Linq
                 YExpression.Call(null, processMethod, a[0])
                 , a);
 
+            ILCodeGenerator.GenerateLogs = true;
+
             var fx = body.CompileInAssembly();
+            // var fx = body.Compile();
 
             var r = fx(1);
             Assert.AreEqual(2, r);
