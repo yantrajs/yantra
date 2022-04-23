@@ -88,7 +88,7 @@ namespace YantraJS.Core
             }
         }
 
-        internal KeyString(in StringSpan value, uint key)
+        internal KeyString(uint key)
         {
             // this.Value = value;
             this.Key = key;

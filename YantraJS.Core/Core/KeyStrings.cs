@@ -171,7 +171,7 @@ namespace YantraJS.Core
                 KeyString Create(string key)
                 {
                     var i = (uint)(NextID++);
-                    var js = new KeyString(key, i);
+                    var js = new KeyString(i);
                     map[key] =  js;
                     names[i] = key;
                     return js;
@@ -202,7 +202,7 @@ namespace YantraJS.Core
             {
                 var i = (uint)Interlocked.Increment(ref NextID);
                 names[i] = keyName;
-                return new KeyString(keyName, i);
+                return new KeyString(i);
             });
         }
 
@@ -215,7 +215,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static KeyString GetName(uint id)
         {
-            return new KeyString(names[id] , id);
+            return new KeyString(id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
