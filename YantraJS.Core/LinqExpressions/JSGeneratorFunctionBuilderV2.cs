@@ -22,12 +22,11 @@ namespace YantraJS.ExpHelper
 
         private static ConstructorInfo _New =
             type.Constructor(
-                typeof(ScriptInfo),
-                typeof(JSVariable[]), typeof(JSGeneratorDelegateV2), StringSpanBuilder.RefType, StringSpanBuilder.RefType);
+                typeof(JSGeneratorDelegateV2), StringSpanBuilder.RefType, StringSpanBuilder.RefType);
 
-        public static Expression New(Expression scriptInfo, Expression closures, Expression @delegate, Expression name, Expression code)
+        public static Expression New(Expression @delegate, Expression name, Expression code)
         {
-            return Expression.New(_New, scriptInfo, closures, @delegate, name, code);
+            return Expression.New(_New, @delegate, name, code);
         }
     }
 }

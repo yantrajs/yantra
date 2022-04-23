@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using YantraJS.Core.CodeGen;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
@@ -24,6 +25,8 @@ namespace YantraJS.Core.FastParser.Compiler
         private StringArray _keyStrings = new StringArray();
 
         // private FastList<object> _innerFunctions;
+
+        private YParameterExpression scriptInfo;
 
         public YExpression<JSFunctionDelegate> Method { get; }
 
@@ -81,7 +84,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     //    }
                 }
 
-                var scriptInfo = fx.ScriptInfo;
+                this.scriptInfo = Exp.Parameter(typeof(ScriptInfo));
 
 
                 var args = fx.ArgumentsExpression;

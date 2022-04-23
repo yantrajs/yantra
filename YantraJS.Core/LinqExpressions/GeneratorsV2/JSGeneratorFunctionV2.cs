@@ -9,19 +9,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
     public class JSGeneratorFunctionV2: JSFunction
     {
-        private readonly ScriptInfo script;
-        private readonly JSVariable[] closures;
         readonly JSGeneratorDelegateV2 @delegate;
 
         public JSGeneratorFunctionV2(
-            ScriptInfo script,
-            JSVariable[] closures,
             JSGeneratorDelegateV2 @delegate,
             in StringSpan name, in StringSpan code) :
             base(null, name, code)
         {
-            this.script = script;
-            this.closures = closures;
             this.@delegate = @delegate;
             this.f = InvokeFunction;
         }
@@ -29,8 +23,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            var c = new CallStackItem(script.FileName, this.name, 0, 0);
-            return new Generator.JSGenerator( new ClrGeneratorV2(script, closures, c, this, @delegate, a));
+            // var c = new CallStackItem(script.FileName, this.name, 0, 0);
+            return new Generator.JSGenerator( new ClrGeneratorV2(this, @delegate, a));
         }
     }
 
@@ -60,8 +54,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
     public class ClrGeneratorV2
     {
-        public ScriptInfo ScriptInfo;
-        public JSVariable[] Closures;
+        //public ScriptInfo ScriptInfo;
+        //public JSVariable[] Closures;
         public CallStackItem StackItem;
 
         private Exception lastError = null;
@@ -89,16 +83,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         public TryBlock Root;
 
         public ClrGeneratorV2(
-            ScriptInfo scriptInfo, 
-            JSVariable[] closures, 
-            CallStackItem stackItem, 
+            // CallStackItem stackItem, 
             JSGeneratorFunctionV2 generator,
             JSGeneratorDelegateV2 @delegate,
             Arguments arguments)
         {
-            this.ScriptInfo = scriptInfo;
-            this.Closures = closures;
-            this.StackItem = stackItem;
+            // this.StackItem = stackItem;
             this.generator = generator;
             this.@delegate = @delegate;
             this.arguments = arguments;

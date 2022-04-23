@@ -19,7 +19,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 return fx;
 
             var i = _keyStrings.GetOrAdd(name);
-            return ScriptInfoBuilder.KeyString(this.scope.Top.ScriptInfo, (int)i);
+            return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
         }
 
         public Expression KeyOfName(in StringSpan name)
@@ -29,7 +29,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 return fx;
 
             var i = _keyStrings.GetOrAdd(name);
-            return ScriptInfoBuilder.KeyString(this.scope.Top.ScriptInfo, (int)i);
+            return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
         }
     }
 }

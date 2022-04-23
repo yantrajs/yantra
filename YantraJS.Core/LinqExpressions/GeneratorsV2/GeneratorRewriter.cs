@@ -29,13 +29,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private readonly ParameterExpression exception;
         private readonly YFieldExpression StackItem;
         private readonly YFieldExpression Context;
-        private readonly YFieldExpression ScriptInfo;
-        private readonly YFieldExpression Closures;
+        // private readonly YFieldExpression ScriptInfo;
+        // private readonly YFieldExpression Closures;
         private LabelTarget generatorReturn;
         private readonly Sequence<(ParameterExpression original, ParameterExpression box, int index)> lifted;
         private LabelTarget @return;
         private readonly ParameterExpression replaceArgs;
-        private readonly ParameterExpression replaceStackItem;
+        // private readonly ParameterExpression replaceStackItem;
         private readonly ParameterExpression replaceContext;
         private readonly ParameterExpression replaceScriptInfo;
         private Sequence<(LabelTarget label, int id)> jumps = new Sequence<(LabelTarget label, int id)>();
@@ -44,23 +44,24 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             ParameterExpression pe, 
             LabelTarget @return, 
             ParameterExpression replaceArguments,
-            ParameterExpression replaceStackItem,
-            ParameterExpression replaceContext,
-            ParameterExpression replaceScriptInfo)
+            // ParameterExpression replaceStackItem,
+            ParameterExpression replaceContext
+            // ParameterExpression replaceScriptInfo
+            )
         {
             this.pe = pe;
             this.args = Expression.Parameter(typeof(Arguments).MakeByRefType(), "args");
             this.nextJump = Expression.Parameter(typeof(int), "nextJump");
             this.nextValue = Expression.Parameter(typeof(JSValue), "nextValue");
             this.exception = Expression.Parameter(typeof(Exception), "ex");
-            this.StackItem = Expression.Field(pe, "StackItem");
+            // this.StackItem = Expression.Field(pe, "StackItem");
             this.Context = Expression.Field(pe, "Context");
-            this.ScriptInfo = Expression.Field(pe, "ScriptInfo");
-            this.Closures = Expression.Field(pe, "Closures");
+            // this.ScriptInfo = Expression.Field(pe, "ScriptInfo");
+            // this.Closures = Expression.Field(pe, "Closures");
             this.replaceArgs = replaceArguments;
-            this.replaceStackItem = replaceStackItem;
+            // this.replaceStackItem = replaceStackItem;
             this.replaceContext = replaceContext;
-            this.replaceScriptInfo = replaceScriptInfo;
+            // this.replaceScriptInfo = replaceScriptInfo;
             this.@return = @return;
             this.generatorReturn = Expression.Label(typeof(GeneratorState), "RETURN");
             this.lifted = new Sequence<(ParameterExpression original, ParameterExpression box, int index)>();
@@ -76,7 +77,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
            ParameterExpression replaceContext,
            ParameterExpression replaceScriptInfo)
         {
-            var gw = new GeneratorRewriter(generator, r, replaceArgs, replaceStackItem, replaceContext, replaceScriptInfo);
+            var gw = new GeneratorRewriter(generator, r, replaceArgs /*,replaceStackItem,*/, replaceContext /*,replaceScriptInfo*/);
 
             body = MethodRewriter.Rewrite(body);
 
@@ -221,12 +222,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         {
             if (node == replaceArgs)
                 return args;
-            if (node == replaceStackItem)
-                return StackItem;
+            //if (node == replaceStackItem)
+            //    return StackItem;
             if (node == replaceContext)
                 return Context;
-            if (node == replaceScriptInfo)
-                return ScriptInfo;
+            //if (node == replaceScriptInfo)
+            //    return ScriptInfo;
             foreach(var l in lifted)
             {
                 if (l.original == node)

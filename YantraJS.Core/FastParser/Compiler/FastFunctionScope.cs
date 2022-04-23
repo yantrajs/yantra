@@ -215,7 +215,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         // public ParameterExpression Closures { get; }
 
-        public ParameterExpression ScriptInfo { get; }
+        // public ParameterExpression ScriptInfo { get; }
 
         public bool IsRoot => Function == null;
 
@@ -370,7 +370,7 @@ namespace YantraJS.Core.FastParser.Compiler
             this.Context = Expression.Parameter(typeof(JSContext), $"{nameof(Context)}{sID}");
             this.StackItem = Expression.Parameter(typeof(CallStackItem), $"{nameof(StackItem)}{sID}");
             // this.Closures = Expression.Parameter(typeof(JSVariable[]), $"{nameof(Closures)}{sID}");
-            this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), $"{nameof(ScriptInfo)}{sID}");
+            // this.ScriptInfo = Expression.Parameter(typeof(ScriptInfo), $"{nameof(ScriptInfo)}{sID}");
             this.Loop = new LinkedStack<LoopScope>();
             TempVariables = new Sequence<VariableScope>();
             ReturnLabel = Expression.Label(typeof(YantraJS.Core.JSValue));
@@ -393,7 +393,7 @@ namespace YantraJS.Core.FastParser.Compiler
             this.Context = p.Context;
             this.StackItem = p.StackItem;
             // this.Closures = p.Closures;
-            this.ScriptInfo = p.ScriptInfo;
+            // this.ScriptInfo = p.ScriptInfo;
             this.Loop = p.Loop;
             ReturnLabel = p.ReturnLabel;
         }

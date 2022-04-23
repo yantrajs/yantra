@@ -38,12 +38,12 @@ namespace YantraJS.Core.FastParser.Compiler
 
             var functionName = functionDeclaration.Id?.Name.Value;
 
-            var parentScriptInfo = this.scope.Top.ScriptInfo;
+            // var parentScriptInfo = this.scope.Top.ScriptInfo;
 
             var nodeCode = node.Code;
 
             var code = StringSpanBuilder.New(
-                ScriptInfoBuilder.Code(parentScriptInfo),
+                ScriptInfoBuilder.Code(scriptInfo),
                 nodeCode.Offset ,
                 nodeCode.Length);
             var sList = new Sequence<Exp>();
@@ -85,11 +85,11 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         var id = functionDeclaration.Id;
                         fxName = StringSpanBuilder.New(
-                            ScriptInfoBuilder.Code(parentScriptInfo),
+                            ScriptInfoBuilder.Code(scriptInfo),
                             id.Name.Offset,
                             id.Name.Length);
                         localFxName = StringSpanBuilder.New(
-                            ScriptInfoBuilder.Code(s.ScriptInfo),
+                            ScriptInfoBuilder.Code(scriptInfo),
                             id.Name.Offset,
                             id.Name.Length);
                         nameOffset = id.Name.Offset;
@@ -108,7 +108,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     // var fn = ScriptInfoBuilder.FileName(s.ScriptInfo);
 
                     // JSContextStackBuilder.Push(sList, s.Context, stackItem, fn, localFxName, point.Line, point.Column);
-                    sList.Add(Exp.Assign(stackItem, CallStackItemBuilder.New(cs.Context, cs.ScriptInfo,
+                    sList.Add(Exp.Assign(stackItem, CallStackItemBuilder.New(cs.Context, scriptInfo,
                         nameOffset,
                         nameLength,
                         point.Line,
@@ -169,13 +169,13 @@ namespace YantraJS.Core.FastParser.Compiler
                     //        JSContextBuilder.Current),
                     //        block);
 
-                    Exp closureArray = Exp.Constant(null, typeof(JSVariable[]));
-                    if (cs.ClosureList != null)
-                    {
-                        closureArray = Exp.NewArrayInit(typeof(JSVariable), cs.ClosureList.Select(x => x.Variable));
-                    }
+                    //Exp closureArray = Exp.Constant(null, typeof(JSVariable[]));
+                    //if (cs.ClosureList != null)
+                    //{
+                    //    closureArray = Exp.NewArrayInit(typeof(JSVariable), cs.ClosureList.Select(x => x.Variable));
+                    //}
 
-                    Exp scriptInfo = parentScriptInfo;
+                    // Exp scriptInfo = parentScriptInfo;
 
                     functionName = functionName ?? "inline";
 
@@ -208,9 +208,9 @@ namespace YantraJS.Core.FastParser.Compiler
                             replaceArgs: cs.Arguments,
                             replaceStackItem: cs.StackItem,
                             replaceContext: cs.Context, 
-                            replaceScriptInfo: cs.ScriptInfo);
+                            replaceScriptInfo: scriptInfo);
 
-                        jsf = JSGeneratorFunctionBuilderV2.New(parentScriptInfo, closureArray, lambda, fxName, code);
+                        jsf = JSGeneratorFunctionBuilderV2.New(lambda, fxName, code);
 
                         // jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
 
@@ -222,10 +222,10 @@ namespace YantraJS.Core.FastParser.Compiler
                             replaceArgs: cs.Arguments,
                             replaceStackItem: cs.StackItem,
                             replaceContext: cs.Context,
-                            replaceScriptInfo: cs.ScriptInfo);
+                            replaceScriptInfo: scriptInfo);
 
                         jsf = JSAsyncFunctionBuilder.Create(
-                            JSGeneratorFunctionBuilderV2.New(parentScriptInfo, closureArray, lambda, fxName, code));
+                            JSGeneratorFunctionBuilderV2.New(lambda, fxName, code));
 
                         //lambda = Exp.Lambda(typeof(JSAsyncDelegate), block, in scriptFunctionName, new ParameterExpression[] {
                         //    cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
@@ -234,15 +234,14 @@ namespace YantraJS.Core.FastParser.Compiler
                     }
                     else
                     {
-                        lambda = Exp.Lambda(typeof(JSClosureFunctionDelegate), block, in scriptFunctionName, new ParameterExpression[] {
-                        cs.ScriptInfo, cs.Closures, cs.Arguments });
+                        lambda = Exp.Lambda(typeof(JSFunctionDelegate), block, in scriptFunctionName, new ParameterExpression[] { cs.Arguments });
                         //if (createClass)
                         //{
                         //    jsf = JSClassBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), super, className ?? "Unnamed");
                         //}
                         //else
                         {
-                            jsf = JSClosureFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code, functionDeclaration.Params.Count);
+                            jsf = JSFunctionBuilder.New(ToDelegate(lambda), fxName, code, functionDeclaration.Params.Count);
                         }
                     }
 
