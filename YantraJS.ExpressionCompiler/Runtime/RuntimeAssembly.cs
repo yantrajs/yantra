@@ -67,7 +67,7 @@ namespace YantraJS.Runtime
             var ilg = method.GetILGenerator();
             StringWriter sw = new StringWriter();
             var expWriter = new StringWriter();
-            ILCodeGenerator.GenerateLogs = true;
+            // ILCodeGenerator.GenerateLogs = true;
             ILCodeGenerator icg = new ILCodeGenerator(ilg, methodBuilder,  sw, expWriter);
             icg.Emit(exp);
 

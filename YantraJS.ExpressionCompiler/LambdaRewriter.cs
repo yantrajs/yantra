@@ -79,7 +79,7 @@ namespace YantraJS
             var boxType = isBox ? pe.Type : BoxHelper.For(pe.Type).BoxType;
             var converted = YExpression.Parameter(boxType, pe.Name + "`");
             YExpression valueField = isBox ? converted : YExpression.Field(converted, "Value");
-            var argIndex = Array.IndexOf(lambda.Parameters, pe) + 1;
+            var argIndex = Array.IndexOf(lambda.Parameters, pe);
             Closures[pe] = (converted, valueField, -1, argIndex);
             return converted;
         }

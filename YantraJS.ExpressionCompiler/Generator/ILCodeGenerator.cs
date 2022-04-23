@@ -135,10 +135,11 @@ namespace YantraJS.Generator
 
                     if (argIndex != -1)
                     {
-                        il.EmitLoadArg(argIndex);
+                        il.EmitLoadArg(argIndex + 1);
                         if (local.Type != original.Type)
                         {
-                            il.EmitNew(local.Type.GetConstructor(original.Type));
+                            var cnstr = local.Type.GetConstructor(original.Type);
+                            il.EmitNew(cnstr);
                         }
                         il.EmitSaveLocal(i);
                     }
@@ -147,7 +148,6 @@ namespace YantraJS.Generator
                         // this is a problem in loop
                         // so box should be created when first assigned
                         // or read...
-                        // il.EmitNew(local.Type.GetConstructor());
                         uninitialized[kvp.Key] = (local.Type, i);
                     }
 
