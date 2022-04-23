@@ -103,6 +103,7 @@ namespace YantraJS.Generator
                 // add temporary replacements
                 // load this...
                 il.EmitLoadArg(0);
+                il.Emit(OpCodes.Ldfld, Closures.boxesField);
 
                 // Outer Closures
                 foreach (var kvp in closures.Where(x => x.Value.index != -1))
@@ -115,7 +116,6 @@ namespace YantraJS.Generator
                     if (index != -1)
                     {
                         il.Emit(OpCodes.Dup);
-                        il.Emit(OpCodes.Ldfld, Closures.boxesField);
                         il.EmitConstant(index);
                         il.Emit(OpCodes.Ldelem, local.Type);
                         // save it in field...
@@ -136,7 +136,10 @@ namespace YantraJS.Generator
                     if (argIndex != -1)
                     {
                         il.EmitLoadArg(argIndex);
-                        il.EmitNew(local.Type.GetConstructor(original.Type));
+                        if (local.Type != original.Type)
+                        {
+                            il.EmitNew(local.Type.GetConstructor(original.Type));
+                        }
                         il.EmitSaveLocal(i);
                     }
                     else

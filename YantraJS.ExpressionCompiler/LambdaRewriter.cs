@@ -62,9 +62,10 @@ namespace YantraJS
             if (Closures.TryGetValue(pe, out var value))
                 return value.local;
             var s = source();
-            var boxType = BoxHelper.For(pe.Type).BoxType;
+            bool isBox = typeof(Box).IsAssignableFrom(pe.Type);
+            var boxType = isBox ? pe.Type : BoxHelper.For(pe.Type).BoxType;
             var converted = YExpression.Parameter(boxType, pe.Name + "`");
-            var valueField = YExpression.Field(converted, "Value");
+            YExpression valueField = isBox ? converted : YExpression.Field(converted, "Value");
             Closures[pe] = (converted, valueField, Inputs.Count, -1);
             Inputs.Add(s);
             return converted;
@@ -74,9 +75,10 @@ namespace YantraJS
         {
             if (Closures.TryGetValue(pe, out var value))
                 return value.local;
-            var boxType = BoxHelper.For(pe.Type).BoxType;
+            bool isBox = typeof(Box).IsAssignableFrom(pe.Type);
+            var boxType = isBox ? pe.Type : BoxHelper.For(pe.Type).BoxType;
             var converted = YExpression.Parameter(boxType, pe.Name + "`");
-            var valueField = YExpression.Field(converted, "Value");
+            YExpression valueField = isBox ? converted : YExpression.Field(converted, "Value");
             var argIndex = Array.IndexOf(lambda.Parameters, pe) + 1;
             Closures[pe] = (converted, valueField, -1, argIndex);
             return converted;
