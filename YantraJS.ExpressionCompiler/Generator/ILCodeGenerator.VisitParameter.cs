@@ -16,6 +16,7 @@ namespace YantraJS.Generator
 
             if (closureRepository.TryGet(yParameterExpression, out var ve))
             {
+                this.InitializeClosure(yParameterExpression);
                 return Visit(ve);
             }
 

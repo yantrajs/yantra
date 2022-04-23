@@ -13,6 +13,7 @@ namespace YantraJS.Generator
         {
             if (closureRepository.TryGet(yParameterExpression, out var ve))
             {
+                InitializeClosure(yParameterExpression);
                 return Assign(ve, exp, savedIndex);
             }
 

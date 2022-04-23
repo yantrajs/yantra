@@ -25,6 +25,9 @@ namespace YantraJS.Generator
         private readonly IMethodBuilder methodBuilder;
         private readonly TextWriter? expressionWriter;
 
+        private readonly Dictionary<YParameterExpression,(Type type, int localIndex)> uninitialized
+            = new Dictionary<YParameterExpression, (Type, int)>(ReferenceEqualityComparer.Instance);
+
         public Sequence<ILDebugInfo> SequencePoints { get; }
             = new Sequence<ILDebugInfo>();
 
@@ -54,6 +57,16 @@ namespace YantraJS.Generator
             this.tempVariables = new TempVariables(this.il);
             this.methodBuilder = methodBuilder;
             this.expressionWriter = expressionWriter;
+        }
+
+        private void InitializeClosure(YParameterExpression pe)
+        {
+            if (uninitialized.TryGetValue(pe, out var x))
+            {
+                uninitialized.Remove(pe);
+                il.EmitNew(x.type.GetConstructor());
+                il.EmitSaveLocal(x.localIndex);
+            }
         }
 
         internal void Emit(YLambdaExpression exp)
@@ -124,11 +137,16 @@ namespace YantraJS.Generator
                     {
                         il.EmitLoadArg(argIndex);
                         il.EmitNew(local.Type.GetConstructor(original.Type));
-                    } else
-                    {
-                        il.EmitNew(local.Type.GetConstructor());
+                        il.EmitSaveLocal(i);
                     }
-                    il.EmitSaveLocal(i);
+                    else
+                    {
+                        // this is a problem in loop
+                        // so box should be created when first assigned
+                        // or read...
+                        // il.EmitNew(local.Type.GetConstructor());
+                        uninitialized[kvp.Key] = (local.Type, i);
+                    }
 
                     i++;
                 }
