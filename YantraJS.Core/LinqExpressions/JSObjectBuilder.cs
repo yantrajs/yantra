@@ -127,7 +127,7 @@ namespace YantraJS.ExpHelper
             Expression value,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            if(key.Type == typeof(JSValue))
+            if(key.Type.IsJSValueType())
             {
                 return new YElementInit(_FastAddValueKeyValue, key, value, Expression.Constant(attributes));
                 // return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));
@@ -152,7 +152,7 @@ namespace YantraJS.ExpHelper
             Expression setter, 
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            if (key.Type == typeof(JSValue))
+            if (key.Type.IsJSValueType())
             {
                 return new YElementInit(_FastAddSetterValue, key, setter, Expression.Constant(attributes));
                 // return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));
@@ -176,7 +176,7 @@ namespace YantraJS.ExpHelper
             Expression getter,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            if (key.Type == typeof(JSValue))
+            if (key.Type.IsJSValueType())
             {
                 return new YElementInit(_FastAddGetterValue, key, getter, Expression.Constant(attributes));
                 // return Expression.Call(null, _AddValue, target, key, value, Expression.Constant(attributes));

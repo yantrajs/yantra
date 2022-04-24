@@ -58,5 +58,46 @@ namespace YantraJS.Core
             value = default;
             return false;
         }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsUIntLiteral(this AstNode exp, out uint value)
+        {
+            if (Is<AstLiteral>(exp, FastNodeType.Literal, out var literall))
+            {
+                if (literall.TokenType == TokenTypes.Number)
+                {
+                    var n = literall.NumericValue;
+                    value = 0;
+                    if (n == 0)
+                    {
+                        return true;
+                    }
+                    if (n > 0 && n % 1 == 0)
+                    {
+                        value = (uint)n;
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            value = default;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNumberLiteral(this AstNode exp, out double value)
+        {
+            if (Is<AstLiteral>(exp, FastNodeType.Literal, out var literall))
+            {
+                if (literall.TokenType == TokenTypes.Number)
+                {
+                    value = literall.NumericValue;
+                    return true;
+                }
+            }
+            value = default;
+            return false;
+        }
     }
 }

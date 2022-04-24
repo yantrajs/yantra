@@ -237,6 +237,11 @@ namespace YantraJS
     internal static class TypeExtensions
     {
 
+        public static bool IsJSValueType(this Type type)
+        {
+            return typeof(JSValue).IsAssignableFrom(type);
+        }
+
         public static bool HasAttribute<T>(this MemberInfo member, out T value)
             where T: Attribute
         {
