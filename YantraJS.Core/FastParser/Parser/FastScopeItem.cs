@@ -66,11 +66,12 @@ namespace YantraJS.Core.FastParser
                         return;
                     }
                 }
-                if (n.Parent != null && n.NodeType == FastNodeType.Block && n.Parent.NodeType == FastNodeType.Block)
-                {
-                    n = n.Parent;
-                    continue;
-                }
+                // following is not needed??
+                //if (n.Parent != null && n.NodeType == FastNodeType.Block && n.Parent.NodeType == FastNodeType.Block)
+                //{
+                //    n = n.Parent;
+                //    continue;
+                //}
                 break;
             }
 

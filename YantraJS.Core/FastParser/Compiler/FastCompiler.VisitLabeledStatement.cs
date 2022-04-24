@@ -33,7 +33,12 @@ namespace YantraJS.Core.FastParser.Compiler
                 case FastNodeType.DoWhileStatement:
                     return VisitDoWhileStatement(labeledStatement.Body as AstDoWhileStatement, labeledStatement.Label.Span.Value);
                 default:
-                    return VisitStatement(labeledStatement.Body);
+                    {
+                        var breakTarget = Exp.Label();
+                        var label = labeledStatement.Label.Span.Value;
+                        using var s = scope.Top.Loop.Push(new LoopScope(breakTarget, null, false, label));
+                        return Exp.Block(VisitStatement(labeledStatement.Body), Exp.Label(breakTarget));
+                    }
             }
             throw new NotImplementedException();
         }

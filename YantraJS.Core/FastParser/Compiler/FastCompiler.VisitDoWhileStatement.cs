@@ -16,6 +16,8 @@ using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 namespace YantraJS.Core.FastParser.Compiler
 {
     partial class FastCompiler{
+
+        // In doWhile continue should preced the test
         protected override Expression VisitDoWhileStatement(AstDoWhileStatement doWhileStatement, string label = null)
         {
             var breakTarget = Exp.Label();
@@ -25,9 +27,9 @@ namespace YantraJS.Core.FastParser.Compiler
                 var body = VisitStatement(doWhileStatement.Body);
                 var test = Exp.Not(JSValueBuilder.BooleanValue(VisitExpression(doWhileStatement.Test)));
                 return Exp.Loop(
-                    Exp.Block(body, Exp.IfThen(test, Exp.Goto(breakTarget))),
+                    Exp.Block(body, Exp.Label(continueTarget), Exp.IfThen(test, Exp.Goto(breakTarget))),
                     breakTarget,
-                    continueTarget);
+                    null);
             }
         }
     }

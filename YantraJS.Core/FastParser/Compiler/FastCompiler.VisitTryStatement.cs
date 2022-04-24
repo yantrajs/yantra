@@ -26,8 +26,9 @@ namespace YantraJS.Core.FastParser.Compiler
             if (cb != null)
             {
                 var id = tryStatement.Identifier;
-                var pe = scope.Top.CreateException(id.Name.Value);
-                var v = scope.Top.CreateVariable(id.Name);
+                var pe = this.scope.Top.CreateException(id.Name.Value);
+                using var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
+                var v = scope.CreateVariable(id.Name, newScope: true);
 
                 var catchBlock = Exp.Block(v.Variable.AsSequence(),
                     Exp.Assign(v.Variable, ExpHelper.JSVariableBuilder.NewFromException(pe.Variable, id.Name.Value)),
