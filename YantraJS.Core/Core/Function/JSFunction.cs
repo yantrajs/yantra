@@ -43,61 +43,59 @@ namespace YantraJS.Core
         }
     }
 
-    public class JSClosureFunction: JSFunction
-    {
-        private readonly ScriptInfo script;
-        private readonly JSVariable[] closures;
-        internal readonly JSClosureFunctionDelegate cf;
+    //public class JSClosureFunction: JSFunction
+    //{
+    //    private readonly ScriptInfo script;
+    //    private readonly JSVariable[] closures;
+    //    internal readonly JSClosureFunctionDelegate cf;
 
-        public JSClosureFunction(
-            ScriptInfo script,
-            JSVariable[] closures,
-            JSClosureFunctionDelegate cf,
-            in StringSpan name,
-            in StringSpan source,
-            int length = 0): base(Closure(script, closures,cf), name, source, length)
-        {
-            this.script = script;
-            this.closures = closures;
-            this.cf = cf;
-        }
+    //    public JSClosureFunction(
+    //        ScriptInfo script,
+    //        JSVariable[] closures,
+    //        JSClosureFunctionDelegate cf,
+    //        in StringSpan name,
+    //        in StringSpan source,
+    //        int length = 0): base(Closure(script, closures,cf), name, source, length)
+    //    {
+    //        this.script = script;
+    //        this.closures = closures;
+    //        this.cf = cf;
+    //    }
 
-        private static JSFunctionDelegate Closure(ScriptInfo script, JSVariable[] closures, JSClosureFunctionDelegate cf)
-        {
-            return (in Arguments a) => {
-                return cf(script, closures, in a);
-            };
-        }
+    //    private static JSFunctionDelegate Closure(ScriptInfo script, JSVariable[] closures, JSClosureFunctionDelegate cf)
+    //    {
+    //        return (in Arguments a) => {
+    //            return cf(script, closures, in a);
+    //        };
+    //    }
 
-        public override JSValue CreateInstance(in Arguments a)
-        {
-            JSValue obj = new JSObject
-            {
-                BasePrototypeObject = prototype
-            };
-            var a1 = a.OverrideThis(obj, this);
-            var r = cf(script, closures, in a1);
-            if (r.IsObject)
-            {
-                r.BasePrototypeObject = prototype;
-                return r;
-            }
-            return obj;
-        }
+    //    public override JSValue CreateInstance(in Arguments a)
+    //    {
+    //        JSValue obj = new JSObject
+    //        {
+    //            BasePrototypeObject = prototype
+    //        };
+    //        var a1 = a.OverrideThis(obj, this);
+    //        var r = cf(script, closures, in a1);
+    //        if (r.IsObject)
+    //        {
+    //            r.BasePrototypeObject = prototype;
+    //            return r;
+    //        }
+    //        return obj;
+    //    }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            return cf(script, closures, in a);
-        }
-    }
+    //    public override JSValue InvokeFunction(in Arguments a)
+    //    {
+    //        return cf(script, closures, in a);
+    //    }
+    //}
 
 
     public partial class JSFunction : JSObject
     {
 
         internal static JSFunctionDelegate empty = (in Arguments a) => a.This;
-
-        internal static JSClosureFunctionDelegate emptyCF = (ScriptInfo s, JSVariable[] closures, in Arguments a) => a.This;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSObject prototype;

@@ -179,7 +179,7 @@ namespace YantraJS.Core.FastParser.Compiler
             //}
             // stmts.Add(retValue);
 
-            var _new = JSClassBuilder.New(scriptInfo, null, null, superVar, id?.Name.Value ?? "Unnamed");
+            var _new = JSClassBuilder.New(scriptInfo, superVar, id?.Name.Value ?? "Unnamed");
 
             if (prototypeElements.Any())
             {

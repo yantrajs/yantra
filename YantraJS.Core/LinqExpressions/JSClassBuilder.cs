@@ -23,9 +23,7 @@ namespace YantraJS.ExpHelper
 
         private static ConstructorInfo _New =
             type.Constructor(new Type[] {
-                typeof(ScriptInfo),
-                typeof(JSVariable[]),
-                typeof(JSClosureFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
+                typeof(JSFunctionDelegate), typeof(JSFunction), typeof(string), typeof(string)  });
 
         public static MethodInfo _AddConstructor =
             type.PublicMethod(nameof(JSClass.AddConstructor), typeof(JSFunction));
@@ -125,17 +123,13 @@ namespace YantraJS.ExpHelper
 
 
         public static YNewExpression New(
-            Expression scriptInfo,
-            Expression closures,
             Expression constructor,
             Expression super,
             string name,
             string code = "")
         {
             return Expression.New(_New,
-                scriptInfo,
-                closures ?? Expression.Constant(null,typeof(JSVariable[])),
-                constructor ?? Expression.Constant(null, typeof(JSClosureFunctionDelegate)),
+                constructor ?? Expression.Constant(null, typeof(JSFunctionDelegate)),
                 super ?? Expression.Constant(null, typeof(JSFunction)),
                 Expression.Constant(name),
                 Expression.Constant(code));

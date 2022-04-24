@@ -25,34 +25,34 @@ using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 
 namespace YantraJS.ExpHelper
 {
-    public class JSClosureFunctionBuilder
-    {
-        private static readonly Type type = typeof(JSClosureFunction);
+    //public class JSClosureFunctionBuilder
+    //{
+    //    private static readonly Type type = typeof(JSClosureFunction);
 
-        private static readonly ConstructorInfo _New =
-            type.Constructor(
-                typeof(ScriptInfo),
-                typeof(JSVariable[]),
-                typeof(JSClosureFunctionDelegate),
-                StringSpanBuilder.RefType,
-                StringSpanBuilder.RefType,
-                typeof(int));
+    //    private static readonly ConstructorInfo _New =
+    //        type.Constructor(
+    //            typeof(ScriptInfo),
+    //            typeof(JSVariable[]),
+    //            typeof(JSClosureFunctionDelegate),
+    //            StringSpanBuilder.RefType,
+    //            StringSpanBuilder.RefType,
+    //            typeof(int));
 
-        internal static Expression New(
-            Expression scriptInfo,
-            Expression closureArray, 
-            Expression lambda, 
-            Expression fxName, 
-            Expression code, 
-            int count)
-        {
-            return Expression.New(_New, scriptInfo, closureArray,
-                lambda,
-                fxName,
-                code,
-                Expression.Constant(count));
-        }
-    }
+    //    internal static Expression New(
+    //        Expression scriptInfo,
+    //        Expression closureArray, 
+    //        Expression lambda, 
+    //        Expression fxName, 
+    //        Expression code, 
+    //        int count)
+    //    {
+    //        return Expression.New(_New, scriptInfo, closureArray,
+    //            lambda,
+    //            fxName,
+    //            code,
+    //            Expression.Constant(count));
+    //    }
+    //}
 
     public class JSFunctionBuilder
     {
