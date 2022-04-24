@@ -129,8 +129,8 @@ namespace YantraJS.ExpHelper
             string code = "")
         {
             return Expression.New(_New,
-                constructor ?? Expression.Constant(null, typeof(JSFunctionDelegate)),
-                super ?? Expression.Constant(null, typeof(JSFunction)),
+                constructor ?? Expression.Null,
+                super ?? Expression.Null,
                 Expression.Constant(name),
                 Expression.Constant(code));
         }

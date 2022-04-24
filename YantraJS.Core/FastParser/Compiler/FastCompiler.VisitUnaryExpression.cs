@@ -104,7 +104,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     if (target != null && target.Type != FastNodeType.Literal)
                         return Exp.Condition(
                             Exp.Equal(
-                                Exp.Constant(null, typeof(JSValue)), Visit(target)), 
+                                Exp.Null, Visit(target)), 
                             JSUndefinedBuilder.Value, 
                             JSUndefinedBuilder.Value);
                     return ExpHelper.JSUndefinedBuilder.Value;
