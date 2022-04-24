@@ -306,18 +306,34 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject target))
                 return;
-            var pe = new PropertyEnumerator(target, true, false);
-            while (pe.MoveNext(out var key, out var val))
+            var pe = target.ownProperties.GetEnumerator();
+            while (pe.MoveNext(out var key, out var val) && !val.IsEmpty)
             {
-                this[key] = val;
+                this.ownProperties.Put(key.Key) = val.IsValue
+                    ? JSProperty.Property(val.value)
+                    : JSProperty.Property(target.GetValue(val));
             }
-            var en = new ElementEnumerator(target);
-            while (en.MoveNext(out var hasValue, out var val, out var index))
+            var en = target.elements.Length;
+            for(uint i = 0; i< en; i++)
             {
-                if (hasValue)
+                if (target.elements.TryGetValue(i, out var p) && !p.IsEmpty)
                 {
-                    this[index] = val;
+                    this.elements.Put(i) = p.IsValue
+                        ? JSProperty.Property(p.value)
+                        : JSProperty.Property(target.GetValue(p));
                 }
+            }
+            foreach(var symbol in target.symbols.All)
+            {
+                var key = symbol.Key;
+                var sv = symbol.Value;
+                if (sv.IsEmpty)
+                {
+                    continue;
+                }
+                this.symbols.Put(key) = sv.IsValue
+                    ? JSProperty.Property(sv.value)
+                    : JSProperty.Property(target.GetValue(sv));
             }
         }
 

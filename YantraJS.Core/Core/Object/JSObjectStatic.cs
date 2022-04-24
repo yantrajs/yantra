@@ -53,20 +53,10 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject firstObject))
                 return first;
-            ref var firstOwnProperties = ref firstObject.GetOwnProperties();
             for (var i = 1; i < a.Length; i++)
             {
                 var ai = a.GetAt(i);
-                if (!(ai is JSObject @object))
-                    continue;
-                ref var props = ref @object.GetOwnProperties(false);
-                if (props.IsEmpty)
-                    continue;
-                var en = props.GetEnumerator();
-                while (en.MoveNext(out var keyString, out var value))
-                {
-                    firstOwnProperties.Put(keyString.Key, @object.GetValue(value));
-                }
+                firstObject.FastAddRange(ai);
             }
             return first;
         }
