@@ -40,7 +40,7 @@ namespace YantraJS
             // il = null;
 
             var cnstrLambda = YExpression.Lambda(innerLambda.Type, "cnstr",
-                YExpression.CallNew(Closures.constructor, YExpression.Null, boxes, YExpression.Constant((string)null), YExpression.Constant((string)null)),
+                YExpression.CallNew(Closures.constructor, YExpression.Null, boxes, YExpression.Null, YExpression.Null),
                 new YParameterExpression[] { YExpression.Parameter(derived), boxes });
 
             var cnstrIL = new ILCodeGenerator( cnstr.GetILGenerator(), null);

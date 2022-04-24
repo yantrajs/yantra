@@ -86,8 +86,8 @@ namespace YantraJS.ExpHelper
         public static Expression NewSyntaxError(string error) {
             return Expression.Call(Current, _NewSyntaxError, 
                 Expression.Constant(error),
-                Expression.Constant(null,typeof(string)),
-                Expression.Constant(null, typeof(string)),
+                Expression.Null,
+                Expression.Null,
                 Expression.Constant(0)
                 );
         }
