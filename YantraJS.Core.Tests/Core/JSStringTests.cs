@@ -21,17 +21,13 @@ namespace YantraJS.Tests.Core
 //(function(){return 1; /***/ })()
 //");
             this.context.Eval(@"
-let a = [1,2,3];
-
-let b = [];
-b = [];
-
-for (let n of a) {
-    b.push(() => n);
+class C {
+  a() { return `a`; }
 }
+var x = new C();
+assert(x);
 
-b = b.map(n => n());
-assert.strictEqual(`1,2,3`, b.toString());");
+");
 }
 
     }
