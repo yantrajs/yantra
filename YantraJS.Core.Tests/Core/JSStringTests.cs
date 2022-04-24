@@ -24,7 +24,7 @@ namespace YantraJS.Tests.Core
 class C {
   a() { return `a`; }
 }
-var x = new C();
+var x = new C().a();
 assert(x);
 
 ");
