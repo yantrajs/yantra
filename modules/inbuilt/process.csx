@@ -1,8 +1,10 @@
 #r "nuget: YantraJS.Core,1.1.106"
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
+
 
 public class YProcess {
 
@@ -17,10 +19,10 @@ public class YProcess {
 
 }
 
-static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
+static Task Module(JSModule module) {
 
-    module["exports"] = ClrType.From(typeof(YProcess));
-
+    module.Exports = ClrType.From(typeof(YProcess));
+    return Task.CompletedTask;
 }
 
 return (JSModuleDelegate)Module;

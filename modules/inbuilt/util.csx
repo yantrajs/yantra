@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YantraJS;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
@@ -39,8 +40,9 @@ public class YUtil {
 
 }
 
-static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
-    module["exports"] = ClrType.From(typeof(YUtil));
+static Task Module(JSModule module) {
+    module.Exports = ClrType.From(typeof(YUtil));
+    return Task.CompletedTask;
 }
 
 

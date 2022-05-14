@@ -40,12 +40,8 @@ namespace YantraJS.Core
         }
     }
 
-    public delegate void JSModuleDelegate(
-    JSValue exports,
-    JSValue require,
-    JSValue module,
-    string __filename,
-    string __dirname
+    public delegate Task JSModuleDelegate(
+        JSModule module
     );
 
     //internal class ModuleCache: ConcurrentSharedStringTrie<JSModule>
@@ -90,6 +86,12 @@ namespace YantraJS.Core
             return modules.GetOrCreate(k.Key, factory);
         }
 
+        public void Add(in StringSpan key, JSModule module)
+        {
+            var k = nameCache.Get(key);
+            modules[k.Key] = module;
+        }
+
         public ModuleCache(bool v)
         {
             modules = ConcurrentUInt32Map<JSModule>.Create();
@@ -126,9 +128,9 @@ namespace YantraJS.Core
             Module = this.Create<JSModule>(KeyStrings.Module, null, false);
             ModulePrototype = Module.prototype;
 
-            moduleCache[ModuleCache.module] = new JSModule(Module, "module");
+            moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
 
-            moduleCache[ModuleCache.clr] = new JSModule(ClrModule.Default, "clr");
+            moduleCache[ModuleCache.clr] = new JSModule(this, ClrModule.Default, "clr");
 
             this[KeyStrings.globalThis] = this;
             this[KeyStrings.global] = this;
@@ -137,7 +139,7 @@ namespace YantraJS.Core
         public void RegisterModule(in KeyString name, JSObject exports)
         {
             var n = name.ToString();
-            moduleCache.GetOrCreate(name.Value ,() => new JSModule(exports, n));
+            moduleCache.GetOrCreate(name.Value ,() => new JSModule(this, exports, n));
         }
 
         /// <summary>
@@ -264,7 +266,7 @@ namespace YantraJS.Core
             {
                 text = await fs.ReadToEndAsync();
             }
-            Main = new JSModule(this, filePath, text, true);
+            Main = await this.CreateAsync(filePath, text, true);
             var r = Main.Exports;
             var w = WaitTask;
             if (w != null)
@@ -280,6 +282,10 @@ namespace YantraJS.Core
 
         }
 
+        protected virtual Task<JSModule> CreateAsync(string filePath, string text, bool isMain)
+        {
+            return JSModule.CreateAsync(this, filePath, text, isMain);
+        }
 
         public async static Task<JSValue> RunExportsAsync(
             string folder, 
@@ -303,7 +309,7 @@ namespace YantraJS.Core
                 {
                     text = await fs.ReadToEndAsync();
                 }
-                var main = m.Main = new JSModule(m, filePath, text, true);
+                var main = m.Main = await m.CreateAsync(filePath, text, true);
                 var exported = main.Exports[exportedFunctionName];
                 if (exported.IsUndefined)
                     throw new KeyNotFoundException($"{exportedFunctionName} not found on the module");
@@ -323,12 +329,32 @@ namespace YantraJS.Core
 
         public JSModule Main { get; set;}
 
-        internal protected JSValue LoadModule(JSModule callee, in Arguments a)
+        //internal protected JSValue LoadModule(JSModule callee, in Arguments a)
+        //{
+        //    var name = a.Get1();
+        //    if (!name.IsString)
+        //        throw NewTypeError("require method's parameter must be a string");
+        //    var relativePath = name.ToString();
+
+        //    // fetch system modules 
+        //    if (moduleCache.TryGetValue(relativePath, out var m))
+        //    {
+        //        return m.Exports;
+        //    }
+
+        //    // resolve full name..
+        //    var fullPath = Resolve(callee.dirPath, relativePath);
+        //    if (fullPath == null)
+        //        throw NewTypeError($"{relativePath} module not found");
+        //    var code = System.IO.File.ReadAllText(fullPath);
+        //    JSModule module = moduleCache.GetOrCreate(fullPath, () => new JSModule(this, fullPath, code));
+        //    var exports = module.Exports;
+        //    return exports;
+        //}
+
+        internal protected async Task<JSValue> LoadModuleAsync(JSModule callee, string name)
         {
-            var name = a.Get1();
-            if (!name.IsString)
-                throw NewTypeError("require method's parameter must be a string");
-            var relativePath = name.ToString();
+            var relativePath = name;
 
             // fetch system modules 
             if (moduleCache.TryGetValue(relativePath, out var m))
@@ -340,15 +366,20 @@ namespace YantraJS.Core
             var fullPath = Resolve(callee.dirPath, relativePath);
             if (fullPath == null)
                 throw NewTypeError($"{relativePath} module not found");
+            if (moduleCache.TryGetValue(fullPath, out m))
+            {
+                return m.Exports;
+            }
             var code = System.IO.File.ReadAllText(fullPath);
-            JSModule module = moduleCache.GetOrCreate(fullPath, () => new JSModule(this, fullPath, code));
-            var exports = module.Exports;
-            return exports;
+            var module = await CreateAsync( fullPath, code, false);
+            moduleCache.Add(fullPath, module);
+            return module.Exports;
         }
-        internal protected virtual JSFunctionDelegate Compile(string code, string filePath, List<string> args)
-        {
-            return CoreScript.Compile(code, filePath, args);
-        }
+
+        //internal protected virtual JSFunctionDelegate Compile(string code, string filePath, List<string> args)
+        //{
+        //    return CoreScript.Compile(code, filePath, args);
+        //}
 
 
     }

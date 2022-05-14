@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YantraJS;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
@@ -92,9 +93,10 @@ public class YVM {
     }
 }
 
-static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
+static Task Module(JSModule module) {
     YVM.context = YVM.context ?? new JSSymbol("context");
-    module["exports"] = ClrType.From(typeof(YVM));
+    module.Exports = ClrType.From(typeof(YVM));
+    return Task.CompletedTask;
 }
 
 

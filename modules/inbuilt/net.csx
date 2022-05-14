@@ -2,9 +2,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using YantraJS;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
+
 
 public class YNet {
 
@@ -20,8 +22,9 @@ public class YNet {
     }
 }
 
-static void Module(JSValue exports, JSValue require, JSValue module, string __filename, string __dirname) {
-    module["exports"] = ClrType.From(typeof(YNet));
+static Task Module(JSModule module) {
+    module.Exports = ClrType.From(typeof(YNet));
+    return Task.CompletedTask;
 }
 
 

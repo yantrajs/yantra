@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Threading;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using YantraJS;
 using YantraJS.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.REPL
 {
@@ -11,12 +13,18 @@ namespace YantraJS.REPL
 
         public YantraRepl(): base(Environment.CurrentDirectory)
         {
-            var defModule = new JSModule(new JSObject(), "repl");
+            var defModule = new JSModule(this, new JSObject(), "repl");
 
             this[KeyStrings.require] = new JSFunction((in Arguments a1) => {
-                var r = this.LoadModule(defModule, a1);
-                return r;
+                var r = this.LoadModuleAsync(defModule, a1[0].ToString());
+                return AsyncPump.Run(() => r);
             });
+
+            this[KeyStrings.import] = new JSFunction((in Arguments a1) => {
+                var r = this.LoadModuleAsync(defModule, a1[0].ToString());
+                return ClrProxy.Marshal(r);
+            });
+
         }
 
         public void Run()
