@@ -14,14 +14,14 @@ namespace YantraJS.Core
     /// </summary>
     public class JSModule: JSObject
     {
-
+        private readonly JSModuleContext context;
         internal readonly string filePath;
         internal readonly string dirPath;
-        private JSFunctionDelegate factory;
 
         public JSModule(JSModuleContext context, JSObject exports, string name, bool isMain = false)
             : base(context.ModulePrototype)
         {
+            this.context = context;
             this.filePath = name;
             this.dirPath = "./";
             this.exports = exports;
@@ -31,6 +31,7 @@ namespace YantraJS.Core
         protected JSModule(JSModuleContext context, string name, string dirPath = "./")
             : base(context.ModulePrototype)
         {
+            this.context = context;
             this.filePath = name;
             this.dirPath = dirPath;
             this.exports = new JSObject();
@@ -140,6 +141,12 @@ namespace YantraJS.Core
 
         [Prototype("import")]
         public JSValue Import { get; set; }
+
+        public Task<JSValue> ImportAsync(string name)
+        {
+            var path = context.Resolve(this.dirPath, name);
+            return context.LoadModuleAsync(this, path);
+        }
 
     }
 }
