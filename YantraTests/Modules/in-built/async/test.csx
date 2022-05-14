@@ -1,4 +1,4 @@
-﻿#r "nuget: YantraJS.Core,1.0.5"
+﻿#r "nuget: YantraJS.Core,1.2.1"
 #r "nuget: crockford-base32-core,2.0.0"
 using System;
 using System.Threading.Tasks;

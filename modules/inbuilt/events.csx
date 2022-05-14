@@ -1,4 +1,4 @@
-#r "nuget: YantraJS.Core,1.1.106"
+#r "nuget: YantraJS.Core,1.2.1"
 #r "nuget: YantraJS.NodePollyfill,1.1.107"
 using System;
 using System.Linq;
