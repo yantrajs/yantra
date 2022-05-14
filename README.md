@@ -7,7 +7,6 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 | YantraJS (With CSX Module Support)                              | [![NuGet](https://img.shields.io/nuget/v/YantraJS.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS)                           |
 | YantraJS.Core (Compiler)| [![NuGet](https://img.shields.io/nuget/v/YantraJS.Core.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.Core) |
 | YantraJS.ExpressionCompiler (IL Compiler)           | [![NuGet](https://img.shields.io/nuget/v/YantraJS.ExpressionCompiler.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.ExpressionCompiler) |
-| WebAtoms.YantraJS                 | [![NuGet](https://img.shields.io/nuget/v/WebAtoms.YantraJS.svg?label=NuGet)](https://www.nuget.org/packages/WebAtoms.YantraJS) |
 
 # Features
 1. Compiles JavaScript to .Net Assembly 
@@ -29,12 +28,21 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 17. Generators, iterators, for..of
 18. Async/Await
 19. Optional parameters
-20. Many ES5 + ES6 features
-21. CommonJS Module Support
-21. Easily marshal CLR Object to JavaScript and other way around
-23. CSX Module support
+20. Tail call optimization
+21. Many ES5 + ES6 features
+22. CommonJS Module Support
+23. Easily marshal CLR Object to JavaScript and other way around
+24. CSX Module support
+25. Mixed module system, YantraJS supports `require` and `import`.
 
 `*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
+
+# Mixed modules
+Currently YantraJS supports Both CommonJS and ES modules without any extra work, with little trick, module resolution is `node like`, it does not take `.js` extension into account. We are trying to make a workaround and we will update the product soon. Module loader loads module asynchronously, so `import` will work without any extra effort. However, `require` will run `AsyncPump` to wait till the module is loaded correctly, this may lead to some deadlocks.
+
+## Mixed Modules Roadmap
+1. Detect the loading order, first check if the same named file exists, if yes, load it, allow auto appending extension in the configuration, so module loader can load corresponding files accordingly.
+2. Create correct algorithm to resolve module name to support loading of CSX module in the mix. YantraJS supports loading module independent of the implementation. We can support other languages like python, php in the YantraJS. This is only possible to load modules without extension.
 
 # Documentation
 
