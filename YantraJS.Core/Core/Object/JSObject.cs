@@ -566,7 +566,7 @@ namespace YantraJS.Core
             return true;
         }
 
-        public JSValue DefineProperty(JSValue key, JSObject propertyDescription)
+        public virtual JSValue DefineProperty(JSValue key, JSObject propertyDescription)
         {
             var k = key.ToKey();
             switch (k.Type)
@@ -583,7 +583,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        public virtual JSValue DefineProperty(JSSymbol name, JSObject pd)
+        public JSValue DefineProperty(JSSymbol name, JSObject pd)
         {
             var key = name.Key;
             var old = symbols[key];
@@ -599,7 +599,7 @@ namespace YantraJS.Core
             return JSUndefined.Value;
         }
 
-        public virtual JSValue DefineProperty(uint key, JSObject pd)
+        public JSValue DefineProperty(uint key, JSObject pd)
         {
             ref var elements = ref GetElements(true);
             var old = elements[key];

@@ -43,12 +43,20 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.constructor];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.CreateInstance(a.OverrideThis(target));
+                return fxFunction.InvokeFunction(a.OverrideThis(target));
             }
-            return base.CreateInstance(a);
+            return target.CreateInstance(a);
         }
 
-        
+        public override JSValue DefineProperty(JSValue key, JSObject propertyDescription)
+        {
+            var fx = handler[KeyStrings.defineProperty];
+            if (fx is JSFunction fxFunction)
+            {
+                return fxFunction.InvokeFunction(new Arguments(key, propertyDescription));
+            }
+            return target.DefineProperty(key, propertyDescription);
+        }
 
         public override bool StrictEquals(JSValue value)
         {
