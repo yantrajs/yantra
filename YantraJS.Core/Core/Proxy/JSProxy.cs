@@ -5,16 +5,19 @@ using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
-    public class JSProxy : JSValue
+    public class JSProxy : JSObject
     {
         readonly JSObject target;
-        protected JSProxy(JSObject target, JSObject handler) : base(null)
+        private readonly JSObject handler;
+
+        protected JSProxy(JSObject target, JSObject handler) : base((JSObject)null)
         {
             if (target == null || handler == null)
             {
                 throw JSContext.Current.NewTypeError("Cannot create proxy with a non-object as target or handler");
             }
             this.target = target;
+            this.handler = handler;
         }
 
         public override bool BooleanValue => target.BooleanValue;
@@ -27,8 +30,25 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
+            var fx = handler[KeyStrings.apply];
+            if (fx is JSFunction fxFunction)
+            {
+                return fxFunction.InvokeFunction(a.OverrideThis(target));
+            }
             return target.InvokeFunction(a);
         }
+
+        public override JSValue CreateInstance(in Arguments a)
+        {
+            var fx = handler[KeyStrings.constructor];
+            if (fx is JSFunction fxFunction)
+            {
+                return fxFunction.CreateInstance(a.OverrideThis(target));
+            }
+            return base.CreateInstance(a);
+        }
+
+        
 
         public override bool StrictEquals(JSValue value)
         {

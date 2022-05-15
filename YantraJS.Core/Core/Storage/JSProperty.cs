@@ -84,7 +84,7 @@ namespace YantraJS.Core
             JSPropertyAttributes attributes)
         {
             this.key = key;
-            this.get = get;
+            this.get = get ?? value as JSFunction;
             this.set = set;
             this.value = value;
             this.Attributes = attributes;

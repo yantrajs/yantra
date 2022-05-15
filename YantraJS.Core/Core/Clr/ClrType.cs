@@ -92,14 +92,14 @@ namespace YantraJS.Core.Clr
             foreach(var field in declaredFields)
             {
                 var name = field.Name.ToCamelCase();
-                JSFunctionDelegate getter = GenerateFieldGetter(field);
-                JSFunctionDelegate setter = null;
+                JSFunction getter = GenerateFieldGetter(field);
+                JSFunction setter = null;
                 if (!(field.IsInitOnly || field.IsLiteral))
                 {
                     // you can only read...
                     setter = GenerateFieldSetter(field);
                 }
-                target.DefineProperty(name, JSProperty.Property(name, getter, setter));
+                target.FastAddProperty(name, getter, setter, JSPropertyAttributes.EnumerableConfigurableProperty);
             }
 
             var declaredProperties = isStatic
@@ -150,17 +150,16 @@ namespace YantraJS.Core.Clr
                         }
                     } else
                     {
-                        JSFunctionDelegate getter = f.CanRead
+                        JSFunction getter = f.CanRead
                             ? GeneratePropertyGetter(isStatic, f)
                             : null;
-                        JSFunctionDelegate setter = f.CanWrite
+                        JSFunction setter = f.CanWrite
                             ? GeneratePropertySetter(isStatic, f)
                             : null;
 
                         if (getter != null || setter != null)
-                        {
-                            var jsProperty = JSProperty.Property(name, getter, setter);
-                            target.DefineProperty(name, jsProperty);
+                        {                            
+                            target.FastAddProperty(name, getter, setter, JSPropertyAttributes.EnumerableConfigurableProperty);
                         }
                     }
 
@@ -189,20 +188,20 @@ namespace YantraJS.Core.Clr
                     //    continue;
                     //}
 
-                    target.DefineProperty(name,
-                        JSProperty.Function(name, ToInstanceDelegate(jsMethod.method)));
+                    target.FastAddValue(name,
+                        ToInstanceDelegate(jsMethod.method), JSPropertyAttributes.EnumerableConfigurableValue);
 
 
                     continue;
                 }
-                target.DefineProperty(name, isStatic
-                    ? JSProperty.Function(name, (in Arguments a) => {
+                target.FastAddValue(name, isStatic
+                    ? new JSFunction((in Arguments a) => {
                         return StaticInvoke(name, all, a);
-                    })
-                    : JSProperty.Function(name, (in Arguments a) => {
+                    }, name)
+                    : new JSFunction((in Arguments a) => {
                         return Invoke(name, type, all, a);
-                        })
-                    );
+                        }, name)
+                    , JSPropertyAttributes.EnumerableConfigurableValue);
             }
 
             if (isStatic)
@@ -215,7 +214,7 @@ namespace YantraJS.Core.Clr
                 clrPrototype.SetElementAt = indexSetter;
         }
 
-        private static JSFunctionDelegate ToInstanceDelegate(MethodInfo method)
+        private static JSFunction ToInstanceDelegate(MethodInfo method)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var target = Expression.Parameter(method.DeclaringType);
@@ -227,8 +226,9 @@ namespace YantraJS.Core.Clr
                 JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(
                     Expression.Call(
                         convert, method, args))));
-
-            return Expression.Lambda<JSFunctionDelegate>(method.Name, body, args).Compile();
+            var name = method.Name.ToCamelCase();
+            var d = Expression.Lambda<JSFunctionDelegate>(method.Name, body, args).Compile();
+            return new JSFunction(d, name);
         }
 
         private static JSValue Invoke(in KeyString name, Type type, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
@@ -257,7 +257,7 @@ namespace YantraJS.Core.Clr
             }
         }
 
-        private static JSFunctionDelegate GenerateFieldGetter(FieldInfo field)
+        private static JSFunction GenerateFieldGetter(FieldInfo field)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             Expression convertedThis = field.IsStatic
@@ -267,13 +267,13 @@ namespace YantraJS.Core.Clr
                 ClrProxyBuilder.Marshal(
                     Expression.Field(
                         convertedThis, field));
-
-            var lambda = Expression.Lambda<JSFunctionDelegate>($"set {field.Name}", body, args);
-            return lambda.Compile();
+            var name = $"get {field.Name.ToCamelCase()}";
+            var lambda = Expression.Lambda<JSFunctionDelegate>(name, body, args);
+            return new JSFunction(lambda.Compile(), name);
 
         }
 
-        private static JSFunctionDelegate GenerateFieldSetter(FieldInfo field)
+        private static JSFunction GenerateFieldSetter(FieldInfo field)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             var a1 = ArgumentsBuilder.Get1(args);
@@ -291,12 +291,12 @@ namespace YantraJS.Core.Clr
             var assign = Expression.Assign(fieldExp, clrArg1).ToJSValue();
 
             var body = assign;
-
-            var lambda = Expression.Lambda<JSFunctionDelegate>($"set {field.Name}", body, args);
-            return lambda.Compile();
+            var name = $"set {field.Name.ToCamelCase()}";
+            var lambda = Expression.Lambda<JSFunctionDelegate>(name, body, args);
+            return new JSFunction(lambda.Compile(), name);
         }
 
-        private static JSFunctionDelegate GeneratePropertyGetter(bool isStatic, PropertyInfo property)
+        private static JSFunction GeneratePropertyGetter(bool isStatic, PropertyInfo property)
         {
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             Expression convertedThis = isStatic
@@ -306,9 +306,10 @@ namespace YantraJS.Core.Clr
                     Expression.Property(
                         convertedThis, property));
 
-            var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
+            var name = $"get {property.Name.ToCamelCase()}";
+            var lambda = Expression.Lambda<JSFunctionDelegate>(name, body, args);
             // return lambda.CompileInAssembly();
-            return lambda.Compile();
+            return new JSFunction(lambda.Compile(), name);
 
         }
 
@@ -336,13 +337,13 @@ namespace YantraJS.Core.Clr
             };
         }
 
-        private static JSFunctionDelegate GeneratePropertySetter(bool isStatic, PropertyInfo property)
+        private static JSFunction GeneratePropertySetter(bool isStatic, PropertyInfo property)
         {
             //if (property.GetIndexParameters()?.Length > 0)
             //{
             //    return PrepareIndexedPropertySetter(property);
             //}
-
+            var name = $"set {property.Name.ToCamelCase()}";
             if (isStatic)
             {
                 var m1 = typeof(Action<>).MakeGenericType(property.PropertyType);
@@ -350,7 +351,7 @@ namespace YantraJS.Core.Clr
                     .GetMethod(nameof(SetStaticValue))
                     .MakeGenericMethod(property.PropertyType).Invoke(null, new object[] { property.SetMethod.CreateDelegate(m1) });
 
-                return method1 as JSFunctionDelegate;
+                return new JSFunction( method1 as JSFunctionDelegate, name);
 
             }
 
@@ -359,7 +360,7 @@ namespace YantraJS.Core.Clr
                 .GetMethod(nameof(SetValue))
                 .MakeGenericMethod(property.DeclaringType, property.PropertyType).Invoke(null, new object[] { property.SetMethod.CreateDelegate(m) });
 
-            return method as JSFunctionDelegate;
+            return new JSFunction( method as JSFunctionDelegate, name);
 
             //property.SetMethod.CreateDelegate(m);
 
@@ -479,17 +480,18 @@ namespace YantraJS.Core.Clr
             {
                 // make generic type..
 
-                this.DefineProperty(
+                this.FastAddValue(
                     "makeGenericType",
-                    JSProperty.Function("makeGenericType", MakeGenericType));
+                    new JSFunction(MakeGenericType, "makeGenericType"), JSPropertyAttributes.EnumerableConfigurableValue);
             }
             else
             {
                 // getMethod... name and types...
-                this.DefineProperty("getMethod",
-                    JSProperty.Function("getMethod", GetMethod));
-                this.DefineProperty("getConstructor", 
-                    JSProperty.Function("getConstructor", GetConstructor));
+                this.FastAddValue("getMethod",
+                    new JSFunction(GetMethod, "getMethod"), JSPropertyAttributes.EnumerableConfigurableValue);
+                this.FastAddValue("getConstructor",
+                    new JSFunction(GetConstructor, "getConstructor"),
+                    JSPropertyAttributes.EnumerableConfigurableValue);
             }
 
             if(baseType != null)

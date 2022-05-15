@@ -672,6 +672,11 @@ namespace YantraJS.Core {
             return JSBoolean.True;
         }
 
+        public virtual JSValue Delete(JSSymbol symbol)
+        {
+            return JSBoolean.True;
+        }
+
         public JSValue Delete(JSValue index)
         {
             var key = index.ToKey(false);

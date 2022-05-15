@@ -115,13 +115,21 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                JSObject.InternalAddProperty(target, index, item);
+                if (item is JSObject itemObject)
+                {
+                    target.DefineProperty(index, itemObject);
+                }
+                // JSObject.InternalAddProperty(target, index, item);
+
             }
 
             var properties = pdObject.GetOwnProperties(false).GetEnumerator();
             while (properties.MoveNext(out var keyString, out var property))
             {
-                JSObject.InternalAddProperty(target, keyString, target.GetValue(property));
+                var item = target.GetValue(property);
+                if (item is JSObject itemObject) {
+                    target.DefineProperty(keyString, itemObject);
+                }
             }
 
             return target;
@@ -137,23 +145,7 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError("Object is not extensible");
             if (!(desc is JSObject pd))
                 throw JSContext.Current.NewTypeError("Property Description must be an object");
-            var k = key.ToKey();
-            if (k.IsSymbol)
-            {
-                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
-            }
-            else
-            {
-                if (!k.IsUInt)
-                {
-                    JSObject.InternalAddProperty(targetObject, k.KeyString, pd);
-                }
-                else
-                {
-                    JSObject.InternalAddProperty(targetObject, k.Index, pd);
-                }
-            }
-            return target;
+            return targetObject.DefineProperty(key, pd);
         }
 
         [Static("entries")]
@@ -195,25 +187,7 @@ namespace YantraJS.Core
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
                     var first = ia[0];
                     var second = ia[1];
-                    var key = first.ToKey();
-                    if (key.IsSymbol)
-                    {
-                        r.DefineProperty(key.Symbol, JSProperty.Property(second,
-                            JSPropertyAttributes.EnumerableConfigurableValue));
-                    }
-                    else
-                    {
-                        if (key.IsUInt)
-                        {
-                            r.DefineProperty(key.Index, JSProperty.Property(second,
-                                JSPropertyAttributes.EnumerableConfigurableValue));
-                        }
-                        else
-                        {
-                            r.DefineProperty(key.KeyString, JSProperty.Property(key.KeyString, second,
-                                JSPropertyAttributes.EnumerableConfigurableValue));
-                        }
-                    }
+                    r.FastAddValue(first, second, JSPropertyAttributes.EnumerableConfigurableValue);
                 }
             }
             return r;

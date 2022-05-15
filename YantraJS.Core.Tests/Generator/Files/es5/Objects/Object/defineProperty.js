@@ -1,5 +1,6 @@
 ﻿var a = {};
 Object.defineProperty(a, "b", {
+    configurable: true,
     value: 1
 });
 assert.strictEqual(a.b, 1);
@@ -8,6 +9,7 @@ var n = 1;
 
 // property..
 Object.defineProperty(a, "c", {
+    configurable: true,
     get: function () {
         return n;
     }

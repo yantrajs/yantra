@@ -40,16 +40,16 @@ namespace YantraJS.Core
         internal JSError(JSException ex, JSObject prototype) : base(prototype)
         {
             this.Exception = ex;
-            this.DefineProperty(KeyStrings.message, JSProperty.Property(ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue));
-            this.DefineProperty(KeyStrings.stack, JSProperty.Property(ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue));
+            this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         }
 
 
         internal JSError(JSException ex) : base(JSContext.Current.ErrorPrototype)
         {
             this.Exception = ex;
-            this.DefineProperty(KeyStrings.message, JSProperty.Property(ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue));
-            this.DefineProperty(KeyStrings.stack, JSProperty.Property(ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue));
+            this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         }
 
         public static JSValue From(Exception ex)

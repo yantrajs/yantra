@@ -566,7 +566,24 @@ namespace YantraJS.Core
             return true;
         }
 
-        public JSValue DefineProperty(JSSymbol name, in JSProperty p)
+        public JSValue DefineProperty(JSValue key, JSObject propertyDescription)
+        {
+            var k = key.ToKey();
+            switch (k.Type)
+            {
+                case KeyType.Empty:
+                    return JSBoolean.False;
+                case KeyType.UInt:
+                    return DefineProperty(k.Index, propertyDescription);
+                case KeyType.String:
+                    return DefineProperty(k.KeyString, propertyDescription);
+                case KeyType.Symbol:
+                    return DefineProperty(k.Symbol, propertyDescription);
+            }
+            return JSBoolean.False;
+        }
+
+        public virtual JSValue DefineProperty(JSSymbol name, JSObject pd)
         {
             var key = name.Key;
             var old = symbols[key];
@@ -577,13 +594,12 @@ namespace YantraJS.Core
                     throw new UnauthorizedAccessException();
                 }
             }
-            // p.key = name.Key;
-            symbols.Put(key) = p;
+            symbols.Put(key) = pd.ToProperty(key);
             PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             return JSUndefined.Value;
         }
 
-        public JSValue DefineProperty(uint key, in JSProperty p)
+        public virtual JSValue DefineProperty(uint key, JSObject pd)
         {
             ref var elements = ref GetElements(true);
             var old = elements[key];
@@ -595,12 +611,17 @@ namespace YantraJS.Core
                 }
             }
             // p.key = name;
-            elements.Put(key) = p;
+            elements.Put(key) = pd.ToProperty(key);
+            if (this is JSArray array)
+            {
+                if (array._length <= key)
+                    array._length = key + 1;
+            }
             PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
             return JSUndefined.Value;
         }
 
-        public JSValue DefineProperty(in KeyString name, in JSProperty p)
+        public JSValue DefineProperty(in KeyString name, JSObject pd)
         {
             var key = name.Key;
             ref var ownProperties = ref GetOwnProperties();
@@ -613,29 +634,29 @@ namespace YantraJS.Core
                 }
             }
             // p.key = name;
-            ownProperties.Put(key) = p.With(name);
+            ownProperties.Put(key) = pd.ToProperty(key);
             PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
             return JSUndefined.Value;
         }
 
-        public void DefineProperties(params JSProperty[] list)
-        {
-            ref var ownProperties = ref GetOwnProperties();
-            foreach (var p in list)
-            {
-                var key = p.key;
-                ref var old = ref ownProperties.GetValue(key);
-                if (!old.IsEmpty)
-                {
-                    if (!old.IsConfigurable)
-                    {
-                        throw new UnauthorizedAccessException();
-                    }
-                }
-                ownProperties.Put(key) = p;
-            }
-            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
-        }
+        //public void DefineProperties(params JSProperty[] list)
+        //{
+        //    ref var ownProperties = ref GetOwnProperties();
+        //    foreach (var p in list)
+        //    {
+        //        var key = p.key;
+        //        ref var old = ref ownProperties.GetValue(key);
+        //        if (!old.IsEmpty)
+        //        {
+        //            if (!old.IsConfigurable)
+        //            {
+        //                throw new UnauthorizedAccessException();
+        //            }
+        //        }
+        //        ownProperties.Put(key) = p;
+        //    }
+        //    PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, null));
+        //}
 
         private bool toStringCalled = false;
         public override string ToString()
@@ -780,21 +801,20 @@ namespace YantraJS.Core
             //}
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InternalAddProperty(JSObject target, uint key, JSValue pd)
+        internal JSProperty ToProperty(uint key)
         {
             JSFunction pget = null;
             JSFunction pset = null;
             JSValue pvalue = null;
-            var value = pd[KeyStrings.value];
-            var get = pd[KeyStrings.get] as JSFunction;
-            var set = pd[KeyStrings.set] as JSFunction;
+            var value = this[KeyStrings.value];
+            var get = this[KeyStrings.get] as JSFunction;
+            var set = this[KeyStrings.set] as JSFunction;
             var pt = JSPropertyAttributes.Empty;
-            if (pd[KeyStrings.configurable].BooleanValue)
+            if (this[KeyStrings.configurable].BooleanValue)
                 pt |= JSPropertyAttributes.Configurable;
-            if (pd[KeyStrings.enumerable].BooleanValue)
+            if (this[KeyStrings.enumerable].BooleanValue)
                 pt |= JSPropertyAttributes.Enumerable;
-            if (pd[KeyStrings.@readonly].BooleanValue)
+            if (!this[KeyStrings.writable].BooleanValue)
                 pt |= JSPropertyAttributes.Readonly;
             if (get != null)
             {
@@ -812,85 +832,29 @@ namespace YantraJS.Core
                 pvalue = value;
             }
             var pAttributes = pt;
-            ref var elements = ref target.CreateElements();
-            elements.Put(key) = new JSProperty(KeyString.Empty, pget, pset, pvalue, pAttributes);
-            if (target is JSArray array)
-            {
-                if (array._length <= key)
-                    array._length = key + 1;
-            }
-            target.PropertyChanged?.Invoke(target, (uint.MaxValue, key , null));
+            return new JSProperty(key, pget, pset, pvalue, pAttributes);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InternalAddProperty(JSObject target, in KeyString key, JSValue pd)
-        {
-            JSFunction pget = null;
-            JSFunction pset = null;
-            JSValue pvalue = null;
-            var value = pd[KeyStrings.value];
-            var get = pd[KeyStrings.get] as JSFunction;
-            var set = pd[KeyStrings.set] as JSFunction;
-            var pt = JSPropertyAttributes.Empty;
-            if (pd[KeyStrings.configurable].BooleanValue)
-                pt |= JSPropertyAttributes.Configurable;
-            if (pd[KeyStrings.enumerable].BooleanValue)
-                pt |= JSPropertyAttributes.Enumerable;
-            if (!pd[KeyStrings.writable].BooleanValue)
-                pt |= JSPropertyAttributes.Readonly;
-            if (get != null)
-            {
-                pt |= JSPropertyAttributes.Property;
-                pget = get;
-            }
-            if (set != null)
-            {
-                pt |= JSPropertyAttributes.Property;
-                pset = set;
-            }
-            if (get == null && set == null)
-            {
-                pt |= JSPropertyAttributes.Value;
-                pvalue = value;
-                pget = value as JSFunction;
-            }
-            var pAttributes = pt;
-            ref var ownProperties = ref target.GetOwnProperties();
-            ownProperties.Put(key.Key) = new JSProperty(key, pget, pset, pvalue, pAttributes);
-            target.PropertyChanged?.Invoke(target, (key.Key, uint.MaxValue, null));
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static void InternalAddProperty(JSObject target, uint key, JSObject pd)
+        //{
+        //    ref var elements = ref target.CreateElements();
+        //    elements.Put(key) = pd.ToProperty();
+        //    if (target is JSArray array)
+        //    {
+        //        if (array._length <= key)
+        //            array._length = key + 1;
+        //    }
+        //    target.PropertyChanged?.Invoke(target, (uint.MaxValue, key , null));
+        //}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InternalAddProperty(JSObject target, JSSymbol key, JSValue pd)
-        {
-            var value = pd[KeyStrings.value];
-            var get = pd[KeyStrings.get] as JSFunction;
-            var set = pd[KeyStrings.set] as JSFunction;
-            var pt = JSPropertyAttributes.Empty;
-            if (pd[KeyStrings.configurable].BooleanValue)
-                pt |= JSPropertyAttributes.Configurable;
-            if (pd[KeyStrings.enumerable].BooleanValue)
-                pt |= JSPropertyAttributes.Enumerable;
-            if (pd[KeyStrings.@readonly].BooleanValue)
-                pt |= JSPropertyAttributes.Readonly;
-            if (get != null)
-            {
-                pt |= JSPropertyAttributes.Property;
-            }
-            if (set != null)
-            {
-                pt |= JSPropertyAttributes.Property;
-            }
-            if (get == null && set == null)
-            {
-                pt |= JSPropertyAttributes.Value;
-                get = value as JSFunction;
-            }
-            // p.Attributes = pt;
-            // var symbols = target.symbols ?? (target.symbols = new CompactUInt32Trie<JSProperty>());
-            target.symbols.Put(key.Key) = new JSProperty(KeyString.Empty, get, set, value, pt);
-            target.PropertyChanged?.Invoke(target, (uint.MaxValue, uint.MaxValue, key));
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal static void InternalAddProperty(JSObject target, in KeyString key, JSObject pd)
+        //{
+        //    ref var ownProperties = ref target.GetOwnProperties();
+        //    ownProperties.Put(key.Key) = pd.ToProperty();
+        //    target.PropertyChanged?.Invoke(target, (key.Key, uint.MaxValue, null));
+        //}
 
 
         public override JSValue Delete(in KeyString key)
@@ -919,6 +883,18 @@ namespace YantraJS.Core
             if (elements.RemoveAt(key))
             {
                 PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
+                return JSBoolean.True;
+            }
+            return JSBoolean.True;
+        }
+
+        public override JSValue Delete(JSSymbol symbol)
+        {
+            if (this.IsSealedOrFrozen())
+                throw JSContext.Current.NewTypeError($"Cannot delete property {symbol} of {this}");
+            if (symbols.RemoveAt(symbol.Key))
+            {
+                PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, symbol));
                 return JSBoolean.True;
             }
             return JSBoolean.True;

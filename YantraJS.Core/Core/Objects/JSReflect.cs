@@ -35,23 +35,25 @@ namespace YantraJS.Core.Objects
                 return JSBoolean.False;
             if (!(attributes is JSObject pd))
                 return JSBoolean.False;
-            var k = propertyKey.ToKey();
-            if (k.IsSymbol)
-            {
-                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
-            }
-            else
-            {
-                if (!k.IsUInt)
-                {
-                    JSObject.InternalAddProperty(targetObject, k.KeyString, pd);
-                }
-                else
-                {
-                    JSObject.InternalAddProperty(targetObject, k.Index, pd);
-                }
-            }
-            return JSBoolean.True;
+            return targetObject.DefineProperty(propertyKey, pd);
+            //var k = propertyKey.ToKey();
+            //if (k.IsSymbol)
+            //{
+            //    // JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
+                
+            //}
+            //else
+            //{
+            //    if (!k.IsUInt)
+            //    {
+            //        JSObject.InternalAddProperty(targetObject, k.KeyString, pd);
+            //    }
+            //    else
+            //    {
+            //        JSObject.InternalAddProperty(targetObject, k.Index, pd);
+            //    }
+            //}
+            //return JSBoolean.True;
         }
 
         [Static("deleteProperty", Length = 2)]

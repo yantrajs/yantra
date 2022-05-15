@@ -44,24 +44,7 @@ namespace YantraJS.Core.Internal
                 return JSBoolean.False;
             if (!(desc is JSObject pd))
                 return JSBoolean.False;
-
-            var k = key.ToKey();
-            if (k.IsSymbol)
-            {
-                JSObject.InternalAddProperty(targetObject, k.Symbol, pd);
-            }
-            else
-            {
-                if (!k.IsUInt)
-                {
-                    JSObject.InternalAddProperty(targetObject, k.KeyString, pd);
-                }
-                else
-                {
-                    JSObject.InternalAddProperty(targetObject, k.Index, pd);
-                }
-            }
-            return JSBoolean.True;
+            return targetObject.DefineProperty(key, pd);
         }
 
         [Static("deleteProperty")]

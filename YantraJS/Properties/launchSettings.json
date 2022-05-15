@@ -15,7 +15,10 @@
     "Yantra SEO": {
       "commandName": "Project",
       "commandLineArgs": "d:/git/akash/c8private/server/seo-service/test.js"
+    },
+    "Yantra File": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\git\\github\\yantrajs\\yantra\\YantraJS.Core.Tests\\Generator\\Files\\es5\\Objects\\Reflect\\Reflect.js"
     }
-
   }
 }

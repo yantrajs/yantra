@@ -261,7 +261,7 @@ namespace YantraJS.Core
 
         public readonly JSFunction Object;
 
-        public readonly JSReflect Reflect;
+        // public readonly JSReflect Reflect;
 
         //public static JSContext Current
         //{
