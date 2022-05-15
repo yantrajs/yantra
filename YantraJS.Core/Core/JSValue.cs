@@ -405,6 +405,39 @@ namespace YantraJS.Core {
             set { }
         }
 
+        internal virtual bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError)
+        {
+            return false;
+        }
+
+        internal virtual bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError)
+        {
+            return false;
+        }
+
+        internal virtual bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError)
+        {
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool SetValue(JSValue key, JSValue value, JSValue receiver, bool throwError)
+        {
+            var k = key.ToKey();
+            switch (k.Type)
+            {
+                case KeyType.Empty:
+                    return false;
+                case KeyType.UInt:
+                    return SetValue(k.Index, value, receiver, throwError);
+                case KeyType.String:
+                    return SetValue(k.KeyString, value, receiver, throwError);
+                case KeyType.Symbol:
+                    return SetValue(k.Symbol, value, receiver, throwError);
+            }
+            return false;
+        }
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue this[JSObject super, KeyString name]
         {
@@ -641,10 +674,19 @@ namespace YantraJS.Core {
 
         public JSValue Delete(JSValue index)
         {
-            var key = index.ToKey();
-            if (key.IsUInt)
-                return this.Delete(key.Index);
-            return Delete(key.KeyString);
+            var key = index.ToKey(false);
+            switch (key.Type)
+            {
+                case KeyType.Empty:
+                    return JSBoolean.False;
+                case KeyType.UInt:
+                    return Delete(key.Index);
+                case KeyType.String:
+                    return Delete(key.KeyString);
+                case KeyType.Symbol:
+                    return Delete(key.Symbol);
+            }
+            return JSBoolean.False;
         }
 
         internal JSValue InternalInvoke(object name, in Arguments a)

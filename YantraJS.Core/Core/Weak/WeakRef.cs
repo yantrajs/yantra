@@ -9,6 +9,8 @@ namespace YantraJS.Core.Weak
     {
         private readonly JSSymbol finalizationSymbol = new JSSymbol("finalization");
 
+        private readonly JSSymbol finalizationToken = new JSSymbol("finalizationToken");
+
         private readonly JSFunction finalizer;
 
         public JSFinalizationRegistry(JSFunction finalizer): base(JSContext.Current.FinalizationRegistryPrototype)
@@ -19,23 +21,24 @@ namespace YantraJS.Core.Weak
         public class WeakObject: JSObject
         {
             private readonly JSFinalizationRegistry registry;
-            private readonly JSObject weakRef;
+            private readonly JSValue token;
 
-            public WeakObject(JSFinalizationRegistry registry, JSObject weakRef)
+            public WeakObject(JSFinalizationRegistry registry, JSValue token)
             {
                 this.registry = registry;
-                this.weakRef = weakRef;
+                this.token = token;
             }
 
             ~WeakObject()
             {
-                registry.FinalizeReference(weakRef);
+                registry.FinalizeReference(token);
             }
         }
 
-        private void FinalizeReference(JSObject weakRef)
+        private void FinalizeReference(JSValue token)
         {
-            finalizer.InvokeFunction(new Arguments(this, weakRef));
+            token.Delete(finalizationToken);
+            finalizer.InvokeFunction(new Arguments(this, token));
         }
 
         [Constructor]
@@ -53,10 +56,12 @@ namespace YantraJS.Core.Weak
                 throw JSContext.Current.NewTypeError($"Invalid receiver");
             if (!(a[0] is JSObject obj))
                 throw JSContext.Current.NewTypeError($"Argument is not an object");
-            var weakRef = obj[@this.finalizationSymbol] as WeakObject;
-            GC.SuppressFinalize(weakRef);
+            // var weakRef = obj[@this.finalizationSymbol] as WeakObject;
+            // GC.SuppressFinalize(weakRef);
+            @this.Unregister(a[0]);
             return JSUndefined.Value;
         }
+
 
         [Prototype("register")]
         public static JSValue Register(in Arguments a)
@@ -65,8 +70,25 @@ namespace YantraJS.Core.Weak
                 throw JSContext.Current.NewTypeError($"Invalid receiver");
             if (!(a[0] is JSObject obj))
                 throw JSContext.Current.NewTypeError($"Argument is not an object");
-            obj[@this.finalizationSymbol] = new WeakObject(@this, obj);
+            var token = a[1];
+            if (token?.IsNullOrUndefined ?? false)
+                throw JSContext.Current.NewTypeError($"Token is required");
+            // obj[@this.finalizationSymbol] = new WeakObject(@this, a[1]);
+            @this.Register(obj, token);
             return JSUndefined.Value;
+        }
+
+        private void Register(JSValue target, JSValue token)
+        {
+            var weakRef = new WeakObject(this, token);
+            target[finalizationSymbol] = weakRef;
+            token[finalizationToken] = weakRef;
+        }
+        private void Unregister(JSValue token)
+        {
+            var weakRef = token[finalizationSymbol];
+            token.Delete(finalizationSymbol);
+            GC.SuppressFinalize(weakRef);
         }
     }
 

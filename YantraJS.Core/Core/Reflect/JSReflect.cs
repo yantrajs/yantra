@@ -119,5 +119,81 @@ namespace YantraJS.Core.Internal
             }
             return JSUndefined.Value;
         }
+
+        [Static("getOwnPropertyDescriptor")]
+        public static JSValue GetOwnPropertyDescriptor(in Arguments a)
+        {
+            if (a[0] is not JSObject targetObject)
+                throw JSContext.Current.NewTypeError($"Object expected");
+            return targetObject.GetOwnProperty(a[1]);
+        }
+        
+        [Static("getPrototypeOf")]
+        public static JSValue GetPrototypeOf(in Arguments a)
+        {
+            if (a[0] is not JSObject targetObject)
+                throw JSContext.Current.NewTypeError($"Object expected");
+            return targetObject.prototypeChain?.@object ?? JSNull.Value;
+        }
+
+        [Static("has")]
+        public static JSValue Has(in Arguments a)
+        {
+            if (a[0] is not JSObject targetObject)
+                throw JSContext.Current.NewTypeError($"Object expected");
+            return a[1].IsIn(targetObject);
+        }
+
+        [Static("isExtensible")]
+        public static JSValue IsExtensible(in Arguments a)
+        {
+            if (a[0] is not JSObject targetObject)
+                throw JSContext.Current.NewTypeError($"Object expected");
+            return targetObject.IsExtensible() ? JSBoolean.True : JSBoolean.False;
+        }
+
+        [Static("ownKeys")]
+        public static JSValue OwnKeys(in Arguments a)
+        {
+            return JSObjectStatic.GetOwnPropertyNames(a);
+        }
+
+        [Static("preventExtensions")]
+        public static JSValue PreventExtensions(in Arguments a)
+        {
+            return JSObjectStatic.PreventExtensions(a);
+        }
+
+        [Static("set")]
+        public static JSValue Set(in Arguments a)
+        {
+            if (a[0] is not JSObject targetObject)
+                throw JSContext.Current.NewTypeError($"Object expected");
+            var key = a[1];
+            var receiver = a[2];
+            var value = a[3];
+            if (receiver == JSUndefined.Value)
+            {
+                receiver = null;
+            }
+            return targetObject.SetValue(key, value, receiver, false) ? JSBoolean.True : JSBoolean.False;
+        }
+
+        [Static("setPrototypeOf")]
+        public static JSValue SetPrototypeOf(in Arguments a)
+        {
+            if (a[0] is not JSObject targetObject)
+                throw JSContext.Current.NewTypeError($"Object expected");
+            var p = a[1];
+            if (p == JSNull.Value)
+            {
+                targetObject.BasePrototypeObject = null;
+                return JSBoolean.True;
+            }
+            if (p is not JSObject prototype )
+                throw JSContext.Current.NewTypeError($"Prototype must be an object or null");
+            targetObject.BasePrototypeObject = prototype;
+            return JSBoolean.True;
+        }
     }
 }

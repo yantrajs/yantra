@@ -455,82 +455,115 @@ namespace YantraJS.Core
         }
 
         public override JSValue this[KeyString name] { 
-            get => this.GetValue(GetInternalProperty(name)); 
-            set {
-                var start = this;
-                var p = GetInternalProperty(name, true);
-                if (p.IsProperty)
+            get => this.GetValue(GetInternalProperty(name));
+            set => SetValue(name, value, null, true);
+        }
+
+        internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError)
+        {
+            var start = this;
+            var p = GetInternalProperty(name, true);
+            if (p.IsProperty)
+            {
+                if (p.set != null)
                 {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(this, value));
-                        return;
-                    }
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this} which has only a getter");
-                    //return;
+                    p.set.f(new Arguments(receiver ?? this, value));
+                    return true;
                 }
-                if(p.IsReadOnly)
+                if (throwError)
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this} which has only a getter");
+                return false;
+            }
+            if (p.IsReadOnly)
+            {
+                if (throwError)
                 {
                     // Only in Strict Mode ..
                     throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
                 }
-                if (this.IsFrozen())
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                if(p.IsEmpty && !this.IsExtensible())
-                    throw JSContext.Current.NewTypeError($"Cannot add property {name} to {this}");
-                ref var ownProperties = ref this.GetOwnProperties();
-                ownProperties.Put(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue );
-                PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
+                return false;
             }
+            if (this.IsFrozen())
+            {
+                if(throwError)
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                return false;
+            }
+            if (p.IsEmpty && !this.IsExtensible())
+            {
+                if (throwError)
+                {
+                    throw JSContext.Current.NewTypeError($"Cannot add property {name} to {this}");
+                }
+                return false;
+            }
+            ref var ownProperties = ref this.GetOwnProperties();
+            ownProperties.Put(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue);
+            PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
+            return true;
         }
 
         public override JSValue this[uint name]
         {
             get => this.GetValue(GetInternalProperty(name));
-            set
+            set => SetValue(name, value, null, true);
+        }
+
+        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError)
+        {
+            var p = GetInternalProperty(name);
+            if (p.IsProperty)
             {
-                var p = GetInternalProperty(name);
-                if (p.IsProperty)
+                if (p.set != null)
                 {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(this, value));
-                        return;
-                    }
-                    return;
+                    p.set.f(new Arguments(receiver ?? this, value));
+                    return true;
                 }
-                if (this.IsFrozen())
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                ref var elements = ref CreateElements();
-                elements.Put(name, value);
-                PropertyChanged?.Invoke(this, (uint.MaxValue, name, null));
+                return false;
             }
+            if (this.IsFrozen())
+            {
+                if(throwError)
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                return false;
+            }
+            ref var elements = ref CreateElements();
+            elements.Put(name, value);
+            PropertyChanged?.Invoke(this, (uint.MaxValue, name, null));
+            return true;
         }
 
         public override JSValue this[JSSymbol name]
         {
             get => this.GetValue(GetInternalProperty(name));
-            set
+            set => SetValue(name, value, null, true);
+        }
+
+        internal override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError)
+        {
+            if (name == JSSymbolStatic.iterator)
             {
-                if(name == JSSymbolStatic.iterator)
-                {
-                    HasIterator = true;
-                }
-                var p = GetInternalProperty(name);
-                if (p.IsProperty)
-                {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(this, value));
-                        return;
-                    }
-                    return;
-                }
-                if (this.IsFrozen())
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                symbols.Put(name.Key) = JSProperty.Property(value);
-                PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
+                HasIterator = true;
             }
+            var p = GetInternalProperty(name);
+            if (p.IsProperty)
+            {
+                if (p.set != null)
+                {
+                    p.set.f(new Arguments(receiver ?? this, value));
+                    return true;
+                }
+                return false;
+            }
+            if (this.IsFrozen())
+            {
+                if (throwError)
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                return false;
+            }
+            symbols.Put(name.Key) = JSProperty.Property(value);
+            PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
+            return true;
         }
 
         public JSValue DefineProperty(JSSymbol name, in JSProperty p)

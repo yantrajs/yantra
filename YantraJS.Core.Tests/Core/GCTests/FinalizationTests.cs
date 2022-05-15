@@ -13,7 +13,7 @@ namespace YantraJS.Core.Tests.Core.GCTests
     {
 
         [TestMethod]
-        public async Task FinalizeTest()
+        public void FinalizeTest()
         {
             var success = false;
 
@@ -27,8 +27,7 @@ namespace YantraJS.Core.Tests.Core.GCTests
             Register(fr);
 
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
-
-            await Task.Delay(100);
+            GC.WaitForPendingFinalizers();
 
             Assert.IsTrue(success);
 
@@ -36,7 +35,7 @@ namespace YantraJS.Core.Tests.Core.GCTests
 
         private static void Register(JSFinalizationRegistry fr)
         {
-            JSFinalizationRegistry.Register(new Arguments(fr, new JSObject()));
+            JSFinalizationRegistry.Register(new Arguments(fr, new JSObject(), new JSString("a")));
         }
     }
 }
