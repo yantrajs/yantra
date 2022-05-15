@@ -55,22 +55,7 @@ namespace YantraJS.Core.Internal
             if (targetObject.IsSealedOrFrozen())
                 return JSBoolean.False;
             var key = a[1];
-            var propertyKey = key.ToKey(false);
-            switch(propertyKey.Type)
-            {
-                case KeyType.Empty:
-                    return JSBoolean.False;
-                case KeyType.Symbol:
-                    targetObject.GetSymbols().RemoveAt(propertyKey.Symbol.Key);
-                    return JSBoolean.True;
-                case KeyType.String:
-                    targetObject.GetOwnProperties(false).RemoveAt(propertyKey.KeyString.Key);
-                    return JSBoolean.True;
-                case KeyType.UInt:
-                    targetObject.GetElements(false).RemoveAt(propertyKey.Index);
-                    return JSBoolean.True;
-            }
-            return JSBoolean.False;
+            return targetObject.Delete(key);
         }
 
         [Static("get")]
@@ -91,13 +76,13 @@ namespace YantraJS.Core.Internal
                 case KeyType.Empty:
                     return JSUndefined.Value;
                 case KeyType.Symbol:
-                    property = ref targetObject.GetSymbols().GetRefOrDefault(propertyKey.Symbol.Key, ref JSProperty.Empty);
+                    property = targetObject.GetInternalProperty(propertyKey.Symbol);
                     return receiver.GetValue(property);
                 case KeyType.String:
-                    property = ref targetObject.GetOwnProperties(false).GetValue(propertyKey.KeyString.Key);
+                    property = targetObject.GetInternalProperty(propertyKey.KeyString);
                     return receiver.GetValue(property);
                 case KeyType.UInt:
-                    property = ref targetObject.GetElements(false).Get(propertyKey.Index);
+                    property = targetObject.GetInternalProperty(propertyKey.Index);
                     return receiver.GetValue(property);
             }
             return JSUndefined.Value;

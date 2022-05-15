@@ -99,6 +99,7 @@ namespace YantraJS.Core
         public readonly static KeyString prototype;
         public readonly static KeyString constructor;
         public readonly static KeyString defineProperty;
+        public readonly static KeyString deleteProperty;
 
         public readonly static KeyString FinalizationRegistry;
 

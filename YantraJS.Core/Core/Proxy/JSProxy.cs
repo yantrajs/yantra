@@ -53,9 +53,19 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.defineProperty];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(new Arguments(key, propertyDescription));
+                return fxFunction.InvokeFunction(new Arguments(target, key, propertyDescription));
             }
             return target.DefineProperty(key, propertyDescription);
+        }
+
+        public override JSValue Delete(JSValue index)
+        {
+            var fx = handler[KeyStrings.deleteProperty];
+            if (fx is JSFunction fxFunction)
+            {
+                return fxFunction.InvokeFunction(new Arguments(target, index));
+            }
+            return target.Delete(index);
         }
 
         public override bool StrictEquals(JSValue value)

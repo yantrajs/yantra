@@ -234,11 +234,11 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _SuperPropertyOrUndefined =
             type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(JSValue));
 
-        private static MethodInfo _GetOwnPropertyKeyString =
-            type.PublicMethod(nameof(JSValue.GetOwnProperty), KeyStringsBuilder.RefType);
+        //private static MethodInfo _GetOwnPropertyKeyString =
+        //    type.PublicMethod(nameof(JSValue.GetOwnProperty), KeyStringsBuilder.RefType);
 
-        private static MethodInfo _GetOwnPropertyUInt =
-            type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(uint));
+        //private static MethodInfo _GetOwnPropertyUInt =
+        //    type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(uint));
 
         private static MethodInfo _GetOwnProperty =
             type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(JSValue));

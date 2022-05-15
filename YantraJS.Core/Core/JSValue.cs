@@ -677,7 +677,7 @@ namespace YantraJS.Core {
             return JSBoolean.True;
         }
 
-        public JSValue Delete(JSValue index)
+        public virtual JSValue Delete(JSValue index)
         {
             var key = index.ToKey(false);
             switch (key.Type)
