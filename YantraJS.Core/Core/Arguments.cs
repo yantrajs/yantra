@@ -77,22 +77,24 @@ namespace YantraJS.Core
             return new Arguments(@this, list, a.NewTarget!);
         }
 
-        public static Arguments ForApply(JSValue @this, JSValue args)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Arguments ForApply(JSValue @this, JSValue args, JSValue? newTarget = null)
         {
             if (args.IsArray && args is JSArray argArray)
             {
-                switch (argArray._length)
+                var length = argArray._length;
+                switch (length)
                 {
                     case 0:
-                        return new Arguments(@this);
+                        return new Arguments(@this, 0, null, null, null, null, null, newTarget);
                     case 1:
-                        return new Arguments(@this, argArray[0]);
+                        return new Arguments(@this, 1, argArray[0], null, null, null, null, newTarget);
                     case 2:
-                        return new Arguments(@this, argArray[0], argArray[1]);
+                        return new Arguments(@this, 2, argArray[0], argArray[1], null, null, null, newTarget);
                     case 3:
-                        return new Arguments(@this, argArray[0], argArray[1], argArray[2]);
+                        return new Arguments(@this, 3, argArray[0], argArray[1], argArray[2], null, null, newTarget);
                     case 4:
-                        return new Arguments(@this, argArray[0], argArray[1], argArray[2], argArray[3]);
+                        return new Arguments(@this, 4, argArray[0], argArray[1], argArray[2], argArray[3], null, newTarget);
                     default:
                         var argList = new JSValue[argArray._length];
                         var ee = argArray.GetElementEnumerator();
@@ -100,23 +102,24 @@ namespace YantraJS.Core
                         {
                             argList[index] = hasValue ? value : JSUndefined.Value;
                         }
-                        return new Arguments(@this, argList);
+                        return new Arguments(@this, (int)length, null, null, null, null, argList, newTarget);
                 }
             }
-            if(args is JSArguments arguments)
+            if (args is JSArguments arguments)
             {
-                switch (arguments.Length)
+                var length = arguments.Length;
+                switch (length)
                 {
                     case 0:
-                        return new Arguments(@this);
+                        return new Arguments(@this, 0, null, null, null, null, null, newTarget);
                     case 1:
-                        return new Arguments(@this, arguments[0]);
+                        return new Arguments(@this, 1, arguments[0], null, null, null, null, newTarget);
                     case 2:
-                        return new Arguments(@this, arguments[0], arguments[1]);
+                        return new Arguments(@this, 2, arguments[0], arguments[1], null, null, null, newTarget);
                     case 3:
-                        return new Arguments(@this, arguments[0], arguments[1], arguments[2]);
+                        return new Arguments(@this, 3, arguments[0], arguments[1], arguments[2], null, null, newTarget);
                     case 4:
-                        return new Arguments(@this, arguments[0], arguments[1], arguments[2], arguments[3]);
+                        return new Arguments(@this, 4, arguments[0], arguments[1], arguments[2], arguments[3], null, newTarget);
                     default:
                         var argList = new JSValue[arguments.Length];
                         var ee = arguments.GetElementEnumerator();
@@ -124,12 +127,13 @@ namespace YantraJS.Core
                         {
                             argList[index] = hasValue ? value : JSUndefined.Value;
                         }
-                        return new Arguments(@this, argList);
+                        return new Arguments(@this, length, null, null, null, null, argList, newTarget);
                 }
 
             }
-            return new Arguments(@this);
+            return new Arguments(@this, 0, null, null, null, null, null, newTarget);
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments CopyForApply()
@@ -397,6 +401,27 @@ namespace YantraJS.Core
             Arg2 = src.Arg2;
             Arg3 = src.Arg3;
             Args = src.Args;
+            This = @this;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Arguments(
+            JSValue @this, 
+            int length,
+            JSValue? arg0,
+            JSValue? arg1,
+            JSValue? arg2,
+            JSValue? arg3,
+            JSValue[]? args,
+            JSValue? newTarget = null)
+        {
+            NewTarget = newTarget;
+            Length = length;
+            Arg0 = arg0;
+            Arg1 = arg1;
+            Arg2 = arg2;
+            Arg3 = arg3;
+            Args = args;
             This = @this;
         }
 
