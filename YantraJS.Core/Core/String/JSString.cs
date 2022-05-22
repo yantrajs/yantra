@@ -164,26 +164,35 @@ namespace YantraJS.Core
           
         }
 
-        public override JSValue this[uint key] { 
-            get
+        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        {
+            if (key >= this.value.Length)
             {
-                if (key >= this.value.Length)
-                    return JSUndefined.Value;
-                return new JSString(new string(this.value[(int)key],1));
+                return JSUndefined.Value;
             }
-            set { } 
+            return new JSString(new string(this.value[(int)key], 1));
         }
 
-        public override JSValue this[KeyString name] {
-            get {
-                this.ResolvePrototype();
-                var p = prototypeChain.GetInternalProperty(in name);
-                if (p.IsEmpty)
-                    return JSUndefined.Value;
-                return this.GetValue(p);
-            }
-            set { }
-        }
+        //public override JSValue this[uint key] { 
+        //    get
+        //    {
+        //        if (key >= this.value.Length)
+        //            return JSUndefined.Value;
+        //        return new JSString(new string(this.value[(int)key],1));
+        //    }
+        //    set { } 
+        //}
+
+        //public override JSValue this[KeyString name] {
+        //    get {
+        //        this.ResolvePrototype();
+        //        var p = prototypeChain.GetInternalProperty(in name);
+        //        if (p.IsEmpty)
+        //            return JSUndefined.Value;
+        //        return this.GetValue(p);
+        //    }
+        //    set { }
+        //}
 
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {

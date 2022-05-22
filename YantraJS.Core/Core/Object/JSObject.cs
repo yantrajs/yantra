@@ -84,19 +84,19 @@ namespace YantraJS.Core
 
         public override JSValue GetOwnProperty(in KeyString name)
         {
-            var p = GetInternalProperty(name);
+            ref var p = ref ownProperties.GetValue(name.Key);
             return this.GetValue(p);
         }
 
         public override JSValue GetOwnProperty(JSSymbol name)
         {
-            var p = GetInternalProperty(name);
+            ref var p = ref symbols.GetRefOrDefault(name.Key, ref JSProperty.Empty);
             return this.GetValue(p);
         }
 
         public override JSValue GetOwnProperty(uint name)
         {
-            var p = GetInternalProperty(name);
+            ref var p = ref elements.Get(name);
             return this.GetValue(p);
         }
 
@@ -455,11 +455,11 @@ namespace YantraJS.Core
         }
 
         public override JSValue this[KeyString name] { 
-            get => this.GetValue(GetInternalProperty(name));
+            get => this.GetValue(name, this);
             set => SetValue(name, value, null, true);
         }
 
-        internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError)
+        internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var start = this;
             var p = GetInternalProperty(name, true);
@@ -505,11 +505,11 @@ namespace YantraJS.Core
 
         public override JSValue this[uint name]
         {
-            get => this.GetValue(GetInternalProperty(name));
-            set => SetValue(name, value, null, true);
+            get => GetValue(name, this);
+            set => SetValue(name, value, this, true);
         }
 
-        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError)
+        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var p = GetInternalProperty(name);
             if (p.IsProperty)
@@ -535,11 +535,11 @@ namespace YantraJS.Core
 
         public override JSValue this[JSSymbol name]
         {
-            get => this.GetValue(GetInternalProperty(name));
+            get => GetValue(name, this);
             set => SetValue(name, value, null, true);
         }
 
-        internal override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError)
+        internal override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
         {
             if (name == JSSymbolStatic.iterator)
             {
@@ -564,6 +564,38 @@ namespace YantraJS.Core
             symbols.Put(name.Key) = JSProperty.Property(value);
             PropertyChanged?.Invoke(this, (uint.MaxValue, uint.MaxValue, name));
             return true;
+        }
+
+        internal override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        {
+            ref var p = ref symbols.GetRefOrDefault(key.Key, ref JSProperty.Empty);
+            if (!p.IsEmpty)
+            {
+                return (receiver ?? this).GetValue(p);
+            }
+            return base.GetValue(key, receiver, throwError);
+        }
+
+        internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            ref var p = ref ownProperties.GetValue(key.Key);
+            if (!p.IsEmpty)
+            {
+                return (receiver ?? this).GetValue(p);
+            }
+            return base.GetValue(key, receiver, throwError);
+        }
+
+        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        {
+            ref var p = ref elements.Get(key);
+            if (!p.IsEmpty)
+            {
+                if (p.IsValue)
+                    return p.value;
+                return p.get.InvokeFunction(new Arguments((receiver ?? this)));
+            }
+            return base.GetValue(key, receiver, throwError);
         }
 
         public virtual JSValue DefineProperty(JSValue key, JSObject propertyDescription)

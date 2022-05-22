@@ -69,23 +69,7 @@ namespace YantraJS.Core.Internal
             {
                 return targetObject[key];
             }
-            var propertyKey = key.ToKey(false);
-            ref var property = ref JSProperty.Empty;
-            switch (propertyKey.Type)
-            {
-                case KeyType.Empty:
-                    return JSUndefined.Value;
-                case KeyType.Symbol:
-                    property = targetObject.GetInternalProperty(propertyKey.Symbol);
-                    return receiver.GetValue(property);
-                case KeyType.String:
-                    property = targetObject.GetInternalProperty(propertyKey.KeyString);
-                    return receiver.GetValue(property);
-                case KeyType.UInt:
-                    property = targetObject.GetInternalProperty(propertyKey.Index);
-                    return receiver.GetValue(property);
-            }
-            return JSUndefined.Value;
+            return targetObject.GetValue(key, receiver);
         }
 
         [Static("getOwnPropertyDescriptor")]

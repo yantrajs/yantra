@@ -84,26 +84,7 @@ namespace YantraJS.Core.Objects
             if (!(target is JSObject @object))
                 throw JSContext.Current.NewTypeError($"Not an object");
             receiver = receiver.IsUndefined ? target : receiver;
-            var key = propertyKey.ToKey();
-            ref var p = ref JSProperty.Empty;
-            if (key.IsSymbol)
-            {
-                p = @object.GetInternalProperty(key.Symbol);
-            } else
-            {
-                if (key.IsUInt)
-                {
-                    p = @object.GetInternalProperty(key.Index);
-                } else
-                {
-                    p = @object.GetInternalProperty(in key.KeyString);
-                }
-            }
-            if (p.IsEmpty)
-                return JSUndefined.Value;
-            if (p.IsValue)
-                return p.value;
-            return p.get.InvokeFunction(new Arguments(receiver));
+            return target.GetValue(propertyKey, receiver, false);
         }
 
         [Static("getOwnPropertyDescriptor", Length = 2)]

@@ -255,7 +255,7 @@ namespace YantraJS.Core {
         {
             if (this == JSNull.Value || this == JSUndefined.Value)
                 return JSUndefined.Value;
-            return GetOwnProperty(in name);
+            return GetValue(name, this);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -266,14 +266,14 @@ namespace YantraJS.Core {
             var pc = prototypeChain;
             if (pc == null)
                 return JSUndefined.Value;
-            return this.GetValue(super.GetInternalProperty(name));
+            return super.GetValue(name, this);
         }
 
         public JSValue PropertyOrUndefined(uint name)
         {
             if (this == JSNull.Value || this == JSUndefined.Value)
                 return JSUndefined.Value;
-            return GetOwnProperty(name);
+            return GetValue(name, this);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -284,14 +284,14 @@ namespace YantraJS.Core {
             var pc = this.prototypeChain;
             if (pc == null)
                 return JSUndefined.Value;
-            return this.GetValue(super.GetInternalProperty(name));
+            return super.GetValue(name, this);
         }
 
         public JSValue PropertyOrUndefined(JSSymbol name)
         {
             if (this == JSNull.Value || this == JSUndefined.Value)
                 return JSUndefined.Value;
-            return this.GetOwnProperty(name);
+            return GetValue(name, this);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -302,7 +302,7 @@ namespace YantraJS.Core {
             var pc = prototypeChain;
             if (pc == null)
                 return JSUndefined.Value;
-            return this.GetValue(super.GetInternalProperty(name));
+            return super.GetValue(name, this);
         }
 
         public JSValue PropertyOrUndefined(JSValue name)
@@ -334,9 +334,7 @@ namespace YantraJS.Core {
         {
             get
             {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return this.GetValue(prototypeChain.GetInternalProperty(name));
+                return GetValue(name, this);
             }
             set
             {
@@ -348,9 +346,7 @@ namespace YantraJS.Core {
         {
             get
             {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return this.GetValue(prototypeChain.GetInternalProperty(key));
+                return this.GetValue(key, this);
             }
             set { }
         }
@@ -359,9 +355,7 @@ namespace YantraJS.Core {
         {
             get
             {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return this.GetValue(prototypeChain.GetInternalProperty(symbol));
+                return GetValue(symbol, this);
             }
             set { }
         }
@@ -370,27 +364,11 @@ namespace YantraJS.Core {
         {
             get
             {
-                if (key is JSSymbol symbol)
-                    return this[symbol];
-                var k = key.ToKey();
-                return k.IsUInt ? this[k.Index] : this[k.KeyString];
+                return GetValue(key, this);
             }
             set
             {
-                if (key is JSSymbol symbol)
-                {
-                    this[symbol] = value;
-                    return;
-                }
-                var k = key.ToKey();
-                if (k.IsUInt)
-                {
-                    this[k.Index] = value;
-                }
-                else
-                {
-                    this[k.KeyString] = value;
-                }
+                SetValue(key, value, this);
             }
         }
 
@@ -400,28 +378,74 @@ namespace YantraJS.Core {
             {
                 if (prototypeChain == null)
                     return JSUndefined.Value;
-                return @this.GetValue(prototypeChain.GetInternalProperty(name));
+                return GetValue(name, this);
             }
             set { }
         }
 
-        internal virtual bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError)
+        internal virtual JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        {
+            if (prototypeChain != null)
+            {
+                var p = prototypeChain.GetInternalProperty(key);
+                return (receiver ?? this).GetValue(p);
+            }
+            return JSUndefined.Value;
+        }
+
+        internal virtual JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            if (prototypeChain != null)
+            {
+                var p = prototypeChain.GetInternalProperty(key);
+                return (receiver ?? this).GetValue(p);
+            }
+            return JSUndefined.Value;
+        }
+
+        internal virtual JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        {
+            if (prototypeChain != null)
+            {
+                var p = prototypeChain.GetInternalProperty(key);
+                return (receiver ?? this).GetValue(p);
+            }
+            return JSUndefined.Value;
+        }
+
+        internal JSValue GetValue(JSValue key, JSValue receiver, bool throwError = true)
+        {
+            var k = key.ToKey(false);
+            switch (k.Type)
+            {
+                case KeyType.UInt:
+                    return GetValue(k.Index, receiver, throwError);
+                case KeyType.String:
+                    return GetValue(k.KeyString, receiver, throwError);
+                case KeyType.Symbol:
+                    return GetValue(k.Symbol, receiver, throwError);
+            }
+            return JSUndefined.Value;
+
+        }
+
+        internal virtual bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
-        internal virtual bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError)
+        internal virtual bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
-        internal virtual bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError)
+        internal virtual bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool SetValue(JSValue key, JSValue value, JSValue receiver, bool throwError)
+        internal bool SetValue(JSValue key, JSValue value, JSValue receiver, bool throwError = true)
         {
             var k = key.ToKey();
             switch (k.Type)
@@ -441,38 +465,20 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue this[JSObject super, KeyString name]
         {
-            get => this.GetValue(super.GetInternalProperty(name));
+            get => super.GetValue(name, this);
             set
             {
-                var p = super.GetInternalProperty(name);
-                if (p.IsProperty)
-                {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(this, value));
-                    }
-                    return;
-                }
-                throw JSContext.Current.NewTypeError($"{name} accessor not found on super");
+                super.SetValue(name, value, this);
             }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue this[JSObject super, uint index]
         {
-            get => this.GetValue(super.GetInternalProperty(index));
+            get => super.GetValue(index, this);
             set
             {
-                var p = super.GetInternalProperty(index);
-                if (p.IsProperty)
-                {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(this, value));
-                    }
-                    return;
-                }
-                throw JSContext.Current.NewTypeError($"{index} accessor not found on super");
+                super.SetValue(index, value, this);
             }
         }
 
@@ -481,23 +487,10 @@ namespace YantraJS.Core {
         {
             get
             {
-                if (name is JSSymbol symbol)
-                    return this[super, symbol];
-                var key = name.ToKey();
-                if (key.IsUInt)
-                    return this[super, key.Index];
-                return this[super, key.KeyString];
+                return super.GetValue(name, this);
             }
             set {
-                if (name is JSSymbol symbol)
-                    this[super, symbol] = value;
-                var key = name.ToKey();
-                if (key.IsUInt)
-                {
-                    this[super, key.Index] = value;
-                    return;
-                } 
-                this[super, key.KeyString] = value;
+                super.SetValue(name, value, this);
             }
         }
 

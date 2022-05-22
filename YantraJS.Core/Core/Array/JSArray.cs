@@ -79,31 +79,6 @@ namespace YantraJS.Core
             return $"[{this.ToString()}]"; ;
         }
 
-        public override JSValue this[uint name]
-        {
-            get => this.GetValue(GetInternalProperty(name));
-            set
-            {
-                var p = GetInternalProperty(name);
-                if (p.IsProperty)
-                {
-                    if (p.set != null)
-                    {
-                        p.set.f(new Arguments(this, value));
-                        return;
-                    }
-                    return;
-                }
-                if (this.IsSealedOrFrozen())
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
-                if (this._length <= name)
-                    this._length = name + 1;
-                ref var elements = ref CreateElements();
-                elements.Put(name, value);
-                Dirty();
-            }
-        }
-
         public override bool IsArray => true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -264,6 +239,19 @@ namespace YantraJS.Core
             }
             this._length = el;
             // return this;
+        }
+
+        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            if(base.SetValue(name, value, receiver, throwError))
+            {
+                if (_length <= name)
+                {
+                    _length = name + 1;
+                }
+                return true;
+            }
+            return false;
         }
 
         //IEnumerator IEnumerable.GetEnumerator()

@@ -135,101 +135,201 @@ namespace YantraJS.Core.Typed
             this.byteOffset = byteOffset;
         }
 
-        public override JSValue this[uint index]
+        internal override JSValue GetValue(uint index, JSValue receiver, bool throwError = true)
         {
-            get {
-                if (index < 0 || index >= this.length)
+            if (index < 0 || index >= this.length)
+                return JSUndefined.Value;
+            switch (type)
+            {
+                case TypedArrayType.Int8Array:
+                    return new JSNumber((int)(sbyte)this.buffer.buffer[this.byteOffset + index]);
+                case TypedArrayType.Uint8Array:
+                case TypedArrayType.Uint8ClampedArray:
+                    return new JSNumber((int)this.buffer.buffer[this.byteOffset + index]);
+                case TypedArrayType.Int16Array:
+                    return new JSNumber((int)BitConverter.ToInt16(this.buffer.buffer, this.byteOffset + (int)index * 2));
+                case TypedArrayType.Uint16Array:
+                    return new JSNumber((int)BitConverter.ToUInt16(this.buffer.buffer, this.byteOffset + (int)index * 2));
+                case TypedArrayType.Int32Array:
+                    return new JSNumber(BitConverter.ToInt32(this.buffer.buffer, this.byteOffset + (int)index * 4));
+                case TypedArrayType.Uint32Array:
+                    return new JSNumber(BitConverter.ToUInt32(this.buffer.buffer, this.byteOffset + (int)index * 4));
+                case TypedArrayType.Float32Array:
+                    return new JSNumber((double)BitConverter.ToSingle(this.buffer.buffer, this.byteOffset + (int)index * 4));
+                case TypedArrayType.Float64Array:
+                    return new JSNumber(BitConverter.ToDouble(this.buffer.buffer, this.byteOffset + (int)index * 8));
+                default:
+                    if (throwError)
+                    {
+                        throw new NotSupportedException($"Unsupported TypedArray '{type}'.");
+                    }
                     return JSUndefined.Value;
-                switch (type)
-                {
-                    case TypedArrayType.Int8Array:
-                        return new JSNumber((int)(sbyte)this.buffer.buffer[this.byteOffset + index]);
-                    case TypedArrayType.Uint8Array:
-                    case TypedArrayType.Uint8ClampedArray:
-                        return new JSNumber ((int)this.buffer.buffer[this.byteOffset + index]);
-                    case TypedArrayType.Int16Array:
-                        return new JSNumber ((int)BitConverter.ToInt16(this.buffer.buffer, this.byteOffset + (int)index * 2));
-                    case TypedArrayType.Uint16Array:
-                        return new JSNumber ((int)BitConverter.ToUInt16(this.buffer.buffer, this.byteOffset + (int) index * 2));
-                    case TypedArrayType.Int32Array:
-                        return new JSNumber (BitConverter.ToInt32(this.buffer.buffer, this.byteOffset + (int) index * 4));
-                    case TypedArrayType.Uint32Array:
-                        return new JSNumber (BitConverter.ToUInt32(this.buffer.buffer, this.byteOffset + (int) index * 4));
-                    case TypedArrayType.Float32Array:
-                        return new JSNumber ((double)BitConverter.ToSingle(this.buffer.buffer, this.byteOffset + (int) index * 4));
-                    case TypedArrayType.Float64Array:
-                        return new JSNumber (BitConverter.ToDouble(this.buffer.buffer, this.byteOffset + (int) index * 8));
-                    default:
-                        throw new NotSupportedException($"Unsupported TypedArray '{type}'.");
-                }
-            }
-            set {
-                if (index < 0 || index >= this.length)
-                    return;
-                switch (type)
-                {
-                    case TypedArrayType.Int8Array:
-                        this.buffer.buffer[this.byteOffset + index] = (byte)value.IntValue;
-                        break;
-
-                    case TypedArrayType.Uint8Array:
-                        this.buffer.buffer[this.byteOffset + index] = (byte)(uint)value.IntValue;
-                        break;
-
-                    case TypedArrayType.Uint8ClampedArray:
-
-                        // This algorithm is defined as ToUint8Clamp in the spec.
-                        double number = value.DoubleValue;
-                        int result;
-                        if (number <= 0)
-                            result = 0;
-                        else if (number >= 255)
-                            result = 255;
-                        else
-                        {
-                            var f = Math.Floor(number);
-                            if (f + 0.5 < number)
-                                result = (int)f + 1;
-                            else if (number < f + 0.5)
-                                result = (int)f;
-                            else if ((int)f % 2 == 0)
-                                result = (int)f;
-                            else
-                                result = (int)f + 1;
-                        }
-                        this.buffer.buffer[this.byteOffset + index] = (byte)result;
-                        break;
-
-                    case TypedArrayType.Int16Array:
-                        Array.Copy(BitConverter.GetBytes((Int16)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 2, 2);
-                        break;
-
-                    case TypedArrayType.Uint16Array:
-                        Array.Copy(BitConverter.GetBytes((UInt16)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 2, 2);
-                        break;
-
-                    case TypedArrayType.Int32Array:
-                        Array.Copy(BitConverter.GetBytes((Int32)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
-                        break;
-
-                    case TypedArrayType.Uint32Array:
-                        Array.Copy(BitConverter.GetBytes((UInt32)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
-                        break;
-
-                    case TypedArrayType.Float32Array:
-                        Array.Copy(BitConverter.GetBytes((float)value.DoubleValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
-                        break;
-
-                    case TypedArrayType.Float64Array:
-                        Array.Copy(BitConverter.GetBytes(value.DoubleValue), 0, this.buffer.buffer, this.byteOffset + index * 8, 8);
-                        break;
-
-                    default:
-                        throw new NotSupportedException($"Unsupported TypedArray '{type}'.");
-                }
-
             }
         }
+
+        internal override bool SetValue(uint index, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            if (index < 0 || index >= this.length)
+                return false;
+            switch (type)
+            {
+                case TypedArrayType.Int8Array:
+                    this.buffer.buffer[this.byteOffset + index] = (byte)value.IntValue;
+                    break;
+
+                case TypedArrayType.Uint8Array:
+                    this.buffer.buffer[this.byteOffset + index] = (byte)(uint)value.IntValue;
+                    break;
+
+                case TypedArrayType.Uint8ClampedArray:
+
+                    // This algorithm is defined as ToUint8Clamp in the spec.
+                    double number = value.DoubleValue;
+                    int result;
+                    if (number <= 0)
+                        result = 0;
+                    else if (number >= 255)
+                        result = 255;
+                    else
+                    {
+                        var f = Math.Floor(number);
+                        if (f + 0.5 < number)
+                            result = (int)f + 1;
+                        else if (number < f + 0.5)
+                            result = (int)f;
+                        else if ((int)f % 2 == 0)
+                            result = (int)f;
+                        else
+                            result = (int)f + 1;
+                    }
+                    this.buffer.buffer[this.byteOffset + index] = (byte)result;
+                    break;
+
+                case TypedArrayType.Int16Array:
+                    Array.Copy(BitConverter.GetBytes((Int16)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 2, 2);
+                    break;
+
+                case TypedArrayType.Uint16Array:
+                    Array.Copy(BitConverter.GetBytes((UInt16)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 2, 2);
+                    break;
+
+                case TypedArrayType.Int32Array:
+                    Array.Copy(BitConverter.GetBytes((Int32)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
+                    break;
+
+                case TypedArrayType.Uint32Array:
+                    Array.Copy(BitConverter.GetBytes((UInt32)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
+                    break;
+
+                case TypedArrayType.Float32Array:
+                    Array.Copy(BitConverter.GetBytes((float)value.DoubleValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
+                    break;
+
+                case TypedArrayType.Float64Array:
+                    Array.Copy(BitConverter.GetBytes(value.DoubleValue), 0, this.buffer.buffer, this.byteOffset + index * 8, 8);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unsupported TypedArray '{type}'.");
+            }
+            return true;
+        }
+
+        //public override JSValue this[uint index]
+        //{
+        //    get {
+        //        if (index < 0 || index >= this.length)
+        //            return JSUndefined.Value;
+        //        switch (type)
+        //        {
+        //            case TypedArrayType.Int8Array:
+        //                return new JSNumber((int)(sbyte)this.buffer.buffer[this.byteOffset + index]);
+        //            case TypedArrayType.Uint8Array:
+        //            case TypedArrayType.Uint8ClampedArray:
+        //                return new JSNumber ((int)this.buffer.buffer[this.byteOffset + index]);
+        //            case TypedArrayType.Int16Array:
+        //                return new JSNumber ((int)BitConverter.ToInt16(this.buffer.buffer, this.byteOffset + (int)index * 2));
+        //            case TypedArrayType.Uint16Array:
+        //                return new JSNumber ((int)BitConverter.ToUInt16(this.buffer.buffer, this.byteOffset + (int) index * 2));
+        //            case TypedArrayType.Int32Array:
+        //                return new JSNumber (BitConverter.ToInt32(this.buffer.buffer, this.byteOffset + (int) index * 4));
+        //            case TypedArrayType.Uint32Array:
+        //                return new JSNumber (BitConverter.ToUInt32(this.buffer.buffer, this.byteOffset + (int) index * 4));
+        //            case TypedArrayType.Float32Array:
+        //                return new JSNumber ((double)BitConverter.ToSingle(this.buffer.buffer, this.byteOffset + (int) index * 4));
+        //            case TypedArrayType.Float64Array:
+        //                return new JSNumber (BitConverter.ToDouble(this.buffer.buffer, this.byteOffset + (int) index * 8));
+        //            default:
+        //                throw new NotSupportedException($"Unsupported TypedArray '{type}'.");
+        //        }
+        //    }
+        //    set {
+        //        if (index < 0 || index >= this.length)
+        //            return;
+        //        switch (type)
+        //        {
+        //            case TypedArrayType.Int8Array:
+        //                this.buffer.buffer[this.byteOffset + index] = (byte)value.IntValue;
+        //                break;
+
+        //            case TypedArrayType.Uint8Array:
+        //                this.buffer.buffer[this.byteOffset + index] = (byte)(uint)value.IntValue;
+        //                break;
+
+        //            case TypedArrayType.Uint8ClampedArray:
+
+        //                // This algorithm is defined as ToUint8Clamp in the spec.
+        //                double number = value.DoubleValue;
+        //                int result;
+        //                if (number <= 0)
+        //                    result = 0;
+        //                else if (number >= 255)
+        //                    result = 255;
+        //                else
+        //                {
+        //                    var f = Math.Floor(number);
+        //                    if (f + 0.5 < number)
+        //                        result = (int)f + 1;
+        //                    else if (number < f + 0.5)
+        //                        result = (int)f;
+        //                    else if ((int)f % 2 == 0)
+        //                        result = (int)f;
+        //                    else
+        //                        result = (int)f + 1;
+        //                }
+        //                this.buffer.buffer[this.byteOffset + index] = (byte)result;
+        //                break;
+
+        //            case TypedArrayType.Int16Array:
+        //                Array.Copy(BitConverter.GetBytes((Int16)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 2, 2);
+        //                break;
+
+        //            case TypedArrayType.Uint16Array:
+        //                Array.Copy(BitConverter.GetBytes((UInt16)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 2, 2);
+        //                break;
+
+        //            case TypedArrayType.Int32Array:
+        //                Array.Copy(BitConverter.GetBytes((Int32)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
+        //                break;
+
+        //            case TypedArrayType.Uint32Array:
+        //                Array.Copy(BitConverter.GetBytes((UInt32)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
+        //                break;
+
+        //            case TypedArrayType.Float32Array:
+        //                Array.Copy(BitConverter.GetBytes((float)value.DoubleValue), 0, this.buffer.buffer, this.byteOffset + index * 4, 4);
+        //                break;
+
+        //            case TypedArrayType.Float64Array:
+        //                Array.Copy(BitConverter.GetBytes(value.DoubleValue), 0, this.buffer.buffer, this.byteOffset + index * 8, 8);
+        //                break;
+
+        //            default:
+        //                throw new NotSupportedException($"Unsupported TypedArray '{type}'.");
+        //        }
+
+        //    }
+        //}
 
         public override bool BooleanValue => true;
         public override double DoubleValue => double.NaN;
