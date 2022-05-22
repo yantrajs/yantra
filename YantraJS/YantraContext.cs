@@ -146,10 +146,17 @@ namespace YantraJS
             }
             return await LoadDelegate(dllFile.FullName);
         }
-        protected override async Task<JSModule> CreateAsync(string filePath, string code, bool isMain = false)
+
+        protected override async Task CompileModuleAsync(JSModule module)
         {
+
+            var filePath = module.filePath;
+
             if (!filePath.EndsWith(".csx"))
-                return await base.CreateAsync(filePath, code, isMain);
+            {
+                await base.CompileModuleAsync(module);
+                return;
+            }
 
 
             JSModuleDelegate @delegate = null;
@@ -164,6 +171,9 @@ namespace YantraJS
             }
             else
             {
+
+                using var reader = new StreamReader(filePath, Encoding.UTF8);
+                var code = await reader.ReadToEndAsync();
 
                 var nugetResolver = new NuGetMetadataReferenceResolver(
                     ScriptMetadataResolver.Default.WithBaseDirectory(originalFile.DirectoryName), folder);
@@ -215,10 +225,7 @@ namespace YantraJS
                 }
             }
 
-            var module = new JSModule(this, new JSObject(), filePath, isMain);
             await @delegate(module);
-
-            return module;
         }
 
         

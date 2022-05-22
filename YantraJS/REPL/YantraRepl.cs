@@ -13,15 +13,13 @@ namespace YantraJS.REPL
 
         public YantraRepl(): base(Environment.CurrentDirectory)
         {
-            var defModule = new JSModule(this, new JSObject(), "repl");
-
             this[KeyStrings.require] = new JSFunction((in Arguments a1) => {
-                var r = this.LoadModuleAsync(defModule, a1[0].ToString());
+                var r = this.LoadModuleAsync(System.Environment.CurrentDirectory, a1[0].ToString());
                 return AsyncPump.Run(() => r);
             });
 
             this[KeyStrings.import] = new JSFunction((in Arguments a1) => {
-                var r = this.LoadModuleAsync(defModule, a1[0].ToString());
+                var r = this.LoadModuleAsync(System.Environment.CurrentDirectory, a1[0].ToString());
                 return ClrProxy.Marshal(r);
             });
 

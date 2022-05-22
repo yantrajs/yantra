@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Threading;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,110 +8,19 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Core.Clr;
-using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Storage;
 using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class DefaultExportAttribute: ExportAttribute
-    {
-        public DefaultExportAttribute(): base("default")
-        {
-
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class ExportAttribute : Attribute
-    {
-        public string Name { get; }
-
-        /// <summary>
-        /// Exports given Type as class
-        /// </summary>
-        /// <param name="name">Asterix '*' if null</param>
-        public ExportAttribute(string name = null)
-        {
-            this.Name = name;
-        }
-    }
 
     public delegate Task JSModuleDelegate(
         JSModule module
     );
-
-    //internal class ModuleCache: ConcurrentSharedStringTrie<JSModule>
-    //{
-    //    internal static Key module = "module";
-    //    internal static Key clr = "clr";
-    //}
-
-    public struct ModuleCache
-    {
-        private static ConcurrentNameMap nameCache;
-        private ConcurrentUInt32Map<JSModule> modules;
-        
-
-        static ModuleCache()
-        {
-            nameCache = new ConcurrentNameMap();
-            module = nameCache.Get("module");
-            clr = nameCache.Get("clr");
-        }
-
-        public static (uint Key, StringSpan Name) module;
-        public static (uint Key, StringSpan Name) clr;
-
-        public static ModuleCache Create()
-        {
-            return new ModuleCache(true);
-        }
-        public bool TryGetValue(in StringSpan key, out JSModule obj)
-        {
-            if(nameCache.TryGetValue(key, out var i))
-            {
-                if (modules.TryGetValue(i.Key, out obj))
-                    return true;
-            }
-            obj = null;
-            return false;
-        }
-        public JSModule GetOrCreate(in StringSpan key, Func<JSModule> factory)
-        {
-            var k = nameCache.Get(key);
-            return modules.GetOrCreate(k.Key, factory);
-        }
-
-        public void Add(in StringSpan key, JSModule module)
-        {
-            var k = nameCache.Get(key);
-            modules[k.Key] = module;
-        }
-
-        public ModuleCache(bool v)
-        {
-            modules = ConcurrentUInt32Map<JSModule>.Create();
-        }
-
-        public JSModule this[in (uint Key, StringSpan name) key]
-        {
-            get {
-                if (modules.TryGetValue(key.Key, out var m))
-                    return m;
-                return null;
-            }
-            set {
-                modules[key.Key] = value;
-            }
-        }
-
-        public IEnumerable<JSModule> All => modules.All;
-    }
 
     /// <summary>
     /// Enables Modules, both CommonJS and ES Modules
@@ -120,8 +30,8 @@ namespace YantraJS.Core
         internal readonly JSObject ModulePrototype;
         internal readonly JSFunction Module;
 
-        public JSModuleContext(SynchronizationContext ctx = null):
-            base(ctx)
+        public JSModuleContext(SynchronizationContext ctx = null) :
+            base(ctx ?? new SynchronizationContext())
         {
             this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
 
@@ -139,7 +49,7 @@ namespace YantraJS.Core
         public void RegisterModule(in KeyString name, JSObject exports)
         {
             var n = name.ToString();
-            moduleCache.GetOrCreate(name.Value ,() => new JSModule(this, exports, n));
+            moduleCache.GetOrCreate(name.Value, () => new JSModule(this, exports, n));
         }
 
         /// <summary>
@@ -184,7 +94,7 @@ namespace YantraJS.Core
                                 path = Path.Combine(fullName, v);
                                 if (System.IO.File.Exists(path))
                                     return true;
-                                foreach(var ext in extensions)
+                                foreach (var ext in extensions)
                                 {
                                     var np = path + ext;
                                     if (System.IO.File.Exists(np))
@@ -199,7 +109,7 @@ namespace YantraJS.Core
                         }
                     }
                 }
-                if(System.IO.File.Exists(fullName))
+                if (System.IO.File.Exists(fullName))
                 {
                     path = fullName;
                     return true;
@@ -244,7 +154,7 @@ namespace YantraJS.Core
                 Array.Copy(paths, 0, np, 2, paths.Length);
                 paths = np;
             }
-            this.paths = paths ?? new string[] { 
+            this.paths = paths ?? new string[] {
                 this.CurrentPath,
                 this.CurrentPath + "/node_modules",
                 // system npm paths...
@@ -252,8 +162,22 @@ namespace YantraJS.Core
             };
         }
 
+        private IDisposable CreateSynchronizationContext()
+        {
+            if (SynchronizationContext.Current == null)
+            {
+                SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+                return new DisposableAction(() =>
+                {
+                    System.Threading.SynchronizationContext.SetSynchronizationContext(null);
+                });
+            }
+            return DisposableAction.Empty;
+        }
 
-        public async Task<JSValue> RunAsync(string folder, string relativeFile, string[] paths = null) {
+        public async Task<JSValue> RunAsync(string folder, string relativeFile, string[] paths = null)
+        {
+            using var sc = CreateSynchronizationContext();
             CurrentPath = folder;
             UpdatePaths(paths);
             var filePath = Resolve(folder,
@@ -261,34 +185,16 @@ namespace YantraJS.Core
                 relativeFile : ("./" + relativeFile));
             if (filePath == null)
                 throw new FileNotFoundException($"{relativeFile} not found");
-            string text;
-            using (var fs = File.OpenText(filePath))
-            {
-                text = await fs.ReadToEndAsync();
-            }
-            Main = await this.CreateAsync(filePath, text, true);
-            var r = Main.Exports;
+            var r = await this.LoadModuleAsync(null, filePath);
             var w = WaitTask;
-            if (w != null)
-                await w;
-            if (r is JSPromise promise)
-            {
-                return await promise.Task;
-            }
-            w = WaitTask;
             if (w != null)
                 await w;
             return r;
 
         }
 
-        protected virtual Task<JSModule> CreateAsync(string filePath, string text, bool isMain)
-        {
-            return JSModule.CreateAsync(this, filePath, text, isMain);
-        }
-
         public async static Task<JSValue> RunExportsAsync(
-            string folder, 
+            string folder,
             string relativeFile,
             string exportedFunctionName,
             Arguments a,
@@ -299,18 +205,13 @@ namespace YantraJS.Core
             {
                 m.CurrentPath = folder;
                 m.UpdatePaths(paths);
-                var filePath = m.Resolve(folder, 
-                    relativeFile.StartsWith(".") ? 
-                    relativeFile : ( "./" + relativeFile));
+                var filePath = m.Resolve(folder,
+                    relativeFile.StartsWith(".") ?
+                    relativeFile : ("./" + relativeFile));
                 if (filePath == null)
                     throw new FileNotFoundException($"{filePath} not found");
-                string text;
-                using(var fs = File.OpenText(filePath))
-                {
-                    text = await fs.ReadToEndAsync();
-                }
-                var main = m.Main = await m.CreateAsync(filePath, text, true);
-                var exported = main.Exports[exportedFunctionName];
+                var main = await m.LoadModuleAsync(m.CurrentPath, filePath);
+                var exported = main[exportedFunctionName];
                 if (exported.IsUndefined)
                     throw new KeyNotFoundException($"{exportedFunctionName} not found on the module");
                 var rv = exported.InvokeFunction(a);
@@ -322,37 +223,14 @@ namespace YantraJS.Core
                     await m.WaitTask;
                 return rv;
             }
-            
+
         }
 
         public string CurrentPath { get; set; }
 
-        public JSModule Main { get; set;}
+        public JSModule Main { get; set; }
 
-        //internal protected JSValue LoadModule(JSModule callee, in Arguments a)
-        //{
-        //    var name = a.Get1();
-        //    if (!name.IsString)
-        //        throw NewTypeError("require method's parameter must be a string");
-        //    var relativePath = name.ToString();
-
-        //    // fetch system modules 
-        //    if (moduleCache.TryGetValue(relativePath, out var m))
-        //    {
-        //        return m.Exports;
-        //    }
-
-        //    // resolve full name..
-        //    var fullPath = Resolve(callee.dirPath, relativePath);
-        //    if (fullPath == null)
-        //        throw NewTypeError($"{relativePath} module not found");
-        //    var code = System.IO.File.ReadAllText(fullPath);
-        //    JSModule module = moduleCache.GetOrCreate(fullPath, () => new JSModule(this, fullPath, code));
-        //    var exports = module.Exports;
-        //    return exports;
-        //}
-
-        internal protected async Task<JSValue> LoadModuleAsync(JSModule callee, string name)
+        protected virtual async Task<JSValue> LoadModuleAsync(string currentPath, string name)
         {
             var relativePath = name;
 
@@ -363,24 +241,66 @@ namespace YantraJS.Core
             }
 
             // resolve full name..
-            var fullPath = Resolve(callee.dirPath, relativePath);
+            var fullPath = Resolve(currentPath, relativePath);
             if (fullPath == null)
                 throw NewTypeError($"{relativePath} module not found");
-            if (moduleCache.TryGetValue(fullPath, out m))
+            m = moduleCache.GetOrCreate(fullPath, () =>
             {
-                return m.Exports;
-            }
-            var code = System.IO.File.ReadAllText(fullPath);
-            var module = await CreateAsync( fullPath, code, false);
-            moduleCache.Add(fullPath, module);
-            return module.Exports;
+                var newModule = new JSModule(this, fullPath);
+                var dirPath = System.IO.Path.GetDirectoryName(fullPath);
+                newModule.Import = new JSFunction((in Arguments a) =>
+                {
+                    var name = a[0];
+                    if (!name.IsString)
+                        throw NewTypeError("import method's parameter must be a string");
+                    var result = LoadModuleAsync(dirPath, name.StringValue);
+                    return Clr.ClrProxy.Marshal(result);
+                });
+
+                newModule.Require = new JSFunction((in Arguments a) =>
+                {
+                    var name = a[0];
+                    if (!name.IsString)
+                        throw NewTypeError("require method's parameter must be a string");
+                    var result = LoadModuleAsync(dirPath, name.StringValue);
+                    return AsyncPump.Run(() => result);
+                });
+                newModule.Compile = new JSFunction((in Arguments a) => {
+                    var task = CompileModuleAsync(newModule);
+                    return ClrProxy.Marshal(task);
+                });
+                return newModule;
+            });
+            await m.InitAsync();
+            return m.Exports;
         }
 
-        //internal protected virtual JSFunctionDelegate Compile(string code, string filePath, List<string> args)
-        //{
-        //    return CoreScript.Compile(code, filePath, args);
-        //}
+        internal protected virtual async Task CompileModuleAsync(JSModule module)
+        {
+            Console.WriteLine($"{DateTime.Now} - Compiling module {module.filePath}");
+            var filePath = module.filePath;
+            // if this is a json file... then pad with module.exports = 
+            using var reader = new StreamReader(filePath, Encoding.UTF8);
+            var code = await reader.ReadToEndAsync();
 
+            if (filePath.EndsWith(".json"))
+            {
+                code = $"module.exports = {code};";
+            }
+            else
+            {
+                code = @$"(async function({{module, import, exports, require, filePath: __filename, dirPath: __dirname}}) {{ {code} }})";
+            }
 
+            var factory = FastEval(code, filePath);
+
+            var result = factory.InvokeFunction(new Arguments(module, module)) as JSPromise;
+            if (result != null)
+            {
+                await result.Task;
+
+            }
+
+        }
     }
 }

@@ -4,8 +4,9 @@ using System.Text;
 
 namespace YantraJS.Core
 {
-    public class DisposableAction : IDisposable
+    public readonly struct DisposableAction : IDisposable
     {
+        public static readonly IDisposable Empty = new EmptyDisposable();
         private readonly Action action;
 
         public DisposableAction(Action action)
@@ -16,6 +17,14 @@ namespace YantraJS.Core
         public void Dispose()
         {
             action();
+        }
+
+        private readonly struct EmptyDisposable : IDisposable
+        {
+            public void Dispose()
+            {
+                
+            }
         }
     }
 }
