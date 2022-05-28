@@ -42,11 +42,11 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          const { SemVer2 } = process.env
+          const { NBGV_SemVer2 } = process.env
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: `refs/tags/v${SemVer2}`,
+            ref: `refs/tags/v${NBGV_SemVer2}`,
             sha: context.sha
           })
          
