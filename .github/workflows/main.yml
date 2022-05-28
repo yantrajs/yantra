@@ -40,15 +40,13 @@ jobs:
          
     - name: Create tag
       uses: actions/github-script@v6
-      env:
-         BUILD_VERSION: GitBuildVersionSimple
       with:
         script: |
-          const { BUILD_VERSION } = process.env
+          const { SemVer2 } = process.env
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: `refs/tags/v${BUILD_VERSION}`,
+            ref: `refs/tags/v${SemVer2}`,
             sha: context.sha
           })
          
