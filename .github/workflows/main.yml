@@ -38,9 +38,14 @@ jobs:
          NUGET_SOURCE: ${{secrets.PROGET_NUGET}}
          NUGET_KEY: ${{secrets.PROGET_NUGET_TOKEN}}  
          
-    - name: Tag and Release
-      uses: dothq/tag-and-release-and-upload@v1.0.2
+    - name: Create tag
+      uses: actions/github-script@v5
       with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          version: v$GitBuildVersionSimple
-          overwrite: false          
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: 'refs/tags/v$GitBuildVersionSimple',
+            sha: context.sha
+          })
+         
