@@ -39,13 +39,16 @@ jobs:
          NUGET_KEY: ${{secrets.PROGET_NUGET_TOKEN}}  
          
     - name: Create tag
-      uses: actions/github-script@v5
+      uses: actions/github-script@v6
+      env:
+         BUILD_VERSION: GitBuildVersionSimple
       with:
         script: |
+          const { BUILD_VERSION } = process.env
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: 'refs/tags/v$GitBuildVersionSimple',
+            ref: `refs/tags/v${BUILD_VERSION}`,
             sha: context.sha
           })
          
