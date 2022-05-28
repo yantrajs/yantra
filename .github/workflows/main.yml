@@ -37,3 +37,11 @@ jobs:
       env:
          NUGET_SOURCE: ${{secrets.PROGET_NUGET}}
          NUGET_KEY: ${{secrets.PROGET_NUGET_TOKEN}}  
+         
+    - name: Tag and Release
+      uses: asondavis303/tag-and-release-and-upload@v1.2.0
+      with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: v$NuGetPackageVersion
+          assets: '[ ]'
+          overwrite: false          
