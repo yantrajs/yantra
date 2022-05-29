@@ -289,12 +289,28 @@ namespace YantraJS.Core
             }
             else
             {
-                code = @$"(async function({{module, import, exports, require, filePath: __filename, dirPath: __dirname}}) {{ {code} }})";
+                // code = @$"(async function({{module, import, exports, require, filePath: __filename, dirPath: __dirname}}) {{ return (\r\n{code}\r\n); }})";
+                
             }
 
-            var factory = FastEval(code, filePath);
+            // var factory = FastEval(code, filePath);
+            var factory = CoreScript.Compile(code, module.filePath, new string[] { 
+                "exports",
+                "require",
+                "module",
+                "import",
+                "__fileame",
+                "__dirname"
+            });
 
-            var result = factory.InvokeFunction(new Arguments(module, module)) as JSPromise;
+            var result = factory(new Arguments(module, new JSValue[] { 
+                module.Exports,
+                module.Require,
+                module,
+                module.Import,
+                module.Id,
+                new JSString(module.dirPath)
+            })) as JSPromise;
             if (result != null)
             {
                 await result.Task;

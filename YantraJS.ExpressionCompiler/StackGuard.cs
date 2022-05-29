@@ -96,40 +96,64 @@ namespace YantraJS
 
     public abstract class StackGuard<T,TIn> {
 
-        private const int MaxStackSize = 200;
+        private const int MaxStackSize = 1024;
 
 
-        private int count = 200;
+        // private int count = 200;
 
-        public T Visit(TIn input)
+        private int start = 0;
+
+        public unsafe T Visit(TIn input)
         {
 
-            // checking this is very slow.. 
-            // instead starting new thread and stopping it is faster...
+            int self;
+            int address = (int)(&self);
+            if (start == 0)
+            {
+                start = address;
+            }
+            else
+            {
+                int diff = address - start;
+                if (diff > MaxStackSize)
+                {
+                    var prev = this.start;
+                    this.start = 0;
+                    var output = (T)YDispatcher.Queue(input, (i) => this.VisitIn((TIn)i));
+                    this.start = prev;
+                    return output;
+                }
+            }
+
+            return VisitIn(input);
+
+            //// checking this is very slow..instead starting new thread and stopping it is faster...
             //if (count == 0)
             //{
             //    try
             //    {
             //        RuntimeHelpers.EnsureSufficientExecutionStack();
             //        count = 100;
-            //    } catch(InsufficientExecutionStackException) {
-                    
+            //    }
+            //    catch (InsufficientExecutionStackException)
+            //    {
+
             //    }
             //}
 
-            if (count == 0)
-            {
-                T output = default;
-                count = MaxStackSize;
-                output = (T)YDispatcher.Queue(input, (i) => this.VisitIn((TIn)i));
-                count = 0;
-                return output;
-            }
+            //if (count == 0)
+            //{
+            //    T output = default;
+            //    count = MaxStackSize;
+            //    output = (T)YDispatcher.Queue(input, (i) => this.VisitIn((TIn)i));
+            //    count = 0;
+            //    return output;
+            //}
 
-            count--;
-            var r = VisitIn(input);
-            count++;
-            return r;
+            //count--;
+            //var r = VisitIn(input);
+            //count++;
+            //return r;
         }
 
         public abstract T VisitIn(TIn input);

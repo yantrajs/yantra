@@ -19,6 +19,9 @@ namespace YantraJS.Core.FastParser
         /// </summary>
         private bool considerInOfAsOperators = true;
 
+
+        private bool isAsync = false;
+
         public StreamLocation BeginUndo() => new StreamLocation(this, stream.Current);
 
 

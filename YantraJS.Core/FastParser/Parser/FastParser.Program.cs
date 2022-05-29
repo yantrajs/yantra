@@ -17,7 +17,7 @@ namespace YantraJS.Core.FastParser
             program = default;
             if (Block(out var block))
             {
-                program = new AstProgram(block.Start, block.End, block.Statements);
+                program = new AstProgram(block.Start, block.End, block.Statements, this.isAsync);
                 program.HoistingScope = block.HoistingScope;
             }
             return true;

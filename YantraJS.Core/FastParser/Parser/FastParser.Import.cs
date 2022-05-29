@@ -21,7 +21,7 @@ namespace YantraJS.Core.FastParser
                 stream.ExpectContextualKeyword(FastKeywords.from);
 
                 var literal = ExpectStringLiteral();
-
+                this.isAsync = true;
                 statement = new AstImportStatement(token, null, id, null, literal);
                 return true;
 
@@ -45,7 +45,7 @@ namespace YantraJS.Core.FastParser
 
                 stream.ExpectContextualKeyword(FastKeywords.from);
                 var literal = ExpectStringLiteral();
-
+                this.isAsync = true;
                 statement = new AstImportStatement(token, id, all, names, literal);
                 return true;
             }
@@ -59,6 +59,7 @@ namespace YantraJS.Core.FastParser
                 }
                 stream.ExpectContextualKeyword(FastKeywords.from);
                 var literal = ExpectStringLiteral();
+                this.isAsync = true;
                 statement = new AstImportStatement(token, id, all, names, literal);
                 return true;
             }

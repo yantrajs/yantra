@@ -22,11 +22,11 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override Exp VisitImportStatement(AstImportStatement importStatement)
         {
             var tempRequire = Exp.Parameter(typeof(JSValue));
-            var require = this.scope.Top.GetVariable("require");
+            var require = this.scope.Top.GetVariable("import");
             var source = VisitExpression(importStatement.Source);
             var args = ArgumentsBuilder.New(JSUndefinedBuilder.Value, source);
             var stmts = new Sequence<Exp>();
-            stmts.Add(Exp.Assign(tempRequire, JSFunctionBuilder.InvokeFunction(require.Expression, args) ));
+            stmts.Add(Exp.Assign(tempRequire, Expression.Yield(JSFunctionBuilder.InvokeFunction(require.Expression, args))));
             FastFunctionScope.VariableScope imported;
 
             var all = importStatement.All;

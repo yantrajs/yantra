@@ -18,7 +18,7 @@ namespace Yantra
 
             // DictionaryCodeCache.Current = new AssemblyCodeCache();
 
-            // ILCodeGenerator.GenerateLogs = true;
+            ILCodeGenerator.GenerateLogs = true;
 
             if (args.Length == 0)
             {

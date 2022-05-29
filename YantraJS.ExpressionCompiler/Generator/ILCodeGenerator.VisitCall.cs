@@ -23,7 +23,10 @@ namespace YantraJS.Generator
                 Visit(callExpression.Target);
 
             EmitParameters(callExpression.Method, callExpression.Arguments, callExpression.Type);
-            il.Emit(OpCodes.Tailcall);
+            // .net tail call works only in single threaded mode
+            // we are unable to run unit tests with following
+            // uncommented, still looking for the answer !!
+            // il.Emit(OpCodes.Tailcall);
             il.Emit(!callExpression.Method.IsStatic
                 ? OpCodes.Callvirt
                 : OpCodes.Call, callExpression.Method);

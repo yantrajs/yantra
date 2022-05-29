@@ -302,7 +302,7 @@ namespace YantraJS.Core.FastParser.Ast
         protected override AstNode VisitProgram(AstProgram program)
         {
             if (Modified(program.Statements, out var list))
-                return new AstProgram(program.Start, program.End, list);
+                return new AstProgram(program.Start, program.End, list, program.IsAsync);
             return program;
         }
 

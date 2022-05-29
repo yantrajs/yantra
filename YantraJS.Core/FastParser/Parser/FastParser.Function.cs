@@ -23,6 +23,7 @@ namespace YantraJS.Core.FastParser
 
         bool FunctionExpression(out AstExpression node, bool isAsync = false, bool isStatement = false)
         {
+            bool isRootAsync = this.isAsync;
             var begin = stream.Current;
             node = default;
             stream.Consume();
@@ -53,6 +54,8 @@ namespace YantraJS.Core.FastParser
             {
                 scope.Dispose();
             }
+
+            this.isAsync = isRootAsync;
 
             return true;
         }

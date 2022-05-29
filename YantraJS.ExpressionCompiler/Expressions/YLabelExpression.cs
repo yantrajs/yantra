@@ -60,7 +60,7 @@ namespace YantraJS.Expressions
         public readonly YExpression? Default;
 
         public YReturnExpression(YLabelTarget target, YExpression? defaultValue)
-            : base(YExpressionType.Return, typeof(void))
+            : base(YExpressionType.Return, defaultValue?.Type ?? typeof(void))
         {
             this.Target = target;
             this.Default = defaultValue;

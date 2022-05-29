@@ -218,6 +218,7 @@ namespace YantraJS.Core.FastParser
                 stream.Consume();
                 if (Expression(out var target))
                 {
+                    this.isAsync = true;
                     statement = new AstAwaitExpression(begin, PreviousToken, target);
                     EndOfStatement();
                     return true;

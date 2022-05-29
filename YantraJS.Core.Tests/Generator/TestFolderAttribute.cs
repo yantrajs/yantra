@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -133,6 +134,7 @@ namespace YantraJS.Tests.Generator
             return new JSTestContext(ctx);
         }
 
+        [HandleProcessCorruptedStateExceptions]
         protected async Task<TestResult> RunAsyncTest(FileInfo file)
         {
             // var watch = new Stopwatch();

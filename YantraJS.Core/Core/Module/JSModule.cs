@@ -80,7 +80,7 @@ namespace YantraJS.Core
                 return;
             }
             exports = new JSObject();
-            var result = this.Compile.InvokeFunction(in Arguments.Empty);
+            var result = this.Compile.InvokeFunction(new Arguments(this));
             if (result is JSPromise promise)
                 await promise.Task;
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.LinqExpressions;
+using YantraJS.Core.LinqExpressions.GeneratorsV2;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
 using YantraJS.Expressions;
@@ -51,15 +52,13 @@ namespace YantraJS.Core.FastParser.Compiler
 
             // add top level...
 
-            using (var fx = this.scope.Push(new FastFunctionScope(pool, (AstFunctionExpression)null))) {
+            var parserPool = new FastPool();
+            var parser = new FastParser(new FastTokenStream(parserPool, code));
+            var jScript = parser.ParseProgram();
+            parserPool.Dispose();
 
-                var parserPool = new FastPool();
-                var parser = new FastParser(new FastTokenStream(parserPool, code));
-                var jScript = parser.ParseProgram();
+            using (var fx = this.scope.Push(new FastFunctionScope(pool, (AstFunctionExpression)null, isAsync: jScript.IsAsync))) {
 
-                parser = null;
-                parserPool.Dispose();
-                parserPool = null;
 
                 // System.Console.WriteLine($"Parsing done...");
 
@@ -155,27 +154,24 @@ namespace YantraJS.Core.FastParser.Compiler
                 sList.Add(Exp.Return(l, script.ToJSValue()));
                 sList.Add(Exp.Label(l, JSUndefinedBuilder.Value));
 
-                //script = Exp.Block(vList,
-                //    Exp.TryFinally(
-                //        Exp.Block(sList),
-                //        ExpHelper.IDisposableBuilder.Dispose(lScope))
-                //);
-                //var catchExp = Exp.Parameter(typeof(Exception));
-                //vList.Add(catchExp);
-
-                //var catchWithFilter = Exp.Catch(
-                //    catchExp,
-                //    Exp.Throw(JSExceptionBuilder.From(catchExp), typeof(JSValue)),
-                //    Exp.Not(Exp.TypeIs(catchExp, typeof(JSException))));
-                //script = Exp.Block(vList,
-                //    Exp.TryCatchFinally(
-                //        Exp.Block(sList),
-                //        JSContextStackBuilder.Pop(stackItem),
-                //        catchWithFilter)
-
-                // sList.Add(JSContextStackBuilder.Pop(stackItem));
-
                 script = Exp.Block(vList, Exp.TryFinally(Exp.Block(sList), JSContextStackBuilder.Pop(stackItem, lScope)));
+                if (jScript.IsAsync)
+                {
+                    var g = GeneratorRewriter.Rewrite("vm", script, fx.ReturnLabel, fx.Generator,
+                        replaceArgs: fx.Arguments,
+                        replaceStackItem: fx.StackItem,
+                        replaceContext: fx.Context,
+                        replaceScriptInfo: scriptInfo);
+
+                    var jsf = JSAsyncFunctionBuilder.Create(
+                        JSGeneratorFunctionBuilderV2.New(g, Exp.Constant("vm"), Exp.Constant(code.Value)));
+
+                    var np = Expression.Parameter(ArgumentsBuilder.refType, "a");
+                    jsf = JSFunctionBuilder.InvokeFunction(jsf, np);
+                    // scr
+                    this.Method = Exp.Lambda<JSFunctionDelegate>("vm", jsf, new ParameterExpression[] { np });
+                    return;
+                }
 
 
                 var lambda = Exp.Lambda<JSFunctionDelegate>("body", script, fx.Arguments);

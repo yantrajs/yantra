@@ -326,7 +326,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public FastFunctionScope(
             FastPool pool,
-            AstFunctionExpression fx, Expression previousThis = null, Expression super = null)
+            AstFunctionExpression fx, Expression previousThis = null, Expression super = null,
+            bool isAsync = false)
         {
             TopScope = this;
             var sID = Interlocked.Increment(ref scopeID);
@@ -340,11 +341,15 @@ namespace YantraJS.Core.FastParser.Compiler
             {
                 Generator = null;
             }
-            if (fx?.Async ?? false)
+            if (fx?.Async ?? true)
             {
                 Generator = Expression.Parameter(typeof(ClrGeneratorV2), "clrGenerator");
                 // Awaiter = Expression.Parameter(typeof(JSWeakAwaiter).MakeByRefType());
                 // throw new NotSupportedException();
+            }
+            if (isAsync && Generator == null)
+            {
+                Generator = Expression.Parameter(typeof(ClrGeneratorV2), "clrGenerator");
             }
             // this.ThisExpression = Expression.Parameter(typeof(Core.JSValue),"_this");
             // this.ArgumentsExpression = Expression.Parameter(typeof(Core.JSValue[]),"_arguments");
