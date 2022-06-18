@@ -131,6 +131,38 @@ namespace YantraJS.Core
             return target.SetValue(name, value, receiver, false);
         }
 
+        public override JSValue GetPrototypeOf()
+        {
+            var fx = handler[KeyStrings.getPrototypeOf];
+            if (fx is JSFunction fxFunction)
+            {
+                return fxFunction.InvokeFunction(new Arguments(target));
+            }
+            return target.GetPrototypeOf();
+        }
+
+        public override void SetPrototypeOf(JSValue proto)
+        {
+            var fx = handler[KeyStrings.setPrototypeOf];
+            if (fx is JSFunction fxFunction)
+            {
+                fxFunction.InvokeFunction(new Arguments(this.target, proto));
+                return;
+            }
+            this.target.SetPrototypeOf(proto);
+        }
+
+        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
+        {
+
+            var fx = handler[KeyStrings.ownKeys];
+            if (fx is JSFunction fxFunction)
+            {
+                return fxFunction.InvokeFunction(new Arguments(this.target)).GetElementEnumerator();
+            }
+            return target.GetAllKeys(showEnumerableOnly, inherited);
+        }
+
         public override bool StrictEquals(JSValue value)
         {
             return target.StrictEquals(value);

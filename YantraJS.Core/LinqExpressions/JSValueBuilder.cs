@@ -227,12 +227,12 @@ namespace YantraJS.ExpHelper
             type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(uint));
         private static MethodInfo _PropertyOrUndefined =
             type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSValue));
-        private static MethodInfo _SuperPropertyOrUndefinedKeyString =
-            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), KeyStringsBuilder.RefType);
-        private static MethodInfo _SuperPropertyOrUndefinedUInt =
-            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(uint));
-        private static MethodInfo _SuperPropertyOrUndefined =
-            type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(JSValue));
+        //private static MethodInfo _SuperPropertyOrUndefinedKeyString =
+        //    type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), KeyStringsBuilder.RefType);
+        //private static MethodInfo _SuperPropertyOrUndefinedUInt =
+        //    type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(uint));
+        //private static MethodInfo _SuperPropertyOrUndefined =
+        //    type.PublicMethod(nameof(JSValue.PropertyOrUndefined), typeof(JSObject), typeof(JSValue));
 
         //private static MethodInfo _GetOwnPropertyKeyString =
         //    type.PublicMethod(nameof(JSValue.GetOwnProperty), KeyStringsBuilder.RefType);
@@ -240,8 +240,8 @@ namespace YantraJS.ExpHelper
         //private static MethodInfo _GetOwnPropertyUInt =
         //    type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(uint));
 
-        private static MethodInfo _GetOwnProperty =
-            type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(JSValue));
+        //private static MethodInfo _GetOwnProperty =
+        //    type.PublicMethod(nameof(JSValue.GetOwnProperty), typeof(JSValue));
 
 
         public static Expression InvokeMethod(
@@ -253,24 +253,28 @@ namespace YantraJS.ExpHelper
             {
                 return JSValueExtensionsBuilder.InvokeMethod(target, name, args, spread);
             }
-            var method = _PropertyOrUndefined;
-            if(name.Type == typeof(KeyString))
+
+
+            var method = _Index;
+            if (name.Type == typeof(KeyString))
             {
-                method = _PropertyOrUndefinedKeyString;
-            } else if(name.Type == typeof(uint))
+                method = _IndexKeyString;
+            }
+            else if (name.Type == typeof(uint))
             {
-                method = _PropertyOrUndefinedUInt;
-            } else if (name.Type == typeof(int))
+                method = _IndexUInt;
+            }
+            else if (name.Type == typeof(int))
             {
-                method = _PropertyOrUndefinedUInt;
+                method = _IndexUInt;
                 name = Expression.Convert(name, typeof(uint));
             }
 
             return Expression.Block(
                 Expression.Assign(targetTemp, target),
-                Expression.Assign(methodTemp, Expression.Call(targetTemp, method, name)),
+                Expression.Assign(methodTemp, Expression.MakeIndex(targetTemp, method, name)),
                 Expression.Condition(
-                    JSValueBuilder.IsNullOrUndefined(methodTemp), 
+                    JSValueBuilder.IsNullOrUndefined(methodTemp),
                         JSUndefinedBuilder.Value,
                         JSFunctionBuilder.InvokeFunction(methodTemp, ArgumentsBuilder.New(targetTemp, args, spread))
                     )
@@ -302,32 +306,32 @@ namespace YantraJS.ExpHelper
             }
             if (property.Type == typeof(KeyString))
             {
-                if (coalesce)
-                {
-                    return Expression.Call(target, _SuperPropertyOrUndefinedKeyString, super, property);
-                }
+                //if (coalesce)
+                //{
+                //    return Expression.Call(target, _SuperPropertyOrUndefinedKeyString, super, property);
+                //}
                 return Expression.MakeIndex(target, _SuperIndexKeyString, new Expression[] { super, property });
             }
             if (property.Type == typeof(uint))
             {
-                if (coalesce)
-                {
-                    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, property);
-                }
+                //if (coalesce)
+                //{
+                //    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, property);
+                //}
                 return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, property });
             }
             if (property.Type == typeof(int))
             {
-                if (coalesce)
-                {
-                    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, Expression.Convert(property, typeof(uint)));
-                }
+                //if (coalesce)
+                //{
+                //    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, Expression.Convert(property, typeof(uint)));
+                //}
                 return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Convert(property, typeof(uint)) });
             }
-            if (coalesce)
-            {
-                return Expression.Call(target, _SuperPropertyOrUndefined, super, Expression.Convert(property, typeof(uint)));
-            }
+            //if (coalesce)
+            //{
+            //    return Expression.Call(target, _SuperPropertyOrUndefined, super, Expression.Convert(property, typeof(uint)));
+            //}
             return Expression.MakeIndex(target, _SuperIndex, new Expression[] { super, property });
         }
 
@@ -368,7 +372,7 @@ namespace YantraJS.ExpHelper
                     Expression.Condition(
                         JSValueBuilder.IsNullOrUndefined(pe),
                         JSUndefinedBuilder.Value,
-                        Expression.Call(target, _GetOwnProperty, property)
+                        Expression.Call(target, _Index.GetMethod, property)
                         )
                     );
 

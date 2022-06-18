@@ -160,27 +160,51 @@ namespace YantraJS.Expressions
         /// if member is null. For JavaScript, we can introduce null and undefined check using a field or property check
         /// </summary>
         /// <param name="target"></param>
-        /// <param name="member"></param>
-        /// <param name="method"></param>
-        /// <param name="arguments"></param>
+        /// <param name="test"></param>
+        /// <param name="testArgs"></param>
+        /// <param name="true"></param>
+        /// <param name="trueArguments"></param>
+        /// <param name="false"></param>
+        /// <param name="falseArguments"></param>
         /// <returns></returns>
         public static YCoalesceCallExpression CoalesceCall(
             YExpression target,
-            MemberInfo member,
-            MethodInfo method,
-            params YExpression[] arguments)
+            MemberInfo test,
+            IFastEnumerable<YExpression> testArgs,
+            MethodInfo @true,
+            IFastEnumerable<YExpression> trueArguments,
+            MethodInfo @false,
+            IFastEnumerable<YExpression> falseArguments)
         {
-            return new YCoalesceCallExpression(target, member, method, arguments.AsSequence());
+            return new YCoalesceCallExpression(
+                target,
+                test, testArgs,
+                @true ,
+                trueArguments,
+                @false,
+                falseArguments);
         }
 
-        public static YCoalesceCallExpression CoalesceCall(
-            YExpression target,
-            MemberInfo member,
-            MethodInfo method,
-            IFastEnumerable<YExpression> arguments)
-        {
-            return new YCoalesceCallExpression(target, member, method, arguments);
-        }
+
+
+        //public static YCoalesceCallExpression CoalesceCall(
+        //    YExpression target,
+        //    MemberInfo test,
+        //    MethodInfo @true,
+        //    IFastEnumerable<YExpression> arguments)
+        //{
+        //    return new YCoalesceCallExpression(target, test, Sequence<YExpression>.Empty, @true, arguments);
+        //}
+
+        //public static YCoalesceCallExpression CoalesceCall(
+        //    YExpression target,
+        //    MemberInfo test,
+        //    IFastEnumerable<YExpression> testArgs,
+        //    MethodInfo @true,
+        //    IFastEnumerable<YExpression> arguments)
+        //{
+        //    return new YCoalesceCallExpression(target, test, testArgs, @true, arguments);
+        //}
 
         public static YDebugInfoExpression DebugInfo(in Position start, in Position end)
         {

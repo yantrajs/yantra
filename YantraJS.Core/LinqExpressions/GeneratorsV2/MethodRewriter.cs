@@ -185,8 +185,17 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             {
                 var bb = new YBlockBuilder();
                 var target = bb.ConvertToVariable(Visit(node.Target));
-                var args = bb.ConvertToVariables(node.Arguments, this);
-                bb.AddExpression(YExpression.CoalesceCall(target, node.BooleanMember, node.Method, args));
+                var testArgs = bb.ConvertToVariables(node.TestArguments, this);
+                var trueArgs = bb.ConvertToVariables(node.TrueArguments, this);
+                var falseArgs = bb.ConvertToVariables(node.FalseArguments, this);
+                bb.AddExpression(YExpression.CoalesceCall(
+                    target,
+                    node.Test,
+                    testArgs,
+                    node.True,
+                    trueArgs,
+                    node.False,
+                    falseArgs));
                 return bb.Build();
             }
             return base.VisitCoalesceCall(node);

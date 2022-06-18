@@ -118,6 +118,9 @@ namespace YantraJS.Core
         public readonly static KeyString undefined;
         public readonly static KeyString NaN;
         public readonly static KeyString @null;
+        public readonly static KeyString getPrototypeOf;
+        public readonly static KeyString ownKeys;
+        public readonly static KeyString setPrototypeOf;
 
         public readonly static KeyString @global;
         public readonly static KeyString globalThis;

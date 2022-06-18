@@ -235,6 +235,38 @@ namespace YantraJS.Core.Typed
             return true;
         }
 
+        public override JSValue GetOwnPropertyDescriptor(JSValue name)
+        {
+            var key = name.ToKey(false);
+            switch (key.Type)
+            {
+                case KeyType.String:
+                    if (key.KeyString.Key == KeyStrings.length.Key)
+                    {
+                        var l = new JSObject();
+                        l.FastAddValue(KeyStrings.value, new JSNumber(this.length), JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyStrings.writable, JSBoolean.False, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyStrings.enumerable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
+                        return l;
+                    }
+                    break;
+                case KeyType.UInt:
+                    if (key.Index < (uint)this.length)
+                    {
+                        var l = new JSObject();
+                        var v = GetValue(key.Index, this, false);
+                        l.FastAddValue(KeyStrings.value, v, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyStrings.writable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyStrings.enumerable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyStrings.configurable, JSBoolean.False, JSPropertyAttributes.ConfigurableValue);
+                        return l;
+
+                    }
+                    return JSUndefined.Value;
+            }
+            return base.GetOwnPropertyDescriptor(name);
+        }
+
         //public override JSValue this[uint index]
         //{
         //    get {

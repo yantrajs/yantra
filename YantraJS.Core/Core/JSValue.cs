@@ -215,6 +215,28 @@ namespace YantraJS.Core {
 
         internal abstract PropertyKey ToKey(bool create = true);
 
+        public virtual JSValue GetPrototypeOf()
+        {
+            return prototypeChain?.@object ?? JSNull.Value;
+        }
+
+        public virtual void SetPrototypeOf(JSValue target)
+        {
+            if (target == JSNull.Value)
+            {
+                BasePrototypeObject = null;
+                return;
+            }
+            if (!(target is JSObject proto))
+                throw JSContext.Current.NewTypeError($"Prototype must be an object or null");
+            BasePrototypeObject = proto;
+        }
+
+        public virtual JSValue GetOwnPropertyDescriptor(JSValue name)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual JSValue GetOwnProperty(in KeyString name)
         {
             var pc = prototypeChain;

@@ -276,12 +276,7 @@ namespace YantraJS.Core
         internal static JSValue SetPrototypeOf(in Arguments a)
         {
             var (first, second) = a.Get2();
-            if (!(first is JSObject @object))
-                return first;
-            if (!@object.IsExtensible())
-                throw JSContext.Current.NewTypeError("Object is not extensible");
-            if (second is JSObject proto)
-                first.BasePrototypeObject = proto;
+            first.SetPrototypeOf(second);
             return first;
         }
 
@@ -324,29 +319,29 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return JSUndefined.Value;
-            var key = name.ToKey(false);
-            JSProperty p;
-            if (key.IsUInt)
-            {
-                // check for typedArray..
-                if (first is TypedArray ta)
-                {
-                    var v = ta[key.Index];
-                    if (v.IsUndefined)
-                        return JSUndefined.Value;
+            //var key = name.ToKey(false);
+            //JSProperty p;
+            //if (key.IsUInt)
+            //{
+            //    // check for typedArray..
+            //    if (first is TypedArray ta)
+            //    {
+            //        var v = ta[key.Index];
+            //        if (v.IsUndefined)
+            //            return JSUndefined.Value;
 
-                    p = JSProperty.Property(v, JSPropertyAttributes.Enumerable | JSPropertyAttributes.Value);
-                }
-                else
-                {
-                    p = jobj.GetInternalProperty(key.Index, false);
-                }
-            } else {
-                p = jobj.GetInternalProperty(key.KeyString, false);
-            }
-            if (!p.IsEmpty)
-                return p.ToJSValue();
-            return JSUndefined.Value;
+            //        p = JSProperty.Property(v, JSPropertyAttributes.Enumerable | JSPropertyAttributes.Value);
+            //    }
+            //    else
+            //    {
+            //        p = jobj.GetInternalProperty(key.Index, false);
+            //    }
+            //} else {
+            //    p = jobj.GetInternalProperty(key.KeyString, false);
+            //}
+            //if (!p.IsEmpty)
+            //    return p.ToJSValue();
+            return jobj.GetOwnPropertyDescriptor(name);
         }
 
         [Static("getOwnPropertyDescriptors")]
@@ -402,11 +397,7 @@ namespace YantraJS.Core
         [Static("getPrototypeOf")]
         internal static JSValue GetPrototypeOf(in Arguments a)
         {
-            var target = a.Get1();
-            if (target is JSPrimitive primitive)
-                primitive.ResolvePrototype();
-            var p = target.prototypeChain?.@object ?? JSNull.Value;
-            return p;
+            return a.Get1().GetPrototypeOf();
         }
 
     }

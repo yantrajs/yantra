@@ -281,9 +281,17 @@ namespace YantraJS.Expressions
         protected override YExpression VisitCoalesceCall(YCoalesceCallExpression node)
         {
             var tm = Modified(node.Target, out var target);
-            var am = Modified(node.Arguments, out var args);
-            if (tm || am)
-                return new YCoalesceCallExpression(target, node.BooleanMember, node.Method, args);
+            var testArgsM = Modified(node.TestArguments, out var testArgs);
+            var trueArgsM = Modified(node.TrueArguments, out var trueArgs);
+            var falseArgsM = Modified(node.FalseArguments, out var falseArgs);
+            if (tm || testArgsM || trueArgsM || falseArgsM)
+                return new YCoalesceCallExpression(target,
+                    node.Test,
+                    testArgs,
+                    node.True,
+                    trueArgs,
+                    node.False,
+                    falseArgs);
             return node;
         }
 

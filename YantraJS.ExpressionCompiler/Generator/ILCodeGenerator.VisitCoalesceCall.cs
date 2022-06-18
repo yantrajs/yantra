@@ -14,31 +14,42 @@ namespace YantraJS.Generator
         {
             Visit(node.Target);
             il.Emit(OpCodes.Dup);
-            switch (node.BooleanMember)
-            {
-                case FieldInfo field:
-                    il.Emit(OpCodes.Ldfld, field);
-                    break;
-                case PropertyInfo property:
-                    il.EmitCall(property.GetMethod);
-                    break;
-                case MethodInfo method:
-                    il.EmitCall(method);
-                    break;
-                case null:
-                    // check if it is null... 
-                    break;
-            }
             // check if it is false ...
+            foreach(var arg in node.TestArguments)
+            {
+                Visit(arg);
+            }
 
             // goto end...
+            if (node.Test is PropertyInfo property)
+            {
+                il.EmitCall(property.GetMethod);
+            }
+            else
+            {
+                il.EmitCall(node.Test as MethodInfo);
+            }
 
-            var falseEnd = il.DefineLabel("falseEnd", il.Top);
-            il.Emit(OpCodes.Brfalse, falseEnd);
-            var a = EmitParameters(node.Method, node.Arguments, node.Method.ReturnType);
-            il.EmitCall(node.Method);
-            a();
-            il.MarkLabel(falseEnd);
+            var end = il.DefineLabel("end", il.Top);
+            var falseStart = il.DefineLabel("falseStart", il.Top);
+            il.Emit(OpCodes.Brfalse, falseStart);
+            if (node.True != null)
+            {
+                foreach (var arg in node.TrueArguments)
+                {
+                    Visit(arg);
+                }
+                il.EmitCall(node.True);
+            }
+            il.Emit(OpCodes.Br, end);
+            il.MarkLabel(falseStart);
+            if (node.False != null)
+            {
+                foreach (var arg in node.FalseArguments)
+                    Visit(arg);
+                il.EmitCall(node.False);
+            }
+            il.MarkLabel(end);
             return true;
         }
     }

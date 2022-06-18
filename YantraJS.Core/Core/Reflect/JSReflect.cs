@@ -77,15 +77,13 @@ namespace YantraJS.Core.Internal
         {
             if (a[0] is not JSObject targetObject)
                 throw JSContext.Current.NewTypeError($"Object expected");
-            return targetObject.GetOwnProperty(a[1]);
+            return targetObject.GetOwnPropertyDescriptor(a[1]);
         }
         
         [Static("getPrototypeOf")]
         public static JSValue GetPrototypeOf(in Arguments a)
         {
-            if (a[0] is not JSObject targetObject)
-                throw JSContext.Current.NewTypeError($"Object expected");
-            return targetObject.prototypeChain?.@object ?? JSNull.Value;
+            return a.Get1().GetPrototypeOf();
         }
 
         [Static("has")]
@@ -134,17 +132,8 @@ namespace YantraJS.Core.Internal
         [Static("setPrototypeOf")]
         public static JSValue SetPrototypeOf(in Arguments a)
         {
-            if (a[0] is not JSObject targetObject)
-                throw JSContext.Current.NewTypeError($"Object expected");
-            var p = a[1];
-            if (p == JSNull.Value)
-            {
-                targetObject.BasePrototypeObject = null;
-                return JSBoolean.True;
-            }
-            if (p is not JSObject prototype )
-                throw JSContext.Current.NewTypeError($"Prototype must be an object or null");
-            targetObject.BasePrototypeObject = prototype;
+            var (target, proto) = a.Get2();
+            target.SetPrototypeOf(proto);
             return JSBoolean.True;
         }
     }

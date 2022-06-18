@@ -85,5 +85,11 @@ namespace YantraJS.Core
             }
             return prototypeChain?.GetMethod(key);
         }
+
+        public override JSValue GetPrototypeOf()
+        {
+            ResolvePrototype();
+            return base.GetPrototypeOf();
+        }
     }
 }

@@ -82,6 +82,28 @@ namespace YantraJS.Core
             return ref ownProperties;
         }
 
+
+        public override JSValue GetOwnPropertyDescriptor(JSValue name)
+        {
+            var key = name.ToKey(false);
+            switch(key.Type)
+            {
+                case KeyType.String:
+                    if(ownProperties.TryGetValue(key.KeyString.Key, out var p))
+                        return p.ToJSValue();
+                    return JSUndefined.Value;
+                case KeyType.UInt:
+                    if (elements.TryGetValue(key.Index, out var p1))
+                        return p1.ToJSValue();
+                    return JSUndefined.Value;
+                case KeyType.Symbol:
+                    if (symbols.TryGetValue(key.Symbol.Key, out var p3))
+                        return p3.ToJSValue();
+                    return JSUndefined.Value;
+            }
+            return JSUndefined.Value;
+        }
+
         public override JSValue GetOwnProperty(in KeyString name)
         {
             ref var p = ref ownProperties.GetValue(name.Key);
