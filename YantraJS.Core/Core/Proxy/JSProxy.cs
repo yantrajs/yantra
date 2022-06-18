@@ -98,6 +98,39 @@ namespace YantraJS.Core
             return target.GetValue(key, receiver, throwError);
         }
 
+        internal override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            var fx = handler[KeyStrings.set];
+            if (fx is JSFunction fxFunction)
+            {
+                fxFunction.InvokeFunction(new Arguments(target, name, receiver));
+                return true;
+            }
+            return target.SetValue(name, value, receiver, false);
+        }
+
+        internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            var fx = handler[KeyStrings.set];
+            if (fx is JSFunction fxFunction)
+            {
+                fxFunction.InvokeFunction(new Arguments(target, name.ToJSValue(), receiver));
+                return true;
+            }
+            return target.SetValue(name, value, receiver, false);
+        }
+
+        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            var fx = handler[KeyStrings.set];
+            if (fx is JSFunction fxFunction)
+            {
+                fxFunction.InvokeFunction(new Arguments(target, new JSNumber(name), receiver));
+                return true;
+            }
+            return target.SetValue(name, value, receiver, false);
+        }
+
         public override bool StrictEquals(JSValue value)
         {
             return target.StrictEquals(value);
