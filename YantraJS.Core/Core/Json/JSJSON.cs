@@ -114,17 +114,22 @@ namespace YantraJS.Core
             Func<(JSValue, JSValue, JSValue), JSValue> replacer,
             IndentedTextWriter indent)
         {
-            switch(target) {
-                case null:
-                case JSNull _:
-                    sb.Write("null");
-                    return;
-                case JSUndefined _:
-                    sb.Write("null");
-                    return;
-                case JSBoolean b:
-                    sb.Write(b._value ? "true" : "false");
-                    return;
+            if (target == null || target.IsNullOrUndefined)
+            {
+                sb.Write("null");
+                return;
+            }
+            if (target == JSBoolean.True)
+            {
+                sb.Write("true");
+                return;
+            }
+            if (target == JSBoolean.False)
+            {
+                sb.Write("false");
+                return;
+            }
+            switch (target) {
                 case JSNumber n:
                     sb.Write(n.value.ToString());
                     return;
@@ -132,8 +137,6 @@ namespace YantraJS.Core
                     QuoteString(str.value, sb);
                     return;
                 case JSFunction _:
-                    // do nothing if value is function...
-                    sb.Write("null");
                     return;
                 case JSArray a:
                     sb.Write('[');
