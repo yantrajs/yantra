@@ -1,30 +1,34 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Debugger;
 
 namespace YantraJS.Core.Debugger
 {
-    public delegate Task<string> MessageProcessor(long id, JObject p);
+    public delegate Task<string> MessageProcessor(long id, JsonNode p);
 
     public abstract class V8InspectorProtocol : JSDebugger, IDisposable
     {
-        private static Newtonsoft.Json.JsonSerializerSettings serializer = new JsonSerializerSettings {
+        private static System.Text.Json.JsonSerializerOptions options =
+            new JsonSerializerOptions {
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
+       //     new JsonSerializerSettings {
         
-            ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
-            {
-                NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
-            },
-            NullValueHandling = NullValueHandling.Ignore
+       //     ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+       //     {
+       //         NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
+       //     },
+       //     NullValueHandling = NullValueHandling.Ignore
 
-       };
+       //};
 
         public abstract void Dispose();
         public abstract Task ConnectAsync();
@@ -106,10 +110,10 @@ namespace YantraJS.Core.Debugger
         {
 
             var fx = (Func<RT>)m.CreateDelegate(typeof(Func<RT>), p);
-            Task<string> RunAsync(long id, JObject e)
+            Task<string> RunAsync(long id, JsonNode e)
             {
                 var result = fx();
-                return Task.Run(() => JsonConvert.SerializeObject(new { id , result }, serializer));
+                return Task.Run(() => JsonSerializer.Serialize(new { id , result }, options));
             }
             return RunAsync;
         }
@@ -119,10 +123,10 @@ namespace YantraJS.Core.Debugger
         {
 
             var fx = (Func<Task<RT>>)m.CreateDelegate(typeof(Func<Task<RT>>));
-            async Task<string> RunAsync(long id, JObject e)
+            async Task<string> RunAsync(long id, JsonNode e)
             {
                 var result = await fx();
-                return await Task.Run(() => JsonConvert.SerializeObject(new { id, result }, serializer));
+                return await Task.Run(() => JsonSerializer.Serialize(new { id, result }, options));
             }
             return RunAsync;
         }
@@ -132,11 +136,11 @@ namespace YantraJS.Core.Debugger
         {
 
             var fx = (Func<T, RT>)m.CreateDelegate(typeof(Func<T, RT>), p);
-            Task<string> RunAsync(long id, JObject e)
+            Task<string> RunAsync(long id, JsonNode e)
             {
-                var a = e == null ? default : e.ToObject<T>();
+                var a = e == null ? default : JsonSerializer.Deserialize<T>(e, options);
                 var result = fx(a);
-                return Task.Run(() => JsonConvert.SerializeObject(new { id, result }, serializer));
+                return Task.Run(() => JsonSerializer.Serialize(new { id, result }, options));
             }
             return RunAsync;
         }
@@ -145,11 +149,11 @@ namespace YantraJS.Core.Debugger
         public static MessageProcessor CreateAsync<T, RT>(MethodInfo m) {
 
             var fx = (Func<T,Task<RT>>)m.CreateDelegate(typeof(Func<T, Task<RT>>));
-            async Task<string> RunAsync(long id, JObject e)
+            async Task<string> RunAsync(long id, JsonNode e)
             {
-                var a = e.ToObject<T>();
+                var a = JsonSerializer.Deserialize<T>(e, options);
                 var result = await fx(a);
-                return await Task.Run(() => JsonConvert.SerializeObject(new { id, result }, serializer));
+                return await Task.Run(() => JsonSerializer.Serialize(new { id, result }, options));
             }
             return RunAsync;
         }
@@ -172,7 +176,7 @@ namespace YantraJS.Core.Debugger
         public void Send(V8ProtocolEvent e)
         {
             Task.Run(() => {
-                SendMessage(JsonConvert.SerializeObject(new { method = e.EventName, @params = e }, serializer));
+                SendMessage(JsonSerializer.Serialize(new { method = e.EventName, @params = e }, options));
             });
         }
 
@@ -206,7 +210,7 @@ namespace YantraJS.Core.Debugger
 
             if(!protocols.TryGetValue(e.Method, out var vm))
             {
-                var sr = new JObject
+                var sr = new JsonObject
                 {
                     { "id", e.ID },
                     { "error", "Not found" }

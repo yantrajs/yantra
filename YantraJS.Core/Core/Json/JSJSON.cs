@@ -31,7 +31,7 @@ namespace YantraJS.Core
             {
                 r = (p) => function.f( new Arguments(t, new JSString(p.key), p.value));
             }
-            return JSJsonParser.Parse(text.ToString(), r);
+            return JSJsonParser.Parse(text.ToString(), r) ?? JSNull.Value;
 
         }
 

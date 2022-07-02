@@ -1,6 +1,4 @@
 ﻿using Microsoft.Threading;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Core.Clr;
@@ -87,10 +86,10 @@ namespace YantraJS.Core
                         if (System.IO.File.Exists(pkgJson))
                         {
                             var json = System.IO.File.ReadAllText(pkgJson);
-                            var pkg = JObject.Parse(json);
-                            if (pkg.TryGetValue("main", out var token))
+                            var pkg = JsonObject.Parse(json) as JsonObject;
+                            if (pkg.TryGetPropertyValue("main", out var token))
                             {
-                                var v = token.Value<string>();
+                                var v = token.GetValue<string>();
                                 path = Path.Combine(fullName, v);
                                 if (System.IO.File.Exists(path))
                                     return true;

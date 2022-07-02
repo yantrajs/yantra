@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,14 +11,14 @@ namespace YantraJS.Core.Debugger
 {
     public class IncomingMessage
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public long ID { get; set; }
 
-        [JsonProperty("method")]
+        [JsonPropertyName("method")]
         public string Method { get; set; }
 
-        [JsonProperty("params")]
-        public JObject Params { get; set; }
+        [JsonPropertyName("params")]
+        public System.Text.Json.Nodes.JsonNode Params { get; set; }
     }
 
     internal class V8InspectorProtocolProxy : V8InspectorProtocol
@@ -76,7 +75,7 @@ namespace YantraJS.Core.Debugger
                     if (r.EndOfMessage)
                     {
                         var text = sb.ToString();
-                        var msg = JsonConvert.DeserializeObject<IncomingMessage>(text);
+                        var msg = JsonSerializer.Deserialize<IncomingMessage>(text);
                         // System.Diagnostics.Debug.WriteLine($"Received {text}");
                         messages.Enqueue(msg);
                         sb.Length = 0;
