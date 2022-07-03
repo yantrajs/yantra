@@ -24,18 +24,12 @@ namespace YantraJS.Tests.Core
 //(function(){return 1; /***/ })()
 //");
             this.context.Eval(@"
-function ID(x) {
-  return x;
+// members...
+class A {
+    a = 1;
 }
 
-var object = {
-  a() { return 'A'; },
-  get [1]() { return 'B'; },
-  // c() { return 'C'; },
-  // [ID(2)]() { return 'D'; },
-};
-assert(object.a());
-
+assert.strictEqual(1, (new A()).a);
 ");
 }
 

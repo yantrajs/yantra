@@ -85,7 +85,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 switch (property.Kind)
                 {
                     case AstPropertyKind.Data:
-                        if (!property.IsStatic)
+                        if (property.IsStatic)
                         {
                             name = GetName(property);
                             var value = property.Init == null ? JSUndefinedBuilder.Value : Visit(property.Init);
