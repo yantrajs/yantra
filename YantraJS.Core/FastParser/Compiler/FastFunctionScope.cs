@@ -325,13 +325,13 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private static int scopeID = 0;
 
-        public IFastEnumerable<YElementInit> MemberInits { get; set; }
+        public IFastEnumerable<AstClassProperty> MemberInits { get; set; }
 
         public FastFunctionScope(
             FastPool pool,
             AstFunctionExpression fx, Expression previousThis = null, Expression super = null,
             bool isAsync = false,
-            IFastEnumerable<YElementInit> memberInits = null)
+            IFastEnumerable<AstClassProperty> memberInits = null)
         {
             TopScope = this;
             var sID = Interlocked.Increment(ref scopeID);

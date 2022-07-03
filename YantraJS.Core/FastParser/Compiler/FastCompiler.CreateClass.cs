@@ -22,6 +22,24 @@ namespace YantraJS.Core.FastParser.Compiler
     partial class FastCompiler
     {
 
+
+        private Exp GetName(AstClassProperty property)
+        {
+            var exp = property.Key;
+            var computed = property.Computed;
+            switch ((exp.Type, exp))
+            {
+                case (FastNodeType.Identifier, AstIdentifier id):
+                    if (computed)
+                        return VisitIdentifier(id);
+                    return KeyOfName(id.Name);
+                case (FastNodeType.Literal, AstLiteral l):
+                    return KeyOfName(l.StringValue);
+                default:
+                    return Visit(exp);
+            }
+        }
+
         private Exp CreateClass(AstIdentifier id, AstExpression super, AstClassExpression body)
         {
 
@@ -57,57 +75,27 @@ namespace YantraJS.Core.FastParser.Compiler
 
             Exp retValue = tempVar.Variable;
 
-            Exp GetName(AstExpression exp, bool computed)
-            {
-                switch ((exp.Type, exp))
-                {
-                    case (FastNodeType.Identifier, AstIdentifier id):
-                        if (computed)
-                            return VisitIdentifier(id);
-                        return KeyOfName(id.Name);
-                    case (FastNodeType.Literal, AstLiteral l):
-                        return KeyOfName(l.StringValue);
-                    default:
-                        return Visit(exp);
-                }
-            }
-
-            //var cnstr = body.Members.FirstOrDefault(x => x.Kind == AstPropertyKind.Constructor);
-            //if (cnstr != null)
-            //{
-            //    stmts.Add(
-            //        Expression.Assign(
-            //            retValue,
-            //            CreateFunction(cnstr.Init as AstFunctionExpression, superVar, true, id?.Name.Value)));
-            //}
-            //else
-            //{
-
-            //    stmts.Add(
-            //        Expression.Assign(
-            //            retValue,
-            //            JSClassBuilder.New(this.scope.Top.ScriptInfo, null, constructor, superVar, id?.Name.Value ?? "Unnamed")));
-            //}
-
-            var memberInits = new Sequence<YElementInit>();
+            var memberInits = new Sequence<AstClassProperty>();
             AstFunctionExpression constructor = null;
 
             foreach (var property in body.Members)
             {
-                var name = GetName(property.Key, property.Computed);
+                Exp name;
                 // var el = property.IsStatic ? staticElements : prototypeElements;
                 switch (property.Kind)
                 {
                     case AstPropertyKind.Data:
-                        var value = property.Init == null ? JSUndefinedBuilder.Value : Visit(property.Init);
-                        if (property.IsStatic)
+                        if (!property.IsStatic)
                         {
+                            name = GetName(property);
+                            var value = property.Init == null ? JSUndefinedBuilder.Value : Visit(property.Init);
                             staticElements.Add(JSObjectBuilder.AddValue(name, value, JSPropertyAttributes.ConfigurableValue));
                             break;
                         }
-                        memberInits.Add(JSObjectBuilder.AddValue(name, value, JSPropertyAttributes.ConfigurableValue));
+                        memberInits.Add(property);
                         break;
                     case AstPropertyKind.Get:
+                        name = GetName(property);
                         if (property.IsStatic)
                         {
                             var fx = CreateFunction(property.Init as AstFunctionExpression, superVar);
@@ -121,6 +109,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         }
                         break;
                     case AstPropertyKind.Set:
+                        name = GetName(property);
                         if (property.IsStatic)
                         {
                             var fx = CreateFunction(property.Init as AstFunctionExpression, superVar);
@@ -132,11 +121,10 @@ namespace YantraJS.Core.FastParser.Compiler
                         }
                         break;
                     case AstPropertyKind.Constructor:
-                        // var fx1 = CreateFunction(property.Init as AstFunctionExpression, superVar, true);
-                        // staticElements.Add(JSClassBuilder.AddConstructor(fx1));
                         constructor = property.Init as AstFunctionExpression;
                         break;
                     case AstPropertyKind.Method:
+                        name = GetName(property);
                         if (property.IsStatic)
                         {
                             var fx = CreateFunction(property.Init as AstFunctionExpression, superVar);
@@ -178,46 +166,14 @@ namespace YantraJS.Core.FastParser.Compiler
             {
                 if (memberInits.Any())
                 {
-                    // add fake constructor...
-                    // first call super...
-                    // set members...
-                    // return this...
-                    //var inits = new SingleElementSequence<AstStatement>(
-                    //        new AstExpressionStatement(body.Start, body.End,
-                    //            new AstCallExpression(callee, args)
-                    //        )
-                    //    );
-                    //var fxBody = new AstBlock(body.Start, body.End, inits);
-                    //var fxd = new AstFunctionExpression(
-                    //    body.Start,
-                    //    body.End,
-                    //    false,
-                    //    false,
-                    //    false,
-                    //    id,
-                    //    Sequence<VariableDeclarator>.Empty
-                    //    , fxBody);
-
-                    //var fx = CreateFunction(fxd, superVar, true, className, memberInits);
-                    //staticElements.Add(JSClassBuilder.AddConstructor(fx));
-
-                    using var s = this.scope.Push(new FastFunctionScope(null, null));
+                    using var s = this.scope.Push(new FastFunctionScope(null, null, memberInits: memberInits));
                     var args = s.Arguments;
                     var @this = s.ThisExpression;
                     var inits = new Sequence<Exp>() {
                     };
                     inits.AddRange(s.InitList);
                     inits.Add(Exp.Assign(@this, JSFunctionBuilder.InvokeFunction(superVar, args)));
-                    var en = memberInits.GetFastEnumerator();
-                    while (en.MoveNext(out var init))
-                    {
-                        if (init.Member is MethodInfo method)
-                        {
-                            inits.Add(Exp.Call(@this, method, init.Arguments));
-                            continue;
-                        }
-                        throw new InvalidOperationException();
-                    }
+                    InitMembers(inits, s);
                     inits.Add(@this);
                     var lambda = Exp.Lambda<JSFunctionDelegate>(className,
                         Exp.Block(s.VariableParameters.AsSequence(), inits),

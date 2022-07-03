@@ -176,7 +176,6 @@ namespace YantraJS.Core.FastParser.Compiler
                     // we need to set this to null
                     // to inform function creator that we have
                     // initialized members.. and super has been called...
-                    top.MemberInits = null;
                     if (members?.Any() ?? false) {
                         var initList = new Sequence<Exp>() {
                             JSFunctionBuilder.InvokeSuperConstructor(
@@ -184,19 +183,8 @@ namespace YantraJS.Core.FastParser.Compiler
                             super,
                             @this, paramArray1)
                         };
-                        foreach(var member in members)
-                        {
-                            if (member.Member is MethodInfo method)
-                            {
-                                initList.Add(
-                                    Exp.Call(
-                                        @this,
-                                        method,
-                                        member.Arguments));
-                                continue;
-                            }
-                            throw new InvalidOperationException();
-                        }
+                        InitMembers(initList, top);
+                        top.MemberInits = null;
                         return Exp.Block(initList);
                     }
                     return JSFunctionBuilder.InvokeSuperConstructor(

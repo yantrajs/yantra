@@ -21,7 +21,7 @@ namespace YantraJS.Core.FastParser.Compiler
             Exp super = null,
             bool createClass = false,
             string className = null,
-            IFastEnumerable<YElementInit> memberInits = null
+            IFastEnumerable<AstClassProperty> memberInits = null
             )
         {
             var node = functionDeclaration;
@@ -148,15 +148,9 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 if (s.MemberInits != null)
                 {
-                    var @this = s.ThisExpression;
-                    foreach(var member in s.MemberInits)
-                    {
-                        if (member.Member is MethodInfo method) {
-                            sList.Add(Exp.Call(@this, method, member.Arguments));
-                        }
-                    }
+                    InitMembers(sList, s);
                 }
-                    sList.Add(lambdaBody);
+                sList.Add(lambdaBody);
                     // sList.Add(JSContextStackBuilder.Pop(stackItem));
                     if (createClass)
                     {
@@ -277,5 +271,16 @@ namespace YantraJS.Core.FastParser.Compiler
             //}
         }
 
+        private void InitMembers(Sequence<Expression> sList, FastFunctionScope s)
+        {
+            var @this = s.ThisExpression;
+            foreach (var member in s.MemberInits)
+            {
+                var name = GetName(member);
+                var value = member.Init == null ? JSUndefinedBuilder.Value : Visit(member.Init);
+                var init = JSObjectBuilder.AddValue(name, value, JSPropertyAttributes.ConfigurableValue);
+                sList.Add(Exp.Call(@this, init.Member as MethodInfo, init.Arguments));
+            }
+        }
     }
 }

@@ -57,3 +57,14 @@ class CC extends C {
 }
 
 assert.strictEqual(3, (new CC()).a);
+
+class D {
+    a = () => {
+        this.b = 2;
+    }
+}
+
+let d = new D();
+d.a();
+
+assert.strictEqual(2, d.b);
