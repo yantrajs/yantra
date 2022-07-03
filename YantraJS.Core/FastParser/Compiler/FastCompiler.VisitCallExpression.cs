@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.ExpHelper;
@@ -162,13 +163,46 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 bool isSuper = callee.Type == FastNodeType.Super;
 
+                var @this = this.scope.Top.ThisExpression;
                 if (isSuper)
                 {
-                    var paramArray1 = VisitArguments(this.scope.Top.ThisExpression, arguments);
+
+                    // check if there are pending member inits...
+                    var paramArray1 = VisitArguments(@this, arguments);
+                    FastFunctionScope top = this.scope.Top;
+                    var newTarget = top.NewTarget;
+                    var members = top.MemberInits;
+                    var super = top.Super;
+                    // we need to set this to null
+                    // to inform function creator that we have
+                    // initialized members.. and super has been called...
+                    top.MemberInits = null;
+                    if (members?.Any() ?? false) {
+                        var initList = new Sequence<Exp>() {
+                            JSFunctionBuilder.InvokeSuperConstructor(
+                            newTarget,
+                            super,
+                            @this, paramArray1)
+                        };
+                        foreach(var member in members)
+                        {
+                            if (member.Member is MethodInfo method)
+                            {
+                                initList.Add(
+                                    Exp.Call(
+                                        @this,
+                                        method,
+                                        member.Arguments));
+                                continue;
+                            }
+                            throw new InvalidOperationException();
+                        }
+                        return Exp.Block(initList);
+                    }
                     return JSFunctionBuilder.InvokeSuperConstructor(
-                        this.scope.Top.NewTarget, 
-                        this.scope.Top.Super,
-                        this.scope.Top.ThisExpression, paramArray1);
+                        newTarget, 
+                        super,
+                        @this, paramArray1);
                 }
 
                 var paramArray = VisitArguments(JSUndefinedBuilder.Value, arguments);

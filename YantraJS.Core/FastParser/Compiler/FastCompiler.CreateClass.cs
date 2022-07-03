@@ -15,6 +15,7 @@ using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using System.Linq;
 using YantraJS.Expressions;
+using System.Reflection;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -87,7 +88,9 @@ namespace YantraJS.Core.FastParser.Compiler
             //            retValue,
             //            JSClassBuilder.New(this.scope.Top.ScriptInfo, null, constructor, superVar, id?.Name.Value ?? "Unnamed")));
             //}
-                
+
+            var memberInits = new Sequence<YElementInit>();
+            AstFunctionExpression constructor = null;
 
             foreach (var property in body.Members)
             {
@@ -95,67 +98,53 @@ namespace YantraJS.Core.FastParser.Compiler
                 // var el = property.IsStatic ? staticElements : prototypeElements;
                 switch (property.Kind)
                 {
-                    case AstPropertyKind.Get:
-                        //if (!cache.TryGetValue(name, out expHolder))
-                        //{
-                        //    expHolder = new ExpressionHolder()
-                        //    {
-                        //        Key = nameExp
-                        //    };
-                        //    cache[name] = expHolder;
-                        //    members.Add(expHolder);
-                        //    expHolder.Static = property.IsStatic;
-                        //}
-                        //expHolder.Getter = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
-                        var fx = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
+                    case AstPropertyKind.Data:
+                        var value = property.Init == null ? JSUndefinedBuilder.Value : Visit(property.Init);
                         if (property.IsStatic)
                         {
+                            staticElements.Add(JSObjectBuilder.AddValue(name, value, JSPropertyAttributes.ConfigurableValue));
+                            break;
+                        }
+                        memberInits.Add(JSObjectBuilder.AddValue(name, value, JSPropertyAttributes.ConfigurableValue));
+                        break;
+                    case AstPropertyKind.Get:
+                        if (property.IsStatic)
+                        {
+                            var fx = CreateFunction(property.Init as AstFunctionExpression, superVar);
                             staticElements.Add(JSObjectBuilder.AddGetter(name, fx, JSPropertyAttributes.ConfigurableProperty));
+                            break;
                         }
                         else
                         {
+                            var fx = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
                             prototypeElements.Add(JSObjectBuilder.AddGetter(name, fx, JSPropertyAttributes.ConfigurableProperty));
                         }
                         break;
                     case AstPropertyKind.Set:
-                        //if (!cache.TryGetValue(name, out expHolder))
-                        //{
-                        //    expHolder = new ExpressionHolder()
-                        //    {
-                        //        Key = nameExp
-                        //    };
-                        //    cache[name] = expHolder;
-                        //    members.Add(expHolder);
-                        //    expHolder.Static = property.IsStatic;
-                        //}
-                        //expHolder.Setter = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
-                        fx = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
                         if (property.IsStatic)
                         {
+                            var fx = CreateFunction(property.Init as AstFunctionExpression, superVar);
                             staticElements.Add(JSObjectBuilder.AddSetter(name, fx, JSPropertyAttributes.ConfigurableProperty));
                         } else
                         {
+                            var fx = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
                             prototypeElements.Add(JSObjectBuilder.AddSetter(name, fx, JSPropertyAttributes.ConfigurableProperty));
                         }
                         break;
                     case AstPropertyKind.Constructor:
-                        fx = CreateFunction(property.Init as AstFunctionExpression, superVar, true);
-                        staticElements.Add(JSClassBuilder.AddConstructor(fx));
+                        // var fx1 = CreateFunction(property.Init as AstFunctionExpression, superVar, true);
+                        // staticElements.Add(JSClassBuilder.AddConstructor(fx1));
+                        constructor = property.Init as AstFunctionExpression;
                         break;
                     case AstPropertyKind.Method:
-                        //members.Add(new ExpressionHolder()
-                        //{
-                        //    Key = nameExp,
-                        //    Value = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar),
-                        //    Static = property.IsStatic
-                        //});
-                        fx = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
                         if (property.IsStatic)
                         {
+                            var fx = CreateFunction(property.Init as AstFunctionExpression, superVar);
                             staticElements.Add(JSObjectBuilder.AddValue(name, fx, JSPropertyAttributes.ConfigurableValue));
                         }
                         else
                         {
+                            var fx = CreateFunction(property.Init as AstFunctionExpression, superPrototypeVar);
                             prototypeElements.Add(JSObjectBuilder.AddValue(name, fx, JSPropertyAttributes.ConfigurableValue));
                         }
                         break;
@@ -179,7 +168,71 @@ namespace YantraJS.Core.FastParser.Compiler
             //}
             // stmts.Add(retValue);
 
-            var _new = JSClassBuilder.New(null, superVar, id?.Name.Value ?? "Unnamed");
+            var className = id?.Name.Value ?? "Unnamed";
+            if (constructor != null)
+            {
+                var fx = CreateFunction(constructor, superVar, true, className, memberInits);
+                staticElements.Add(JSClassBuilder.AddConstructor(fx));
+            }
+            else
+            {
+                if (memberInits.Any())
+                {
+                    // add fake constructor...
+                    // first call super...
+                    // set members...
+                    // return this...
+                    //var inits = new SingleElementSequence<AstStatement>(
+                    //        new AstExpressionStatement(body.Start, body.End,
+                    //            new AstCallExpression(callee, args)
+                    //        )
+                    //    );
+                    //var fxBody = new AstBlock(body.Start, body.End, inits);
+                    //var fxd = new AstFunctionExpression(
+                    //    body.Start,
+                    //    body.End,
+                    //    false,
+                    //    false,
+                    //    false,
+                    //    id,
+                    //    Sequence<VariableDeclarator>.Empty
+                    //    , fxBody);
+
+                    //var fx = CreateFunction(fxd, superVar, true, className, memberInits);
+                    //staticElements.Add(JSClassBuilder.AddConstructor(fx));
+
+                    using var s = this.scope.Push(new FastFunctionScope(null, null));
+                    var args = s.Arguments;
+                    var @this = s.ThisExpression;
+                    var inits = new Sequence<Exp>() {
+                    };
+                    inits.AddRange(s.InitList);
+                    inits.Add(Exp.Assign(@this, JSFunctionBuilder.InvokeFunction(superVar, args)));
+                    var en = memberInits.GetFastEnumerator();
+                    while (en.MoveNext(out var init))
+                    {
+                        if (init.Member is MethodInfo method)
+                        {
+                            inits.Add(Exp.Call(@this, method, init.Arguments));
+                            continue;
+                        }
+                        throw new InvalidOperationException();
+                    }
+                    inits.Add(@this);
+                    var lambda = Exp.Lambda<JSFunctionDelegate>(className,
+                        Exp.Block(s.VariableParameters.AsSequence(), inits),
+                        args);
+                    var fx = JSFunctionBuilder.New(
+                        lambda,
+                        StringSpanBuilder.New(className),
+                        StringSpanBuilder.Empty,
+                        1
+                        );
+                    staticElements.Add(JSClassBuilder.AddConstructor(fx));
+                }
+            }
+
+            var _new = JSClassBuilder.New(null, superVar, className);
 
             if (prototypeElements.Any())
             {

@@ -29,7 +29,7 @@ namespace YantraJS.Core.FastParser
             // check for async method.. async getter/setter are not supported yet...
             if (stream.CheckAndConsume(FastKeywords.async))
             {
-                if(ObjectProperty(out property, false, true))
+                if(ObjectProperty(out property, false, isClass: isClass))
                 {
                     if (property.Kind == AstPropertyKind.Get || property.Kind == AstPropertyKind.Set)
                         throw stream.Unexpected();
@@ -58,7 +58,7 @@ namespace YantraJS.Core.FastParser
             {
                 if(checkContextualKeyword && ( isSet || isGet))
                 {
-                    if (ObjectProperty(out property)) {
+                    if (ObjectProperty(out property, isClass: isClass)) {
                         property = new AstClassProperty(
                             current,
                             property.End,
@@ -73,6 +73,24 @@ namespace YantraJS.Core.FastParser
                 }
 
                 stream.SkipNewLines();
+                if (isClass && stream.CheckAndConsume(TokenTypes.Assign))
+                {
+                    if (!checkContextualKeyword)
+                        throw stream.Unexpected();
+                    if (!Expression(out var value))
+                        throw stream.Unexpected();
+                    property = new AstClassProperty(
+                        current,
+                        PreviousToken,
+                        AstPropertyKind.Data,
+                        false,
+                        false,
+                        key,
+                        computed,
+                        value);
+                    stream.CheckAndConsume(TokenTypes.SemiColon);
+                    return true;
+                }
 
                 if (stream.CheckAndConsume(TokenTypes.Colon))
                 {

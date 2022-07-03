@@ -9,6 +9,7 @@ using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
 using YantraJS.Expressions;
+using System.Reflection;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -19,7 +20,8 @@ namespace YantraJS.Core.FastParser.Compiler
             AstFunctionExpression functionDeclaration,
             Exp super = null,
             bool createClass = false,
-            string className = null
+            string className = null,
+            IFastEnumerable<YElementInit> memberInits = null
             )
         {
             var node = functionDeclaration;
@@ -53,7 +55,7 @@ namespace YantraJS.Core.FastParser.Compiler
             //try
             //{
             // using (var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis, super)))
-            var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis, super));
+            var cs = scope.Push(new FastFunctionScope(pool, functionDeclaration, previousThis, super, memberInits: memberInits));
                 {
                     var lexicalScopeVar = cs.Context;
 
@@ -144,6 +146,16 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     sList.AddRange(bodyInits);
 
+                if (s.MemberInits != null)
+                {
+                    var @this = s.ThisExpression;
+                    foreach(var member in s.MemberInits)
+                    {
+                        if (member.Member is MethodInfo method) {
+                            sList.Add(Exp.Call(@this, method, member.Arguments));
+                        }
+                    }
+                }
                     sList.Add(lambdaBody);
                     // sList.Add(JSContextStackBuilder.Pop(stackItem));
                     if (createClass)

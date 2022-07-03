@@ -11,6 +11,7 @@ using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -324,13 +325,17 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private static int scopeID = 0;
 
+        public IFastEnumerable<YElementInit> MemberInits { get; set; }
+
         public FastFunctionScope(
             FastPool pool,
             AstFunctionExpression fx, Expression previousThis = null, Expression super = null,
-            bool isAsync = false)
+            bool isAsync = false,
+            IFastEnumerable<YElementInit> memberInits = null)
         {
             TopScope = this;
             var sID = Interlocked.Increment(ref scopeID);
+            this.MemberInits = memberInits;
             this.Function = fx;
             this.Super = super;
             if (fx?.Generator ?? false)
@@ -387,6 +392,7 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             this.Function = p.Function;
             this.TopScope = p.TopScope;
+            this.MemberInits = p.MemberInits;
             // this.pool = p.pool.NewScope();
             // this.ThisExpression = p.ThisExpression;
             this.ArgumentsExpression = p.ArgumentsExpression;
