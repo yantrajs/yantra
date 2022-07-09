@@ -338,6 +338,11 @@ namespace YantraJS.Core
             return new FastSequenceEnumerator(this);
         }
 
+        //IEnumerator<T> IFastEnumerable<T>.GetEnumerator()
+        //{
+        //    return new FastSequenceEnumerator(this);
+        //}
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetFastEnumerator();

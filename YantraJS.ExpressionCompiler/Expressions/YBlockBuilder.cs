@@ -50,7 +50,8 @@ namespace YantraJS.Expressions
         public Sequence<YExpression> ConvertToVariables(IFastEnumerable<YExpression> inputs, YExpressionMapVisitor visitor)
         {
             var newInputs = new Sequence<YExpression>(inputs.Count);
-            foreach (var input in inputs)
+            var en = inputs.GetFastEnumerator();
+            while(en.MoveNext(out var input))
             {
                 newInputs.Add(ConvertToVariable(visitor.Visit(input)));
             }
@@ -106,10 +107,12 @@ namespace YantraJS.Expressions
                 case YExpressionType.Block:
                     var block = (exp as YBlockExpression)!;
                     variables.AddRange(block.Variables);
-
-                    foreach (var e in block.Expressions)
                     {
-                        this.AddExpression(e);
+                        var en = block.Expressions.GetFastEnumerator();
+                        while(en.MoveNext(out var e))
+                        {
+                            this.AddExpression(e);
+                        }
                     }
                     return this;
                 case YExpressionType.Return:

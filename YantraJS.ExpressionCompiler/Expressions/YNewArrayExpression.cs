@@ -28,7 +28,8 @@ namespace YantraJS.Expressions
 
             writer.WriteLine($"new {ElementType.GetFriendlyName()} [] {{");
             writer.Indent++;
-            foreach (var a in Elements)
+            var en = Elements.GetFastEnumerator();
+            while(en.MoveNext(out var a))
             {
                 a.Print(writer);
                 writer.WriteLine(',');

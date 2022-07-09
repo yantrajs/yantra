@@ -57,7 +57,8 @@ namespace YantraJS.ExpHelper
         public static Expression New(IFastEnumerable<Expression> list)
         {
             var ei = new Sequence<YElementInit>(list.Count());
-            foreach (var e in list)
+            var en = list.GetFastEnumerator();
+            while(en.MoveNext(out var e))
             {
                 ei.Add(Expression.ElementInit(_Add, new YExpression[] { e }));
             }

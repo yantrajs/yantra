@@ -13,7 +13,8 @@ namespace YantraJS.Generator
         protected override CodeInfo VisitMemberInit(YMemberInitExpression memberInitExpression)
         {
             Visit(memberInitExpression.Target);
-            foreach(var b in memberInitExpression.Bindings)
+            var be = memberInitExpression.Bindings.GetFastEnumerator();
+            while(be.MoveNext(out var b))
             {
                 switch (b.BindingType)
                 {
@@ -51,7 +52,8 @@ namespace YantraJS.Generator
                         foreach(var ei in la.Elements)
                         {
                             il.Emit(OpCodes.Dup);
-                            foreach(var p in ei.Arguments)
+                            var en = ei.Arguments.GetFastEnumerator();
+                            while(en.MoveNext(out var p))
                             {
                                 Visit(p);
                             }
@@ -62,9 +64,12 @@ namespace YantraJS.Generator
                     case BindingType.ElementInit:
                         il.Emit(OpCodes.Dup);
                         var el = b as YElementInit;
-                        foreach(var item in el.Arguments)
                         {
-                            Visit(item);
+                            var en = el.Arguments.GetFastEnumerator();
+                            while(en.MoveNext(out var item))
+                            {
+                                Visit(item);
+                            }
                         }
                         il.EmitCall(el.AddMethod);
                         break;

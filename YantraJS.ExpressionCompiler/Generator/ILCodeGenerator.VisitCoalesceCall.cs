@@ -15,7 +15,8 @@ namespace YantraJS.Generator
             Visit(node.Target);
             il.Emit(OpCodes.Dup);
             // check if it is false ...
-            foreach(var arg in node.TestArguments)
+            var en = node.TestArguments.GetFastEnumerator();
+            while(en.MoveNext(out var arg))
             {
                 Visit(arg);
             }
@@ -35,7 +36,8 @@ namespace YantraJS.Generator
             il.Emit(OpCodes.Brfalse, falseStart);
             if (node.True != null)
             {
-                foreach (var arg in node.TrueArguments)
+                var te = node.TrueArguments.GetFastEnumerator();
+                while (te.MoveNext(out var arg))
                 {
                     Visit(arg);
                 }
@@ -45,7 +47,8 @@ namespace YantraJS.Generator
             il.MarkLabel(falseStart);
             if (node.False != null)
             {
-                foreach (var arg in node.FalseArguments)
+                var fe = node.FalseArguments.GetFastEnumerator();
+                while(fe.MoveNext(out var arg))
                     Visit(arg);
                 il.EmitCall(node.False);
             }

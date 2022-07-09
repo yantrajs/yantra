@@ -27,8 +27,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
             var elements = new Sequence<YElementInit>();
 
-
-            foreach (AstNode pn in objectExpression.Properties)
+            var en = objectExpression.Properties.GetFastEnumerator();
+            while(en.MoveNext(out var pn))
             {
 
                 switch (pn.Type)

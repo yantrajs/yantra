@@ -112,49 +112,52 @@ namespace YantraJS.Core.FastParser.Compiler
                     return;
                 case FastNodeType.ObjectPattern:
                     var objectPattern = pattern as AstObjectPattern;
-                    foreach (var property in objectPattern.Properties)
                     {
-                        Exp start = null;
-                        switch (property.Key.Type)
+                        var en = objectPattern.Properties.GetFastEnumerator();
+                        while(en.MoveNext(out var property))
                         {
-                            case FastNodeType.Identifier:
-                                var id = property.Key as AstIdentifier;
-                                var propertyInit = property.Init;
-                                if (propertyInit != null)
-                                {
-                                    var piTemp = scope.Top.GetTempVariable(typeof(JSValue));
-                                    inits.Add(Exp.Assign(piTemp.Variable, 
-                                        JSValueBuilder.Coalesce(
-                                        CreateMemberExpression(init, id, property.Computed),
-                                        Visit(propertyInit))));
-                                    start = piTemp.Variable;
-                                }
-                                else
-                                {
-                                    start = CreateMemberExpression(init, id, property.Computed);
-                                }
-                                break;
-                            default:
-                                throw new NotImplementedException();
-                        }
-                        switch (property.Value.Type)
-                        {
-                            case FastNodeType.Identifier:
-                            case FastNodeType.ArrayPattern:
-                            case FastNodeType.ObjectPattern:
-                                CreateAssignment(inits, property.Value, start, true, newScope);
-                                break;
-                            // TODO
-                            case FastNodeType.BinaryExpression:
-                                var ap = property.Value as AstBinaryExpression;
-                                CreateAssignment(inits, ap.Left,
-                                    Exp.Coalesce(
-                                        JSValueExtensionsBuilder.NullIfUndefined(start),
-                                        Visit(ap.Right))
-                                );
-                                break;
-                            default:
-                                throw new NotImplementedException();
+                            Exp start = null;
+                            switch (property.Key.Type)
+                            {
+                                case FastNodeType.Identifier:
+                                    var id = property.Key as AstIdentifier;
+                                    var propertyInit = property.Init;
+                                    if (propertyInit != null)
+                                    {
+                                        var piTemp = scope.Top.GetTempVariable(typeof(JSValue));
+                                        inits.Add(Exp.Assign(piTemp.Variable,
+                                            JSValueBuilder.Coalesce(
+                                            CreateMemberExpression(init, id, property.Computed),
+                                            Visit(propertyInit))));
+                                        start = piTemp.Variable;
+                                    }
+                                    else
+                                    {
+                                        start = CreateMemberExpression(init, id, property.Computed);
+                                    }
+                                    break;
+                                default:
+                                    throw new NotImplementedException();
+                            }
+                            switch (property.Value.Type)
+                            {
+                                case FastNodeType.Identifier:
+                                case FastNodeType.ArrayPattern:
+                                case FastNodeType.ObjectPattern:
+                                    CreateAssignment(inits, property.Value, start, true, newScope);
+                                    break;
+                                // TODO
+                                case FastNodeType.BinaryExpression:
+                                    var ap = property.Value as AstBinaryExpression;
+                                    CreateAssignment(inits, ap.Left,
+                                        Exp.Coalesce(
+                                            JSValueExtensionsBuilder.NullIfUndefined(start),
+                                            Visit(ap.Right))
+                                    );
+                                    break;
+                                default:
+                                    throw new NotImplementedException();
+                            }
                         }
                     }
                     return;
@@ -162,9 +165,10 @@ namespace YantraJS.Core.FastParser.Compiler
                     var arrayPattern = pattern as AstArrayPattern;
                     using (var enVar = this.scope.Top.GetTempVariable(typeof(IElementEnumerator)))
                     {
-                        var en = enVar.Expression;
-                        inits.Add(Exp.Assign(en, IElementEnumeratorBuilder.Get(init)));
-                        foreach (var element in arrayPattern.Elements)
+                        var destExp = enVar.Expression;
+                        inits.Add(Exp.Assign(destExp, IElementEnumeratorBuilder.Get(init)));
+                        var en = arrayPattern.Elements.GetFastEnumerator();
+                        while(en.MoveNext(out var element))
                         {
                             switch (element.Type)
                             {
@@ -177,7 +181,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                         // inits.Add(Exp.Assign(v.Variable, JSVariableBuilder.New(id.Name.Value)));
                                     }
                                     var assignee = VisitIdentifier(id);
-                                    inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en));
+                                    inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, destExp));
                                     break;
                                 case FastNodeType.BinaryExpression:
                                     var be = element as AstBinaryExpression;
@@ -185,7 +189,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                     {
                                         using (var te = scope.Top.GetTempVariable(typeof(JSValue)))
                                         {
-                                            inits.Add(IElementEnumeratorBuilder.MoveNext(en, te.Expression));
+                                            inits.Add(IElementEnumeratorBuilder.MoveNext(destExp, te.Expression));
                                             inits.Add(JSValueExtensionsBuilder.AssignCoalesce(te.Expression, Visit(be.Right)));
                                             CreateAssignment(inits, be.Left, te.Expression, true, newScope);
                                         }
@@ -197,7 +201,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                         this.scope.Top.CreateVariable(id.Name.Value, null, newScope);
                                     }
                                     assignee = VisitIdentifier(id);
-                                    inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, en));
+                                    inits.Add(IElementEnumeratorBuilder.AssignMoveNext(assignee, destExp));
                                     inits.Add(JSValueExtensionsBuilder.AssignCoalesce(assignee, Visit(be.Right)));
                                     break;
                                 case FastNodeType.SpreadElement:
@@ -210,7 +214,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                     }
 
                                     var spid = Visit(spe.Argument);
-                                    inits.Add(Exp.Assign(spid, JSArrayBuilder.NewFromElementEnumerator(en)));
+                                    inits.Add(Exp.Assign(spid, JSArrayBuilder.NewFromElementEnumerator(destExp)));
                                     break;
                                 case FastNodeType.ObjectPattern:
                                 case FastNodeType.ArrayPattern:
@@ -219,7 +223,7 @@ namespace YantraJS.Core.FastParser.Compiler
                                     // nested object ...
                                     using (var te = scope.Top.GetTempVariable(typeof(JSValue)))
                                     {
-                                        var check = IElementEnumeratorBuilder.MoveNext(en, te.Expression);
+                                        var check = IElementEnumeratorBuilder.MoveNext(destExp, te.Expression);
                                         inits.Add(check);
                                         CreateAssignment(inits, ape, te.Expression, true, newScope);
                                     }

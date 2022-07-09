@@ -24,7 +24,8 @@ namespace YantraJS.Expressions
             writer.WriteLine(") {");
             writer.Indent++;
             int i = 0;
-            foreach(var label in Cases)
+            var en = Cases.GetFastEnumerator();
+            while(en.MoveNext(out var label))
             {
                 writer.Write("case ");
                 writer.Write(i++);

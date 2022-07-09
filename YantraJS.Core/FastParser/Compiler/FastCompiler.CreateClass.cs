@@ -78,7 +78,8 @@ namespace YantraJS.Core.FastParser.Compiler
             var memberInits = new Sequence<AstClassProperty>();
             AstFunctionExpression constructor = null;
 
-            foreach (var property in body.Members)
+            var en = body.Members.GetFastEnumerator();
+            while(en.MoveNext(out var property))
             {
                 Exp name;
                 // var el = property.IsStatic ? staticElements : prototypeElements;
