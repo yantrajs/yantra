@@ -26,14 +26,18 @@ namespace YantraJS.Expressions
         {
             writer.WriteLine("{");
             writer.Indent++;
-            foreach (var v in Variables)
             {
-                writer.WriteLine($"{v.Type.GetFriendlyName()} {v.Name};");
+                var en = Variables.GetFastEnumerator();
+                while(en.MoveNext(out var v))
+                    writer.WriteLine($"{v.Type.GetFriendlyName()} {v.Name};");
             }
-            foreach (var exp in Expressions)
             {
-                exp.Print(writer);
-                writer.WriteLine(";");
+                var en = Expressions.GetFastEnumerator();
+                while(en.MoveNext(out var exp))
+                {
+                    exp.Print(writer);
+                    writer.WriteLine(";");
+                }
             }
             writer.Indent--;
             writer.WriteLine("}");
