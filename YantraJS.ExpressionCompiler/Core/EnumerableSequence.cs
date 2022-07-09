@@ -67,7 +67,7 @@ namespace YantraJS.Core
             return enumerable.ToArray();
         }
 
-        public struct EnumerableEnumerator : IFastEnumerator<T>
+        public struct EnumerableEnumerator : IFastEnumerator<T>, IEnumerator<T>
         {
             private readonly IEnumerator<T> en;
             private int index;

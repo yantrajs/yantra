@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace YantraJS.Core
 {
-    public abstract class FastEnumerator<T>: IFastEnumerator<T>
+    public abstract class FastEnumerator<T>: IFastEnumerator<T>, IEnumerator<T>
     {
         public T Current { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace YantraJS.Core
 {
-    public interface IFastEnumerator<T>: IEnumerator<T>
+    public interface IFastEnumerator<T>
     {
         bool MoveNext(out T item);
 

@@ -359,7 +359,7 @@ namespace YantraJS.Core
             return new FastSequenceEnumerator(this);
         }
 
-        public struct FastSequenceEnumerator : IFastEnumerator<T>
+        public struct FastSequenceEnumerator : IFastEnumerator<T>, IEnumerator<T>
         {
             private Node start;
             private readonly int max;

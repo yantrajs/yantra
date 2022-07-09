@@ -100,7 +100,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 return false;
             }
 
-            public bool MoveNext(out int index, out (StringSpan Key, T Value) item)
+            public bool MoveNext(out (StringSpan Key, T Value) item, out int index)
             {
                 while (true)
                 {
