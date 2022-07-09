@@ -83,7 +83,8 @@ namespace YantraJS.Core.FastParser.Compiler
                     case FastNodeType.VariableDeclaration:
                         var vd = this.Visit(declaration);
                         var names = Names(declaration);
-                        foreach (var name in names)
+                        var en = names.GetFastEnumerator();
+                        while(en.MoveNext(out var name))
                         {
                             left = JSValueBuilder.Index(exports.Expression, KeyOfName(name));
                             var right = top.GetVariable(name);
