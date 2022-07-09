@@ -50,10 +50,12 @@ namespace YantraJS.Core.FastParser.Compiler
                 using (var bt = this.scope.Top.Loop.Push(ls))
                 {
                     SwitchInfo lastCase = new SwitchInfo(scope);
-                    foreach (var c in switchStatement.Cases)
+                    var casesEn = switchStatement.Cases.GetFastEnumerator();
+                    while(casesEn.MoveNext(out var c))
                     {
                         var body = new Sequence<Exp>(c.Statements.Count);
-                        foreach (var es in c.Statements)
+                        var en = c.Statements.GetFastEnumerator();
+                        while(en.MoveNext(out var es))
                         {
                             switch (es)
                             {

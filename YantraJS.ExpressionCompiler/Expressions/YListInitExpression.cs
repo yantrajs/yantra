@@ -27,10 +27,12 @@ namespace YantraJS.Expressions
             NewExpression.Print(writer);
             writer.Write(" {");
             writer.Indent++;
-            foreach(var e in Members)
+            var en = Members.GetFastEnumerator();
+            while(en.MoveNext(out var e))
             {
                 writer.Write("{");
-                foreach(var p in e.Arguments)
+                var enp = e.Arguments.GetFastEnumerator();
+                while(enp.MoveNext(out var p))
                 {
                     p.Print(writer);
                     writer.Write(",");

@@ -49,7 +49,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             var vars = new Sequence<ParameterExpression>();
             var args = new Sequence<Expression>();
             var list = new Sequence<Expression>();
-            foreach(var a in node.args)
+            var argEn = node.args.GetFastEnumerator();
+            while(argEn.MoveNext(out var a))
             {
                 var e = Visit(a);
                 if(e.NodeType == YExpressionType.Block && e is YBlockExpression block)
@@ -88,7 +89,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         {
             var vars = new Sequence<ParameterExpression>( node.Variables);
             var list = new Sequence<Expression>(node.Expressions.Count);
-            foreach(var e in node.Expressions)
+            var en = node.Expressions.GetFastEnumerator();
+            while(en.MoveNext(out var e))
             {
                 var visited = Visit(e);
                 if(visited.NodeType == YExpressionType.Block && visited is YBlockExpression block)

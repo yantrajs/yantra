@@ -20,7 +20,8 @@ namespace YantraJS.Expressions
             Target.Print(writer);
             writer.WriteLine("{");
             writer.Indent++;
-            foreach(var b in Bindings)
+            var en = Bindings.GetFastEnumerator();
+            while(en.MoveNext(out var b))
             {
                 writer.Write(b.Member.Name);
                 writer.Write(" = ");

@@ -104,8 +104,9 @@ namespace YantraJS
             internal IDisposable Register(IFastEnumerable<YParameterExpression> variables)
             {
                 Variables.AddRange(variables);
-                return new DisposableAction(() => { 
-                    foreach(var v in variables)
+                return new DisposableAction(() => {
+                    var ve = variables.GetFastEnumerator();
+                    while(ve.MoveNext(out var v))
                     {
                         Variables.Remove(v);
                     }

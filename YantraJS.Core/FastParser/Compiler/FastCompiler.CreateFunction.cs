@@ -274,7 +274,8 @@ namespace YantraJS.Core.FastParser.Compiler
         private void InitMembers(Sequence<Expression> sList, FastFunctionScope s)
         {
             var @this = s.ThisExpression;
-            foreach (var member in s.MemberInits)
+            var en = s.MemberInits.GetFastEnumerator();
+            while(en.MoveNext(out var member))
             {
                 var name = GetName(member);
                 var value = member.Init == null ? JSUndefinedBuilder.Value : Visit(member.Init);

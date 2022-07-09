@@ -168,13 +168,15 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             if (!node.HasYield())
                 return base.VisitBlock(node);
             var list = new Sequence<Expression>(node.Variables.Count + node.Expressions.Count);
-            foreach (var v in node.Variables)
+            var ve = node.Variables.GetFastEnumerator();
+            while(ve.MoveNext(out var v))
             {
                 int index = lifted.Count;
                 var box = Expression.Parameter(typeof(Box<>).MakeGenericType(v.Type));
                 lifted.Add((v, box, index));
             }
-            foreach (var s in node.Expressions)
+            var vne = node.Expressions.GetFastEnumerator();
+            while(vne.MoveNext(out var s))
             {
                 list.Add(Visit(s));
             }
