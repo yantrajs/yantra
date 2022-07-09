@@ -123,7 +123,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        public static Sequence<VariableDeclarator> From(AstExpression node)
+        public static IFastEnumerable<VariableDeclarator> From(AstExpression node)
         {
             if (node.Type == FastNodeType.EmptyExpression)
                 return Sequence<VariableDeclarator>.Empty;

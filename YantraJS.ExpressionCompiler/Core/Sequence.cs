@@ -12,7 +12,7 @@ namespace YantraJS.Core
 
         public const int DefaultCapacity = 4;
 
-        public static Sequence<T> Empty = new Sequence<T>();
+        public static IFastEnumerable<T> Empty = new Sequence<T>();
 
         // public static implicit operator Sequence<T>(T[] items) => new Sequence<T>(items);
 
