@@ -43,7 +43,8 @@ namespace YantraJS
             Core.FastParser.FastPool.Scope scope)
         {
             var result = new Sequence<Expression>(source.Count);
-            foreach (var exp in source)
+            var se = source.GetFastEnumerator();
+            while(se.MoveNext(out var exp))
             {
                 switch (exp.NodeType)
                 {
@@ -72,7 +73,8 @@ namespace YantraJS
         internal static Sequence<Expression> ConvertToInteger(this IFastEnumerable<Expression> source)
         {
             var result = new Sequence<Expression>(source.Count);
-            foreach(var exp in source)
+            var se = source.GetFastEnumerator();
+            while (se.MoveNext(out var exp))
             {
                 switch (exp.NodeType)
                 {
@@ -98,7 +100,8 @@ namespace YantraJS
         internal static Sequence<Expression> ConvertToNumber(this IFastEnumerable<Expression> source, FastPool.Scope scope)
         {
             var result = new Sequence<Expression>(source.Count);
-            foreach (var exp in source)
+            var se = source.GetFastEnumerator();
+            while (se.MoveNext(out var exp))
             {
                 if (!(exp.IsConstant(out var ce)))
                     throw new NotSupportedException();
@@ -133,9 +136,10 @@ namespace YantraJS
         internal static Sequence<Expression> ConvertToString(this IFastEnumerable<Expression> source, FastPool.Scope scope)
         {
             var result = new Sequence<Expression>(source.Count);
-            foreach (var exp in source)
+            var se = source.GetFastEnumerator();
+            while (se.MoveNext(out var exp))
             {
-                if(exp.NodeType == YExpressionType.StringConstant)
+                if (exp.NodeType == YExpressionType.StringConstant)
                 {
                     result.Add(exp);
                     continue;
@@ -155,7 +159,8 @@ namespace YantraJS
         internal static Sequence<Expression> ConvertToJSValue(this IFastEnumerable<Expression> source, FastPool.Scope scope)
         {
             var result = new Sequence<Expression>(source.Count);
-            foreach (var exp in source)
+            var se = source.GetFastEnumerator();
+            while (se.MoveNext(out var exp))
             {
                 switch (exp.NodeType)
                 {

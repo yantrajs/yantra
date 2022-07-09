@@ -66,8 +66,9 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             if (node.HasYield())
             {
                 var bb = new YBlockBuilder();
-                var args = new List<YExpression>();
-                foreach (var item in node.args)
+                var args = new Sequence<YExpression>(node.args.Count);
+                var ae = node.args.GetFastEnumerator();
+                while(ae.MoveNext(out var item))
                 {
                     var a = Visit(item);
                     args.Add(bb.ConvertToVariable(a));
@@ -92,8 +93,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             }
 
             var args = new Sequence<YBinding>(node.Bindings.Count);
-
-            foreach(var member in node.Bindings)
+            var en = node.Bindings.GetFastEnumerator();
+            while(en.MoveNext(out var member))
             {
                 switch (member.BindingType)
                 {
@@ -139,7 +140,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 // scope of improvement
 
                 var args = new Sequence<YElementInit>(node.Members.Count);
-                foreach(var member in node.Members)
+                var en = node.Members.GetFastEnumerator();
+                while(en.MoveNext(out var member))
                 {
                     args.Add(new YElementInit(member.AddMethod, bb.ConvertToVariables(member.Arguments, this)));
                 }
@@ -244,8 +246,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 }
 
                 var args = new Sequence<YExpression>(yIndexExpression.Arguments.Count);
-
-                foreach(var item in yIndexExpression.Arguments)
+                var ae = yIndexExpression.Arguments.GetFastEnumerator();
+                while(ae.MoveNext(out var item))
                 {
                     var e = Visit(item);
                     args.Add(bb.ConvertToVariable(e));
@@ -298,7 +300,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 }
 
                 var args = new Sequence<YExpression>(node.Arguments.Count);
-                foreach(var item in node.Arguments)
+                var ae = node.Arguments.GetFastEnumerator();
+                while(ae.MoveNext(out var item))
                 {
                     var a = Visit(item);
                     args.Add(bb.ConvertToVariable(a));
