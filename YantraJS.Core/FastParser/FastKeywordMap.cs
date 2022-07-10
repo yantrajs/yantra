@@ -19,7 +19,7 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        private FastKeywordMap() { }
+        protected FastKeywordMap() { }
 
         public virtual bool IsKeyword(in StringSpan k, out FastKeywords keyword)
         {
