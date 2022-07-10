@@ -21,7 +21,7 @@ namespace YantraJS.Core.FastParser
 
         private FastKeywordMap() { }
 
-        public bool IsKeyword(in StringSpan k, out FastKeywords keyword)
+        public virtual bool IsKeyword(in StringSpan k, out FastKeywords keyword)
         {
             return list.TryGetValue(k, out keyword);
         }
