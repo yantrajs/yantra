@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using YantraJS.Core.Generator;
 using YantraJS.Utils;
@@ -59,6 +60,23 @@ namespace YantraJS.Core.Clr
                 return true;
             }
             return base.ConvertTo(type, out value);
+        }
+
+        internal static MethodInfo[] methods = typeof(ClrProxy)
+            .GetMethods()
+            .Where(x => x.Name == "Marshal" 
+                && x.IsPublic 
+                && x.ReturnType == typeof(JSValue)
+                && x.GetParameters().Length == 1
+                && x.GetParameters()[0].ParameterType != typeof(object)).ToArray();
+        public static Func<TInput,JSValue> GetDelegate<TInput>()
+        {
+            var method = methods.FirstOrDefault(x => x.GetParameters()[0].ParameterType == typeof(TInput));
+            if (method != null)
+            {
+                return (Func<TInput, JSValue>)method.CreateDelegate(typeof(Func<TInput, JSValue>));
+            }
+            return (input) => ClrProxy.Marshal((object)input);
         }
 
         public static JSValue Marshal(int value) => new JSNumber(value);

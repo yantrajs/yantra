@@ -151,10 +151,10 @@ namespace YantraJS.Core.Clr
                     } else
                     {
                         JSFunction getter = f.CanRead
-                            ? GeneratePropertyGetter(isStatic, f)
+                            ? f.GeneratePropertyGetter()
                             : null;
                         JSFunction setter = f.CanWrite
-                            ? GeneratePropertySetter(isStatic, f)
+                            ? f.GeneratePropertySetter()
                             : null;
 
                         if (getter != null || setter != null)
@@ -294,99 +294,6 @@ namespace YantraJS.Core.Clr
             var name = $"set {field.Name.ToCamelCase()}";
             var lambda = Expression.Lambda<JSFunctionDelegate>(name, body, args);
             return new JSFunction(lambda.Compile(), name);
-        }
-
-        private static JSFunction GeneratePropertyGetter(bool isStatic, PropertyInfo property)
-        {
-            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            Expression convertedThis = isStatic
-                ? null
-                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
-            var body = ClrProxyBuilder.Marshal( 
-                    Expression.Property(
-                        convertedThis, property));
-
-            var name = $"get {property.Name.ToCamelCase()}";
-            var lambda = Expression.Lambda<JSFunctionDelegate>(name, body, args);
-            // return lambda.CompileInAssembly();
-            return new JSFunction(lambda.Compile(), name);
-
-        }
-
-        public static JSFunctionDelegate SetValue<TOwner, TValue>(Action<TOwner, TValue> setter)
-        {
-            return (in Arguments a) =>
-            {
-                var owner = a.This;
-                var value = a.Get1();
-                setter(
-                    (TOwner)owner.ForceConvert(typeof(TOwner)),
-                    (TValue)value.ForceConvert(typeof(TValue)));
-                return JSUndefined.Value;
-            };
-        }
-
-        public static JSFunctionDelegate SetStaticValue<TValue>(Action<TValue> setter)
-        {
-            return (in Arguments a) =>
-            {
-                var value = a.Get1();
-                setter(
-                    (TValue)value.ForceConvert(typeof(TValue)));
-                return JSUndefined.Value;
-            };
-        }
-
-        private static JSFunction GeneratePropertySetter(bool isStatic, PropertyInfo property)
-        {
-            //if (property.GetIndexParameters()?.Length > 0)
-            //{
-            //    return PrepareIndexedPropertySetter(property);
-            //}
-            var name = $"set {property.Name.ToCamelCase()}";
-            if (isStatic)
-            {
-                var m1 = typeof(Action<>).MakeGenericType(property.PropertyType);
-                var method1 = typeof(ClrType)
-                    .GetMethod(nameof(SetStaticValue))
-                    .MakeGenericMethod(property.PropertyType).Invoke(null, new object[] { property.SetMethod.CreateDelegate(m1) });
-
-                return new JSFunction( method1 as JSFunctionDelegate, name);
-
-            }
-
-            var m = typeof(Action<,>).MakeGenericType(property.DeclaringType, property.PropertyType);
-            var method = typeof(ClrType)
-                .GetMethod(nameof(SetValue))
-                .MakeGenericMethod(property.DeclaringType, property.PropertyType).Invoke(null, new object[] { property.SetMethod.CreateDelegate(m) });
-
-            return new JSFunction( method as JSFunctionDelegate, name);
-
-            //property.SetMethod.CreateDelegate(m);
-
-            //return (in Arguments a) => {
-                
-            //    return JSUndefined.Value;
-            //};
-
-            //var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            //var a1 = ArgumentsBuilder.Get1(args);
-            //var target = Expression.Parameter(property.PropertyType);
-            //var convert = isStatic
-            //    ? null
-            //    : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), property.DeclaringType);
-
-            //var clrArg1 = JSValueBuilder.ForceConvert(a1, property.PropertyType);
-
-            //var body = Expression.Block(new ParameterExpression[] { target },
-                
-            //    Expression.Assign(
-            //        Expression.Property(
-            //            convert, property),
-            //        clrArg1).ToJSValue());
-
-            //var lambda = Expression.Lambda<JSFunctionDelegate>($"get {property.Name}", body, args);
-            //return lambda.Compile();
         }
 
         private static Func<object,uint,JSValue> GenerateIndexedGetter(PropertyInfo property)
