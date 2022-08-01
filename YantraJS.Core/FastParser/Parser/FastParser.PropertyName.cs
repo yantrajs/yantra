@@ -12,10 +12,10 @@ namespace YantraJS.Core.FastParser
 
 
 
-        bool PropertyName(out AstExpression node, out bool computed, bool acceptKeywords = false)
+        bool PropertyName(out AstExpression node, out bool computed, out bool isPrivate, bool acceptKeywords = false, bool isClass = false)
         {
             var begin = BeginUndo();
-
+            isPrivate = isClass && stream.CheckAndConsume(TokenTypes.Hash);
             if (acceptKeywords)
             {
                 var token = begin.Token;

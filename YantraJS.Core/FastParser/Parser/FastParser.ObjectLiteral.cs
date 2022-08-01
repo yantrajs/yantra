@@ -54,7 +54,7 @@ namespace YantraJS.Core.FastParser
             var isSet = sc.ContextualKeyword == FastKeywords.set;
 
             bool isGenerator = stream.CheckAndConsume(TokenTypes.Multiply);
-            if(PropertyName(out var key, out var computed, acceptKeywords: true))
+            if(PropertyName(out var key, out var computed, out var isPrivate, acceptKeywords: true, isClass: isClass))
             {
                 if(checkContextualKeyword && ( isSet || isGet))
                 {
@@ -63,7 +63,7 @@ namespace YantraJS.Core.FastParser
                             current,
                             property.End,
                             isSet ? AstPropertyKind.Set : AstPropertyKind.Get,
-                            false,
+                            isPrivate: isPrivate,
                             isStatic,
                             property.Key,
                             property.Computed,
@@ -83,7 +83,7 @@ namespace YantraJS.Core.FastParser
                         current,
                         PreviousToken,
                         AstPropertyKind.Data,
-                        false,
+                        isPrivate: isPrivate,
                         false,
                         key,
                         computed,
@@ -103,7 +103,7 @@ namespace YantraJS.Core.FastParser
                         current,
                         PreviousToken,
                         AstPropertyKind.Data,
-                        false,
+                        isPrivate: isPrivate,
                         false,
                         key,
                         computed,
@@ -128,7 +128,7 @@ namespace YantraJS.Core.FastParser
                             key.Start.ContextualKeyword == FastKeywords.constructor
                                 ? AstPropertyKind.Constructor
                                 : AstPropertyKind.Method,
-                            false,
+                            isPrivate: isPrivate,
                             isStatic,
                             key,
                             computed, fx);
@@ -139,7 +139,7 @@ namespace YantraJS.Core.FastParser
                 } else if (stream.Current.Type == TokenTypes.Comma
                             || stream.Current.Type == TokenTypes.CurlyBracketEnd
                             || stream.Current.Type == TokenTypes.EOF) {
-                    property = new AstClassProperty(current, PreviousToken, AstPropertyKind.Data, false, isStatic, 
+                    property = new AstClassProperty(current, PreviousToken, AstPropertyKind.Data, isPrivate: isPrivate, isStatic, 
                         key, computed,
                         key);
                     return true;
