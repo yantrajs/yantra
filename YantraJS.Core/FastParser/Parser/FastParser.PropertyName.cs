@@ -46,6 +46,10 @@ namespace YantraJS.Core.FastParser
                 return true;
             }
             if (StringLiteral(out node)) {
+                if (isPrivate)
+                {
+                    throw new FastParseException(node.Start, $"Private field cannot contain string literal");
+                }
                 computed = false;
                 return true;
             }
@@ -53,10 +57,18 @@ namespace YantraJS.Core.FastParser
             if(NumberLiteral(out node))
             {
                 computed = false;
+                if (isPrivate)
+                {
+                    throw new FastParseException(node.Start, $"Private field cannot contain numeric literal");
+                }
                 return true;
             }
             if(stream.CheckAndConsume(TokenTypes.SquareBracketStart))
             {
+                if (isPrivate)
+                {
+                    throw new FastParseException(node.Start, $"Private field cannot contain computed index");
+                }
                 if (!Expression(out node))
                     throw stream.Unexpected();
                 stream.Expect(TokenTypes.SquareBracketEnd);
