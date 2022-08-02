@@ -485,7 +485,7 @@ namespace YantraJS.Core
             //    }
             //    return JSProperty.Empty;
             //}
-            [Obsolete("Use Put")]
+            //[Obsolete("Use Put")]
             set
             {
                 ref var p = ref this.Put(key);

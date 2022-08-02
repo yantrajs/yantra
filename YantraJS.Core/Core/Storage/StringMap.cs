@@ -155,7 +155,7 @@ namespace YantraJS.Core.Core.Storage
                     return node.value;
                 return default;
             }
-            [Obsolete("Use Put")]
+            //[Obsolete("Use Put")]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
