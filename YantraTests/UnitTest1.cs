@@ -69,9 +69,55 @@ namespace YantraTests
     [TestClass]
     public class Modules
     {
+
         [ModuleFolder("in-built")]
         public void TestMethod1()
         {
         }
+
+        //private static DirectoryInfo rootModules;
+        //public static IEnumerable<object[]> Files {
+        //    get
+        //    {
+        //        if (rootModules == null)
+        //        {
+        //            rootModules = new DirectoryInfo("../../../../modules/inbuilt");
+        //        }
+        //        var dir1 = new DirectoryInfo("../../../Modules/in-built");
+        //        foreach (var dir in dir1.EnumerateDirectories())
+        //        {
+        //            var indexFile = new FileInfo(dir.FullName + "/index.js");
+        //            if (indexFile.Exists)
+        //            {
+        //                yield return new object[] { indexFile };
+        //            }
+        //        }
+
+        //    }
+        //}
+
+        //[TestMethod]
+        //[DynamicData(nameof(Files))]
+        //public async Task TestMethod1(FileInfo file)
+        //{
+        //    string content;
+        //    using (var fs = file.OpenText())
+        //    {
+        //        content = await fs.ReadToEndAsync();
+        //    }
+        //    using (var jc = new YantraContext(file.DirectoryName))
+        //    {
+        //        jc.Log += (_, s) =>
+        //        {
+        //            var text = s.ToDetailString();
+        //            System.Diagnostics.Trace.WriteLine(text);
+        //        };
+        //        // jc.Error += (_, e) => lastError = e;
+        //        await jc.RunAsync(file.DirectoryName, "./" + file.Name, new string[] {
+        //            rootModules.FullName,
+        //            rootModules.FullName + "/bin"
+        //        });
+        //    }
+        //}
     }
 }

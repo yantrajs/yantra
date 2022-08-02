@@ -30,7 +30,7 @@ namespace YantraJS.Tests.Generator
 
         private Stopwatch watch = new Stopwatch();
 
-        public bool Parallel = true;
+        public bool Parallel = false;
 
         private TestResult[] ExecuteSync(ITestMethod  testMethod)
         {

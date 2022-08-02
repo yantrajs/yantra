@@ -94,6 +94,11 @@ namespace YantraJS.Core
             value.ContinueWith((t) => {
                 if (t.IsCompleted)
                 {
+                    if (t.IsFaulted)
+                    {
+                        Reject(JSException.ErrorFrom(t.Exception));
+                        return;
+                    }
                     Resolve(t.Result);
                 } else
                 {
