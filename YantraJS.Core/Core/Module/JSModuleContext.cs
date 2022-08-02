@@ -29,7 +29,7 @@ namespace YantraJS.Core
         internal readonly JSObject ModulePrototype;
         internal readonly JSFunction Module;
 
-        public JSModuleContext(SynchronizationContext ctx = null) :
+        public JSModuleContext(SynchronizationContext ctx = null, bool disableClrIntegration = false) :
             base(ctx ?? new SynchronizationContext())
         {
             this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
@@ -37,8 +37,10 @@ namespace YantraJS.Core
             Module = this.Create<JSModule>(KeyStrings.Module, null, false);
             ModulePrototype = Module.prototype;
 
-            moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
-
+            if (!disableClrIntegration)
+            {
+                moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
+            }
             moduleCache[ModuleCache.clr] = new JSModule(this, ClrModule.Default, "clr");
 
             this[KeyStrings.globalThis] = this;
