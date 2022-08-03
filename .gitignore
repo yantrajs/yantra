@@ -353,3 +353,4 @@ MigrationBackup/
 .packages
 
 /tr/*
+/Test/Test.csproj
