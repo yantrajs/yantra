@@ -19,6 +19,9 @@ namespace YantraJS.Core
         public readonly string filePath;
         internal readonly string dirPath;
 
+        [Prototype("code")]
+        public string Code { get; set; }
+
         public JSModule(JSModuleContext context, JSObject exports, string name, bool isMain = false)
             : base(context.ModulePrototype)
         {
@@ -29,12 +32,13 @@ namespace YantraJS.Core
             this.IsMain = isMain;
         }
 
-        internal JSModule(JSModuleContext context, string name)
+        internal JSModule(JSModuleContext context, string name, string code = null)
             : base(context.ModulePrototype)
         {
             this.context = context;
             this.filePath = name;
             this.dirPath = System.IO.Path.GetDirectoryName(dirPath);
+            Code = code;
         }
 
         [Prototype("id")]

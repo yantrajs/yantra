@@ -193,37 +193,42 @@ namespace YantraJS.Core
 
         }
 
-        //DONT WORK
-        // public async Task<JSValue> RunModuleFromStringAsync(string code, string modulename, string modulefolderpath)
-        // {
-        //     using var sc = CreateSynchronizationContext();
-        //     UpdatePaths(paths);
-        //     JSModule newModule = new JSModule(this, modulename);
-        //     
-        //     newModule.Import =   newModule.Import = new JSFunction((in Arguments a) =>
-        //     {
-        //         var name = a[0];
-        //         if (!name.IsString)
-        //             throw NewTypeError("import method's parameter must be a string");
-        //         var result = LoadModuleAsync(modulefolderpath, name.StringValue);
-        //         return Clr.ClrProxy.Marshal(result);
-        //     });
-        //     newModule.Require = new JSFunction((in Arguments a) =>
-        //     {
-        //         var name = a[0];
-        //         if (!name.IsString)
-        //             throw NewTypeError("require method's parameter must be a string");
-        //         var result = LoadModuleAsync(modulefolderpath, name.StringValue);
-        //         return AsyncPump.Run(() => result);
-        //     });
-        //     newModule.Compile = new JSFunction((in Arguments a) => {
-        //         var task = CompileModuleFromStringAsync(code, modulename, newModule);
-        //         return ClrProxy.Marshal(task);
-        //     });
-        //
-        //     await newModule.InitAsync();
-        //     return newModule.Exports;
-        // }
+        public async Task<JSValue> RunScriptAsync(
+            string script,
+            string moduleFolder,
+            string[] paths = null,
+            string uniqueModuleID = null)
+        {
+            using var sc = CreateSynchronizationContext();
+            this.CurrentPath = moduleFolder;
+            this.UpdatePaths(paths);
+            uniqueModuleID ??= Guid.NewGuid().ToString("N") + ".js";
+            var newModule = new JSModule(this, uniqueModuleID, script);
+            var dirPath = moduleFolder;
+            newModule.Import = new JSFunction((in Arguments a) =>
+            {
+                var name = a[0];
+                if (!name.IsString)
+                    throw NewTypeError("import method's parameter must be a string");
+                var result = LoadModuleAsync(dirPath, name.StringValue);
+                return Clr.ClrProxy.Marshal(result);
+            });
+
+            newModule.Require = new JSFunction((in Arguments a) =>
+            {
+                var name = a[0];
+                if (!name.IsString)
+                    throw NewTypeError("require method's parameter must be a string");
+                var result = LoadModuleAsync(dirPath, name.StringValue);
+                return AsyncPump.Run(() => result);
+            });
+            newModule.Compile = new JSFunction((in Arguments a) => {
+                var task = CompileModuleAsync(newModule);
+                return ClrProxy.Marshal(task);
+            });
+            await newModule.InitAsync();
+            return newModule.Exports;
+        }
 
         public async static Task<JSValue> RunExportsAsync(
             string folder,
@@ -343,8 +348,12 @@ namespace YantraJS.Core
             Console.WriteLine($"{DateTime.Now} - Compiling module {module.filePath}");
             var filePath = module.filePath;
             // if this is a json file... then pad with module.exports = 
-            using var reader = new StreamReader(filePath, Encoding.UTF8);
-            var code = await reader.ReadToEndAsync();
+            if (module.Code == null)
+            {
+                using var reader = new StreamReader(filePath, Encoding.UTF8);
+                module.Code = await reader.ReadToEndAsync();
+            }
+            var code = module.Code;
 
             if (filePath.EndsWith(".json"))
             {
