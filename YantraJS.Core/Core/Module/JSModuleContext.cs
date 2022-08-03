@@ -29,7 +29,7 @@ namespace YantraJS.Core
         internal readonly JSObject ModulePrototype;
         internal readonly JSFunction Module;
 
-        public JSModuleContext(SynchronizationContext ctx = null) :
+        public JSModuleContext(SynchronizationContext ctx = null, bool enableClrIntegration = true) :
             base(ctx ?? new SynchronizationContext())
         {
             this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
@@ -37,9 +37,10 @@ namespace YantraJS.Core
             Module = this.Create<JSModule>(KeyStrings.Module, null, false);
             ModulePrototype = Module.prototype;
 
+            if (enableClrIntegration)
+                moduleCache[ModuleCache.clr] = new JSModule(this, ClrModule.Default, "clr");
             moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
-
-            moduleCache[ModuleCache.clr] = new JSModule(this, ClrModule.Default, "clr");
+           
 
             this[KeyStrings.globalThis] = this;
             this[KeyStrings.global] = this;
@@ -192,6 +193,38 @@ namespace YantraJS.Core
 
         }
 
+        //DONT WORK
+        // public async Task<JSValue> RunModuleFromStringAsync(string code, string modulename, string modulefolderpath)
+        // {
+        //     using var sc = CreateSynchronizationContext();
+        //     UpdatePaths(paths);
+        //     JSModule newModule = new JSModule(this, modulename);
+        //     
+        //     newModule.Import =   newModule.Import = new JSFunction((in Arguments a) =>
+        //     {
+        //         var name = a[0];
+        //         if (!name.IsString)
+        //             throw NewTypeError("import method's parameter must be a string");
+        //         var result = LoadModuleAsync(modulefolderpath, name.StringValue);
+        //         return Clr.ClrProxy.Marshal(result);
+        //     });
+        //     newModule.Require = new JSFunction((in Arguments a) =>
+        //     {
+        //         var name = a[0];
+        //         if (!name.IsString)
+        //             throw NewTypeError("require method's parameter must be a string");
+        //         var result = LoadModuleAsync(modulefolderpath, name.StringValue);
+        //         return AsyncPump.Run(() => result);
+        //     });
+        //     newModule.Compile = new JSFunction((in Arguments a) => {
+        //         var task = CompileModuleFromStringAsync(code, modulename, newModule);
+        //         return ClrProxy.Marshal(task);
+        //     });
+        //
+        //     await newModule.InitAsync();
+        //     return newModule.Exports;
+        // }
+
         public async static Task<JSValue> RunExportsAsync(
             string folder,
             string relativeFile,
@@ -273,6 +306,37 @@ namespace YantraJS.Core
             await m.InitAsync();
             return m.Exports;
         }
+
+        // DONT WORK
+        // internal protected virtual async Task CompileModuleFromStringAsync(string code, string modulename, JSModule module)
+        // {
+        //     Console.WriteLine($"{DateTime.Now} - Compiling module from code {modulename}");
+        //     // if this is a json file... then pad with module.exports = 
+        //     
+        //
+        //     // var factory = FastEval(code, filePath);
+        //     var factory = CoreScript.Compile(code, module.filePath, new string[] { 
+        //         "exports",
+        //         "require",
+        //         "module",
+        //         "import",
+        //         "__fileame",
+        //         "__dirname"
+        //     });
+        //
+        //     var result = factory(new Arguments(module, new JSValue[] { 
+        //         module.Exports,
+        //         module.Require,
+        //         module,
+        //         module.Import,
+        //         module.Id,
+        //         new JSString(module.dirPath)
+        //     })) as JSPromise;
+        //     if (result != null)
+        //     {
+        //         await result.Task;
+        //     }
+        // }
 
         internal protected virtual async Task CompileModuleAsync(JSModule module)
         {
