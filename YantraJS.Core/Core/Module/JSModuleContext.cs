@@ -38,10 +38,10 @@ namespace YantraJS.Core
             ModulePrototype = Module.prototype;
 
             if (enableClrIntegration)
-            {
-                moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
-            }
-            moduleCache[ModuleCache.clr] = new JSModule(this, ClrModule.Default, "clr");
+                moduleCache[ModuleCache.clr] = new JSModule(this, ClrModule.Default, "clr");
+            
+            moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
+           
 
             this[KeyStrings.globalThis] = this;
             this[KeyStrings.global] = this;
