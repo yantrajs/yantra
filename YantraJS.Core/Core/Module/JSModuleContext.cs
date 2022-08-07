@@ -52,6 +52,13 @@ namespace YantraJS.Core
             moduleCache.GetOrCreate(name.Value, () => new JSModule(this, exports, n));
         }
 
+        public void RegisterModule(in KeyString name, Action<ModuleBuilder> builder)
+        {
+            var modulebuilder = new ModuleBuilder(name ,this);
+            builder.Invoke(modulebuilder);
+            modulebuilder.Build();
+        }
+
         /// <summary>
         /// Modules are isolated by Context and are identified by Id.
         /// 
