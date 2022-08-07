@@ -11,6 +11,21 @@ namespace YantraJS.Core.Debugger
     {
         public V8Runtime(V8InspectorProtocol inspectorContext) : base(inspectorContext)
         {
+            inspectorContext.ContextCreated += InspectorContext_ContextCreated;
+        }
+
+        private void InspectorContext_ContextCreated(object sender, TypedEventArgs<(string id, JSContext context)> e)
+        {
+            var (id, context) = e.Args;
+            inspectorContext.Send(new V8Runtime.ExecutionContextCreated
+            {
+                Context = new V8Runtime.ExecutionContextDescription
+                {
+                    Id = context.ID,
+                    Name = id,
+                    UniqueId = id
+                }
+            });
         }
 
         public object Enable()
@@ -28,6 +43,7 @@ namespace YantraJS.Core.Debugger
                     }
                 });
             }
+            inspectorContext.ContextSent = true;
             return new { };
         }
 

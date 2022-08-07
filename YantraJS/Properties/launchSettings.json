@@ -10,7 +10,7 @@
     },
     "Yantra REPL": {
       "commandName": "Project",
-      "commandLineArgs": ""
+      "commandLineArgs": "--inspect:true"
     },
     "Yantra SEO": {
       "commandName": "Project",

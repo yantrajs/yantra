@@ -26,8 +26,6 @@ namespace YantraJS.Core.Debugger
 
         readonly Uri uri;
         System.Net.WebSockets.ClientWebSocket client;
-        AsyncQueue<IncomingMessage> messages = new AsyncQueue<IncomingMessage>();
-        CancellationTokenSource cancellationTokenSource;
         private TaskCompletionSource<int> started;
 
         public V8InspectorProtocolProxy(Uri uri)
@@ -35,28 +33,18 @@ namespace YantraJS.Core.Debugger
             this.uri = uri;
             client = new System.Net.WebSockets.ClientWebSocket();
 
-            cancellationTokenSource = new CancellationTokenSource();
-
-            this.started = new TaskCompletionSource<int>();
-            lastTask = this.started.Task;
         }
 
         
 
-        public override async Task ConnectAsync()
+        protected override async Task ConnectAsync(CancellationToken token)
         {
-            await client.ConnectAsync(uri, cancellationTokenSource.Token);
+            await client.ConnectAsync(uri, token);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             Task.Run(() => this.ReadMessagesAsync());
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-            started.TrySetResult(1);
-
-            await foreach (var item in messages.Process())
-            {
-                await OnMessageReceived(item);
-            }
         }
 
         private async Task ReadMessagesAsync()
@@ -77,7 +65,7 @@ namespace YantraJS.Core.Debugger
                         var text = sb.ToString();
                         var msg = JsonSerializer.Deserialize<IncomingMessage>(text);
                         // System.Diagnostics.Debug.WriteLine($"Received {text}");
-                        messages.Enqueue(msg);
+                        Enqueue(msg);
                         sb.Length = 0;
                     }
                 }
@@ -99,21 +87,11 @@ namespace YantraJS.Core.Debugger
 
         private Task lastTask;
 
-        public override void SendMessage(string message)
+        protected override Task SendAsync(string message, CancellationToken token)
         {
-            lock (this)
-            {
-                var p = lastTask;
-                lastTask = Task.Run(async () =>
-                {
-                    if (p != null)
-                        await p;
-                    // System.Diagnostics.Debug.WriteLine($"Sent {message}");
-                    var bytes = System.Text.Encoding.UTF8.GetBytes(message);
-                    var buffer = new ArraySegment<byte>(bytes);
-                    await client.SendAsync(buffer, System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationTokenSource.Token);
-                });
-            }
+            var bytes = System.Text.Encoding.UTF8.GetBytes(message);
+            var buffer = new ArraySegment<byte>(bytes);
+            return client.SendAsync(buffer, System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationTokenSource.Token);
         }
     }
 }

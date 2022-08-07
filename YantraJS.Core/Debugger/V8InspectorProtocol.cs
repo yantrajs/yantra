@@ -11,6 +11,15 @@ using YantraJS.Debugger;
 
 namespace YantraJS.Core.Debugger
 {
+    public class TypedEventArgs<T>: EventArgs
+    {
+        public readonly T Args;
+        public TypedEventArgs(T args)
+        {
+            this.Args = args;
+        }
+    }
+
     public delegate Task<string> MessageProcessor(long id, JsonNode p);
 
     public abstract class V8InspectorProtocol : JSDebugger, IDisposable
@@ -20,18 +29,48 @@ namespace YantraJS.Core.Debugger
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
-       //     new JsonSerializerSettings {
-        
-       //     ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
-       //     {
-       //         NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
-       //     },
-       //     NullValueHandling = NullValueHandling.Ignore
 
-       //};
+        private readonly AsyncQueue<IncomingMessage> messages = new AsyncQueue<IncomingMessage>();
+        private readonly TaskCompletionSource<int> started;
+        private Task lastTask;
+        protected CancellationTokenSource cancellationTokenSource;
 
-        public abstract void Dispose();
-        public abstract Task ConnectAsync();
+        //     new JsonSerializerSettings {
+
+        //     ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+        //     {
+        //         NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
+        //     },
+        //     NullValueHandling = NullValueHandling.Ignore
+
+        //};
+
+        public async Task RunAsync(CancellationToken token)
+        {
+            token.Register(() => cancellationTokenSource.Cancel());
+            await ConnectAsync(token);
+
+            started.TrySetResult(1);
+
+            await foreach (var item in messages.Process())
+            {
+                await OnMessageReceived(item);
+            }
+
+        }
+
+        public virtual void Dispose()
+        {
+            cancellationTokenSource.Cancel();
+        }
+        protected abstract Task ConnectAsync(CancellationToken token);
+
+        protected abstract Task SendAsync(string message, CancellationToken cancellationToken);
+
+        protected void Enqueue(IncomingMessage message)
+        {
+            messages.Enqueue(message);
+        }
 
         private Dictionary<string, MessageProcessor> protocols
             = new Dictionary<string, MessageProcessor>();
@@ -48,8 +87,14 @@ namespace YantraJS.Core.Debugger
 
         public Dictionary<string, string> Scripts = new Dictionary<string, string>();
 
+        public event EventHandler<TypedEventArgs<(string id, JSContext context)>>? ContextCreated;
+
         public V8InspectorProtocol()
         {
+            this.started = new TaskCompletionSource<int>();
+            lastTask = this.started.Task;
+            cancellationTokenSource = new CancellationTokenSource();
+
 
             ID = $"D-{Interlocked.Increment(ref id)}";
 
@@ -60,11 +105,15 @@ namespace YantraJS.Core.Debugger
             Add("Debugger", debugger);
         }
 
-        internal void AddContext(JSContext a)
+        public void AddContext(JSContext a)
         {
             var cid = $"C-{a.ID}";
             Contexts[a.ID] = a;
             a.ConsoleEvent += OnConsoleEvent;
+            if (ContextSent)
+            {
+                ContextCreated?.Invoke(this, new TypedEventArgs<(string, JSContext)>((cid, a)));
+            }
         }
 
         private void OnConsoleEvent(JSContext context, string type, in Arguments a)
@@ -158,7 +207,21 @@ namespace YantraJS.Core.Debugger
             return RunAsync;
         }
 
-        public abstract void SendMessage(string message);
+        public void SendMessage(string message) {
+            lock (this)
+            {
+                var p = lastTask;
+                lastTask = Task.Run(async () =>
+                {
+                    if (p != null)
+                        await p;
+                    // System.Diagnostics.Debug.WriteLine($"Sent {message}");
+                    var bytes = System.Text.Encoding.UTF8.GetBytes(message);
+                    var buffer = new ArraySegment<byte>(bytes);
+                    await SendAsync(message, cancellationTokenSource.Token);
+                });
+            }
+        }
 
         //public static V8InspectorProtocol CreateWebSocketServer(int port)
         //{
@@ -186,6 +249,7 @@ namespace YantraJS.Core.Debugger
         }
 
         private SHA256 hash = SHA256.Create();
+        internal bool ContextSent;
 
         public override void ScriptParsed(long contextId, string code, string codeFilePath)
         {
