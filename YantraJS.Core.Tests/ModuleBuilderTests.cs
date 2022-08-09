@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using YantraJS.Core;
@@ -8,38 +9,93 @@ namespace YantraJS.Tests
     [TestClass]
     public class ModuleBuilderTests
     {
-        public JSValue TestMethod(in Arguments a)
+        public static JSValue TestMethod(in Arguments a)
         {
-            return new JSString("bar");
+            return "bar".Marshal();
         }
-        private readonly JSModuleContext _context;
 
         public ModuleBuilderTests()
         {
-            _context = new JSModuleContext();
+
+
         }
 
         [TestMethod]
-        public async Task ModuleBuilderShouldWord()
+        public async Task ModuleBuilderExportClassShouldWork()
         {
-            _context.RegisterModule("test", builder =>
+            JSModuleContext context = new JSModuleContext();
+            context.CreateModule("test", x => x.ExportType<TestClass>());
+            var str = await context.RunScriptAsync("import {TestClass} from 'test' \nexport default new TestClass()",
+                String.Empty);
+            if (str.ConvertTo<TestClass>(out var @class))
             {
-                builder.ExportType<TestClass>()
-                    .ExportFunction("testFunc", TestMethod);
-            } );
-            var barfromclass = await _context
-                .RunScriptAsync("import {testFunc} from \"test\"\n export default testFunc();",
-                    String.Empty);
-            if (barfromclass is JSString str)
-            {
-                Assert.AreEqual("bar", barfromclass.StringValue);
+                Console.WriteLine(@class.Foo());
             }
-            
+            else
+            {
+                Assert.Fail();
+            }
         }
         
-    }
-    public class TestClass
-    {
-        public string Foo() => "bar";
+
+        [TestMethod]
+        public async Task ExportFunctionShouldWork()
+        {
+            JSModuleContext context = new JSModuleContext();
+            context.CreateModule("test", x => x.ExportFunction("lmao", new JSFunction(TestMethod)));
+            var modulereturn = await context.RunScriptAsync("import {lmao} from 'test' \nexport default lmao()",
+                String.Empty);
+            if (modulereturn[KeyStrings.@default] is JSString str)
+            {
+                Assert.AreEqual("bar", str.value.Value);
+            }
+            else
+            {
+                Assert.Fail();
+            }
+        }
+        
+        [TestMethod]
+        public async Task ExportValueShouldWork()
+        {
+            TestClass @class = new TestClass();
+            JSModuleContext context = new JSModuleContext();
+            context.CreateModule("test", x => x.ExportValue("t", @class));
+            var modulereturn = await context.RunScriptAsync("import {t} from 'test' \nexport default t.prop",
+                String.Empty);
+            if (modulereturn[KeyStrings.@default] is JSString str)
+            {
+                Assert.AreEqual("prop", str.value.Value);
+            }
+            else
+            {
+                Assert.Fail();
+            }
+        }
+        
+        [TestMethod]
+        public async Task ImportModuleThrowException()
+        {
+            JSModuleContext context = new JSModuleContext();
+            Assert.ThrowsException<ArgumentException>((() => context.ImportModule("test")));
+        }
+        
+        [TestMethod]
+        public async Task ImportModuleFindModule()
+        {
+            JSModuleContext context = new JSModuleContext();
+            context.CreateModule("test", x => x.ExportType<TestClass>());
+            JSValue val = context.ImportModule("test");
+            Assert.IsNotNull(val);
+        }
+
+        public class TestClass
+        {
+            public string Prop { get; set; } = "prop";
+            public string Foo()
+            {
+                return "foo";
+            }
+        }
     }
 }
