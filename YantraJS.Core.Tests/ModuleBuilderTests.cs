@@ -43,9 +43,9 @@ namespace YantraJS.Tests
         {
             JSModuleContext context = new JSModuleContext();
             context.CreateModule("test", x => x.ExportType<TestClass>());
-            var val1 = await context.RunScriptAsync("import { TestClass } from 'test' \nexport default new TestClass().foo()", string.Empty);
+            var val1 = await context.RunScriptAsync("import Test from 'test' \nexport default new Test.TestClass().foo()", string.Empty);
             var val2 = await context.RunScriptAsync("import * as Test from 'test' \nexport default new Test.TestClass().foo()", string.Empty);
-            //Assert.AreEqual(val1, val2);
+            Assert.AreEqual(val1[KeyStrings.@default] as JSString, val2[@KeyStrings.@default] as JSString);
         }
 
 

@@ -50,6 +50,8 @@ public class ModuleBuilder
             };
             
         }
+
+        globalExport[KeyStrings.@default] = globalExport;
         context.RegisterModule(_moduleName, globalExport);
     }
 }
