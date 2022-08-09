@@ -39,10 +39,21 @@ namespace YantraJS.Tests
         
 
         [TestMethod]
+        public async Task SyntheticDefaultMethod()
+        {
+            JSModuleContext context = new JSModuleContext();
+            context.CreateModule("test", x => x.ExportType<TestClass>());
+            var val1 = await context.RunScriptAsync("import { TestClass } from 'test' \nexport default new TestClass().foo()", string.Empty);
+            var val2 = await context.RunScriptAsync("import * as Test from 'test' \nexport default new Test.TestClass().foo()", string.Empty);
+            //Assert.AreEqual(val1, val2);
+        }
+
+
+        [TestMethod]
         public async Task ExportFunctionShouldWork()
         {
             JSModuleContext context = new JSModuleContext();
-            context.CreateModule("test", x => x.ExportFunction("lmao", new JSFunction(TestMethod)));
+            context.CreateModule("test", x => x.ExportFunction("lmao", TestMethod));
             var modulereturn = await context.RunScriptAsync("import {lmao} from 'test' \nexport default lmao()",
                 String.Empty);
             if (modulereturn[KeyStrings.@default] is JSString str)

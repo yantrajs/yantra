@@ -5,14 +5,12 @@ using YantraJS.Core.Clr;
 
 public class ModuleBuilder
 {
-    private List<Type> exportedTypes = new();
-    private List<(string name, JSValue value)> exportedValues = new();
-    private List<(string name, JSFunction func)> exportedFunctions = new();
+    private List<(string name,object value)> exportedObjects = new ();
     private string _moduleName;
 
     public ModuleBuilder ExportType<T>()
     {
-        exportedTypes.Add(typeof(T));
+        exportedObjects.Add((typeof(T).Name, typeof(T)));
         return this;
     }
 
@@ -23,41 +21,36 @@ public class ModuleBuilder
 
     public ModuleBuilder ExportType(Type type, string name = null)
     {
-        exportedTypes.Add(type);
+        exportedObjects.Add((type.Name, type));
         return this;
     }
 
     public ModuleBuilder ExportValue(string name, object value)
     {
-        exportedValues.Add((name, value.Marshal()));
+        exportedObjects.Add((name, value.Marshal()));
         return this;
     }
 
-    public ModuleBuilder ExportFunction(string name, JSFunction func)
+    public ModuleBuilder ExportFunction(string name, JSFunctionDelegate func)
     {
-        exportedFunctions.Add((name, func));
+        exportedObjects.Add((name, func));
         return this;
     }
-
     public void AddModuleToContext(JSModuleContext context)
     {
-        JSObject exports = new JSObject();
-        foreach (var type in exportedTypes)
+        JSObject globalExport = new JSObject();
+        foreach ((string name, object value)  in exportedObjects)
         {
-            exports[type.Name] = ClrType.From(type);
+            globalExport[name] = value switch
+            {
+                Type type => ClrType.From(type),
+                JSFunctionDelegate @delegate => new JSFunction(@delegate),
+                JSValue jsValue => globalExport[name] = jsValue,
+                _ => ClrProxy.Marshal(value)
+            };
+            
         }
-
-        foreach (var (name, value) in exportedValues)
-        {
-            exports[name] = value;
-        }
-
-        foreach (var (name, func) in exportedFunctions)
-        {
-            exports[name] = func;
-        }
-
-        context.RegisterModule(_moduleName, exports);
+        context.RegisterModule(_moduleName, globalExport);
     }
 }
 
