@@ -10,7 +10,7 @@ public class ModuleBuilder
     private List<(string name, JSFunction func)> exportedFunctions = new();
     private string _moduleName;
 
-    public ModuleBuilder ExportType<T>(string name = null)
+    public ModuleBuilder ExportType<T>()
     {
         exportedTypes.Add(typeof(T));
         return this;
