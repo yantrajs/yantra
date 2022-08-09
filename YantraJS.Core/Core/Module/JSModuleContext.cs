@@ -45,19 +45,45 @@ namespace YantraJS.Core
             this[KeyStrings.global] = this;
         }
 
+        
+        /// <summary>
+        /// Pass Exports as Module with unique name
+        /// After register module can get in script
+        /// <example>
+        ///  //in js script
+        /// import module from "module_name_that_used_in_name_arg";
+        /// import {prop in export object} from "module_name";
+        /// const module = require("module_name_that_used_in_name_arg");
+        /// const {some_prop} = require("module_name_that_used_in_name_arg");
+        /// </example>
+        /// </summary>
+        /// <param name="name">Unique module name</param>
+        /// <param name="exports">JSObject, that you import by import or require</param>
         public void RegisterModule(in KeyString name, JSObject exports)
         {
             var n = name.ToString();
             moduleCache.GetOrCreate(name.Value, () => new JSModule(this, exports, n));
         }
-
+        
+        
+        
+        /// <summary>
+        /// An analogue of the <see cref="RegisterModule"/> with fluent interface of creating module
+        /// </summary>
+        /// <param name="moduleName">Unique module name</param>
+        /// <param name="builder">Action delegate with <see cref="ModuleBuilder"/> object that use for configuring</param>
         public void CreateModule(string moduleName, Action<ModuleBuilder> builder)
         {
             var mb = new ModuleBuilder(moduleName);
             builder(mb); 
             mb.AddModuleToContext(this);
         }
-
+        /// <summary>
+        /// Return JSValue which is a module in js script (require function for c# code side)
+        /// </summary>
+        /// <param name="name">Module name</param>
+        /// <returns cref="JSValue">Module object</returns>
+        /// <exception cref="ArgumentException">If module not found</exception>
         public JSValue ImportModule(in KeyString name)
         {
             var n = name.Value;
@@ -206,7 +232,17 @@ namespace YantraJS.Core
                 await w;
             return r;
         }
-
+        
+        
+        /// <summary>
+        /// Run JavaScript module from string
+        /// </summary>
+        /// <param name="script">string of code</param>
+        /// <param name="moduleFolder">base folder for searching modules in import function</param>
+        /// <param name="paths"></param>
+        /// <param name="uniqueModuleID">Module ID if you want get this module later (in <see cref="ImportModule"/> or import in js)</param>
+        /// <returns>Module as JSObject</returns>
+        /// <exception cref="JSException"></exception>
         public async Task<JSValue> RunScriptAsync(
             string script,
             string moduleFolder,
