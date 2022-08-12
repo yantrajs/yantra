@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using YantraJS.ModuleExtensions;
 using YantraJS.Core;
 
 namespace YantraJS.Tests
@@ -45,6 +46,8 @@ namespace YantraJS.Tests
             context.CreateModule("test", x => x.ExportType<TestClass>());
             var val1 = await context.RunScriptAsync("import Test from 'test' \nexport default new Test.TestClass().foo()", string.Empty);
             var val2 = await context.RunScriptAsync("import * as Test from 'test' \nexport default new Test.TestClass().foo()", string.Empty);
+            var val1str = val1[KeyStrings.@default] as JSString;
+            var val2str = val2[@KeyStrings.@default] as JSString;
             Assert.AreEqual(val1[KeyStrings.@default] as JSString, val2[@KeyStrings.@default] as JSString);
         }
 

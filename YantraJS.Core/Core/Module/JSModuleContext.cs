@@ -67,28 +67,7 @@ namespace YantraJS.Core
         
         
         
-        /// <summary>
-        /// An analogue of the <see cref="RegisterModule"/> with fluent interface of creating module
-        /// </summary>
-        /// <param name="moduleName">Unique module name</param>
-        /// <param name="builder">Action delegate with <see cref="ModuleBuilder"/> object that use for configuring</param>
-        public void CreateModule(string moduleName, Action<ModuleBuilder> builder)
-        {
-            var mb = new ModuleBuilder(moduleName);
-            builder(mb); 
-            mb.AddModuleToContext(this);
-        }
-        /// <summary>
-        /// Return JSValue which is a module in js script (require function for c# code side)
-        /// </summary>
-        /// <param name="name">Module name</param>
-        /// <returns cref="JSValue">Module object</returns>
-        /// <exception cref="ArgumentException">If module not found</exception>
-        public JSValue ImportModule(in KeyString name)
-        {
-            var n = name.Value;
-            return moduleCache.GetOrCreate(name.Value, () => throw new ArgumentException($"module {n} not found"));
-        }
+       
 
         /// <summary>
         /// Modules are isolated by Context and are identified by Id.

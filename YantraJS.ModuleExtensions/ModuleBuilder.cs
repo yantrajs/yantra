@@ -5,12 +5,12 @@ using YantraJS.Core.Clr;
 
 public class ModuleBuilder
 {
-    private List<(string name,object value)> exportedObjects = new ();
+    private List<(string name,object value)> exportedObjects = new List<(string name, object value)>();
     private string _moduleName;
 
-    public ModuleBuilder ExportType<T>()
+    public ModuleBuilder ExportType<T>(string name = null)
     {
-        exportedObjects.Add((typeof(T).Name, typeof(T)));
+        exportedObjects.Add((name ?? typeof(T).Name, typeof(T)));
         return this;
     }
 
@@ -41,14 +41,21 @@ public class ModuleBuilder
         JSObject globalExport = new JSObject();
         foreach ((string name, object value)  in exportedObjects)
         {
-            globalExport[name] = value switch
+            switch (value)
             {
-                Type type => ClrType.From(type),
-                JSFunctionDelegate @delegate => new JSFunction(@delegate),
-                JSValue jsValue => globalExport[name] = jsValue,
-                _ => ClrProxy.Marshal(value)
-            };
-            
+                case Type type:
+                    globalExport[name] = ClrType.From(type);
+                    break;
+                case JSFunctionDelegate @delegate:
+                    globalExport[name] = new JSFunction(@delegate);
+                    break;
+                case JSValue jsValue:
+                    globalExport[name] = globalExport[name] = jsValue;
+                    break;
+                default:
+                    globalExport[name] = ClrProxy.Marshal(value);
+                    break;
+            }
         }
 
         globalExport[KeyStrings.@default] = globalExport;
