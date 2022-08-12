@@ -5,6 +5,12 @@
         <ImplicitUsings>false</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>ZverGuy, ackava</Authors>
+        <Description>Bunch of extensions for JSModuleContext
+Adding fluent interface for module registering.</Description>
+        <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
