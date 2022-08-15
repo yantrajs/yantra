@@ -16,6 +16,6 @@ Adding fluent interface for module registering.</description>
     </dependencies>
   </metadata>
   <files>
-    <file src=".\bin\Release\netstandard2.0\YantraJS.ModuleExtensions.dll" target="lib\netstandard2.0\YantraJS.ModuleExtensions.dll" />
+    <file src=".\bin\Debug\netstandard2.0\YantraJS.ModuleExtensions.dll" target="lib\netstandard2.0\YantraJS.ModuleExtensions.dll" />
   </files>
 </package>
