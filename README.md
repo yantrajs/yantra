@@ -7,6 +7,7 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 | YantraJS (With CSX Module Support)                              | [![NuGet](https://img.shields.io/nuget/v/YantraJS.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS)                           |
 | YantraJS.Core (Compiler)| [![NuGet](https://img.shields.io/nuget/v/YantraJS.Core.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.Core) |
 | YantraJS.ExpressionCompiler (IL Compiler)           | [![NuGet](https://img.shields.io/nuget/v/YantraJS.ExpressionCompiler.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.ExpressionCompiler) |
+| Yantra JS.ModuleExtensions (Fluent interface for module registration) | [![Nuget](https://img.shields.io/nuget/v/YantraJS.ModuleExtensions?label=NuGet&style=flat-square)](https://www.nuget.org/packages/YantraJS.ModuleExtensions) |
 
 # Features
 1. Compiles JavaScript to .Net Assembly 

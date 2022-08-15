@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\YantraJS.ModuleExtensions\YantraJS.ModuleExtensions.csproj" />
     <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
   </ItemGroup>
 

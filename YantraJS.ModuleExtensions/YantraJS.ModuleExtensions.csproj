@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>false</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>default</LangVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>ZverGuy, ackava</Authors>
+        <Description>Bunch of extensions for JSModuleContext
+Adding fluent interface for module registering.</Description>
+        <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
+        <PackageVersion>1.0.1</PackageVersion>
+        <NuspecFile>YantraJS.ModuleExtensions.nuspec</NuspecFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
+      <ProjectReference Include="..\YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj" />
+    </ItemGroup>
+
+</Project>
