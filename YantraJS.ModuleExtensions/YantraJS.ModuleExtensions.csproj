@@ -12,7 +12,7 @@ Adding fluent interface for module registering.</Description>
         <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
         <PackageVersion>1.0.1</PackageVersion>
-        <NuspecFile>./YantraJS.ModuleExtensions.nuspec</NuspecFile>
+        <NuspecFile>YantraJS.ModuleExtensions.nuspec</NuspecFile>
     </PropertyGroup>
 
     <ItemGroup>
