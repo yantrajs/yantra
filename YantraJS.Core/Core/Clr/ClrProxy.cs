@@ -17,12 +17,34 @@ namespace YantraJS.Core.Clr
         {
             this.value = value;
             this.BasePrototypeObject = ClrType.From(value.GetType()).prototype;
+            AddExtensionMethods();
         }
+
+        
 
         internal ClrProxy(object value, JSObject prototypeChain)
         {
             this.value = value;
             this.BasePrototypeObject = prototypeChain;
+            AddExtensionMethods();
+        }
+        private void AddExtensionMethods()
+        {
+            var extensionMethods = ExtensionMethodHelper.GetExtensionMethods(this.value.GetType());
+            
+            foreach (var method in extensionMethods)
+            {
+                if (ExtensionMethodHelper.IsJsFunctionDelegate(method))
+                {
+                    this[method.Name.ToCamelCase()] =
+                        ExtensionMethodHelper.ExtensionMethodToFunction(method.DeclaringType, method, this.value, true);
+                }
+                else
+                {
+                    this[method.Name.ToCamelCase()] =
+                        ExtensionMethodHelper.ExtensionMethodToFunction(method.DeclaringType,method, this.value, false);
+                }
+            }
         }
 
 
