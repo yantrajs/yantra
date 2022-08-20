@@ -405,7 +405,7 @@ namespace YantraJS.Core
                 "__fileame",
                 "__dirname"
             });
-
+            Console.WriteLine("Before factory");
             var result = factory(new Arguments(module, new JSValue[]
             {
                 module.Exports,
@@ -415,6 +415,7 @@ namespace YantraJS.Core
                 module.Id,
                 new JSString(module.dirPath)
             })) as JSPromise;
+            Console.WriteLine("after factory");
             if (result != null)
             {
                 await result.Task;

@@ -31,19 +31,25 @@ namespace YantraJS.Core.Clr
         private void AddExtensionMethods()
         {
             var extensionMethods = ExtensionMethodHelper.GetExtensionMethods(this.value.GetType());
-            
-            foreach (var method in extensionMethods)
+
+            if (extensionMethods != null)
             {
-                if (ExtensionMethodHelper.IsJsFunctionDelegate(method))
+                foreach (var method in extensionMethods)
                 {
-                    this[method.Name.ToCamelCase()] =
-                        ExtensionMethodHelper.ExtensionMethodToFunction(method.DeclaringType, method, this.value, true);
+                    if (ExtensionMethodHelper.IsJsFunctionDelegate(method))
+                    {
+                        this[method.Name.ToCamelCase()] =
+                            ExtensionMethodHelper.ExtensionMethodToFunction(method.DeclaringType, method, this.value,
+                                true);
+                    }
+                    else
+                    {
+                        this[method.Name.ToCamelCase()] =
+                            ExtensionMethodHelper.ExtensionMethodToFunction(method.DeclaringType, method, this.value,
+                                false);
+                    }
                 }
-                else
-                {
-                    this[method.Name.ToCamelCase()] =
-                        ExtensionMethodHelper.ExtensionMethodToFunction(method.DeclaringType,method, this.value, false);
-                }
+
             }
         }
 

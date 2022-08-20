@@ -27,7 +27,7 @@ namespace YantraJS.Tests
             JSModuleContext context = new JSModuleContext();
             context.CreateModule("test", x => x.ExportType<TestClass>());
             var str = await context.RunScriptAsync("import {TestClass} from 'test' \nexport default new TestClass()",
-                String.Empty);
+                AppDomain.CurrentDomain.BaseDirectory);
             if (str.ConvertTo<TestClass>(out var @class))
             {
                 Console.WriteLine(@class.Foo());

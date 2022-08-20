@@ -25,7 +25,15 @@ namespace YantraJS.Core.Clr
 
                 foreach (Assembly item in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    AssTypes.AddRange(item.GetTypes());
+                    try
+                    {
+                        AssTypes.AddRange(item.GetTypes());
+                    }
+                    catch(Exception e)
+                    {
+                        //Anti crash 
+                    }
+                   
                 }
 
                 var query = from type in AssTypes
@@ -46,8 +54,7 @@ namespace YantraJS.Core.Clr
         /// <returns></returns>
         internal static bool IsJsFunctionDelegate(MethodInfo info)
         {
-            return (info.GetParameters()[1].ParameterType == typeof(Arguments) 
-                    && info.ReturnType == typeof(JSValue));
+            return (info.GetParameters()[1].ParameterType.GetElementType() == typeof(Arguments) && info.ReturnType == typeof(JSValue));
         }
 
 
@@ -68,7 +75,15 @@ namespace YantraJS.Core.Clr
                 {
                     var args = arguments
                         .ToArray()
-                        .Select(x => x.ForceConvert(typeof(object)))
+                        .Select(x =>
+                        {
+                            if (x.ConvertTo(typeof(object), out var ret))
+                            {
+                                return ret;
+                            }
+
+                            return null;
+                        })
                         .Prepend(target)
                         .ToArray();
                     return info.Invoke(invoker, args).Marshal();
