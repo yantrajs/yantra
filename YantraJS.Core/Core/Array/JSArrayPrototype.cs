@@ -898,10 +898,21 @@ namespace YantraJS.Core
                 start = Math.Min(start, (int)arrayLength);
             deleteCount = Math.Min(Math.Max(deleteCount, 0), (int)arrayLength - start);
 
+            ref var elements = ref @this.GetElements();
+
             // Get the deleted items.
             var deletedItems = new JSArray((uint)deleteCount);
+            ref var deletedItemsElements = ref deletedItems.GetElements();
             for (uint i = 0; i < deleteCount; i++)
-                deletedItems[i] = @this[(uint)(start + i)];
+            {
+                ref var property = ref elements.Get((uint)(start + i));
+                if (property.IsProperty)
+                {
+                    deletedItemsElements.Put(i) = JSProperty.Property(@this.GetValue(in property));
+                    continue;
+                }
+                deletedItemsElements.Put(i) = property;
+            }
 
             var itemsLength = a.Length > 1 ? a.Length - 2 : 0;
 
@@ -911,23 +922,34 @@ namespace YantraJS.Core
             if (deleteCount > itemsLength)
             {
                 for (int i = start + itemsLength; i < newLength; i++)
-                    @this[(uint)i] = @this[(uint)(i - offset)];
+                {
+                    elements.Put((uint)i) = elements.Get((uint)(i - offset));
+                    // @this[(uint)i] = @this[(uint)(i - offset)];
+                }
 
                 // Delete the trailing elements.
                 for (int i = newLength; i < arrayLength; i++)
-                    @this.Delete((uint)i);
+                {
+                    elements.RemoveAt((uint)i);
+                }
             }
             else
             {
                 for (int i = newLength - 1; i >= start + itemsLength; i--)
-                    @this[(uint)i] = @this[(uint)(i - offset)];
+                {
+                    elements.Put((uint)i) = elements.Get((uint)(i - offset));
+                    // @this[(uint)i] = @this[(uint)(i - offset)];
+                }
             }
             //SetLength(thisObj, (uint)newLength);
             @this.Length = newLength;
 
             // Insert the new elements.
             for (int i = 0; i < itemsLength; i++)
-                @this[(uint)(start + i)] = a[i + 2];
+            {
+                // @this[(uint)(start + i)] = a[i + 2];
+                elements.Put((uint)(start + i)) = JSProperty.Property(a[i + 2]);
+            }
 
             // Return the deleted items.
             return deletedItems;
@@ -1005,10 +1027,11 @@ namespace YantraJS.Core
             {
                 // move.. 
                 @this.MoveElements(0, a.Length);
+                ref var elements = ref @this.GetElements();
 
                 for (uint i = 0; i < a.Length; i++)
                 {
-                    @this[i] = a.GetAt((int)i);
+                    elements.Put(i) = JSProperty.Property(a.GetAt((int)i));
                 }
             }
             return new JSNumber(a.This.Length);
