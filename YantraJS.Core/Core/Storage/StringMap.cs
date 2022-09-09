@@ -258,6 +258,35 @@ namespace YantraJS.Core.Core.Storage
             ref var node = ref Null;
             ref var current = ref this;
 
+            if (originalKey.Hash == 0 && originalKey.Value.Length == 0)
+            {
+                // empty string....
+                if (Nodes == null && !create)
+                {
+                    return ref Null;
+                }
+                Nodes = Nodes ?? new StringMap<T>[Size];
+                node = ref Nodes[0];
+                if (node.Key.CompareToRef(in originalKey) != 0)
+                {
+                    // move...
+                    var oldKey = node.Key;
+                    var oldValue = node.value;
+                    var oldState = node.State;
+                    node.Key = originalKey;
+                    node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+                    node.value = default;
+
+                    ref var child = ref GetNode(oldKey, true);
+                    child.Key = oldKey;
+                    child.value = oldValue;
+                    child.State = oldState;
+                }
+                node.State |= MapValueState.Filled;
+                return ref node;
+
+            }
+
             int start = originalKey.Hash;
             for(; start != 0; start >>= Bits)
             {

@@ -27,7 +27,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
             var blockList = new Sequence<Expressions.YExpression>(count);
             var hoistingScope = block.HoistingScope;
-            using var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
+            var scope = this.scope.Push(new FastFunctionScope(this.scope.Top));
             //try
             //{
                 if (hoistingScope != null)
