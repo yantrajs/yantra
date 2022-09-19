@@ -23,7 +23,7 @@ namespace YantraJS.Tests.Core
 
 //(function(){return 1; /***/ })()
 //");
-            this.context.Eval(@"
+            this.context.Execute(@"
 function (expression) {
             if (expression == null) return Functions.Identity;
             if (typeof expression === Types.String) {

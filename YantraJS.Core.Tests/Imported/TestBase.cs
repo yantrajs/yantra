@@ -16,7 +16,7 @@ namespace YantraJS.Core.Tests.Imported
 
         public void Execute(string code)
         {
-            context.Eval(code);
+            context.Execute(code);
         }
 
 
@@ -74,7 +74,7 @@ namespace YantraJS.Core.Tests.Imported
             }
             try
             {
-                var v = context.Eval(text);
+                var v = context.Execute(text);
                 return ToPrimitive(v);
             }catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace YantraJS.Core.Tests.Imported
         {
             try
             {
-                context.Eval(text);
+                context.Execute(text);
             } catch (Exception ex)
             {
                 var ev = JSException.ErrorFrom(ex);
@@ -99,7 +99,7 @@ namespace YantraJS.Core.Tests.Imported
         {
             try
             {
-                context.Eval(text);
+                context.Execute(text);
             } catch (Exception ex)
             {
                 var ev = JSException.ErrorFrom(ex);

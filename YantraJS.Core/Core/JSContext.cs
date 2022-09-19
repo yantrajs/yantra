@@ -652,12 +652,12 @@ namespace YantraJS.Core
             = new ConcurrentDictionary<long, JSPromise>();
 
         /// <summary>
-        /// Quickly evaluate the code, does not wait for promises and timeouts/intervals
+        /// Quickly evaluates the code, does not wait for promises and timeouts/intervals.
         /// </summary>
         /// <param name="code"></param>
         /// <param name="codeFilePath"></param>
         /// <returns></returns>
-        public JSValue FastEval(string code, string codeFilePath = null)
+        public JSValue Eval(string code, string codeFilePath = null)
         {
             if (Debugger == null)
             {
@@ -679,51 +679,60 @@ namespace YantraJS.Core
             // return CoreScript.Evaluate(code, codeFilePath);
         }
 
-
         /// <summary>
-        /// Evaluates the given code, waits for the promise and also 
-        /// waits for timeouts/intervals to finish
+        /// Evaluates the given code, waits for the promise and returns task that
+        /// completes till all timeouts/intervals are completed.
         /// </summary>
         /// <param name="code"></param>
         /// <param name="codeFilePath"></param>
         /// <returns></returns>
-        public JSValue Eval(string code, string codeFilePath = null)
+        public async Task<JSValue> ExecuteAsync(string code, string codeFilePath = null)
         {
-            return AsyncPump.Run<JSValue>(async () => {
-                var r = CoreScript.Evaluate(code, codeFilePath);
-                var wt = this.WaitTask;
-                if (wt != null)
-                    await wt;
-                if (r is JSPromise promise)
+            var r = CoreScript.Evaluate(code, codeFilePath);
+            var wt = this.WaitTask;
+            if (wt != null)
+                await wt;
+            if (r is JSPromise promise)
+            {
+                return await promise.Task;
+            }
+            if (r is JSObject @object)
+            {
+                var then = @object[KeyStrings.then];
+                if (then.IsFunction)
                 {
+                    promise = new JSPromise((resolve, reject) => {
+                        var resolveF = new JSFunction((in Arguments a) => {
+                            var a1 = a.Get1();
+                            resolve(a1);
+                            return a1;
+                        });
+                        var rejectF = new JSFunction((in Arguments a) => {
+                            var a1 = a.Get1();
+                            reject(a1);
+                            return a1;
+                        });
+                        var a = new Arguments(@object, resolveF, rejectF);
+                        then.InvokeFunction(a);
+                    });
                     return await promise.Task;
                 }
-                if (r is JSObject @object)
-                {
-                    var then = @object[KeyStrings.then];
-                    if (then.IsFunction)
-                    {
-                        promise = new JSPromise((resolve, reject) => {
-                            var resolveF = new JSFunction((in Arguments a) => {
-                                var a1 = a.Get1();
-                                resolve(a1);
-                                return a1;
-                            });
-                            var rejectF = new JSFunction((in Arguments a) => {
-                                var a1 = a.Get1();
-                                reject(a1);
-                                return a1;
-                            });
-                            var a = new Arguments(@object, resolveF, rejectF);
-                            then.InvokeFunction(a);
-                        });
-                        return await promise.Task;
-                    }
-                }
-                return r;
-            });
+            }
+            return r;
         }
 
+
+        /// <summary>
+        /// Evaluates the given code, waits for the promise and also 
+        /// waits synchronously (by running and AsyncPump) for timeouts/intervals to finish
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="codeFilePath"></param>
+        /// <returns></returns>
+        public JSValue Execute(string code, string codeFilePath = null)
+        {
+            return AsyncPump.Run(() => ExecuteAsync(code, codeFilePath));
+        }
 
     }
 }
