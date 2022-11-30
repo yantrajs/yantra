@@ -56,6 +56,11 @@ namespace YantraJS.Core
             return new JSString( StringSpan.Concat(this.value, value));
         }
 
+        public override JSValue AddValue(JSValue value)
+        {
+            return new JSString(StringSpan.Concat(this.value, value.StringValue));
+        }
+
         public override bool ConvertTo(Type type, out object value)
         {
             if (type == typeof(string))
