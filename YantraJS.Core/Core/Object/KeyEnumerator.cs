@@ -233,5 +233,42 @@ namespace YantraJS.Core.Enumerators
             value = @default;
             return false;
         }
+
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            if (this.elements != null)
+            {
+                if (this.elements.MoveNext(out var hasValueout, out var _, out var ui))
+                {
+                    return new JSString(ui.ToString());
+                }
+                this.elements = null;
+            }
+            if (this.properties.target != null)
+            {
+                if (this.properties.MoveNext(out var key))
+                {
+                    return key.ToJSValue();
+                }
+                this.properties.target = null;
+                if (this.inherited)
+                {
+                    var @base = target.prototypeChain?.@object;
+                    if (@base != null && @base != target)
+                    {
+                        parent = new KeyEnumerator(@base, showEnumerableOnly, inherited);
+                    }
+                }
+            }
+            if (parent != null)
+            {
+                if (parent.MoveNext(out var value))
+                {
+                    return value;
+                }
+                parent = null;
+            }
+            return @default;
+        }
     }
 }

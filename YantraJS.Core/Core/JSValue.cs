@@ -803,6 +803,10 @@ namespace YantraJS.Core {
                 value = @default;
                 return false;
             }
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                return @default;
+            }
         }
     }
 }

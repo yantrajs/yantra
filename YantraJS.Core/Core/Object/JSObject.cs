@@ -1186,6 +1186,15 @@ namespace YantraJS.Core
                 return false;
             }
 
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                if (en?.MoveNext() ?? false)
+                {
+                    var (Key, Value) = en.Current;
+                    return @object.GetValue(Value);
+                }
+                return @default;
+            }
         }
 
     }
