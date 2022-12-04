@@ -28,12 +28,12 @@ jobs:
     - name: Pack
       run: dotnet pack -c Release --no-restore
     - name: Publish Eternity
-      run: dotnet nuget push **/*.nupkg -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json -n true
+      run: dotnet nuget push **/*.nupkg -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json --no-symbols
       env:
          NUGET_TOKEN: ${{secrets.PUBLIC_NUGET_TOKEN}}
 
     - name: Publish Eternity Proget
-      run: dotnet nuget push **/*.nupkg -k ${NUGET_KEY} -s ${NUGET_SOURCE} -n true
+      run: dotnet nuget push **/*.nupkg -k ${NUGET_KEY} -s ${NUGET_SOURCE} --no-symbols
       env:
          NUGET_SOURCE: ${{secrets.PROGET_NUGET}}
          NUGET_KEY: ${{secrets.PROGET_NUGET_TOKEN}}  
