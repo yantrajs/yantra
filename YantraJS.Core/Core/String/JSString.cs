@@ -48,17 +48,47 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(double value)
         {
+            if (this.value.IsEmpty)
+                return new JSString(value.ToString());
             return new JSString( StringSpan.Concat(this.value, value.ToString()) );
         }
 
         public override JSValue AddValue(string value)
         {
+            if (this.value.IsEmpty)
+                return new JSString(value);
             return new JSString( StringSpan.Concat(this.value, value));
         }
 
         public override JSValue AddValue(JSValue value)
         {
-            return new JSString(StringSpan.Concat(this.value, value.StringValue));
+            if (value is JSString vString)
+            {
+                if (this.value.IsEmpty)
+                {
+                    return vString;
+                }
+                if (vString.value.IsEmpty)
+                {
+                    return this;
+                }
+                return new JSString(StringSpan.Concat(in this.value, in vString.value));
+            }
+
+            if (value.IsObject)
+            {
+                value = value.ValueOf();
+            }
+
+            if (this.value.IsEmpty)
+                return new JSString(value.StringValue);
+
+            var v = value.StringValue;
+            if (v.Length == 0)
+            {
+                return this;
+            }
+            return new JSString(StringSpan.Concat(this.value, v));
         }
 
         public override bool ConvertTo(Type type, out object value)

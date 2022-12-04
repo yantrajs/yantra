@@ -93,6 +93,34 @@ namespace YantraJS.Core
             }
         }
 
+        public unsafe static string Concat(in StringSpan a, in StringSpan b)
+        {
+            var alen = a.Length;
+            var blen = b.Length;
+            var n = alen + blen;
+            var s = new string('\0', n);
+            fixed (char* dest = s)
+            {
+                fixed (char* aa = a.Source)
+                {
+                    char* astart = aa + a.Offset;
+                    for (int i = 0; i < alen; i++)
+                    {
+                        dest[i] = astart[i];
+                    }
+                }
+                fixed (char* aa = b.Source)
+                {
+                    char* astart = aa + b.Offset;
+                    for (int i = 0; i < blen; i++)
+                    {
+                        dest[alen + i] = astart[i];
+                    }
+                }
+            }
+            return s;
+        }
+
         public unsafe static string Concat(in StringSpan a, string value)
         {
             var alen = a.Length;
