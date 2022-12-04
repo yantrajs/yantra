@@ -52,7 +52,8 @@ namespace YantraJS.Core {
 
         internal virtual bool IsSpread => false;
 
-        internal object Convert(Type type, object def)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public object Convert(Type type, object def)
         {
             if (type.IsAssignableFrom(typeof(JSValue)))
                 return this;
@@ -801,6 +802,10 @@ namespace YantraJS.Core {
             {
                 value = @default;
                 return false;
+            }
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                return @default;
             }
         }
     }

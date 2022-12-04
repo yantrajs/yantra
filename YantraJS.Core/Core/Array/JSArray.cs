@@ -207,6 +207,26 @@ namespace YantraJS.Core
                 value = @default;
                 return false;
             }
+
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                ref var elements = ref array.GetElements();
+                if ((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
+                {
+                    if (elements.TryGetValue(index, out var property))
+                    {
+                        return property.IsEmpty
+                            ? null
+                            : (property.IsValue
+                            ? property.value
+                            : (property.set.InvokeFunction(new Arguments(this.array))));
+                    }
+                    return @default;
+                }
+                return @default;
+            }
+
+
         }
 
         public void AddRange(JSValue iterator)
@@ -311,5 +331,15 @@ namespace YantraJS.Core
             value = @default;
             return false;
         }
+
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            if (++this.index < array.Length)
+            {
+                return new JSArray(new JSNumber(index), array[(uint)index]);
+            }
+            return @default;
+        }
+
     }
 }

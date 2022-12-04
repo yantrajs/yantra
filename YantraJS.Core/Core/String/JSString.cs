@@ -330,7 +330,7 @@ namespace YantraJS.Core
             if (object.ReferenceEquals(this, value))
                 return true;
             if (value is JSString s)
-                if (s.value == this.value)
+                if (s.value.Equals(this.value))
                     return true;
             return false;
         }
@@ -403,6 +403,15 @@ namespace YantraJS.Core
                 return false;
             }
 
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                if (en.MoveNext(out var ch))
+                {
+                    index++;
+                    return new JSString(new string(ch, 1));
+                }
+                return @default;
+            }
 
         }
 

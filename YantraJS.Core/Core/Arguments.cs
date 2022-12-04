@@ -779,6 +779,15 @@ namespace YantraJS.Core
                 value = @default;
                 return false;
             }
+
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                if ((++this.index) > arguments.Length)
+                {
+                    return arguments.GetAt(this.index);
+                }
+                return @default;
+            }
         }
     }
 }
