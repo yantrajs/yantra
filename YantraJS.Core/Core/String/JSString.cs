@@ -58,7 +58,7 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(JSValue value)
         {
-            return new JSString(StringSpan.Concat(this.value, value.StringValue));
+            return new JSString(StringSpan.Concat(this.value, value.ToString()));
         }
 
         public override bool ConvertTo(Type type, out object value)
@@ -300,7 +300,7 @@ namespace YantraJS.Core
             if (object.ReferenceEquals(this, value))
                 return true;
             if (value is JSString s)
-                if (s.value == this.value)
+                if (s.value.Equals(this.value))
                     return true;
             return false;
         }

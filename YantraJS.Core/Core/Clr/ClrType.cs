@@ -579,11 +579,25 @@ namespace YantraJS.Core.Clr
             {
                 var ai = ArgumentsBuilder.GetAt(args, i);
                 var pi = pList[i];
-                var defValue = pi.HasDefaultValue
-                    ? Expression.Constant(pi.DefaultValue,typeof(object))
-                    : (pi.ParameterType.IsValueType
-                        ? Expression.Constant(Activator.CreateInstance(pi.ParameterType),typeof(object))
-                        : Expression.Constant(null, pi.ParameterType));
+                Expression defValue;
+                if (pi.HasDefaultValue)
+                {
+                    defValue = Expression.Constant(pi.DefaultValue);
+                    if (pi.ParameterType.IsValueType)
+                    {
+                        defValue = Expression.Box(Expression.Constant(pi.DefaultValue));
+                    }
+                    parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
+                    continue;
+                }
+                defValue = null;
+                if(pi.ParameterType.IsValueType)
+                {
+                    defValue = Expression.Box(Expression.Constant(Activator.CreateInstance(pi.ParameterType)));
+                } else
+                {
+                    defValue = Expression.Null;
+                }
                 parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
             }
             var call = Expression.TypeAs( Expression.New(m, parameters), typeof(object));
