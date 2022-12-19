@@ -19,9 +19,7 @@ namespace YantraJS.Core.BigInt
                 case JSBigInt bigint:
                     return bigint;
             }
-            if (long.TryParse(f.ToString(), out var n))
-                return new JSBigInt(n);
-            throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
+            return new JSBigInt(f.ToString());
         }
 
         [Prototype("toString")]

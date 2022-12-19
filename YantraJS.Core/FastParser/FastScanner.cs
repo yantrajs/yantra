@@ -1105,6 +1105,10 @@ namespace YantraJS.Core.FastParser
                 //}
             }
             ConsumeDigits();
+            if (CanConsume('n'))
+            {
+                return state.Commit(TokenTypes.BigInt);
+            }
             // this logic is perfect
             // cannot be replaced with switch
             if (CanConsume('.'))

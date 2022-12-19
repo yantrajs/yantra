@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.Core.Primitive;
 
 namespace YantraJS.Core.BigInt
 {
@@ -20,6 +21,13 @@ namespace YantraJS.Core.BigInt
         {
             this.value = value;
         }
+        public JSBigInt(string stringValue)
+        {
+            var v = stringValue.TrimEnd('n').Replace("_", "");
+            if (!long.TryParse(v, out var n))
+                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
+            this.value = n;
+        }
 
         public override bool Equals(JSValue value)
         {
@@ -31,9 +39,29 @@ namespace YantraJS.Core.BigInt
             return this.value == n;
         }
 
+        public override string ToString()
+        {
+            return value.ToString() + "n";
+        }
+
         public override JSValue InvokeFunction(in Arguments a)
         {
             throw new NotImplementedException();
+        }
+
+        public override JSValue CreateInstance(in Arguments a)
+        {
+            if (a.Length == 0)
+            {
+                return new JSBigInt(0);
+            }
+            var value = a[0];
+            if (value.IsNumber)
+            {
+                return new JSBigInt((long)value.DoubleValue);
+            }
+            var v = long.Parse(value.ToString());
+            return new JSBigInt(v);
         }
 
         public override bool StrictEquals(JSValue value)
@@ -92,6 +120,32 @@ namespace YantraJS.Core.BigInt
                 return true;
             }
             return base.ConvertTo(type, out value);
+        }
+
+        public override JSValue AddValue(double value)
+        {
+            return new JSBigInt(this.value + (long)value);
+        }
+
+        public override JSValue AddValue(string value)
+        {
+            return new JSString(this.value + value);
+        }
+
+        public override JSValue AddValue(JSValue value)
+        {
+            value = value.IsObject ? value.ValueOf() : value;
+            if (value is JSPrimitiveObject primitive)
+            {
+                value = primitive.value;
+            }
+            if (value is JSString @string)
+            {
+                return new JSString(this.value + @string.value);
+            }
+            if (value is JSObject @object)
+                return new JSString(this.value + @object.StringValue);
+            return new JSBigInt(this.value + value.BigIntValue);
         }
     }
 }
