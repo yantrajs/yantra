@@ -460,7 +460,7 @@ namespace YantraJS.Core
             //{
             //    BasePrototypeObject = (Bootstrap.Create("console", typeof(JSConsole))).prototype
             //};
-            this[KeyStrings.console] = new Clr.ClrProxy(new JSConsole(this));
+            this[KeyStrings.console] = Clr.ClrProxy.From(new JSConsole(this));
 
             this[KeyStrings.debug] = new JSFunction(this.Debug);
 

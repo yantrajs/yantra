@@ -47,17 +47,17 @@ namespace YantraJS.Core.Clr
 
         public static JSValue ToInt32(in Arguments a)
         {
-            return new ClrProxy(a.Get1().IntValue);
+            return ClrProxy.From(a.Get1().IntValue);
         }
 
         public static JSValue ToString(in Arguments a)
         {
-            return new ClrProxy(a.Get1().ToString());
+            return ClrProxy.From(a.Get1().ToString());
         }
 
         public static JSValue ToBool(in Arguments a)
         {
-            return new ClrProxy(a.Get1().BooleanValue);
+            return ClrProxy.From(a.Get1().BooleanValue);
         }
 
         public static JSValue ToDateTime(in Arguments a)
@@ -65,7 +65,7 @@ namespace YantraJS.Core.Clr
             var a1 = a.Get1();
             if (a1 is JSDate date)
             {
-                return new ClrProxy(date.value);
+                return ClrProxy.From(date.value);
             }
             throw JSContext.Current.NewTypeError($"Not a Date");
         }

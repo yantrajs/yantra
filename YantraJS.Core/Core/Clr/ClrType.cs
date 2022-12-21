@@ -464,14 +464,14 @@ namespace YantraJS.Core.Clr
         private JSValue Create2(ConstructorInfo c, in Arguments a)
         {
             // improve later...
-            return new ClrProxy(c.Invoke(new object[] { a }), prototype);
+            return ClrProxy.From(c.Invoke(new object[] { a }), prototype);
         }
 
 
         public JSValue Create(in Arguments a)
         {
             var (c, values) = constructorCache.Match(a, KeyStrings.constructor);
-            return new ClrProxy(c.Invoke(values), prototype);
+            return ClrProxy.From(c.Invoke(values), prototype);
         }
 
         public JSValue GetMethod(in Arguments a)
@@ -564,7 +564,7 @@ namespace YantraJS.Core.Clr
             JSValue Factory(in Arguments a)
             {
                 var r = fx(in a);
-                return new ClrProxy(r, prototype);
+                return ClrProxy.From(r, prototype);
             }
             return Factory;
         }
