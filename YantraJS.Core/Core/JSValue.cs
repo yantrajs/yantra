@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core;
 using YantraJS.Extensions;
 using YantraJS.Utils;
@@ -69,6 +70,13 @@ namespace YantraJS.Core {
             }
             if (ConvertTo(type, out var value))
                 return value;
+            if (prototypeChain?.@object is ClrProxy proxy)
+            {
+                if (type.IsAssignableFrom(proxy.value.GetType()))
+                {
+                    return proxy.value;
+                }
+            }
             //if (type.IsAssignableFrom(this.GetType()))
             //    return this;
             throw JSContext.Current.NewTypeError($"Cannot convert {this} to type {type.Name}");
