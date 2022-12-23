@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using YantraJS.Core.Clr;
+
 namespace YantraJS.Core
 {
     /// <summary>
@@ -27,11 +29,18 @@ namespace YantraJS.Core
     public abstract class JavaScriptObject : IJavaScriptObject
     {
         private JSValue? handle;
-        JSValue? IJavaScriptObject.JSHandle {
+        JSValue? IJavaScriptObject.JSHandle
+        {
             get => handle;
             set => handle = value;
         }
 
         protected JavaScriptObject(in Arguments a) { }
+
+        public static implicit operator JSValue(JavaScriptObject @object)
+        {
+            var handle = @object.handle ??= ClrProxy.From(@object);
+            return handle;
+        }
     }
 }
