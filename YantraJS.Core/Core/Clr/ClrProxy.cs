@@ -14,6 +14,8 @@ namespace YantraJS.Core.Clr
     public partial class ClrProxy : JSObject
     {
 
+        public object Target => value;
+
         internal readonly object value;
         private ClrProxy(object value)
         {
