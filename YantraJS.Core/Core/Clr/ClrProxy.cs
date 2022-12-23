@@ -280,6 +280,13 @@ namespace YantraJS.Core.Clr
         {
             return new ClrProxy(value);
         }
+
+        public static JSValue From(IJavaScriptObject value)
+        {
+            value.JSHandle ??= From(value, ClrType.From(value.GetType()));
+            return value.JSHandle;
+        }
+
         public static ClrProxy From(DateTimeOffset value)
         {
             return new ClrProxy(value);
@@ -293,6 +300,10 @@ namespace YantraJS.Core.Clr
             if (value == null)
             {
                 return JSNull.Value;
+            }
+            if (value is IJavaScriptObject scriptObject)
+            {
+                return From(scriptObject);
             }
             var type = ClrType.From(value.GetType());
             return From(value, type.prototype);

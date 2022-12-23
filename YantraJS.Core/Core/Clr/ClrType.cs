@@ -16,6 +16,7 @@ using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Runtime;
+using System.ComponentModel;
 
 namespace YantraJS.Core.Clr
 {
@@ -35,6 +36,8 @@ namespace YantraJS.Core.Clr
     /// </summary>
     public class ClrType : JSFunction
     {
+
+        private static MethodInfo genericJSFunctionDelegate = typeof(ClrType).GetMethod(nameof(ToInstanceJSFunctionDelegate));
 
         private static ConcurrentUInt32Map<ClrType> cachedTypes = ConcurrentUInt32Map<ClrType>.Create();
 
@@ -79,6 +82,8 @@ namespace YantraJS.Core.Clr
             if (type.IsGenericTypeDefinition)
                 return;
 
+            var isJavaScriptObject = typeof(IJavaScriptObject).IsAssignableFrom(type);
+
             Func<object, uint, JSValue> indexGetter = null;
             Func<object, uint, object, JSValue> indexSetter = null; ;
 
@@ -92,6 +97,15 @@ namespace YantraJS.Core.Clr
             foreach(var field in declaredFields)
             {
                 var name = field.Name.ToCamelCase();
+                if (isJavaScriptObject)
+                {
+                    var jsName = field.GetCustomAttribute<JSNameAttribute>();
+                    if (jsName == null)
+                    {
+                        continue;
+                    }
+                    name = jsName.Name;
+                }
                 JSFunction getter = GenerateFieldGetter(field);
                 JSFunction setter = null;
                 if (!(field.IsInitOnly || field.IsLiteral))
@@ -124,7 +138,16 @@ namespace YantraJS.Core.Clr
                     if (f.PropertyType.IsGenericTypeDefinition)
                         continue;
 
-                    KeyString name = f.GetCustomAttribute<JSNameAttribute>()?.Name ?? f.Name.ToCamelCase();
+                    KeyString name = f.Name.ToCamelCase();
+                    if (isJavaScriptObject)
+                    {
+                        var jsName = f.GetCustomAttribute<JSNameAttribute>();
+                        if (jsName == null)
+                        {
+                            continue;
+                        }
+                        name = jsName.Name;
+                    }
 
                     var fgm = f.GetMethod;
                     var fsm = f.SetMethod;
@@ -166,6 +189,32 @@ namespace YantraJS.Core.Clr
                 }
             }
 
+            var clrPrototype = target as ClrPrototype;
+
+            if (isJavaScriptObject) {
+
+                foreach(var method in type.GetMethods(flags))
+                {
+                    var name = method.GetCustomAttribute<JSNameAttribute>()?.Name;
+                    if (name == null)
+                    {
+                        continue;
+                    }
+
+                    target.FastAddValue(name,
+                        ToJSFunctionDelegate(method, name), JSPropertyAttributes.EnumerableConfigurableValue);
+                }
+
+
+                if (indexGetter != null)
+                    clrPrototype.GetElementAt = indexGetter;
+                if (indexSetter != null)
+                    clrPrototype.SetElementAt = indexSetter;
+
+                return;
+            }
+
+
             foreach (var methods in type.GetMethods(flags)
                 .Where(x => !x.IsSpecialName)
                 .GroupBy(x => x.Name)) {
@@ -174,7 +223,7 @@ namespace YantraJS.Core.Clr
                 var jsMethod = all.FirstOrDefault(x => 
                     x.parameters?.Length == 1 
                     && typeof(JSValue).IsAssignableFrom(x.method.ReturnType)
-                    && x.parameters[0].ParameterType == typeof(Arguments).MakeByRefType());
+                    && x.parameters[0].ParameterType == ArgumentsBuilder.refType);
                 if (jsMethod.method != null)
                 {
                     // call directly...
@@ -189,7 +238,7 @@ namespace YantraJS.Core.Clr
                     //}
 
                     target.FastAddValue(name,
-                        ToInstanceDelegate(jsMethod.method), JSPropertyAttributes.EnumerableConfigurableValue);
+                        ToJSFunctionDelegate(jsMethod.method, name), JSPropertyAttributes.EnumerableConfigurableValue);
 
 
                     continue;
@@ -206,7 +255,6 @@ namespace YantraJS.Core.Clr
 
             if (isStatic)
                 return;
-            var clrPrototype = target as ClrPrototype;
 
             if (indexGetter != null)
                 clrPrototype.GetElementAt = indexGetter;
@@ -214,21 +262,43 @@ namespace YantraJS.Core.Clr
                 clrPrototype.SetElementAt = indexSetter;
         }
 
-        private static JSFunction ToInstanceDelegate(MethodInfo method)
-        {
-            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            var target = Expression.Parameter(method.DeclaringType);
-            var convert = method.IsStatic
-                ? null
-                : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), method.DeclaringType, target, method.Name);
+        public delegate JSValue InstanceDelegate<T>(T @this, in Arguments a);        
 
-            var body = Expression.Block(target.AsSequence(),
-                JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(
-                    Expression.Call(
-                        convert, method, args))));
-            var name = method.Name.ToCamelCase();
-            var d = Expression.Lambda<JSFunctionDelegate>(method.Name, body, args).Compile();
-            return new JSFunction(d, name);
+        private static JSFunction ToJSFunctionDelegate(MethodInfo method, string name)
+        {
+            return (JSFunction)genericJSFunctionDelegate.MakeGenericMethod(method.DeclaringType).Invoke(null, new object[] { method, name });
+        }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSFunction ToInstanceJSFunctionDelegate<T>(MethodInfo method, string name)
+        {
+            if (method.IsStatic)
+            {
+                var staticDel = (JSFunctionDelegate)method.CreateDelegate(typeof(JSFunctionDelegate));
+                return new JSFunction((in Arguments a) =>
+                {
+                    return staticDel(a);
+                }, name);
+            }
+            var del = (InstanceDelegate<T>)method.CreateDelegate(typeof(InstanceDelegate<T>));
+            var type = typeof(T);
+            return new JSFunction((in Arguments a) =>
+            {
+                var @this = (T)a.This.ForceConvert(type);
+                return del(@this, a);
+            }, name);
+            //var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            //var target = Expression.Parameter(method.DeclaringType);
+            //var convert = method.IsStatic
+            //    ? null
+            //    : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), method.DeclaringType, target, method.Name);
+
+            //var body = Expression.Block(target.AsSequence(),
+            //    JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(
+            //        Expression.Call(
+            //            convert, method, args))));
+            //var name = method.Name.ToCamelCase();
+            //var d = Expression.Lambda<JSFunctionDelegate>(method.Name, body, args).Compile();
+            //return new JSFunction(d, name);
         }
 
         private static JSValue Invoke(in KeyString name, Type type, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
@@ -378,8 +448,8 @@ namespace YantraJS.Core.Clr
             {
                 if (parameters.Length == 1 && parameters[0].ParameterType == typeof(Arguments).MakeByRefType())
                 {
-                    var cx = method as ConstructorInfo;
-                    f = (in Arguments a) => Create2(cx, a);
+                    var cx = CreateConstuctorDelegate(method);
+                    f = cx.f;
                 }
             }
 
@@ -461,11 +531,26 @@ namespace YantraJS.Core.Clr
 
         }
 
-        private JSValue Create2(ConstructorInfo c, in Arguments a)
+        //private JSValue Create2(ConstructorInfo c, in Arguments a)
+        //{
+        //    // improve later...
+        //    // return ClrProxy.From(c.Invoke(new object[] { a }), prototype);
+            
+        //}
+
+        public JSFunction CreateConstuctorDelegate(ConstructorInfo c)
         {
-            // improve later...
-            return ClrProxy.From(c.Invoke(new object[] { a }), prototype);
+            var pe = Expression.Parameter(ArgumentsBuilder.refType);
+            var name = this.name.Value;
+            JSFunctionDelegate newDelegate =
+                Expression.Lambda<JSFunctionDelegate>(name,
+                    ClrProxyBuilder.From(Expression.New(c,pe)),
+                    pe
+                ).Compile();
+            return new JSFunction(newDelegate, name);
         }
+
+        private static MethodInfo createConstuctorDelegate = typeof(ClrType).GetMethod(nameof(CreateConstuctorDelegate));
 
 
         public JSValue Create(in Arguments a)
