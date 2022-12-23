@@ -21,7 +21,10 @@ namespace YantraJS.Core.Tests.ClrObjects
             this.Version = 4;
         }
 
-        [JSName("name")]
+        [JSExportSameName]
+        public static int NONE = 0;
+
+        [JSExport("name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -88,6 +91,8 @@ namespace YantraJS.Core.Tests.ClrObjects
                 assert.strictEqual(a.add(1,2), 3);
 
                 a.log('b');
+
+                assert.strictEqual(CustomObject.NONE,0);
 
                 assert.throws(() => {
                     a.print2(2);

@@ -23,19 +23,23 @@ namespace YantraJS.Core.Clr
 {
     public class JSExportAttribute: Attribute {
 
+        public readonly string? Name;
+
+        public bool AsCamel = true;
+
+        public JSExportAttribute(
+            string? name = null)
+        {
+            this.Name = name;
+        }
+
     }
 
     public class JSExportSameNameAttribute : JSExportAttribute
     {
-
-    }
-
-    public class JSNameAttribute: JSExportAttribute {
-        public readonly string Name;
-
-        public JSNameAttribute(string name)
+        public JSExportSameNameAttribute()
         {
-            this.Name = name;
+            this.AsCamel = false;
         }
     }
 
@@ -49,9 +53,9 @@ namespace YantraJS.Core.Clr
                 name = default;
                 return false;
             }
-            name = export is JSNameAttribute jsName
-                ? jsName.Name
-                : ( export is JSExportSameNameAttribute ? member.Name : member.Name.ToCamelCase());
+            name = export.Name != null
+                ? export.Name
+                : ( export.AsCamel ? member.Name.ToCamelCase() : member.Name);
             return true;
         }
 
