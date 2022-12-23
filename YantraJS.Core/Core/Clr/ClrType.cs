@@ -20,13 +20,32 @@ using System.ComponentModel;
 
 namespace YantraJS.Core.Clr
 {
-    public class JSNameAttribute: Attribute
+    public class JSExportAttribute: Attribute
     {
+
+    }
+
+    public class JSNameAttribute: JSExportAttribute {
         public readonly string Name;
 
         public JSNameAttribute(string name)
         {
             this.Name = name;
+        }
+    }
+
+    internal static class ClrTypeExtensions
+    {
+        public static bool CanExport(this MemberInfo member,out string name)
+        {
+            var export = member.GetCustomAttribute<JSExportAttribute>();
+            if (export == null)
+            {
+                name = default;
+                return false;
+            }
+            name = export is JSNameAttribute jsName ? jsName.Name : member.Name.ToCamelCase();
+            return true;
         }
     }
 
@@ -99,12 +118,8 @@ namespace YantraJS.Core.Clr
                 var name = field.Name.ToCamelCase();
                 if (isJavaScriptObject)
                 {
-                    var jsName = field.GetCustomAttribute<JSNameAttribute>();
-                    if (jsName == null)
-                    {
+                    if (!field.CanExport(out name))
                         continue;
-                    }
-                    name = jsName.Name;
                 }
                 JSFunction getter = GenerateFieldGetter(field);
                 JSFunction setter = null;
@@ -141,12 +156,9 @@ namespace YantraJS.Core.Clr
                     KeyString name = f.Name.ToCamelCase();
                     if (isJavaScriptObject)
                     {
-                        var jsName = f.GetCustomAttribute<JSNameAttribute>();
-                        if (jsName == null)
-                        {
+                        if (!f.CanExport(out var n))
                             continue;
-                        }
-                        name = jsName.Name;
+                        name = n;
                     }
 
                     var fgm = f.GetMethod;
@@ -195,12 +207,8 @@ namespace YantraJS.Core.Clr
 
                 foreach(var method in type.GetMethods(flags))
                 {
-                    var name = method.GetCustomAttribute<JSNameAttribute>()?.Name;
-                    if (name == null)
-                    {
+                    if (!method.CanExport(out string name))
                         continue;
-                    }
-
                     target.FastAddValue(name,
                         ToJSFunctionDelegate(method, name), JSPropertyAttributes.EnumerableConfigurableValue);
                 }

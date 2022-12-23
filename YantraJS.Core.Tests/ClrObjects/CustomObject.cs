@@ -29,7 +29,7 @@ namespace YantraJS.Core.Tests.ClrObjects
         /// </summary>
         public int Version { get; set; }
 
-        [JSName("print")]
+        [JSExport]
         public JSValue Print(in Arguments a)
         {
             return a[0] ?? JSNull.Value;
