@@ -29,6 +29,9 @@ namespace YantraJS.ExpHelper
         private static PropertyInfo _IntValue =
             type.Property(nameof(Core.JSValue.IntValue));
 
+        private static PropertyInfo _BigIntValue =
+            type.Property(nameof(Core.JSValue.BigIntValue));
+
         private static PropertyInfo _UIntValue =
             type.Property(nameof(JSValue.UIntValue));
 
@@ -147,6 +150,11 @@ namespace YantraJS.ExpHelper
         public static Expression IntValue(Expression exp)
         {
             return Expression.Property(exp, _IntValue);
+        }
+
+        public static Expression BigIntValue(Expression exp)
+        {
+            return Expression.Property(exp, _BigIntValue);
         }
 
         public static Expression UIntValue(Expression exp)

@@ -17,6 +17,7 @@ using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Runtime;
 using System.ComponentModel;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.Clr
 {
@@ -46,6 +47,14 @@ namespace YantraJS.Core.Clr
             }
             name = export is JSNameAttribute jsName ? jsName.Name : member.Name.ToCamelCase();
             return true;
+        }
+
+        public static   bool IsJSFunctionDelegate( this MethodInfo method)
+        {
+            var p = method.GetParameters();
+            return p.Length == 1
+                && typeof(JSValue).IsAssignableFrom(method.ReturnType)
+                && p[0].ParameterType == ArgumentsBuilder.refType;
         }
     }
 
@@ -96,7 +105,7 @@ namespace YantraJS.Core.Clr
             return base.ConvertTo(type, out value);
         }
 
-        internal static void Generate(JSObject target, Type type, bool isStatic)
+        internal void Generate(JSObject target, Type type, bool isStatic)
         {
             if (type.IsGenericTypeDefinition)
                 return;
@@ -209,8 +218,16 @@ namespace YantraJS.Core.Clr
                 {
                     if (!method.CanExport(out string name))
                         continue;
-                    target.FastAddValue(name,
-                        ToJSFunctionDelegate(method, name), JSPropertyAttributes.EnumerableConfigurableValue);
+                    if (method.IsJSFunctionDelegate())
+                    {
+                        target.FastAddValue(name,
+                            ToJSFunctionDelegate(method, name), JSPropertyAttributes.EnumerableConfigurableValue);
+                    } else
+                    {
+                        target.FastAddValue(name
+                            ,new JSFunction( this.GenerateMethod(method), name)
+                            , JSPropertyAttributes.EnumerableConfigurableValue);
+                    }
                 }
 
 
@@ -228,10 +245,7 @@ namespace YantraJS.Core.Clr
                 .GroupBy(x => x.Name)) {
                 var name = methods.Key.ToCamelCase();
                 var all = methods.ToPairs();
-                var jsMethod = all.FirstOrDefault(x => 
-                    x.parameters?.Length == 1 
-                    && typeof(JSValue).IsAssignableFrom(x.method.ReturnType)
-                    && x.parameters[0].ParameterType == ArgumentsBuilder.refType);
+                var jsMethod = all.FirstOrDefault(x => x.method.IsJSFunctionDelegate());
                 if (jsMethod.method != null)
                 {
                     // call directly...
@@ -270,7 +284,7 @@ namespace YantraJS.Core.Clr
                 clrPrototype.SetElementAt = indexSetter;
         }
 
-        public delegate JSValue InstanceDelegate<T>(T @this, in Arguments a);        
+        public delegate JSValue InstanceDelegate<T>(T @this, in Arguments a);
 
         private static JSFunction ToJSFunctionDelegate(MethodInfo method, string name)
         {
@@ -610,17 +624,18 @@ namespace YantraJS.Core.Clr
             var pList = m.GetParameters();
             for (int i = 0; i < pList.Length; i++)
             {
-                var ai = ArgumentsBuilder.GetAt(args, i);
                 var pi = pList[i];
                 var defValue = pi.HasDefaultValue
                     ? Expression.Constant((object)pi.DefaultValue, typeof(object))
                     : (pi.ParameterType.IsValueType
                         ? Expression.Constant((object)Activator.CreateInstance(pi.ParameterType),typeof(object))
-                        : Expression.Constant(null, pi.ParameterType));
-                parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
+                        : null);
+                parameters.Add(ArgumentsExtension.GetArgument(args, i, pi.ParameterType, defValue, pi.Name));
             }
             var call = Expression.Call(convertedThis, m, parameters);
-            var marshal = ClrProxyBuilder.Marshal(call);
+            var marshal = call.Type == typeof(void)
+                ? YExpression.Block(call, JSUndefinedBuilder.Value)
+                : ClrProxyBuilder.Marshal(call);
             var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
 
             var lambda = Expression.Lambda<JSFunctionDelegate>(m.Name, wrapTryCatch, args);

@@ -35,6 +35,18 @@ namespace YantraJS.Core.Tests.ClrObjects
             return a[0] ?? JSNull.Value;
         }
 
+        [JSExport]
+        public int Add(int a, int b)
+        {
+            return a + b;
+        }
+
+        [JSExport]
+        public void Log(string a)
+        {
+            System.Diagnostics.Debug.WriteLine(a);
+        }
+
         /// <summary>
         /// Hidden from JS
         /// </summary>
@@ -73,6 +85,9 @@ namespace YantraJS.Core.Tests.ClrObjects
                 assert.strictEqual(a.version, undefined);
 
                 assert.strictEqual(a.print(2), 2);
+                assert.strictEqual(a.add(1,2), 3);
+
+                a.log('b');
 
                 assert.throws(() => {
                     a.print2(2);
