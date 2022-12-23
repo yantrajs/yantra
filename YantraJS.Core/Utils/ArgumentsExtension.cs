@@ -143,9 +143,7 @@ namespace YantraJS.Core
         public static T GetAs<T>(in Arguments a, int index)
         {
             var v = a[index];
-            return v is ClrProxy js
-                ? (T)js.value
-                : v.ConvertTo<T>(out T v1)
+            return v.ConvertTo<T>(out T v1)
                     ? v1
                     : default;
         }

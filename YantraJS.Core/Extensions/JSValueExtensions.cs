@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using YantraJS.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -15,6 +16,13 @@ namespace YantraJS.Core
 
         public static bool ConvertTo<T>(this JSValue @this, out T value)
         {
+            if (@this is ClrProxy proxy)
+            {
+                if(proxy.Target is T t) {
+                    value = t;
+                    return true;
+                }
+            }
             if (@this.TryConvertTo(typeof(T), out var v) && v is T tv) {
                 value = tv;
                 return true;
