@@ -112,6 +112,10 @@ namespace YantraJS.Core.Clr
 
         public static JSValue Marshal(Task task) => task.ToPromise();
 
+        public static JSValue Marshal(IElementEnumerator en)
+            => new JSGenerator(en, "Clr Iterator");
+
+
         public static JSValue Marshal(IEnumerable<JSValue> en) => new JSGenerator(new ClrEnumerableElementEnumerator(en), "Clr Iterator");
 
         /// <summary>
