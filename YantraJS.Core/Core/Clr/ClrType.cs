@@ -21,7 +21,11 @@ using YantraJS.Expressions;
 
 namespace YantraJS.Core.Clr
 {
-    public class JSExportAttribute: Attribute
+    public class JSExportAttribute: Attribute {
+
+    }
+
+    public class JSExportSameNameAttribute : JSExportAttribute
     {
 
     }
@@ -45,7 +49,9 @@ namespace YantraJS.Core.Clr
                 name = default;
                 return false;
             }
-            name = export is JSNameAttribute jsName ? jsName.Name : member.Name.ToCamelCase();
+            name = export is JSNameAttribute jsName
+                ? jsName.Name
+                : ( export is JSExportSameNameAttribute ? member.Name : member.Name.ToCamelCase());
             return true;
         }
 
