@@ -129,10 +129,13 @@ namespace YantraJS.Core
             YExpression defaultValue,
             string name)
         {
-            var isNullable = Nullable.GetUnderlyingType(type) != null;
             if(methods.TryGetValue(type, out var method))
             {
                 return method.FromJSValue(name, ArgumentsBuilder.GetAt(args, index), defaultValue);
+            }
+            if (typeof(JSValue).IsAssignableFrom(type))
+            {
+                return ArgumentsBuilder.GetAt(args, index);
             }
             var m = GetAsGeneric.MakeGenericMethod(type);
             return YExpression.Coalesce(
