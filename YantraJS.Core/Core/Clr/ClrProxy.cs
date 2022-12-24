@@ -112,6 +112,8 @@ namespace YantraJS.Core.Clr
 
         public static JSValue Marshal(Task task) => task.ToPromise();
 
+        public static JSValue Marshal(IJavaScriptArray array) => ClrProxy.From(array);
+
         public static JSValue Marshal(IElementEnumerator en)
             => new JSGenerator(en, "Clr Iterator");
 
@@ -179,6 +181,8 @@ namespace YantraJS.Core.Clr
                     return task.ToPromise();
                 case Task task:
                     return task.ToPromise();
+                case IJavaScriptObject obj:
+                    return ClrProxy.From(obj);
                 case IEnumerable<JSValue> en:
                     return new JSGenerator(new ClrEnumerableElementEnumerator(en), "Clr Iterator");
             }
@@ -295,6 +299,10 @@ namespace YantraJS.Core.Clr
 
         public override IElementEnumerator GetElementEnumerator()
         {
+            if (value is IEnumerable<JSValue> jve)
+            {
+                return new ClrEnumerableElementEnumerator(jve);
+            }
             if (value is IEnumerable en) {
                 return new EnumerableElementEnumerable(en.GetEnumerator());
             }
