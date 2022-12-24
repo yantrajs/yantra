@@ -245,24 +245,52 @@ namespace YantraJS.Core.Clr
             return false;
         }
 
-        public override JSValue this[uint name]
+        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
-            get
+            if (prototypeChain?.@object is ClrType.ClrPrototype p)
             {
-                return (prototypeChain?.@object as ClrType.ClrPrototype).GetElementAt(this.value, name);
+                return p.GetElementAt(this.value, key);
             }
-            set
+            if (Target is IJavaScriptArray array)
             {
-                try
-                {
-                    var cp = prototypeChain?.@object as ClrType.ClrPrototype;
-                    cp.SetElementAt(this.value, name, value);
-                } catch (Exception ex)
-                {
-                    throw new JSException(ex.Message);
-                }
+                return array[(int)key];
             }
+            return base.GetValue(key, receiver, throwError);
         }
+
+        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            if (prototypeChain?.@object is ClrType.ClrPrototype p)
+            {
+                p.SetElementAt(this.value, name, value);
+                return true;
+            }
+            if (Target is IJavaScriptArray array)
+            {
+                array[(int)name] = value;
+                return true;
+            }
+            return base.SetValue(name, value, receiver, throwError);
+        }
+
+        //public override JSValue this[uint name]
+        //{
+        //    get
+        //    {
+        //        return (prototypeChain?.@object as ClrType.ClrPrototype).GetElementAt(this.value, name);
+        //    }
+        //    set
+        //    {
+        //        try
+        //        {
+        //            var cp = prototypeChain?.@object as ClrType.ClrPrototype;
+        //            cp.SetElementAt(this.value, name, value);
+        //        } catch (Exception ex)
+        //        {
+        //            throw new JSException(ex.Message);
+        //        }
+        //    }
+        //}
 
 
         public override IElementEnumerator GetElementEnumerator()
