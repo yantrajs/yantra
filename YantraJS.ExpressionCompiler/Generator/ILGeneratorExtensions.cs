@@ -119,8 +119,15 @@ namespace YantraJS.Generator
                 case MethodInfo method:
                     il.Emit(OpCodes.Ldftn, method);
                     return;
+                //case Delegate d:
+                //    il.Emit(OpCodes.Ldftn, d.Method);
+                //    return;
             }
-
+            //if (typeof(Delegate).IsAssignableFrom(value.GetType()))
+            //{
+            //    il.Emit(OpCodes.Ldftn, ((Delegate)value).Method);
+            //    return;
+            //}
             throw new NotSupportedException($"Constant of type  {value.GetType()} not supported, you must use a factory to create value of specified type");
 
         }

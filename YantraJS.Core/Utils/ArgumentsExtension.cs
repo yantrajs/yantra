@@ -115,11 +115,11 @@ namespace YantraJS.Core
                 (x, def) => x.HasValue() && x is JSDate d ? d.value : def);
         }
 
-        private static IJSValueConverter Add<T>(
+        private static void Add<T>(
             Func<JSValue,string,T> force,
             Func<JSValue,T,T> convertOrDefault)
         {
-            return new JSValueConverter<T>(force, convertOrDefault);
+            methods[typeof(T)] = new JSValueConverter<T>(force, convertOrDefault);
         }
 
         public static YExpression GetArgument(
