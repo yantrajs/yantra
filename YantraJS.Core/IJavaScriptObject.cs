@@ -27,12 +27,12 @@ namespace YantraJS.Core
         JSValue? JSHandle { get; set; }
     }
 
-    public interface IJavaScriptArray
-    {
-        int Length { get; }
+    //public interface IJavaScriptArray
+    //{
+    //    int Length { get; }
 
-        JSValue this[int index] { get; set; }
-    }
+    //    JSValue this[int index] { get; set; }
+    //}
 
 
     public abstract class JavaScriptObject : IJavaScriptObject

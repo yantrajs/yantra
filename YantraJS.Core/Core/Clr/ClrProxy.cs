@@ -112,7 +112,7 @@ namespace YantraJS.Core.Clr
 
         public static JSValue Marshal(Task task) => task.ToPromise();
 
-        public static JSValue Marshal(IJavaScriptArray array) => ClrProxy.From(array);
+        public static JSValue Marshal(IJavaScriptObject javaScriptObject) => ClrProxy.From(javaScriptObject);
 
         public static JSValue Marshal(IElementEnumerator en)
             => new JSGenerator(en, "Clr Iterator");
@@ -255,10 +255,10 @@ namespace YantraJS.Core.Clr
             {
                 return p.GetElementAt(this.value, key);
             }
-            if (Target is IJavaScriptArray array)
-            {
-                return array[(int)key];
-            }
+            //if (Target is IJavaScriptArray array)
+            //{
+            //    return array[(int)key];
+            //}
             return base.GetValue(key, receiver, throwError);
         }
 
@@ -269,11 +269,11 @@ namespace YantraJS.Core.Clr
                 p.SetElementAt(this.value, name, value);
                 return true;
             }
-            if (Target is IJavaScriptArray array)
-            {
-                array[(int)name] = value;
-                return true;
-            }
+            //if (Target is IJavaScriptArray array)
+            //{
+            //    array[(int)name] = value;
+            //    return true;
+            //}
             return base.SetValue(name, value, receiver, throwError);
         }
 
