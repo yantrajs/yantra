@@ -25,9 +25,22 @@ namespace YantraJS.Tests.Core
 //");
             this.context.Execute(@"
 
-            const { 0: a, 1: b } = [1,2];
-            assert.strictEqual(a,1);
-            assert.strictEqual(b,2);
+            class g {
+                constructor(n) {
+                    this.n = n;
+                }
+
+                *entries() {
+                    const m = this.n;
+                    const a = () => m;
+                    for(let i=0;i<a();i++) 
+                        yield i;
+                }
+            }
+            
+
+            let g1 = new g(2);
+            assert.strictEqual(Array.from(g1.entries(1)).toString(), '0,1');
 
 ");
 }
