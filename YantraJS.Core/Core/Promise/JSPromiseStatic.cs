@@ -41,7 +41,7 @@ namespace YantraJS.Core.Runtime
 
             return new JSPromise((resolve, reject) =>
             {
-                var sc = SynchronizationContext.Current;
+                var sc = JSContext.Current.synchronizationContext;
                 if (sc == null)
                     throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 
