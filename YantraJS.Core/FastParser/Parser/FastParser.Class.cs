@@ -63,6 +63,7 @@ namespace YantraJS.Core.FastParser
                     {
                         nodes.Add(property);
                     }
+                    stream.CheckAndConsumeWithLineTerminator(TokenTypes.SemiColon);
                 }
                 if(identifier != null) {
                     this.variableScope.Top.AddVariable(identifier.Start, identifier.Name, FastVariableKind.Let, throwError: false);

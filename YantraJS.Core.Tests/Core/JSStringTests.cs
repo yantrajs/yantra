@@ -25,8 +25,17 @@ namespace YantraJS.Tests.Core
 //");
             this.context.Execute(@"
 
-var { 'b': b2 } = { b: 1 };
-assert.strictEqual(b2, 1);
+    class A {
+        m() {
+            return 1;
+        }
+        ;
+        n() {
+            return 2;
+        }
+        ;
+    }
+
 ");
 }
 
