@@ -25,16 +25,9 @@ namespace YantraJS.Tests.Core
 //");
             this.context.Execute(@"
 
-    class A {
-        m() {
-            return 1;
-        }
-        ;
-        n() {
-            return 2;
-        }
-        ;
-    }
+            const { 0: a, 1: b } = [1,2];
+            assert.strictEqual(a,1);
+            assert.strictEqual(b,2);
 
 ");
 }

@@ -68,8 +68,12 @@ namespace YantraJS.Core.FastParser
                         {
                             left = id;
                         }
-                        else if (StringLiteral(out var str)) {
+                        else if (StringLiteral(out var str))
+                        {
                             left = str;
+                        }
+                        else if (NumberLiteral(out var num)) {
+                            left = num;
                         } else  if (!AssignmentLeftPattern(out left, kind, modulePattern))
                             throw stream.Unexpected();
 
