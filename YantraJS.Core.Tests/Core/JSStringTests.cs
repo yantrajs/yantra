@@ -24,51 +24,9 @@ namespace YantraJS.Tests.Core
 //(function(){return 1; /***/ })()
 //");
             this.context.Execute(@"
-function (expression) {
-            if (expression == null) return Functions.Identity;
-            if (typeof expression === Types.String) {
-                // get from cache
-                var f = funcCache[expression];
-                if (f != null) {
-                    return f;
-                }
 
-                if (expression.indexOf(""=>"") === -1) {
-                    var regexp = new RegExp(""[$]+"", ""g"");
-
-                    var maxLength = 0;
-                    var match;
-                    while ((match = regexp.exec(expression)) != null) {
-                        var paramNumber = match[0].length;
-                        if (paramNumber > maxLength) {
-                            maxLength = paramNumber;
-                        }
-                    }
-
-                    var argArray = [];
-                    for (var i = 1; i <= maxLength; i++) {
-                        var dollar = """";
-                        for (var j = 0; j < i; j++) {
-                            dollar += ""$"";
-                        }
-                        argArray.push(dollar);
-                    }
-
-                    var args = Array.prototype.join.call(argArray, "","");
-
-                    f = new Function(args, ""return "" + expression);
-                    funcCache[expression] = f;
-                    return f;
-                }
-                else {
-                    var expr = expression.match(/^[(\s]*([^()]*?)[)\s]*=>(.*)/);
-                    f = new Function(expr[1], (expr[2].match(/\breturn\b/) ? expr[2] : ""return "" + expr[2]));
-                    funcCache[expression] = f;
-                    return f;
-                }
-            }
-            return expression;
-        },;
+var { 'b': b2 } = { b: 1 };
+assert.strictEqual(b2, 1);
 ");
 }
 

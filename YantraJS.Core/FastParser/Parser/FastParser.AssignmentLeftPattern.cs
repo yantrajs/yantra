@@ -39,6 +39,12 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.CurlyBracketStart:
                     stream.Consume();
                     return ReadObjectPattern(out node, kind, modulePattern);
+                //case TokenTypes.String:
+                //    if(stream.CheckAndConsume(TokenTypes.Colon, TokenTypes.Identifier, out var _, out var id))
+                //    {
+
+                //    }
+                //    throw stream.Unexpected();
                 default:
                     throw stream.Unexpected();
             }
@@ -61,7 +67,10 @@ namespace YantraJS.Core.FastParser
                         if (Identitifer(out var id))
                         {
                             left = id;
-                        } else if (!AssignmentLeftPattern(out left, kind, modulePattern))
+                        }
+                        else if (StringLiteral(out var str)) {
+                            left = str;
+                        } else  if (!AssignmentLeftPattern(out left, kind, modulePattern))
                             throw stream.Unexpected();
 
                         bool renamed = modulePattern
