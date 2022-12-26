@@ -11,6 +11,20 @@ namespace YantraJS.Core.Tests.ClrObjects
 {
     public class CustomObject: JavaScriptObject
     {
+        Dictionary<int, object> dictionary = new Dictionary<int, object>();
+
+        /// <summary>
+        /// Indexer must be exported
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        [JSExport]
+        public object this[int index]
+        {
+            get => dictionary.TryGetValue(index, out var v) ? v : null;
+            set => dictionary[index] = value;
+        }
+
 
         /// <summary>
         /// JavaScriptObject must have a constructor with in Arguments a
@@ -97,6 +111,9 @@ namespace YantraJS.Core.Tests.ClrObjects
                 assert.throws(() => {
                     a.print2(2);
                 });
+
+                a[1] = 'a';
+                assert.strictEqual(a[1],'a');
             ");
         }
     }
