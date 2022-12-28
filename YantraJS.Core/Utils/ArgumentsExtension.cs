@@ -190,6 +190,25 @@ namespace YantraJS.Core
                             JSExceptionBuilder.New($"{name} is required"));
         }
 
+        public static YExpression Get(YExpression target, Type type, YExpression defaultValue, string name)
+        {
+            if (defaultValue == null)
+            {
+                return Get(target, type, name);
+            }
+            if (typeof(JSValue).IsAssignableFrom(type))
+            {
+                return target;
+            }
+            if (methods.TryGetValue(type, out var method))
+            {
+                return YExpression.Coalesce( YExpression.Call(null, method, target, YExpression.Constant(name)), defaultValue);
+            }
+            var m = GetAsGeneric.MakeGenericMethod(type);
+            return YExpression.Coalesce(
+                            YExpression.Call(null, m, target),
+                            defaultValue);
+        }
         public static T GetAs<T>(JSValue value)
         {
             return value.ConvertTo<T>(out T v1)

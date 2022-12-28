@@ -365,7 +365,7 @@ namespace YantraJS.Core.Clr
             var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
             Expression convertedThis = field.IsStatic
                 ? null
-                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), field.DeclaringType);
+                : JSValueToClrConverter.Get(ArgumentsBuilder.This(args), field.DeclaringType, "this");
             var body = 
                 ClrProxyBuilder.Marshal(
                     Expression.Field(
@@ -382,9 +382,9 @@ namespace YantraJS.Core.Clr
             var a1 = ArgumentsBuilder.Get1(args);
             var convert = field.IsStatic
                 ? null
-                : JSValueBuilder.ForceConvert(ArgumentsBuilder.This(args), field.DeclaringType);
+                : JSValueToClrConverter.Get(ArgumentsBuilder.This(args), field.DeclaringType, "this");
 
-            var clrArg1 = JSValueBuilder.ForceConvert(a1, field.FieldType);
+            var clrArg1 = JSValueToClrConverter.Get(a1, field.FieldType, "value");
 
 
             var fieldExp = Expression.Field(convert, field);
@@ -708,7 +708,7 @@ namespace YantraJS.Core.Clr
                     {
                         defValue = Expression.Box(Expression.Constant(pi.DefaultValue));
                     }
-                    parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
+                    parameters.Add(JSValueToClrConverter.Get(ai, pi.ParameterType, defValue, pi.Name));
                     continue;
                 }
                 defValue = null;
@@ -719,7 +719,7 @@ namespace YantraJS.Core.Clr
                 {
                     defValue = Expression.Null;
                 }
-                parameters.Add(JSValueBuilder.Convert(ai, pi.ParameterType, defValue));
+                parameters.Add(JSValueToClrConverter.Get(ai, pi.ParameterType, defValue, pi.Name));
             }
             var call = Expression.TypeAs( Expression.New(m, parameters), typeof(object));
             var lambda = Expression.Lambda<JSValueFactory>(m.DeclaringType.Name, call, args);

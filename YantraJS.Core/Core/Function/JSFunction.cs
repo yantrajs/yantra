@@ -383,16 +383,22 @@ namespace YantraJS.Core
 
                 stmts.Add(Expression.Assign(jsV, ClrProxyBuilder.Marshal(inP)));
             }
-            var retVar = Expression.Parameter(method.ReturnType == typeof(void) ? typeof(object) : method.ReturnType);
-            veList.Add(retVar);
+            // var retVar = Expression.Parameter(method.ReturnType == typeof(void) ? typeof(object) : method.ReturnType);
+            // veList.Add(retVar);
             var @delegate = function.f;
             var d = Expression.Constant(@delegate);
             var @this = Expression.Constant(function);
             var nargs = ArgumentsBuilder.New(@this, veList.AsSequence<Expression>());
 
-
-            stmts.Add(JSValueBuilder.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));
-            stmts.Add(retVar);
+            if (rt == typeof(void) || rt == typeof(object))
+            {
+                stmts.Add(Expression.Invoke(d, nargs));
+            } else
+            {
+                stmts.Add(JSValueToClrConverter.Get( Expression.Invoke(d, nargs), rt, ""));
+            }
+            // stmts.Add(JSValueToClrConverter.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));
+            // stmts.Add(retVar);
 
             return Expression.Lambda( type, Expression.Block(veList, stmts), type.Name, peList.ToArray()).Compile();
         }

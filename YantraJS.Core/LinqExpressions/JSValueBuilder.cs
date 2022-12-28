@@ -541,26 +541,26 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _Convert =
     type.InternalMethod(nameof(JSValue.Convert), typeof(Type), typeof(object));
 
-        public static Expression Convert(Expression jsValue, Type type, Expression defaultValue)
-        {
-            return Expression.Convert(Expression.Call(jsValue, _Convert, Expression.Constant(type), defaultValue), type);
-        }
+        //public static Expression Convert(Expression jsValue, Type type, Expression defaultValue)
+        //{
+        //    return Expression.Convert(Expression.Call(jsValue, _Convert, Expression.Constant(type), defaultValue), type);
+        //}
 
 
-        public static Expression ForceConvert(Expression jsValue, Type type)
-        {
-            return Expression.Convert( Expression.Call(jsValue, _ForceConvert, Expression.Constant(type)), type);
-        }
+        //public static Expression ForceConvert(Expression jsValue, Type type)
+        //{
+        //    return Expression.Convert( Expression.Call(jsValue, _ForceConvert, Expression.Constant(type)), type);
+        //}
 
-        public static Expression ConvertTo(Expression jsValue, Expression type, Expression outVar)
-        {
-            return Expression.Call(jsValue, _ConvertTo, type, outVar);
-        }
+        //public static Expression ConvertTo(Expression jsValue, Expression type, Expression outVar)
+        //{
+        //    return Expression.Call(jsValue, _ConvertTo, type, outVar);
+        //}
 
-        public static Expression ConvertTo(Expression jsValue, Type type, Expression outVar)
-        {
-            return ConvertTo(jsValue, Expression.Constant(type), outVar);
-        }
+        //public static Expression ConvertTo(Expression jsValue, Type type, Expression outVar)
+        //{
+        //    return ConvertTo(jsValue, Expression.Constant(type), outVar);
+        //}
 
         public static Expression Coalesce(Expression target, Expression def)
         {
@@ -568,27 +568,27 @@ namespace YantraJS.ExpHelper
                 JSValueBuilder.IsNullOrUndefined(target), def, target);
         }
 
-        public static Expression Coalesce(
-            Expression jsValue, 
-            Type type, 
-            Expression outVar,
-            string memberName,
-            [CallerMemberName] string function = null,
-            [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0)
-        {
-            return Expression.Condition(
-                ConvertTo(jsValue, Expression.Constant(type), outVar), 
-                // true
-                outVar,
-                // false
-                JSExceptionBuilder.Throw(
-                    $"{type.Name}.prototype.{memberName} called with object not of type {type}", 
-                    type,
-                    function,
-                    filePath,
-                    line));
-        }
+        //public static Expression Coalesce(
+        //    Expression jsValue, 
+        //    Type type, 
+        //    Expression outVar,
+        //    string memberName,
+        //    [CallerMemberName] string function = null,
+        //    [CallerFilePath] string filePath = null,
+        //    [CallerLineNumber] int line = 0)
+        //{
+        //    return Expression.Condition(
+        //        ConvertTo(jsValue, Expression.Constant(type), outVar), 
+        //        // true
+        //        outVar,
+        //        // false
+        //        JSExceptionBuilder.Throw(
+        //            $"{type.Name}.prototype.{memberName} called with object not of type {type}", 
+        //            type,
+        //            function,
+        //            filePath,
+        //            line));
+        //}
 
     }
 }
