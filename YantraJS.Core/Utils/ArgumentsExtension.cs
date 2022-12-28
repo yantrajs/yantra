@@ -17,6 +17,11 @@ namespace YantraJS.Core
             return value == null ? false : !value.IsNullOrUndefined;
         }
 
+        public static string ToString(JSValue value, string name)
+        {
+            return value.HasValue() ? value.ToString() : throw new ArgumentException($"{name} is required");
+        }
+
         public static int ToInt(JSValue value, string name)
         {
             return value.HasValue() ? value.IntValue : throw new ArgumentException($"{name} is required");
@@ -121,6 +126,8 @@ namespace YantraJS.Core
             foreach(var method in typeof(JSValueToClrConverter).GetMethods())
             {
                 if (!method.Name.StartsWith("To"))
+                    continue;
+                if (!method.IsStatic)
                     continue;
                 methods[method.ReturnType] = method;
             }
