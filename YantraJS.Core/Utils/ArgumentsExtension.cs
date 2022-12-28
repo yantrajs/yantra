@@ -22,6 +22,16 @@ namespace YantraJS.Core
             return value.HasValue() ? value.ToString() : throw new ArgumentException($"{name} is required");
         }
 
+        public static bool ToBoolean(JSValue value, string name)
+        {
+            return value.HasValue() ? value.BooleanValue: throw new ArgumentException($"{name} is required");
+        }
+        public static bool? ToNullableBoolean(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : value.BooleanValue;
+        }
+
+
         public static int ToInt(JSValue value, string name)
         {
             return value.HasValue() ? value.IntValue : throw new ArgumentException($"{name} is required");
