@@ -18,6 +18,7 @@ using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Runtime;
 using System.ComponentModel;
 using YantraJS.Expressions;
+using YantraJS.Generator;
 
 namespace YantraJS.Core.Clr
 {
@@ -629,7 +630,7 @@ namespace YantraJS.Core.Clr
 
             var convertedThis = m.IsStatic
                 ? null
-                : JSValueBuilder.ForceConvert(@this, m.DeclaringType);
+                : JSValueToClrConverter.Get(@this, m.DeclaringType, "this");
             var parameters = new List<Expression>();
             var pList = m.GetParameters();
             for (int i = 0; i < pList.Length; i++)
@@ -640,7 +641,7 @@ namespace YantraJS.Core.Clr
                     : (pi.ParameterType.IsValueType
                         ? Expression.Constant((object)Activator.CreateInstance(pi.ParameterType),typeof(object))
                         : null);
-                parameters.Add(ArgumentsExtension.GetArgument(args, i, pi.ParameterType, defValue, pi.Name));
+                parameters.Add(JSValueToClrConverter.GetArgument(args, i, pi.ParameterType, defValue, pi.Name));
             }
             var call = Expression.Call(convertedThis, m, parameters);
             var marshal = call.Type == typeof(void)
@@ -648,8 +649,10 @@ namespace YantraJS.Core.Clr
                 : ClrProxyBuilder.Marshal(call);
             var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
 
+            ILCodeGenerator.GenerateLogs = true;
             var lambda = Expression.Lambda<JSFunctionDelegate>(m.Name, wrapTryCatch, args);
-            return lambda.Compile();
+            var method = lambda.Compile();
+            return method;
         }
 
         public JSValue GetConstructor(in Arguments a)

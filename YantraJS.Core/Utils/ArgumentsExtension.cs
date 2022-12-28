@@ -4,122 +4,126 @@ using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using YantraJS.Core.Clr;
+using YantraJS.Core.Date;
 using YantraJS.ExpHelper;
 using YantraJS.Expressions;
 
 namespace YantraJS.Core
 {
-    internal interface IJSValueConverter
+    public static class JSValueToClrConverter
     {
-        YExpression FromJSValue(string name, YExpression value, YExpression defaultValue);
-    }
-
-    internal class JSValueConverter<T> : IJSValueConverter
-    {
-        private readonly Func<JSValue,string,T> converter;
-        private readonly Func<JSValue, T, T> defConverter;
-
-        public JSValueConverter(
-            Func<JSValue,string, T> converter,
-            Func<JSValue, T, T> defConverter)
+        private static bool HasValue(this JSValue value)
         {
-            this.converter = converter;
-            this.defConverter = defConverter;
+            return value == null ? false : !value.IsNullOrUndefined;
         }
 
-        public YExpression FromJSValue(string name, YExpression value, YExpression defaultValue)
+        public static int ToInt(JSValue value, string name)
         {
-            return defaultValue == null
-                ? YExpression.Invoke(YExpression.Constant(converter),value, YExpression.Constant(name))
-                : YExpression.Invoke(YExpression.Constant(defConverter), value, defaultValue);
+            return value.HasValue() ? value.IntValue : throw new ArgumentException($"{name} is required");
         }
-    }
-
-    internal static class ArgumentsExtension
-    {
-        private static bool HasValue(this JSValue v)
+        public static int? ToNullableInt(JSValue value, string name)
         {
-            return v != null && !v.IsNullOrUndefined;
+            return value.IsNullOrUndefined ? null :value.IntValue;
         }
 
-        private static Dictionary<Type, IJSValueConverter> methods = new Dictionary<Type, IJSValueConverter>();
+        public static short ToShort(JSValue value, string name)
+        {
+            return value.HasValue() ? (short)value.IntValue : throw new ArgumentException($"{name} is required");
+        }
+        public static short? ToNullableShort(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : (short)value.IntValue;
+        }
 
-        private static MethodInfo GetAsGeneric = typeof(ArgumentsExtension).GetMethod(nameof(GetAs));
+        public static byte ToByte(JSValue value, string name)
+        {
+            return value.HasValue() ? (byte)value.IntValue : throw new ArgumentException($"{name} is required");
+        }
+        public static byte? ToNullableByte(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : (byte)value.IntValue;
+        }
+        public static sbyte ToSByte(JSValue value, string name)
+        {
+            return value.HasValue() ? (sbyte)value.IntValue : throw new ArgumentException($"{name} is required");
+        }
+        public static sbyte? ToNullableSByte(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : (sbyte)value.IntValue;
+        }
+
+        public static double ToDouble(JSValue value, string name)
+        {
+            return value.HasValue() ? value.DoubleValue: throw new ArgumentException($"{name} is required");
+        }
+        public static double? ToNullableDouble(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : value.DoubleValue;
+        }
+        public static float ToFloat(JSValue value, string name)
+        {
+            return value.HasValue() ? (float)value.DoubleValue : throw new ArgumentException($"{name} is required");
+        }
+        public static float? ToNullableFloat(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : (float)value.DoubleValue;
+        }
+        public static decimal ToDecimal(JSValue value, string name)
+        {
+            return value.HasValue() ? (decimal)value.DoubleValue : throw new ArgumentException($"{name} is required");
+        }
+        public static decimal? ToNullableDecimal(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : (decimal)value.DoubleValue;
+        }
+        public static DateTime ToDateTime(JSValue value, string name)
+        {
+            return value.HasValue()
+                ? (value is JSDate date
+                    ? date.DateTime
+                    : DateTime.Parse(value.ToString()))
+                : throw new ArgumentException($"{name} is required");
+        }
+        public static DateTime? ToNullableDateTime(JSValue value, string name)
+        {
+            return value.HasValue()
+                ? (value is JSDate date
+                    ? date.DateTime
+                    : DateTime.Parse(value.ToString()))
+                : null;
+        }
+        public static DateTimeOffset ToDateTimeOffset(JSValue value, string name)
+        {
+            return value.HasValue()
+                ? (value is JSDate date
+                    ? date.DateTime
+                    : DateTime.Parse(value.ToString()))
+                : throw new ArgumentException($"{name} is required");
+        }
+        public static DateTimeOffset? ToNullableDateTimeOffset(JSValue value, string name)
+        {
+            return value.HasValue()
+                ? (value is JSDate date
+                    ? date.DateTime
+                    : DateTime.Parse(value.ToString()))
+                : null;
+        }
+   
+
+        private static Dictionary<Type, MethodInfo> methods = new Dictionary<Type, MethodInfo>();
+
+        private static MethodInfo GetAsGeneric = typeof(JSValueToClrConverter).GetMethod(nameof(GetAs));
 
         private static Type nullableType = typeof(Nullable<>);
 
-        static ArgumentsExtension()
+        static JSValueToClrConverter()
         {
-            //var type = typeof(ArgumentsExtension);
-            //foreach(var method in type.GetMethods())
-            //{
-            //    if(method.IsGenericMethod || method.IsGenericMethodDefinition)
-            //    {
-            //        continue;
-            //    }
-            //    var ps = method.GetParameters();
-            //    if (ps.Length != 2)
-            //        continue;
-            //    if (ps[0].ParameterType != ArgumentsBuilder.refType)
-            //        continue;
-            //    if (ps[1].ParameterType != typeof(int))
-            //        continue;
-            //    var rt = Nullable.GetUnderlyingType(method.ReturnType) ?? method.ReturnType;
-            //    methods[rt] = method;
-            //}
-
-            Add<int>(
-                (x, name) => x.HasValue() ? x.IntValue : throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() ? x.IntValue : def);
-            Add<int?>(
-                (x, name) => x.HasValue() ? x.IntValue : null,
-                (x, def) => x.HasValue() ? x.IntValue : def);
-            Add<bool>(
-                (x, name) => x.HasValue() ? x.BooleanValue : throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() ? x.BooleanValue : def);
-            Add<bool?>(
-                (x, name) => x.HasValue() ? x.BooleanValue : null,
-                (x, def) => x.HasValue() ? x.BooleanValue : def);
-            Add<long>(
-                (x, name) => x.HasValue() ? x.BigIntValue : throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() ? x.BigIntValue : def);
-            Add<long?>(
-                (x, name) => x.HasValue() ? x.BigIntValue : null,
-                (x, def) => x.HasValue() ? x.BigIntValue : def);
-            Add<double>(
-                (x, name) => x.HasValue() ? x.DoubleValue: throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() ? x.DoubleValue : def);
-            Add<double?>(
-                (x, name) => x.HasValue() ? x.DoubleValue : null,
-                (x, def) => x.HasValue() ? x.DoubleValue : def);
-            Add<float>(
-                (x, name) => x.HasValue() ? (float)x.DoubleValue : throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() ? (float)x.DoubleValue : def);
-            Add<float?>(
-                (x, name) => x.HasValue() ? (float?)x.DoubleValue : null,
-                (x, def) => x.HasValue() ? (float?)x.DoubleValue : def);
-            Add<string>(
-                (x, name) => x.HasValue() ? x.ToString() : throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() ? x.ToString() : def);
-            Add<DateTime>(
-                (x, name) => x.HasValue() && x is JSDate d? d.DateTime : throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() && x is JSDate d? d.DateTime : def);
-            Add<DateTime?>(
-                (x, name) => x.HasValue() && x is JSDate d ? d.DateTime : null,
-                (x, def) => x.HasValue() && x is JSDate d ? d.DateTime : def);
-            Add<DateTimeOffset>(
-                (x, name) => x.HasValue() && x is JSDate d ? d.value : throw new ArgumentException($"{name} is required"),
-                (x, def) => x.HasValue() && x is JSDate d ? d.value : def);
-            Add<DateTimeOffset?>(
-                (x, name) => x.HasValue() && x is JSDate d ? d.value : null,
-                (x, def) => x.HasValue() && x is JSDate d ? d.value : def);
-        }
-
-        private static void Add<T>(
-            Func<JSValue,string,T> force,
-            Func<JSValue,T,T> convertOrDefault)
-        {
-            methods[typeof(T)] = new JSValueConverter<T>(force, convertOrDefault);
+            foreach(var method in typeof(JSValueToClrConverter).GetMethods())
+            {
+                if (!method.Name.StartsWith("To"))
+                    continue;
+                methods[method.ReturnType] = method;
+            }
         }
 
         public static YExpression GetArgument(
@@ -131,7 +135,17 @@ namespace YantraJS.Core
         {
             if(methods.TryGetValue(type, out var method))
             {
-                return method.FromJSValue(name, ArgumentsBuilder.GetAt(args, index), defaultValue);
+                if (defaultValue == null)
+                {
+                    return YExpression.Call(null, method, ArgumentsBuilder.GetAt(args, index), YExpression.Constant(name));
+                }
+                return YExpression.Condition(
+                    YExpression.Binary(
+                        ArgumentsBuilder.Length(args),
+                        YOperator.Greater,
+                        YExpression.Constant(index)),
+                    YExpression.Call(null, method, ArgumentsBuilder.GetAt(args, index), YExpression.Constant(name)),
+                    defaultValue);
             }
             if (typeof(JSValue).IsAssignableFrom(type))
             {
@@ -143,10 +157,25 @@ namespace YantraJS.Core
                             JSExceptionBuilder.New($"{name} is required"));
         }
 
-        public static T GetAs<T>(in Arguments a, int index)
+        public static YExpression Get(YExpression target, Type type, string name)
         {
-            var v = a[index];
-            return v.ConvertTo<T>(out T v1)
+            if (typeof(JSValue).IsAssignableFrom(type))
+            {
+                return target;
+            }
+            if (methods.TryGetValue(type, out var method))
+            {
+                return YExpression.Call(null, method, target, YExpression.Constant(name));
+            }
+            var m = GetAsGeneric.MakeGenericMethod(type);
+            return YExpression.Coalesce(
+                            YExpression.Call(null, m, target),
+                            JSExceptionBuilder.New($"{name} is required"));
+        }
+
+        public static T GetAs<T>(JSValue value)
+        {
+            return value.ConvertTo<T>(out T v1)
                     ? v1
                     : default;
         }
