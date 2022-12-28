@@ -19,12 +19,12 @@ namespace YantraJS.Core
 
         public static string ToString(JSValue value, string name)
         {
-            return value.HasValue() ? value.ToString() : throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? value.ToString() : throw new JSException($"{name} is required");
         }
 
         public static bool ToBoolean(JSValue value, string name)
         {
-            return value.HasValue() ? value.BooleanValue: throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? value.BooleanValue: throw new JSException($"{name} is required");
         }
         public static bool? ToNullableBoolean(JSValue value, string name)
         {
@@ -34,7 +34,7 @@ namespace YantraJS.Core
 
         public static int ToInt(JSValue value, string name)
         {
-            return value.HasValue() ? value.IntValue : throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? value.IntValue : throw new JSException($"{name} is required");
         }
         public static int? ToNullableInt(JSValue value, string name)
         {
@@ -43,7 +43,7 @@ namespace YantraJS.Core
 
         public static short ToShort(JSValue value, string name)
         {
-            return value.HasValue() ? (short)value.IntValue : throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? (short)value.IntValue : throw new JSException($"{name} is required");
         }
         public static short? ToNullableShort(JSValue value, string name)
         {
@@ -52,7 +52,7 @@ namespace YantraJS.Core
 
         public static byte ToByte(JSValue value, string name)
         {
-            return value.HasValue() ? (byte)value.IntValue : throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? (byte)value.IntValue : throw new JSException($"{name} is required");
         }
         public static byte? ToNullableByte(JSValue value, string name)
         {
@@ -60,7 +60,7 @@ namespace YantraJS.Core
         }
         public static sbyte ToSByte(JSValue value, string name)
         {
-            return value.HasValue() ? (sbyte)value.IntValue : throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? (sbyte)value.IntValue : throw new JSException($"{name} is required");
         }
         public static sbyte? ToNullableSByte(JSValue value, string name)
         {
@@ -69,7 +69,7 @@ namespace YantraJS.Core
 
         public static double ToDouble(JSValue value, string name)
         {
-            return value.HasValue() ? value.DoubleValue: throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? value.DoubleValue: throw new JSException($"{name} is required");
         }
         public static double? ToNullableDouble(JSValue value, string name)
         {
@@ -77,7 +77,7 @@ namespace YantraJS.Core
         }
         public static float ToFloat(JSValue value, string name)
         {
-            return value.HasValue() ? (float)value.DoubleValue : throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? (float)value.DoubleValue : throw new JSException($"{name} is required");
         }
         public static float? ToNullableFloat(JSValue value, string name)
         {
@@ -85,7 +85,7 @@ namespace YantraJS.Core
         }
         public static decimal ToDecimal(JSValue value, string name)
         {
-            return value.HasValue() ? (decimal)value.DoubleValue : throw new ArgumentException($"{name} is required");
+            return value.HasValue() ? (decimal)value.DoubleValue : throw new JSException($"{name} is required");
         }
         public static decimal? ToNullableDecimal(JSValue value, string name)
         {
@@ -129,6 +129,8 @@ namespace YantraJS.Core
 
         private static MethodInfo GetAsGeneric = typeof(JSValueToClrConverter).GetMethod(nameof(GetAs));
 
+        private static MethodInfo GetAsOrThrowGeneric = typeof(JSValueToClrConverter).GetMethod(nameof(GetAsOrThrow));
+
         private static Type nullableType = typeof(Nullable<>);
 
         static JSValueToClrConverter()
@@ -168,10 +170,7 @@ namespace YantraJS.Core
             {
                 return ArgumentsBuilder.GetAt(args, index);
             }
-            var m = GetAsGeneric.MakeGenericMethod(type);
-            return YExpression.Coalesce(
-                            YExpression.Call(null, m, args, YExpression.Constant(index)),
-                            JSExceptionBuilder.New($"{name} is required"));
+            return Get(ArgumentsBuilder.GetAt(args,index), type, defaultValue, $"{name} is required");
         }
 
         public static YExpression Get(YExpression target, Type type, string name)
@@ -184,10 +183,8 @@ namespace YantraJS.Core
             {
                 return YExpression.Call(null, method, target, YExpression.Constant(name));
             }
-            var m = GetAsGeneric.MakeGenericMethod(type);
-            return YExpression.Coalesce(
-                            YExpression.Call(null, m, target),
-                            JSExceptionBuilder.New($"{name} is required"));
+            var m = GetAsOrThrowGeneric.MakeGenericMethod(type);
+            return YExpression.Call(null, m, target, YExpression.Constant($"{name} is required"));
         }
 
         public static YExpression Get(YExpression target, Type type, YExpression defaultValue, string name)
@@ -202,7 +199,7 @@ namespace YantraJS.Core
             }
             if (methods.TryGetValue(type, out var method))
             {
-                return YExpression.Coalesce( YExpression.Call(null, method, target, YExpression.Constant(name)), defaultValue);
+                return YExpression.Call(null, method, target, YExpression.Constant(name));
             }
             var m = GetAsGeneric.MakeGenericMethod(type);
             return YExpression.Coalesce(
@@ -215,5 +212,13 @@ namespace YantraJS.Core
                     ? v1
                     : default;
         }
+
+        public static T GetAsOrThrow<T>(JSValue value, string error)
+        {
+            return value.ConvertTo<T>(out T v1)
+                    ? v1
+                    : throw new JSException(error);
+        }
+
     }
 }
