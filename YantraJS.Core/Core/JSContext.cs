@@ -261,7 +261,7 @@ namespace YantraJS.Core
 
         public readonly JSFunction Object;
 
-        // public readonly JSReflect Reflect;
+        public readonly JSReflect Reflect;
 
         //public static JSContext Current
         //{
@@ -452,7 +452,7 @@ namespace YantraJS.Core
             FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
-            // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
+            Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.Fill<JSGlobalStatic>();
 
