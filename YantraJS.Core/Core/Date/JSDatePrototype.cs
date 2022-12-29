@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Text;
+using YantraJS.Core.Core.Intl;
 using YantraJS.Utils;
 
 namespace YantraJS.Core.Date
@@ -792,7 +793,10 @@ namespace YantraJS.Core.Date
                         date = @this.value.ToString(format.ToString(), culture);
                     }
                     else {
-                        throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats");
+                        if (format is JSObject obj)
+                        {
+                            return @this.value.ToLocaleDateString(culture, obj);
+                        }
                     }
                 }
             }
