@@ -33,7 +33,17 @@ namespace YantraJS.Core.Core.Intl
             
         }
 
-        
+        /// <summary>
+        /// 1. Save available formats in key:value pair
+        /// 2. Loop through available formats
+        /// 3. Save map of all possible formats
+        /// 4. Create a map of parts as well.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="culture"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
 
         public static JSValue ToLocaleDateString(this DateTimeOffset @this, CultureInfo culture, JSObject format)
         {
