@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -15,48 +16,29 @@ namespace YantraJS.Core.Core.Intl
 
     public class JSIntlDateTimeFormat : JavaScriptObject
     {
+        private static ConcurrentDictionary<string, JSIntlDateTimeFormat> formats = new ConcurrentDictionary<string, JSIntlDateTimeFormat>();
+        private readonly CultureInfo locale;
+
+        public static JSIntlDateTimeFormat Get(CultureInfo culture)
+        {
+            return formats.GetOrAdd(culture.DisplayName, (key) => new JSIntlDateTimeFormat(culture));
+        }
+
+        internal JSValue Format(DateTimeOffset value, JSObject format)
+        {
+            return new JSString( value.ToString());
+        }
+
         public JSIntlDateTimeFormat(in Arguments a) : base(a)
         {
         }
 
+        internal JSIntlDateTimeFormat(CultureInfo locale): base(Arguments.Empty)
+        {
+            this.locale = locale;
+        }
+
 
     }
 
-    public static class JSIntlDateTimeExtensions
-    {
-
-        private static Dictionary<string[], Func<DateTimeOffset, JSValue>> formats
-            = new Dictionary<string[], Func<DateTimeOffset, JSValue>>();
-
-        static JSIntlDateTimeExtensions()
-        {
-            
-        }
-
-        /// <summary>
-        /// 1. Save available formats in key:value pair
-        /// 2. Loop through available formats
-        /// 3. Save map of all possible formats
-        /// 4. Create a map of parts as well.
-        /// </summary>
-        /// <param name="this"></param>
-        /// <param name="culture"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-
-        public static JSValue ToLocaleDateString(this DateTimeOffset @this, CultureInfo culture, JSObject format)
-        {
-            var weekday = format[KeyStrings.weekday];
-            var year = format[KeyStrings.year];
-            var month = format[KeyStrings.month];
-            var day = format[KeyStrings.day];
-            var hour = format[KeyStrings.hour];
-            var minute = format[KeyStrings.minute];
-            var second = format[KeyStrings.second];
-
-            throw new NotImplementedException();
-        }
-
-    }
 }
