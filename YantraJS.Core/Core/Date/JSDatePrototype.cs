@@ -795,7 +795,7 @@ namespace YantraJS.Core.Date
                     else {
                         if (format is JSObject obj)
                         {
-                            return JSIntlDateTimeFormat.Get(culture).Format(@this.value, format);
+                            return JSIntlDateTimeFormat.Get(culture).Format(@this.value, obj);
                         }
                     }
                 }
