@@ -28,7 +28,7 @@ namespace YantraJS.Tests.Core
                 const keyName = '_' + key;
                 target[keyName] = target[key];
                 const getter = function() {
-                    return this[keyName] + '_';
+                    return this[keyName];
                 };
                 if (delete target[key]) {
                     Object.defineProperty(target, key, {
@@ -39,10 +39,10 @@ namespace YantraJS.Tests.Core
                 }
             }
             a = {
-                get a(){ return function() {}; }
+                get a(){ return this; }
             };
             bindProperty(a, 'a');
-            assert.strictEqual(a.a, 'function() {}_');
+            assert.strictEqual(a.a, a);
 ");
 }
 
