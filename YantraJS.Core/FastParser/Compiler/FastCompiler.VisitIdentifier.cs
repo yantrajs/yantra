@@ -24,7 +24,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 return this.scope.Top.ThisExpression;
             if (identifier.Name.Equals("arguments"))
             {
-                var functionScope = this.scope.Top.TopScope;
+                var functionScope = this.scope.Top.RootScope;
                 var vs = functionScope.CreateVariable("arguments",
                     JSArgumentsBuilder.New(functionScope.ArgumentsExpression));
                 return vs.Expression;
