@@ -77,9 +77,25 @@ namespace YantraJS.Core.FastParser
 
             n = this;
 
+
+
             // all `var` variables must be hoisted to
             // to top most scope
             if (kind == FastVariableKind.Var) {
+
+                // in case of var...
+                // find the top most declaration... if exists..
+                var it = n;
+                while (it != null)
+                {
+                    if (it.Variables.TryGetValue(name,out var v))
+                    {
+                        return;
+                    }
+                    it = it.Parent;
+                }
+
+
                 while (true) {
                     if (n.Parent == null)
                         break;

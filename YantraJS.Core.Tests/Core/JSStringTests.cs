@@ -25,23 +25,20 @@ namespace YantraJS.Tests.Core
 //");
             this.context.Execute(@"
 
-            class g {
-                constructor(n) {
-                    this.n = n;
-                }
-
-                *entries() {
-                    const m = this.n;
-                    const a = () => m;
-                    for(let i=0;i<a();i++) 
-                        yield i;
-                }
+            function run() {
+                var a;
+                return {
+                    setup() {
+                        a = class a {  static get name() { return 'a'; }};
+                    },
+                    run() {
+                        return a;
+                    }
+                };
             }
-            
-
-            let g1 = new g(2);
-            assert.strictEqual(Array.from(g1.entries(1)).toString(), '0,1');
-
+            var o = run();
+            o.setup();
+            assert('a', o.run().name);
 ");
 }
 
