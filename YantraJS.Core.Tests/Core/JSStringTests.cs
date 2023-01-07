@@ -24,7 +24,25 @@ namespace YantraJS.Tests.Core
 //(function(){return 1; /***/ })()
 //");
             this.context.Execute(@"
-            var a = new Intl.RelativeTimeFormat();
+            function bindProperty(target, key) {
+                const keyName = '_' + key;
+                target[keyName] = target[key];
+                const getter = function() {
+                    return this[keyName] + '_';
+                };
+                if (delete target[key]) {
+                    Object.defineProperty(target, key, {
+                        get: getter,
+                        enumerble: true,
+                        configurable: true
+                    });                    
+                }
+            }
+            a = {
+                get a(){ return function() {}; }
+            };
+            bindProperty(a, 'a');
+            assert.strictEqual(a.a, 'function() {}_');
 ");
 }
 
