@@ -24,21 +24,7 @@ namespace YantraJS.Tests.Core
 //(function(){return 1; /***/ })()
 //");
             this.context.Execute(@"
-
-            function run() {
-                var a;
-                return {
-                    setup() {
-                        a = class a {  static get name() { return 'a'; }};
-                    },
-                    run() {
-                        return a;
-                    }
-                };
-            }
-            var o = run();
-            o.setup();
-            assert('a', o.run().name);
+            var a = new Intl.RelativeTimeFormat();
 ");
 }
 

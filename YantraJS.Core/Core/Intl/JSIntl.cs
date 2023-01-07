@@ -9,8 +9,25 @@ namespace YantraJS.Core.Core.Intl
 {
     public static class JSIntl
     {
-
+        [JSExportSameName]
         public static JSValue DateTimeFormat = ClrType.From(typeof(JSIntlDateTimeFormat));
+
+        [JSExportSameName]
+        public static JSValue RelativeTimeFormat = ClrType.From(typeof(JSIntlRelativeTimeFormat));
+
+    }
+
+    public class JSIntlRelativeTimeFormat : JavaScriptObject
+    {
+        public JSIntlRelativeTimeFormat(in Arguments a) : base(a)
+        {
+        }
+
+        [JSExport]
+        public JSValue Format(in Arguments a)
+        {
+            return a[0] ?? JSUndefined.Value;
+        }
 
     }
 
@@ -22,6 +39,12 @@ namespace YantraJS.Core.Core.Intl
         public static JSIntlDateTimeFormat Get(CultureInfo culture)
         {
             return formats.GetOrAdd(culture.DisplayName, (key) => new JSIntlDateTimeFormat(culture));
+        }
+
+        [JSExport]
+        public JSValue Format(in Arguments a)
+        {
+            return a[0] ?? JSUndefined.Value;
         }
 
         internal JSValue Format(DateTimeOffset value, JSObject format)

@@ -46,6 +46,19 @@ namespace YantraJS.Core.Clr
 
     internal static class ClrTypeExtensions
     {
+
+        public static string GetJSName(this MemberInfo member)
+        {
+            var export = member.GetCustomAttribute<JSExportAttribute>();
+            if (export == null)
+            {
+                return member.Name.ToCamelCase();
+            }
+            return export.Name != null
+                ? export.Name
+                : (export.AsCamel ? member.Name.ToCamelCase() : member.Name);
+        }
+
         public static bool CanExport(this MemberInfo member,out string name)
         {
             var export = member.GetCustomAttribute<JSExportAttribute>();
@@ -135,7 +148,7 @@ namespace YantraJS.Core.Clr
 
             foreach(var field in declaredFields)
             {
-                var name = field.Name.ToCamelCase();
+                var name = field.GetJSName();
                 if (isJavaScriptObject)
                 {
                     if (!field.CanExport(out name))
@@ -173,7 +186,7 @@ namespace YantraJS.Core.Clr
                     if (f.PropertyType.IsGenericTypeDefinition)
                         continue;
 
-                    KeyString name = f.Name.ToCamelCase();
+                    KeyString name = f.GetJSName();
                     if (isJavaScriptObject)
                     {
                         if (!f.CanExport(out var n))
