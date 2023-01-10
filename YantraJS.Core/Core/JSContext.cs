@@ -602,7 +602,13 @@ namespace YantraJS.Core
             var timer = new Timer((_) => {
                 ctx.Post((x) => {
                     var f = x as JSValue;
-                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    try
+                    {
+                        f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    }catch (Exception ex)
+                    {
+                        this.ReportError(ex);
+                    }
                     ClearTimeout(key);
                 }, f);
             }, f, delay, Timeout.Infinite);
@@ -633,7 +639,13 @@ namespace YantraJS.Core
             }
             var timer = new Timer((_) => {
                 ctx.Post(f, (x) => {
-                    x.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    try
+                    {
+                        x.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    }catch (Exception ex)
+                    {
+                        this.ReportError(ex);
+                    }
                     ClearInterval(key);
                 });
             }, f, delay, Timeout.Infinite);
