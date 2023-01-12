@@ -9,6 +9,30 @@ using YantraJS.Core;
 namespace YantraJS.Utils
 {
     [TestClass]
+    public class StringSpanTests
+    {
+        [TestMethod]
+        public void Trim()
+        {
+            StringSpan s = " a ";
+            var t = s.Trim();
+            Assert.AreEqual("a", t.Value);
+
+            s = "a ";
+            t = s.Trim();
+            Assert.AreEqual("a", t.Value);
+
+            s = " a";
+            t = s.Trim();
+            Assert.AreEqual("a", t.Value);
+
+            s = "a";
+            t = s.Trim();
+            Assert.AreEqual("a", t.Value);
+        }
+    }
+
+    [TestClass]
     public class SequenceTests
     {
 

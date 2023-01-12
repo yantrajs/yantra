@@ -179,6 +179,64 @@ namespace YantraJS.Core
             return Value ?? string.Empty;
         }
 
+        public StringSpan Trim()
+        {
+            return TrimStart().TrimEnd();
+        }
+
+        public unsafe StringSpan TrimStart()
+        {
+            int offset = this.Offset;
+            int length = this.Length;
+            if (length == 0)
+            {
+                return this;
+            }
+            fixed (char* src = this.Source)
+            {
+                char* start = (src + offset);
+                int currentLength = length;
+                for (int i = 0; i < currentLength; i++)
+                {
+                    if (char.IsWhiteSpace(*start))
+                    {
+                        offset++;
+                        length--;
+                        start++;
+                        continue;
+                    }
+                    break;
+                }
+            }
+            return new StringSpan(Source, offset, length);
+        }
+
+        public unsafe StringSpan TrimEnd()
+        {
+            int offset = this.Offset;
+            int length = this.Length;
+            if (length == 0)
+            {
+                return this;
+            }
+            fixed (char* src = this.Source)
+            {
+                char* start = (src + offset + length - 1);
+                int currentLength = length;
+                for (int i = 0; i < currentLength; i++)
+                {
+                    if (char.IsWhiteSpace(*start))
+                    {
+                        length--;
+                        start++;
+                        continue;
+                    }
+                    break;
+                }
+            }
+            return new StringSpan(Source, offset, length);
+        }
+
         public unsafe string ToLower()
         {
             var length = this.Length;
