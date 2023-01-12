@@ -481,7 +481,7 @@ namespace YantraJS.Core
             set => SetValue(name, value, null, true);
         }
 
-        internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var start = this;
             var p = GetInternalProperty(name, true);
@@ -531,7 +531,7 @@ namespace YantraJS.Core
             set => SetValue(name, value, this, true);
         }
 
-        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var p = GetInternalProperty(name);
             if (p.IsProperty)
@@ -561,7 +561,7 @@ namespace YantraJS.Core
             set => SetValue(name, value, null, true);
         }
 
-        internal override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
         {
             if (name == JSSymbolStatic.iterator)
             {
@@ -588,7 +588,7 @@ namespace YantraJS.Core
             return true;
         }
 
-        internal override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
         {
             ref var p = ref symbols.GetRefOrDefault(key.Key, ref JSProperty.Empty);
             if (!p.IsEmpty)
@@ -598,7 +598,7 @@ namespace YantraJS.Core
             return base.GetValue(key, receiver, throwError);
         }
 
-        internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
             ref var p = ref ownProperties.GetValue(key.Key);
             if (!p.IsEmpty)
@@ -608,7 +608,7 @@ namespace YantraJS.Core
             return base.GetValue(key, receiver, throwError);
         }
 
-        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             ref var p = ref elements.Get(key);
             if (!p.IsEmpty)

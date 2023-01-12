@@ -213,6 +213,33 @@ namespace YantraJS.Core
 
         public bool Equals(StringSpan other) => Equals(in other, StringComparison.Ordinal);
 
+        public unsafe bool StartsWith(StringSpan other)
+        {
+            var length = other.Length;
+            if(length > Length)
+            {
+                return false;
+            }
+            fixed(char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                fixed(char* otherSource = other.Source)
+                {
+                    char* otherOffset = otherSource + other.Offset;
+                    for (int i = 0; i < length; i++)
+                    {
+                        if(*startOffset != *otherOffset)
+                        {
+                            return false;
+                        }
+                        startOffset++;
+                        otherOffset++;
+                    }
+                }
+            }
+            return true;
+        }
+
         public bool Equals(in StringSpan other, StringComparison comparisonType)
         {
             if (Length != other.Length)

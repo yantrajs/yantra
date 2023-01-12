@@ -135,7 +135,7 @@ namespace YantraJS.Core.Typed
             this.byteOffset = byteOffset;
         }
 
-        internal override JSValue GetValue(uint index, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint index, JSValue receiver, bool throwError = true)
         {
             if (index < 0 || index >= this.length)
                 return JSUndefined.Value;
@@ -167,7 +167,7 @@ namespace YantraJS.Core.Typed
             }
         }
 
-        internal override bool SetValue(uint index, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(uint index, JSValue value, JSValue receiver, bool throwError = true)
         {
             if (index < 0 || index >= this.length)
                 return false;

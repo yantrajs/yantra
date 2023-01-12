@@ -199,7 +199,7 @@ namespace YantraJS.Core
           
         }
 
-        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (key >= this.value.Length)
             {

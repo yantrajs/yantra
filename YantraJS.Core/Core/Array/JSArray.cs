@@ -261,7 +261,7 @@ namespace YantraJS.Core
             // return this;
         }
 
-        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
             if(base.SetValue(name, value, receiver, throwError))
             {

@@ -414,7 +414,7 @@ namespace YantraJS.Core {
             set { }
         }
 
-        internal virtual JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected virtual JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain != null)
             {
@@ -424,7 +424,7 @@ namespace YantraJS.Core {
             return JSUndefined.Value;
         }
 
-        internal virtual JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        internal protected virtual JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain != null)
             {
@@ -434,7 +434,7 @@ namespace YantraJS.Core {
             return JSUndefined.Value;
         }
 
-        internal virtual JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        internal protected virtual JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain != null)
             {
@@ -460,17 +460,17 @@ namespace YantraJS.Core {
 
         }
 
-        internal virtual bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected virtual bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
-        internal virtual bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected virtual bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
-        internal virtual bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected virtual bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }

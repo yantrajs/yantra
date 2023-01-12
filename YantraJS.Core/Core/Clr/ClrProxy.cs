@@ -249,7 +249,7 @@ namespace YantraJS.Core.Clr
             return false;
         }
 
-        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain?.@object is ClrType.ClrPrototype p)
             {
@@ -262,7 +262,7 @@ namespace YantraJS.Core.Clr
             return base.GetValue(key, receiver, throwError);
         }
 
-        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain?.@object is ClrType.ClrPrototype p)
             {
