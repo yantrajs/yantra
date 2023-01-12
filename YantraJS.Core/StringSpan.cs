@@ -179,6 +179,25 @@ namespace YantraJS.Core
             return Value ?? string.Empty;
         }
 
+        public unsafe string ToLower()
+        {
+            var length = this.Length;
+            if(length == 0)
+            {
+                return string.Empty;
+            }
+            var d = new char[length];
+            fixed (char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                for (int i = 0; i < length; i++)
+                {
+                    d[i] = Char.ToLower(*(startOffset++));
+                }
+            }
+            return new string(d);
+        }
+
         internal bool IsNullOrWhiteSpace()
         {
             return Source == null || string.IsNullOrWhiteSpace(Value);
