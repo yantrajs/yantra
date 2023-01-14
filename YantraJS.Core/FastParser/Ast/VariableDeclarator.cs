@@ -65,6 +65,11 @@ namespace YantraJS.Core.FastParser
                             break;
                         case FastNodeType.ClassProperty:
                             var p = (px as AstClassProperty)!;
+                            if (p.Kind == AstPropertyKind.Data)
+                            {
+                                property = new ObjectProperty(p.Key, p.Key, p.Init, false, p.Computed);
+                                break;
+                            }
                             var init = p.Init.ToPattern();
                             if (init.Type == FastNodeType.BinaryExpression && init is AstBinaryExpression be)
                             {
@@ -72,7 +77,7 @@ namespace YantraJS.Core.FastParser
                             }
                             else
                             {
-                                property = new ObjectProperty(p.Key, p.Init.ToPattern(), null, false, p.Computed);
+                                property = new ObjectProperty(p.Key, init, null, false, p.Computed);
                             }
                             break;
                         default:

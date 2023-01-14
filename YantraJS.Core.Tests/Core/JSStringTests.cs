@@ -24,26 +24,20 @@ namespace YantraJS.Tests.Core
 //(function(){return 1; /***/ })()
 //");
             this.context.Execute(@"
-            function bindProperty(target, key) {
-                const keyName = '_' + key;
-                target[keyName] = target[key];
-                const getter = function() {
-                    return this[keyName];
-                };
-                if (delete target[key]) {
-                    Object.defineProperty(target, key, {
-                        get: getter,
-                        enumerble: true,
-                        configurable: true
-                    });                    
-                }
-            }
-            a = {
-                get a(){ return this; }
-            };
-            bindProperty(a, 'a');
-            assert.strictEqual(a.a, a);
-");
+const add = ({ a = 1 }) => {
+    return a + a;
+}
+
+assert.strictEqual(4, add({ a: 2 }));
+assert.strictEqual(2, add({}));
+
+function addAll([a = 2, b = 2, c = 2] = [1, 1, 1]) {
+    return a + b + c;
+}
+
+assert.strictEqual(6, addAll([1, 2, 3]));
+assert.strictEqual(6, addAll([]));
+assert.strictEqual(3, addAll());");
 }
 
     }
