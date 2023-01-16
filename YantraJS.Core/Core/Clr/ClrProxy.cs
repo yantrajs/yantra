@@ -190,6 +190,37 @@ namespace YantraJS.Core.Clr
             return ClrProxy.From(value);
         }
 
+        public override IEnumerable<(string Key, JSValue value)> Entries
+        {
+            get
+            {
+                //var es = GetElementEnumerator();
+                //while (es.MoveNext(out var hasValue, out var value, out var index))
+                //{
+                //    if (hasValue)
+                //        yield return (index.ToString(), value);
+                //}
+
+                var en = new PropertySequence.ValueEnumerator(this, false);
+                while (en.MoveNext(out var value, out var key))
+                {
+                    yield return (KeyStrings.GetNameString(key.Key).Value, value);
+                }
+                //for(int i = 0; i< ownProperties.properties.Length; i++)
+                //{
+                //    var p = ownProperties.properties[i];
+                //    JSValue v = null;
+                //    try {
+                //        v = this.GetValue(p);
+                //    } catch (Exception ex)
+                //    {
+                //        System.Diagnostics.Debug.WriteLine(ex);
+                //    }
+                //    yield return ( KeyStrings.GetNameString(p.key).Value , v);
+                //}
+            }
+        }
+
         public override bool Equals(JSValue value)
         {
             if (Object.ReferenceEquals(this, value))

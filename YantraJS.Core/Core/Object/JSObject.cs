@@ -157,7 +157,7 @@ namespace YantraJS.Core
             
         }
 
-        public IEnumerable<(string Key, JSValue value)> Entries
+        public virtual IEnumerable<(string Key, JSValue value)> Entries
         {
             get
             {
