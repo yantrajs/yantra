@@ -249,9 +249,9 @@ namespace YantraJS.Core.Clr
                         return true;
                     if (this.value.Equals(proxy.value))
                         return true;
-                    // convert to string to compare...
-                    if (this.value.ToString() == proxy.value.ToString())
-                        return true;
+                    //// convert to string to compare...
+                    //if (this.value.ToString() == proxy.value.ToString())
+                    //    return true;
                     break;
                 case JSString @string when this.value.ToString() == @string.value:
                     return true;
