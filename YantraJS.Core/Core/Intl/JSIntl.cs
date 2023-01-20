@@ -7,13 +7,13 @@ using YantraJS.Core.Clr;
 
 namespace YantraJS.Core.Core.Intl
 {
-    public static class JSIntl
+    public class JSIntl
     {
         [JSExportSameName]
-        public static JSValue DateTimeFormat = ClrType.From(typeof(JSIntlDateTimeFormat));
+        public static JSValue DateTimeFormat => ClrType.From(typeof(JSIntlDateTimeFormat));
 
         [JSExportSameName]
-        public static JSValue RelativeTimeFormat = ClrType.From(typeof(JSIntlRelativeTimeFormat));
+        public static JSValue RelativeTimeFormat => ClrType.From(typeof(JSIntlRelativeTimeFormat));
 
     }
 
