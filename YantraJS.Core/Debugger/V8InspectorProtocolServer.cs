@@ -14,7 +14,7 @@ namespace YantraJS.Core.Debugger
         private readonly int port;
         private WebSocket? webSocket;
 
-        public V8InspectorProtocolServer(int port = 9222)
+        public V8InspectorProtocolServer(int port = 9229)
         {
             this.port = port;
         }
