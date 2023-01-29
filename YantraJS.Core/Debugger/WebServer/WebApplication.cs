@@ -21,6 +21,9 @@ namespace YantraJS.Core.Debugger.WebServer
         }
     }
 
+    /// <summary>
+    /// https://chromedevtools.github.io/devtools-protocol/
+    /// </summary>
     internal class WebApplication
     {
         private Step start;
