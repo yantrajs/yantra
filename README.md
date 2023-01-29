@@ -7,6 +7,7 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 | YantraJS (With CSX Module Support)                              | [![NuGet](https://img.shields.io/nuget/v/YantraJS.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS)                           |
 | YantraJS.Core (Compiler)| [![NuGet](https://img.shields.io/nuget/v/YantraJS.Core.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.Core) |
 | YantraJS.ExpressionCompiler (IL Compiler)           | [![NuGet](https://img.shields.io/nuget/v/YantraJS.ExpressionCompiler.svg?label=NuGet)](https://www.nuget.org/packages/YantraJS.ExpressionCompiler) |
+| Yantra JS.ModuleExtensions (Fluent interface for module registration) | [![Nuget](https://img.shields.io/nuget/v/YantraJS.ModuleExtensions?label=NuGet&style=flat-square)](https://www.nuget.org/packages/YantraJS.ModuleExtensions) |
 
 # Features
 1. Compiles JavaScript to .Net Assembly 
@@ -31,7 +32,7 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 20. Optional parameters
 21. Tail call optimization
 22. Many ES5 + ES6 features
-23. CommonJS Module Support
+23. CommonJS & ES6 Module Support
 24. Easily marshal CLR Object to JavaScript and other way around
 25. CSX Module support
 26. Mixed module system, YantraJS supports `require` and `import`.
@@ -61,4 +62,3 @@ We recommend using [Github Discussion](https://github.com/yantrajs/yantra/discus
 1. We are thankful to authors of Jurassic (we have incorporated number parser, promise and some unit tests from Jurassic.) https://github.com/paulbartrum/jurassic
 2. We are thankful to authors of EsprimaDotNet, we initially built prototype over EsprimaDotNet, but we chose to build our parser/scanner from scratch to support token spans. https://github.com/sebastienros/esprima-dotnet
 3. We are thankful to author of ILPack (we have incorporated saving IL to Assembly from this library.) https://github.com/Lokad/ILPack
-

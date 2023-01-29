@@ -31,6 +31,9 @@ namespace YantraJS.ExpHelper
                 typeof(JSValue).MakeByRefType(),
                 typeof(JSValue));
 
+        private static MethodInfo nextOrDefault =
+            type.PublicMethod(nameof(IElementEnumerator.NextOrDefault),
+                typeof(JSValue));
 
         public static Expression Get(Expression target)
         {
@@ -48,11 +51,19 @@ namespace YantraJS.ExpHelper
             return Expression.Call(target, moveNext, item);
         }
 
+        //public static Expression AssignMoveNext(
+        //    Expression assignee,
+        //    Expression target)
+        //{
+        //    return Expression.Call(target, moveNextOrDefault, assignee, JSUndefinedBuilder.Value);
+        //}
+
         public static Expression AssignMoveNext(
             Expression assignee,
             Expression target)
         {
-            return Expression.Call(target, moveNextOrDefault, assignee, JSUndefinedBuilder.Value);
+            return Expression.Assign(assignee, Expression.Call(target, nextOrDefault, JSUndefinedBuilder.Value));
         }
+
     }
 }

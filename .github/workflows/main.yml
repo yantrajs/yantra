@@ -18,22 +18,22 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build -c Release --no-restore
 #    - name: Test
-#      run: dotnet test --no-build --verbosity normal
+#      run: dotnet test -c Release --no-build --verbosity normal
     - name: Pack
-      run: dotnet pack --no-restore
+      run: dotnet pack -c Release --no-restore
     - name: Publish Eternity
-      run: dotnet nuget push **/*.nupkg -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json -n true
+      run: dotnet nuget push **/*.nupkg -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json --no-symbols
       env:
          NUGET_TOKEN: ${{secrets.PUBLIC_NUGET_TOKEN}}
 
     - name: Publish Eternity Proget
-      run: dotnet nuget push **/*.nupkg -k ${NUGET_KEY} -s ${NUGET_SOURCE} -n true
+      run: dotnet nuget push **/*.nupkg -k ${NUGET_KEY} -s ${NUGET_SOURCE} --no-symbols
       env:
          NUGET_SOURCE: ${{secrets.PROGET_NUGET}}
          NUGET_KEY: ${{secrets.PROGET_NUGET_TOKEN}}  

@@ -55,5 +55,17 @@ namespace YantraJS.Core.Core.Generator
             value = value[KeyStrings.value];
             return true;
         }
+
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            var value = iterator.InvokeMethod(KeyStrings.next);
+            var done = value[KeyStrings.done];
+            if (done.BooleanValue)
+            {
+                return @default;
+            }
+            return value[KeyStrings.value];
+        }
+
     }
 }

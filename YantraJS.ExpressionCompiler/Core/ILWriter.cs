@@ -436,7 +436,7 @@ namespace YantraJS.Core
             //}
 
             PrintOffset();
-            writer?.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.Name}");
+            writer?.WriteLine($"{code.Name} {method.DeclaringType.GetFriendlyName()}.{method.GetFriendlyName()}");
             //if (method is DynamicMethod) {
             //    if (code == OpCodes.Ldftn)
             //    {

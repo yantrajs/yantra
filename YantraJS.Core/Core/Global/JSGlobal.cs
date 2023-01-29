@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Core.BigInt;
+using YantraJS.Core.Clr;
+using YantraJS.Core.Core.Intl;
 using YantraJS.Core.Runtime;
 using YantraJS.Extensions;
 using YantraJS.Utils;
@@ -21,6 +23,9 @@ namespace YantraJS.Core
 
         [Static("NaN")]
         public static JSNumber NaN = JSNumber.NaN;
+
+        [Static("Intl")]
+        public static JSValue Intl = ClrType.From(typeof(JSIntl));
 
         [Static("decodeURI", Length = 1)]
         public static JSValue DecodeURI(in Arguments a)

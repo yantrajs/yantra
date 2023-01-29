@@ -84,6 +84,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         var vd = this.Visit(declaration);
                         var names = Names(declaration);
                         var en = names.GetFastEnumerator();
+                        list.Add(vd);
                         while(en.MoveNext(out var name))
                         {
                             left = JSValueBuilder.Index(exports.Expression, KeyOfName(name));

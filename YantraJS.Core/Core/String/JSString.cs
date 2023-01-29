@@ -48,12 +48,47 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(double value)
         {
+            if (this.value.IsEmpty)
+                return new JSString(value.ToString());
             return new JSString( StringSpan.Concat(this.value, value.ToString()) );
         }
 
         public override JSValue AddValue(string value)
         {
+            if (this.value.IsEmpty)
+                return new JSString(value);
             return new JSString( StringSpan.Concat(this.value, value));
+        }
+
+        public override JSValue AddValue(JSValue value)
+        {
+            if (value is JSString vString)
+            {
+                if (this.value.IsEmpty)
+                {
+                    return vString;
+                }
+                if (vString.value.IsEmpty)
+                {
+                    return this;
+                }
+                return new JSString(StringSpan.Concat(in this.value, in vString.value));
+            }
+
+            if (value.IsObject)
+            {
+                value = value.ValueOf();
+            }
+
+            if (this.value.IsEmpty)
+                return new JSString(value.StringValue);
+
+            var v = value.StringValue;
+            if (v.Length == 0)
+            {
+                return this;
+            }
+            return new JSString(StringSpan.Concat(this.value, v));
         }
 
         public override bool ConvertTo(Type type, out object value)
@@ -164,7 +199,7 @@ namespace YantraJS.Core
           
         }
 
-        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (key >= this.value.Length)
             {
@@ -295,7 +330,7 @@ namespace YantraJS.Core
             if (object.ReferenceEquals(this, value))
                 return true;
             if (value is JSString s)
-                if (s.value == this.value)
+                if (s.value.Equals(this.value))
                     return true;
             return false;
         }
@@ -368,6 +403,15 @@ namespace YantraJS.Core
                 return false;
             }
 
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                if (en.MoveNext(out var ch))
+                {
+                    index++;
+                    return new JSString(new string(ch, 1));
+                }
+                return @default;
+            }
 
         }
 

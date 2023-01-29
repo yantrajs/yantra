@@ -95,6 +95,11 @@ namespace YantraJS.Core.FastParser
             if (node.End.Type == TokenTypes.SemiColon)
                 return true;
 
+            if (stream.Previous.Type == TokenTypes.SemiColon)
+            {
+                return true;
+            }
+
             var m = stream.SkipNewLines();
 
             var current = stream.Current;

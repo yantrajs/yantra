@@ -82,7 +82,7 @@ namespace YantraJS.Utils
                 }
             }
             var d = CoerceToNumber(in input);
-            if (d == 0 && input.Value.Trim().Length == 0)
+            if (d == 0 && input.Trim().Length == 0)
             {
                 value = 0;
                 return false;

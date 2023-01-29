@@ -327,12 +327,16 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public IFastEnumerable<AstClassProperty> MemberInits { get; set; }
 
+        public readonly FastFunctionScope RootScope;
+
         public FastFunctionScope(
             FastPool pool,
             AstFunctionExpression fx, Expression previousThis = null, Expression super = null,
             bool isAsync = false,
-            IFastEnumerable<AstClassProperty> memberInits = null)
+            IFastEnumerable<AstClassProperty> memberInits = null,
+            FastFunctionScope previous = null)
         {
+            this.RootScope = previous ?? this;
             TopScope = this;
             var sID = Interlocked.Increment(ref scopeID);
             this.MemberInits = memberInits;
@@ -392,6 +396,7 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             this.Function = p.Function;
             this.TopScope = p.TopScope;
+            this.RootScope = p.RootScope;
             this.MemberInits = p.MemberInits;
             // this.pool = p.pool.NewScope();
             // this.ThisExpression = p.ThisExpression;

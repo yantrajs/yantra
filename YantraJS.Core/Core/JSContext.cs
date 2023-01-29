@@ -261,7 +261,7 @@ namespace YantraJS.Core
 
         public readonly JSFunction Object;
 
-        // public readonly JSReflect Reflect;
+        public readonly JSReflect Reflect;
 
         //public static JSContext Current
         //{
@@ -452,7 +452,7 @@ namespace YantraJS.Core
             FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
             JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
-            // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
+            Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.Fill<JSGlobalStatic>();
 
@@ -460,7 +460,7 @@ namespace YantraJS.Core
             //{
             //    BasePrototypeObject = (Bootstrap.Create("console", typeof(JSConsole))).prototype
             //};
-            this[KeyStrings.console] = new Clr.ClrProxy(new JSConsole(this));
+            this[KeyStrings.console] = Clr.ClrProxy.From(new JSConsole(this));
 
             this[KeyStrings.debug] = new JSFunction(this.Debug);
 
@@ -602,7 +602,13 @@ namespace YantraJS.Core
             var timer = new Timer((_) => {
                 ctx.Post((x) => {
                     var f = x as JSValue;
-                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    try
+                    {
+                        f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    }catch (Exception ex)
+                    {
+                        this.ReportError(ex);
+                    }
                     ClearTimeout(key);
                 }, f);
             }, f, delay, Timeout.Infinite);
@@ -633,7 +639,13 @@ namespace YantraJS.Core
             }
             var timer = new Timer((_) => {
                 ctx.Post(f, (x) => {
-                    x.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    try
+                    {
+                        x.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    }catch (Exception ex)
+                    {
+                        this.ReportError(ex);
+                    }
                     ClearInterval(key);
                 });
             }, f, delay, Timeout.Infinite);
@@ -652,12 +664,12 @@ namespace YantraJS.Core
             = new ConcurrentDictionary<long, JSPromise>();
 
         /// <summary>
-        /// Quickly evaluate the code, does not wait for promises and timeouts/intervals
+        /// Quickly evaluates the code, does not wait for promises and timeouts/intervals.
         /// </summary>
         /// <param name="code"></param>
         /// <param name="codeFilePath"></param>
         /// <returns></returns>
-        public JSValue FastEval(string code, string codeFilePath = null)
+        public JSValue Eval(string code, string codeFilePath = null)
         {
             if (Debugger == null)
             {
@@ -679,51 +691,60 @@ namespace YantraJS.Core
             // return CoreScript.Evaluate(code, codeFilePath);
         }
 
-
         /// <summary>
-        /// Evaluates the given code, waits for the promise and also 
-        /// waits for timeouts/intervals to finish
+        /// Evaluates the given code, waits for the promise and returns task that
+        /// completes till all timeouts/intervals are completed.
         /// </summary>
         /// <param name="code"></param>
         /// <param name="codeFilePath"></param>
         /// <returns></returns>
-        public JSValue Eval(string code, string codeFilePath = null)
+        public async Task<JSValue> ExecuteAsync(string code, string codeFilePath = null)
         {
-            return AsyncPump.Run<JSValue>(async () => {
-                var r = CoreScript.Evaluate(code, codeFilePath);
-                var wt = this.WaitTask;
-                if (wt != null)
-                    await wt;
-                if (r is JSPromise promise)
+            var r = CoreScript.Evaluate(code, codeFilePath);
+            var wt = this.WaitTask;
+            if (wt != null)
+                await wt;
+            if (r is JSPromise promise)
+            {
+                return await promise.Task;
+            }
+            if (r is JSObject @object)
+            {
+                var then = @object[KeyStrings.then];
+                if (then.IsFunction)
                 {
+                    promise = new JSPromise((resolve, reject) => {
+                        var resolveF = new JSFunction((in Arguments a) => {
+                            var a1 = a.Get1();
+                            resolve(a1);
+                            return a1;
+                        });
+                        var rejectF = new JSFunction((in Arguments a) => {
+                            var a1 = a.Get1();
+                            reject(a1);
+                            return a1;
+                        });
+                        var a = new Arguments(@object, resolveF, rejectF);
+                        then.InvokeFunction(a);
+                    });
                     return await promise.Task;
                 }
-                if (r is JSObject @object)
-                {
-                    var then = @object[KeyStrings.then];
-                    if (then.IsFunction)
-                    {
-                        promise = new JSPromise((resolve, reject) => {
-                            var resolveF = new JSFunction((in Arguments a) => {
-                                var a1 = a.Get1();
-                                resolve(a1);
-                                return a1;
-                            });
-                            var rejectF = new JSFunction((in Arguments a) => {
-                                var a1 = a.Get1();
-                                reject(a1);
-                                return a1;
-                            });
-                            var a = new Arguments(@object, resolveF, rejectF);
-                            then.InvokeFunction(a);
-                        });
-                        return await promise.Task;
-                    }
-                }
-                return r;
-            });
+            }
+            return r;
         }
 
+
+        /// <summary>
+        /// Evaluates the given code, waits for the promise and also 
+        /// waits synchronously (by running and AsyncPump) for timeouts/intervals to finish
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="codeFilePath"></param>
+        /// <returns></returns>
+        public JSValue Execute(string code, string codeFilePath = null)
+        {
+            return AsyncPump.Run(() => ExecuteAsync(code, codeFilePath));
+        }
 
     }
 }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\YantraJS.ModuleExtensions\YantraJS.ModuleExtensions.csproj" />
     <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
   </ItemGroup>
 

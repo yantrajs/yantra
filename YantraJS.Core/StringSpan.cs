@@ -93,6 +93,34 @@ namespace YantraJS.Core
             }
         }
 
+        public unsafe static string Concat(in StringSpan a, in StringSpan b)
+        {
+            var alen = a.Length;
+            var blen = b.Length;
+            var n = alen + blen;
+            var s = new string('\0', n);
+            fixed (char* dest = s)
+            {
+                fixed (char* aa = a.Source)
+                {
+                    char* astart = aa + a.Offset;
+                    for (int i = 0; i < alen; i++)
+                    {
+                        dest[i] = astart[i];
+                    }
+                }
+                fixed (char* aa = b.Source)
+                {
+                    char* astart = aa + b.Offset;
+                    for (int i = 0; i < blen; i++)
+                    {
+                        dest[alen + i] = astart[i];
+                    }
+                }
+            }
+            return s;
+        }
+
         public unsafe static string Concat(in StringSpan a, string value)
         {
             var alen = a.Length;
@@ -151,6 +179,83 @@ namespace YantraJS.Core
             return Value ?? string.Empty;
         }
 
+        public StringSpan Trim()
+        {
+            return TrimStart().TrimEnd();
+        }
+
+        public unsafe StringSpan TrimStart()
+        {
+            int offset = this.Offset;
+            int length = this.Length;
+            if (length == 0)
+            {
+                return this;
+            }
+            fixed (char* src = this.Source)
+            {
+                char* start = (src + offset);
+                int currentLength = length;
+                for (int i = 0; i < currentLength; i++)
+                {
+                    if (char.IsWhiteSpace(*start))
+                    {
+                        offset++;
+                        length--;
+                        start++;
+                        continue;
+                    }
+                    break;
+                }
+            }
+            return new StringSpan(Source, offset, length);
+        }
+
+        public unsafe StringSpan TrimEnd()
+        {
+            int offset = this.Offset;
+            int length = this.Length;
+            if (length == 0)
+            {
+                return this;
+            }
+            fixed (char* src = this.Source)
+            {
+                char* start = (src + offset + length - 1);
+                int currentLength = length;
+                for (int i = 0; i < currentLength; i++)
+                {
+                    if (char.IsWhiteSpace(*start))
+                    {
+                        length--;
+                        start++;
+                        continue;
+                    }
+                    break;
+                }
+            }
+            return new StringSpan(Source, offset, length);
+        }
+
+        public unsafe string ToLower()
+        {
+            var length = this.Length;
+            if(length == 0)
+            {
+                return string.Empty;
+            }
+            var d = new char[length];
+            fixed (char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                for (int i = 0; i < length; i++)
+                {
+                    d[i] = Char.ToLower(*(startOffset++));
+                }
+            }
+            return new string(d);
+        }
+
         internal bool IsNullOrWhiteSpace()
         {
             return Source == null || string.IsNullOrWhiteSpace(Value);
@@ -184,6 +289,33 @@ namespace YantraJS.Core
 
 
         public bool Equals(StringSpan other) => Equals(in other, StringComparison.Ordinal);
+
+        public unsafe bool StartsWith(StringSpan other)
+        {
+            var length = other.Length;
+            if(length > Length)
+            {
+                return false;
+            }
+            fixed(char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                fixed(char* otherSource = other.Source)
+                {
+                    char* otherOffset = otherSource + other.Offset;
+                    for (int i = 0; i < length; i++)
+                    {
+                        if(*startOffset != *otherOffset)
+                        {
+                            return false;
+                        }
+                        startOffset++;
+                        otherOffset++;
+                    }
+                }
+            }
+            return true;
+        }
 
         public bool Equals(in StringSpan other, StringComparison comparisonType)
         {

@@ -6,6 +6,8 @@
     <PackageId>YantraJS.Core</PackageId>
     <PackageTags>yantra,yantrajs,javascript,c#,standard,core,framework,.net</PackageTags>
     <Description>JavaScript Engine Core for .NET Standard</Description>
+    <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
     <Version>1.0.1</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>

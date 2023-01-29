@@ -16,7 +16,6 @@ using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-
     public delegate Task JSModuleDelegate(
         JSModule module
     );
@@ -40,17 +39,35 @@ namespace YantraJS.Core
             if (enableClrIntegration)
                 moduleCache[ModuleCache.clr] = new JSModule(this, ClrModule.Default, "clr");
             moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
-           
+
 
             this[KeyStrings.globalThis] = this;
             this[KeyStrings.global] = this;
         }
 
+        
+        /// <summary>
+        /// Pass Exports as Module with unique name
+        /// After register module can get in script
+        /// <example>
+        ///  //in js script
+        /// import module from "module_name_that_used_in_name_arg";
+        /// import {prop in export object} from "module_name";
+        /// const module = require("module_name_that_used_in_name_arg");
+        /// const {some_prop} = require("module_name_that_used_in_name_arg");
+        /// </example>
+        /// </summary>
+        /// <param name="name">Unique module name</param>
+        /// <param name="exports">JSObject, that you import by import or require</param>
         public void RegisterModule(in KeyString name, JSObject exports)
         {
             var n = name.ToString();
             moduleCache.GetOrCreate(name.Value, () => new JSModule(this, exports, n));
         }
+        
+        
+        
+       
 
         /// <summary>
         /// Modules are isolated by Context and are identified by Id.
@@ -64,15 +81,12 @@ namespace YantraJS.Core
         [Browsable(false)]
         public IEnumerable<JSModule> All
         {
-            get
-            {
-                return moduleCache.All;
-            }
+            get { return moduleCache.All; }
         }
 
         private string[] paths;
 
-        protected string[] extensions = new string[] { ".js" };
+        protected string[] extensions = new string[] {".js"};
 
         internal string Resolve(string dirPath, string relativePath)
         {
@@ -103,20 +117,24 @@ namespace YantraJS.Core
                                         return true;
                                     }
                                 }
+
                                 throw new FileNotFoundException(path);
                                 // return true;
                             }
                         }
                     }
                 }
+
                 if (System.IO.File.Exists(fullName))
                 {
                     path = fullName;
                     return true;
                 }
+
                 path = null;
                 return false;
             }
+
             foreach (var ext in extensions)
             {
                 if (relativePath.StartsWith("."))
@@ -138,9 +156,9 @@ namespace YantraJS.Core
                         return path;
 
                     // check if package.json exists...
-
                 }
             }
+
             return null;
         }
 
@@ -154,7 +172,9 @@ namespace YantraJS.Core
                 Array.Copy(paths, 0, np, 2, paths.Length);
                 paths = np;
             }
-            this.paths = paths ?? new string[] {
+
+            this.paths = paths ?? new string[]
+            {
                 this.CurrentPath,
                 this.CurrentPath + "/node_modules",
                 // system npm paths...
@@ -172,6 +192,7 @@ namespace YantraJS.Core
                     System.Threading.SynchronizationContext.SetSynchronizationContext(null);
                 });
             }
+
             return DisposableAction.Empty;
         }
 
@@ -181,8 +202,7 @@ namespace YantraJS.Core
             CurrentPath = folder;
             UpdatePaths(paths);
             var filePath = Resolve(folder,
-                relativeFile.StartsWith(".") ?
-                relativeFile : ("./" + relativeFile));
+                relativeFile.StartsWith(".") ? relativeFile : ("./" + relativeFile));
             if (filePath == null)
                 throw new FileNotFoundException($"{relativeFile} not found");
             var r = await this.LoadModuleAsync(null, filePath);
@@ -190,9 +210,18 @@ namespace YantraJS.Core
             if (w != null)
                 await w;
             return r;
-
         }
-
+        
+        
+        /// <summary>
+        /// Run JavaScript module from string
+        /// </summary>
+        /// <param name="script">string of code</param>
+        /// <param name="moduleFolder">base folder for searching modules in import function</param>
+        /// <param name="paths"></param>
+        /// <param name="uniqueModuleID">Module ID if you want get this module later (in <see cref="ImportModule"/> or import in js)</param>
+        /// <returns>Module as JSObject</returns>
+        /// <exception cref="JSException"></exception>
         public async Task<JSValue> RunScriptAsync(
             string script,
             string moduleFolder,
@@ -222,7 +251,8 @@ namespace YantraJS.Core
                 var result = LoadModuleAsync(dirPath, name.StringValue);
                 return AsyncPump.Run(() => result);
             });
-            newModule.Compile = new JSFunction((in Arguments a) => {
+            newModule.Compile = new JSFunction((in Arguments a) =>
+            {
                 var task = CompileModuleAsync(newModule);
                 return ClrProxy.Marshal(task);
             });
@@ -236,15 +266,14 @@ namespace YantraJS.Core
             string exportedFunctionName,
             Arguments a,
             string[] paths = null
-            )
+        )
         {
             using (var m = new JSModuleContext())
             {
                 m.CurrentPath = folder;
                 m.UpdatePaths(paths);
                 var filePath = m.Resolve(folder,
-                    relativeFile.StartsWith(".") ?
-                    relativeFile : ("./" + relativeFile));
+                    relativeFile.StartsWith(".") ? relativeFile : ("./" + relativeFile));
                 if (filePath == null)
                     throw new FileNotFoundException($"{filePath} not found");
                 var main = await m.LoadModuleAsync(m.CurrentPath, filePath);
@@ -256,11 +285,11 @@ namespace YantraJS.Core
                 {
                     return await promise.Task;
                 }
+
                 if (m.WaitTask != null)
                     await m.WaitTask;
                 return rv;
             }
-
         }
 
         public string CurrentPath { get; set; }
@@ -302,7 +331,8 @@ namespace YantraJS.Core
                     var result = LoadModuleAsync(dirPath, name.StringValue);
                     return AsyncPump.Run(() => result);
                 });
-                newModule.Compile = new JSFunction((in Arguments a) => {
+                newModule.Compile = new JSFunction((in Arguments a) =>
+                {
                     var task = CompileModuleAsync(newModule);
                     return ClrProxy.Marshal(task);
                 });
@@ -353,6 +383,7 @@ namespace YantraJS.Core
                 using var reader = new StreamReader(filePath, Encoding.UTF8);
                 module.Code = await reader.ReadToEndAsync();
             }
+
             var code = module.Code;
 
             if (filePath.EndsWith(".json"))
@@ -362,11 +393,11 @@ namespace YantraJS.Core
             else
             {
                 // code = @$"(async function({{module, import, exports, require, filePath: __filename, dirPath: __dirname}}) {{ return (\r\n{code}\r\n); }})";
-                
             }
 
             // var factory = FastEval(code, filePath);
-            var factory = CoreScript.Compile(code, module.filePath, new string[] { 
+            var factory = CoreScript.Compile(code, module.filePath, new string[]
+            {
                 "exports",
                 "require",
                 "module",
@@ -375,7 +406,8 @@ namespace YantraJS.Core
                 "__dirname"
             });
 
-            var result = factory(new Arguments(module, new JSValue[] { 
+            var result = factory(new Arguments(module, new JSValue[]
+            {
                 module.Exports,
                 module.Require,
                 module,
@@ -386,9 +418,7 @@ namespace YantraJS.Core
             if (result != null)
             {
                 await result.Task;
-
             }
-
         }
     }
 }

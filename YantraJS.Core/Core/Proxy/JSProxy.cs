@@ -68,7 +68,7 @@ namespace YantraJS.Core
             return target.Delete(index);
         }
 
-        internal override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
         {
             var fx = handler[KeyStrings.get];
             if (fx is JSFunction fxFunction)
@@ -78,7 +78,7 @@ namespace YantraJS.Core
             return target.GetValue(key, receiver, throwError);
         }
 
-        internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
             var fx = handler[KeyStrings.get];
             if (fx is JSFunction fxFunction)
@@ -88,7 +88,7 @@ namespace YantraJS.Core
             return target.GetValue(key, receiver, throwError);
         }
 
-        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             var fx = handler[KeyStrings.get];
             if (fx is JSFunction fxFunction)
@@ -98,7 +98,7 @@ namespace YantraJS.Core
             return target.GetValue(key, receiver, throwError);
         }
 
-        internal override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var fx = handler[KeyStrings.set];
             if (fx is JSFunction fxFunction)
@@ -109,7 +109,7 @@ namespace YantraJS.Core
             return target.SetValue(name, value, receiver, false);
         }
 
-        internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var fx = handler[KeyStrings.set];
             if (fx is JSFunction fxFunction)
@@ -120,7 +120,7 @@ namespace YantraJS.Core
             return target.SetValue(name, value, receiver, false);
         }
 
-        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var fx = handler[KeyStrings.set];
             if (fx is JSFunction fxFunction)

@@ -51,8 +51,16 @@ namespace YantraJS
             }
             return type;
         }
+        public static string GetFriendlyName(this MethodInfo method)
+        {
+            if (method.IsGenericMethod)
+            {
+                return method.Name + "<" + string.Join(",", method.GetGenericArguments().Select(x => x.GetFriendlyName())) + ">";
+            }
+            return method.Name;
+        }
 
-        public static string GetFriendlyName(this Type? type)
+            public static string GetFriendlyName(this Type? type)
         {
             if (type == null)
                 return "";

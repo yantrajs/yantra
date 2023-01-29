@@ -55,6 +55,14 @@ namespace YantraJS
             value = @default;
             return false;
         }
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            if (en.MoveNext())
+            {
+                return en.Current;
+            }
+            return @default;
+        }
 
     }
 
@@ -103,6 +111,15 @@ namespace YantraJS
             value = @default;
             return false;
         }
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            if (en.MoveNext())
+            {
+                return en.Current;
+            }
+            return @default;
+        }
+
     }
 
     public struct ClrObjectEnumerator<T> : IEnumerator<T>
@@ -214,6 +231,17 @@ namespace YantraJS
             value = @default;
             return false;
         }
+
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            if (en.MoveNext())
+            {
+                this.index = this.index == uint.MaxValue ? 0 : this.index + 1;
+                return ClrProxy.Marshal(en.Current);
+            }
+            return @default;
+        }
+
     }
 
     /// <summary>
@@ -230,6 +258,8 @@ namespace YantraJS
         bool MoveNext(out JSValue value);
 
         bool MoveNextOrDefault(out JSValue value, JSValue @default);
+
+        JSValue NextOrDefault(JSValue @default);
 
         // JSValue Current { get; }
 

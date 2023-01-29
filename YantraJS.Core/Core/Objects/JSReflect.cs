@@ -94,7 +94,7 @@ namespace YantraJS.Core.Objects
             if (!(target is JSObject @object))
                 throw JSContext.Current.NewTypeError($"Not an object");
             var key = propertyKey.ToKey();
-            ref var p = ref JSProperty.Empty;
+            JSProperty p;
             if (key.IsSymbol)
             {
                 p = @object.GetInternalProperty(key.Symbol);
@@ -134,7 +134,7 @@ namespace YantraJS.Core.Objects
             if (!(target is JSObject @object))
                 throw JSContext.Current.NewTypeError($"Not an object");
             var key = propertyKey.ToKey();
-            ref var p = ref JSProperty.Empty;
+            JSProperty p;
             if (key.IsSymbol)
             {
                 p = @object.GetInternalProperty(key.Symbol);
@@ -209,11 +209,10 @@ namespace YantraJS.Core.Objects
                 throw JSContext.Current.NewTypeError($"Not an object");
             receiver = receiver.IsUndefined ? target : receiver;
             var key = propertyKey.ToKey();
-            ref var p = ref JSProperty.Empty;
             if (key.IsSymbol)
             {
                 var symbol = key.Symbol;
-                p = @object.GetInternalProperty(symbol, false);
+                var p = @object.GetInternalProperty(symbol, false);
                 if (p.IsProperty)
                 {
                     p.set.InvokeFunction(new Arguments(receiver, value));
@@ -227,7 +226,7 @@ namespace YantraJS.Core.Objects
             {
                 if (key.IsUInt)
                 {
-                    p = @object.GetInternalProperty(key.Index, false);
+                    var p = @object.GetInternalProperty(key.Index, false);
                     if (p.IsProperty)
                     {
                         p.set.InvokeFunction(new Arguments(receiver, value));
@@ -239,7 +238,7 @@ namespace YantraJS.Core.Objects
                 }
                 else
                 {
-                    p = @object.GetInternalProperty(in key.KeyString, false);
+                    var p = @object.GetInternalProperty(in key.KeyString, false);
                     if (p.IsProperty)
                     {
                         p.set.InvokeFunction(new Arguments(receiver, value));

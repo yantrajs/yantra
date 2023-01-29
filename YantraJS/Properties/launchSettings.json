@@ -18,7 +18,7 @@
     },
     "Yantra File": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\git\\github\\yantrajs\\yantra\\YantraJS.Core.Tests\\Generator\\Files\\es5\\Objects\\Reflect\\Reflect.js"
+      "commandLineArgs": "D:\\git\\github\\yantrajs\\yantra\\YantraJS.Core.Tests\\Generator\\Files\\es6\\Syntax\\linq\\linqjs.js"
     }
   }
 }

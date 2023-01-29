@@ -135,7 +135,7 @@ namespace YantraJS.Core.Typed
             this.byteOffset = byteOffset;
         }
 
-        internal override JSValue GetValue(uint index, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint index, JSValue receiver, bool throwError = true)
         {
             if (index < 0 || index >= this.length)
                 return JSUndefined.Value;
@@ -167,7 +167,7 @@ namespace YantraJS.Core.Typed
             }
         }
 
-        internal override bool SetValue(uint index, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(uint index, JSValue value, JSValue receiver, bool throwError = true)
         {
             if (index < 0 || index >= this.length)
                 return false;
@@ -475,6 +475,17 @@ namespace YantraJS.Core.Typed
                 value = @default;
                 return false;
             }
+
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    return typedArray[(uint)index];
+                }
+
+                return @default;
+            }
+
         }
 
         struct EntryEnumerator : IElementEnumerator
@@ -526,6 +537,15 @@ namespace YantraJS.Core.Typed
 
                 value = @default;
                 return false;
+            }
+            public JSValue NextOrDefault(JSValue @default)
+            {
+                if (++this.index < typedArray.length)
+                {
+                    return new JSArray(new JSNumber(index), typedArray[(uint)index]);
+                }
+
+                return @default;
             }
         }
 
@@ -579,5 +599,15 @@ namespace YantraJS.Core.Typed
             value = @default;
             return false;
         }
+
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            if (++this.index < this.length)
+            {
+                return new JSNumber(index);
+            }
+            return @default;
+        }
+
     }
 }

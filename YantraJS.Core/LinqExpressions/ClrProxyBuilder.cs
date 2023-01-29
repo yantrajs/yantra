@@ -24,18 +24,32 @@ namespace YantraJS.LinqExpressions
         static ClrProxyBuilder()
         {
             var d = new Dictionary<Type, MethodInfo>(10);
+            var marshal = nameof(ClrProxy.Marshal);
             foreach(var m in type.GetMethods())
             {
-                if (m.Name != nameof(ClrProxy.Marshal))
+                if (m.Name != marshal)
                     continue;
                 d[m.GetParameters()[0].ParameterType] = m;
             }
             _marshal = d;
+            var from = nameof(ClrProxy.From);
+            d = new Dictionary<Type, MethodInfo>(10);
+            foreach (var m in type.GetMethods())
+            {
+                if (m.Name != from)
+                    continue;
+                if (m.GetParameters().Length != 1)
+                    continue;
+                d[m.GetParameters()[0].ParameterType] = m;
+            }
+            _from = d;
         }
 
         private static Type type = typeof(ClrProxy);
 
         private static Dictionary<Type, MethodInfo> _marshal;
+
+        private static Dictionary<Type, MethodInfo> _from;
 
         private static ConstructorInfo _new =
             type.Constructor(typeof(object), typeof(JSObject));
@@ -59,5 +73,27 @@ namespace YantraJS.LinqExpressions
             return Expression.Call(null, _marshal[typeof(object)], target);
         }
 
+        public static Expression From(Expression target)
+        {
+            if (typeof(JSValue).IsAssignableFrom(target.Type))
+                return target;
+            var targetType = target.Type;
+            if (_from.TryGetValue(targetType, out var m))
+            {
+                return Expression.Call(null, m, target);
+            }
+            if (targetType.IsValueType)
+            {
+                return Expression.Call(null, _from[typeof(object)], Expression.Box(target));
+            }
+            foreach(var pair in _from)
+            {
+                if (pair.Key.IsAssignableFrom(targetType))
+                {
+                    return Expression.Call(null, pair.Value, target);
+                }
+            }
+            return Expression.Call(null, _from[typeof(object)], target);
+        }
     }
 }

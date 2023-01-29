@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>false</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>default</LangVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>ZverGuy, ackava</Authors>
+        <Description>Bunch of extensions for JSModuleContext
+Adding fluent interface for module registering.</Description>
+        <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
+        <PackageVersion>1.0.1</PackageVersion>
+      <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+      <IncludeSymbols>true</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+      <EmbedAllSources>True</EmbedAllSources>
+      <LangVersion>latest</LangVersion>
+      <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
+      <ProjectReference Include="..\YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj" />
+    </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.216">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
