@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using YantraJS.Core.Core;
 using YantraJS.Core.Core.Generator;
 using YantraJS.Core.Core.Storage;
@@ -54,6 +55,10 @@ namespace YantraJS.Core
         private ElementArray elements;
         private PropertySequence ownProperties;
         private UInt32Map<JSProperty> symbols;
+        private long? uid;
+
+        private static long NextID = 0;
+        internal long UniqueID => uid ??= Interlocked.Increment(ref NextID);
 
         public override bool BooleanValue => true;
 
