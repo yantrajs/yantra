@@ -256,6 +256,36 @@ namespace YantraJS.Core
             return new string(d);
         }
 
+        public unsafe string ToCamelCase()
+        {
+            var length = this.Length;
+            if (length == 0)
+            {
+                return string.Empty;
+            }
+            var d = new char[length];
+            fixed (char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    var ch = *(startOffset++);
+                    d[i] = Char.ToLower(ch);
+                    if (!Char.IsUpper(ch))
+                    {
+                        i++;
+                        break;
+                    }
+                }
+                for (; i < length; i++)
+                {
+                    d[i] = *(startOffset++);
+                }
+            }
+            return new string(d);
+        }
+
         internal bool IsNullOrWhiteSpace()
         {
             return Source == null || string.IsNullOrWhiteSpace(Value);

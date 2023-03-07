@@ -23,6 +23,7 @@ using YantraJS.Core.CodeGen;
 using System.ComponentModel;
 using YantraJS.Core.Core.DataView;
 using YantraJS.Debugger;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core
 {
@@ -137,6 +138,12 @@ namespace YantraJS.Core
         public static JSContext Current;
 
         public JSDebugger Debugger;
+
+        /// <summary>
+        /// Available only when Enable Clr Integration is true in JSModuleContext
+        /// </summary>
+        public ClrMemberNamingConvention ClrMemberNamingConvention { get; set; }
+            = ClrMemberNamingConvention.CamelCase;
 
         public static JSContext CurrentContext
         {

@@ -116,5 +116,31 @@ namespace YantraJS.Core.Tests.ClrObjects
                 assert.strictEqual(a[1],'a');
             ");
         }
+
+        [TestMethod]
+        public void TestNamingConvention()
+        {
+            var c = new JSTestContext();
+            c.ClrMemberNamingConvention = ClrMemberNamingConvention.Declared;
+            c["CustomObject"] = ClrType.From(typeof(CustomObject2));
+
+
+            c.Eval(@"
+                var a = new CustomObject('b');
+                assert.strictEqual(a.Name, 'b');
+                assert.strictEqual(a.Version, undefined);
+            ");
+        }
     }
+
+    public class CustomObject2
+    {
+        public string Name { get; }
+
+        public CustomObject2(string a)
+        {
+            this.Name = a;
+        }
+    }
+
 }

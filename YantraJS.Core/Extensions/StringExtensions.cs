@@ -13,7 +13,7 @@ namespace YantraJS
             int i = 0;
             foreach (char ch in text)
             {
-                if (Char.IsUpper(ch))
+                if (char.IsUpper(ch))
                 {
                     i++;
                     continue;

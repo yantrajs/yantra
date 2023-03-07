@@ -22,65 +22,6 @@ using YantraJS.Generator;
 
 namespace YantraJS.Core.Clr
 {
-    public class JSExportAttribute: Attribute {
-
-        public readonly string? Name;
-
-        public bool AsCamel = true;
-
-        public JSExportAttribute(
-            string? name = null)
-        {
-            this.Name = name;
-        }
-
-    }
-
-    public class JSExportSameNameAttribute : JSExportAttribute
-    {
-        public JSExportSameNameAttribute()
-        {
-            this.AsCamel = false;
-        }
-    }
-
-    internal static class ClrTypeExtensions
-    {
-
-        public static string GetJSName(this MemberInfo member)
-        {
-            var export = member.GetCustomAttribute<JSExportAttribute>();
-            if (export == null)
-            {
-                return member.Name.ToCamelCase();
-            }
-            return export.Name != null
-                ? export.Name
-                : (export.AsCamel ? member.Name.ToCamelCase() : member.Name);
-        }
-
-        public static bool CanExport(this MemberInfo member,out string name)
-        {
-            var export = member.GetCustomAttribute<JSExportAttribute>();
-            if (export == null)
-            {
-                name = default;
-                return false;
-            }
-            name = export.Name != null
-                ? export.Name
-                : ( export.AsCamel ? member.Name.ToCamelCase() : member.Name);
-            return true;
-        }
-
-        public static   bool IsJSFunctionDelegate( this MethodInfo method)
-        {
-            var p = method.GetParameters();
-            return p.Length == 1
-                && typeof(JSValue).IsAssignableFrom(method.ReturnType)
-                && p[0].ParameterType == ArgumentsBuilder.refType;
-        }
-    }
 
 
     /// <summary>
@@ -88,8 +29,6 @@ namespace YantraJS.Core.Clr
     /// </summary>
     public class ClrType : JSFunction
     {
-
-        private static MethodInfo genericJSFunctionDelegate = typeof(ClrType).GetMethod(nameof(ToInstanceJSFunctionDelegate));
 
         private static ConcurrentUInt32Map<ClrType> cachedTypes = ConcurrentUInt32Map<ClrType>.Create();
 
@@ -110,11 +49,12 @@ namespace YantraJS.Core.Clr
             {
                 baseType = From(type.BaseType);
             }
-            var key = ConcurrentTypeCache.GetOrCreate(type);
-            return cachedTypes.GetOrCreate(key, () => new ClrType(type, baseType));
+            var nc = JSContext.Current.ClrMemberNamingConvention;
+            var key = ConcurrentTypeCache.GetOrCreate(type, nc.Name);
+            return cachedTypes.GetOrCreate(key, () => new ClrType(nc, type, baseType));
         }
 
-
+        private readonly ClrMemberNamingConvention namingConvention;
         public readonly Type Type;
 
         (ConstructorInfo method, ParameterInfo[] parameters)[] constructorCache;
@@ -148,18 +88,19 @@ namespace YantraJS.Core.Clr
 
             foreach(var field in declaredFields)
             {
-                var name = field.GetJSName();
+                var f = new JSFieldInfo(this.namingConvention, field);
+                var name = f.Name;
                 if (isJavaScriptObject)
                 {
-                    if (!field.CanExport(out name))
+                    if (!f.Export)
                         continue;
                 }
-                JSFunction getter = GenerateFieldGetter(field);
+                JSFunction getter = f.GenerateFieldGetter();
                 JSFunction setter = null;
                 if (!(field.IsInitOnly || field.IsLiteral))
                 {
                     // you can only read...
-                    setter = GenerateFieldSetter(field);
+                    setter = f.GenerateFieldSetter();
                 }
                 target.FastAddProperty(name, getter, setter, JSPropertyAttributes.EnumerableConfigurableProperty);
             }
@@ -182,16 +123,15 @@ namespace YantraJS.Core.Clr
                     throw new NotImplementedException();
                 } else
                 {
-                    var f = property.First();
+                    var f = new JSPropertyInfo(this.namingConvention, property.First());
                     if (f.PropertyType.IsGenericTypeDefinition)
                         continue;
 
-                    KeyString name = f.GetJSName();
+                    KeyString name = f.Name;
                     if (isJavaScriptObject)
                     {
-                        if (!f.CanExport(out var n))
+                        if (!f.Export)
                             continue;
-                        name = n;
                     }
 
                     var fgm = f.GetMethod;
@@ -207,14 +147,14 @@ namespace YantraJS.Core.Clr
                         var ip = fgm.GetParameters()[0];
                         if (ip.ParameterType == typeof(int))
                         {
-                            indexGetter = GenerateIndexedGetter(f);
-                            indexSetter = GenerateIndexedSetter(f);
+                            indexGetter = f.GenerateIndexedGetter();
+                            indexSetter = f.GenerateIndexedSetter();
                         } else
                         {
                             if (indexGetter != null)
                                 continue;
-                            indexGetter = GenerateIndexedGetter(f);
-                            indexSetter = GenerateIndexedSetter(f);
+                            indexGetter = f.GenerateIndexedGetter();
+                            indexSetter = f.GenerateIndexedSetter();
                         }
                     } else
                     {
@@ -240,16 +180,18 @@ namespace YantraJS.Core.Clr
 
                 foreach(var method in type.GetMethods(flags))
                 {
-                    if (!method.CanExport(out string name))
+                    var jsm = new JSMethodInfo(namingConvention, method);
+                    if (!jsm.Export)
                         continue;
+                    var name = jsm.Name;
                     if (method.IsJSFunctionDelegate())
                     {
                         target.FastAddValue(name,
-                            ToJSFunctionDelegate(method, name), JSPropertyAttributes.EnumerableConfigurableValue);
+                            jsm.GenerateInvokeJSFunction(), JSPropertyAttributes.EnumerableConfigurableValue);
                     } else
                     {
                         target.FastAddValue(name
-                            ,new JSFunction( this.GenerateMethod(method), name)
+                            ,new JSFunction( jsm.GenerateMethod(), name)
                             , JSPropertyAttributes.EnumerableConfigurableValue);
                     }
                 }
@@ -267,36 +209,27 @@ namespace YantraJS.Core.Clr
             foreach (var methods in type.GetMethods(flags)
                 .Where(x => !x.IsSpecialName)
                 .GroupBy(x => x.Name)) {
-                var name = methods.Key.ToCamelCase();
-                var all = methods.ToPairs();
-                var jsMethod = all.FirstOrDefault(x => x.method.IsJSFunctionDelegate());
-                if (jsMethod.method != null)
+                var g = new JSMethodGroup(namingConvention, type, methods);
+                var jsMethod = g.JSMethod;
+                if (jsMethod != null)
                 {
-                    // call directly...
-                    // do not worry about @this... 
-
-                    //if (isStatic)
-                    //{
-                    //    var methodDelegate = (JSFunctionDelegate)jsMethod.method.CreateDelegate(typeof(JSFunctionDelegate));
-                    //    target.DefineProperty(name,
-                    //        JSProperty.Function(ToStaticDelegate(methodDelegate));
-                    //    continue;
-                    //}
-
+                    var jsm = new JSMethodInfo(namingConvention, jsMethod);
+                    var name = jsm.Name;
                     target.FastAddValue(name,
-                        ToJSFunctionDelegate(jsMethod.method, name), JSPropertyAttributes.EnumerableConfigurableValue);
+                        jsm.GenerateInvokeJSFunction(), JSPropertyAttributes.EnumerableConfigurableValue);
 
 
                     continue;
                 }
-                target.FastAddValue(name, isStatic
-                    ? new JSFunction((in Arguments a) => {
-                        return StaticInvoke(name, all, a);
-                    }, name)
-                    : new JSFunction((in Arguments a) => {
-                        return Invoke(name, type, all, a);
-                        }, name)
-                    , JSPropertyAttributes.EnumerableConfigurableValue);
+                //target.FastAddValue(name, isStatic
+                //    ? new JSFunction((in Arguments a) => {
+                //        return StaticInvoke(name, all, a);
+                //    }, name)
+                //    : new JSFunction((in Arguments a) => {
+                //        return Invoke(name, type, all, a);
+                //        }, name)
+                //    , JSPropertyAttributes.EnumerableConfigurableValue);
+                target.FastAddValue(g.name, g.Generate(isStatic), JSPropertyAttributes.EnumerableConfigurableValue);
             }
 
             if (isStatic)
@@ -308,169 +241,8 @@ namespace YantraJS.Core.Clr
                 clrPrototype.SetElementAt = indexSetter;
         }
 
-        public delegate JSValue InstanceDelegate<T>(T @this, in Arguments a);
-
-        private static JSFunction ToJSFunctionDelegate(MethodInfo method, string name)
-        {
-            return (JSFunction)genericJSFunctionDelegate.MakeGenericMethod(method.DeclaringType).Invoke(null, new object[] { method, name });
-        }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static JSFunction ToInstanceJSFunctionDelegate<T>(MethodInfo method, string name)
-        {
-            if (method.IsStatic)
-            {
-                var staticDel = (JSFunctionDelegate)method.CreateDelegate(typeof(JSFunctionDelegate));
-                return new JSFunction((in Arguments a) =>
-                {
-                    return staticDel(a);
-                }, name);
-            }
-            var del = (InstanceDelegate<T>)method.CreateDelegate(typeof(InstanceDelegate<T>));
-            var type = typeof(T);
-            return new JSFunction((in Arguments a) =>
-            {
-                var @this = (T)a.This.ForceConvert(type);
-                return del(@this, a);
-            }, name);
-            //var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            //var target = Expression.Parameter(method.DeclaringType);
-            //var convert = method.IsStatic
-            //    ? null
-            //    : JSValueBuilder.Coalesce(ArgumentsBuilder.This(args), method.DeclaringType, target, method.Name);
-
-            //var body = Expression.Block(target.AsSequence(),
-            //    JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(
-            //        Expression.Call(
-            //            convert, method, args))));
-            //var name = method.Name.ToCamelCase();
-            //var d = Expression.Lambda<JSFunctionDelegate>(method.Name, body, args).Compile();
-            //return new JSFunction(d, name);
-        }
-
-        private static JSValue Invoke(in KeyString name, Type type, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
-        {
-            if (!a.This.ConvertTo(type, out var target))
-                throw JSContext.Current.NewTypeError($"{type.Name}.prototype.{name} called with object not of type {type.Name}");
-            try
-            {
-                var (method, args) = methods.Match(a, name);
-                return ClrProxy.Marshal(method.Invoke(target, args));
-            } catch (Exception ex)
-            {
-                throw JSException.From(ex);
-            }
-        }
-
-        private static JSValue StaticInvoke(in KeyString name, (MethodInfo method, ParameterInfo[] parameters)[] methods, in Arguments a)
-        {
-            try
-            {
-                var (method, args) = methods.Match(a, name);
-                return ClrProxy.Marshal(method.Invoke(null, args));
-            }catch (Exception ex)
-            {
-                throw JSException.From(ex);
-            }
-        }
-
-        private static JSFunction GenerateFieldGetter(FieldInfo field)
-        {
-            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            Expression convertedThis = field.IsStatic
-                ? null
-                : JSValueToClrConverter.Get(ArgumentsBuilder.This(args), field.DeclaringType, "this");
-            var body = 
-                ClrProxyBuilder.Marshal(
-                    Expression.Field(
-                        convertedThis, field));
-            var name = $"get {field.Name.ToCamelCase()}";
-            var lambda = Expression.Lambda<JSFunctionDelegate>(name, body, args);
-            return new JSFunction(lambda.Compile(), name);
-
-        }
-
-        private static JSFunction GenerateFieldSetter(FieldInfo field)
-        {
-            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            var a1 = ArgumentsBuilder.Get1(args);
-            var convert = field.IsStatic
-                ? null
-                : JSValueToClrConverter.Get(ArgumentsBuilder.This(args), field.DeclaringType, "this");
-
-            var clrArg1 = JSValueToClrConverter.Get(a1, field.FieldType, "value");
-
-
-            var fieldExp = Expression.Field(convert, field);
-
-            // todo
-            // not working for `char`
-            var assign = Expression.Assign(fieldExp, clrArg1).ToJSValue();
-
-            var body = assign;
-            var name = $"set {field.Name.ToCamelCase()}";
-            var lambda = Expression.Lambda<JSFunctionDelegate>(name, body, args);
-            return new JSFunction(lambda.Compile(), name);
-        }
-
-        private static Func<object,uint,JSValue> GenerateIndexedGetter(PropertyInfo property)
-        {
-            var @this = Expression.Parameter(typeof(object));
-            var index = Expression.Parameter(typeof(uint));
-            var indexParameter = property.GetMethod.GetParameters()[0];
-            Expression indexAccess = index.Type != indexParameter.ParameterType
-                ? Expression.Convert(index, indexParameter.ParameterType)
-                : index as Expression;
-            Expression indexExpression;
-            Expression convertThis = Expression.TypeAs(@this, property.DeclaringType);
-            if (property.DeclaringType.IsArray)
-            {
-                // this is direct array.. cast and get.. 
-                indexExpression = Expression.ArrayIndex(convertThis, indexAccess);
-            } else
-            {
-                indexExpression = Expression.MakeIndex(convertThis, property, new Expression[] { indexAccess });
-            }
-            Expression body = JSExceptionBuilder.Wrap(ClrProxyBuilder.Marshal(indexExpression));
-            var lambda = Expression.Lambda<Func<object,uint,JSValue>>($"set {property.Name}", body, @this, index);
-            return lambda.Compile();
-        }
-
-        private static Func<object, uint, object, JSValue> GenerateIndexedSetter(PropertyInfo property)
-        {
-            if (!property.CanWrite)
-                return null;
-            
-            var type = property.DeclaringType;
-            var elementType = type.GetElementTypeOrGeneric() ?? property.PropertyType;
-
-            var @this = Expression.Parameter(typeof(object));
-            var index = Expression.Parameter(typeof(uint));
-            var value = Expression.Parameter(typeof(object));
-            var indexParameter = property.SetMethod.GetParameters()[0];
-            Expression indexAccess = index.Type != indexParameter.ParameterType
-                ? Expression.Convert(index, indexParameter.ParameterType)
-                : index as Expression;
-            Expression indexExpression;
-            Expression convertThis = Expression.TypeAs(@this, property.DeclaringType);
-            if (property.DeclaringType.IsArray)
-            {
-                // this is direct array.. cast and get.. 
-                indexExpression = Expression.ArrayIndex(convertThis, indexAccess);
-            }
-            else
-            {
-                indexExpression = Expression.MakeIndex(convertThis, property, new Expression[] { indexAccess });
-            }
-
-
-            Expression body = Expression.Block( 
-                JSExceptionBuilder.Wrap( 
-                    Expression.Assign(indexExpression , Expression.TypeAs(value, elementType)).ToJSValue()));
-            var lambda = Expression.Lambda<Func<object, uint, object, JSValue>>("get " + property.Name, body, @this, index, value);
-            return lambda.Compile();
-        }
-
         private ClrType(
+            ClrMemberNamingConvention namingConvention,
             Type type, 
             ClrType baseType = null) : 
             base(
@@ -479,6 +251,7 @@ namespace YantraJS.Core.Clr
                 new ClrPrototype())
         {
             this.f = Create;
+            this.namingConvention = namingConvention;
             this.Type = type;
 
             Generate(this, type, true);
@@ -596,7 +369,7 @@ namespace YantraJS.Core.Clr
             return new JSFunction(newDelegate, name);
         }
 
-        private static MethodInfo createConstuctorDelegate = typeof(ClrType).GetMethod(nameof(CreateConstuctorDelegate));
+        // private static MethodInfo createConstuctorDelegate = typeof(ClrType).GetMethod(nameof(CreateConstuctorDelegate));
 
 
         public JSValue Create(in Arguments a)
@@ -633,40 +406,10 @@ namespace YantraJS.Core.Clr
             }
             if (method == null)
                 throw new JSException($"Method {name} not found on {Type.Name}");
-            return new JSFunction(GenerateMethod(method), name, "native");
+            var jsm = new JSMethodInfo(namingConvention, method);
+            return new JSFunction(jsm.GenerateMethod(), name, "native");
         }
 
-        private JSFunctionDelegate GenerateMethod(MethodInfo m)
-        {
-            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-            var @this = ArgumentsBuilder.This(args);
-
-            var convertedThis = m.IsStatic
-                ? null
-                : JSValueToClrConverter.Get(@this, m.DeclaringType, "this");
-            var parameters = new List<Expression>();
-            var pList = m.GetParameters();
-            for (int i = 0; i < pList.Length; i++)
-            {
-                var pi = pList[i];
-                var defValue = pi.HasDefaultValue
-                    ? Expression.Constant((object)pi.DefaultValue, typeof(object))
-                    : (pi.ParameterType.IsValueType
-                        ? Expression.Constant((object)Activator.CreateInstance(pi.ParameterType),typeof(object))
-                        : null);
-                parameters.Add(JSValueToClrConverter.GetArgument(args, i, pi.ParameterType, defValue, pi.Name));
-            }
-            var call = Expression.Call(convertedThis, m, parameters);
-            var marshal = call.Type == typeof(void)
-                ? YExpression.Block(call, JSUndefinedBuilder.Value)
-                : ClrProxyBuilder.Marshal(call);
-            var wrapTryCatch = JSExceptionBuilder.Wrap(marshal);
-
-            ILCodeGenerator.GenerateLogs = true;
-            var lambda = Expression.Lambda<JSFunctionDelegate>(m.Name, wrapTryCatch, args);
-            var method = lambda.Compile();
-            return method;
-        }
 
         public JSValue GetConstructor(in Arguments a)
         {
