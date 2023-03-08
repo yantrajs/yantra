@@ -206,6 +206,25 @@ namespace YantraJS.Core
                             YExpression.Call(null, m, target),
                             defaultValue);
         }
+
+        public static T ToFastClrValue<T>(this JSValue value)
+        {
+            var type = typeof(T);
+            if (typeof(JSValue).IsAssignableFrom(type))
+            {
+                return (T)(object)value;
+            }
+
+            if(methods.TryGetValue(type, out var m))
+            {
+                var f = m.CreateDelegate<Func<JSValue, string, T>>();
+                return f(value, "");
+            }
+            if (value.ConvertTo<T>(out var v))
+                return v;
+            throw new JSException($"Failed to convert JSValue to {type.Name}");
+        }
+
         public static T GetAs<T>(JSValue value)
         {
             return value.ConvertTo<T>(out T v1)

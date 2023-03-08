@@ -9,24 +9,24 @@ namespace YantraJS.Core
     public static class JSPromiseExtensions
     {
 
-        private static MethodInfo __convert =
-            typeof(JSPromiseExtensions).GetMethod(nameof(Convert),
-                BindingFlags.Public | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
-
-        private static MethodInfo __toTask =
-            typeof(JSPromiseExtensions).GetMethod(nameof(ToTask),
-                BindingFlags.Public | BindingFlags.Static | BindingFlags.Default | BindingFlags.DeclaredOnly);
-
         public static JSPromise ToPromise(this Task task)
         {
             var type = task.GetType();
             if (type.IsConstructedGenericType)
             {
-                var factory = __convert.MakeGenericMethod(type.GenericTypeArguments[0]);
-                return new JSPromise(factory.Invoke(null, new object[] { task }) as Task<JSValue>);
+                return Generic.InvokeAs(type.GetGenericArguments()[0], ToTypedPromise<object>, task);
+                //var factory = __convert.MakeGenericMethod(type.GenericTypeArguments[0]);
+                //return new JSPromise(factory.Invoke(null, new object[] { task }) as Task<JSValue>);
             }
             return new JSPromise(ConvertToUndefined(task));
         }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static JSPromise ToTypedPromise<T>(this Task task)
+        {
+            return new JSPromise(Convert<T>((Task<T>)task));
+        }
+
 
         public static JSPromise ToPromise<T>(this Task<T> task)
         {
@@ -52,7 +52,8 @@ namespace YantraJS.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static object ToTaskInternal(this JSPromise promise, Type taskResultType)
         {
-            return __toTask.MakeGenericMethod(taskResultType.GetGenericArguments()).Invoke(null, new object[] { promise });
+            return Generic.InvokeAs(taskResultType.GetGenericArguments()[0], ToTask<object>, promise);
+            // return __toTask.MakeGenericMethod(taskResultType.GetGenericArguments()).Invoke(null, new object[] { promise });
         }
 
         public static async Task<T> ToTask<T>(this JSPromise promise)
