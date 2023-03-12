@@ -732,6 +732,15 @@ namespace YantraJS.Core
             return new ArgumentsElementEnumerator(this);
         }
 
+        public StringSpan GetString(int index, string name,
+            [CallerMemberName] string? function = null,
+            [CallerFilePath] string? filePath = null,
+            [CallerLineNumber] int line = 0)
+        {
+            return this[index] is JSString s ? s.value : throw new JSException(
+                name + " is required", function, filePath, line);
+        }
+
         struct ArgumentsElementEnumerator: IElementEnumerator
         {
             readonly Arguments arguments;

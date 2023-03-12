@@ -176,6 +176,15 @@ namespace YantraJS.Core
 
         public readonly static KeyString @false;
 
+        public readonly static KeyString bubbles;
+        public readonly static KeyString detail;
+        public readonly static KeyString cancelable;
+        public readonly static KeyString composed;
+
+        public readonly static KeyString capture;
+        public readonly static KeyString deferred;
+        public readonly static KeyString once;
+
 
         public readonly static KeyString raw;
 

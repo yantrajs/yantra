@@ -26,5 +26,29 @@ namespace YantraJS.Core
                 
             }
         }
+
+        public static DisposableAction<T> Create<T>(Action<T> action, T value)
+        {
+            return new DisposableAction<T>(action, value);
+        }
     }
+
+    public readonly struct DisposableAction<T> : IDisposable
+    {
+        private readonly Action<T> action;
+        private readonly T value;
+
+        public DisposableAction(Action<T> action, T value)
+        {
+            this.action = action;
+            this.value = value;
+        }
+
+        public void Dispose()
+        {
+            action(value);
+        }
+    }
+
+
 }
