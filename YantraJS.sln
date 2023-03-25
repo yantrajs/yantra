@@ -31,7 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.NodePollyfill", "Y
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ExpressionCompiler.Tests", "YantraJS.ExpressionCompiler.Tests\YantraJS.ExpressionCompiler.Tests.csproj", "{56196EFB-172B-4C4F-AC0A-3C6C5BCF72F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YantraJS.ModuleExtensions", "YantraJS.ModuleExtensions\YantraJS.ModuleExtensions.csproj", "{5FF9CAEF-F7A6-449A-A24E-E03C9A705ABF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ModuleExtensions", "YantraJS.ModuleExtensions\YantraJS.ModuleExtensions.csproj", "{5FF9CAEF-F7A6-449A-A24E-E03C9A705ABF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YantraJS.Network", "YantraJS.Network\YantraJS.Network.csproj", "{F06DFF43-84D9-452F-A398-D4E024C449CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{5FF9CAEF-F7A6-449A-A24E-E03C9A705ABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FF9CAEF-F7A6-449A-A24E-E03C9A705ABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FF9CAEF-F7A6-449A-A24E-E03C9A705ABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F06DFF43-84D9-452F-A398-D4E024C449CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F06DFF43-84D9-452F-A398-D4E024C449CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F06DFF43-84D9-452F-A398-D4E024C449CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F06DFF43-84D9-452F-A398-D4E024C449CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -112,6 +112,10 @@ namespace YantraJS.Core.Clr
 
         public static JSValue Marshal(Task task) => task.ToPromise();
 
+        public static JSValue Marshal(Task<JSValue> task) => new JSPromise(task);
+
+        public static JSValue Marshal<T>(Task<T> task) => task.ToPromise();
+
         public static JSValue Marshal(IJavaScriptObject javaScriptObject) => ClrProxy.From(javaScriptObject);
 
         public static JSValue Marshal(IElementEnumerator en)

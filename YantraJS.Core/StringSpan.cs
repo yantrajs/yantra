@@ -11,20 +11,6 @@ using YantraJS.Internals;
 namespace YantraJS.Core
 {
 
-    public static class StringSpanExtensions
-    {
-        public static StringSpan ToStringSpan(this string text, int offset, int length) => new StringSpan(text, offset, length);
-
-        public unsafe static void Append(this StringBuilder sb , in StringSpan span)
-        {
-            fixed (char* start = span.Source)
-            {
-                char* ch1 = start + (span.Offset);
-                sb.Append(ch1, span.Length);
-            }
-        }
-    }
-
     [DebuggerDisplay("{Key}: {Value}")]
     public struct KeyValue
     {

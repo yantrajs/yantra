@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Utils;
+using YantraJS.Network;
 
 namespace YantraJS
 {
@@ -36,7 +37,7 @@ namespace YantraJS
 
         static YantraContext()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;            
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -64,6 +65,8 @@ namespace YantraJS
             this.extensions = new string[] { ".csx", ".js"  };
 
             this[KeyStrings.console] = (typeof(YantraConsole)).Marshal();
+
+            this.InstallNetworkServices();
         }
 
         private async Task<JSModuleDelegate> LoadDelegate(string assemblyPath)

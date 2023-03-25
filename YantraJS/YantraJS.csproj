@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
+    <ProjectReference Include="..\YantraJS.Network\YantraJS.Network.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\modules\inbuilt\**\*">
