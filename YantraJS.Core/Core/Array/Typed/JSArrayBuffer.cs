@@ -23,9 +23,15 @@ namespace YantraJS.Core.Typed
     {
         internal readonly byte[] buffer;
 
+        public byte[] Buffer => buffer;
+
         public JSArrayBuffer(int length) : base(JSContext.Current.ArrayBufferPrototype)
         {
             this.buffer = new byte[length];
+        }
+        public JSArrayBuffer(byte[] buffer) : base(JSContext.Current.ArrayBufferPrototype)
+        {
+            this.buffer = buffer;
         }
 
         public override bool BooleanValue => true;

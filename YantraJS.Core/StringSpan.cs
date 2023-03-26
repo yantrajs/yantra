@@ -418,6 +418,22 @@ namespace YantraJS.Core
             return GetEnumerator();
         }
 
+        public unsafe byte[] Encode(Encoding encoding)
+        {
+            if (this.IsEmpty)
+            {
+                return Array.Empty<byte>();
+            }
+            fixed(char* source = this.Source)
+            {
+                char* start = (source + Offset);
+                var len = encoding.GetByteCount(start, Length);
+                var buffer = new byte[len];
+                encoding.GetBytes(start, Length, buffer, buffer.Length);
+                return buffer;
+            }
+        }
+
         public struct CharEnumerator: IEnumerator<char>
         {
             private readonly StringSpan span;

@@ -28,6 +28,8 @@ namespace YantraJS.Network
             context[Names.FormData] = ClrType.From(typeof(FormData));
 
             context[Names.Headers] = ClrType.From(typeof(Headers));
+
+            context[Names.Blob] = ClrType.From(typeof(Blob));
         }
 
     }

@@ -55,6 +55,8 @@ namespace YantraJS.Network
         public static readonly KeyString signal;
 
         public static readonly KeyString fetch;
+        public static readonly KeyString Blob;
+        public static readonly KeyString type;
 
         static Names()
         {

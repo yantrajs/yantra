@@ -187,6 +187,11 @@ namespace YantraJS.Core
             return value.Value;
         }
 
+        public byte[] Encode(System.Text.Encoding encoding)
+        {
+            return value.Encode(encoding);
+        }
+
         public override string ToDetailString()
         {
             return value.Value;
