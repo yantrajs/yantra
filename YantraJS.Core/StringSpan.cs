@@ -429,7 +429,10 @@ namespace YantraJS.Core
                 char* start = (source + Offset);
                 var len = encoding.GetByteCount(start, Length);
                 var buffer = new byte[len];
-                encoding.GetBytes(start, Length, buffer, buffer.Length);
+                fixed (byte* buf = buffer)
+                {
+                    encoding.GetBytes(start, Length, buf, buffer.Length);
+                }
                 return buffer;
             }
         }
