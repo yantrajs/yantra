@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Threading;
-using Newtonsoft.Json;
 using NuGet.Versioning;
 using System;
 using System.Collections.Concurrent;
@@ -139,7 +138,7 @@ namespace YantraJS
             if (depsFile.Exists)
             {
                 var text = await ReadAllTextAsync(depsFile.FullName);
-                var files = JsonConvert.DeserializeObject<DependentAssemblyName[]>(text);
+                var files = System.Text.Json.JsonSerializer.Deserialize<DependentAssemblyName[]>(text);
                 foreach(var file in files)
                 {
                     // var name = System.IO.Path.GetFileNameWithoutExtension(file);
@@ -210,7 +209,7 @@ namespace YantraJS
                     })
                     .ToArray();
                 // emit .deps.json
-                System.IO.File.WriteAllText(depsFile.FullName, JsonConvert.SerializeObject(deps));
+                System.IO.File.WriteAllText(depsFile.FullName, System.Text.Json.JsonSerializer.Serialize(deps));
 
 
                 if (!er.Success)

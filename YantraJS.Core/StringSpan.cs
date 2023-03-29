@@ -40,7 +40,10 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StringSpan(string? buffer, int offset, int length)
         {
-            if (buffer == null || (uint)offset > (uint)buffer.Length || (uint)length > (uint)(buffer.Length - offset))
+            if (buffer == null
+                || (uint)offset > (uint)buffer.Length
+                || (uint)length > (uint)(buffer.Length - offset
+                ))
             {
                 throw new InvalidOperationException($"offset/length represents invalid string or string is null");
             }

@@ -164,7 +164,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         replaceScriptInfo: scriptInfo);
 
                     var jsf = JSAsyncFunctionBuilder.Create(
-                        JSGeneratorFunctionBuilderV2.New(g, Exp.Constant("vm"), Exp.Constant(code.Value)));
+                        JSGeneratorFunctionBuilderV2.New(g, StringSpanBuilder.New("vm"), StringSpanBuilder.New(code.Value)));
 
                     var np = Expression.Parameter(ArgumentsBuilder.refType, "a");
                     jsf = JSFunctionBuilder.InvokeFunction(jsf, np);
