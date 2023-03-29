@@ -7,7 +7,8 @@
     <PackageTags>yantra,yantrajs,javascript,c#,standard,core,framework,.net</PackageTags>
     <Description>YantraJS JavaScript Engine with CSX Module Support</Description>
     <Version>1.0.1</Version>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+	  <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
     <LangVersion>latest</LangVersion>
     <EmbedAllSources>True</EmbedAllSources>
