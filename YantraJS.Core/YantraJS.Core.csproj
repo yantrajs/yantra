@@ -8,16 +8,16 @@
     <Description>JavaScript Engine Core for .NET Standard</Description>
     <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
-    <Version>1.0.1</Version>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Version>1.0.1</Version>
+	  <LangVersion>latest</LangVersion>
 	  <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedAllSources>True</EmbedAllSources>
-    <LangVersion>latest</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	  <EmbedAllSources>True</EmbedAllSources>
+	  <DebugType>embedded</DebugType>
+       <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <!-- <ItemGroup>

@@ -7,14 +7,16 @@
     <PackageId>YantraJS</PackageId>
     <PackageTags>yantra,yantrajs,javascript,c#,standard,core,framework,.net</PackageTags>
     <Description>YantraJS JavaScript Engine with CSX Module Support</Description>
-    <Version>1.0.1</Version>
+	  <Version>1.0.1</Version>
+	  <LangVersion>latest</LangVersion>
 	  <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <IncludeSymbols>true</IncludeSymbols>
-    <LangVersion>latest</LangVersion>
-    <EmbedAllSources>True</EmbedAllSources>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	  <EmbedAllSources>True</EmbedAllSources>
+	  <DebugType>embedded</DebugType>
+	  <DebugSymbols>true</DebugSymbols>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
