@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using Yantra.Core;
 using YantraJS.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Network
 {
     [JSClassGenerator("URL")]
     public partial class URL: JSObject
     {
-
+    
         public URL(in Arguments a): this()
         {
             

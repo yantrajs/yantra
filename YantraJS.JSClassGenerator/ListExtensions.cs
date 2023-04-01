@@ -16,7 +16,8 @@ namespace YantraJS.JSClassGenerator
 
         public static string ToJSValueFromClr(this string name, ITypeSymbol type, string parameter)
         {
-            switch(type.Name)
+            var typeName = type.ToClrName();
+            switch(typeName)
             {
                 case "JSValue":
                     return name;
@@ -26,6 +27,7 @@ namespace YantraJS.JSClassGenerator
                 case "int?":
                     return $"JSValueToClrConverter.ToNullableInt({name}, \"{parameter}\")";
                 case "long":
+                case "Int64":
                     return $"JSValueToClrConverter.ToLong({name}, \"{parameter}\")";
                 case "long?":
                     return $"JSValueToClrConverter.ToNullableLong({name}, \"{parameter}\")";
@@ -34,17 +36,21 @@ namespace YantraJS.JSClassGenerator
                 case "short?":
                     return $"JSValueToClrConverter.ToNullableShort({name}, \"{parameter}\")";
                 case "byte":
+                case "Byte":
                     return $"JSValueToClrConverter.ToByte({name}, \"{parameter}\")";
                 case "byte?":
                     return $"JSValueToClrConverter.ToNullableByte({name}, \"{parameter}\")";
                 case "sbyte":
+                case "SByte":
                     return $"JSValueToClrConverter.ToSByte({name}, \"{parameter}\")";
                 case "sbyte?":
                     return $"JSValueToClrConverter.ToNullableSByte({name}, \"{parameter}\")";
                 case "double":
+                case "Double":
                     return $"JSValueToClrConverter.ToDouble({name}, \"{parameter}\")";
                 case "double?":
                     return $"JSValueToClrConverter.ToNullableDouble({name}, \"{parameter}\")";
+                case "Single":
                 case "float":
                     return $"JSValueToClrConverter.ToFloat({name}, \"{parameter}\")";
                 case "float?":
@@ -58,7 +64,7 @@ namespace YantraJS.JSClassGenerator
                 case "String":
                     return $"JSValueToClrConverter.ToString({name}, \"{parameter}\")";
             }
-            return $"JSValueToClrConverter.GetAsOrThrow<{type.Name}>({name}, \"{parameter}\")";
+            return $"JSValueToClrConverter.GetAsOrThrow<{typeName}>({name}, \"{parameter}\")";
         }
 
         public static bool IsJSFunction(this IMethodSymbol method)
