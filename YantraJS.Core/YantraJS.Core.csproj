@@ -20,6 +20,21 @@
        <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+	</PropertyGroup>
+	<Target Name="AddSourceGeneratedFiles" AfterTargets="CoreCompile">
+		<ItemGroup>
+			<Compile Include="Generated\**" />
+		</ItemGroup>
+	</Target>
+	<Target Name="RemoveSourceGeneratedFiles" BeforeTargets="CoreCompile">
+		<ItemGroup>
+			<Compile Remove="Generated\**" />
+		</ItemGroup>
+	</Target>
+
   <!-- <ItemGroup>
     <Compile Include="..\esprima-dotnet\src\Esprima\*.cs">
       <Link>Esprima\%(RecursiveDir)%(FileName)%(Extension)</Link>
@@ -53,6 +68,10 @@
   
   <ItemGroup>
     <ProjectReference Include="..\YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj" />
+    <ProjectReference
+		Include="..\YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj"
+        ReferenceOutputAssembly="false"
+		OutputItemType="Analyzer"/>
   </ItemGroup>
   
   <ItemGroup>

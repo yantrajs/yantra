@@ -34,7 +34,7 @@ namespace YantraJS.Network
         }
     }
 
-    [JSClassGenerator("Blob")]
+    [JSClassGenerator]
     public partial class Blob : JSObject
     {
         public readonly byte[] Buffer;
@@ -56,6 +56,9 @@ namespace YantraJS.Network
             Buffer = buffer;
             Type = type;
         }
+
+        [JSExportSameName]
+        public readonly static int None = 1;
 
         [JSExport]
         public JSValue Type { get; }

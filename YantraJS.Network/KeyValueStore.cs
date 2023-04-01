@@ -2,16 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Yantra.Core;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
 
 namespace YantraJS.Network
 {
-    public class KeyValueStore : JavaScriptObject
+    [JSClassGenerator]
+    public partial class KeyValueStore : JSObject
     {
         private Dictionary<string, string>? headers;
 
-        internal KeyValueStore(JSValue? first) : base(Arguments.Empty)
+        internal KeyValueStore(JSValue? first) : this()
         {
             if (first == null)
                 return;

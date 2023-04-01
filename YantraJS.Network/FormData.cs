@@ -8,13 +8,14 @@ using YantraJS.Core.Clr;
 
 namespace YantraJS.Network
 {
-    public class FormData : KeyValueStore
+    [JSClassGenerator]
+    public partial class FormData : KeyValueStore
     {
-        public FormData(in Arguments a) : base(a)
+        public FormData(in Arguments a) : this()
         {
         }
 
-        internal FormData(JSValue? first) : base(first)
+        internal FormData(JSValue? first) : this()
         {
         }
 

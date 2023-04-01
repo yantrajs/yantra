@@ -1,17 +1,24 @@
 ﻿#nullable enable
 using System.Net.Http;
 using System.Threading.Tasks;
+using Yantra.Core;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Debugger;
 
 namespace YantraJS.Network
 {
-    public class FetchResponse : JavaScriptObject
+    [JSClassGenerator]
+    public partial class FetchResponse : JSObject
     {
         private readonly HttpResponseMessage message;
 
-        internal FetchResponse(Request request, HttpResponseMessage message) : base(Arguments.Empty)
+        private FetchResponse(in Arguments a): this()
+        {
+
+        }
+
+        internal FetchResponse(Request request, HttpResponseMessage message) : this()
         {
             Ok = message.IsSuccessStatusCode;
             Status = (int)message.StatusCode;

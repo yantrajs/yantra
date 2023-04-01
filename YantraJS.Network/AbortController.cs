@@ -5,9 +5,10 @@ using YantraJS.Core.Clr;
 
 namespace YantraJS.Network
 {
-    public class AbortController : JavaScriptObject
+    [JSClassGenerator()]
+    public partial class AbortController : JSObject
     {
-        public AbortController(in Arguments a) : base(a)
+        public AbortController(in Arguments a) : this()
         {
             Signal = new AbortSignal();
         }

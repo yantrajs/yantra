@@ -10,9 +10,10 @@ using YantraJS.Core.Debugger;
 
 namespace YantraJS.Network
 {
-    public class Request : JavaScriptObject
+    [JSClassGenerator]
+    public partial class Request : JSObject
     {
-        public Request(in Arguments a) : base(a)
+        public Request(in Arguments a) : this()
         {
             var first = a[0] ?? throw new ArgumentNullException();
             if (first.IsString)

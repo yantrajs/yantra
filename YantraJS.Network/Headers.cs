@@ -7,13 +7,14 @@ using YantraJS.Core.Clr;
 
 namespace YantraJS.Network
 {
-    public class Headers : KeyValueStore
+    [JSClassGenerator("Headers")]
+    public partial class Headers : KeyValueStore
     {
-        public Headers(in Arguments a) : base(a)
+        public Headers(in Arguments a) : this()
         {
         }
 
-        internal Headers(JSValue? first) : base(first)
+        internal Headers(JSValue? first) : this()
         {
         }
     }

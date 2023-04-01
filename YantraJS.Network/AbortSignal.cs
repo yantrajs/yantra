@@ -2,16 +2,17 @@
 using System;
 using Yantra.Core;
 using Yantra.Core.Events;
+using YantraJS.Core;
 using YantraJS.Core.Clr;
 
 namespace YantraJS.Network
 {
-    public class AbortSignal: EventTarget
+    [JSClassGenerator]
+    public partial class AbortSignal: EventTarget
     {
-        public AbortSignal()
-        {
-            
+        internal AbortSignal(in Arguments a): this() {
         }
+
 
         [JSExport]
         public bool Aborted { get; internal set; }

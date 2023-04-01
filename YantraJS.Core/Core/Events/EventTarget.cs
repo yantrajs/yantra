@@ -9,21 +9,24 @@ using YantraJS.Core.Core.Storage;
 
 namespace Yantra.Core.Events
 {
+    [JSNameGenerator]
+    internal partial class Names
+    {
+
+    }
 
     public delegate JSValue DomEventHandlerDelegate(Event e);
 
-    public class EventTarget: JavaScriptObject
+    [JSClassGenerator]
+    public partial class EventTarget: JSObject
     {
 
-        public EventTarget(in Arguments a): base(a)
+        internal protected EventTarget(JSObject prototype): base(prototype) { }
+
+        public EventTarget(in Arguments a): this()
         {
 
         }
-
-        protected EventTarget(): base(Arguments.Empty) {
-
-        }
-
 
         private static ConcurrentNameMap eventNames = new ConcurrentNameMap();
 

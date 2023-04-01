@@ -18,18 +18,19 @@ namespace YantraJS.Network
             context[Names.fetch] = new JSFunction((in Arguments a) => {
                 return ClrProxy.Marshal(FetchApi.Fetch(context, client, a));
             });
-
-            context[Names.Request] = ClrType.From(typeof(Request));
-
-            context[Names.AbortController] = ClrType.From(typeof(AbortController));
+            Request.RegisterClass(context);
+            // context[Names.Request] = ClrType.From(typeof(Request));
+            AbortController.RegisterClass(context);
+            // context[Names.AbortController] = ClrType.From(typeof(AbortController));
 
             context[Names.AbortSignal] = ClrType.From(typeof(AbortSignal));
 
-            context[Names.FormData] = ClrType.From(typeof(FormData));
+            FormData.RegisterClass(context);
 
-            context[Names.Headers] = ClrType.From(typeof(Headers));
+            Headers.RegisterClass(context);
 
-            context[Names.Blob] = ClrType.From(typeof(Blob));
+            // context[Names.Blob] = ClrType.From(typeof(Blob));
+            Blob.RegisterClass(context);
         }
 
     }
