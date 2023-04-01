@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using Yantra.Core.Events;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
 
@@ -18,19 +19,18 @@ namespace YantraJS.Network
             context[Names.fetch] = new JSFunction((in Arguments a) => {
                 return ClrProxy.Marshal(FetchApi.Fetch(context, client, a));
             });
-            Request.RegisterClass(context);
-            // context[Names.Request] = ClrType.From(typeof(Request));
-            AbortController.RegisterClass(context);
-            // context[Names.AbortController] = ClrType.From(typeof(AbortController));
+            EventTarget.CreateClass(context);
+            KeyValueStore.CreateClass(context);
 
-            context[Names.AbortSignal] = ClrType.From(typeof(AbortSignal));
+            FormData.CreateClass(context);
 
-            FormData.RegisterClass(context);
-
-            Headers.RegisterClass(context);
-
-            // context[Names.Blob] = ClrType.From(typeof(Blob));
-            Blob.RegisterClass(context);
+            Headers.CreateClass(context);
+            Request.CreateClass(context);
+            AbortController.CreateClass(context);
+            AbortSignal.CreateClass(context);
+            Blob.CreateClass(context);
+            URL.CreateClass(context);
+            URLSearchParams.CreateClass(context);
         }
 
     }

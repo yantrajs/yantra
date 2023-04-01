@@ -223,24 +223,40 @@ namespace YantraJS.JSClassGenerator
                     className = ad.ConstructorArguments[0].Value?.ToString() ?? type.Name;
                 }
 
-                sb = sb.AppendLine($"internal protected {type.Name}(): base((JSContext.Current[{names.GetOrCreateName(type.Name)}] as JSFunction).prototype) {{}}");
+                sb = sb.AppendLine($"internal protected {type.Name}(): base((JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
+
+                var hasBaseClasse = type.BaseType.Name != "JSObject";
 
                 // generate each marked method...
-                sb.AppendLine("#pragma warning disable CS0109");
-                sb.AppendLine("public static new void RegisterClass(JSContext context) {");
-                sb.AppendLine("#pragma warning restore CS0109");
+                if (hasBaseClasse)
+                {
+                    sb.AppendLine("public static new JSFunction CreateClass(JSContext context, bool register = true) {");
+                } else
+                {
+                    sb.AppendLine("public static JSFunction CreateClass(JSContext context, bool register = true) {");
+                }
 
                 sb.AppendLine($@"
                 var @class = new JSFunction((in Arguments a) => new {type.Name}(in a), ""{className}"");
-                context[Names.{className}] = @class;
+                if (register) {{
+                    context[Names.{className}] = @class;
+                }}
                 var prototype = @class.prototype;
             ");
+
+                if (hasBaseClasse)
+                {
+                    sb.AppendLine($" var @base = context[\"{type.BaseType.Name}\"] as JSFunction;");
+                    sb = sb.AppendLine($"@class.SetPrototypeOf(@base);");
+                    sb = sb.AppendLine($"prototype.SetPrototypeOf(@base.prototype);");
+                }
 
                 foreach (var member in type.GetMembers())
                 {
                     GenerateMember(sb, member, type, names);
                 }
 
+                sb.AppendLine("return @class;");
                 sb.AppendLine("}");
 
                 sb = sb.AppendLine("}");
