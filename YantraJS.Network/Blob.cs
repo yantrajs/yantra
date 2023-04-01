@@ -23,7 +23,7 @@ namespace YantraJS.Network
                 return buffer.Buffer;
             }
 
-            if(value is ClrProxy proxy && proxy.Target is Blob blob)
+            if(value is Blob blob)
             {
                 return blob.Buffer;
             }
