@@ -153,7 +153,8 @@ namespace YantraJS.Core
             return JSConstants.Object;
         }
 
-        internal JSObject(JSObject prototype) : base(prototype)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public JSObject(JSObject prototype) : base(prototype)
         {
         }
 

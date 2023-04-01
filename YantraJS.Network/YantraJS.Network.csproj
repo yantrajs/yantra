@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	  <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
@@ -14,14 +14,43 @@
 	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	  <EmbedAllSources>True</EmbedAllSources>
 	  <LangVersion>latest</LangVersion>
+	  <!-- <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+	  <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath> -->
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
-	  <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.216">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-	  </PackageReference>
-  </ItemGroup>
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+	</PropertyGroup>
+	<Target Name="AddSourceGeneratedFiles" AfterTargets="CoreCompile">
+		<ItemGroup>
+			<Compile Include="Generated\**" />
+		</ItemGroup>
+	</Target>
+	<Target Name="RemoveSourceGeneratedFiles" BeforeTargets="CoreCompile">
+		<ItemGroup>
+			<Compile Remove="Generated\**" />
+		</ItemGroup>
+	</Target>
 
+	<!-- <ItemGroup>
+		<Compile Remove="$(CompilerGeneratedFilesOutputPath)/*/**/*.cs" />
+	</ItemGroup> -->
+
+	<ItemGroup>
+		<ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.4.216">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference
+			Include="..\YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj"
+			ReferenceOutputAssembly="false"
+			OutputItemType="Analyzer"
+		/>
+
+	</ItemGroup>
 </Project>

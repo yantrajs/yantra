@@ -354,3 +354,4 @@ MigrationBackup/
 
 /tr/*
 /Test/Test.csproj
+/YantraJS.Network/Generated

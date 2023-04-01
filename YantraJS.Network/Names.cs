@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Yantra.Core;
 using YantraJS.Core;
 
 namespace YantraJS.Network
 {
-    public static class Names
+    [JSNameGenerator]
+    public static partial class Names
     {
         public static readonly KeyString AbortController;
         public static readonly KeyString AbortSignal;
@@ -57,19 +59,6 @@ namespace YantraJS.Network
         public static readonly KeyString fetch;
         public static readonly KeyString Blob;
         public static readonly KeyString type;
-
-        static Names()
-        {
-            var fields = typeof(Names).GetFields(
-                BindingFlags.Static
-                | BindingFlags.Public
-                | BindingFlags.DeclaredOnly
-                | BindingFlags.GetField);
-            foreach (FieldInfo field in fields)
-            {
-                field.SetValue(null, KeyStrings.GetOrCreate(field.Name));
-            }
-        }
 
     }
 }

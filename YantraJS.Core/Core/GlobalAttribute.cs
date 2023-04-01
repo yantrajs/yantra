@@ -8,6 +8,24 @@ using YantraJS.Core.Clr;
 
 namespace Yantra.Core
 {
+    public class JSClassGeneratorAttribute: Attribute
+    {
+        public readonly string Name;
+
+        public readonly string KeysClass; 
+
+        public JSClassGeneratorAttribute(string name, string keysClass = "KeyStrings")
+        {
+            this.Name = name;
+            this.KeysClass = keysClass;
+        }
+    }
+
+    public class JSNameGeneratorAttribute : Attribute
+    {
+    }
+
+
     public class GlobalAttribute: Attribute
     {
         public readonly string? Name;

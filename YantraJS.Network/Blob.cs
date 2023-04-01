@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Yantra.Core;
 using YantraJS.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Typed;
@@ -33,11 +34,12 @@ namespace YantraJS.Network
         }
     }
 
-    public class Blob : JavaScriptObject
+    [JSClassGenerator("Blob")]
+    public partial class Blob : JSObject
     {
         public readonly byte[] Buffer;
 
-        public Blob(in Arguments a) : base(a)
+        public Blob(in Arguments a) : this()
         {
             var array = a[0] ?? throw JSContext.CurrentContext.NewTypeError("array is required");
             if(a.TryGetAt(1, out var options))
@@ -49,7 +51,7 @@ namespace YantraJS.Network
             this.Buffer = array.ToBuffer();
         }
 
-        private Blob(byte[] buffer, JSValue type): base(Arguments.Empty)
+        private Blob(byte[] buffer, JSValue type): this()
         {
             Buffer = buffer;
             Type = type;
