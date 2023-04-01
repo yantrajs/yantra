@@ -5,22 +5,12 @@
 	  <AssemblyName>YantraJS.JSClassGenerator</AssemblyName>
 	  <PackageId>YantraJS.JSClassGenerator</PackageId>
 	  <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-	  <IncludeBuildOutput>false</IncludeBuildOutput>
 	  <LangVersion>latest</LangVersion>
 	  <Nullable>enable</Nullable>
 	  <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <Version>1.0.1</Version>
-	  <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-	  <IncludeSymbols>true</IncludeSymbols>
-	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-	  <EmbedAllSources>True</EmbedAllSources>
-	  <DebugType>embedded</DebugType>
-	  <DebugSymbols>true</DebugSymbols>
-	  <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-	  <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 	
   <PropertyGroup>
@@ -31,7 +21,12 @@
 	
   <ItemGroup>
 	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" PrivateAssets="all" />
-	  <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers\dotnet\cs" Visible="false" />
+	    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.216">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
-
+<ItemGroup>
+  <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers\dotnet\cs" Visible="false" />
+</ItemGroup>
 </Project>
