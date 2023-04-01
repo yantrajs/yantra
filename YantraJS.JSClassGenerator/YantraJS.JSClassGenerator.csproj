@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	  <AssemblyName>YantraJS.JSClassGenerator</AssemblyName>
+	  <PackageId>YantraJS.JSClassGenerator</PackageId>
 	  <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 	  <IncludeBuildOutput>false</IncludeBuildOutput>
 	  <LangVersion>latest</LangVersion>
@@ -27,7 +29,7 @@
 						 PrivateAssets="all" />
 	  <None Include="$(OutputPath)\$(AssemblyName).dll"
               Pack="true"
-              PackagePath="analyzers/dotnet/cs"
+              PackagePath="analyzers\dotnet\cs"
               Visible="false" />
   </ItemGroup>
 
