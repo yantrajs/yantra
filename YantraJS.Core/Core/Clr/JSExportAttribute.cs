@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 namespace YantraJS.Core.Clr
 {
@@ -7,6 +8,10 @@ namespace YantraJS.Core.Clr
         public readonly string? Name;
 
         public bool AsCamel = true;
+
+        public int Length { get; set; }
+
+        public bool Pure { get; set; }
 
         public JSExportAttribute(
             string? name = null)

@@ -15,11 +15,15 @@ namespace YantraJS.JSClassGenerator
         public string Name => Type.Name;
         public INamespaceSymbol ContainingNamespace => Type.ContainingNamespace;
 
+        public readonly bool InternalClass;
+
         public JSTypeInfo(ITypeSymbol type)
         {
             Type = type;
 
             var className = type.Name;
+
+            this.InternalClass = false;
 
             foreach(var attribute in type.GetAttributes())
             {
@@ -38,6 +42,10 @@ namespace YantraJS.JSClassGenerator
                         {
                             BaseJSClassName = attribute.ConstructorArguments[0].Value?.ToString();
                         }
+                        break;
+                    case "JSInternalObject":
+                    case "JSInternalObjectAttribute":
+                        InternalClass = true;
                         break;
                 }
             }
