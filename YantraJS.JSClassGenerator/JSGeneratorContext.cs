@@ -56,6 +56,10 @@ namespace YantraJS.JSClassGenerator
             }
 
             BaseClrClassName = type.BaseType!.Name;
+            if (string.IsNullOrWhiteSpace(BaseJSClassName))
+            {
+                BaseJSClassName = BaseClrClassName;
+            }
         }
     }
 

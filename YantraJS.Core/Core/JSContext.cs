@@ -457,9 +457,11 @@ namespace YantraJS.Core
             Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
             DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
             FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
-            JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
+            // JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             Math = CreateInternalObject<JSMath>(KeyStrings.Math);
             Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
+
+            this.RegisterGeneratedClasses();
 
             this.Fill<JSGlobalStatic>();
 

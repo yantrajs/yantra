@@ -7,6 +7,8 @@ using System.Net.Mail;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Schema;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Extensions;
 
@@ -14,14 +16,15 @@ namespace YantraJS.Core
 {
     public delegate JSValue JsonParserReceiver((string key, JSValue value) property);
 
-    public class JSJSON: JSObject
+    [JSClassGenerator("JSON")]
+    public partial class JSJSON: JSObject
     {
-
-        static JSJSON()
+        public JSJSON(in Arguments a): this()
         {
+            throw new NotSupportedException();
         }
 
-        [Static("parse")]
+        [JSExport]
         public static JSValue Parse(in Arguments a)
         {
             var (text, receiver) = a.Get2();
@@ -43,7 +46,7 @@ namespace YantraJS.Core
         //}
 
 
-        [Static("stringify")]
+        [JSExport]
         public static JSValue Stringify(in Arguments a)
         {
             var (f, r, pi) = a.Get3();
