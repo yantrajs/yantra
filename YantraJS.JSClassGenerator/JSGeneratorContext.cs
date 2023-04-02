@@ -85,7 +85,7 @@ namespace YantraJS.JSClassGenerator
                     }
 
                     // if BaseJSClassName does not exist in AssmeblyTypes...
-                    if (AssemblyTypes.FindIndex((x) => x.ClrClassName == item.ClrClassName) == -1)
+                    if (AssemblyTypes.FindIndex((x) => x.ClrClassName == item.BaseClrClassName) == -1)
                     {
                         RegistrationOrder.Add(item);
                         types.Remove(item);
@@ -93,7 +93,7 @@ namespace YantraJS.JSClassGenerator
                     }
 
                     // check if BaseJSClassName exists...
-                    if (RegistrationOrder.FindIndex((x) => x.ClrClassName== item.ClrClassName) != -1)
+                    if (RegistrationOrder.FindIndex((x) => x.ClrClassName== item.BaseClrClassName) != -1)
                     {
                         RegistrationOrder.Add(item);
                         types.Remove(item);
