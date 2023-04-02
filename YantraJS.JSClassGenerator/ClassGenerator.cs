@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace YantraJS.JSClassGenerator
@@ -82,8 +83,9 @@ namespace YantraJS.JSClassGenerator
                 ");
                 }
                 else {
+                    var fxToString = $"function {className}() {{ [native code] }}";
                     sb.AppendLine($@"
-                    var @class = new JSFunction((in Arguments a) => new {type.Name}(in a), ""{className}"");
+                    var @class = new JSFunction((in Arguments a) => new {type.Name}(in a), ""{className}"", ""{fxToString}"");
                     if (register) {{
                         context[Names.{className}] = @class;
                     }}
