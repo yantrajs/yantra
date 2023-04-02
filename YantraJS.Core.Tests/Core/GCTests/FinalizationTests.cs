@@ -35,7 +35,7 @@ namespace YantraJS.Core.Tests.Core.GCTests
 
         private static void Register(JSFinalizationRegistry fr)
         {
-            JSFinalizationRegistry.Register(new Arguments(fr, new JSObject(), new JSString("a")));
+            fr.Register(new Arguments(fr, new JSObject(), new JSString("a")));
         }
     }
 }
