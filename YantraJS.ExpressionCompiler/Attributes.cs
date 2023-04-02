@@ -5,6 +5,24 @@ using System.Text;
 
 namespace Yantra.Core
 {
+    public class JSBaseClassAttribute: Attribute
+    {
+        public readonly string Name;
+
+        public JSBaseClassAttribute(string name)
+        {
+            this.Name = name;
+        }
+    }
+
+    public class JSPrototypeMethodAttribute: Attribute {
+    }
+
+    public class JSGlobalFunctionAttribute: Attribute
+    {
+
+    }
+
     public class JSClassGeneratorAttribute : Attribute
     {
         public readonly string? Name;

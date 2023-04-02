@@ -19,13 +19,27 @@ namespace YantraJS.JSClassGenerator
         {
             Type = type;
 
-            var attribute = type.GetAttribute()!;
-
             var className = type.Name;
 
-            if (attribute.ConstructorArguments.Length > 0)
+            foreach(var attribute in type.GetAttributes())
             {
-                className = attribute.ConstructorArguments[0].Value?.ToString() ?? type.Name;
+                switch(attribute.AttributeClass?.Name)
+                {
+                    case "JSClassGenerator":
+                    case "JSClassGeneratorAttribute":
+                        if(attribute.ConstructorArguments.Length > 0)
+                        {
+                            className = attribute.ConstructorArguments[0].Value?.ToString() ?? className;
+                        }
+                        break;
+                    case "JSBaseClass":
+                    case "JSBaseClassAttribute":
+                        if(attribute.ConstructorArguments.Length > 0)
+                        {
+                            BaseJSClassName = attribute.ConstructorArguments[0].Value?.ToString();
+                        }
+                        break;
+                }
             }
 
             this.ClrClassName = type.Name;
@@ -42,14 +56,6 @@ namespace YantraJS.JSClassGenerator
             }
 
             BaseClrClassName = type.BaseType!.Name;
-            if (attribute.ConstructorArguments.Length > 1)
-            {
-                BaseJSClassName = attribute.ConstructorArguments[1].Value?.ToString() ?? BaseClrClassName;
-            } else
-            {
-                BaseJSClassName = BaseClrClassName;
-            }
-
         }
     }
 

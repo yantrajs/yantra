@@ -123,6 +123,9 @@ namespace YantraJS.JSClassGenerator
                 ?? x.AttributeClass?.Name?.StartsWith("JSExportSameName")
                 ?? false);
 
+            var isStaticOrPrototype = member.IsStatic
+                || member.GetAttributes().Any((x) => x.AttributeClass?.Name?.StartsWith("JSPrototypeMethod") ?? false);
+
             if (exports == null)
             {
                 return;
@@ -134,7 +137,7 @@ namespace YantraJS.JSClassGenerator
 
             sb.AppendLine($"// Export As {name}");
 
-            if (exports.AttributeClass?.Name?.StartsWith("vJSExportSameName") ?? false)
+            if (exports.AttributeClass?.Name?.StartsWith("JSExportSameName") ?? false)
             {
                 name = member.Name;
             }
@@ -145,7 +148,7 @@ namespace YantraJS.JSClassGenerator
 
             sb.AppendLine($"// Generating {member.Name}");
 
-            var target = member.IsStatic
+            var target = isStaticOrPrototype
                     ? "@class"
                     : "prototype";
 
@@ -158,7 +161,7 @@ namespace YantraJS.JSClassGenerator
                     break;
                 case SymbolKind.Method:
 
-                    GenerateMethod(sb, target, name, (member as IMethodSymbol)!);
+                    GenerateMethod(sb, target, name, (member as IMethodSymbol)!, isStaticOrPrototype);
 
                     break;
                 case SymbolKind.Property:
@@ -293,14 +296,15 @@ namespace YantraJS.JSClassGenerator
             StringBuilder sb,
             string target,
             string name,
-            IMethodSymbol method)
+            IMethodSymbol method,
+            bool isStaticOrPrototype)
         {
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
             var keyName = names.GetOrCreateName(name);
             if (method.IsJSFunction())
             {
                 var fx = $"new JSFunction({type.Name}.{method.Name}, \"{name}\")";
-                if (!method.IsStatic)
+                if (!isStaticOrPrototype)
                 {
                     fx = @$"new JSFunction((in Arguments a) =>
                     a.This is {type.Name} @this
