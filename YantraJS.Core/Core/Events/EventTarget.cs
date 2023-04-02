@@ -9,10 +9,13 @@ using YantraJS.Core.Core.Storage;
 
 namespace Yantra.Core.Events
 {
-    [JSNameGenerator]
-    internal partial class Names
+    [JSRegistrationGenerator]
+    internal static partial class Names
     {
-
+        public static void RegisterGeneratedClasses(this JSContext context)
+        {
+            RegisterAll(context);
+        }
     }
 
     public delegate JSValue DomEventHandlerDelegate(Event e);

@@ -18,7 +18,7 @@ namespace Yantra.Core
         }
     }
 
-    public class JSNameGeneratorAttribute : Attribute
+    public class JSRegistrationGeneratorAttribute : Attribute
     {
     }
 }

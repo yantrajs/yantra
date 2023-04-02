@@ -68,10 +68,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj" />
-    <ProjectReference
-		Include="..\YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj"
-        ReferenceOutputAssembly="false"
-		OutputItemType="Analyzer"/>
+    <ProjectReference Include="..\YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
   
   <ItemGroup>
