@@ -264,11 +264,11 @@ namespace YantraJS.Core
 
         // public readonly JSObject JSON;
 
-        public readonly JSMath Math;
+        // public readonly JSMath Math;
 
         public readonly JSFunction Object;
 
-        public readonly JSReflect Reflect;
+        // public readonly JSReflect Reflect;
 
         //public static JSContext Current
         //{
