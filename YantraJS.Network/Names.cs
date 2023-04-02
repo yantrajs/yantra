@@ -15,6 +15,17 @@ namespace YantraJS.Network
     {
         internal static readonly KeyString keepalive;
         internal static readonly KeyString fetch;
+        internal static readonly KeyString method;
+        internal static readonly KeyString headers;
+        internal static readonly KeyString body;
+        internal static readonly KeyString mode;
+        internal static readonly KeyString credentials;
+        internal static readonly KeyString cache;
+        internal static readonly KeyString redirect;
+        internal static readonly KeyString referrer;
+        internal static readonly KeyString referrerPolicy;
+        internal static readonly KeyString integrity;
+        internal static readonly KeyString signal;
 
         public static void InstallNetworkServices(this JSContext context, HttpClient? client = null)
         {
