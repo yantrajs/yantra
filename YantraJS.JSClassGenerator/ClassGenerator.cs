@@ -262,7 +262,7 @@ namespace YantraJS.JSClassGenerator
                 {keyName},
                 {getter},
                 {setter},
-                JSPropertyAttributes.EnumerableConfigurableValue);");
+                JSPropertyAttributes.EnumerableConfigurableProperty);");
 
         }
 
@@ -323,7 +323,7 @@ namespace YantraJS.JSClassGenerator
                 {keyName},
                 {getter},
                 {setter},
-                JSPropertyAttributes.EnumerableConfigurableValue);");
+                JSPropertyAttributes.EnumerableConfigurableProperty);");
 
         }
 
