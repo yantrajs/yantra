@@ -260,7 +260,7 @@ namespace YantraJS.Core
 
         public readonly JSObject DataViewPrototype;
 
-        public readonly JSObject FinalizationRegistryPrototype;
+        // public readonly JSObject FinalizationRegistryPrototype;
 
         // public readonly JSObject JSON;
 
@@ -456,7 +456,7 @@ namespace YantraJS.Core
             Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
             Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
             DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
-            FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
+            // FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
             // JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
             // Math = CreateInternalObject<JSMath>(KeyStrings.Math);
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);

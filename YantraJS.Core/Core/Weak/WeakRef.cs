@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core.Weak
 {
-    public class JSFinalizationRegistry: JSObject
+    [JSClassGenerator("FinalizationRegistry")]
+    public partial class JSFinalizationRegistry: JSObject
     {
         private readonly JSSymbol finalizationSymbol = new JSSymbol("finalization");
 
@@ -13,9 +16,11 @@ namespace YantraJS.Core.Weak
 
         private readonly JSFunction finalizer;
 
-        public JSFinalizationRegistry(JSFunction finalizer): base(JSContext.Current.FinalizationRegistryPrototype)
+        public JSFinalizationRegistry(in Arguments a): this()
         {
-            this.finalizer = finalizer;
+            if (a[0] is not JSFunction fx)
+                throw JSContext.Current.NewTypeError($"Argument is not a function");
+            this.finalizer = fx;
         }
 
         public class WeakObject: JSObject
@@ -41,15 +46,7 @@ namespace YantraJS.Core.Weak
             finalizer.InvokeFunction(new Arguments(this, token));
         }
 
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
-        {
-            if (!(a[0] is JSFunction fx))
-                throw JSContext.Current.NewTypeError($"Argument is not a function");
-            return new JSFinalizationRegistry(fx);
-        }
-
-        [Prototype("unregister")]
+        [JSExport]
         public static JSValue Unregister(in Arguments a)
         {
             if (!(a.This is JSFinalizationRegistry @this))
@@ -63,7 +60,7 @@ namespace YantraJS.Core.Weak
         }
 
 
-        [Prototype("register")]
+        [JSExport]
         public static JSValue Register(in Arguments a)
         {
             if (!(a.This is JSFinalizationRegistry @this))
@@ -108,7 +105,7 @@ namespace YantraJS.Core.Weak
             return new JSWeakRef(a.Get1());
         }
 
-        [Prototype("deref")]
+        [JSExport]
         public static JSValue Deref(in Arguments a)
         {
             if (!(a.This is JSWeakRef wr))
