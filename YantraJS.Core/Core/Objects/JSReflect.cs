@@ -7,7 +7,7 @@ using YantraJS.Extensions;
 
 namespace YantraJS.Core.Objects
 {
-    [JSClassGenerator, JSInternalObject]
+    [JSClassGenerator("Reflect"), JSInternalObject]
     public partial class JSReflect: JSObject
     {
 
