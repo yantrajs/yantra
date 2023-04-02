@@ -47,31 +47,27 @@ namespace YantraJS.Core.Weak
         }
 
         [JSExport]
-        public static JSValue Unregister(in Arguments a)
+        public JSValue Unregister(in Arguments a)
         {
-            if (!(a.This is JSFinalizationRegistry @this))
-                throw JSContext.Current.NewTypeError($"Invalid receiver");
             if (!(a[0] is JSObject obj))
                 throw JSContext.Current.NewTypeError($"Argument is not an object");
             // var weakRef = obj[@this.finalizationSymbol] as WeakObject;
             // GC.SuppressFinalize(weakRef);
-            @this.Unregister(a[0]);
+            this.Unregister(a[0]);
             return JSUndefined.Value;
         }
 
 
         [JSExport]
-        public static JSValue Register(in Arguments a)
+        public JSValue Register(in Arguments a)
         {
-            if (!(a.This is JSFinalizationRegistry @this))
-                throw JSContext.Current.NewTypeError($"Invalid receiver");
             if (!(a[0] is JSObject obj))
                 throw JSContext.Current.NewTypeError($"Argument is not an object");
             var token = a[1];
             if (token?.IsNullOrUndefined ?? false)
                 throw JSContext.Current.NewTypeError($"Token is required");
             // obj[@this.finalizationSymbol] = new WeakObject(@this, a[1]);
-            @this.Register(obj, token);
+            this.Register(obj, token);
             return JSUndefined.Value;
         }
 
@@ -106,11 +102,9 @@ namespace YantraJS.Core.Weak
         }
 
         [JSExport]
-        public static JSValue Deref(in Arguments a)
+        public JSValue Deref(in Arguments a)
         {
-            if (!(a.This is JSWeakRef wr))
-                throw JSContext.Current.NewTypeError("WeakRef.prototype.deref receiver is not WeakRef");
-            if (wr.weak.TryGetTarget(out var v))
+            if (weak.TryGetTarget(out var v))
                 return v;
             return JSUndefined.Value;
         }
