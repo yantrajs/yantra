@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core.Objects
 {
-    public class JSMath: JSObject
+    [JSClassGenerator("Math"), JSInternalObject]
+    public partial class JSMath: JSObject
     {
         static System.Random randomGenertor = new System.Random();
 
@@ -15,37 +18,37 @@ namespace YantraJS.Core.Objects
         }
 
 
-        [Static(nameof(E))]
-        public static double E = Math.E;
+        [JSExportSameName]
+        public readonly static double E = Math.E;
 
-        [Static(nameof(LN10))]
-        public static double LN10 = Math.Log(10);
+        [JSExportSameName]
+        public readonly static double LN10 = Math.Log(10);
 
-        [Static(nameof(LN2))]
-        public static double LN2 = Math.Log(2);
+        [JSExportSameName]
+        public readonly static double LN2 = Math.Log(2);
 
-        [Static(nameof(LOG10E))]
-        public static double LOG10E = Math.Log10(E);
+        [JSExportSameName]
+        public readonly static double LOG10E = Math.Log10(E);
 
-        [Static(nameof(LOG2E))]
-        public static double LOG2E = Math.Log(E);
+        [JSExportSameName]
+        public readonly static double LOG2E = Math.Log(E);
 
-        [Static(nameof(PI))]
-        public static double PI = Math.PI;
+        [JSExportSameName]
+        public readonly static double PI = Math.PI;
 
-        [Static(nameof(SQRT1_2))]
-        public static double SQRT1_2 = Math.Sqrt(0.5);
+        [JSExportSameName]
+        public readonly static double SQRT1_2 = Math.Sqrt(0.5);
 
-        [Static(nameof(SQRT2))]
-        public static double SQRT2 = Math.Sqrt(2);
+        [JSExportSameName]
+        public readonly static double SQRT2 = Math.Sqrt(2);
 
-        [Static("random")]
+        [JSExport]
         public static JSValue Random(in Arguments a)
         {
             return new JSNumber(randomGenertor.NextDouble());
         }
 
-        [Static("round")]
+        [JSExport]
         public static JSValue Round(in Arguments args)
         {
             var first = args.Get1();
@@ -74,7 +77,7 @@ namespace YantraJS.Core.Objects
         /// <param name="t"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("floor")]
+        [JSExport]
         public static JSValue Floor(in Arguments args) {
             var first = args.Get1();
             var d = first.DoubleValue;
@@ -94,7 +97,7 @@ namespace YantraJS.Core.Objects
         /// <param name="t"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("acos")]
+        [JSExport]
         public static JSValue Acos(in Arguments args)
         {
             var first = args.Get1();
@@ -109,7 +112,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("abs")]
+        [JSExport]
         public static JSValue Abs(in Arguments args)
         {
             var first = args.Get1();
@@ -132,7 +135,7 @@ namespace YantraJS.Core.Objects
         /// <param name="args"></param>
         /// <returns></returns>
 
-        [Static("acosh")]
+        [JSExport]
         public static JSValue Acosh(in Arguments args)
         {
             var first = args.Get1();
@@ -141,7 +144,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("asin")]
+        [JSExport]
         public static JSValue Asin(in Arguments args)
         {
             var first = args.Get1();
@@ -157,7 +160,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("asinh")]
+        [JSExport]
         public static JSValue Asinh(in Arguments args)
         {
             var first = args.Get1();
@@ -166,7 +169,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("atan")]
+        [JSExport]
         public static JSValue Atan(in Arguments args)
         {
             var first = args.Get1();
@@ -181,7 +184,7 @@ namespace YantraJS.Core.Objects
         /// <param name="args"></param>
         /// <returns></returns>
 
-        [Static("atan2")]
+        [JSExport]
         public static JSValue Atan2(in Arguments args)
         {
             var (first, second) = args.Get2();
@@ -208,7 +211,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("atanh")]
+        [JSExport]
         public static JSValue Atanh(in Arguments args)
         {
             var first = args.Get1();
@@ -222,7 +225,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("cbrt")]
+        [JSExport]
         public static JSValue Cbrt(in Arguments args)
         {
             var first = args.Get1();
@@ -231,7 +234,7 @@ namespace YantraJS.Core.Objects
             return new JSNumber (d < 0 ? -r : r);
         }
 
-        [Static("ceil")]
+        [JSExport]
         public static JSValue Ceil(in Arguments args)
         {
             var first = args.Get1();
@@ -255,7 +258,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("clz32")]
+        [JSExport]
         public static JSValue Clz32(in Arguments args)
         {
             var first = args.Get1();
@@ -271,7 +274,7 @@ namespace YantraJS.Core.Objects
             return new JSNumber(r);
         }
 
-        [Static("cos")]
+        [JSExport]
         public static JSValue Cos(in Arguments args)
         {
             var first = args.Get1();
@@ -280,7 +283,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("cosh")]
+        [JSExport]
         public static JSValue Cosh(in Arguments args)
         {
             var first = args.Get1();
@@ -289,7 +292,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("exp")]
+        [JSExport]
         public static JSValue Exp(in Arguments args)
         {
             var first = args.Get1();
@@ -303,7 +306,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("expm1")]
+        [JSExport]
         public static JSValue Expm1(in Arguments args)
         {
             var first = args.Get1();
@@ -327,7 +330,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("fround")]
+        [JSExport]
         public static JSValue Fround(in Arguments args)
         {
             var first = args.Get1();
@@ -342,7 +345,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("hypot")]
+        [JSExport]
         public static JSValue Hypot(in Arguments args)
         {
             int length = args.Length;
@@ -392,7 +395,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("imul")]
+        [JSExport]
         public static JSValue Imul(in Arguments args)
         {
             var (first, second) = args.Get2();
@@ -404,7 +407,7 @@ namespace YantraJS.Core.Objects
         }
 
 
-        [Static("log")]
+        [JSExport]
         public static JSValue Log(in Arguments args)
         {
             var first = args.Get1();
@@ -414,7 +417,7 @@ namespace YantraJS.Core.Objects
 
         }
 
-        [Static("log10")]
+        [JSExport]
         public static JSValue Log10(in Arguments args)
         {
             var first = args.Get1();
@@ -430,7 +433,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("log1p")]
+        [JSExport]
         public static JSValue Log1p(in Arguments args)
         {
             var first = args.Get1();
@@ -455,7 +458,7 @@ namespace YantraJS.Core.Objects
         /// <param name="args"></param>
         /// <returns></returns>
 
-        [Static("log2")]
+        [JSExport]
         public static JSValue Log2(in Arguments args)
         {
             var first = args.Get1();
@@ -470,7 +473,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("max")]
+        [JSExport]
         public static JSValue Max(in Arguments args)
         {
          
@@ -492,7 +495,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("min")]
+        [JSExport]
         public static JSValue Min(in Arguments args)
         {
 
@@ -515,7 +518,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("pow")]
+        [JSExport]
         public static JSValue Pow(in Arguments args)
         {
             var (first, second) = args.Get2();
@@ -536,7 +539,7 @@ namespace YantraJS.Core.Objects
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Static("sign")]
+        [JSExport]
         public static JSValue Sign(in Arguments args)
         {
             var first = args.Get1();
@@ -551,7 +554,7 @@ namespace YantraJS.Core.Objects
         }
 
 
-        [Static("sin")]
+        [JSExport]
         public static JSValue Sin(in Arguments args)
         {
             var first = args.Get1();
@@ -561,7 +564,7 @@ namespace YantraJS.Core.Objects
         }
 
 
-        [Static("sinh")]
+        [JSExport]
         public static JSValue Sinh(in Arguments args)
         {
             var first = args.Get1();
@@ -571,7 +574,7 @@ namespace YantraJS.Core.Objects
         }
 
 
-        [Static("sqrt")]
+        [JSExport]
         public static JSValue Sqrt(in Arguments args)
         {
             var first = args.Get1();
@@ -582,7 +585,7 @@ namespace YantraJS.Core.Objects
 
 
 
-        [Static("tan")]
+        [JSExport]
         public static JSValue Tan(in Arguments args)
         {
             var first = args.Get1();
@@ -591,7 +594,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("tanh")]
+        [JSExport]
         public static JSValue Tanh(in Arguments args)
         {
             var first = args.Get1();
@@ -600,7 +603,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("trunc")]
+        [JSExport]
         public static JSValue Trunc(in Arguments args)
         {
             var first = args.Get1();

@@ -6,8 +6,43 @@ using System.Text;
 
 namespace YantraJS.JSClassGenerator
 {
+    internal class JSExportInfo
+    {
+        public string? Name;
+        public string? Length;
+    }
+
     internal static class ITypeSymbolExtensions
     {
+
+        public static JSExportInfo? GetExportAttribute(this IMethodSymbol method)
+        {
+            foreach(var a in method.GetAttributes())
+            {
+                if(a.AttributeClass?.Name?.StartsWith("JSExport") ?? false)
+                {
+                    var e = new JSExportInfo { };
+                    if(a.ConstructorArguments.Length > 0)
+                    {
+                        e.Name = a.ConstructorArguments[0].Value?.ToString() ?? null;
+                    }
+                    foreach(var kvp in a.NamedArguments)
+                    {
+                        if(kvp.Key == "Length")
+                        {
+                            e.Length = kvp.Value.Value?.ToString();
+                        }
+                    }
+                    return e;
+                }
+            }
+            return null;
+        }
+
+        public static bool IsConstructor(this IMethodSymbol method)
+        {
+            return method.Name == ".ctor";
+        }
 
         public static string ToClrName(this ITypeSymbol type)
         {

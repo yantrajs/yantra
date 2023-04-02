@@ -16,14 +16,9 @@ namespace YantraJS.Core
 {
     public delegate JSValue JsonParserReceiver((string key, JSValue value) property);
 
-    [JSClassGenerator("JSON")]
+    [JSClassGenerator("JSON"), JSInternalObject]
     public partial class JSJSON: JSObject
     {
-        public JSJSON(in Arguments a): this()
-        {
-            throw new NotSupportedException();
-        }
-
         [JSExport]
         public static JSValue Parse(in Arguments a)
         {

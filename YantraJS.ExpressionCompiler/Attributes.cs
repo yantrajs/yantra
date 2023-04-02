@@ -5,6 +5,10 @@ using System.Text;
 
 namespace Yantra.Core
 {
+    public class JSInternalObjectAttribute: Attribute
+    {
+
+    }
     public class JSBaseClassAttribute: Attribute
     {
         public readonly string Name;
