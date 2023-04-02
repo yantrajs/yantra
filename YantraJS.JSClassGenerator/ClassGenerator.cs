@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace YantraJS.JSClassGenerator
@@ -56,29 +57,58 @@ namespace YantraJS.JSClassGenerator
 
                 var hasBaseClasse = type.BaseClrClassName != null;
 
+                var createClassReturnType = "JSFunction";
+                if(type.InternalClass)
+                {
+                    createClassReturnType = "JSObject";
+                }
+
                 // generate each marked method...
                 if (hasBaseClasse)
                 {
-                    sb.AppendLine("public static new JSFunction CreateClass(JSContext context, bool register = true) {");
+                    sb.AppendLine($"public static new {createClassReturnType} CreateClass(JSContext context, bool register = true) {{");
                 }
                 else
                 {
-                    sb.AppendLine("public static JSFunction CreateClass(JSContext context, bool register = true) {");
+                    sb.AppendLine($"public static {createClassReturnType} CreateClass(JSContext context, bool register = true) {{");
                 }
 
-                sb.AppendLine($@"
-                var @class = new JSFunction((in Arguments a) => new {type.Name}(in a), ""{className}"");
-                if (register) {{
-                    context[Names.{className}] = @class;
-                }}
-                var prototype = @class.prototype;
-            ");
+
+                if (type.InternalClass) {
+                    sb.AppendLine($@"
+                    var @class = new JSObject();
+                    if (register) {{
+                        context[Names.{className}] = @class;
+                    }}
+                ");
+                }
+                else {
+                    var l = type.ConstructorLength ?? "";
+                    if (l.Length>0)
+                    {
+                        l = ", length:" + l;
+                    }
+                    var fxToString = $"function {className}() {{ [native code] }}";
+                    sb.AppendLine($@"
+                    var @class = new JSFunction((in Arguments a) => new {type.Name}(in a)
+                        , ""{className}""
+                        , ""{fxToString}""
+                        {l});
+                    if (register) {{
+                        context[Names.{className}] = @class;
+                    }}
+                    var prototype = @class.prototype;
+                ");
+                }
 
                 if (hasBaseClasse)
                 {
                     sb.AppendLine($" var @base = context[\"{type.BaseJSClassName}\"] as JSFunction;");
                     sb = sb.AppendLine($"@class.SetPrototypeOf(@base);");
-                    sb = sb.AppendLine($"prototype.SetPrototypeOf(@base.prototype);");
+                    if (!type.InternalClass)
+                    {
+                        sb = sb.AppendLine($"prototype.SetPrototypeOf(@base.prototype);");
+                    }
                 } else
                 {
                     if (className != "Object")
@@ -88,7 +118,10 @@ namespace YantraJS.JSClassGenerator
 
                         sb.AppendLine($" var @base = context[KeyStrings.Object] as JSFunction;");
                         sb = sb.AppendLine($"@class.SetPrototypeOf(@base);");
-                        sb = sb.AppendLine($"prototype.SetPrototypeOf(@base.prototype);");
+                        if (!type.InternalClass)
+                        {
+                            sb = sb.AppendLine($"prototype.SetPrototypeOf(@base.prototype);");
+                        }
                     }
                 }
 
@@ -176,11 +209,8 @@ namespace YantraJS.JSClassGenerator
             string name,
             IFieldSymbol method)
         {
-            var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
-            var keyName = names.GetOrCreateName(name);
 
-            string setter = "null";
-            string getter = "null";
+            var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
 
             var access = !method.IsStatic
                 ? $"@this.{method.Name}"
@@ -188,6 +218,19 @@ namespace YantraJS.JSClassGenerator
 
             var clrProxyMarshal = access.ClrProxyMarshal(method.Type, name);
             var toClr = "a[0]".ToJSValueFromClr(method.Type, name);
+            var keyName = names.GetOrCreateName(name);
+
+            if (method.IsStatic && method.IsReadOnly)
+            {
+                sb.AppendLine(@$"{target}.FastAddValue(
+                {keyName},
+                {clrProxyMarshal},
+                JSPropertyAttributes.EnumerableConfigurableValue);");
+                return;
+            }
+            string setter = "null";
+            string getter = "null";
+
 
             if (!method.IsStatic)
             {
@@ -227,7 +270,7 @@ namespace YantraJS.JSClassGenerator
                 {keyName},
                 {getter},
                 {setter},
-                JSPropertyAttributes.EnumerableConfigurableValue);");
+                JSPropertyAttributes.EnumerableConfigurableProperty);");
 
         }
 
@@ -288,7 +331,7 @@ namespace YantraJS.JSClassGenerator
                 {keyName},
                 {getter},
                 {setter},
-                JSPropertyAttributes.EnumerableConfigurableValue);");
+                JSPropertyAttributes.EnumerableConfigurableProperty);");
 
         }
 
@@ -299,18 +342,31 @@ namespace YantraJS.JSClassGenerator
             IMethodSymbol method,
             bool isStaticOrPrototype)
         {
+            if (method.IsConstructor())
+            {
+                return;
+            }
+
+            var e = method.GetExportAttribute();
+
+            var l = $",\"function {name}() {{ [native] }}\", createPrototype: false";
+            if (e?.Length != null && e.Length.Length > 0) {
+                l += ", length: " + e.Length;
+            }
+
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
             var keyName = names.GetOrCreateName(name);
             if (method.IsJSFunction())
             {
-                var fx = $"new JSFunction({type.Name}.{method.Name}, \"{name}\")";
+                var fx = $"new JSFunction({type.Name}.{method.Name}, \"{name}\" {l})";
                 if (!isStaticOrPrototype)
                 {
                     fx = @$"new JSFunction((in Arguments a) =>
                     a.This is {type.Name} @this
                         ? @this.{method.Name}(in a)
-                        : {t} ,
-                ""{name}"")";
+                        : {t}
+                        , ""{name}""
+                        {l})";
                 }
                 sb.AppendLine($"{target}.FastAddValue({keyName}, {fx}, JSPropertyAttributes.EnumerableConfigurableValue);");
                 return;
@@ -356,6 +412,7 @@ namespace YantraJS.JSClassGenerator
 
             var body = @$"new JSFunction({fb.ToString().Replace("\n", "\n\t\t\t")},
                 ""{method.Name}""
+                {l}
             )";
 
             sb.AppendLine($"{target}.FastAddValue({keyName}, {body}, JSPropertyAttributes.EnumerableConfigurableValue);");

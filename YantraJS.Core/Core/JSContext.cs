@@ -258,17 +258,17 @@ namespace YantraJS.Core
 
         public readonly JSObject Float64ArrayPrototype;
 
-        public readonly JSObject DataViewPrototype;
+        // public readonly JSObject DataViewPrototype;
 
-        public readonly JSObject FinalizationRegistryPrototype;
+        // public readonly JSObject FinalizationRegistryPrototype;
 
-        public readonly JSObject JSON;
+        // public readonly JSObject JSON;
 
-        public readonly JSMath Math;
+        // public readonly JSMath Math;
 
         public readonly JSFunction Object;
 
-        public readonly JSReflect Reflect;
+        // public readonly JSReflect Reflect;
 
         //public static JSContext Current
         //{
@@ -392,26 +392,26 @@ namespace YantraJS.Core
 
             ref var ownProperties = ref this.GetOwnProperties();
 
-            T CreateInternalObject<T>(KeyString name)
-                where T: JSObject
-            {
-                var r = Activator.CreateInstance<T>();
-                ref var rop = ref r.GetOwnProperties();
-                var cached = cache.GetOrCreate(name.Key, () => { 
-                    return Bootstrap.Create(name, typeof(T));
-                });
+            //T CreateInternalObject<T>(KeyString name)
+            //    where T: JSObject
+            //{
+            //    var r = Activator.CreateInstance<T>();
+            //    ref var rop = ref r.GetOwnProperties();
+            //    var cached = cache.GetOrCreate(name.Key, () => { 
+            //        return Bootstrap.Create(name, typeof(T));
+            //    });
 
-                ref var op = ref this.GetOwnProperties();
+            //    ref var op = ref this.GetOwnProperties();
 
-                op.Put(name, r, JSPropertyAttributes.ConfigurableReadonlyValue);
-                var ve = cached.GetOwnProperties().GetEnumerator(false);
-                while(ve.MoveNext(out var keyString, out var value))
-                {
-                    rop.Put(keyString.Key) = value;
-                }
+            //    op.Put(name, r, JSPropertyAttributes.ConfigurableReadonlyValue);
+            //    var ve = cached.GetOwnProperties().GetEnumerator(false);
+            //    while(ve.MoveNext(out var keyString, out var value))
+            //    {
+            //        rop.Put(keyString.Key) = value;
+            //    }
 
-                return r;
-            }
+            //    return r;
+            //}
 
             this.Create<JSSymbol>(KeyStrings.Symbol);
             var func = this.Create<JSFunction>(KeyStrings.Function);
@@ -455,11 +455,11 @@ namespace YantraJS.Core
             Uint32ArrayPrototype = this.Create<Uint32Array>(KeyStrings.Uint32Array).prototype;
             Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
             Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
-            DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
-            FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
+            // DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
+            // FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
             // JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
-            Math = CreateInternalObject<JSMath>(KeyStrings.Math);
-            Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
+            // Math = CreateInternalObject<JSMath>(KeyStrings.Math);
+            // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.RegisterGeneratedClasses();
 
