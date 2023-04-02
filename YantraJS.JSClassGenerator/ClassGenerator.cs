@@ -83,9 +83,17 @@ namespace YantraJS.JSClassGenerator
                 ");
                 }
                 else {
+                    var l = type.ConstructorLength ?? "";
+                    if (l.Length>0)
+                    {
+                        l = ", length:" + l;
+                    }
                     var fxToString = $"function {className}() {{ [native code] }}";
                     sb.AppendLine($@"
-                    var @class = new JSFunction((in Arguments a) => new {type.Name}(in a), ""{className}"", ""{fxToString}"");
+                    var @class = new JSFunction((in Arguments a) => new {type.Name}(in a)
+                        , ""{className}""
+                        , ""{fxToString}""
+                        {l});
                     if (register) {{
                         context[Names.{className}] = @class;
                     }}
@@ -334,18 +342,31 @@ namespace YantraJS.JSClassGenerator
             IMethodSymbol method,
             bool isStaticOrPrototype)
         {
+            if (method.IsConstructor())
+            {
+                return;
+            }
+
+            var e = method.GetExportAttribute();
+
+            var l = $",\"function {name}() {{ [native] }}\", createPrototype: false";
+            if (e?.Length != null && e.Length.Length > 0) {
+                l += ", length: " + e.Length;
+            }
+
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
             var keyName = names.GetOrCreateName(name);
             if (method.IsJSFunction())
             {
-                var fx = $"new JSFunction({type.Name}.{method.Name}, \"{name}\")";
+                var fx = $"new JSFunction({type.Name}.{method.Name}, \"{name}\" {l})";
                 if (!isStaticOrPrototype)
                 {
                     fx = @$"new JSFunction((in Arguments a) =>
                     a.This is {type.Name} @this
                         ? @this.{method.Name}(in a)
-                        : {t} ,
-                ""{name}"")";
+                        : {t}
+                        , ""{name}""
+                        {l})";
                 }
                 sb.AppendLine($"{target}.FastAddValue({keyName}, {fx}, JSPropertyAttributes.EnumerableConfigurableValue);");
                 return;
@@ -391,6 +412,7 @@ namespace YantraJS.JSClassGenerator
 
             var body = @$"new JSFunction({fb.ToString().Replace("\n", "\n\t\t\t")},
                 ""{method.Name}""
+                {l}
             )";
 
             sb.AppendLine($"{target}.FastAddValue({keyName}, {body}, JSPropertyAttributes.EnumerableConfigurableValue);");
