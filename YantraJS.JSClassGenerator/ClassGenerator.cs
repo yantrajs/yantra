@@ -53,7 +53,9 @@ namespace YantraJS.JSClassGenerator
 
                 var className = type.JSClassName;
 
-                sb = sb.AppendLine($"internal protected {type.Name}(): base((JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
+                // sb = sb.AppendLine($"internal protected {type.Name}(): base((JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
+
+                sb = sb.AppendLine($"internal protected {type.Name}(JSObject? prototype = null): base(prototype ?? (JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
 
                 var hasBaseClasse = type.BaseClrClassName != null;
 
@@ -89,8 +91,11 @@ namespace YantraJS.JSClassGenerator
                         l = ", length:" + l;
                     }
                     var fxToString = $"function {className}() {{ [native code] }}";
+
+                    var clrFunctionType = type.GenerateClass ? "JSClassFunction" : "JSFunction";
+
                     sb.AppendLine($@"
-                    var @class = new JSFunction((in Arguments a) => new {type.Name}(in a)
+                    var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
                         , ""{className}""
                         , ""{fxToString}""
                         {l});
@@ -387,9 +392,9 @@ namespace YantraJS.JSClassGenerator
             }
             foreach (var p in method.Parameters)
             {
-                calls.Add(p.Name);
-                var v = $"a[{i}]".ToJSValueFromClr(p.Type, p.Name);
-                fb.AppendLine($"var {p.Name} = {v};");
+                calls.Add("p" + p.Name);
+                var v = $"a[{i++}]".ToJSValueFromClr(p.Type, p.Name);
+                fb.AppendLine($"var p{p.Name} = {v};");
             }
             var args = string.Join(", ", calls);
 

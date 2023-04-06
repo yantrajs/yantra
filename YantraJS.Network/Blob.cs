@@ -39,7 +39,7 @@ namespace YantraJS.Network
     {
         public readonly byte[] Buffer;
 
-        public Blob(in Arguments a) : this()
+        public Blob(in Arguments a) : base(a.NewPrototype)
         {
             var array = a[0] ?? throw JSContext.CurrentContext.NewTypeError("array is required");
             if(a.TryGetAt(1, out var options))

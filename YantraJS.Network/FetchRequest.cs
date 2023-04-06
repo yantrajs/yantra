@@ -13,7 +13,7 @@ namespace YantraJS.Network
     [JSClassGenerator]
     public partial class Request : JSObject
     {
-        public Request(in Arguments a) : this()
+        public Request(in Arguments a) : base(a.NewPrototype)
         {
             var first = a[0] ?? throw new ArgumentNullException();
             if (first.IsString)

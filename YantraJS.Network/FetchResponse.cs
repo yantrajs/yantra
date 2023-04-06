@@ -13,7 +13,7 @@ namespace YantraJS.Network
     {
         private readonly HttpResponseMessage message;
 
-        private FetchResponse(in Arguments a): this()
+        private FetchResponse(in Arguments a): base(a.NewPrototype)
         {
 
         }

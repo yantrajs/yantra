@@ -1,149 +1,132 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Runtime;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
+    internal delegate void UnregisterWeakValue(in HashedString key);
+
+    internal class WeakValue
+    {
+        private readonly UnregisterWeakValue unregister;
+        private readonly HashedString key;
+        public readonly JSValue value;
+
+        public WeakValue(HashedString key, JSValue value, UnregisterWeakValue unregister)
+        {
+            this.unregister = unregister;
+            this.key = key;
+            this.value = value;
+        }
+
+        ~WeakValue()
+        {
+            unregister(in key);
+        }
+    }
+
+    [JSClassGenerator("WeakMap")]
     public partial class JSWeakMap: JSObject
     {
 
-        private StringMap<(WeakReference<JSValue> key, JSValue value)>
-            items = new StringMap<(WeakReference<JSValue> key, JSValue value)>();
 
-        public JSWeakMap(): base(JSContext.Current.WeakMapPrototype)
+        private StringMap<WeakReference<WeakValue>> index;
+
+        public JSWeakMap(in Arguments a) : base(a.NewPrototype)
         {
-            this.SetTimeout();
+            if (a[0] is JSArray array)
+            {
+                var en = array.GetElementEnumerator();
+                while (en.MoveNext(out var value))
+                    Set((JSObject)value[0], value[1]);
+            }
+
         }
 
-        private void ClearWeak()
+        [JSExport("set")]
+        public JSValue Set(JSObject key, JSValue value)
         {
+            HashedString uk = key.ToUniqueID();
             lock (this)
             {
-                var keysToDelete = new Sequence<StringSpan>();
-                int count= 0;
-                foreach (var item in items.AllValues())
+                if (!index.TryGetValue(uk, out var w))
                 {
-                    if (!item.Value.key.TryGetTarget(out var v))
+                    index.Put(uk) = new(new(uk, value, Unregister));
+                }
+            }
+            return value;
+        }
+
+        private void Unregister(in HashedString key)
+        {
+            index.RemoveAt(key.Value);
+        }
+
+
+        [JSExport("delete")]
+        public JSValue Delete(in Arguments a)
+        {
+            var key = a.Get1().ToUniqueID();
+            lock (this)
+            {
+                if (index.TryRemove(key, out var w))
+                {
+                    if (w.TryGetTarget(out var target))
                     {
-                        keysToDelete.Add(item.Key);
-                        continue;
+                        GC.SuppressFinalize(target);
                     }
-                    count++;
-                }
-                foreach (var key in keysToDelete)
-                {
-                    items.RemoveAt(key);
-                }
-
-                if (count > 0)
-                {
-                    SetTimeout();
-                }
-            }
-        }
-
-        private void SetTimeout()
-        {
-            Task.Run(async () =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(30));
-                this.ClearWeak();
-            });
-        }
-
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
-        {
-            return new JSWeakMap();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static JSWeakMap ToWeakMap(JSValue t, [CallerMemberName] string name = null)
-        {
-            if (t is JSWeakMap w)
-                return w;
-            throw JSContext.Current.NewTypeError($"WeakMap.prototype.{name} was not called with receiver WeakMap");
-        }
-
-        [Prototype("delete")]
-        public static JSValue Delete(in Arguments a)
-        {
-            var w = ToWeakMap(a.This);
-            lock (w)
-            {
-                var key = a.Get1().ToUniqueID();
-                if (w.items.RemoveAt(key))
                     return JSBoolean.True;
-                
+                }
             }
+
             return JSBoolean.False;
         }
 
-        [Prototype("get")]
-        public static JSValue Get(in Arguments a)
+        [JSExport("has")]
+        public JSValue Has(in Arguments a)
         {
-            var w = ToWeakMap(a.This);
-            lock (w)
+            var key = a.Get1().ToUniqueID();
+            lock (this)
             {
-                var a1 = a.Get1();
-                if (!a1.IsObject)
-                    return JSUndefined.Value;
-                var key = a.Get1().ToUniqueID();
-                if (w.items.TryGetValue(key, out var v))
+                if (index.TryGetValue(key, out var v))
                 {
-                    if (v.key.TryGetTarget(out var vk))
-                    {
-                        return v.value;
-                    }
-                    w.items.RemoveAt(key);
-                }
-
-            }
-            return JSUndefined.Value;
-
-        }
-
-        [Prototype("set")]
-        public static JSValue Set(in Arguments a)
-        {
-            var w = ToWeakMap(a.This);
-            var (first, second) = a.Get2();
-            if (!(first is JSObject))
-                throw JSContext.Current.NewTypeError($"Key cannot be a primitive value");
-            lock (w)
-            {
-                var key = first.ToUniqueID();
-                w.items.Save(key, ( new WeakReference<JSValue>(first), second ));
-            }
-            return a.This;
-        }
-
-        [Prototype("has")]
-        public static JSValue Has(in Arguments a)
-        {
-            var w = ToWeakMap(a.This);
-            lock (w)
-            {
-                var key = a.Get1().ToUniqueID();
-                if (w.items.TryGetValue(key, out var v))
-                {
-                    if (v.key.TryGetTarget(out var vk))
+                    if (v.TryGetTarget(out var target))
                     {
                         return JSBoolean.True;
                     }
-                    w.items.RemoveAt(key);
                 }
-
             }
-            return JSBoolean.False;
 
+            return JSUndefined.Value;
+        }
+
+
+        [JSExport("get")]
+        public JSValue Get(JSObject key)
+        {
+            var uk = key.ToUniqueID();
+            lock (this)
+            {
+                if (index.TryGetValue(uk, out var v))
+                {
+                    if (v.TryGetTarget(out var target))
+                    {
+                        return target.value;
+                    }
+                }
+            }
+
+            return JSUndefined.Value;
         }
     }
 }

@@ -19,6 +19,8 @@ namespace YantraJS.JSClassGenerator
 
         public readonly string? ConstructorLength;
 
+        public readonly bool GenerateClass;
+
         public JSTypeInfo(ITypeSymbol type)
         {
             Type = type;
@@ -35,6 +37,14 @@ namespace YantraJS.JSClassGenerator
                     case "JSClassGenerator":
                     case "JSClassGeneratorAttribute":
                         if(attribute.ConstructorArguments.Length > 0)
+                        {
+                            className = attribute.ConstructorArguments[0].Value?.ToString() ?? className;
+                        }
+                        GenerateClass = true;
+                        break;
+                    case "JSFunctionGenerator":
+                    case "JSFunctionGeneratorAttribute":
+                        if (attribute.ConstructorArguments.Length > 0)
                         {
                             className = attribute.ConstructorArguments[0].Value?.ToString() ?? className;
                         }

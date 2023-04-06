@@ -16,7 +16,7 @@ namespace YantraJS.Core.Core.DataView
         internal readonly int byteLength;
 
         [JSExport(Length = 3)]
-        public DataView(in Arguments a): this()
+        public DataView(in Arguments a): this(a.NewPrototype)
         {
             var buffer = a[0] as JSArrayBuffer ?? throw JSContext.CurrentContext.NewTypeError("First argument to DataView constructor must be an ArrayBuffer.");
 
