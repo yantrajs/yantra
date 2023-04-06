@@ -15,10 +15,7 @@ namespace Yantra.Core.Events
     [JSClassGenerator]
     public partial class EventTarget: JSObject
     {
-
-        internal protected EventTarget(JSObject prototype): base(prototype) { }
-
-        public EventTarget(in Arguments a): this()
+        public EventTarget(in Arguments a): this(a.NewPrototype)
         {
 
         }
@@ -36,10 +33,10 @@ namespace Yantra.Core.Events
             e.EventPhase = Event.AT_TARGET;
 
             var pname = "on" + e.Type;
-            var px = (this as IJavaScriptObject).JSHandle?[pname];
+            var px = this[pname];
             if(px?.IsFunction ?? false)
             {
-                px.InvokeFunction(Arguments.Empty);
+                px.Call();
             }
 
             // there is no capturing phase for simple events...

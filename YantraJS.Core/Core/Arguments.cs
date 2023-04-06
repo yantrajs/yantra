@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -76,6 +77,8 @@ namespace YantraJS.Core
             }
             return new Arguments(@this, list, a.NewTarget!);
         }
+
+        public JSObject NewPrototype => (NewTarget is JSFunction o) ? o.prototype : throw new JSException("Callee required `new` keyword");
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Arguments ForApply(JSValue @this, JSValue args, JSValue? newTarget = null)

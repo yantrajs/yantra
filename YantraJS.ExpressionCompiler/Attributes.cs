@@ -27,6 +27,19 @@ namespace Yantra.Core
 
     }
 
+    public class JSFunctionGeneratorAttribute : Attribute
+    {
+        public readonly string? Name;
+
+        public readonly string KeysClass;
+
+        public JSFunctionGeneratorAttribute(string? name = null, string keysClass = "KeyStrings")
+        {
+            this.Name = name;
+            this.KeysClass = keysClass;
+        }
+    }
+
     public class JSClassGeneratorAttribute : Attribute
     {
         public readonly string? Name;

@@ -238,7 +238,7 @@ namespace YantraJS.Core
 
         internal readonly JSObject BigIntPrototype;
 
-        public readonly JSObject ArrayBufferPrototype;
+        // public readonly JSObject ArrayBufferPrototype;
 
         public readonly JSObject Int8ArrayPrototype;
 
@@ -445,7 +445,7 @@ namespace YantraJS.Core
             WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
             GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
             BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
-            ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
+            // ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
             Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
             Uint8ArrayPrototype = this.Create<Uint8Array>(KeyStrings.Uint8Array).prototype;
             Uint8ClampedArrayPrototype = this.Create<Uint8ClampedArray>(KeyStrings.Uint8ClampedArray).prototype;

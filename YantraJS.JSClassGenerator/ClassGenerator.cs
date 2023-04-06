@@ -55,6 +55,8 @@ namespace YantraJS.JSClassGenerator
 
                 sb = sb.AppendLine($"internal protected {type.Name}(): base((JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
 
+                sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype): base(prototype) {{}}");
+
                 var hasBaseClasse = type.BaseClrClassName != null;
 
                 var createClassReturnType = "JSFunction";
@@ -89,8 +91,11 @@ namespace YantraJS.JSClassGenerator
                         l = ", length:" + l;
                     }
                     var fxToString = $"function {className}() {{ [native code] }}";
+
+                    var clrFunctionType = type.GenerateClass ? "JSClassFunction" : "JSFunction";
+
                     sb.AppendLine($@"
-                    var @class = new JSFunction((in Arguments a) => new {type.Name}(in a)
+                    var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
                         , ""{className}""
                         , ""{fxToString}""
                         {l});
