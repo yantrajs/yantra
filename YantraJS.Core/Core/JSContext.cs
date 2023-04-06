@@ -220,19 +220,19 @@ namespace YantraJS.Core
 
         public readonly JSObject DatePrototype;
 
-        public readonly JSObject MapPrototype;
+        // public readonly JSObject MapPrototype;
 
-        public readonly JSObject SetPrototype;
+        // public readonly JSObject SetPrototype;
 
         public readonly JSObject PromisePrototype;
 
         public readonly JSObject RegExpPrototype;
 
-        public readonly JSObject WeakRefPrototype;
+        // public readonly JSObject WeakRefPrototype;
 
         internal readonly JSObject WeakMapPrototype;
 
-        internal readonly JSObject WeakSetPrototype;
+        // internal readonly JSObject WeakSetPrototype;
 
         internal readonly JSObject GeneratorPrototype;
 
@@ -436,12 +436,12 @@ namespace YantraJS.Core
             URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
             ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
             DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
-            MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
+            // MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
             PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
             RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
-            SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
-            WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
-            WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;
+            // SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
+            // WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
+            // WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;
             WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
             GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
             BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;

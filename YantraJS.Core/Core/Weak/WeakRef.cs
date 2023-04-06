@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
@@ -23,7 +24,7 @@ namespace YantraJS.Core.Weak
             this.finalizer = fx;
         }
 
-        public class WeakObject: JSObject
+        internal class WeakObject: JSObject
         {
             private readonly JSFinalizationRegistry registry;
             private readonly JSValue token;
@@ -85,20 +86,20 @@ namespace YantraJS.Core.Weak
         }
     }
 
-    public class JSWeakRef: JSObject
+    [JSClassGenerator("WeakRef")]
+    public  partial class JSWeakRef: JSObject
     {
 
         internal WeakReference<JSValue> weak;
 
-        public JSWeakRef(JSValue value): base(JSContext.Current.WeakRefPrototype)
+        public JSWeakRef(JSValue value): this()
         {
             weak = new WeakReference<JSValue>(value);
         }
 
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
+        public JSWeakRef(in Arguments a): this(a.NewPrototype)
         {
-            return new JSWeakRef(a.Get1());
+            weak = new WeakReference<JSValue>(a[0] ?? throw new JSException($"argument is missing"));
         }
 
         [JSExport]

@@ -392,9 +392,9 @@ namespace YantraJS.JSClassGenerator
             }
             foreach (var p in method.Parameters)
             {
-                calls.Add(p.Name);
-                var v = $"a[{i}]".ToJSValueFromClr(p.Type, p.Name);
-                fb.AppendLine($"var {p.Name} = {v};");
+                calls.Add("p" + p.Name);
+                var v = $"a[{i++}]".ToJSValueFromClr(p.Type, p.Name);
+                fb.AppendLine($"var p{p.Name} = {v};");
             }
             var args = string.Join(", ", calls);
 

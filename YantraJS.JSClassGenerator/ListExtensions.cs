@@ -20,7 +20,11 @@ namespace YantraJS.JSClassGenerator
             switch(typeName)
             {
                 case "JSValue":
+                case "YantraJS.Core.JSValue":
                     return name;
+                case "JSObject":
+                case "YantraJS.Core.JSObject":
+                    return $"{name} is JSObject obj{parameter} ? obj{parameter} : throw new JSException(\"{parameter} is not an object\")";
                 case "Int32":
                 case "int":
                     return $"JSValueToClrConverter.ToInt({name}, \"{parameter}\")";
