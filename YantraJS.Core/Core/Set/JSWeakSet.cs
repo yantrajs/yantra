@@ -15,37 +15,16 @@ namespace YantraJS.Core.Set
     public partial class JSWeakSet : JSObject
     {
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public class WeakValue
-        {
-            private readonly JSWeakSet weakSet;
-            private readonly HashedString key;
-            /// <summary>
-            /// This is public so that compiler will not remove it...
-            /// </summary>
-            public readonly JSValue value;
-
-            public WeakValue(JSWeakSet weakSet, HashedString key, JSValue value)
-            {
-                this.weakSet = weakSet;
-                this.key = key;
-                this.value = value;
-            }
-
-            ~WeakValue()
-            {
-                lock (weakSet)
-                {
-                    weakSet.index.RemoveAt(key.Value);
-                }
-            }
-        }
-
-        private StringMap<WeakValue> index;
+        private StringMap<WeakReference<WeakValue>> index;
 
         public JSWeakSet(in Arguments a) : base(a.NewPrototype)
         {
-
+            if (a[0] is JSArray array)
+            {
+                var en = array.GetElementEnumerator();
+                while (en.MoveNext(out var value))
+                    Add((JSObject)value);
+            }
         }
 
         [JSExport("add")]
@@ -56,12 +35,16 @@ namespace YantraJS.Core.Set
             {
                 if (!index.TryGetValue(key, out var w))
                 {
-                    index.Put(key) = new(this, key, a);
+                    index.Put(key) = new(new (key, a, Unregister));
                 }
             }
             return a;
         }
 
+        private void Unregister(in HashedString key)
+        {
+            index.RemoveAt(key.Value);
+        }
 
         [JSExport("delete")]
         public JSValue Delete(in Arguments a)
@@ -71,7 +54,10 @@ namespace YantraJS.Core.Set
             {
                 if (index.TryRemove(key, out var w))
                 {
-                    GC.SuppressFinalize(w);
+                    if (w.TryGetTarget(out var target))
+                    {
+                        GC.SuppressFinalize(target);
+                    }
                     return JSBoolean.True;
                 }
             }
@@ -87,7 +73,10 @@ namespace YantraJS.Core.Set
             {
                 if (index.TryGetValue(key, out var v))
                 {
-                    return JSBoolean.True;
+                    if (v.TryGetTarget(out var target))
+                    {
+                        return JSBoolean.True;
+                    }
                 }
             }
 

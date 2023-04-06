@@ -117,7 +117,7 @@ namespace YantraJS.Core
 
 
         [JSExport("get")]
-        public JSValue Has(JSValue key)
+        public JSValue Get(JSValue key)
         {
             HashedString uk = key.ToUniqueID();
             if (index.TryGetValue(in uk, out var i))

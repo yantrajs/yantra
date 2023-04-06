@@ -13,7 +13,7 @@ namespace YantraJS.Network
     {
         private Dictionary<string, string>? headers;
 
-        internal KeyValueStore(JSValue? first) : this()
+        internal KeyValueStore(JSValue? first, JSObject? prototype = null) : this(prototype)
         {
             if (first == null)
                 return;
@@ -59,7 +59,7 @@ namespace YantraJS.Network
         }
 
 
-        public KeyValueStore(in Arguments a) : this(a[0]) { }
+        public KeyValueStore(in Arguments a) : this(a[0], a.NewPrototype) { }
 
         public IEnumerable<KeyValuePair<string, string>> GetEnumerable()
         {

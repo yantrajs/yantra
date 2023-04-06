@@ -78,7 +78,7 @@ namespace YantraJS.Core
             return new Arguments(@this, list, a.NewTarget!);
         }
 
-        public JSObject NewPrototype => (NewTarget is JSFunction o) ? o.prototype : throw new JSException("Callee required `new` keyword");
+        public JSObject? NewPrototype => (NewTarget is JSFunction o) ? o.prototype : null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Arguments ForApply(JSValue @this, JSValue args, JSValue? newTarget = null)

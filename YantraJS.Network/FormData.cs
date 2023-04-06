@@ -11,7 +11,7 @@ namespace YantraJS.Network
     [JSClassGenerator]
     public partial class FormData : KeyValueStore
     {
-        public FormData(in Arguments a) : this()
+        public FormData(in Arguments a) : base(a.NewPrototype)
         {
         }
 

@@ -8,7 +8,7 @@ namespace YantraJS.Network
     [JSClassGenerator()]
     public partial class AbortController : JSObject
     {
-        public AbortController(in Arguments a) : this()
+        public AbortController(in Arguments a) : base(a.NewPrototype)
         {
             Signal = new AbortSignal();
         }

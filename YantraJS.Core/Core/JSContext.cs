@@ -230,7 +230,7 @@ namespace YantraJS.Core
 
         // public readonly JSObject WeakRefPrototype;
 
-        internal readonly JSObject WeakMapPrototype;
+        // internal readonly JSObject WeakMapPrototype;
 
         // internal readonly JSObject WeakSetPrototype;
 
@@ -442,7 +442,7 @@ namespace YantraJS.Core
             // SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
             // WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
             // WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;
-            WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
+            // WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
             GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
             BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
             // ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
