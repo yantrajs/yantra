@@ -224,7 +224,7 @@ namespace YantraJS.Core
 
         // public readonly JSObject SetPrototype;
 
-        public readonly JSObject PromisePrototype;
+        // public readonly JSObject PromisePrototype;
 
         public readonly JSObject RegExpPrototype;
 
@@ -236,7 +236,7 @@ namespace YantraJS.Core
 
         internal readonly JSObject GeneratorPrototype;
 
-        internal readonly JSObject BigIntPrototype;
+        // internal readonly JSObject BigIntPrototype;
 
         // public readonly JSObject ArrayBufferPrototype;
 
@@ -437,14 +437,14 @@ namespace YantraJS.Core
             ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
             DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
             // MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
-            PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
+            // PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
             RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
             // SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
             // WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
             // WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;
             // WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
             GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
-            BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
+            // BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
             // ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
             Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
             Uint8ArrayPrototype = this.Create<Uint8Array>(KeyStrings.Uint8Array).prototype;

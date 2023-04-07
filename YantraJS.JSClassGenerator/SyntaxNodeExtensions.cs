@@ -10,6 +10,15 @@ namespace YantraJS.JSClassGenerator
 {
     internal static class SyntaxNodeExtensions
     {
+
+        public static bool IsGeneratorAttributeName(this string name)
+        {
+            return name.StartsWith("JSClassGenerator")
+                || name.StartsWith("JSRegistration")
+                || name.StartsWith("JSFunctionG");
+
+        }
+
         public static bool CouldBeJSClassAsync(
             this SyntaxNode syntaxNode,
             CancellationToken cancellationToken)
@@ -22,7 +31,7 @@ namespace YantraJS.JSClassGenerator
             {
                 return false;
             }
-            return name.StartsWith("JSRegistrationG") || name.StartsWith("JSClassG");
+            return name.IsGeneratorAttributeName();
         }
 
         private static string? ExtractName(NameSyntax? name)
@@ -57,13 +66,8 @@ namespace YantraJS.JSClassGenerator
 
         public static AttributeData? GetAttribute(this ISymbol type)
         {
-            var aName = type.GetAttributes().FirstOrDefault(x => x.AttributeClass?.Name != null);
-            var name = aName?.AttributeClass?.Name;
-            if (name == null)
-                return null;
-            if (name.StartsWith("JSClassGenerator") || name.StartsWith("JSRegistration"))
-                return aName;
-            return null;
+            var aName = type.GetAttributes().FirstOrDefault(x => x.AttributeClass?.Name?.IsGeneratorAttributeName() ?? false);
+            return aName;
             //return type.GetAttributes()
             //           .FirstOrDefault(a => (a.AttributeClass?.Name == "JSClassGeneratorAttribute" || a.AttributeClass?.Name == "JSClassGenerator")
             //                    //&& a.AttributeClass.ContainingNamespace is

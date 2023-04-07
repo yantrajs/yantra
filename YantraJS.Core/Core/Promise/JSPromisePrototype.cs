@@ -1,31 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
-namespace YantraJS.Core.Runtime
+namespace YantraJS.Core
 {
 
-    public static class JSPromisePrototype
+    public partial class JSPromise
     {
 
-        private static JSPromise ToPromise(this JSValue t)
-        {
-            if (!(t is JSPromise p))
-                throw JSContext.Current.NewTypeError($"Target isn't a promise");
-            return p;
-        }
 
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
+        [JSExport("then")]
+        public JSValue Then(in Arguments a)
         {
-            return new JSPromise(a.Get1());
-        }
-
-        [Prototype("then")]
-        public static JSValue Then(in Arguments a)
-        {
-            var p = a.This.ToPromise();
             var (success, fail) = a.Get2();
             if (!(success is JSFunction successFx))
                 throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
@@ -33,30 +21,22 @@ namespace YantraJS.Core.Runtime
             {
                 if (!(fail is JSFunction failFx))
                     throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-                return p.Then(successFx.f, failFx.f);
+                return Then(successFx.f, failFx.f);
             }
-            return p.Then(successFx.f, null);
+            return Then(successFx.f, null);
         }
 
-        [Prototype("catch")]
-        public static JSValue Catch(in Arguments a)
+        [JSExport("catch")]
+        public JSValue Catch(JSFunction fx)
         {
-            var p = a.This.ToPromise();
-            var f = a.Get1();
-            if (!(f is JSFunction fx))
-                throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            p.Then(null, fx.f);
-            return p;
+            Then(null, fx.f);
+            return this;
         }
 
-        [Prototype("finally")]
-        public static JSValue Finally(in Arguments a)
+        [JSExport("finally")]
+        public JSValue Finally(JSFunction fx)
         {
-            var p = a.This.ToPromise();
-            var f = a.Get1();
-            if (!(f is JSFunction fx))
-                throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-            return p.Then(fx.f, fx.f);
+            return Then(fx.f, fx.f);
         }
     }
 }

@@ -4,19 +4,20 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
-namespace YantraJS.Core.Runtime
+namespace YantraJS.Core
 {
-    public static class JSPromiseStatic
+    public partial class JSPromise
     {
-        [Static("resolve")]
+        [JSExport("resolve")]
         public static JSValue Resolve(in Arguments a)
         {
             return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
         }
 
-        [Static("reject")]
+        [JSExport("resolve")]
         public static JSValue Reject(in Arguments a)
         {
             var reason = a.Get1();
@@ -28,7 +29,7 @@ namespace YantraJS.Core.Runtime
         }
 
 
-        [Static("all")]
+        [JSExport("resolve")]
         public static JSValue All(in Arguments a)
         {
             var f = a.Get1();

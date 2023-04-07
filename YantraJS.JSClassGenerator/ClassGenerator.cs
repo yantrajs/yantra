@@ -55,7 +55,7 @@ namespace YantraJS.JSClassGenerator
 
                 // sb = sb.AppendLine($"internal protected {type.Name}(): base((JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
 
-                sb = sb.AppendLine($"internal protected {type.Name}(JSObject? prototype = null): base(prototype ?? (JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
+                sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype ?? (JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
 
                 var hasBaseClasse = type.BaseClrClassName != null;
 
