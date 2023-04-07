@@ -53,7 +53,7 @@ Currently YantraJS supports Both CommonJS and ES modules without any extra work,
 # Roadmap
 As we often have difficulty in writing cross environment scripts (browser and process such as node), we want to first implement basic common features on both.
 1. Generate Runtime with Source Generator, this will allow us to load Yantra in AOT environment. Currently Runtime objects are loaded through reflection, however we are moving reflection code to Source Generator one class a at a time.
-2. Next in plan i Network API, Simple `fetch` is available in `YantraContext`.
+2. Next in plan is Network API, Simple `fetch` is available in `YantraContext`, we will focus on adding Stream API.
 3. Next is File API, we will implement `FileSytem` of Web Browser API and allow an easy native interface. So you can write script that will execute correctly in browser and in native
 4. V8 Protocol Implementation is in progress.
 
