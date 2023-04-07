@@ -40,7 +40,7 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 `*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 
 # Mixed modules
-Currently YantraJS supports Both CommonJS and ES modules without any extra work, with little trick, module resolution is `node like`, it does not take `.js` extension into account. We are trying to make a workaround and we will update the product soon. Module loader loads module asynchronously, so `import` will work without any extra effort. However, `require` will run `AsyncPump` to wait till the module is loaded correctly. Unless you do some multithreading, mixed modules will not lead to any deadlocks.
+Currently YantraJS supports Both CommonJS and ES modules without any extra work, with little trick, module resolution is `node like`. Module loader loads module asynchronously, so `import` will work without any extra effort. However, `require` will run `AsyncPump` to wait till the module is loaded correctly. Unless you do some multithreading, mixed modules will not lead to any deadlocks.
 
 ## Module loading order,
 
