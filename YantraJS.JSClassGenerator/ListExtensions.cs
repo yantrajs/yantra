@@ -25,6 +25,11 @@ namespace YantraJS.JSClassGenerator
                 case "JSObject":
                 case "YantraJS.Core.JSObject":
                     return $"{name} is JSObject obj{parameter} ? obj{parameter} : throw new JSException(\"{parameter} is not an object\")";
+                case "JSFunction":
+                case "YantraJS.Core.JSFunction":
+                case "JSFunction?":
+                case "YantraJS.Core.JSFunction?":
+                    return $"{name} is JSFunction obj{parameter} ? obj{parameter} : throw new JSException(\"{parameter} is not a function\")";
                 case "Int32":
                 case "int":
                     return $"JSValueToClrConverter.ToInt({name}, \"{parameter}\")";
@@ -110,6 +115,15 @@ namespace YantraJS.JSClassGenerator
         }
         public static string GetOrCreateName(this List<string> list, string name, string className = "Names")
         {
+            switch(name)
+            {
+                case "case":
+                case "catch":
+                case "finally":
+                    name = "@" + name;
+                    break;
+            }
+
             if (!list.Contains(name))
             {
                 list.Add(name);
