@@ -1,119 +1,61 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
-    public static class JSRegExpPrototype
+    public partial class JSRegExp
     {
 
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
+        [JSExport]
+        public int LastIndex
         {
-            var pattern = "";
-            var flags = "";
-            if(a.Length > 0)
+            get
             {
-                pattern = a.GetAt(0).ToString();
+                return this.lastIndex;
             }
-            if (a.Length > 1)
+            set
             {
-                flags = a.GetAt(1).ToString();
+                this.lastIndex = value;
             }
-            return new JSRegExp(pattern, flags);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static JSRegExp ToRegExp(this JSValue target, [CallerMemberName] string name = null)
+        [JSExport("test")]
+        public JSValue Test(in Arguments a)
         {
-            if (!(target is JSRegExp n))
-                throw JSContext.Current.NewTypeError($"RegExp.prototype.{name} requires that 'this' be a RegExp");
-            return n;
-        }
-
-        [GetProperty("flags", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetFlags(in Arguments a)
-        {
-            return new JSString(a.This.ToRegExp().flags);
-        }
-
-        [GetProperty("global", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetGlobal(in Arguments a)
-        {
-            return a.This.ToRegExp().globalSearch ? JSBoolean.True : JSBoolean.False;
-        }
-
-        [GetProperty("lastIndex", JSPropertyAttributes.ConfigurableProperty)]
-        public static JSValue GetLastIndex(in Arguments a)
-        {
-            return new JSNumber(a.This.ToRegExp().lastIndex);
-        }
-
-        [SetProperty("lastIndex", JSPropertyAttributes.ConfigurableProperty)]
-        public static JSValue SetLastIndex(in Arguments a)
-        {
-            var @this = a.This.ToRegExp();
-            var index = a.Get1().IntValue;
-            @this.lastIndex = index;
-            return a.Get1();
-        }
-
-        [GetProperty("ignoreCase", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetIgnoreCase(in Arguments a)
-        {
-            return a.This.ToRegExp().ignoreCase ? JSBoolean.True : JSBoolean.False;
-        }
-
-        [GetProperty("multiline", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetMultiline(in Arguments a)
-        {
-            return a.This.ToRegExp().multiline ? JSBoolean.True : JSBoolean.False;
-        }
-
-        [GetProperty("source", JSPropertyAttributes.ConfigurableReadonlyProperty)]
-        public static JSValue GetSource(in Arguments a)
-        {
-            return new JSString(a.This.ToRegExp().pattern);
-        }
-
-
-        [Prototype("test")]
-        public static JSValue Test(in Arguments a)
-        {
-            var r = a.This.ToRegExp();
             var text = a.Get1().ToString();
-            var match = r.value.Match(text, r.CalculateStartPosition(text));
+            var match = value.Match(text, CalculateStartPosition(text));
             if (match.Success)
             {
-                if (r.globalSearch)
+                if (globalSearch)
                 {
-                    r.lastIndex = match.Index + match.Length;
+                    lastIndex = match.Index + match.Length;
                 }
                 return JSBoolean.True;
             }
             return JSBoolean.False;
         }
 
-        [Prototype("exec")]
-        public static JSValue Exec(in Arguments a)
+        [JSExport("exec")]
+        public JSValue Exec(in Arguments a)
         {
-            var r = a.This.ToRegExp();
             var input = a.Get1().ToString();
             // Perform the regular expression matching.
-            var match = r.value.Match(input, r.CalculateStartPosition(input));
+            var match = value.Match(input, CalculateStartPosition(input));
 
             // Return null if no match was found.
             if (match.Success == false)
             {
                 // Reset the lastIndex property.
-                if (r.globalSearch == true)
-                    r.lastIndex = 0;
+                if (globalSearch == true)
+                    lastIndex = 0;
                 return JSNull.Value;
             }
 
-            if (r.globalSearch)
+            if (globalSearch)
             {
-                r.lastIndex = match.Index + match.Length;
+                lastIndex = match.Index + match.Length;
             }
             var groups = match.Groups;
             var c = (int)groups.Count;
@@ -140,11 +82,11 @@ namespace YantraJS.Core
         /// <param name="input"> The string on which to perform the search. </param>
         /// <returns> The character position to start searching. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int CalculateStartPosition(this JSRegExp r, string input)
+        private int CalculateStartPosition(string input)
         {
-            if (r.globalSearch == false)
+            if (globalSearch == false)
                 return 0;
-            var maxIndex = r.lastIndex > 0 ? r.lastIndex : 0;
+            var maxIndex = lastIndex > 0 ? lastIndex : 0;
             var minIndex = maxIndex < input.Length ? maxIndex : input.Length;
             // return Math.Min(Math.Max(r.lastIndex, 0), input.Length);
             return minIndex;

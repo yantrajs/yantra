@@ -226,7 +226,7 @@ namespace YantraJS.Core
 
         // public readonly JSObject PromisePrototype;
 
-        public readonly JSObject RegExpPrototype;
+        // public readonly JSObject RegExpPrototype;
 
         // public readonly JSObject WeakRefPrototype;
 
@@ -438,7 +438,7 @@ namespace YantraJS.Core
             DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
             // MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
             // PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
-            RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
+            // RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
             // SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
             // WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
             // WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;

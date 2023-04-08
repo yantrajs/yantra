@@ -2,25 +2,58 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core
 {
 
-    [JSRuntime(typeof(JSRegExpStatic), typeof(JSRegExpPrototype))]
-    public class JSRegExp: JSObject
+
+    [JSClassGenerator("RegExp")]
+    public partial class JSRegExp: JSObject
     {
 
-        internal readonly string pattern;
-        internal readonly string flags;
+        [JSExport("source")]
+        public readonly string pattern;
 
-        internal readonly bool globalSearch;
-        internal readonly bool multiline;
-        internal readonly bool ignoreCase;
+        [JSExport]
+        public readonly string flags;
+
+        [JSExport("global")]
+        public readonly bool globalSearch;
+
+        [JSExport]
+        public readonly bool multiline;
+        [JSExport]
+        public readonly bool ignoreCase;
+        
         internal Regex value;
 
-        internal int lastIndex = 0;
+        [JSExport]
+        public int lastIndex = 0;
 
-        public JSRegExp(string pattern, string flags): base(JSContext.Current.RegExpPrototype)
+
+        public JSRegExp(in Arguments a): base(a.NewPrototype)
+        {
+            var pattern = "";
+            var flags = "";
+            if (a.Length > 0)
+            {
+                pattern = a.GetAt(0).ToString();
+            }
+            if (a.Length > 1)
+            {
+                flags = a.GetAt(1).ToString();
+            }
+            this.flags = flags;
+            this.pattern = pattern;
+
+            (this.value, globalSearch, ignoreCase, multiline) = CreateRegex(pattern, flags);
+
+        }
+
+
+        public JSRegExp(string pattern, string flags): this()
         {
             this.flags = flags;
             this.pattern = pattern;
@@ -50,7 +83,7 @@ namespace YantraJS.Core
             {
                 var arg = new Arguments(this, input);
 
-                return JSRegExpPrototype.Exec(arg);
+                return Exec(arg);
             }
 
             // Otherwise, find all matches.
