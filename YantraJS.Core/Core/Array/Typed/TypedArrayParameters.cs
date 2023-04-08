@@ -24,14 +24,19 @@
 
         private TypedArrayParameters(int length, int bytesPerElements, JSObject prototype)
         {
+            buffer = null;
             this.length = length;
-            this.byteOffset = 0;
             this.bytesPerElement = bytesPerElements;
+            this.byteOffset = 0;
+            copyFrom = null;
+            map = null;
+            thisArg = null;
             this.prototype = prototype;
         }
 
         private TypedArrayParameters(JSValue source, JSValue map, JSValue thisArg, int bytesPerElements, JSObject prototype)
         {
+            buffer = null;
             this.length = -1;
             this.bytesPerElement = bytesPerElements;
             this.byteOffset = 0;
@@ -44,9 +49,14 @@
         public TypedArrayParameters(
             in Arguments a, int bytesPerElements)
         {
-            prototype = a.NewPrototype;
-            this.bytesPerElement = bytesPerElements;
+            buffer = null;
             length = -1;
+            this.bytesPerElement = bytesPerElements;
+            byteOffset = 0;
+            copyFrom = null;
+            map = null;
+            thisArg = null;
+            prototype = a.NewPrototype;
             if (a.Length == 0)
             {
                 buffer = null;
