@@ -1,24 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
 
 namespace YantraJS.Core.Typed
 {
-    [JSClassGenerator("Int16Array"), JSBaseClass("TypedArray")]
-    public partial class JSInt16Array : JSTypedArray
+
+    [JSClassGenerator("Float64Array"), JSBaseClass("TypedArray")]
+    public partial class JSFloat64Array : JSTypedArray
     {
 
         [JSExport("BYTES_PER_ELEMENT")]
-        internal static readonly int BYTES_PER_ELENENT = 2;
+        internal static readonly int BYTES_PER_ELENENT = 8;
 
 
         [JSExport(Length = 3)]
-        public JSInt16Array(in Arguments a)
+        public JSFloat64Array(in Arguments a)
             : base(new TypedArrayParameters(a, BYTES_PER_ELENENT))
         {
         }
 
-        private JSInt16Array(TypedArrayParameters a) : base(a)
+        private JSFloat64Array(TypedArrayParameters a) : base(a)
         {
 
         }
@@ -27,27 +31,28 @@ namespace YantraJS.Core.Typed
         {
             if (index < 0 || index >= this.length)
                 return JSUndefined.Value;
-            return new JSNumber((int)BitConverter.ToInt16(this.buffer.buffer, this.byteOffset + (int)index * 2));
+            return new JSNumber(BitConverter.ToDouble(this.buffer.buffer, this.byteOffset + (int)index * 8));
         }
 
         internal protected override bool SetValue(uint index, JSValue value, JSValue receiver, bool throwError = true)
         {
             if (index < 0 || index >= this.length)
                 return false;
-            Array.Copy(BitConverter.GetBytes((Int16)value.IntValue), 0, this.buffer.buffer, this.byteOffset + index * 2, 2);
+            Array.Copy(BitConverter.GetBytes(value.DoubleValue), 0, this.buffer.buffer, this.byteOffset + index * 8, 8);
             return true;
         }
 
         [JSExport(Length = 1)]
         public static JSValue From(in Arguments a)
         {
-            return new JSInt16Array(TypedArrayParameters.From(a, BYTES_PER_ELENENT));
+            var (f, map, mapThis) = a.Get3();
+            return new JSFloat64Array(TypedArrayParameters.From(in a, BYTES_PER_ELENENT));
         }
 
         [JSExport]
         public static JSValue Of(in Arguments a)
         {
-            var r = new JSInt16Array(TypedArrayParameters.Of(in a, BYTES_PER_ELENENT));
+            var r = new JSFloat64Array(TypedArrayParameters.Of(in a, BYTES_PER_ELENENT));
             for (int i = 0; i < a.Length; i++)
             {
                 r[(uint)i] = a[i];

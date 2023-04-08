@@ -3,7 +3,7 @@ using YantraJS.Core.Clr;
 
 namespace YantraJS.Core.Typed
 {
-    [JSClassGenerator("UInt8Array"), JSBaseClass("TypedArray")]
+    [JSClassGenerator("Uint8Array"), JSBaseClass("TypedArray")]
     public partial class JSUInt8Array : JSTypedArray
     {
 
@@ -13,7 +13,7 @@ namespace YantraJS.Core.Typed
 
         [JSExport(Length = 3)]
         public JSUInt8Array(in Arguments a)
-            : base(new TypedArrayParameters(a, 1))
+            : base(new TypedArrayParameters(a, BYTES_PER_ELENENT))
         {
         }
 
@@ -37,17 +37,16 @@ namespace YantraJS.Core.Typed
             return true;
         }
 
-        [JSExport]
+        [JSExport(Length = 1)]
         public static JSValue From(in Arguments a)
         {
-            var (f, map, mapThis) = a.Get3();
-            return new JSUInt8Array(new TypedArrayParameters(f, map, mapThis, BYTES_PER_ELENENT));
+            return new JSUInt8Array(TypedArrayParameters.From(in a, BYTES_PER_ELENENT));
         }
 
         [JSExport]
         public static JSValue Of(in Arguments a)
         {
-            var r = new JSUInt8Array(new TypedArrayParameters(a.Length, BYTES_PER_ELENENT));
+            var r = new JSUInt8Array(TypedArrayParameters.Of(in a, BYTES_PER_ELENENT));
             for (int i = 0; i < a.Length; i++)
             {
                 r[(uint)i] = a[i];

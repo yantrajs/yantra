@@ -11,14 +11,26 @@
         public readonly JSValue thisArg;
         public readonly JSObject prototype;
 
-        public TypedArrayParameters(int length, int bytesPerElements)
+        public static TypedArrayParameters From(in Arguments a, int bytesPerElements)
+        {
+            var (f, map, mapThis) = a.Get3();
+            return new TypedArrayParameters(f, map, mapThis, bytesPerElements, (a.This as JSFunction).prototype);
+        }
+
+        public static TypedArrayParameters Of(in Arguments a, int bytesPerElements)
+        {
+            return new TypedArrayParameters(a.Length, bytesPerElements, (a.This as JSFunction).prototype);
+        }
+
+        private TypedArrayParameters(int length, int bytesPerElements, JSObject prototype)
         {
             this.length = length;
             this.byteOffset = 0;
             this.bytesPerElement = bytesPerElements;
+            this.prototype = prototype;
         }
 
-        public TypedArrayParameters(JSValue source, JSValue map, JSValue thisArg, int bytesPerElements)
+        private TypedArrayParameters(JSValue source, JSValue map, JSValue thisArg, int bytesPerElements, JSObject prototype)
         {
             this.length = -1;
             this.bytesPerElement = bytesPerElements;
@@ -26,11 +38,13 @@
             this.copyFrom = source;
             this.map = map;
             this.thisArg = thisArg;
+            this.prototype = prototype;
         }
 
         public TypedArrayParameters(
             in Arguments a, int bytesPerElements)
         {
+            prototype = a.NewPrototype;
             this.bytesPerElement = bytesPerElements;
             length = -1;
             if (a.Length == 0)

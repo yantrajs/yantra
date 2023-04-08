@@ -14,7 +14,7 @@ namespace YantraJS.Core.Typed
 
         [JSExport(Length = 3)]
         public JSUint8ClampedArray(in Arguments a)
-            : base(new TypedArrayParameters(a, 1))
+            : base(new TypedArrayParameters(a, BYTES_PER_ELENENT))
         {
         }
 
@@ -57,17 +57,16 @@ namespace YantraJS.Core.Typed
             return true;
         }
 
-        [JSExport]
+        [JSExport(Length = 1)]
         public static JSValue From(in Arguments a)
         {
-            var (f, map, mapThis) = a.Get3();
-            return new JSUint8ClampedArray(new TypedArrayParameters(f, map, mapThis, BYTES_PER_ELENENT));
+            return new JSUint8ClampedArray(TypedArrayParameters.From(in a, BYTES_PER_ELENENT));
         }
 
         [JSExport]
         public static JSValue Of(in Arguments a)
         {
-            var r = new JSUint8ClampedArray(new TypedArrayParameters(a.Length, BYTES_PER_ELENENT));
+            var r = new JSUint8ClampedArray(TypedArrayParameters.Of(in a, BYTES_PER_ELENENT));
             for (int i = 0; i < a.Length; i++)
             {
                 r[(uint)i] = a[i];

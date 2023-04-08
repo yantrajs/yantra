@@ -36,44 +36,51 @@ namespace YantraJS.Core.Typed
         [JSExport]
         internal readonly int length;
 
-        public override int Length { get => length; set => base.Length = value; }
+        [JSExport]
+        internal int ByteLength => buffer.buffer.Length;
+        
+
+        public override int Length { get => length; set => throw new NotSupportedException(); }
 
 
-        public JSTypedArray(in Arguments a): base(a.NewPrototype)
+        public JSTypedArray(in Arguments a): this(a.NewPrototype)
         {
             throw new NotSupportedException();
         }
 
-        public JSTypedArray(in TypedArrayParameters p): base(p.prototype) {
+        public JSTypedArray(in TypedArrayParameters p): this(p.prototype) {
             buffer = p.buffer;
             length = p.length;
             byteOffset = p.byteOffset;
             bytesPerElement = p.bytesPerElement;
-            if (buffer == null)
+            if (p.copyFrom == null)
             {
-                buffer = new JSArrayBuffer(length * bytesPerElement);
-            }
-            else
-            {
-                if (length == -1)
+                if (buffer == null)
                 {
-                    length = buffer.buffer.Length - byteOffset;
-                    length = length / bytesPerElement;
-                }
-                else
-                {
-                    length = length / bytesPerElement;
-                }
+                    buffer = new JSArrayBuffer(length * bytesPerElement);
+                } else {
+                    var l = length;
+                    if (l == -1)
+                    {
+                        l = buffer.buffer.Length - byteOffset;
+                        length = l / bytesPerElement;
+                    }
+                    else
+                    {
+                        length = l / bytesPerElement;
+                    }
 
-                if (length < 0 ||
-                    ((byteOffset + length) > buffer.buffer.Length))
-                    throw JSContext.Current.NewRangeError($"Start offset {byteOffset} is outside the bounds of the buffer");
+                    if (l < 0 ||
+                        ((byteOffset + l) > buffer.buffer.Length))
+                        throw JSContext.Current.NewRangeError($"Start offset {byteOffset} is outside the bounds of the buffer");
 
-                if (((length - byteOffset) % bytesPerElement) != 0)
-                {
-                    throw JSContext.Current.NewRangeError($"byte length of TypedArray should be multiple of {bytesPerElement}");
+                    if (((l - byteOffset) % bytesPerElement) != 0)
+                    {
+                        throw JSContext.Current.NewRangeError($"byte length of TypedArray should be multiple of {bytesPerElement}");
+                    }
+
                 }
-
+                return;
             }
 
             if(p.copyFrom == null)
@@ -118,10 +125,23 @@ namespace YantraJS.Core.Typed
                 en2 = source.GetElementEnumerator();
             }
 
-            uint i = 0;
-            while (en2.MoveNext(out var item))
+            buffer = new JSArrayBuffer(length * bytesPerElement);
+
+            if (p.map == null || p.map.IsUndefined)
             {
-                this[i++] = item;
+                uint i = 0;
+                while (en2.MoveNext(out var item))
+                {
+                    this[i++] = item;
+                }
+            } else
+            {
+                uint i = 0;
+                while (en2.MoveNext(out var item))
+                {
+                    this[i] = p.map.Call(p.thisArg, item, new JSNumber(i));
+                    i++;
+                }
             }
         }
 

@@ -499,7 +499,7 @@ namespace YantraJS.Core.Typed
 
             var src = this.buffer.buffer;
             
-            var r = a.This.CreateInstance(JSNumber.Zero, new JSNumber(newLength)) as JSTypedArray;
+            var r = a.This[KeyStrings.constructor].CreateInstance(new JSNumber(newLength)) as JSTypedArray;
             var target = r.buffer.buffer;
             int bytesPerElement = this.bytesPerElement;
 
@@ -604,7 +604,7 @@ namespace YantraJS.Core.Typed
             begin = begin < 0 ? Math.Max(this.Length + begin, 0) : Math.Min(begin, this.Length);
             end = end < 0 ? Math.Max(this.Length + end, 0) : Math.Min(end, this.Length);
             newLength = Math.Max(end - begin, 0);
-            var r = a.This.CreateInstance(this.buffer, new JSNumber(this.byteOffset + begin * this.bytesPerElement),
+            var r = a.This[KeyStrings.constructor].CreateInstance(this.buffer, new JSNumber(this.byteOffset + begin * this.bytesPerElement),
                 new JSNumber(newLength * this.bytesPerElement));
             //var r = new TypedArray(this.buffer,
             //    this.type,

@@ -4,7 +4,7 @@ using YantraJS.Core.Clr;
 
 namespace YantraJS.Core.Typed
 {
-    [JSClassGenerator("UInt16Array"), JSBaseClass("TypedArray")]
+    [JSClassGenerator("Uint16Array"), JSBaseClass("TypedArray")]
     public partial class JSUInt16Array : JSTypedArray
     {
 
@@ -14,7 +14,7 @@ namespace YantraJS.Core.Typed
 
         [JSExport(Length = 3)]
         public JSUInt16Array(in Arguments a)
-            : base(new TypedArrayParameters(a, 1))
+            : base(new TypedArrayParameters(a, BYTES_PER_ELENENT))
         {
         }
 
@@ -38,17 +38,16 @@ namespace YantraJS.Core.Typed
             return true;
         }
 
-        [JSExport]
+        [JSExport(Length = 1)]
         public static JSValue From(in Arguments a)
         {
-            var (f, map, mapThis) = a.Get3();
-            return new JSUInt16Array(new TypedArrayParameters(f, map, mapThis, BYTES_PER_ELENENT));
+            return new JSUInt16Array(TypedArrayParameters.From(in a, BYTES_PER_ELENENT));
         }
 
         [JSExport]
         public static JSValue Of(in Arguments a)
         {
-            var r = new JSUInt16Array(new TypedArrayParameters(a.Length, BYTES_PER_ELENENT));
+            var r = new JSUInt16Array(TypedArrayParameters.Of(in a, BYTES_PER_ELENENT));
             for (int i = 0; i < a.Length; i++)
             {
                 r[(uint)i] = a[i];
