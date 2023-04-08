@@ -58,6 +58,11 @@ namespace YantraJS.JSClassGenerator
             sb.AppendLine($"static {type.Name}() {{");
             foreach (var name in names)
             {
+                if (name.StartsWith("@"))
+                {
+                    sb.AppendLine($"{type.Name}.{name} = \"{name.Substring(1)}\";");
+                    continue;
+                }
                 sb.AppendLine($"{type.Name}.{name} = \"{name}\";");
             }
             sb.AppendLine("}");
