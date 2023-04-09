@@ -1,27 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core
 {
 
 
-    public class JSError : JSObject
+    [JSClassGenerator("Error")]
+    public partial class JSError : JSObject
     {
 
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
+
+        public JSError(in Arguments a,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0
+            ): this(a.NewPrototype)
         {
-            return new JSError(new JSException(a.Get1().ToString()), JSContext.Current.ErrorPrototype);
+            this.Exception = new JSException(
+                this,
+                function: function,
+                filePath: filePath,
+                line: line);
+            var message = a[0]?.ToString() ?? "Internal Error";
+            this.FastAddValue(KeyStrings.message, message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyStrings.stack, Exception.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         }
 
-        [Prototype("toString")]
-        public static JSValue ToString(in Arguments a)
+        [JSExport("toString")]
+        public JSValue ToString(in Arguments a)
         {
-            if (!(a.This is JSError e))
-                throw JSContext.Current.NewTypeError($"{a.This} is not an Error");
-            var name = e.prototypeChain.@object[KeyStrings.constructor][KeyStrings.name];
-            return new JSString($"{name}: {e[KeyStrings.message]}");
+            var name = this.prototypeChain.@object[KeyStrings.constructor][KeyStrings.name];
+            return new JSString($"{name}: {this[KeyStrings.message]}");
         }
 
 
@@ -37,7 +50,21 @@ namespace YantraJS.Core
         //    this.DefineProperty(KeyStrings.stack, JSProperty.Property(stack, JSPropertyAttributes.ConfigurableValue));
         //}
 
-        internal JSError(JSException ex, JSObject prototype) : base(prototype)
+        //internal JSError(
+        //    string message,
+        //    [CallerMemberName] string function = null,
+        //    [CallerFilePath] string filePath = null,
+        //    [CallerLineNumber] int line = 0,
+        //    JSObject prototype = null) : base(prototype)
+        //{
+        //    this.Exception = new JSException();
+        //    this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+        //    this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
+        //}
+
+        internal JSError(
+            JSException ex,
+            JSObject prototype = null) : base(prototype)
         {
             this.Exception = ex;
             this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
@@ -45,7 +72,7 @@ namespace YantraJS.Core
         }
 
 
-        internal JSError(JSException ex) : base(JSContext.Current.ErrorPrototype)
+        internal JSError(JSException ex) : this()
         {
             this.Exception = ex;
             this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
@@ -59,6 +86,83 @@ namespace YantraJS.Core
                 return jse.Error;
             }
             return new JSError(new JSException(ex.Message));
+        }
+    }
+
+    [JSClassGenerator("TypeError"), JSBaseClass("Error")]
+    public partial class JSTypeError: JSError
+    {
+        public JSTypeError(in Arguments a,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0): base(in a,
+                function: function,
+                filePath: filePath,
+                line: line)
+        {
+            
+        }
+
+
+        public static string NotIterable(object name) => $"{name} is not iterable";
+
+        public static string NotEntry(object name) => $"Iterator value {name} is an entry object";
+    }
+    [JSClassGenerator("SyntaxError"), JSBaseClass("Error")]
+    public partial class JSSyntaxError: JSError
+    {
+        public JSSyntaxError(in Arguments a,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(in a,
+                function: function,
+                filePath: filePath,
+                line: line)
+        {
+
+        }
+    }
+    [JSClassGenerator("URIError"), JSBaseClass("Error")]
+    public partial class JSURIError: JSError
+    {
+        public JSURIError(in Arguments a,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(in a,
+                function: function,
+                filePath: filePath,
+                line: line)
+        {
+
+        }
+    }
+    [JSClassGenerator("RangeError"), JSBaseClass("Error")]
+    public partial class JSRangeError: JSError
+    {
+        public JSRangeError(in Arguments a,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(in a,
+                function: function,
+                filePath: filePath,
+                line: line)
+        {
+
+        }
+    }
+
+    [JSClassGenerator("EvalError"), JSBaseClass("Error")]
+    public partial class JSEvalError : JSError
+    {
+        public JSEvalError(in Arguments a,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(in a,
+                function: function,
+                filePath: filePath,
+                line: line)
+        {
+
         }
     }
 }

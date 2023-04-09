@@ -219,7 +219,12 @@ namespace YantraJS.Core {
 
         protected JSValue(JSObject prototype)
         {
-            this.BasePrototypeObject = prototype;
+            this.BasePrototypeObject = prototype ?? GetCurrentPrototype();
+        }
+
+        protected virtual JSObject GetCurrentPrototype()
+        {
+            return null;
         }
 
         internal abstract PropertyKey ToKey(bool create = true);
