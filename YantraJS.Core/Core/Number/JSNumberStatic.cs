@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
-namespace YantraJS.Core.Runtime
+namespace YantraJS.Core
 {
-    public static class JSNumberStatic
+    public partial class JSNumber
 
     {
 
 
-        [Static("isFinite")]
+        [JSExport("isFinite")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsFinite(in Arguments a)
         {
@@ -24,7 +25,7 @@ namespace YantraJS.Core.Runtime
             return JSBoolean.False;
         }
 
-        [Static("isInteger")]
+        [JSExport("isInteger")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsInteger(in Arguments a)
         {
@@ -41,7 +42,7 @@ namespace YantraJS.Core.Runtime
             return JSBoolean.False;
         }
 
-        [Static("isNaN")]
+        [JSExport("isNaN")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue IsNaN(in Arguments a)
         {
@@ -52,7 +53,7 @@ namespace YantraJS.Core.Runtime
             return JSBoolean.False;
         }
 
-        [Static("isSafeInteger")]
+        [JSExport("isSafeInteger")]
         public static JSValue IsSafeInteger(in Arguments a)
         {
             if (a.Get1() is JSNumber n)
@@ -68,7 +69,7 @@ namespace YantraJS.Core.Runtime
             return JSBoolean.False;
         }
 
-        [Static("parseFloat")]
+        [JSExport("parseFloat")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue ParseFloat(in Arguments a)
         {
@@ -145,7 +146,7 @@ namespace YantraJS.Core.Runtime
         }
 
 
-        [Static("parseInt")]
+        [JSExport("parseInt")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue ParseInt(in Arguments a)
         {

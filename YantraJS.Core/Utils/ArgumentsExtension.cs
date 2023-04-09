@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using YantraJS.Core.Clr;
+using YantraJS.Core.Core.Primitive;
 using YantraJS.ExpHelper;
 using YantraJS.Expressions;
 
@@ -21,6 +22,15 @@ namespace YantraJS.Core
             return value.HasValue() ? value.ToString() : throw new JSException($"{name} is required");
         }
 
+
+        public static JSNumber ToJSNumber(this JSValue value, string name)
+        {
+            return value is JSNumber n
+                ? n
+                : (value is JSPrimitiveObject po
+                    ? po.value.ToJSNumber(name)
+                    : throw new JSException($"{name} is not a number"));
+        }
         public static bool ToBoolean(JSValue value, string name)
         {
             return value.HasValue() ? value.BooleanValue: throw new JSException($"{name} is required");
