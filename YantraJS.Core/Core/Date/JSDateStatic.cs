@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.Clr;
 using YantraJS.Utils;
 
-namespace YantraJS.Core.Date
+namespace YantraJS.Core
 {
-    public static class JSDateStatic
+    internal static class JSDateStatic
     {
 
 
@@ -18,57 +19,6 @@ namespace YantraJS.Core.Date
                 throw JSContext.Current.NewTypeError($"Date.prototype.{helper} called on non date");
             return date;
         }
-
-
-        public static long epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
-
-        [Static("UTC")]
-        internal static JSValue UTC(in Arguments a)
-        {
-            var (year, month, day, hour, minute, second, millisecond) = a.Get7Int();
-            var val =  ToJSDate(ToDateTime(year, month, day, hour, minute, second, millisecond, TimeSpan.Zero));
-            return new JSNumber(val);
-
-        }
-
-        [Static("now")]
-        internal static JSValue Now(in Arguments a)
-        {
-            var result = ToJSDate(DateTime.Now);
-            return new JSNumber(result);
-        }
-
-        /// <summary>
-        /// Jint - private JsValue Parse(JsValue thisObj, JsValue[] arguments), but we changed 
-        ///  DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal to DateTimeStyles.AssumeLocal
-        /// </summary>
-        /// <param name="a"></param>
-        /// <returns></returns>
-        [Static("parse")]
-        internal static JSValue Parse(in Arguments a)
-        {
-            var text = a.Get1().ToString();
-            double val;
-            //if (DateTime.TryParse(text, out var result)) {
-            //    val = ToJSDate(result);
-            //    return new JSNumber(val);
-            //}
-            //result = DateParser.Parse(text);
-            //val = ToJSDate(result);
-            //return new JSNumber(val);
-
-            val = ToJSDate(DateParser.Parse(text));
-            return new JSNumber(val);
-        }
-
-        //[Prototype("getYear")]
-        //internal static JSValue GetYear(in Arguments a)
-        //{
-        //    if (!(a.This is JSDate d))
-        //        throw JSContext.Current.NewTypeError("Method Date.prototype.getYear called on incompatible receiver");
-        //    return new JSNumber(d.value.Year - 2000);
-        //}
-
 
         /// <summary>
         /// Converts a .NET date into a javascript date.
@@ -94,6 +44,60 @@ namespace YantraJS.Core.Date
             return dateTime.ToUniversalTime().ToUnixTimeMilliseconds();
             //return Math.Floor((double)(diff / 10000));
         }
+
+    }
+
+
+    partial class JSDate { 
+        public static long epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+
+        [JSExport("UTC")]
+        internal static JSValue UTC(in Arguments a)
+        {
+            var (year, month, day, hour, minute, second, millisecond) = a.Get7Int();
+            var val =  ToDateTime(year, month, day, hour, minute, second, millisecond, TimeSpan.Zero).ToJSDate();
+            return new JSNumber(val);
+
+        }
+
+        [JSExport("now")]
+        internal static JSValue Now(in Arguments a)
+        {
+            var result = DateTimeOffset.Now.ToJSDate();
+            return new JSNumber(result);
+        }
+
+        /// <summary>
+        /// Jint - private JsValue Parse(JsValue thisObj, JsValue[] arguments), but we changed 
+        ///  DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal to DateTimeStyles.AssumeLocal
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        [JSExport("parse")]
+        internal static JSValue Parse(in Arguments a)
+        {
+            var text = a.Get1().ToString();
+            double val;
+            //if (DateTime.TryParse(text, out var result)) {
+            //    val = ToJSDate(result);
+            //    return new JSNumber(val);
+            //}
+            //result = DateParser.Parse(text);
+            //val = ToJSDate(result);
+            //return new JSNumber(val);
+
+            val = DateParser.Parse(text).ToJSDate();
+            return new JSNumber(val);
+        }
+
+        //[Prototype("getYear")]
+        //internal static JSValue GetYear(in Arguments a)
+        //{
+        //    if (!(a.This is JSDate d))
+        //        throw JSContext.Current.NewTypeError("Method Date.prototype.getYear called on incompatible receiver");
+        //    return new JSNumber(d.value.Year - 2000);
+        //}
+
 
         /// <summary>
         /// Given the components of a date, returns the equivalent .NET date.

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using YantraJS.Core.Date;
+using Yantra.Core;
 
 namespace YantraJS.Core
 {
-    [JSRuntime(typeof(JSDateStatic), typeof(JSDatePrototype))]
-    public class JSDate: JSObject
+    // [JSRuntime(typeof(JSDateStatic), typeof(JSDatePrototype))]
+    [JSFunctionGenerator("Date")]
+    public partial class JSDate: JSObject
     {
 
         internal static readonly DateTimeOffset InvalidDate = DateTimeOffset.MinValue;
@@ -36,7 +37,7 @@ namespace YantraJS.Core
         }
 
 
-        public JSDate(DateTimeOffset time): base(JSContext.Current.DatePrototype)
+        public JSDate(DateTimeOffset time): this()
         {
             this.value = time;
         }
