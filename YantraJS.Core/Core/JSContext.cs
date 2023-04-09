@@ -218,7 +218,7 @@ namespace YantraJS.Core
 
         //public readonly JSObject ReferenceErrorPrototype;
 
-        public readonly JSObject DatePrototype;
+        // public readonly JSObject DatePrototype;
 
         // public readonly JSObject MapPrototype;
 
@@ -435,7 +435,7 @@ namespace YantraJS.Core
             //SyntaxErrorPrototype = this.Create<JSError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
             //URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
             //ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
-            DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
+            // DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
             // MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
             // PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
             // RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
