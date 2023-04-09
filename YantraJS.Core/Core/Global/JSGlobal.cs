@@ -71,7 +71,7 @@ namespace YantraJS.Core
         [Static("isFinite", Length = 1)]
         public static JSValue IsFinite(in Arguments a)
         {
-            return JSNumberStatic.IsFinite(a);
+            return JSNumber.IsFinite(a);
         }
 
         [Static("isNaN", Length = 1)]
@@ -85,13 +85,13 @@ namespace YantraJS.Core
         [Static("parseFloat", Length = 1)]
         public static JSValue ParseFloat(in Arguments a)
         {
-            return JSNumberStatic.ParseFloat(a);
+            return JSNumber.ParseFloat(a);
         }
 
         [Static("parseInt", Length = 2)]
         public static JSValue ParseInt(in Arguments a)
         {
-            return JSNumberStatic.ParseInt(a);
+            return JSNumber.ParseInt(a);
         }
 
         [Static("setImmediate", Length = 1)]

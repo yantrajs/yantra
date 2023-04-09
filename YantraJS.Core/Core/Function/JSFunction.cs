@@ -147,7 +147,7 @@ namespace YantraJS.Core
                 prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
                 // ref var opp = ref prototype.GetOwnProperties(true);
                 // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
-                ownProperties.Put(KeyStrings.prototype, prototype);
+                ownProperties.Put(KeyStrings.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
             }
 
             //this[KeyStrings.name] = name.IsEmpty
@@ -181,7 +181,7 @@ namespace YantraJS.Core
                 prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
                 // ref var opp = ref prototype.GetOwnProperties(true);
                 // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
-                ownProperties.Put(KeyStrings.prototype, prototype);
+                ownProperties.Put(KeyStrings.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
             }
 
             //this[KeyStrings.name] = name.IsEmpty
@@ -190,8 +190,10 @@ namespace YantraJS.Core
             // this[KeyStrings.length] = new JSNumber(length);
             ownProperties.Put(KeyStrings.name, name.IsEmpty
                 ? new JSString("native")
-                : new JSString(name));
-            ownProperties.Put(KeyStrings.length, new JSNumber(length));
+                : new JSString(name),
+                JSPropertyAttributes.ConfigurableValue);
+            ownProperties.Put(KeyStrings.length, new JSNumber(length),
+                JSPropertyAttributes.ConfigurableValue);
             constructor = this;
         }
 
