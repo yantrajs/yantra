@@ -52,12 +52,14 @@ namespace YantraJS.JSClassGenerator
                 sb = sb.AppendLine($"partial class {type.Name} {{");
 
                 var className = type.JSClassName;
-
-                // sb = sb.AppendLine($"internal protected {type.Name}(): base((JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
-
-                sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype ?? (JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype) {{}}");
-
                 var hasBaseClasse = type.BaseClrClassName != null;
+
+                sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype;");
+
+                sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype) {{}}");
+                
+                // sb = sb.AppendLine($"protected {type.Name}(JSObject prototype): base(prototype ?? throw new System.ArgumentException(\"Prototype not specified...\")) {{}}");
+
 
                 var createClassReturnType = "JSFunction";
                 if(type.InternalClass)

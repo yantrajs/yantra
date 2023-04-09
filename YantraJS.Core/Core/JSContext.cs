@@ -204,19 +204,19 @@ namespace YantraJS.Core
 
         public readonly JSObject BooleanPrototype;
 
-        public readonly JSObject TypeErrorPrototype;
+        //public readonly JSObject TypeErrorPrototype;
 
-        public readonly JSObject EvalErrorPrototype;
+        //public readonly JSObject EvalErrorPrototype;
 
-        public readonly JSObject ErrorPrototype;
+        //public readonly JSObject ErrorPrototype;
 
-        public readonly JSObject RangeErrorPrototype;
+        //public readonly JSObject RangeErrorPrototype;
 
-        public readonly JSObject SyntaxErrorPrototype;
+        //public readonly JSObject SyntaxErrorPrototype;
 
-        public readonly JSObject URIErrorPrototype;
+        //public readonly JSObject URIErrorPrototype;
 
-        public readonly JSObject ReferenceErrorPrototype;
+        //public readonly JSObject ReferenceErrorPrototype;
 
         public readonly JSObject DatePrototype;
 
@@ -428,13 +428,13 @@ namespace YantraJS.Core
             StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
             NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
             BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
-            ErrorPrototype = this.Create<JSError>(KeyStrings.Error).prototype;
-            EvalErrorPrototype = this.Create<JSError>(KeyStrings.EvalError, ErrorPrototype).prototype;
-            TypeErrorPrototype = this.Create<JSError>(KeyStrings.TypeError, ErrorPrototype).prototype;
-            RangeErrorPrototype = this.Create<JSError>(KeyStrings.RangeError, ErrorPrototype).prototype;
-            SyntaxErrorPrototype = this.Create<JSError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
-            URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
-            ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
+            //ErrorPrototype = this.Create<JSError>(KeyStrings.Error).prototype;
+            //EvalErrorPrototype = this.Create<JSError>(KeyStrings.EvalError, ErrorPrototype).prototype;
+            //TypeErrorPrototype = this.Create<JSError>(KeyStrings.TypeError, ErrorPrototype).prototype;
+            //RangeErrorPrototype = this.Create<JSError>(KeyStrings.RangeError, ErrorPrototype).prototype;
+            //SyntaxErrorPrototype = this.Create<JSError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
+            //URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
+            //ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
             DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
             // MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
             // PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
@@ -523,7 +523,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, TypeErrorPrototype, function, filePath, line);
+            return (new JSTypeError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -532,7 +532,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, SyntaxErrorPrototype, function, filePath, line);
+            return (new JSSyntaxError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -541,7 +541,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, URIErrorPrototype, function, filePath, line);
+            return (new JSURIError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -550,7 +550,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, RangeErrorPrototype, function, filePath, line);
+            return (new JSRangeError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -559,7 +559,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, ErrorPrototype, function, filePath, line);
+            return (new JSError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         partial void OnError(Exception ex);
