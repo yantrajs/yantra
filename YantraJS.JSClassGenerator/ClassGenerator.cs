@@ -54,7 +54,7 @@ namespace YantraJS.JSClassGenerator
                 var className = type.JSClassName;
                 var hasBaseClasse = type.BaseClrClassName != null;
 
-                sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current[{names.GetOrCreateName(className)}] as JSFunction).prototype;");
+                sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{names.GetOrCreateName(className)}] as JSFunction)?.prototype;");
 
                 sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype) {{}}");
                 
@@ -96,16 +96,33 @@ namespace YantraJS.JSClassGenerator
 
                     var clrFunctionType = type.GenerateClass ? "JSClassFunction" : "JSFunction";
 
-                    sb.AppendLine($@"
-                    var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
-                        , ""{className}""
-                        , ""{fxToString}""
-                        {l});
-                    if (register) {{
-                        context[Names.{className}] = @class;
-                    }}
-                    var prototype = @class.prototype;
-                ");
+                    if (type.ConstructorMethod == null)
+                    {
+
+                        sb.AppendLine($@"
+                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
+                            , ""{className}""
+                            , ""{fxToString}""
+                            {l});
+                        if (register) {{
+                            context[Names.{className}] = @class;
+                        }}
+                        var prototype = @class.prototype;
+                        ");
+                    } else
+                    {
+                        sb.AppendLine($@"
+                        var @class = new {clrFunctionType}({type.Name}.{type.ConstructorMethod}
+                            , ""{className}""
+                            , ""{fxToString}""
+                            {l});
+                        if (register) {{
+                            context[Names.{className}] = @class;
+                        }}
+                        var prototype = @class.prototype;
+                        ");
+
+                    }
                 }
 
                 if (hasBaseClasse)
@@ -355,6 +372,10 @@ namespace YantraJS.JSClassGenerator
             }
 
             var e = method.GetExportAttribute();
+            if (e.IsConstructor)
+            {
+                return;
+            }
 
             var l = $",\"function {name}() {{ [native] }}\", createPrototype: false";
             if (e?.Length != null && e.Length.Length > 0) {

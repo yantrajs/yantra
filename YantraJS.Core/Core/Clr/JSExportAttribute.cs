@@ -13,6 +13,8 @@ namespace YantraJS.Core.Clr
 
         public bool Pure { get; set; }
 
+        public bool IsConstructor { get; set; }
+
         public JSExportAttribute(
             string? name = null)
         {

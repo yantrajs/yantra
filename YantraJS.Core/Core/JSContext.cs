@@ -202,7 +202,7 @@ namespace YantraJS.Core
 
         public readonly JSObject ArrayPrototype;
 
-        public readonly JSObject BooleanPrototype;
+        // public readonly JSObject BooleanPrototype;
 
         //public readonly JSObject TypeErrorPrototype;
 
@@ -427,7 +427,7 @@ namespace YantraJS.Core
             ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
             StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
             NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
-            BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
+            // BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
             //ErrorPrototype = this.Create<JSError>(KeyStrings.Error).prototype;
             //EvalErrorPrototype = this.Create<JSError>(KeyStrings.EvalError, ErrorPrototype).prototype;
             //TypeErrorPrototype = this.Create<JSError>(KeyStrings.TypeError, ErrorPrototype).prototype;
