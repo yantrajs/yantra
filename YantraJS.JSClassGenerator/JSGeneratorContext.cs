@@ -18,7 +18,7 @@ namespace YantraJS.JSClassGenerator
         public readonly bool InternalClass;
 
         public readonly string? ConstructorLength;
-
+        public readonly string? ConstructorMethod;
         public readonly bool GenerateClass;
 
         public JSTypeInfo(ITypeSymbol type)
@@ -68,13 +68,20 @@ namespace YantraJS.JSClassGenerator
 
             foreach(var m in type.GetMembers())
             {
-                if(m is IMethodSymbol method && method.IsConstructor())
+                if(m is IMethodSymbol method)
                 {
                     var e = method.GetExportAttribute();
                     if (e != null)
                     {
-                        this.ConstructorLength = e.Length;
-                        break;
+                        if (method.IsConstructor())
+                        {
+                            this.ConstructorLength = e.Length;
+                        }
+                        if(e.IsConstructor)
+                        {
+                            this.ConstructorLength = e.Length;
+                            this.ConstructorMethod = method.Name;
+                        }
                     }
                 }
             }
