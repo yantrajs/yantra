@@ -4,9 +4,13 @@ using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Schema;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core
 {
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Boolean")]
     public partial class JSBoolean : JSPrimitive
     {
 
@@ -21,16 +25,15 @@ namespace YantraJS.Core
             this._value = _value;
         }
 
-        protected override JSObject GetPrototype()
-        {
-            return JSContext.Current.BooleanPrototype;
-        }
-
-        [Constructor]
+        [JSExport(IsConstructor = true)]
         public static JSValue Constructor(in Arguments a)
         {
-            var first = a.Get1();
-            return first.BooleanValue ? JSBoolean.True : JSBoolean.False;
+            return (a[0]?.BooleanValue ?? false) ? True : False;
+        }
+
+        protected override JSObject GetPrototype()
+        {
+            return GetCurrentPrototype();
         }
 
 

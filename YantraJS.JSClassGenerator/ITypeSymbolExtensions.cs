@@ -10,6 +10,7 @@ namespace YantraJS.JSClassGenerator
     {
         public string? Name;
         public string? Length;
+        public bool IsConstructor;
     }
 
     internal static class ITypeSymbolExtensions
@@ -22,15 +23,17 @@ namespace YantraJS.JSClassGenerator
                 if(a.AttributeClass?.Name?.StartsWith("JSExport") ?? false)
                 {
                     var e = new JSExportInfo { };
-                    if(a.ConstructorArguments.Length > 0)
-                    {
-                        e.Name = a.ConstructorArguments[0].Value?.ToString() ?? null;
-                    }
+                    e.Name = (a.ConstructorArguments.Length > 0 ? a.ConstructorArguments[0].Value?.ToString() ?? null : null)
+                        ?? method.Name.ToCamelCase();
                     foreach(var kvp in a.NamedArguments)
                     {
                         if(kvp.Key == "Length")
                         {
                             e.Length = kvp.Value.Value?.ToString();
+                        }
+                        if(kvp.Key == "IsConstructor")
+                        {
+                            e.IsConstructor = true;
                         }
                     }
                     return e;
