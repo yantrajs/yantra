@@ -210,6 +210,8 @@ namespace YantraJS.Core.FastParser
                     // node = null;
                     type = TokenTypes.SemiColon;
                     return true;
+                case TokenTypes.TemplateEnd:
+                    return true;
 
 
                 // associate right...
