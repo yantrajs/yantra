@@ -22,7 +22,8 @@ namespace YantraJS.Utils
     {
         public JSTestContext(SynchronizationContext ctx = null): base(ctx)
         {
-            this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
+            // this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
+            this[KeyStrings.assert] = JSAssert.CreateClass(this, false);
             this[KeyStrings.global] = this;
             this[KeyStrings.clr] = ClrType.From(typeof(ClrModule));
         }

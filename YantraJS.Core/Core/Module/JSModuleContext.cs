@@ -31,9 +31,11 @@ namespace YantraJS.Core
         public JSModuleContext(SynchronizationContext ctx = null, bool enableClrIntegration = true) :
             base(ctx ?? new SynchronizationContext())
         {
-            this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
+            // this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
+            this[KeyStrings.assert] = JSAssert.CreateClass(this, false);
 
-            Module = this.Create<JSModule>(KeyStrings.Module, null, false);
+
+            Module = JSModule.CreateClass(this, false); // this.Create<JSModule>(KeyStrings.Module, null, false);
             ModulePrototype = Module.prototype;
 
             if (enableClrIntegration)

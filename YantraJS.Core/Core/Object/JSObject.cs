@@ -12,7 +12,6 @@ using YantraJS.Core.Core;
 using YantraJS.Core.Core.Generator;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
-using YantraJS.Core.Runtime;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -568,7 +567,7 @@ namespace YantraJS.Core
 
         internal protected override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
         {
-            if (name == JSSymbolStatic.iterator)
+            if (name == JSSymbol.iterator)
             {
                 HasIterator = true;
             }
@@ -1135,7 +1134,7 @@ namespace YantraJS.Core
         {
             if (this.HasIterator)
             {
-                var v = this.GetValue(this.symbols[JSSymbolStatic.iterator.Key]);
+                var v = this.GetValue(this.symbols[JSSymbol.iterator.Key]);
                 return new JSIterator(v.InvokeFunction(new Arguments(this)));
             }
             return new ElementEnumerator(this);

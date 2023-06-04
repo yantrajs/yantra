@@ -35,6 +35,8 @@ namespace Yantra.Core
 
         public bool Register { get; set; } = true;
 
+        public bool Globals { get; set; }
+
         public JSFunctionGeneratorAttribute(string? name = null, string keysClass = "KeyStrings")
         {
             this.Name = name;
@@ -47,6 +49,8 @@ namespace Yantra.Core
         public readonly string? Name;
 
         public readonly string KeysClass;
+
+        public bool Register { get; set; } = true;
 
         public JSClassGeneratorAttribute(string? name = null, string keysClass = "KeyStrings")
         {
