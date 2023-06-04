@@ -414,7 +414,8 @@ namespace YantraJS.Core
             //}
 
             this.Create<JSSymbol>(KeyStrings.Symbol);
-            var func = this.Create<JSFunction>(KeyStrings.Function);
+            var func = JSFunction.CreateClass(this, false);
+            this[Names.Function] = func;
             FunctionPrototype = func.prototype;
             Object = JSObject.CreateClass(this, false);
             this[Names.Object] = Object;
