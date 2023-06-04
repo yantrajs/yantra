@@ -11,6 +11,13 @@ namespace YantraJS.Core
     public class JSSymbol: JSValue
     {
 
+        public static JSSymbol GlobalSymbol(string name)
+        {
+            name = name.TrimStart('@');
+            var f = typeof(JSSymbolStatic).GetField(name);
+            return (JSSymbol)f.GetValue(null);
+        }
+
         private static int SymbolID = 1;
         private readonly string name;
         public readonly uint Key;

@@ -9,13 +9,15 @@ using YantraJS.Extensions;
 using YantraJS.Core.Generator;
 using YantraJS.Core.Typed;
 using System.Globalization;
+using YantraJS.Core.Clr;
+using Yantra.Core;
 
 namespace YantraJS.Core
 {
-    public class JSArrayPrototype
+    public partial class JSArray
     {
 
-        [Constructor(Length = 1)]
+        [JSExport(IsConstructor = true, Length = 1)]
         public static JSValue Constructor(in Arguments a)
         {
             // throw JSContext.Current.NewTypeError("Not supported");
@@ -46,7 +48,7 @@ namespace YantraJS.Core
             
         }
 
-        [Prototype("concat", Length = 1)]
+        [JSPrototypeMethod][JSExport("concat", Length = 1)]
         public static JSValue Concat(in Arguments a)
         {
             var r = new JSArray();
@@ -71,7 +73,7 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Prototype("every", Length = 1)]
+        [JSPrototypeMethod][JSExport("every", Length = 1)]
         public static JSValue Every(in Arguments a)
         {
             var array = a.This;
@@ -88,7 +90,7 @@ namespace YantraJS.Core
             return JSBoolean.True;
         }
 
-        //[Prototype("copyWithIn", Length = 2)]
+        //[JSPrototypeMethod][JSExport("copyWithIn", Length = 2)]
         //public static JSValue CopyWithIn(in Arguments a)
         //{
         //    var @this = a.This;
@@ -125,7 +127,7 @@ namespace YantraJS.Core
         //    //throw new NotImplementedException();
         //}
 
-        [Prototype("copyWithin", Length = 2)]
+        [JSPrototypeMethod][JSExport("copyWithin", Length = 2)]
         public static JSValue CopyWithin(in Arguments a) {
             var (t, s) = a.Get2();
             var target = t.IntValue;
@@ -178,7 +180,7 @@ namespace YantraJS.Core
         }
 
 
-        [Prototype("entries")]
+        [JSPrototypeMethod][JSExport("entries")]
         public static JSValue Entries(in Arguments a)
         {
             var array = a.This as JSArray;
@@ -195,7 +197,7 @@ namespace YantraJS.Core
         /// <param name="start"> Optional. Start index. Defaults to 0. </param>
         /// <param name="end"> Optional. End index (exclusive). Defaults to the length of the array. </param>
         /// <returns> The array that is being operated on. </returns>
-        [Prototype("fill", Length = 1)]
+        [JSPrototypeMethod][JSExport("fill", Length = 1)]
         public static JSValue Fill(in Arguments a) {
             var @this = a.This;
             var (value, start, end) = a.Get3();
@@ -213,7 +215,7 @@ namespace YantraJS.Core
             return @this;
         }
 
-        [Prototype("filter", Length = 1)]
+        [JSPrototypeMethod][JSExport("filter", Length = 1)]
         public static JSValue Filter(in Arguments a)
         {
             var @this = a.This;
@@ -234,7 +236,7 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Prototype("find", Length = 1)]
+        [JSPrototypeMethod][JSExport("find", Length = 1)]
         public static JSValue Find(in Arguments a)
         {
             var @this = a.This;
@@ -265,7 +267,7 @@ namespace YantraJS.Core
         /// <param name="depth"> The depth level specifying how deep a nested array structure
         /// should be flattened. Defaults to 1. </param>
         /// <returns> A new array with the sub-array elements concatenated into it. </returns>
-        [Prototype("flat", Length = 0)]
+        [JSPrototypeMethod][JSExport("flat", Length = 0)]
         public static JSValue Flat(in Arguments a)
         {
             var result = new JSArray();
@@ -285,7 +287,7 @@ namespace YantraJS.Core
         /// <param name="thisArg"> Value to use as this when executing callback. </param>
         /// <returns> A new array with each element being the result of the callback function and
         /// flattened to a depth of 1. </returns>
-        [Prototype("flatMap", Length = 1)]
+        [JSPrototypeMethod][JSExport("flatMap", Length = 1)]
         public static JSValue FlatMap(in Arguments a)
         {
             var result = new JSArray();
@@ -316,7 +318,7 @@ namespace YantraJS.Core
             }
         }
 
-        [Prototype("findIndex", Length = 1)]
+        [JSPrototypeMethod][JSExport("findIndex", Length = 1)]
         public static JSValue FindIndex(in Arguments a)
         {
             var @this = a.This;
@@ -339,7 +341,7 @@ namespace YantraJS.Core
             return JSNumber.MinusOne;
         }
 
-        [Prototype("forEach", Length = 1)]
+        [JSPrototypeMethod][JSExport("forEach", Length = 1)]
         public static JSValue ForEach(in Arguments a)
         {
             var @this = a.This;
@@ -359,7 +361,7 @@ namespace YantraJS.Core
             return JSUndefined.Value;
         }
 
-        [Prototype("includes", Length = 1)]
+        [JSPrototypeMethod][JSExport("includes", Length = 1)]
         public static JSValue Includes(in Arguments a)
         {
             var @this = a.This;
@@ -390,7 +392,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Prototype("indexOf", Length = 1)]
+        [JSPrototypeMethod][JSExport("indexOf", Length = 1)]
         public static JSValue IndexOf(in Arguments a)
         {
             var @this = a.This;
@@ -412,7 +414,7 @@ namespace YantraJS.Core
             return JSNumber.MinusOne;
         }
 
-        [Prototype("join", Length = 1)]
+        [JSPrototypeMethod][JSExport("join", Length = 1)]
         public static JSValue Join(in Arguments a)
         {
             var @this = a.This as JSObject;
@@ -450,7 +452,7 @@ namespace YantraJS.Core
             return new JSString(sb.ToString());
         }
 
-        [Prototype("keys")]
+        [JSPrototypeMethod][JSExport("keys")]
         public static JSValue Keys(in Arguments a)
         {
             var @this = a.This;
@@ -459,7 +461,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("lastIndexOf", Length = 1)]
+        [JSPrototypeMethod][JSExport("lastIndexOf", Length = 1)]
         public static JSValue LastIndexOf(in Arguments a)
         {
             var @this = a.This;
@@ -484,7 +486,7 @@ namespace YantraJS.Core
             return JSNumber.MinusOne;
         }
 
-        [Prototype("map", Length = 1)]
+        [JSPrototypeMethod][JSExport("map", Length = 1)]
         public static JSValue Map(in Arguments a)
         {
             if (!(a.This is JSObject @this))
@@ -511,7 +513,7 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Prototype("push", Length = 1)]
+        [JSPrototypeMethod][JSExport("push", Length = 1)]
         public static JSValue Push(in Arguments a)
         {
             var t = a.This as JSObject;
@@ -560,7 +562,7 @@ namespace YantraJS.Core
             return n;
         }
 
-        [Prototype("pop")]
+        [JSPrototypeMethod][JSExport("pop")]
         public static JSValue Pop(in Arguments a)
         {
             var @this = a.This;
@@ -580,7 +582,7 @@ namespace YantraJS.Core
             return JSUndefined.Value;
         }
 
-        [Prototype("reduce", Length = 1)]
+        [JSPrototypeMethod][JSExport("reduce", Length = 1)]
         public static JSValue Reduce(in Arguments a)
         {
             var r = new JSArray();
@@ -605,7 +607,7 @@ namespace YantraJS.Core
             return initialValue;
         }
 
-        [Prototype("reduceRight", Length = 1)]
+        [JSPrototypeMethod][JSExport("reduceRight", Length = 1)]
         public static JSValue ReduceRight(in Arguments a)
         {
             var r = new JSArray();
@@ -630,7 +632,7 @@ namespace YantraJS.Core
             return initialValue;
         }
 
-        [Prototype("reverse")]
+        [JSPrototypeMethod][JSExport("reverse")]
         public static JSValue Reverse(in Arguments a)
         {
             var @this = a.This as JSObject;
@@ -654,7 +656,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("shift", Length = 0)]
+        [JSPrototypeMethod][JSExport("shift", Length = 0)]
         public static JSValue Shift(in Arguments a)
         {
             var @this = a.This;
@@ -707,7 +709,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("slice", Length = 2)]
+        [JSPrototypeMethod][JSExport("slice", Length = 2)]
         public static JSArray Slice(in Arguments a)
         {
             var start = a.TryGetAt(0, out var a1) ? a1.IntegerValue : 0;
@@ -755,7 +757,7 @@ namespace YantraJS.Core
                 return r;
         }
 
-        [Prototype("some", Length = 1)]
+        [JSPrototypeMethod][JSExport("some", Length = 1)]
         public static JSValue Some(in Arguments a)
         {
             var array = a.This;
@@ -774,7 +776,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Prototype("sort", Length = 1)]
+        [JSPrototypeMethod][JSExport("sort", Length = 1)]
         public static JSValue Sort(in Arguments a)
         {
             // To be modified by Akash
@@ -860,7 +862,7 @@ namespace YantraJS.Core
             return @this;
         }
 
-        [Prototype("splice", Length = 2)]
+        [JSPrototypeMethod][JSExport("splice", Length = 2)]
         public static JSValue Splice(in Arguments a)
         {
             var r = new JSArray();
@@ -1012,7 +1014,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("unshift", Length = 1)]
+        [JSPrototypeMethod][JSExport("unshift", Length = 1)]
         public static JSValue Unshift(in Arguments a)
         {
             var @this = a.This as JSObject;
@@ -1037,38 +1039,38 @@ namespace YantraJS.Core
             return new JSNumber(a.This.Length);
         }
 
-        [GetProperty("length")]
-        internal static JSValue GetLength(in Arguments a)
-        {
-            if (a.This is JSArray array)
-                return new JSNumber(array._length);
-            return new JSNumber(a.This.Length);
-        }
+        //[GetProperty("length")]
+        //internal static JSValue GetLength(in Arguments a)
+        //{
+        //    if (a.This is JSArray array)
+        //        return new JSNumber(array._length);
+        //    return new JSNumber(a.This.Length);
+        //}
 
-        [SetProperty("length")]
-        internal static JSValue SetLength(in Arguments a)
-        {
-            var @this = a.This as JSArray;
-            if (@this.IsSealedOrFrozen())
-                throw JSContext.Current.NewTypeError("Cannot modify property length");
-            var prev = @this._length;
-            ref var elements = ref @this.GetElements();
-            double n = a.Get1().DoubleValue;
-            if (n < 0 || n > uint.MaxValue || double.IsNaN(n))
-                throw JSContext.Current.NewRangeError("Invalid length");
-            @this._length = (uint)n;
-            if (prev > @this._length)
-            {
-                // remove.. 
-                for (uint i = @this._length; i < prev; i++)
-                {
-                    elements.RemoveAt(i);
-                }
-            }
-            return new JSNumber(@this._length);
-        }
+        //[SetProperty("length")]
+        //internal static JSValue SetLength(in Arguments a)
+        //{
+        //    var @this = a.This as JSArray;
+        //    if (@this.IsSealedOrFrozen())
+        //        throw JSContext.Current.NewTypeError("Cannot modify property length");
+        //    var prev = @this._length;
+        //    ref var elements = ref @this.GetElements();
+        //    double n = a.Get1().DoubleValue;
+        //    if (n < 0 || n > uint.MaxValue || double.IsNaN(n))
+        //        throw JSContext.Current.NewRangeError("Invalid length");
+        //    @this._length = (uint)n;
+        //    if (prev > @this._length)
+        //    {
+        //        // remove.. 
+        //        for (uint i = @this._length; i < prev; i++)
+        //        {
+        //            elements.RemoveAt(i);
+        //        }
+        //    }
+        //    return new JSNumber(@this._length);
+        //}
 
-        [Prototype("toLocaleString", Length = 0)]
+        [JSPrototypeMethod][JSExport("toLocaleString", Length = 0)]
         internal static JSValue ToLocaleString(in Arguments a)
         {
             var @this = a.This as JSArray;
@@ -1109,7 +1111,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("toString")]
+        [JSPrototypeMethod][JSExport("toString")]
         internal static JSValue ToString(in Arguments args) {
             if(args.This.IsArray)
                 return Join(in args);
@@ -1121,7 +1123,7 @@ namespace YantraJS.Core
         //        : "[object Object]");
 
 
-        [Prototype("values", Length = 2)]
+        [JSPrototypeMethod][JSExport("values", Length = 2)]
         [Symbol("@@iterator")]
         public static JSValue Values(in Arguments a)
         {

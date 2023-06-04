@@ -200,7 +200,7 @@ namespace YantraJS.Core
 
         public readonly JSObject ObjectPrototype;
 
-        public readonly JSObject ArrayPrototype;
+        // public readonly JSObject ArrayPrototype;
 
         // public readonly JSObject BooleanPrototype;
 
@@ -424,7 +424,7 @@ namespace YantraJS.Core
             ObjectPrototype.BasePrototypeObject = null;
             func.BasePrototypeObject = Object;
             FunctionPrototype.BasePrototypeObject = ObjectPrototype;
-            ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
+            // ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
             // StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
             // NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
             // BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
