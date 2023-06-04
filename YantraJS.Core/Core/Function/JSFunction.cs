@@ -22,10 +22,13 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using Yantra.Core;
 
 namespace YantraJS.Core
 {
 
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Function", Register = false)]
     public partial class JSFunction : JSObject
     {
 
@@ -56,7 +59,7 @@ namespace YantraJS.Core
         /// <param name="clrDelegate"></param>
         /// <param name="type"></param>
         internal JSFunction(JSFunctionDelegate clrDelegate, ClrType type)
-            : base(JSContext.Current?.FunctionPrototype)
+            : this()
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = clrDelegate;
@@ -93,7 +96,7 @@ namespace YantraJS.Core
         }
 
         protected JSFunction(StringSpan name, StringSpan source, JSObject _prototype)
-            : base(JSContext.Current?.FunctionPrototype)
+            : this()
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = empty;
@@ -243,7 +246,7 @@ namespace YantraJS.Core
             return f(a);
         }
 
-        [Prototype("valueOf", Length = 1)]
+        [JSPrototypeMethod][JSExport("valueOf", Length = 1)]
         public static JSValue ValueOf(in Arguments a)
         {
             return a.This;
@@ -258,20 +261,20 @@ namespace YantraJS.Core
         //    return fx.InvokeFunction(Arguments.Empty).ToString();
         //}
 
-        [Prototype("call", Length = 1)]
+        [JSPrototypeMethod][JSExport("call", Length = 1)]
         public static JSValue Call(in Arguments a)
         {
             var a1 = a.CopyForCall();
             return a.This.InvokeFunction(a1);
         }
 
-        [Prototype("apply", Length = 2)]
+        [JSPrototypeMethod][JSExport("apply", Length = 2)]
         public static JSValue Apply(in Arguments a){
             var ar = a.CopyForApply();
             return a.This.InvokeFunction(ar);
         }
 
-        [Prototype("bind", Length = 1)]
+        [JSPrototypeMethod][JSExport("bind", Length = 1)]
         public static JSValue Bind(in Arguments a) {
             var fOriginal = a.This as JSFunction;
             var original = a;
@@ -289,7 +292,7 @@ namespace YantraJS.Core
             return fx;
         }
 
-        [Prototype("toString", Length = 0)]
+        [JSPrototypeMethod][JSExport("toString", Length = 0)]
         public static JSValue ToString(in Arguments a)
         {
             if (!(a.This is JSFunction fx))
@@ -307,7 +310,7 @@ namespace YantraJS.Core
             return r.IsObject ? r : @this;
         }
 
-        [Constructor]
+        [JSExport(IsConstructor = true)]
         internal static JSValue Constructor(in Arguments args)
         {
 

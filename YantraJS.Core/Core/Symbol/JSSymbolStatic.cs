@@ -1,47 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Storage;
 
-namespace YantraJS.Core.Runtime
+namespace YantraJS.Core
 {
-    public static class JSSymbolStatic
+    public partial class JSSymbol
     {
 
-        [Prototype("asyncIterator")]
+        [JSExport("asyncIterator")]
         public static JSSymbol asyncIterator = new JSSymbol("Symbol.asyncIterator");
 
-        [Prototype("hasInstance")]
+        [JSExport("hasInstance")]
         public static JSSymbol hasInstance = new JSSymbol("Symbol.hasInstance");
 
-        [Prototype("isConcatSpreadable")]
+        [JSExport("isConcatSpreadable")]
         public static JSSymbol isConcatSpreadable = new JSSymbol("Symbol.isConcatSpreadable");
 
-        [Prototype("iterator")]
+        [JSExport("iterator")]
         public static JSSymbol iterator = new JSSymbol("Symbol.iterator");
 
-        [Prototype("match")]
+        [JSExport("match")]
         public static JSSymbol match = new JSSymbol("Symbol.matchAll");
 
-        [Prototype("replace")]
+        [JSExport("replace")]
         public static JSSymbol replace = new JSSymbol("Symbol.replace");
 
-        [Prototype("search")]
+        [JSExport("search")]
         public static JSSymbol search = new JSSymbol("Symbol.search");
 
-        [Prototype("species")]
+        [JSExport("species")]
         public static JSSymbol species = new JSSymbol("Symbol.species");
 
-        [Prototype("split")]
+        [JSExport("split")]
         public static JSSymbol split = new JSSymbol("Symbol.split");
 
-        [Prototype("toPrimitive")]
+        [JSExport("toPrimitive")]
         public static JSSymbol toPrimitive = new JSSymbol("Symbol.toPrimitive");
 
-        [Prototype("toStringTag")]
+        [JSExport("toStringTag")]
         public static JSSymbol toStringTag = new JSSymbol("Symbol.toStringTag");
 
-        [Prototype("unscopables")]
+        [JSExport("unscopables")]
         public static JSSymbol unscopables = new JSSymbol("Symbol.unscopables");
 
         private static ConcurrentStringMap<JSSymbol> globals
@@ -50,11 +51,11 @@ namespace YantraJS.Core.Runtime
         public static JSSymbol GlobalSymbol(string name)
         {
             name = name.TrimStart('@');
-            var f = typeof(JSSymbolStatic).GetField(name);
+            var f = typeof(JSSymbol).GetField(name);
             return (JSSymbol)f.GetValue(null);
         }
 
-        [Static("for")]
+        [JSExport("for")]
         public static JSValue For(in Arguments a)
         {
             var name = a.Get1().ToString();

@@ -23,6 +23,7 @@ namespace YantraJS.JSClassGenerator
         public readonly bool GenerateClass;
         public readonly List<JSExportInfo> Members;
         public readonly bool Register = true;
+        public readonly bool Globals = false;
 
         public JSTypeInfo(ITypeSymbol type)
         {
@@ -57,6 +58,11 @@ namespace YantraJS.JSClassGenerator
                             if (register.Key == "Register")
                             {
                                 Register = register.Value.ToCSharpString() != "false";
+                            }
+                            var globals = attribute.NamedArguments.FirstOrDefault(x => x.Key == "Globals");
+                            if (globals.Key == "Globals")
+                            {
+                                Globals = globals.Value.ToCSharpString() == "true";
                             }
                         }
                         break;

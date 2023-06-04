@@ -35,7 +35,6 @@ namespace YantraJS.JSClassGenerator
                 .AppendLine("using System.Runtime.CompilerServices;")
                 .AppendLine("using System.Text;")
                 .AppendLine("using YantraJS.Core.Clr;")
-                .AppendLine("using YantraJS.Core.Runtime;")
                 .AppendLine("using YantraJS.Extensions;");
 
             var ns = type.ContainingNamespace.ToString();

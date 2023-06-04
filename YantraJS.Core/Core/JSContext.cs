@@ -413,8 +413,9 @@ namespace YantraJS.Core
             //    return r;
             //}
 
-            this.Create<JSSymbol>(KeyStrings.Symbol);
-            var func = this.Create<JSFunction>(KeyStrings.Function);
+            this[Names.Symbol] = JSSymbol.CreateClass(this, false);
+            var func = JSFunction.CreateClass(this, false);
+            this[Names.Function] = func;
             FunctionPrototype = func.prototype;
             Object = JSObject.CreateClass(this, false);
             this[Names.Object] = Object;
@@ -470,7 +471,7 @@ namespace YantraJS.Core
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.RegisterGeneratedClasses();
-            this.Fill<JSGlobalStatic>();
+            // this.Fill<JSGlobalStatic>();
 
             //var c = new JSObject
             //{

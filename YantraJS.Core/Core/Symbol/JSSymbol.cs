@@ -2,21 +2,16 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using YantraJS.Core.Runtime;
+using Yantra.Core;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
-    [JSRuntime(typeof(JSSymbolStatic), typeof(JSSymbolPrototype))]
-    public class JSSymbol: JSValue
+    // [JSRuntime(typeof(JSSymbolStatic), typeof(JSSymbolPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Symbol")]
+    public partial class JSSymbol: JSValue
     {
-
-        public static JSSymbol GlobalSymbol(string name)
-        {
-            name = name.TrimStart('@');
-            var f = typeof(JSSymbolStatic).GetField(name);
-            return (JSSymbol)f.GetValue(null);
-        }
 
         private static int SymbolID = 1;
         private readonly string name;
