@@ -127,6 +127,7 @@ namespace YantraJS.JSClassGenerator
                 case "return":
                 case "throw":
                 case "is":
+                case "for":
                     name = "@" + name;
                     break;
             }

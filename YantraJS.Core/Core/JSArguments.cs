@@ -5,7 +5,6 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using YantraJS.Core.Generator;
-using YantraJS.Core.Runtime;
 
 namespace YantraJS.Core
 {
@@ -43,7 +42,7 @@ namespace YantraJS.Core
             properties.Put(KeyStrings.callee, (JSFunctionDelegate)Callee, Callee, JSPropertyAttributes.Property);
 
             ref var symbols = ref this.GetSymbols();
-            symbols.Put(JSSymbolStatic.iterator.Key) = JSProperty.Property(new JSFunction(Values), JSPropertyAttributes.ConfigurableValue);
+            symbols.Put(JSSymbol.iterator.Key) = JSProperty.Property(new JSFunction(Values), JSPropertyAttributes.ConfigurableValue);
             ref var elements = ref this.CreateElements();
             for (int i = 0; i < args.Length; i++)
             {

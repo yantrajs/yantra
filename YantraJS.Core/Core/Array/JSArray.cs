@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
-using YantraJS.Core.Runtime;
+using YantraJS.Core;
 using YantraJS;
 using YantraJS.Extensions;
 using Yantra.Core;
@@ -158,7 +158,7 @@ namespace YantraJS.Core
         {
             if(this.HasIterator)
             {
-                var v = this.GetValue(this.GetSymbols()[JSSymbolStatic.iterator.Key]);
+                var v = this.GetValue(this.GetSymbols()[JSSymbol.iterator.Key]);
                 return v.InvokeFunction(Arguments.Empty).GetElementEnumerator();
             }
             return new ElementEnumerator(this);

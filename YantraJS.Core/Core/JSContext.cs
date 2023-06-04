@@ -413,7 +413,7 @@ namespace YantraJS.Core
             //    return r;
             //}
 
-            this.Create<JSSymbol>(KeyStrings.Symbol);
+            this[Names.Symbol] = JSSymbol.CreateClass(this, false);
             var func = JSFunction.CreateClass(this, false);
             this[Names.Function] = func;
             FunctionPrototype = func.prototype;
