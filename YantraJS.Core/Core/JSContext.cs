@@ -471,7 +471,7 @@ namespace YantraJS.Core
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.RegisterGeneratedClasses();
-            this.Fill<JSGlobalStatic>();
+            // this.Fill<JSGlobalStatic>();
 
             //var c = new JSObject
             //{

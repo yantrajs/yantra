@@ -66,24 +66,27 @@ namespace YantraJS.JSClassGenerator
                 var className = type.JSClassName;
                 var hasBaseClasse = type.BaseClrClassName != null;
 
-                names.GetOrCreateName(className);
-
-                if (IsPrimitive(className))
+                if (!type.Globals)
                 {
-                    sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => null;");
-                }
-                else
-                {
-                    sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{names.GetOrCreateName(className)}] as JSFunction)?.prototype;");
-                }
 
-                sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype) {{}}");
-                
-                // sb = sb.AppendLine($"protected {type.Name}(JSObject prototype): base(prototype ?? throw new System.ArgumentException(\"Prototype not specified...\")) {{}}");
+                    names.GetOrCreateName(className);
 
+                    if (IsPrimitive(className))
+                    {
+                        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => null;");
+                    }
+                    else
+                    {
+                        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{names.GetOrCreateName(className)}] as JSFunction)?.prototype;");
+                    }
+
+                    sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype) {{}}");
+
+                    // sb = sb.AppendLine($"protected {type.Name}(JSObject prototype): base(prototype ?? throw new System.ArgumentException(\"Prototype not specified...\")) {{}}");
+                }
 
                 var createClassReturnType = "JSFunction";
-                if(type.InternalClass)
+                if(type.InternalClass || type.Globals)
                 {
                     createClassReturnType = "JSObject";
                 }
@@ -106,6 +109,10 @@ namespace YantraJS.JSClassGenerator
                         context[Names.{className}] = @class;
                     }}
                 ");
+                } else if (type.Globals)
+                {
+                    sb.AppendLine($@"
+                    var @class = context;");
                 }
                 else {
                     var l = type.ConstructorLength ?? "";

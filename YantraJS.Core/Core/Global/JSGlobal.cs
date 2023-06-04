@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Yantra.Core;
 using YantraJS.Core.BigInt;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Intl;
@@ -15,32 +16,33 @@ using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    public class JSGlobalStatic
+    [JSFunctionGenerator("Globals", Globals = true)]
+    public partial class JSGlobalStatic
     {
-        [Static("Infinity")]
+        [JSExport("Infinity")]
         public static JSNumber Infinity = JSNumber.PositiveInfinity;
 
-        [Static("NaN")]
+        [JSExport("NaN")]
         public static JSNumber NaN = JSNumber.NaN;
 
-        [Static("Intl")]
+        [JSExport("Intl")]
         public static JSValue Intl = ClrType.From(typeof(JSIntl));
 
-        [Static("decodeURI", Length = 1)]
+        [JSExport("decodeURI", Length = 1)]
         public static JSValue DecodeURI(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(UriHelper.DecodeURI(f));
         }
 
-        [Static("decodeURIComponent", Length = 1)]
+        [JSExport("decodeURIComponent", Length = 1)]
         public static JSValue DecodeURIComponent(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.UnescapeDataString(f));
         }
 
-        [Static("eval", Length = 1)]
+        [JSExport("eval", Length = 1)]
         public static JSValue Eval(in Arguments a)
         {
             var f = a.Get1();
@@ -52,7 +54,7 @@ namespace YantraJS.Core
             return CoreScript.Evaluate(text.Value, null);
         }
 
-        [Static("encodeURI", Length = 1)]
+        [JSExport("encodeURI", Length = 1)]
         public static JSValue EncodeURI(in Arguments a)
         {
             var f = a.Get1().ToString();
@@ -60,20 +62,20 @@ namespace YantraJS.Core
 
         }
 
-        [Static("encodeURIComponent", Length = 1)]
+        [JSExport("encodeURIComponent", Length = 1)]
         public static JSValue EncodeURIComponent(in Arguments a)
         {
             var f = a.Get1().ToString();
             return new JSString(Uri.EscapeDataString(f));
         }
 
-        [Static("isFinite", Length = 1)]
+        [JSExport("isFinite", Length = 1)]
         public static JSValue IsFinite(in Arguments a)
         {
             return JSNumber.IsFinite(a);
         }
 
-        [Static("isNaN", Length = 1)]
+        [JSExport("isNaN", Length = 1)]
         public static JSValue IsNaN(in Arguments a)
         {
             return double.IsNaN( a.Get1().DoubleValue) 
@@ -81,19 +83,19 @@ namespace YantraJS.Core
                 : JSBoolean.False;
         }
 
-        [Static("parseFloat", Length = 1)]
+        [JSExport("parseFloat", Length = 1)]
         public static JSValue ParseFloat(in Arguments a)
         {
             return JSNumber.ParseFloat(a);
         }
 
-        [Static("parseInt", Length = 2)]
+        [JSExport("parseInt", Length = 2)]
         public static JSValue ParseInt(in Arguments a)
         {
             return JSNumber.ParseInt(a);
         }
 
-        [Static("setImmediate", Length = 1)]
+        [JSExport("setImmediate", Length = 1)]
         public static JSValue SetImmediate(in Arguments a)
         {
             var @this = a.This;
@@ -116,7 +118,7 @@ namespace YantraJS.Core
             return JSUndefined.Value;
         }
 
-        [Static("setInterval", Length = 2)]
+        [JSExport("setInterval", Length = 2)]
         public static JSValue SetInterval(in Arguments a)
         {
             var @this = a.This;
@@ -128,7 +130,7 @@ namespace YantraJS.Core
             return new JSBigInt(key);
         }
 
-        [Static("clearInterval", Length = 1)]
+        [JSExport("clearInterval", Length = 1)]
         public static JSValue ClearInterval(in Arguments a)
         {
             var n = a.Get1().BigIntValue;
@@ -136,7 +138,7 @@ namespace YantraJS.Core
             return JSUndefined.Value;
         }
 
-        [Static("setTimeout", Length = 2)]
+        [JSExport("setTimeout", Length = 2)]
         public static JSValue SetTimeout(in Arguments a)
         {
             var context = JSContext.Current;
@@ -149,7 +151,7 @@ namespace YantraJS.Core
             return new JSBigInt(key);
         }
 
-        [Static("clearTimeout", Length = 1)]
+        [JSExport("clearTimeout", Length = 1)]
         public static JSValue ClearTimeout(in Arguments a)
         {
             var n = a.Get1().BigIntValue;

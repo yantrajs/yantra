@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Yantra.Core;
 using YantraJS.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Utils
 {
-    public class JSAssert: JSFunction
+    [JSBaseClass("Function")]
+    [JSFunctionGenerator("Assert")]
+    public partial class JSAssert: JSFunction
     {
-        public JSAssert(in StringSpan name): base(Assert, name, StringSpan.Empty)
-        {
-
-        }
-
-        private static JSValue Assert(in Arguments args)
+        [JSExport(IsConstructor = true)]
+        public static JSValue Assert(in Arguments args)
         {
             var (test, message) = args.Get2();
             if (!test.BooleanValue)
@@ -24,7 +24,7 @@ namespace YantraJS.Utils
             return JSUndefined.Value;
         }
 
-        [Static("strictEqual")]
+        [JSExport("strictEqual")]
         public static JSValue StrictEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
@@ -36,7 +36,7 @@ namespace YantraJS.Utils
             return JSUndefined.Value;
         }
 
-        [Static("notStrictEqual")]
+        [JSExport("notStrictEqual")]
         public static JSValue NotStrictEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
@@ -48,7 +48,7 @@ namespace YantraJS.Utils
             return JSUndefined.Value;
         }
 
-        [Static("equal")]
+        [JSExport("equal")]
         public static JSValue Equal(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
@@ -60,7 +60,7 @@ namespace YantraJS.Utils
             return JSUndefined.Value;
         }
 
-        [Static("doubleEqual")]
+        [JSExport("doubleEqual")]
         public static JSValue DoubleEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
@@ -76,7 +76,7 @@ namespace YantraJS.Utils
         }
 
 
-        [Static("notEqual")]
+        [JSExport("notEqual")]
         public static JSValue NotEqual(in Arguments a)
         {
             var (left, right, msgObj) = a.Get3();
@@ -88,7 +88,7 @@ namespace YantraJS.Utils
             return JSUndefined.Value;
         }
 
-        [Static("throws")]
+        [JSExport("throws")]
         public static JSValue Throws(in Arguments a)
         {
             var (left, error, msgObj) = a.Get3();
@@ -115,7 +115,7 @@ namespace YantraJS.Utils
             throw new JSException(msg);
         }
 
-        [Static("fail")]
+        [JSExport("fail")]
         public static JSValue Fail(in Arguments a)
         {
             var msgObj = a.Get1();
@@ -123,7 +123,7 @@ namespace YantraJS.Utils
             throw new JSException(msg);
         }
 
-        [Static("match")]
+        [JSExport("match")]
         public static JSValue Match(in Arguments a)
         {
             var (text, regex, msgObj) = a.Get3();

@@ -7,23 +7,33 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core
 {
     /// <summary>
     /// Create and load a module
     /// </summary>
-    public class JSModule: JSObject
+
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Module", Register = false)]
+    public partial class JSModule: JSObject
     {
         private readonly JSModuleContext context;
         public readonly string filePath;
         internal readonly string dirPath;
 
-        [Prototype("code")]
+        [JSPrototypeMethod][JSExport("code")]
         public string Code { get; set; }
 
+        public JSModule(in Arguments a)
+        {
+            throw new NotSupportedException();
+        }
+
         public JSModule(JSModuleContext context, JSObject exports, string name, bool isMain = false)
-            : base(context.ModulePrototype)
+            : this(context.ModulePrototype)
         {
             this.context = context;
             this.filePath = name;
@@ -33,7 +43,7 @@ namespace YantraJS.Core
         }
 
         internal JSModule(JSModuleContext context, string name, string code = null)
-            : base(context.ModulePrototype)
+            : this(context.ModulePrototype)
         {
             this.context = context;
             this.filePath = name;
@@ -41,13 +51,13 @@ namespace YantraJS.Core
             Code = code;
         }
 
-        [Prototype("id")]
+        [JSPrototypeMethod][JSExport("id")]
         public JSValue Id => new JSString(filePath);
 
         JSValue exports;
         private bool IsMain;
 
-        [Prototype("exports")]
+        [JSPrototypeMethod][JSExport("exports")]
         public JSValue Exports {
             get {
                 return exports;
@@ -62,10 +72,10 @@ namespace YantraJS.Core
             }
         }
 
-        [Prototype("require")]
+        [JSPrototypeMethod][JSExport("require")]
         public JSValue Require { get; set; }
 
-        [Prototype("import")]
+        [JSPrototypeMethod][JSExport("import")]
         public JSValue Import { get; set; }
 
         public Task<JSValue> ImportAsync(string name)
@@ -74,7 +84,7 @@ namespace YantraJS.Core
             return (result as JSPromise).Task;
         }
 
-        [Prototype("compile")]
+        [JSPrototypeMethod][JSExport("compile")]
         public JSValue Compile { get; set; }
         
         internal async Task InitAsync()
