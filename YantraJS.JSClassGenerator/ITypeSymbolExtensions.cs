@@ -6,25 +6,54 @@ using System.Text;
 
 namespace YantraJS.JSClassGenerator
 {
-    internal class JSExportInfo
+    public class JSExportInfo
     {
-        public string? Name;
+        public string Name;
         public string? Length;
         public bool IsConstructor;
+        public string? Symbol;
+        public bool IsPrototypeMethod;
+        internal IMethodSymbol? Method;
+        internal ISymbol Member;
+        internal IPropertySymbol? Property;
+        internal IFieldSymbol? Field;
     }
 
     internal static class ITypeSymbolExtensions
     {
 
-        public static JSExportInfo? GetExportAttribute(this IMethodSymbol method)
+        public static JSExportInfo? GetExportAttribute(this ISymbol method)
         {
-            foreach(var a in method.GetAttributes())
+            var e = new JSExportInfo {
+                Method = method as IMethodSymbol,
+                Property = method as IPropertySymbol,
+                Field = method as IFieldSymbol,
+                Member = method,
+                Name = method.Name
+            };
+            bool hasExport = false;
+            foreach (var a in method.GetAttributes())
             {
+                if(a.AttributeClass?.Name?.StartsWith("Symbol") ?? false)
+                {
+                    e.Symbol = a.ConstructorArguments.Length > 0
+                        ? a.ConstructorArguments[0].Value?.ToString() : null;
+                }
+                if(a.AttributeClass?.Name?.StartsWith("JSPrototypeMethod") ?? false)
+                {
+                    e.IsPrototypeMethod = true;
+                }
                 if(a.AttributeClass?.Name?.StartsWith("JSExport") ?? false)
                 {
-                    var e = new JSExportInfo { };
+                    hasExport = true;
                     e.Name = (a.ConstructorArguments.Length > 0 ? a.ConstructorArguments[0].Value?.ToString() ?? null : null)
                         ?? method.Name.ToCamelCase();
+
+                    if (a.AttributeClass?.Name?.StartsWith("JSExportSameName") ?? false)
+                    {
+                        e.Name = method.Name;
+                    }
+
                     foreach(var kvp in a.NamedArguments)
                     {
                         if(kvp.Key == "Length")
@@ -36,10 +65,9 @@ namespace YantraJS.JSClassGenerator
                             e.IsConstructor = true;
                         }
                     }
-                    return e;
                 }
             }
-            return null;
+            return hasExport ? e : null;
         }
 
         public static bool IsConstructor(this IMethodSymbol method)
