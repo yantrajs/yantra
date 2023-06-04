@@ -416,14 +416,22 @@ namespace YantraJS.Core
             this.Create<JSSymbol>(KeyStrings.Symbol);
             var func = this.Create<JSFunction>(KeyStrings.Function);
             FunctionPrototype = func.prototype;
-            // create object prototype...
-            Object =  this.Create<JSObject>(KeyStrings.Object);
-            //Object.f = JSObjectPrototype.Constructor;
+            Object = JSObject.CreateClass(this, false);
+            this[Names.Object] = Object;
             ObjectPrototype = Object.prototype;
-            //ObjectPrototype.Delete(KeyStrings.constructor);
             ObjectPrototype.BasePrototypeObject = null;
+            // ObjectPrototype.Delete(KeyStrings.constructor);
             func.BasePrototypeObject = Object;
+            // Object.BasePrototypeObject = null;
             FunctionPrototype.BasePrototypeObject = ObjectPrototype;
+
+            // create object prototype...
+            // Object =  this.Create<JSObject>(KeyStrings.Object);
+            //Object.f = JSObjectPrototype.Constructor;
+            //ObjectPrototype.Delete(KeyStrings.constructor);
+            // ObjectPrototype.BasePrototypeObject = null;
+            // func.BasePrototypeObject = Object;
+            // FunctionPrototype.BasePrototypeObject = ObjectPrototype;
             // ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
             // StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
             // NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
@@ -462,7 +470,6 @@ namespace YantraJS.Core
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.RegisterGeneratedClasses();
-
             this.Fill<JSGlobalStatic>();
 
             //var c = new JSObject

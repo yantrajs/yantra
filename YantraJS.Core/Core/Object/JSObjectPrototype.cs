@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    public class JSObjectPrototype
+    public partial class JSObject
     {
 
-        [Constructor]
+        [JSExport(IsConstructor = true)]
         public static JSValue Constructor(in Arguments a) {
             if (a.This != null && !a.This.IsUndefined)
                 return a.This;
@@ -24,7 +26,7 @@ namespace YantraJS.Core
             return new JSPrimitiveObject(first as JSPrimitive);
         }
 
-        [Prototype("propertyIsEnumerable")]
+        [JSPrototypeMethod][JSExport("propertyIsEnumerable")]
         public static JSValue PropertyIsEnumerable(in Arguments a)
         {
             if(!a.This.TryAsObjectThrowIfNullOrUndefined(out var @object))
@@ -46,33 +48,31 @@ namespace YantraJS.Core
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
-        [Prototype("toString")]
+        [JSPrototypeMethod][JSExport("toString")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "JavaScript Method Signature is Standard")]
         public static JSValue ToString(in Arguments a) => new JSString("[object Object]");
 
-        // [Prototype("toLocaleString")]
+        // [JSPrototypeMethod][JSExport("toLocaleString")]
         // public static JSValue ToLocaleString(JSValue t, params JSValue[] a)
 
 
-        [GetProperty("__proto__")]
-        internal static JSValue PrototypeGet(in Arguments a)
+        [JSExport("__proto__")]
+        internal JSValue ObjectPrototype
         {
-            return a.This.prototypeChain?.@object ?? JSNull.Value;
-        }
-
-        [SetProperty("__proto__")]
-        internal static JSValue PrototypeSet(in Arguments a)
-        {
-            var a0 = a.Get1();
-            if (a0 is JSObject o)
+            get
             {
-                a.This.BasePrototypeObject = o;
+                return this.prototypeChain?.@object ?? JSNull.Value;
             }
-            return a0;
+            set
+            {
+                if(value is JSObject o)
+                {
+                    this.BasePrototypeObject = o;
+                }
+            }
         }
 
-
-        [Prototype("hasOwnProperty")]
+        [JSPrototypeMethod][JSExport("hasOwnProperty")]
         internal static JSValue HasOwnProperty(in Arguments a)
         {
             if (!a.This.TryAsObjectThrowIfNullOrUndefined(out var @object))
@@ -100,12 +100,12 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Prototype("valueOf")]
+        [JSPrototypeMethod][JSExport("valueOf")]
         public static JSValue ValueOf(in Arguments a) {
             return a.This;
         }
 
-        [Prototype("isPrototypeOf")]
+        [JSPrototypeMethod][JSExport("isPrototypeOf")]
         internal static JSValue IsPrototypeOf(in Arguments a)
         {
             if (!a.This.TryAsObjectThrowIfNullOrUndefined(out var @this))

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using YantraJS;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Typed;
 using YantraJS.Extensions;
 using YantraJS.Utils;
@@ -31,8 +32,11 @@ namespace YantraJS.Core
             @object = value as JSObject;
             return @object != null;
         }
+    }
 
-        [Static("create")]
+    public partial class JSObject {
+
+        [JSExport("create")]
         internal static JSValue StaticCreate(in Arguments a)
         {
             var p = a.Get1();
@@ -45,7 +49,7 @@ namespace YantraJS.Core
             return new JSObject(proto);
         }
 
-        [Static("assign")]
+        [JSExport("assign")]
         internal static JSValue Assign(in Arguments a)
         {
             var first = a.Get1();
@@ -61,7 +65,7 @@ namespace YantraJS.Core
             return first;
         }
 
-        [Static("entries")]
+        [JSExport("entries")]
         internal static JSValue StaticEntries(in Arguments a)
         {
             var target = a.Get1();
@@ -90,13 +94,13 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Static("freeze")]
+        [JSExport("freeze")]
         internal static JSValue Freeze(in Arguments a)
         {
             throw new NotImplementedException();
         }
 
-        [Static("defineProperties")]
+        [JSExport("defineProperties")]
         internal static JSValue DefineProperties(in Arguments a)
         {
             var (a0, a1) = a.Get2();
@@ -135,7 +139,7 @@ namespace YantraJS.Core
             return target;
         }
 
-        [Static("defineProperty")]
+        [JSExport("defineProperty")]
         internal static JSValue DefineProperty(in Arguments a)
         {
             var (target, key, desc) = a.Get3();
@@ -148,25 +152,32 @@ namespace YantraJS.Core
             return targetObject.DefineProperty(key, pd);
         }
 
-        [Static("entries")]
-        internal static JSValue Entries(in  Arguments a)
+        [JSExport("entries")]
+        internal static JSValue GetEntries(in  Arguments a)
         {
-            var @this = a.This;
-            if(@this.IsNullOrUndefined)
+            if(a[0] is not JSObject obj)
+            // if(@this.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.NotIterable("undefined"));
-            var obj = @this as JSObject;
+            // var obj = @this as JSObject;
             var r = new JSArray();
+
+            var es = obj.GetElementEnumerator();
+            while (es.MoveNext(out var hasValue, out var value, out var index))
+            {
+                if (hasValue)
+                    r[r._length++] = new JSArray(new JSNumber(index), value);
+            }
 
             var vp = new PropertySequence.ValueEnumerator(obj, false);
             while(vp.MoveNext(out var value, out var key))
             {
-                r[r._length++] = new JSArray(value, key.ToJSValue());
+                r[r._length++] = new JSArray(key.ToJSValue(), value);
             }
             return r;
         }
 
 
-        [Static("fromEntries")]
+        [JSExport("fromEntries")]
 
         internal static JSValue FromEntries(in Arguments a)
         {
@@ -193,14 +204,14 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Static("is")]
+        [JSExport("is")]
         internal static JSValue Is(in Arguments a)
         {
             var (first, second) = a.Get2();
             return first.Is(second);
         }
 
-        [Static("isExtensible")]
+        [JSExport("isExtensible")]
         internal static JSValue IsExtensible(in Arguments a)
         {
             if (a.Get1() is JSObject @object && @object.IsExtensible())
@@ -210,7 +221,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Static("isFrozen")]
+        [JSExport("isFrozen")]
         internal static JSValue IsFrozen(in Arguments a)
         {
             if ((a.Get1() is JSObject @object) && @object.IsFrozen())
@@ -218,7 +229,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Static("isSealed")]
+        [JSExport("isSealed")]
         internal static JSValue IsSealed(in Arguments a)
         {
             if ((a.Get1() is JSObject @object) && @object.IsSealed())
@@ -226,7 +237,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Static("keys")]
+        [JSExport("keys")]
         internal static JSValue Keys(in Arguments a)
         {
             var first = a.Get1();
@@ -246,7 +257,7 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Static("preventExtensions")]
+        [JSExport("preventExtensions")]
         internal static JSValue PreventExtensions(in Arguments a)
         {
             var first = a.Get1();
@@ -256,7 +267,7 @@ namespace YantraJS.Core
             return @object;
         }
 
-        [Static("seal")]
+        [JSExport("seal")]
 
         internal static JSValue Seal(in Arguments a)
         {
@@ -272,7 +283,7 @@ namespace YantraJS.Core
             return first;
         }
 
-        [Static("setPrototypeOf")]
+        [JSExport("setPrototypeOf")]
         internal static JSValue SetPrototypeOf(in Arguments a)
         {
             var (first, second) = a.Get2();
@@ -280,7 +291,7 @@ namespace YantraJS.Core
             return first;
         }
 
-        [Static("values")]
+        [JSExport("values")]
         internal static JSValue Values(in Arguments a)
         {
             var first = a.Get1();
@@ -311,7 +322,7 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Static("getOwnPropertyDescriptor")]
+        [JSExport("getOwnPropertyDescriptor")]
         internal static JSValue GetOwnPropertyDescriptor(in Arguments a)
         {
             var (first, name) = a.Get2();
@@ -344,7 +355,7 @@ namespace YantraJS.Core
             return jobj.GetOwnPropertyDescriptor(name);
         }
 
-        [Static("getOwnPropertyDescriptors")]
+        [JSExport("getOwnPropertyDescriptors")]
         internal static JSValue GetOwnPropertyDescriptors(in Arguments a)
         {
             var first = a.Get1();
@@ -369,7 +380,7 @@ namespace YantraJS.Core
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
-        [Static("getOwnPropertyNames")]
+        [JSExport("getOwnPropertyNames")]
         internal static JSValue GetOwnPropertyNames(in Arguments a)
         {
             var first = a.Get1();
@@ -381,7 +392,7 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Static("getOwnPropertySymbols")]
+        [JSExport("getOwnPropertySymbols")]
         internal static JSValue GetOwnPropertySymbols(in Arguments a)
         {
             var first = a.Get1();
@@ -394,7 +405,7 @@ namespace YantraJS.Core
             return new JSArray(keys);
         }
 
-        [Static("getPrototypeOf")]
+        [JSExport("getPrototypeOf")]
         internal static JSValue GetPrototypeOf(in Arguments a)
         {
             return a.Get1().GetPrototypeOf();
