@@ -174,7 +174,7 @@ namespace YantraJS.JSClassGenerator
                     }
                 }
 
-                foreach (var member in type.Type.GetMembers())
+                foreach (var member in type.Members)
                 {
                     GenerateMember(sb, member);
                 }
@@ -195,59 +195,31 @@ namespace YantraJS.JSClassGenerator
             return sb.ToString();
         }
 
-        private void GenerateMember(StringBuilder sb, ISymbol member)
+        private void GenerateMember(StringBuilder sb, JSExportInfo exports)
         {
-            // needs JSExport
+            sb.AppendLine($"// Exporting {exports.Member.Name} as {exports.Name}");
 
-
-            var exports = member.GetAttributes().FirstOrDefault(x =>
-                x.AttributeClass?.Name?.StartsWith("JSExport")
-                ?? x.AttributeClass?.Name?.StartsWith("JSExportSameName")
-                ?? false);
-
-            var usePrototypeTarget = !member.IsStatic
-                || member.GetAttributes().Any((x) => x.AttributeClass?.Name?.StartsWith("JSPrototypeMethod") ?? false);
-
-            if (exports == null)
-            {
-                return;
-            }
-
-            sb.AppendLine($"// Begin {member.Name}");
-
-            var name = member.Name.ToCamelCase();
-
-            sb.AppendLine($"// Export As {name}");
-
-            if (exports.AttributeClass?.Name?.StartsWith("JSExportSameName") ?? false)
-            {
-                name = member.Name;
-            }
-            if (exports.ConstructorArguments.Length > 0)
-            {
-                name = exports.ConstructorArguments.FirstOrDefault().Value?.ToString() ?? name;
-            }
-
-            sb.AppendLine($"// Generating {member.Name}");
-
-            var target = usePrototypeTarget
+            var target = exports.IsPrototypeMethod || !exports.Member.IsStatic
                     ? "prototype"
                     : "@class";
 
-            switch (member.Kind)
+            var name = exports.Name;
+            var member = exports.Member;
+
+            switch (exports.Member.Kind)
             {
                 case SymbolKind.Field:
 
-                    GenerateField(sb, target, name, (member as IFieldSymbol)!);
+                    GenerateField(sb, target, name, exports);
 
                     break;
                 case SymbolKind.Method:
 
-                    GenerateMethod(sb, target, name, (member as IMethodSymbol)!, usePrototypeTarget);
+                    GenerateMethod(sb, target, name, exports);
 
                     break;
                 case SymbolKind.Property:
-                    GenerateProperty(sb, target, name, (member as IPropertySymbol)!);
+                    GenerateProperty(sb, target, name, exports);
                     break;
             }
         }
@@ -256,8 +228,9 @@ namespace YantraJS.JSClassGenerator
             StringBuilder sb,
             string target,
             string name,
-            IFieldSymbol method)
+            JSExportInfo exports)
         {
+            var method = exports.Field!;
 
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
 
@@ -327,8 +300,9 @@ namespace YantraJS.JSClassGenerator
             StringBuilder sb,
             string target,
             string name,
-            IPropertySymbol method)
+            JSExportInfo exports)
         {
+            var method = exports.Property!;
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
             var keyName = names.GetOrCreateName(name);
 
@@ -388,27 +362,45 @@ namespace YantraJS.JSClassGenerator
             StringBuilder sb,
             string target,
             string name,
-            IMethodSymbol method,
-            bool usePrototypeTarget)
+            JSExportInfo exports)
         {
-            if (method.IsConstructor())
-            {
-                return;
-            }
-
-            var e = method.GetExportAttribute();
+            bool usePrototypeTarget = exports.IsPrototypeMethod;
+            var method = exports.Method!;
+            var e = exports;
             if (e.IsConstructor)
             {
                 return;
             }
 
+            var keyName = names.GetOrCreateName(name);
+            var fx = GenerateMethodBody(name, exports);
+
+            if (e.Symbol == null)
+            {
+                sb.AppendLine($"{target}.FastAddValue({keyName}, {fx}, JSPropertyAttributes.ConfigurableValue);");
+                return;
+            }
+
+            sb.AppendLine("{");
+            sb.AppendLine($"var fx = {fx};");
+            fx = "fx";
+            sb.AppendLine($"{target}.FastAddValue({keyName}, {fx}, JSPropertyAttributes.ConfigurableValue);");
+            sb.AppendLine($"{target}.FastAddValue( JSSymbol.GlobalSymbol(\"{e.Symbol}\"), {fx}, JSPropertyAttributes.ConfigurableValue);");
+            sb.AppendLine("}");
+        }
+
+        private string GenerateMethodBody(
+            string name,
+            JSExportInfo e)
+        {
+            var method = e.Method!;
+            
             var l = $",\"function {name}() {{ [native] }}\", createPrototype: false";
             if (e?.Length != null && e.Length.Length > 0) {
                 l += ", length: " + e.Length;
             }
 
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
-            var keyName = names.GetOrCreateName(name);
             if (method.IsJSFunction())
             {
                 var fx = $"new JSFunction({type.Name}.{method.Name}, \"{name}\" {l})";
@@ -421,8 +413,7 @@ namespace YantraJS.JSClassGenerator
                         , ""{name}""
                         {l})";
                 }
-                sb.AppendLine($"{target}.FastAddValue({keyName}, {fx}, JSPropertyAttributes.ConfigurableValue);");
-                return;
+                return fx;
             }
 
             // sb.AppendLine($"{method.Name} not generated due to incompatible parameter types");
@@ -468,7 +459,8 @@ namespace YantraJS.JSClassGenerator
                 {l}
             )";
 
-            sb.AppendLine($"{target}.FastAddValue({keyName}, {body}, JSPropertyAttributes.ConfigurableValue);");
+            // sb.AppendLine($"{target}.FastAddValue({keyName}, {body}, JSPropertyAttributes.ConfigurableValue);");
+            return body;
         }
 
     }

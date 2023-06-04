@@ -8,23 +8,28 @@ using System.Text;
 using YantraJS.Core.Runtime;
 using YantraJS;
 using YantraJS.Extensions;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core
 {
-    [JSRuntime(typeof(JSArrayStatic), typeof(JSArrayPrototype))]
+    // [JSRuntime(typeof(JSArrayStatic), typeof(JSArrayPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Array")]
+
     public partial class JSArray: JSObject
     {
         internal uint _length;
 
-        internal JSArray(JSObject prototype) : base(prototype)
+        //internal JSArray(JSObject prototype) : base(prototype)
+        //{
+
+        //}
+
+
+        public JSArray() : base((JSObject)null)
         {
 
-        }
-
-
-        public JSArray(): base(JSContext.Current.ArrayPrototype)
-        {
-            
         }
 
         public JSArray(params JSValue[] items): this((IEnumerable<JSValue>)items)
@@ -32,7 +37,7 @@ namespace YantraJS.Core
 
         }
 
-        public JSArray(IElementEnumerator en): base(JSContext.Current.ArrayPrototype)
+        public JSArray(IElementEnumerator en): this()
         {
             ref var elements = ref GetElements(true);
             while (en.MoveNextOrDefault(out var v, JSUndefined.Value))
@@ -54,7 +59,7 @@ namespace YantraJS.Core
 
         
 
-        public JSArray(uint count): base(JSContext.Current.ArrayPrototype)
+        public JSArray(uint count): this()
         {
             CreateElements(count);
             _length = count;
@@ -98,9 +103,34 @@ namespace YantraJS.Core
             }
         }
 
+        [JSExport("length")]
+        public double ArrayLength
+        {
+            get => _length;
+            set
+            {
+                if (this.IsSealedOrFrozen())
+                    throw JSContext.Current.NewTypeError("Cannot modify property length");
+                var prev = this._length;
+                ref var elements = ref this.GetElements();
+                double n = value;
+                if (n < 0 || n > uint.MaxValue || double.IsNaN(n))
+                    throw JSContext.Current.NewRangeError("Invalid length");
+                this._length = (uint)n;
+                if (prev > this._length)
+                {
+                    // remove.. 
+                    for (uint i = this._length; i < prev; i++)
+                    {
+                        elements.RemoveAt(i);
+                    }
+                }
+            }
+        }
+
         public override int Length { 
-            get => (int)_length; 
-            set => _length = (uint)value; 
+            get => (int)_length;
+            set => this.ArrayLength = value;
         }
 
 
