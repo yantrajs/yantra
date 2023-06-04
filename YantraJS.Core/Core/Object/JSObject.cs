@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using Yantra.Core;
 using YantraJS.Core.Core;
 using YantraJS.Core.Core.Generator;
 using YantraJS.Core.Core.Storage;
@@ -20,7 +21,10 @@ namespace YantraJS.Core
 
     internal delegate void PropertyChangedEventHandler(JSObject sender, (uint keyString, uint index, JSSymbol symbol) index);
 
-    [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
+    // [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Object", Register = false)]
+
     public partial class JSObject : JSValue
     {
         private JSPrototype currentPrototype;
@@ -153,12 +157,7 @@ namespace YantraJS.Core
             return JSConstants.Object;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public JSObject(JSObject prototype) : base(prototype)
-        {
-        }
-
-        public JSObject() : this(JSContext.Current?.ObjectPrototype)
+        public JSObject() : base((JSObject)null)
         {
             
         }

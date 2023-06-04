@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace YantraJS.JSClassGenerator
         public readonly string? ConstructorMethod;
         public readonly bool GenerateClass;
         public readonly List<JSExportInfo> Members;
+        public readonly bool Register = true;
 
         public JSTypeInfo(ITypeSymbol type)
         {
@@ -48,6 +50,14 @@ namespace YantraJS.JSClassGenerator
                         if (attribute.ConstructorArguments.Length > 0)
                         {
                             className = attribute.ConstructorArguments[0].Value?.ToString() ?? className;
+                        }
+                        if(attribute.NamedArguments.Length > 0)
+                        {
+                            var register = attribute.NamedArguments.FirstOrDefault(x => x.Key == "Register");
+                            if (register.Key == "Register")
+                            {
+                                Register = register.Value.ToCSharpString() != "false";
+                            }
                         }
                         break;
                     case "JSBaseClass":

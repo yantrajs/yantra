@@ -33,6 +33,8 @@ namespace Yantra.Core
 
         public readonly string KeysClass;
 
+        public bool Register { get; set; } = true;
+
         public JSFunctionGeneratorAttribute(string? name = null, string keysClass = "KeyStrings")
         {
             this.Name = name;
