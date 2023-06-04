@@ -22,8 +22,8 @@ namespace YantraJS.Core
     internal delegate void PropertyChangedEventHandler(JSObject sender, (uint keyString, uint index, JSSymbol symbol) index);
 
     // [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
-
-    [JSFunctionGenerator("Object")]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Object", Register = false)]
 
     public partial class JSObject : JSValue
     {
@@ -157,7 +157,7 @@ namespace YantraJS.Core
             return JSConstants.Object;
         }
 
-        public JSObject() : this((JSObject)null)
+        public JSObject() : base((JSObject)null)
         {
             
         }

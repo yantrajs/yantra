@@ -266,7 +266,7 @@ namespace YantraJS.Core
 
         // public readonly JSMath Math;
 
-        // public readonly JSFunction Object;
+        public readonly JSFunction Object;
 
         // public readonly JSReflect Reflect;
 
@@ -416,10 +416,18 @@ namespace YantraJS.Core
             this.Create<JSSymbol>(KeyStrings.Symbol);
             var func = this.Create<JSFunction>(KeyStrings.Function);
             FunctionPrototype = func.prototype;
+            Object = JSObject.CreateClass(this, false);
+            this[Names.Object] = Object;
+            ObjectPrototype = Object.prototype;
+            ObjectPrototype.BasePrototypeObject = null;
+            // ObjectPrototype.Delete(KeyStrings.constructor);
+            func.BasePrototypeObject = Object;
+            // Object.BasePrototypeObject = null;
+            FunctionPrototype.BasePrototypeObject = ObjectPrototype;
+
             // create object prototype...
             // Object =  this.Create<JSObject>(KeyStrings.Object);
             //Object.f = JSObjectPrototype.Constructor;
-            // ObjectPrototype = Object.prototype;
             //ObjectPrototype.Delete(KeyStrings.constructor);
             // ObjectPrototype.BasePrototypeObject = null;
             // func.BasePrototypeObject = Object;
@@ -462,9 +470,6 @@ namespace YantraJS.Core
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
             this.RegisterGeneratedClasses();
-
-            FunctionPrototype.BasePrototypeObject = Object.prototype;
-
             this.Fill<JSGlobalStatic>();
 
             //var c = new JSObject

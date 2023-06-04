@@ -155,16 +155,23 @@ namespace YantraJS.Core
         [JSExport("entries")]
         internal static JSValue GetEntries(in  Arguments a)
         {
-            var @this = a.This;
-            if(@this.IsNullOrUndefined)
+            if(a[0] is not JSObject obj)
+            // if(@this.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.NotIterable("undefined"));
-            var obj = @this as JSObject;
+            // var obj = @this as JSObject;
             var r = new JSArray();
+
+            var es = obj.GetElementEnumerator();
+            while (es.MoveNext(out var hasValue, out var value, out var index))
+            {
+                if (hasValue)
+                    r[r._length++] = new JSArray(new JSNumber(index), value);
+            }
 
             var vp = new PropertySequence.ValueEnumerator(obj, false);
             while(vp.MoveNext(out var value, out var key))
             {
-                r[r._length++] = new JSArray(value, key.ToJSValue());
+                r[r._length++] = new JSArray(key.ToJSValue(), value);
             }
             return r;
         }

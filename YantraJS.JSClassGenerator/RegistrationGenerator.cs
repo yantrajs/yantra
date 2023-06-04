@@ -72,7 +72,10 @@ namespace YantraJS.JSClassGenerator
 
             foreach(var type in gc.RegistrationOrder)
             {
-                sb.AppendLine($"{type.ContainingNamespace}.{type.ClrClassName}.CreateClass(context);");
+                if (type.Register)
+                {
+                    sb.AppendLine($"{type.ContainingNamespace}.{type.ClrClassName}.CreateClass(context);");
+                }
             }
 
             sb.AppendLine("}");
