@@ -40,7 +40,15 @@ namespace YantraJS.Core
             return value.IsNullOrUndefined ? null : value.BooleanValue;
         }
 
+        public static long ToLong(JSValue value, string name)
+        {
+            return value.HasValue() ? value.BigIntValue: throw new JSException($"{name} is required");
+        }
 
+        public static long? ToNullableLong(JSValue value, string name)
+        {
+            return value.IsNullOrUndefined ? null : value.BigIntValue;
+        }
         public static int ToInt(JSValue value, string name)
         {
             return value.HasValue() ? value.IntValue : throw new JSException($"{name} is required");
