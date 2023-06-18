@@ -48,8 +48,13 @@ namespace YantraJS.Core.FastParser.Compiler
                         AstLiteral l = unaryExpression.Argument as AstLiteral;
                         if (l.TokenType == TokenTypes.Number)
                             return JSNumberBuilder.New(Exp.Constant(-l.NumericValue));
+                        if (l.TokenType == TokenTypes.BigInt)
+                            return JSBigIntBuilder.New("-" + l.StringValue);
+                        if (l.TokenType == TokenTypes.String)
+                            return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
                     }
-                    return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
+                    // return ExpHelper.JSNumberBuilder.New(Exp.Negate(DoubleValue(target)));
+                    return JSValueBuilder.Negate(Visit(target));
                 case UnaryOperator.BitwiseNot:
                     return ExpHelper.JSNumberBuilder.New(Exp.OnesComplement(JSValueBuilder.IntValue(Visit(target))));
                 case UnaryOperator.Negate:

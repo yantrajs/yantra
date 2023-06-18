@@ -38,6 +38,11 @@ namespace YantraJS.Core
 
         //internal override bool IsNullOrUndefined => true; 
 
+        public override JSValue Negate()
+        {
+            return JSNumber.NegativeZero;
+        }
+
         internal override PropertyKey ToKey(bool create = false)
         {
             return KeyStrings.@null;

@@ -21,6 +21,7 @@ namespace YantraJS.Core.FastParser
                 case TokenTypes.Number:
                 case TokenTypes.Null:
                 case TokenTypes.RegExLiteral:
+                case TokenTypes.BigInt:
                     stream.Consume();
                     node = new AstLiteral(token.Type, token);
                     return true;
