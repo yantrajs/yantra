@@ -47,7 +47,7 @@ namespace YantraJS
             }
             catch (Core.FastParser.FastParseException ex)
             {
-                throw new JSException(ex.Message, JSContext.Current.SyntaxErrorPrototype, "Compile", location, ex.Token.Start.Line);
+                throw JSContext.Current.NewSyntaxError(ex.Message, "Compile", location, ex.Token.Start.Line);
             }
         }
 

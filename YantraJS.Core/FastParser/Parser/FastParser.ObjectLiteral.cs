@@ -73,7 +73,7 @@ namespace YantraJS.Core.FastParser
                 }
 
                 stream.SkipNewLines();
-                if (isClass && stream.CheckAndConsume(TokenTypes.Assign))
+                if (stream.CheckAndConsume(TokenTypes.Assign))
                 {
                     if (!checkContextualKeyword)
                         throw stream.Unexpected();

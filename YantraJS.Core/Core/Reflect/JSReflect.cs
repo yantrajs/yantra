@@ -105,13 +105,13 @@ namespace YantraJS.Core.Internal
         [Static("ownKeys")]
         public static JSValue OwnKeys(in Arguments a)
         {
-            return JSObjectStatic.GetOwnPropertyNames(a);
+            return JSObject.GetOwnPropertyNames(a);
         }
 
         [Static("preventExtensions")]
         public static JSValue PreventExtensions(in Arguments a)
         {
-            return JSObjectStatic.PreventExtensions(a);
+            return JSObject.PreventExtensions(a);
         }
 
         [Static("set")]

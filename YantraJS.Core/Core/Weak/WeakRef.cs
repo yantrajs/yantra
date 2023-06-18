@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core.Weak
 {
-    public class JSFinalizationRegistry: JSObject
+    [JSClassGenerator("FinalizationRegistry")]
+    public partial class JSFinalizationRegistry: JSObject
     {
         private readonly JSSymbol finalizationSymbol = new JSSymbol("finalization");
 
@@ -13,12 +17,14 @@ namespace YantraJS.Core.Weak
 
         private readonly JSFunction finalizer;
 
-        public JSFinalizationRegistry(JSFunction finalizer): base(JSContext.Current.FinalizationRegistryPrototype)
+        public JSFinalizationRegistry(in Arguments a): base(a.NewPrototype)
         {
-            this.finalizer = finalizer;
+            if (a[0] is not JSFunction fx)
+                throw JSContext.Current.NewTypeError($"Argument is not a function");
+            this.finalizer = fx;
         }
 
-        public class WeakObject: JSObject
+        internal class WeakObject: JSObject
         {
             private readonly JSFinalizationRegistry registry;
             private readonly JSValue token;
@@ -41,40 +47,28 @@ namespace YantraJS.Core.Weak
             finalizer.InvokeFunction(new Arguments(this, token));
         }
 
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
+        [JSExport]
+        public JSValue Unregister(in Arguments a)
         {
-            if (!(a[0] is JSFunction fx))
-                throw JSContext.Current.NewTypeError($"Argument is not a function");
-            return new JSFinalizationRegistry(fx);
-        }
-
-        [Prototype("unregister")]
-        public static JSValue Unregister(in Arguments a)
-        {
-            if (!(a.This is JSFinalizationRegistry @this))
-                throw JSContext.Current.NewTypeError($"Invalid receiver");
             if (!(a[0] is JSObject obj))
                 throw JSContext.Current.NewTypeError($"Argument is not an object");
             // var weakRef = obj[@this.finalizationSymbol] as WeakObject;
             // GC.SuppressFinalize(weakRef);
-            @this.Unregister(a[0]);
+            this.Unregister(a[0]);
             return JSUndefined.Value;
         }
 
 
-        [Prototype("register")]
-        public static JSValue Register(in Arguments a)
+        [JSExport]
+        public JSValue Register(in Arguments a)
         {
-            if (!(a.This is JSFinalizationRegistry @this))
-                throw JSContext.Current.NewTypeError($"Invalid receiver");
             if (!(a[0] is JSObject obj))
                 throw JSContext.Current.NewTypeError($"Argument is not an object");
             var token = a[1];
             if (token?.IsNullOrUndefined ?? false)
                 throw JSContext.Current.NewTypeError($"Token is required");
             // obj[@this.finalizationSymbol] = new WeakObject(@this, a[1]);
-            @this.Register(obj, token);
+            this.Register(obj, token);
             return JSUndefined.Value;
         }
 
@@ -92,28 +86,26 @@ namespace YantraJS.Core.Weak
         }
     }
 
-    public class JSWeakRef: JSObject
+    [JSClassGenerator("WeakRef")]
+    public  partial class JSWeakRef: JSObject
     {
 
         internal WeakReference<JSValue> weak;
 
-        public JSWeakRef(JSValue value): base(JSContext.Current.WeakRefPrototype)
+        public JSWeakRef(JSValue value): this()
         {
             weak = new WeakReference<JSValue>(value);
         }
 
-        [Constructor]
-        public static JSValue Constructor(in Arguments a)
+        public JSWeakRef(in Arguments a): base(a.NewPrototype)
         {
-            return new JSWeakRef(a.Get1());
+            weak = new WeakReference<JSValue>(a[0] ?? throw new JSException($"argument is missing"));
         }
 
-        [Prototype("deref")]
-        public static JSValue Deref(in Arguments a)
+        [JSExport]
+        public JSValue Deref(in Arguments a)
         {
-            if (!(a.This is JSWeakRef wr))
-                throw JSContext.Current.NewTypeError("WeakRef.prototype.deref receiver is not WeakRef");
-            if (wr.weak.TryGetTarget(out var v))
+            if (weak.TryGetTarget(out var v))
                 return v;
             return JSUndefined.Value;
         }

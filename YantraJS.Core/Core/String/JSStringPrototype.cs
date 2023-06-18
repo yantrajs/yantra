@@ -8,38 +8,19 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
 using YantraJS.Core.Generator;
+using YantraJS.Core.InternalExtensions;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    public static class JSStringPrototype
-    {
+    public partial class JSString { 
 
-        private static JSString AsJSString(this JSValue v, 
-            [CallerMemberName] string helper = null)
-        {
-            if (v.IsNullOrUndefined)
-                throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
-            if (v is JSString str)
-                return str;
-            if (v is JSPrimitiveObject primitiveObject)
-                return primitiveObject.value.AsJSString();
-            throw JSContext.Current.NewTypeError($"String.prototype.{helper} called with non string");
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static string AsString(this JSValue v,
-            [CallerMemberName] string helper = null)
-        {
-            if (v.IsNullOrUndefined)
-                throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
-            return v.ToString();
-        }
-
-        [Constructor(Length = 1)]
+        [JSExport(Length = 1, IsConstructor = true )]
         public static JSValue Constructor(in Arguments a)
         {
             if (a.Length == 0)
@@ -49,10 +30,10 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("charAt", Length =1)]
+        [JSPrototypeMethod][JSExport("charAt", Length =1)]
         public static JSValue CharAt(in Arguments a)
         {
-            var text = AsString(a.This);
+            var text = a.This.AsString();
             //int at = a.TryGetAt(0, out var n) ? (!n.IsNullOrUndefined ? n.IntValue : 0) : 0;
             //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
             var pos = a[0]?.IntegerValue ?? 0;
@@ -65,7 +46,7 @@ namespace YantraJS.Core
             return new JSString(new string(text[pos], 1));
         }
 
-        [Prototype("substring", Length =2)]
+        [JSPrototypeMethod][JSExport("substring", Length =2)]
         public static JSValue Substring(in Arguments a) 
         {
             var @this = a.This.AsString();
@@ -103,13 +84,13 @@ namespace YantraJS.Core
             return new JSString(@this.Substring(si, ei - si));
         }
 
-        [Prototype("substr")]
+        [JSPrototypeMethod][JSExport("substr")]
         public static JSValue Substr(in Arguments a)
         {
             return Substring(a);
         }
 
-        [Prototype("toString")]
+        [JSPrototypeMethod][JSExport("toString")]
         public static JSValue ToString(in Arguments a)
         {
             return a.This.AsJSString();
@@ -117,17 +98,17 @@ namespace YantraJS.Core
 
 
 
-        [GetProperty("length")]
-        internal static JSValue GetLength(in Arguments a)
-        {
-            return new JSNumber(a.This.ToString().Length);
-        }
+        //[GetProperty("length")]
+        //internal static JSValue GetLength(in Arguments a)
+        //{
+        //    return new JSNumber(a.This.ToString().Length);
+        //}
 
-        [SetProperty("length")]
-        internal static JSValue SetLength(in Arguments a)
-        {
-            return a.Get1();
-        }
+        //[SetProperty("length")]
+        //internal static JSValue SetLength(in Arguments a)
+        //{
+        //    return a.Get1();
+        //}
 
         [Symbol("@@iterator")]
         public static JSValue Iterator(in Arguments a)
@@ -136,10 +117,10 @@ namespace YantraJS.Core
         }
 
 
-        [Prototype("charCodeAt", Length =1)]
+        [JSPrototypeMethod][JSExport("charCodeAt", Length =1)]
         internal static JSValue CharCodeAt(in Arguments a)
         {
-            var text = AsString(a.This);
+            var text = a.This.AsString();
             //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
             var pos = a[0]?.IntegerValue ?? 0;
             if (pos < 0 || pos >= text.Length)
@@ -149,10 +130,10 @@ namespace YantraJS.Core
             return new JSNumber(text[pos]);
         }
 
-        [Prototype("codePointAt", Length =1)]
+        [JSPrototypeMethod][JSExport("codePointAt", Length =1)]
         internal static JSValue CodePointAt(in Arguments a)
         {
-            var text = AsString(a.This);
+            var text = a.This.AsString();
             //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
             var pos = a[0]?.IntegerValue ?? 0;
             if (pos < 0 || pos >= text.Length)
@@ -168,7 +149,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("concat", Length = 1)]
+        [JSPrototypeMethod][JSExport("concat", Length = 1)]
         internal static JSValue Concat(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -183,7 +164,7 @@ namespace YantraJS.Core
                 return new JSString( sb.ToString() );
         }
 
-        [Prototype("contains", Length = 1)]
+        [JSPrototypeMethod][JSExport("contains", Length = 1)]
         internal static JSValue Contains(in Arguments a) {
             var @this = a.This.AsString();
             var arg = a.Get1().ToString();
@@ -195,7 +176,7 @@ namespace YantraJS.Core
 
         }
 
-        [Prototype("endsWith", Length = 1)]
+        [JSPrototypeMethod][JSExport("endsWith", Length = 1)]
         internal static JSValue EndsWith(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -220,7 +201,7 @@ namespace YantraJS.Core
             
         }
 
-        [Prototype("startsWith", Length =1)]
+        [JSPrototypeMethod][JSExport("startsWith", Length =1)]
         internal static JSValue StartsWith(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -244,7 +225,7 @@ namespace YantraJS.Core
             return JSBoolean.False;
         }
 
-        [Prototype("includes", Length = 1)]
+        [JSPrototypeMethod][JSExport("includes", Length = 1)]
         internal static JSValue Includes(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -258,7 +239,7 @@ namespace YantraJS.Core
             return @this.IndexOf(searchStr.ToString(), pos) >= 0 ? JSBoolean.True : JSBoolean.False;
         }
 
-        [Prototype("indexOf", Length = 1)]
+        [JSPrototypeMethod][JSExport("indexOf", Length = 1)]
         internal static JSValue IndexOf(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -271,7 +252,7 @@ namespace YantraJS.Core
             return new JSNumber(index);
         }
 
-        [Prototype("lastIndexOf", Length = 1)]
+        [JSPrototypeMethod][JSExport("lastIndexOf", Length = 1)]
         internal static JSValue LastIndexOF(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -298,7 +279,7 @@ namespace YantraJS.Core
             //    return new JSNumber(@this.LastIndexOf(text.ToString(),fromIndex.IntValue));
         }
 
-        [Prototype("localeCompare", Length = 1)]
+        [JSPrototypeMethod][JSExport("localeCompare", Length = 1)]
         internal static JSValue LocaleCompare(in Arguments a) {
 
             var @this = a.This;
@@ -313,7 +294,7 @@ namespace YantraJS.Core
             return new JSNumber(string.Compare(@this.ToString(), str,culture, 0));
         }
 
-        [Prototype("match", Length = 1)]
+        [JSPrototypeMethod][JSExport("match", Length = 1)]
         internal static JSValue Match(in Arguments a)
         {
             var @this = a.This;
@@ -327,13 +308,13 @@ namespace YantraJS.Core
             return new JSRegExp(pattern, "").Match(@this);
         }
 
-        /*[Prototype("matchAll")]
+        /*[JSPrototypeMethod][JSExport("matchAll")]
         internal static JSValue MatchAll(in Arguments a)
         {
             return
         }*/
 
-        [Prototype("normalize")]
+        [JSPrototypeMethod][JSExport("normalize")]
         internal static JSValue Normalize(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -356,7 +337,7 @@ namespace YantraJS.Core
             throw JSContext.Current.NewRangeError($"The normalization form should be one of NFC, NFD, NFKC, NFKD.");
         }
 
-        [Prototype("padEnd")]
+        [JSPrototypeMethod][JSExport("padEnd")]
         internal static JSValue PadEnd(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -366,7 +347,7 @@ namespace YantraJS.Core
             return new JSString(@this.PadRight(s.IntValue, ch));
         }
 
-        [Prototype("padStart")]
+        [JSPrototypeMethod][JSExport("padStart")]
         internal static JSValue PadStart(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -375,7 +356,7 @@ namespace YantraJS.Core
             return new JSString(@this.PadLeft(s.IntValue, ch));
         }
 
-        [Prototype("repeat", Length = 1)]
+        [JSPrototypeMethod][JSExport("repeat", Length = 1)]
         internal static JSValue Repeat(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -391,7 +372,7 @@ namespace YantraJS.Core
             
         }
 
-        [Prototype("replace", Length = 2)]
+        [JSPrototypeMethod][JSExport("replace", Length = 2)]
         internal static JSValue Replace(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -420,7 +401,7 @@ namespace YantraJS.Core
             //return new JSString(@this.Replace(f.ToString(), s.ToString()));
         }
 
-        /*[Prototype("replaceAll")]
+        /*[JSPrototypeMethod][JSExport("replaceAll")]
         internal static JSValue ReplaceAll(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -428,7 +409,7 @@ namespace YantraJS.Core
             return new JSString(@this.ReplaceAll(f.ToString(), s.ToString()));
         }*/
 
-        [Prototype("search", Length =1)]
+        [JSPrototypeMethod][JSExport("search", Length =1)]
         internal static JSValue Search(in Arguments a)
         {
             //var @this = a.This.AsString();
@@ -458,7 +439,7 @@ namespace YantraJS.Core
             return new JSNumber(index);
         }
 
-        [Prototype("slice", Length =2)]
+        [JSPrototypeMethod][JSExport("slice", Length =2)]
         internal static JSValue Slice(in Arguments a)
         {
             //var @this = a.This.AsString();
@@ -495,7 +476,7 @@ namespace YantraJS.Core
         /// <param name="separator"> A string or regular expression that indicates where to split the string. </param>
         /// <param name="limit"> The maximum number of array items to return.  Defaults to unlimited. </param>
         /// <returns> An array containing the split strings. </returns>
-        [Prototype("split", Length = 2)]
+        [JSPrototypeMethod][JSExport("split", Length = 2)]
         internal static JSValue Split(in Arguments a)
         {
 
@@ -531,7 +512,7 @@ namespace YantraJS.Core
             if (limitMax < splitStrings.Length)
             {
                 var splitStrings2 = new string[limitMax];
-                Array.Copy(splitStrings, splitStrings2, (int)limitMax);
+                System.Array.Copy(splitStrings, splitStrings2, (int)limitMax);
                 splitStrings = splitStrings2;
             }
 
@@ -567,7 +548,7 @@ namespace YantraJS.Core
 
 
 
-        [Prototype("toLocaleLowerCase")]
+        [JSPrototypeMethod][JSExport("toLocaleLowerCase")]
         internal static JSValue ToLocaleLowerCase(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -583,7 +564,7 @@ namespace YantraJS.Core
             
         }
 
-        [Prototype("toLocaleUpperCase")]
+        [JSPrototypeMethod][JSExport("toLocaleUpperCase")]
         internal static JSValue ToLocaleUpperCase(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -599,14 +580,14 @@ namespace YantraJS.Core
             }
         }
 
-        [Prototype("toLowerCase")]
+        [JSPrototypeMethod][JSExport("toLowerCase")]
         internal static JSValue ToLowerCase(in Arguments a)
         {
             var @this = a.This.AsString();
             return new JSString(@this.ToLowerInvariant());
         }
 
-        [Prototype("toUpperCase")]
+        [JSPrototypeMethod][JSExport("toUpperCase")]
         internal static JSValue ToUpperCase(in Arguments a)
         {
             var @this = a.This.AsString();
@@ -627,28 +608,29 @@ namespace YantraJS.Core
             '\x0A', '\x0D', '\u2028', '\u2029',
         };
 
-        [Prototype("trim")]
+        [JSPrototypeMethod][JSExport("trim")]
         internal static JSValue Trim(in Arguments a)
         {
             var @this = a.This.AsString();
             return new JSString(@this.Trim(trimCharacters));
         }
 
-        [Prototype("trimEnd")]
+        [JSPrototypeMethod][JSExport("trimEnd")]
         internal static JSValue TrimEnd(in Arguments a)
         {
             var @this = a.This.AsString();
             return new JSString(@this.TrimEnd(trimCharacters));
         }
 
-        [Prototype("trimStart")]
+        [JSPrototypeMethod][JSExport("trimStart")]
         internal static JSValue TrimStart(in Arguments a)
         {
             var @this = a.This.AsString();
             return new JSString(@this.TrimStart(trimCharacters));
         }
 
-        [Prototype("valueOf")]
+        [JSPrototypeMethod]
+        [JSExport("valueOf")]
         internal static JSValue ValueOf(in Arguments a)
         {
             return a.This.AsJSString();

@@ -83,28 +83,28 @@ namespace YantraJS.Core.Debugger
                 {
                     if(pl.Length == 0)
                     {
-                        protocols[name] = createEmptyAsyncMethod.MakeGenericMethod(m.ReturnType.GetGenericArguments()[0])
-                            .Invoke(null, new object[] { p, m }) as MessageProcessor;
+                        //protocols[name] = createEmptyAsyncMethod.MakeGenericMethod(m.ReturnType.GetGenericArguments()[0])
+                        //    .Invoke(null, new object[] { p, m }) as MessageProcessor;
+                        protocols[name] = Generic.InvokeAs(m.ReturnType.GetGenericArguments()[0], CreateEmptyAsync<object>, m);
                         continue;
                     }
-                    protocols[name] = createAsyncMethod.MakeGenericMethod(pl[0].ParameterType, m.ReturnType.GetGenericArguments()[0])
-                        .Invoke(null, new object[] { p, m }) as MessageProcessor;
+                    //protocols[name] = createAsyncMethod.MakeGenericMethod(pl[0].ParameterType, m.ReturnType.GetGenericArguments()[0])
+                    //    .Invoke(null, new object[] { p, m }) as MessageProcessor;
+                    protocols[name] = Generic.InvokeAs(
+                        pl[0].ParameterType, m.ReturnType.GetGenericArguments()[0], CreateAsync<object,object>, m);
                     continue;
                 }
                 if(pl.Length == 0)
                 {
-                    protocols[name] = createEmptyMethod.MakeGenericMethod(m.ReturnType).Invoke(null, new object[] { p, m }) as MessageProcessor;
+                    protocols[name] = Generic.InvokeAs(
+                        m.ReturnType, CreateEmpty<object>, p, m);
+                    // protocols[name] = createEmptyMethod.MakeGenericMethod(m.ReturnType).Invoke(null, new object[] { p, m }) as MessageProcessor;
                     continue;
                 }
-                protocols[name] = createMethod.MakeGenericMethod(pl[0].ParameterType, m.ReturnType).Invoke(null, new object[] { p, m }) as MessageProcessor;
+                // protocols[name] = createMethod.MakeGenericMethod(pl[0].ParameterType, m.ReturnType).Invoke(null, new object[] { p, m }) as MessageProcessor;
+                protocols[name] = Generic.InvokeAs(pl[0].ParameterType, m.ReturnType, Create<object,object>, p, m );
             }
         }
-
-        private static MethodInfo createMethod = typeof(V8InspectorProtocol).GetMethod(nameof(Create));
-        private static MethodInfo createAsyncMethod = typeof(V8InspectorProtocol).GetMethod(nameof(CreateAsync));
-
-        private static MethodInfo createEmptyMethod = typeof(V8InspectorProtocol).GetMethod(nameof(CreateEmpty));
-        private static MethodInfo createEmptyAsyncMethod = typeof(V8InspectorProtocol).GetMethod(nameof(CreateEmptyAsync));
 
         public static MessageProcessor CreateEmpty<RT>(V8ProtocolObject p, MethodInfo m)
         {

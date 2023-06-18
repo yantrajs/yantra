@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    public class JSStringStatic
+    public partial class JSString
     {
 
-        [Static("fromCharCode", Length = 1)]
+        [JSExport("fromCharCode", Length = 1)]
         internal static JSValue FromCharCode(in Arguments a)
         {
             if (a.Length == 0)
@@ -26,7 +27,7 @@ namespace YantraJS.Core
             return new JSString(sb.ToString());
         }
 
-        [Static("fromCodePoint", Length = 1)]
+        [JSExport("fromCodePoint", Length = 1)]
         internal static JSValue FromCodePoint(in Arguments a) {
             if (a.Length == 0)
                 return new JSString(string.Empty);
@@ -51,7 +52,7 @@ namespace YantraJS.Core
             return new JSString(result.ToString());
         }
 
-        [Static("raw", Length = 1)]
+        [JSExport("raw", Length = 1)]
         internal static JSValue Raw(in Arguments a)
         {
             var template = a.Get1();

@@ -17,12 +17,12 @@ namespace YantraJS.Core.Tests.Core.GCTests
         {
             var success = false;
 
-
-            var fr = new JSFinalizationRegistry(new JSFunction((in Arguments a) =>
+            var a = new Arguments(JSUndefined.Value, new JSFunction((in Arguments a) =>
             {
                 success = true;
                 return JSUndefined.Value;
             }));
+            var fr = new JSFinalizationRegistry(a);
 
             Register(fr);
 
@@ -35,7 +35,7 @@ namespace YantraJS.Core.Tests.Core.GCTests
 
         private static void Register(JSFinalizationRegistry fr)
         {
-            JSFinalizationRegistry.Register(new Arguments(fr, new JSObject(), new JSString("a")));
+            fr.Register(new Arguments(fr, new JSObject(), new JSString("a")));
         }
     }
 }

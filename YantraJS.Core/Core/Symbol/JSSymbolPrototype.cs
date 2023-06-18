@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.Clr;
 
-namespace YantraJS.Core.Runtime
+namespace YantraJS.Core
 {
-    public static class JSSymbolPrototype
+    public partial class JSSymbol
     {
 
-        [Constructor]
+        [JSExport(IsConstructor =true)]
         public static JSValue Constructor(in Arguments a)
         {
             var name = a.Get1();

@@ -13,7 +13,7 @@ namespace YantraJS.Core.FastParser
         bool Class(out AstStatement statement)
         {
             statement = default;
-            if(ClassExpression(out var node))
+            if(ClassExpression(out var node, isStatement: true))
             {
                 statement = new AstExpressionStatement(node);
                 return true;
@@ -23,7 +23,7 @@ namespace YantraJS.Core.FastParser
         }
 
 
-        bool ClassExpression(out AstExpression statement)
+        bool ClassExpression(out AstExpression statement, bool isStatement = false)
         {
             var begin = stream.Current;
             statement = default;
@@ -63,9 +63,11 @@ namespace YantraJS.Core.FastParser
                     {
                         nodes.Add(property);
                     }
+                    stream.CheckAndConsumeWithLineTerminator(TokenTypes.SemiColon);
                 }
                 if(identifier != null) {
-                    this.variableScope.Top.AddVariable(identifier.Start, identifier.Name, FastVariableKind.Let, throwError: false);
+                    this.variableScope.Top.AddVariable(identifier.Start,
+                        identifier.Name, isStatement ? FastVariableKind.Let : FastVariableKind.Var , throwError: false);
                 }
                 statement = new AstClassExpression(begin, PreviousToken, identifier, @base, nodes);
             }

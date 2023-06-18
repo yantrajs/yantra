@@ -3,27 +3,31 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Text;
+using YantraJS.Core.Clr;
+using YantraJS.Core.Core.Intl;
 using YantraJS.Utils;
 
-namespace YantraJS.Core.Date
+namespace YantraJS.Core
 {
-    public static class JSDatePrototype
+    public partial class JSDate
     {
 
         static long MinTime = DateTimeOffset.MinValue.ToUnixTimeMilliseconds();
         static long MaxTime = DateTimeOffset.MaxValue.ToUnixTimeMilliseconds();
 
-        [Constructor( Length = 7 )]
-        internal static JSValue Constructor(in Arguments a) {
+        [JSExport( Length = 7 )]
+        JSDate(in Arguments a) {
             DateTimeOffset date;
             if (a.Length == 0)
             {
-                return new JSDate(DateTimeOffset.Now);
+                this.value = DateTimeOffset.Now;
+                return;
             }
             var dateString = a.Get1();
             if (dateString.IsNumber && double.IsNaN(dateString.DoubleValue))
             {
-                return JSDate.invalidDate;
+                this.value = DateTimeOffset.MinValue;
+                return;
             }
             if (a.Length == 1) {
                 if (dateString.IsNumber) {
@@ -33,14 +37,20 @@ namespace YantraJS.Core.Date
                     date = DateTimeOffset.FromUnixTimeMilliseconds(ticks);
                     if (ticks == MinTime || ticks == MaxTime)
                     {
-                        return new JSDate(date);
+                        this.value = date;
+                        return;
                     }
-                    return new JSDate(date.ToOffset(JSDate.Local));
+                    this.value = date.ToOffset(JSDate.Local);
+                    return;
                 }
                 date = DateParser.Parse(dateString.ToString());
                 if (date == DateTimeOffset.MinValue)
-                    return JSDate.invalidDate;
-                return new JSDate(date.ToLocalTime());
+                {
+                    this.value = date;
+                    return;
+                }
+                this.value = date.ToLocalTime();
+                return;
             }
             var (year, month, day, hours, minutes, seconds, millis ) = a.Get7Int();
 
@@ -55,24 +65,25 @@ namespace YantraJS.Core.Date
                 date = date.AddHours(hours);
                 date = date.AddDays(day);
                 date = date.AddMonths(month);
-
-                return new JSDate(date);
+                this.value = date;
+                return;
             }
             catch (ArgumentOutOfRangeException) {
-                return JSDate.invalidDate;
+                this.value = DateTimeOffset.MinValue;
+                return;
             }
 
         }
 
 
 
-        [Prototype("getDate", Length = 0)]
-        internal static JSValue GetDate(in Arguments a)
+        [JSExport("getDate", Length = 0)]
+        internal JSValue GetDate(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.Day;
+            var result = this.value.Day;
             return new JSNumber(result);
         }
 
@@ -85,22 +96,22 @@ namespace YantraJS.Core.Date
         /// <param name="diff"></param>
         /// <param name="diffValue"></param>
         /// <returns></returns>
-        internal static bool IsValid(JSDate @this, JSValue diff, out double diffValue)
+        internal bool IsValid(JSValue diff, out double diffValue)
         {
             diffValue = 0;
-            if (@this.value == DateTimeOffset.MinValue)
+            if (this.value == DateTimeOffset.MinValue)
                 return false;
 
             if (diff.IsUndefined)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
                 return false;
             }
 
             diffValue = diff.DoubleValue;
             if (double.IsNaN(diffValue))
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
                 return false;
             }
             return true;
@@ -111,224 +122,224 @@ namespace YantraJS.Core.Date
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
-        [Prototype("setDate", Length = 1)]
-        internal static JSValue SetDate(in Arguments a)
+        [JSExport("setDate", Length = 1)]
+        internal JSValue SetDate(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if(!IsValid(@this, a.Get1(),out var diffValue))
+            
+            if(!IsValid(a.Get1(),out var diffValue))
                 return JSNumber.NaN;
 
             try
             {
-                @this.value = @this.value.AddDays(-@this.value.Day + diffValue);
+                this.value = this.value.AddDays(-this.value.Day + diffValue);
             }
             catch (ArgumentOutOfRangeException) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
-        [Prototype("getDay", Length = 0)]
-        internal static JSValue GetDay(in Arguments a)
+        [JSExport("getDay", Length = 0)]
+        internal JSValue GetDay(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.DayOfWeek;
+            var result = this.value.DayOfWeek;
             return new JSNumber((double)result);
         }
 
-        [Prototype("getFullYear", Length = 0)]
-        internal static JSValue GetFullYear(in Arguments a)
+        [JSExport("getFullYear", Length = 0)]
+        internal JSValue GetFullYear(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.Year;
+            var result = this.value.Year;
             return new JSNumber(result);
         }
 
-        [Prototype("getHours", Length = 0)]
-        internal static JSValue GetHours(in Arguments a)
+        [JSExport("getHours", Length = 0)]
+        internal JSValue GetHours(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.Hour;
-            return new JSNumber(result);
-        }
-
-
-
-        [Prototype("getMilliseconds", Length = 0)]
-        internal static JSValue GetMilliSeconds(in Arguments a)
-        {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
-                return JSNumber.NaN;
-            var result = @this.value.Millisecond;
+            var result = this.value.Hour;
             return new JSNumber(result);
         }
 
 
 
-        [Prototype("getMinutes", Length = 0)]
-        internal static JSValue GetMinutes(in Arguments a)
+        [JSExport("getMilliseconds", Length = 0)]
+        internal JSValue GetMilliSeconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.Minute;
-            return new JSNumber(result);
-        }
-
-        [Prototype("getMonth", Length = 0)]
-        internal static JSValue GetMonth(in Arguments a)
-        {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
-                return JSNumber.NaN;
-            var result = @this.value.Month - 1;
+            var result = this.value.Millisecond;
             return new JSNumber(result);
         }
 
 
-        [Prototype("getSeconds", Length = 0)]
-        internal static JSValue GetSeconds(in Arguments a)
+
+        [JSExport("getMinutes", Length = 0)]
+        internal JSValue GetMinutes(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.Second;
+            var result = this.value.Minute;
             return new JSNumber(result);
         }
 
-        [Prototype("getTime", Length = 0)]
-        internal static JSValue GetTime(in Arguments a)
+        [JSExport("getMonth", Length = 0)]
+        internal JSValue GetMonth(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToJSDate();
+            var result = this.value.Month - 1;
             return new JSNumber(result);
         }
 
-        [Prototype("getTimezoneOffset", Length = 0)]
-        internal static JSValue GetTimezoneOffset(in Arguments a)
+
+        [JSExport("getSeconds", Length = 0)]
+        internal JSValue GetSeconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = -(int)TimeZoneInfo.Local.GetUtcOffset(@this.Value).TotalMinutes;
+            var result = this.value.Second;
             return new JSNumber(result);
         }
 
-        [Prototype("getUTCDate", Length = 0)]
-        internal static JSValue GetUTCDate(in Arguments a)
+        [JSExport("getTime", Length = 0)]
+        internal JSValue GetTime(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().Day;
+            var result = this.value.ToJSDate();
             return new JSNumber(result);
         }
 
-        [Prototype("getUTCDay", Length = 0)]
-        internal static JSValue GetUTCDay(in Arguments a)
+        [JSExport("getTimezoneOffset", Length = 0)]
+        internal JSValue GetTimezoneOffset(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().DayOfWeek;
+            var result = -(int)TimeZoneInfo.Local.GetUtcOffset(this.Value).TotalMinutes;
+            return new JSNumber(result);
+        }
+
+        [JSExport("getUTCDate", Length = 0)]
+        internal JSValue GetUTCDate(in Arguments a)
+        {
+            
+            if (this.value == DateTimeOffset.MinValue)
+                return JSNumber.NaN;
+            var result = this.value.ToUniversalTime().Day;
+            return new JSNumber(result);
+        }
+
+        [JSExport("getUTCDay", Length = 0)]
+        internal JSValue GetUTCDay(in Arguments a)
+        {
+            
+            if (this.value == DateTimeOffset.MinValue)
+                return JSNumber.NaN;
+            var result = this.value.ToUniversalTime().DayOfWeek;
             return new JSNumber((double)result);
         }
 
-        [Prototype("getUTCFullYear", Length = 0)]
-        internal static JSValue GetUTCFullYear(in Arguments a)
+        [JSExport("getUTCFullYear", Length = 0)]
+        internal JSValue GetUTCFullYear(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().Year;
+            var result = this.value.ToUniversalTime().Year;
             return new JSNumber(result);
         }
 
-        [Prototype("getUTCHours", Length = 0)]
-        internal static JSValue GetUTCHours(in Arguments a)
+        [JSExport("getUTCHours", Length = 0)]
+        internal JSValue GetUTCHours(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().Hour;
+            var result = this.value.ToUniversalTime().Hour;
             return new JSNumber(result);
         }
 
-        [Prototype("getUTCMilliseconds", Length = 0)]
-        internal static JSValue GetUTCMilliseconds(in Arguments a)
+        [JSExport("getUTCMilliseconds", Length = 0)]
+        internal JSValue GetUTCMilliseconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().Millisecond;
+            var result = this.value.ToUniversalTime().Millisecond;
             return new JSNumber(result);
         }
 
-        [Prototype("getUTCMinutes", Length = 0)]
-        internal static JSValue GetUTCMinutes(in Arguments a)
+        [JSExport("getUTCMinutes", Length = 0)]
+        internal JSValue GetUTCMinutes(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().Minute;
+            var result = this.value.ToUniversalTime().Minute;
             return new JSNumber(result);
         }
 
-        [Prototype("getUTCMonth", Length = 0)]
-        internal static JSValue GetUTCMonth(in Arguments a)
+        [JSExport("getUTCMonth", Length = 0)]
+        internal JSValue GetUTCMonth(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().Month - 1;
+            var result = this.value.ToUniversalTime().Month - 1;
             return new JSNumber(result);
         }
 
-        [Prototype("getUTCSeconds", Length = 0)]
-        internal static JSValue GetUTCSeconds(in Arguments a)
+        [JSExport("getUTCSeconds", Length = 0)]
+        internal JSValue GetUTCSeconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToUniversalTime().Second;
+            var result = this.value.ToUniversalTime().Second;
             return new JSNumber(result);
         }
 
 
-        //[Prototype("getYear", Length = 0)]
-        //internal static JSValue GetYear(in Arguments a)
+        //[JSExport("getYear", Length = 0)]
+        //internal JSValue GetYear(in Arguments a)
         //{
-        //    var @this = a.This.AsJSDate();
-        //    if (@this.value == DateTimeOffset.MinValue)
+        //    
+        //    if (this.value == DateTimeOffset.MinValue)
         //        return JSNumber.NaN;
-        //    var result = @this.value.Year;
+        //    var result = this.value.Year;
         //    return new JSNumber(result);
         //}
 
-        [Prototype("setFullYear", Length = 3)]
-        internal static JSValue SetFullYear(in Arguments a)
+        [JSExport("setFullYear", Length = 3)]
+        internal JSValue SetFullYear(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var year))
+            
+            if (!IsValid( a.Get1(), out var year))
 
                 return JSNumber.NaN;
 
             if (year <= 0) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
                 return JSNumber.NaN;
             }
 
 
-            var date = @this.value;
+            var date = this.value;
             var (_year, _month, _day) = a.Get3();
 
             var month = _month.IsUndefined ? date.Month - 1 : _month.IntValue;
@@ -338,26 +349,26 @@ namespace YantraJS.Core.Date
             {
                 date = new DateTimeOffset((int)year, 1, 1, 
                     date.Hour, date.Minute, date.Second, 
-                    date.Millisecond, @this.value.Offset);
+                    date.Millisecond, this.value.Offset);
                 date = date.AddDays(day);
                 date = date.AddMonths(month);
-                @this.value = date;
+                this.value = date;
             } catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate()); 
+            return new JSNumber(this.value.ToJSDate()); 
         }
 
-        [Prototype("setHours", Length = 4)]
-        internal static JSValue SetHours(in Arguments a)
+        [JSExport("setHours", Length = 4)]
+        internal JSValue SetHours(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var hours))
+            
+            if (!IsValid( a.Get1(), out var hours))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
 
             var (_hours, _mins, _seconds, _millis) = a.Get4();
 
@@ -373,47 +384,47 @@ namespace YantraJS.Core.Date
                 date = date.AddSeconds(seconds);
                 date = date.AddMinutes(mins);
                 date = date.AddHours(hrs);
-                @this.value = date;
+                this.value = date;
             }
             catch (ArgumentOutOfRangeException) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
 
-        [Prototype("setMilliseconds", Length = 1)]
-        internal static JSValue SetMilliseconds(in Arguments a)
+        [JSExport("setMilliseconds", Length = 1)]
+        internal JSValue SetMilliseconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var _millis))
+            
+            if (!IsValid( a.Get1(), out var _millis))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             try
             {
                 date = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, 
                                                 date.Minute, date.Second, 0, date.Offset);
-                date = @this.value.AddMilliseconds(_millis);
-                @this.value = date;
+                date = this.value.AddMilliseconds(_millis);
+                this.value = date;
             }
             catch (ArgumentOutOfRangeException) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
-        [Prototype("setMinutes", Length =3)]
-        internal static JSValue SetMinutes(in Arguments a)
+        [JSExport("setMinutes", Length =3)]
+        internal JSValue SetMinutes(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var minutes))
+            
+            if (!IsValid( a.Get1(), out var minutes))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             var (_mins, _seconds, _millis) = a.Get3();
             var mins = _mins.IsUndefined ? date.Minute : _mins.IntValue;
             var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
@@ -425,23 +436,23 @@ namespace YantraJS.Core.Date
                 date = date.AddMilliseconds(millis);
                 date = date.AddSeconds(seconds);
                 date = date.AddMinutes(mins);
-                @this.value = date;
+                this.value = date;
             }
             catch (ArgumentOutOfRangeException) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
-        [Prototype("setMonth", Length = 2)]
-        internal static JSValue SetMonth(in Arguments a)
+        [JSExport("setMonth", Length = 2)]
+        internal JSValue SetMonth(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var mnth))
+            
+            if (!IsValid( a.Get1(), out var mnth))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             var (_month, _days) = a.Get2();
             var month = _month.IsUndefined ? date.Month : _month.IntValue;
             var days = (_days.IsUndefined ? date.Day : _days.IntValue) - 1;
@@ -451,25 +462,25 @@ namespace YantraJS.Core.Date
                 date = new DateTimeOffset(date.Year, 1, 1, date.Hour, date.Minute, date.Second, date.Millisecond, date.Offset);
                 date = date.AddDays(days);
                 date = date.AddMonths(month);
-                @this.value = date;
+                this.value = date;
 
             }
             catch (ArgumentOutOfRangeException) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
-        [Prototype("setSeconds", Length = 2)]
-        internal static JSValue SetSeconds(in Arguments a)
+        [JSExport("setSeconds", Length = 2)]
+        internal JSValue SetSeconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var secs))
+            
+            if (!IsValid( a.Get1(), out var secs))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             var (_seconds, _millis) = a.Get2();
             var seconds = _seconds.IsUndefined ? date.Second : _seconds.IntValue;
             var millis = _millis.IsUndefined ? date.Millisecond : _millis.IntValue;
@@ -479,71 +490,71 @@ namespace YantraJS.Core.Date
                 date = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0, 0, date.Offset);
                 date = date.AddMilliseconds(millis);
                 date = date.AddSeconds(seconds);
-                @this.value = date;
+                this.value = date;
             }
             catch (ArgumentOutOfRangeException) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
-        [Prototype("setTime", Length = 1)]
-        internal static JSValue SetTime(in Arguments a)
+        [JSExport("setTime", Length = 1)]
+        internal JSValue SetTime(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var _time))
+            
+            if (!IsValid( a.Get1(), out var _time))
 
                 return JSNumber.NaN;
             try
             {
-                @this.value = DateTimeOffset.FromUnixTimeMilliseconds((long)_time).ToOffset(JSDate.Local);
+                this.value = DateTimeOffset.FromUnixTimeMilliseconds((long)_time).ToOffset(JSDate.Local);
             }
             catch (ArgumentOutOfRangeException) {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
-        [Prototype("setUTCDate", Length = 1)]
-        internal static JSValue setUTCDate(in Arguments a)
+        [JSExport("setUTCDate", Length = 1)]
+        internal JSValue setUTCDate(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var _date))
+            
+            if (!IsValid( a.Get1(), out var _date))
 
                 return JSNumber.NaN;
             try
             {
-                var date = @this.value;
+                var date = this.value;
                 var offset = date.Offset;
                 var utc = date.ToUniversalTime();
                 utc = utc.AddDays(-utc.Day + _date);
-                @this.value = utc.ToOffset(offset);                
+                this.value = utc.ToOffset(offset);                
             }
             catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
-        [Prototype("setUTCFullYear", Length = 1)]
-        internal static JSValue setUTCFullYear(in Arguments a)
+        [JSExport("setUTCFullYear", Length = 1)]
+        internal JSValue setUTCFullYear(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var year))
+            
+            if (!IsValid( a.Get1(), out var year))
 
                 return JSNumber.NaN;
 
             if (year <= 0)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
                 return JSNumber.NaN;
             }
 
 
-            var date = @this.value;
+            var date = this.value;
             var (_year, _month, _day) = a.Get3();
 
             var offset = date.Offset;
@@ -560,26 +571,26 @@ namespace YantraJS.Core.Date
                     utc.Millisecond, utc.Offset);
                 utc = utc.AddDays(day);
                 utc = utc.AddMonths(month);
-                @this.value = utc.ToOffset(offset);
+                this.value = utc.ToOffset(offset);
             }
             catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
 
         }
 
 
-        [Prototype("setUTCHours", Length = 4)]
-        internal static JSValue SetUTCHours(in Arguments a)
+        [JSExport("setUTCHours", Length = 4)]
+        internal JSValue SetUTCHours(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var hours))
+            
+            if (!IsValid( a.Get1(), out var hours))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
 
             var (_hours, _mins, _seconds, _millis) = a.Get4();
 
@@ -598,26 +609,26 @@ namespace YantraJS.Core.Date
                 utc = utc.AddSeconds(seconds);
                 utc = utc.AddMinutes(mins);
                 utc = utc.AddHours(hrs);
-                @this.value = utc.ToOffset(offset);
+                this.value = utc.ToOffset(offset);
             }
             catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
 
-        [Prototype("setUTCMilliseconds", Length = 1)]
-        internal static JSValue SetUTCMilliseconds(in Arguments a)
+        [JSExport("setUTCMilliseconds", Length = 1)]
+        internal JSValue SetUTCMilliseconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var _millis))
+            
+            if (!IsValid( a.Get1(), out var _millis))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             var offset = date.Offset;
             var utc = date.ToUniversalTime();
            
@@ -627,25 +638,25 @@ namespace YantraJS.Core.Date
                                                 utc.Minute, utc.Second, 0, utc.Offset);
                 utc = utc.AddMilliseconds(_millis);
                 
-                @this.value = utc.ToOffset(offset);
+                this.value = utc.ToOffset(offset);
             }
             catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
-        [Prototype("setUTCMinutes", Length = 3)]
-        internal static JSValue SetUTCMinutes(in Arguments a)
+        [JSExport("setUTCMinutes", Length = 3)]
+        internal JSValue SetUTCMinutes(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var minutes))
+            
+            if (!IsValid( a.Get1(), out var minutes))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             var offset = date.Offset;
             var utc = date.ToUniversalTime();
             var (_mins, _seconds, _millis) = a.Get3();
@@ -659,25 +670,25 @@ namespace YantraJS.Core.Date
                 utc = utc.AddMilliseconds(millis);
                 utc = utc.AddSeconds(seconds);
                 utc = utc.AddMinutes(mins);
-                @this.value = utc.ToOffset(offset);
+                this.value = utc.ToOffset(offset);
             }
             catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
-        [Prototype("setUTCMonth", Length = 2)]
-        internal static JSValue SetUTCMonth(in Arguments a)
+        [JSExport("setUTCMonth", Length = 2)]
+        internal JSValue SetUTCMonth(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var mnth))
+            
+            if (!IsValid( a.Get1(), out var mnth))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             var offset = date.Offset;
             var utc = date.ToUniversalTime();
             var (_month, _days) = a.Get2();
@@ -689,27 +700,27 @@ namespace YantraJS.Core.Date
                 utc = new DateTimeOffset(utc.Year, 1, 1, utc.Hour, utc.Minute, utc.Second, utc.Millisecond, utc.Offset);
                 utc = utc.AddDays(days);
                 utc = utc.AddMonths(month);
-                @this.value = utc.ToOffset(offset);
+                this.value = utc.ToOffset(offset);
 
             }
             catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
 
-        [Prototype("setUTCSeconds", Length = 2)]
-        internal static JSValue SetUTCSeconds(in Arguments a)
+        [JSExport("setUTCSeconds", Length = 2)]
+        internal JSValue SetUTCSeconds(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (!IsValid(@this, a.Get1(), out var secs))
+            
+            if (!IsValid( a.Get1(), out var secs))
 
                 return JSNumber.NaN;
 
-            var date = @this.value;
+            var date = this.value;
             var offset = date.Offset;
             var utc = date.ToUniversalTime();
             var (_seconds, _millis) = a.Get2();
@@ -721,78 +732,81 @@ namespace YantraJS.Core.Date
                 utc = new DateTimeOffset(utc.Year, utc.Month, utc.Day, utc.Hour, utc.Minute, 0, 0, utc.Offset);
                 utc = utc.AddMilliseconds(millis);
                 utc = utc.AddSeconds(seconds);
-                @this.value = utc.ToOffset(offset);
+                this.value = utc.ToOffset(offset);
             }
             catch (ArgumentOutOfRangeException)
             {
-                @this.value = DateTimeOffset.MinValue;
+                this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(@this.value.ToJSDate());
+            return new JSNumber(this.value.ToJSDate());
         }
 
 
-        [Prototype("toDateString", Length = 0)]
-        internal static JSValue ToDateString(in Arguments a)
+        [JSExport("toDateString", Length = 0)]
+        internal JSValue ToDateString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
-            var date =  @this.value.ToLocalTime().ToString("ddd MMM dd yyyy", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+            var date =  this.value.ToLocalTime().ToString("ddd MMM dd yyyy", System.Globalization.DateTimeFormatInfo.InvariantInfo);
 
             return new JSString(date);
             
         }
 
-        [Prototype("toISOString", Length = 0)]
-        internal static JSValue ToISOString(in Arguments a)
+        [JSExport("toISOString", Length = 0)]
+        internal JSValue ToISOString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
-            var date = @this.value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+            var date = this.value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.DateTimeFormatInfo.InvariantInfo);
 
             return new JSString(date);
 
         }
 
 
-        [Prototype("toJSON", Length = 1)]
-        internal static JSValue ToJSON(in Arguments a)
+        [JSExport("toJSON", Length = 1)]
+        internal JSValue ToJSON(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return JSNull.Value;
-            var date = @this.value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+            var date = this.value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.DateTimeFormatInfo.InvariantInfo);
 
             return new JSString(date);
 
         }
 
 
-        [Prototype("toLocaleDateString", Length = 0)]
-        internal static JSValue ToLocaleDateString(in Arguments a)
+        [JSExport("toLocaleDateString", Length = 0)]
+        internal JSValue ToLocaleDateString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
             var (locale, format) = a.Get2();
             string date = null;
             if (locale.IsNullOrUndefined)
             {
-                date = @this.value.ToString("D", System.Globalization.DateTimeFormatInfo.CurrentInfo);
+                date = this.value.ToString("D", System.Globalization.DateTimeFormatInfo.CurrentInfo);
             }
             else {
                 var culture = CultureInfo.GetCultureInfo(locale.ToString());
                 if (format.IsNullOrUndefined) {
-                    date = @this.value.ToString("D", culture);
+                    date = this.value.ToString("D", culture);
                 } else
                 {
                     if (format.IsString)
                     {
-                        date = @this.value.ToString(format.ToString(), culture);
+                        date = this.value.ToString(format.ToString(), culture);
                     }
                     else {
-                        throw JSContext.Current.NewTypeError("Options not supported, use .Net String Formats");
+                        if (format is JSObject obj)
+                        {
+                            return JSIntlDateTimeFormat.Get(culture).Format(this.value, obj);
+                        }
                     }
                 }
             }
@@ -801,30 +815,30 @@ namespace YantraJS.Core.Date
         }
 
 
-        [Prototype("toLocaleString", Length = 0)]
-        internal static JSValue ToLocaleString(in Arguments a)
+        [JSExport("toLocaleString", Length = 0)]
+        internal JSValue ToLocaleString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
             var (locale, format) = a.Get2();
             string date = null;
             if (locale.IsNullOrUndefined)
             {
-                date = @this.value.ToString("F", System.Globalization.DateTimeFormatInfo.CurrentInfo);
+                date = this.value.ToString("F", System.Globalization.DateTimeFormatInfo.CurrentInfo);
             }
             else
             {
                 var culture = CultureInfo.GetCultureInfo(locale.ToString());
                 if (format.IsNullOrUndefined)
                 {
-                    date = @this.value.ToString("F", culture);
+                    date = this.value.ToString("F", culture);
                 }
                 else
                 {
                     if (format.IsString)
                     {
-                        date = @this.value.ToString(format.ToString(), culture);
+                        date = this.value.ToString(format.ToString(), culture);
                     }
                     else
                     {
@@ -838,30 +852,30 @@ namespace YantraJS.Core.Date
 
 
 
-        [Prototype("toLocaleTimeString", Length = 0)]
-        internal static JSValue ToLocaleTimeString(in Arguments a)
+        [JSExport("toLocaleTimeString", Length = 0)]
+        internal JSValue ToLocaleTimeString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
             var (locale, format) = a.Get2();
             string date = null;
             if (locale.IsNullOrUndefined)
             {
-                date = @this.value.ToString("T", System.Globalization.DateTimeFormatInfo.CurrentInfo);
+                date = this.value.ToString("T", System.Globalization.DateTimeFormatInfo.CurrentInfo);
             }
             else
             {
                 var culture = CultureInfo.GetCultureInfo(locale.ToString());
                 if (format.IsNullOrUndefined)
                 {
-                    date = @this.value.ToString("T", culture);
+                    date = this.value.ToString("T", culture);
                 }
                 else
                 {
                     if (format.IsString)
                     {
-                        date = @this.value.ToString(format.ToString(), culture);
+                        date = this.value.ToString(format.ToString(), culture);
                     }
                     else
                     {
@@ -875,15 +889,15 @@ namespace YantraJS.Core.Date
 
 
 
-        [Prototype("toString", Length = 0)]
-        internal static JSValue ToString(in Arguments a)
+        [JSExport("toString", Length = 0)]
+        internal JSValue ToString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
-            var date = @this.value.
+            var date = this.value.
                        ToString("ddd MMM dd yyyy HH:mm:ss ", System.Globalization.DateTimeFormatInfo.InvariantInfo) +
-                       ToTimeZoneString(@this);
+                       ToTimeZoneString();
 
             return new JSString(date);
 
@@ -891,16 +905,16 @@ namespace YantraJS.Core.Date
 
 
 
-        [Prototype("toTimeString", Length = 0)]
-        internal static JSValue ToTimeString(in Arguments a)
+        [JSExport("toTimeString", Length = 0)]
+        internal JSValue ToTimeString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
             // DateTimeFormatInfo.CurrentInfo.LongTimePattern
-            var date = @this.value.
+            var date = this.value.
                        ToString("HH:mm:ss ", System.Globalization.DateTimeFormatInfo.InvariantInfo) +
-                       ToTimeZoneString(@this);
+                       ToTimeZoneString();
 
             return new JSString(date);
 
@@ -909,13 +923,13 @@ namespace YantraJS.Core.Date
 
 
 
-        [Prototype("toUTCString", Length = 0)]
-        internal static JSValue ToUTCString(in Arguments a)
+        [JSExport("toUTCString", Length = 0)]
+        internal JSValue ToUTCString(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == JSDate.InvalidDate)
+            
+            if (this.value == JSDate.InvalidDate)
                 return new JSString("Invalid Date");
-            var date = @this.value.ToUniversalTime().
+            var date = this.value.ToUniversalTime().
                        ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'", 
                        System.Globalization.DateTimeFormatInfo.InvariantInfo);
 
@@ -929,26 +943,26 @@ namespace YantraJS.Core.Date
 
 
 
-        [Prototype("valueOf", Length = 0)]
-        internal static JSValue ValueOf(in Arguments a)
+        [JSExport("valueOf", Length = 0)]
+        internal JSValue ValueOf(in Arguments a)
         {
-            var @this = a.This.AsJSDate();
-            if (@this.value == DateTimeOffset.MinValue)
+            
+            if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
-            var result = @this.value.ToJSDate();
+            var result = this.value.ToJSDate();
             return new JSNumber(result);
         }
 
 
-        internal static string ToTimeZoneString(JSDate @this) {
+        internal string ToTimeZoneString() {
             var timeZone = TimeZoneInfo.Local;
             // Compute the time zone offset in hours-minutes.
-            int offsetInMinutes = (int)timeZone.GetUtcOffset(@this.value).TotalMinutes;
+            int offsetInMinutes = (int)timeZone.GetUtcOffset(this.value).TotalMinutes;
             int hhmm = offsetInMinutes / 60 * 100 + offsetInMinutes % 60;
 
             // Get the time zone name.
             string zoneName;
-            if (timeZone.IsDaylightSavingTime(@this.value))
+            if (timeZone.IsDaylightSavingTime(this.value))
                 zoneName = timeZone.DaylightName;
             else
                 zoneName = timeZone.StandardName;

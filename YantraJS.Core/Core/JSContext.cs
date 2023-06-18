@@ -23,6 +23,7 @@ using YantraJS.Core.CodeGen;
 using System.ComponentModel;
 using YantraJS.Core.Core.DataView;
 using YantraJS.Debugger;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core
 {
@@ -138,6 +139,12 @@ namespace YantraJS.Core
 
         public JSDebugger Debugger;
 
+        /// <summary>
+        /// Available only when Enable Clr Integration is true in JSModuleContext
+        /// </summary>
+        public ClrMemberNamingConvention ClrMemberNamingConvention { get; set; }
+            = ClrMemberNamingConvention.CamelCase;
+
         public static JSContext CurrentContext
         {
             get => Current;
@@ -186,78 +193,78 @@ namespace YantraJS.Core
             _current.Value = null;
         }
 
-        public readonly JSObject StringPrototype;
+        // public readonly JSObject StringPrototype;
         public readonly JSObject FunctionPrototype;
 
-        public readonly JSObject NumberPrototype;
+        // public readonly JSObject NumberPrototype;
 
         public readonly JSObject ObjectPrototype;
 
-        public readonly JSObject ArrayPrototype;
+        // public readonly JSObject ArrayPrototype;
 
-        public readonly JSObject BooleanPrototype;
+        // public readonly JSObject BooleanPrototype;
 
-        public readonly JSObject TypeErrorPrototype;
+        //public readonly JSObject TypeErrorPrototype;
 
-        public readonly JSObject EvalErrorPrototype;
+        //public readonly JSObject EvalErrorPrototype;
 
-        public readonly JSObject ErrorPrototype;
+        //public readonly JSObject ErrorPrototype;
 
-        public readonly JSObject RangeErrorPrototype;
+        //public readonly JSObject RangeErrorPrototype;
 
-        public readonly JSObject SyntaxErrorPrototype;
+        //public readonly JSObject SyntaxErrorPrototype;
 
-        public readonly JSObject URIErrorPrototype;
+        //public readonly JSObject URIErrorPrototype;
 
-        public readonly JSObject ReferenceErrorPrototype;
+        //public readonly JSObject ReferenceErrorPrototype;
 
-        public readonly JSObject DatePrototype;
+        // public readonly JSObject DatePrototype;
 
-        public readonly JSObject MapPrototype;
+        // public readonly JSObject MapPrototype;
 
-        public readonly JSObject SetPrototype;
+        // public readonly JSObject SetPrototype;
 
-        public readonly JSObject PromisePrototype;
+        // public readonly JSObject PromisePrototype;
 
-        public readonly JSObject RegExpPrototype;
+        // public readonly JSObject RegExpPrototype;
 
-        public readonly JSObject WeakRefPrototype;
+        // public readonly JSObject WeakRefPrototype;
 
-        internal readonly JSObject WeakMapPrototype;
+        // internal readonly JSObject WeakMapPrototype;
 
-        internal readonly JSObject WeakSetPrototype;
+        // internal readonly JSObject WeakSetPrototype;
 
-        internal readonly JSObject GeneratorPrototype;
+        // internal readonly JSObject GeneratorPrototype;
 
-        internal readonly JSObject BigIntPrototype;
+        // internal readonly JSObject BigIntPrototype;
 
-        public readonly JSObject ArrayBufferPrototype;
+        // public readonly JSObject ArrayBufferPrototype;
 
-        public readonly JSObject Int8ArrayPrototype;
+        //public readonly JSObject Int8ArrayPrototype;
 
-        public readonly JSObject Uint8ArrayPrototype;
+        //public readonly JSObject Uint8ArrayPrototype;
 
-        public readonly JSObject Uint8ClampedArrayPrototype;
+        //public readonly JSObject Uint8ClampedArrayPrototype;
 
-        public readonly JSObject Int16ArrayPrototype;
+        //public readonly JSObject Int16ArrayPrototype;
 
-        public readonly JSObject Uint16ArrayPrototype;
+        //public readonly JSObject Uint16ArrayPrototype;
 
-        public readonly JSObject Int32ArrayPrototype;
+        //public readonly JSObject Int32ArrayPrototype;
 
-        public readonly JSObject Uint32ArrayPrototype;
+        //public readonly JSObject Uint32ArrayPrototype;
 
-        public readonly JSObject Float32ArrayPrototype;
+        //public readonly JSObject Float32ArrayPrototype;
 
-        public readonly JSObject Float64ArrayPrototype;
+        //public readonly JSObject Float64ArrayPrototype;
 
-        public readonly JSObject DataViewPrototype;
+        // public readonly JSObject DataViewPrototype;
 
-        public readonly JSObject FinalizationRegistryPrototype;
+        // public readonly JSObject FinalizationRegistryPrototype;
 
-        public readonly JSObject JSON;
+        // public readonly JSObject JSON;
 
-        public readonly JSMath Math;
+        // public readonly JSMath Math;
 
         public readonly JSFunction Object;
 
@@ -385,82 +392,92 @@ namespace YantraJS.Core
 
             ref var ownProperties = ref this.GetOwnProperties();
 
-            T CreateInternalObject<T>(KeyString name)
-                where T: JSObject
-            {
-                var r = Activator.CreateInstance<T>();
-                ref var rop = ref r.GetOwnProperties();
-                var cached = cache.GetOrCreate(name.Key, () => { 
-                    return Bootstrap.Create(name, typeof(T));
-                });
+            //T CreateInternalObject<T>(KeyString name)
+            //    where T: JSObject
+            //{
+            //    var r = Activator.CreateInstance<T>();
+            //    ref var rop = ref r.GetOwnProperties();
+            //    var cached = cache.GetOrCreate(name.Key, () => { 
+            //        return Bootstrap.Create(name, typeof(T));
+            //    });
 
-                ref var op = ref this.GetOwnProperties();
+            //    ref var op = ref this.GetOwnProperties();
 
-                op.Put(name, r, JSPropertyAttributes.ConfigurableReadonlyValue);
-                var ve = cached.GetOwnProperties().GetEnumerator(false);
-                while(ve.MoveNext(out var keyString, out var value))
-                {
-                    rop.Put(keyString.Key) = value;
-                }
+            //    op.Put(name, r, JSPropertyAttributes.ConfigurableReadonlyValue);
+            //    var ve = cached.GetOwnProperties().GetEnumerator(false);
+            //    while(ve.MoveNext(out var keyString, out var value))
+            //    {
+            //        rop.Put(keyString.Key) = value;
+            //    }
 
-                return r;
-            }
+            //    return r;
+            //}
 
-            this.Create<JSSymbol>(KeyStrings.Symbol);
-            var func = this.Create<JSFunction>(KeyStrings.Function);
+            this[Names.Symbol] = JSSymbol.CreateClass(this, false);
+            var func = JSFunction.CreateClass(this, false);
+            this[Names.Function] = func;
             FunctionPrototype = func.prototype;
-            // create object prototype...
-            Object =  this.Create<JSObject>(KeyStrings.Object);
-            //Object.f = JSObjectPrototype.Constructor;
+            Object = JSObject.CreateClass(this, false);
+            this[Names.Object] = Object;
             ObjectPrototype = Object.prototype;
-            //ObjectPrototype.Delete(KeyStrings.constructor);
             ObjectPrototype.BasePrototypeObject = null;
+            // ObjectPrototype.Delete(KeyStrings.constructor);
             func.BasePrototypeObject = Object;
+            // Object.BasePrototypeObject = null;
             FunctionPrototype.BasePrototypeObject = ObjectPrototype;
-            ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
-            StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
-            NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
-            BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
-            ErrorPrototype = this.Create<JSError>(KeyStrings.Error).prototype;
-            EvalErrorPrototype = this.Create<JSError>(KeyStrings.EvalError, ErrorPrototype).prototype;
-            TypeErrorPrototype = this.Create<JSError>(KeyStrings.TypeError, ErrorPrototype).prototype;
-            RangeErrorPrototype = this.Create<JSError>(KeyStrings.RangeError, ErrorPrototype).prototype;
-            SyntaxErrorPrototype = this.Create<JSError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
-            URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
-            ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
-            DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
-            MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
-            PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
-            RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
-            SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
-            WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
-            WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;
-            WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
-            GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
-            BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
-            ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
-            Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
-            Uint8ArrayPrototype = this.Create<Uint8Array>(KeyStrings.Uint8Array).prototype;
-            Uint8ClampedArrayPrototype = this.Create<Uint8ClampedArray>(KeyStrings.Uint8ClampedArray).prototype;
-            Int16ArrayPrototype = this.Create<Int16Array>(KeyStrings.Int16Array).prototype;
-            Uint16ArrayPrototype = this.Create<Uint16Array>(KeyStrings.Uint16Array).prototype;
-            Int32ArrayPrototype = this.Create<Int32Array>(KeyStrings.Int32Array).prototype;
-            Uint32ArrayPrototype = this.Create<Uint32Array>(KeyStrings.Uint32Array).prototype;
-            Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
-            Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
-            DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
-            FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
-            JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
-            Math = CreateInternalObject<JSMath>(KeyStrings.Math);
+
+            // create object prototype...
+            // Object =  this.Create<JSObject>(KeyStrings.Object);
+            //Object.f = JSObjectPrototype.Constructor;
+            //ObjectPrototype.Delete(KeyStrings.constructor);
+            // ObjectPrototype.BasePrototypeObject = null;
+            // func.BasePrototypeObject = Object;
+            // FunctionPrototype.BasePrototypeObject = ObjectPrototype;
+            // ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
+            // StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
+            // NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
+            // BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
+            //ErrorPrototype = this.Create<JSError>(KeyStrings.Error).prototype;
+            //EvalErrorPrototype = this.Create<JSError>(KeyStrings.EvalError, ErrorPrototype).prototype;
+            //TypeErrorPrototype = this.Create<JSError>(KeyStrings.TypeError, ErrorPrototype).prototype;
+            //RangeErrorPrototype = this.Create<JSError>(KeyStrings.RangeError, ErrorPrototype).prototype;
+            //SyntaxErrorPrototype = this.Create<JSError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
+            //URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
+            //ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
+            // DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
+            // MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
+            // PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
+            // RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
+            // SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
+            // WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
+            // WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;
+            // WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
+            // GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
+            // BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
+            // ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
+            //Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
+            //Uint8ArrayPrototype = this.Create<Uint8Array>(KeyStrings.Uint8Array).prototype;
+            //Uint8ClampedArrayPrototype = this.Create<Uint8ClampedArray>(KeyStrings.Uint8ClampedArray).prototype;
+            //Int16ArrayPrototype = this.Create<Int16Array>(KeyStrings.Int16Array).prototype;
+            //Uint16ArrayPrototype = this.Create<Uint16Array>(KeyStrings.Uint16Array).prototype;
+            //Int32ArrayPrototype = this.Create<Int32Array>(KeyStrings.Int32Array).prototype;
+            //Uint32ArrayPrototype = this.Create<Uint32Array>(KeyStrings.Uint32Array).prototype;
+            //Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
+            //Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
+            // DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
+            // FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
+            // JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
+            // Math = CreateInternalObject<JSMath>(KeyStrings.Math);
             // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
 
-            this.Fill<JSGlobalStatic>();
+            this.RegisterGeneratedClasses();
+            // this.Fill<JSGlobalStatic>();
 
             //var c = new JSObject
             //{
             //    BasePrototypeObject = (Bootstrap.Create("console", typeof(JSConsole))).prototype
             //};
-            this[KeyStrings.console] = new Clr.ClrProxy(new JSConsole(this));
+            this[KeyStrings.console] = Clr.ClrProxy.From(new JSConsole(this));
 
             this[KeyStrings.debug] = new JSFunction(this.Debug);
 
@@ -514,7 +531,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, TypeErrorPrototype, function, filePath, line);
+            return (new JSTypeError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -523,7 +540,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, SyntaxErrorPrototype, function, filePath, line);
+            return (new JSSyntaxError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -532,7 +549,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, URIErrorPrototype, function, filePath, line);
+            return (new JSURIError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -541,7 +558,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, RangeErrorPrototype, function, filePath, line);
+            return (new JSRangeError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -550,7 +567,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return new JSException(message, ErrorPrototype, function, filePath, line);
+            return (new JSError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
         }
 
         partial void OnError(Exception ex);
@@ -602,7 +619,13 @@ namespace YantraJS.Core
             var timer = new Timer((_) => {
                 ctx.Post((x) => {
                     var f = x as JSValue;
-                    f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    try
+                    {
+                        f.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    }catch (Exception ex)
+                    {
+                        this.ReportError(ex);
+                    }
                     ClearTimeout(key);
                 }, f);
             }, f, delay, Timeout.Infinite);
@@ -633,7 +656,13 @@ namespace YantraJS.Core
             }
             var timer = new Timer((_) => {
                 ctx.Post(f, (x) => {
-                    x.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    try
+                    {
+                        x.InvokeFunction(new Arguments(JSUndefined.Value, args));
+                    }catch (Exception ex)
+                    {
+                        this.ReportError(ex);
+                    }
                     ClearInterval(key);
                 });
             }, f, delay, Timeout.Infinite);

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using YantraJS.Core.CodeGen;
-using YantraJS.ExpHelper;
 using YantraJS.Expressions;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
@@ -32,7 +30,11 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         // private readonly YFieldExpression ScriptInfo;
         // private readonly YFieldExpression Closures;
         private LabelTarget generatorReturn;
-        private readonly Sequence<(ParameterExpression original, ParameterExpression box, int index)> lifted;
+        private readonly Sequence<(
+            ParameterExpression original,
+            ParameterExpression box,
+            int index,
+            Expression boxField)> lifted;
         private LabelTarget @return;
         private readonly ParameterExpression replaceArgs;
         // private readonly ParameterExpression replaceStackItem;
@@ -64,7 +66,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             // this.replaceScriptInfo = replaceScriptInfo;
             this.@return = @return;
             this.generatorReturn = Expression.Label(typeof(GeneratorState), "RETURN");
-            this.lifted = new Sequence<(ParameterExpression original, ParameterExpression box, int index)>();
+            this.lifted = new Sequence<(ParameterExpression original, ParameterExpression box, int index, Expression boxField)>();
         }
 
         public static LambdaExpression Rewrite(
@@ -173,7 +175,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             {
                 int index = lifted.Count;
                 var box = Expression.Parameter(typeof(Box<>).MakeGenericType(v.Type));
-                lifted.Add((v, box, index));
+                lifted.Add((v, box, index, Expression.Field(box,"Value")));
             }
             var vne = node.Expressions.GetFastEnumerator();
             while(vne.MoveNext(out var s))
@@ -233,7 +235,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             foreach(var l in lifted)
             {
                 if (l.original == node)
-                    return Expression.Field( l.box, "Value");
+                    return l.boxField;
             }
             return base.VisitParameter(node);
         }
@@ -267,7 +269,14 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         protected override Exp VisitLambda(LambdaExpression yLambdaExpression)
         {
-            return yLambdaExpression;
+
+            // we need to rewrite nested lambda to replace `this` or closures
+            // with boxes...
+
+            var replaces = lifted.ToDictionary((x) => (YExpression)x.original, x => x.boxField);
+            var parameterReplacer = new ReplaceParameters(replaces);
+
+            return parameterReplacer.Visit(yLambdaExpression);
         }
 
         ///// <summary>
@@ -341,84 +350,5 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             return b;
         }
 
-    }
-
-    public class GeneratorStateBuilder
-    {
-        private static Type type = typeof(GeneratorState);
-
-        private static ConstructorInfo _newFromValue =
-            type.PublicConstructor(typeof(JSValue), typeof(int));
-
-        public static Expression New(Expression value, int id)
-        {
-            return Expression.New(_newFromValue, value, Expression.Constant(id));
-        }
-
-        public static Expression New(int id)
-        {
-            return Expression.New(_newFromValue, JSUndefinedBuilder.Value, Expression.Constant(id));
-        }
-
-    }
-
-    public class ClrGeneratorV2Builder
-    {
-        private static Type type = typeof(ClrGeneratorV2);
-
-        private static MethodInfo _throw = type.PublicMethod(nameof(ClrGeneratorV2.Throw), typeof(int));
-        private static MethodInfo _beginCatch = type.PublicMethod(nameof(ClrGeneratorV2.BeginCatch));
-        private static MethodInfo _beginFinally = type.PublicMethod(nameof(ClrGeneratorV2.BeginFinally));
-
-        private static MethodInfo _push = type.PublicMethod(
-            nameof(ClrGeneratorV2.PushTry),
-            typeof(int),
-            typeof(int),
-            typeof(int));
-
-        private static MethodInfo _pop = type.PublicMethod(
-            nameof(ClrGeneratorV2.Pop));
-
-
-        private static MethodInfo _GetVariable
-            = type.GetMethod("GetVariable");
-        private static MethodInfo _InitVariables
-            = type.GetMethod("InitVariables");
-
-
-        public static Expression Push(Expression exp, int c, int f, int e)
-        {
-            return Expression.Call(exp, _push,
-                Expression.Constant(c), 
-                Expression.Constant(f),
-                Expression.Constant(e));
-        }
-
-        internal static Expression GetVariable(ParameterExpression pe, int id, Type type)
-        {
-            return Expression.Call(pe, _GetVariable.MakeGenericMethod(type), Expression.Constant(id));
-        }
-
-        internal static Expression InitVariables(ParameterExpression pe, int count)
-        {
-            return Expression.Call(pe, _InitVariables, Expression.Constant(count));
-        }
-
-        internal static Expression Pop(ParameterExpression pe)
-        {
-            return Expression.Call(pe, _pop);
-        }
-        internal static Expression BeginCatch(ParameterExpression pe)
-        {
-            return Expression.Call(pe, _beginCatch);
-        }
-        internal static Expression BeginFinally(ParameterExpression pe)
-        {
-            return Expression.Call(pe, _beginFinally);
-        }
-        internal static Expression Throw(ParameterExpression pe, int id)
-        {
-            return Expression.Call(pe, _throw, Expression.Constant(id));
-        }
     }
 }

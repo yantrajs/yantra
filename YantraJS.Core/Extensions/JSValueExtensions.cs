@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using YantraJS.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -15,6 +16,13 @@ namespace YantraJS.Core
 
         public static bool ConvertTo<T>(this JSValue @this, out T value)
         {
+            if (@this is ClrProxy proxy)
+            {
+                if(proxy.Target is T t) {
+                    value = t;
+                    return true;
+                }
+            }
             if (@this.TryConvertTo(typeof(T), out var v) && v is T tv) {
                 value = tv;
                 return true;
@@ -60,7 +68,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, in KeyString name, in Arguments a)
         {
-            var fx = @this.GetMethod(name);
+            var fx = @this.GetMethod(in name);
             if (fx == null)
                 throw JSContext.Current.NewTypeError($"Method {name} not found in {@this}");
             return fx(a.OverrideThis(@this));
@@ -69,7 +77,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Call(this JSValue fx)
         {
-            return fx.InvokeFunction(Arguments.Empty);
+            return fx.InvokeFunction(in Arguments.Empty);
         }
 
 
@@ -77,7 +85,7 @@ namespace YantraJS.Core
         public static JSValue Call(this JSValue fx, JSValue @this)
         {
             var a = new Arguments(@this);
-            return fx.InvokeFunction(a);
+            return fx.InvokeFunction(in a);
         }
 
 
@@ -85,41 +93,41 @@ namespace YantraJS.Core
         public static JSValue Call(this JSValue fx, JSValue @this, JSValue arg0)
         {
             var a = new Arguments(@this, arg0);
-            return fx.InvokeFunction(a);
+            return fx.InvokeFunction(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Call(this JSValue fx, JSValue @this, JSValue arg0, JSValue arg1)
         {
             var a = new Arguments(@this, arg0, arg1);
-            return fx.InvokeFunction(a);
+            return fx.InvokeFunction(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Call(this JSValue fx, JSValue @this, JSValue arg0, JSValue arg1, JSValue arg2)
         {
             var a = new Arguments(@this, arg0, arg1, arg2);
-            return fx.InvokeFunction(a);
+            return fx.InvokeFunction(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Call(this JSValue fx, JSValue @this, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
         {
             var a = new Arguments(@this, arg0, arg1, arg2, arg3);
-            return fx.InvokeFunction(a);
+            return fx.InvokeFunction(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Call(this JSValue fx, JSValue @this, JSValue[] args)
         {
             var a = new Arguments(@this, args);
-            return fx.InvokeFunction(a);
+            return fx.InvokeFunction(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue CreateInstance(this JSValue @fx)
         {
-            return fx.CreateInstance(Arguments.Empty);
+            return fx.CreateInstance(in Arguments.Empty);
         }
 
 
@@ -127,35 +135,35 @@ namespace YantraJS.Core
         public static JSValue CreateInstance(this JSValue @fx, JSValue arg0)
         {
             var a = new Arguments(JSUndefined.Value, arg0);
-            return fx.CreateInstance(a);
+            return fx.CreateInstance(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue CreateInstance(this JSValue fx, JSValue arg0, JSValue arg1)
         {
             var a = new Arguments(JSUndefined.Value, arg0, arg1);
-            return fx.CreateInstance(a);
+            return fx.CreateInstance(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue CreateInstance(this JSValue fx, JSValue arg0, JSValue arg1, JSValue arg2)
         {
             var a = new Arguments(JSUndefined.Value, arg0, arg1, arg2);
-            return fx.CreateInstance(a);
+            return fx.CreateInstance(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue CreateInstance(this JSValue fx, JSValue arg0, JSValue arg1, JSValue arg2, JSValue arg3)
         {
             var a = new Arguments(JSUndefined.Value, arg0, arg1, arg2, arg3);
-            return fx.CreateInstance(a);
+            return fx.CreateInstance(in a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue CreateInstance(this JSValue fx, JSValue[] args)
         {
             var a = new Arguments(JSUndefined.Value, args);
-            return fx.CreateInstance(a);
+            return fx.CreateInstance(in a);
         }
 
 
@@ -176,7 +184,7 @@ namespace YantraJS.Core
                 return @this.InvokeMethod(key.Index, a);
             if (key.IsSymbol)
                 return @this.InvokeMethod(key.Symbol, a);
-            return @this.InvokeMethod(key.KeyString, a);
+            return @this.InvokeMethod(in key.KeyString, a);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -233,7 +241,7 @@ namespace YantraJS.Core
                         if (!Value.IsEnumerable)
                             continue;
                     }
-                    yield return ( new JSNumber(Key), value.GetValue(Value));
+                    yield return ( new JSNumber(Key), value.GetValue(in Value));
                 }
             }
 
@@ -245,7 +253,7 @@ namespace YantraJS.Core
                     if (!p.IsEnumerable)
                         continue;
                 }
-                yield return (KeyStrings.GetJSString(p.key), value.GetValue(p));
+                yield return (KeyStrings.GetJSString(p.key), value.GetValue(in p));
             }
 
             var @base = value.prototypeChain?.@object;
@@ -288,7 +296,7 @@ namespace YantraJS.Core
                     return JSBoolean.True;
                 return JSBoolean.False;
             }
-            var p1 = tx.GetInternalProperty(key.KeyString);
+            var p1 = tx.GetInternalProperty(in key.KeyString);
             if (!p1.IsEmpty)
                 return JSBoolean.True;
             return JSBoolean.False;

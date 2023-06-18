@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using YantraJS.Core.Core;
 using YantraJS.Core.Generator;
 using YantraJS.Utils;
 
@@ -12,14 +14,16 @@ namespace YantraJS.Core.Clr
     public partial class ClrProxy : JSObject
     {
 
+        public object Target => value;
+
         internal readonly object value;
-        public ClrProxy(object value)
+        private ClrProxy(object value)
         {
             this.value = value;
             this.BasePrototypeObject = ClrType.From(value.GetType()).prototype;
         }
 
-        internal ClrProxy(object value, JSObject prototypeChain)
+        private ClrProxy(object value, JSObject prototypeChain)
         {
             this.value = value;
             this.BasePrototypeObject = prototypeChain;
@@ -108,6 +112,18 @@ namespace YantraJS.Core.Clr
 
         public static JSValue Marshal(Task task) => task.ToPromise();
 
+        public static JSValue Marshal(Task<JSValue> task) => new JSPromise(task);
+
+        public static JSValue Marshal<T>(Task<T> task) => task.ToPromise();
+
+        public static JSValue Marshal(IJavaScriptObject javaScriptObject) => ClrProxy.From(javaScriptObject);
+
+        public static JSValue Marshal(IElementEnumerator en)
+            => new JSGenerator(en, "Clr Iterator");
+
+        //public static JSValue Marshal(IEnumerator<JSValue> en)
+        //    => new JSGenerator(en, "Clr Iterator");
+
         public static JSValue Marshal(IEnumerable<JSValue> en) => new JSGenerator(new ClrEnumerableElementEnumerator(en), "Clr Iterator");
 
         /// <summary>
@@ -171,11 +187,44 @@ namespace YantraJS.Core.Clr
                     return task.ToPromise();
                 case Task task:
                     return task.ToPromise();
+                case IJavaScriptObject obj:
+                    return ClrProxy.From(obj);
                 case IEnumerable<JSValue> en:
                     return new JSGenerator(new ClrEnumerableElementEnumerator(en), "Clr Iterator");
             }
 
-            return new ClrProxy(value);
+            return ClrProxy.From(value);
+        }
+
+        public override IEnumerable<(string Key, JSValue value)> Entries
+        {
+            get
+            {
+                //var es = GetElementEnumerator();
+                //while (es.MoveNext(out var hasValue, out var value, out var index))
+                //{
+                //    if (hasValue)
+                //        yield return (index.ToString(), value);
+                //}
+
+                var en = new PropertySequence.ValueEnumerator(this, false);
+                while (en.MoveNext(out var value, out var key))
+                {
+                    yield return (KeyStrings.GetNameString(key.Key).Value, value);
+                }
+                //for(int i = 0; i< ownProperties.properties.Length; i++)
+                //{
+                //    var p = ownProperties.properties[i];
+                //    JSValue v = null;
+                //    try {
+                //        v = this.GetValue(p);
+                //    } catch (Exception ex)
+                //    {
+                //        System.Diagnostics.Debug.WriteLine(ex);
+                //    }
+                //    yield return ( KeyStrings.GetNameString(p.key).Value , v);
+                //}
+            }
         }
 
         public override bool Equals(JSValue value)
@@ -206,9 +255,9 @@ namespace YantraJS.Core.Clr
                         return true;
                     if (this.value.Equals(proxy.value))
                         return true;
-                    // convert to string to compare...
-                    if (this.value.ToString() == proxy.value.ToString())
-                        return true;
+                    //// convert to string to compare...
+                    //if (this.value.ToString() == proxy.value.ToString())
+                    //    return true;
                     break;
                 case JSString @string when this.value.ToString() == @string.value:
                     return true;
@@ -237,33 +286,136 @@ namespace YantraJS.Core.Clr
             return false;
         }
 
-        public override JSValue this[uint name]
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
-            get
+            if (prototypeChain?.@object is ClrType.ClrPrototype p)
             {
-                return (prototypeChain?.@object as ClrType.ClrPrototype).GetElementAt(this.value, name);
+                return p.GetElementAt(this.value, key);
             }
-            set
-            {
-                try
-                {
-                    var cp = prototypeChain?.@object as ClrType.ClrPrototype;
-                    cp.SetElementAt(this.value, name, value);
-                } catch (Exception ex)
-                {
-                    throw new JSException(ex.Message);
-                }
-            }
+            //if (Target is IJavaScriptArray array)
+            //{
+            //    return array[(int)key];
+            //}
+            return base.GetValue(key, receiver, throwError);
         }
+
+        internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            if (prototypeChain?.@object is ClrType.ClrPrototype p)
+            {
+                p.SetElementAt(this.value, name, value);
+                return true;
+            }
+            //if (Target is IJavaScriptArray array)
+            //{
+            //    array[(int)name] = value;
+            //    return true;
+            //}
+            return base.SetValue(name, value, receiver, throwError);
+        }
+
+        //public override JSValue this[uint name]
+        //{
+        //    get
+        //    {
+        //        return (prototypeChain?.@object as ClrType.ClrPrototype).GetElementAt(this.value, name);
+        //    }
+        //    set
+        //    {
+        //        try
+        //        {
+        //            var cp = prototypeChain?.@object as ClrType.ClrPrototype;
+        //            cp.SetElementAt(this.value, name, value);
+        //        } catch (Exception ex)
+        //        {
+        //            throw new JSException(ex.Message);
+        //        }
+        //    }
+        //}
 
 
         public override IElementEnumerator GetElementEnumerator()
         {
+            if (value is IEnumerable<JSValue> jve)
+            {
+                return new ClrEnumerableElementEnumerator(jve);
+            }
             if (value is IEnumerable en) {
                 return new EnumerableElementEnumerable(en.GetEnumerator());
             }
             throw JSContext.Current.NewTypeError($"{this} is not an iterable");
         }
 
+        public static ClrProxy From(int value)
+        {
+            return new ClrProxy(value);
+        }
+
+        public static ClrProxy From(string value)
+        {
+            return new ClrProxy(value);
+        }
+        public static ClrProxy From(bool value)
+        {
+            return new ClrProxy(value);
+        }
+
+        public static JSValue From(IJavaScriptObject value)
+        {
+            value.JSHandle ??= From(value, ClrType.From(value.GetType()));
+            return value.JSHandle;
+        }
+
+        public static ClrProxy From(DateTimeOffset value)
+        {
+            return new ClrProxy(value);
+        }
+
+        private static ConditionalWeakTable<object, ClrProxy> weakTable
+            = new ConditionalWeakTable<object, ClrProxy>();
+
+        public static JSValue From(object value)
+        {
+            if (value == null)
+            {
+                return JSNull.Value;
+            }
+            if (value is IJavaScriptObject scriptObject)
+            {
+                return From(scriptObject);
+            }
+            var type = ClrType.From(value.GetType());
+            return From(value, type.prototype);
+        }
+
+        public static JSValue From(object value, JSObject prototype)
+        {
+            if (value == null)
+            {
+                return JSNull.Value;
+            }
+            if (value is IJavaScriptObject javaScriptObject)
+            {
+                if (javaScriptObject.JSHandle == null)
+                {
+                    var type = ClrType.From(value.GetType());
+                    javaScriptObject.JSHandle = new ClrProxy(value, type.prototype);
+                }
+                return javaScriptObject.JSHandle;
+            }
+            if(value.GetType().IsValueType)
+            {
+                return new ClrProxy(value, prototype);
+            }
+            lock (weakTable)
+            {
+                if (!weakTable.TryGetValue(value, out var result))
+                {
+                    result = new ClrProxy(value, prototype);
+                    weakTable.Add(value, result);
+                }
+                return result;
+            }
+        }
     }
 }

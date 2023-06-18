@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <AssemblyName>YantraJS.JSClassGenerator</AssemblyName>
+	  <PackageId>YantraJS.JSClassGenerator</PackageId>
+	  <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+	  <LangVersion>latest</LangVersion>
+	  <Nullable>enable</Nullable>
+	  <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Version>1.0.1</Version>
+  </PropertyGroup>
+	
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!-- Generates a package at build -->
+    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+  </PropertyGroup>
+
+	
+  <ItemGroup>
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" PrivateAssets="all" />
+	    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.216">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+<ItemGroup>
+  <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers\dotnet\cs" Visible="false" />
+</ItemGroup>
+</Project>

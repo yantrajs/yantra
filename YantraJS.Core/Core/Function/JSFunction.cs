@@ -22,10 +22,13 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using Yantra.Core;
 
 namespace YantraJS.Core
 {
 
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Function", Register = false)]
     public partial class JSFunction : JSObject
     {
 
@@ -56,7 +59,7 @@ namespace YantraJS.Core
         /// <param name="clrDelegate"></param>
         /// <param name="type"></param>
         internal JSFunction(JSFunctionDelegate clrDelegate, ClrType type)
-            : base(JSContext.Current?.FunctionPrototype)
+            : this()
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = clrDelegate;
@@ -93,7 +96,7 @@ namespace YantraJS.Core
         }
 
         protected JSFunction(StringSpan name, StringSpan source, JSObject _prototype)
-            : base(JSContext.Current?.FunctionPrototype)
+            : this()
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = empty;
@@ -147,7 +150,7 @@ namespace YantraJS.Core
                 prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
                 // ref var opp = ref prototype.GetOwnProperties(true);
                 // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
-                ownProperties.Put(KeyStrings.prototype, prototype);
+                ownProperties.Put(KeyStrings.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
             }
 
             //this[KeyStrings.name] = name.IsEmpty
@@ -181,7 +184,7 @@ namespace YantraJS.Core
                 prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
                 // ref var opp = ref prototype.GetOwnProperties(true);
                 // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
-                ownProperties.Put(KeyStrings.prototype, prototype);
+                ownProperties.Put(KeyStrings.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
             }
 
             //this[KeyStrings.name] = name.IsEmpty
@@ -190,8 +193,10 @@ namespace YantraJS.Core
             // this[KeyStrings.length] = new JSNumber(length);
             ownProperties.Put(KeyStrings.name, name.IsEmpty
                 ? new JSString("native")
-                : new JSString(name));
-            ownProperties.Put(KeyStrings.length, new JSNumber(length));
+                : new JSString(name),
+                JSPropertyAttributes.ConfigurableValue);
+            ownProperties.Put(KeyStrings.length, new JSNumber(length),
+                JSPropertyAttributes.ConfigurableValue);
             constructor = this;
         }
 
@@ -241,7 +246,7 @@ namespace YantraJS.Core
             return f(a);
         }
 
-        [Prototype("valueOf", Length = 1)]
+        [JSPrototypeMethod][JSExport("valueOf", Length = 1)]
         public static JSValue ValueOf(in Arguments a)
         {
             return a.This;
@@ -256,20 +261,20 @@ namespace YantraJS.Core
         //    return fx.InvokeFunction(Arguments.Empty).ToString();
         //}
 
-        [Prototype("call", Length = 1)]
+        [JSPrototypeMethod][JSExport("call", Length = 1)]
         public static JSValue Call(in Arguments a)
         {
             var a1 = a.CopyForCall();
             return a.This.InvokeFunction(a1);
         }
 
-        [Prototype("apply", Length = 2)]
+        [JSPrototypeMethod][JSExport("apply", Length = 2)]
         public static JSValue Apply(in Arguments a){
             var ar = a.CopyForApply();
             return a.This.InvokeFunction(ar);
         }
 
-        [Prototype("bind", Length = 1)]
+        [JSPrototypeMethod][JSExport("bind", Length = 1)]
         public static JSValue Bind(in Arguments a) {
             var fOriginal = a.This as JSFunction;
             var original = a;
@@ -287,7 +292,7 @@ namespace YantraJS.Core
             return fx;
         }
 
-        [Prototype("toString", Length = 0)]
+        [JSPrototypeMethod][JSExport("toString", Length = 0)]
         public static JSValue ToString(in Arguments a)
         {
             if (!(a.This is JSFunction fx))
@@ -305,7 +310,7 @@ namespace YantraJS.Core
             return r.IsObject ? r : @this;
         }
 
-        [Constructor]
+        [JSExport(IsConstructor = true)]
         internal static JSValue Constructor(in Arguments args)
         {
 
@@ -383,16 +388,22 @@ namespace YantraJS.Core
 
                 stmts.Add(Expression.Assign(jsV, ClrProxyBuilder.Marshal(inP)));
             }
-            var retVar = Expression.Parameter(method.ReturnType == typeof(void) ? typeof(object) : method.ReturnType);
-            veList.Add(retVar);
+            // var retVar = Expression.Parameter(method.ReturnType == typeof(void) ? typeof(object) : method.ReturnType);
+            // veList.Add(retVar);
             var @delegate = function.f;
             var d = Expression.Constant(@delegate);
             var @this = Expression.Constant(function);
             var nargs = ArgumentsBuilder.New(@this, veList.AsSequence<Expression>());
 
-
-            stmts.Add(JSValueBuilder.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));
-            stmts.Add(retVar);
+            if (rt == typeof(void) || rt == typeof(object))
+            {
+                stmts.Add(Expression.Invoke(d, nargs));
+            } else
+            {
+                stmts.Add(JSValueToClrConverter.Get( Expression.Invoke(d, nargs), rt, ""));
+            }
+            // stmts.Add(JSValueToClrConverter.Coalesce(Expression.Invoke(d, nargs), rtt, retVar, ""));
+            // stmts.Add(retVar);
 
             return Expression.Lambda( type, Expression.Block(veList, stmts), type.Name, peList.ToArray()).Compile();
         }

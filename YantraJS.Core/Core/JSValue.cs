@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core;
 using YantraJS.Extensions;
 using YantraJS.Utils;
@@ -69,6 +70,13 @@ namespace YantraJS.Core {
             }
             if (ConvertTo(type, out var value))
                 return value;
+            if (prototypeChain?.@object is ClrProxy proxy)
+            {
+                if (type.IsAssignableFrom(proxy.value.GetType()))
+                {
+                    return proxy.value;
+                }
+            }
             //if (type.IsAssignableFrom(this.GetType()))
             //    return this;
             throw JSContext.Current.NewTypeError($"Cannot convert {this} to type {type.Name}");
@@ -211,7 +219,12 @@ namespace YantraJS.Core {
 
         protected JSValue(JSObject prototype)
         {
-            this.BasePrototypeObject = prototype;
+            this.BasePrototypeObject = prototype ?? GetCurrentPrototype();
+        }
+
+        protected virtual JSObject GetCurrentPrototype()
+        {
+            return null;
         }
 
         internal abstract PropertyKey ToKey(bool create = true);
@@ -406,7 +419,7 @@ namespace YantraJS.Core {
             set { }
         }
 
-        internal virtual JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected virtual JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain != null)
             {
@@ -416,7 +429,7 @@ namespace YantraJS.Core {
             return JSUndefined.Value;
         }
 
-        internal virtual JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        internal protected virtual JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain != null)
             {
@@ -426,7 +439,7 @@ namespace YantraJS.Core {
             return JSUndefined.Value;
         }
 
-        internal virtual JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        internal protected virtual JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
         {
             if (prototypeChain != null)
             {
@@ -452,17 +465,17 @@ namespace YantraJS.Core {
 
         }
 
-        internal virtual bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected virtual bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
-        internal virtual bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected virtual bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
-        internal virtual bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected virtual bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }

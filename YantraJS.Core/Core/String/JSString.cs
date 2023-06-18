@@ -8,13 +8,17 @@ using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Typed;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    [JSRuntime(typeof(JSStringStatic), typeof(JSStringPrototype))]
+    // [JSRuntime(typeof(JSStringStatic), typeof(JSStringPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("String")]
     public partial class JSString : JSPrimitive
     {
 
@@ -142,7 +146,7 @@ namespace YantraJS.Core
 
         protected override JSObject GetPrototype()
         {
-            return JSContext.Current.StringPrototype;
+            return (JSContext.Current[Names.String] as JSFunction).prototype;
         }
 
         public JSString(string value): base()
@@ -187,6 +191,11 @@ namespace YantraJS.Core
             return value.Value;
         }
 
+        public byte[] Encode(System.Text.Encoding encoding)
+        {
+            return value.Encode(encoding);
+        }
+
         public override string ToDetailString()
         {
             return value.Value;
@@ -199,7 +208,7 @@ namespace YantraJS.Core
           
         }
 
-        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (key >= this.value.Length)
             {
@@ -234,6 +243,7 @@ namespace YantraJS.Core
             return new KeyEnumerator(this.Length);
         }
 
+        [JSExport]
         public override int Length => value.Length;
 
         public override bool Equals(object obj)

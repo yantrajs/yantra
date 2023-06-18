@@ -1,4 +1,5 @@
 ﻿using System;
+using Yantra.Core;
 
 namespace YantraJS.Core.Typed
 {
@@ -19,13 +20,32 @@ namespace YantraJS.Core.Typed
     //    }
     //}
 
-    public class JSArrayBuffer : JSObject
+    [JSClassGenerator("ArrayBuffer")]
+    public partial class JSArrayBuffer : JSObject
     {
         internal readonly byte[] buffer;
 
-        public JSArrayBuffer(int length) : base(JSContext.Current.ArrayBufferPrototype)
+        public byte[] Buffer => buffer;
+
+        // public override int Length { get => buffer.Length; set => throw new NotSupportedException(); }
+
+        public JSArrayBuffer(in Arguments a): this(a.NewPrototype)
+        {
+            int length = a.Get1().AsInt32OrDefault();
+            if (length < 0 || length > JSNumber.MaxSafeInteger)
+            {
+                throw JSContext.Current.NewRangeError("Buffer length out of range");
+            }
+            this.buffer = new byte[length];
+        }
+
+        public JSArrayBuffer(int length) : this()
         {
             this.buffer = new byte[length];
+        }
+        public JSArrayBuffer(byte[] buffer) : this()
+        {
+            this.buffer = buffer;
         }
 
         public override bool BooleanValue => true;
@@ -45,16 +65,6 @@ namespace YantraJS.Core.Typed
         public override bool StrictEquals(JSValue value)
         {
             return Object.ReferenceEquals(this, value);
-        }
-
-        [Constructor]
-        public static JSValue Constructor(in Arguments a) {
-            int length = a.Get1().AsInt32OrDefault();
-            if (length < 0 || length > JSNumber.MaxSafeInteger)
-            {
-                throw JSContext.Current.NewRangeError("Buffer length out of range");
-            }
-            return new JSArrayBuffer(length);
         }
 
     }

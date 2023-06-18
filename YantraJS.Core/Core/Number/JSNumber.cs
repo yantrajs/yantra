@@ -5,16 +5,19 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Transactions;
 using System.Xml.Schema;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
-using YantraJS.Core.Runtime;
 using YantraJS.ExpHelper;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
 namespace YantraJS.Core
 {
-    [JSRuntime(typeof(JSNumberStatic), typeof(JSNumberPrototype))]
-    public sealed class JSNumber : JSPrimitive
+    // [JSRuntime(typeof(JSNumberStatic), typeof(JSNumberPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Number")]
+    public sealed partial class JSNumber : JSPrimitive
     {
 
         internal readonly double value;
@@ -43,7 +46,7 @@ namespace YantraJS.Core
             return BitConverter.DoubleToInt64Bits(value) == negativeZeroBits;
         }
 
-        [Static("NaN")]
+        [JSExport("NaN")]
         public static JSNumber NaN = new JSNumber(double.NaN);
 
         public static JSNumber MinusOne = new JSNumber(-1);
@@ -52,27 +55,27 @@ namespace YantraJS.Core
         public static JSNumber One = new JSNumber(1d);
         public static JSNumber Two = new JSNumber(2d);
 
-        [Static("POSITIVE_INFINITY")]
+        [JSExport("POSITIVE_INFINITY")]
         public static JSNumber PositiveInfinity = new JSNumber(double.PositiveInfinity);
 
-        [Static("NEGATIVE_INFINITY")]
+        [JSExport("NEGATIVE_INFINITY")]
         public static JSNumber NegativeInfinity = new JSNumber(double.NegativeInfinity);
 
 
-        [Static("EPSILON")]
+        [JSExport("EPSILON")]
         public static readonly double Epsilon = 2.2204460492503130808472633361816E-16;
 
-        [Static("MAX_SAFE_INTEGER")]
+        [JSExport("MAX_SAFE_INTEGER")]
         public static readonly double MaxSafeInteger = 9007199254740991d;
 
-        [Static("MAX_VALUE", JSPropertyAttributes.ReadonlyValue)]
+        [JSExport("MAX_VALUE")]
         public static readonly double MaxValue = double.MaxValue;
 
-        [Static("MIN_SAFE_INTEGER")]
+        [JSExport("MIN_SAFE_INTEGER")]
         public static readonly double MinSafeInteger = -9007199254740991d;
 
         //Javascript considers double.Epsilon as MIN_VALUE and not .Net double.MinValue
-        [Static("MIN_VALUE")]
+        [JSExport("MIN_VALUE")]
         public static readonly double MinValue = double.Epsilon;
         
 
@@ -85,7 +88,7 @@ namespace YantraJS.Core
 
         protected override JSObject GetPrototype()
         {
-            return JSContext.Current.NumberPrototype;
+            return (JSContext.Current[Names.Number] as JSFunction).prototype;
         }
 
         internal override PropertyKey ToKey(bool create = false)

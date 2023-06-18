@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -76,6 +77,8 @@ namespace YantraJS.Core
             }
             return new Arguments(@this, list, a.NewTarget!);
         }
+
+        public JSObject? NewPrototype => (NewTarget is JSFunction o) ? o.prototype : null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Arguments ForApply(JSValue @this, JSValue args, JSValue? newTarget = null)
@@ -730,6 +733,15 @@ namespace YantraJS.Core
         public IElementEnumerator GetElementEnumerator()
         {
             return new ArgumentsElementEnumerator(this);
+        }
+
+        public StringSpan GetString(int index, string name,
+            [CallerMemberName] string? function = null,
+            [CallerFilePath] string? filePath = null,
+            [CallerLineNumber] int line = 0)
+        {
+            return this[index] is JSString s ? s.value : throw new JSException(
+                name + " is required", function, filePath, line);
         }
 
         struct ArgumentsElementEnumerator: IElementEnumerator

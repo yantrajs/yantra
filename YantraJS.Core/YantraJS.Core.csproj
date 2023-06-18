@@ -1,26 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <AssemblyName>YantraJS.Core</AssemblyName>
     <PackageId>YantraJS.Core</PackageId>
     <PackageTags>yantra,yantrajs,javascript,c#,standard,core,framework,.net</PackageTags>
     <Description>JavaScript Engine Core for .NET Standard</Description>
     <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
-    <Version>1.0.1</Version>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedAllSources>True</EmbedAllSources>
-    <LangVersion>latest</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Version>1.0.1</Version>
+	  <LangVersion>latest</LangVersion>
+	  <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	  <EmbedAllSources>True</EmbedAllSources>
+	  <DebugType>embedded</DebugType>
+       <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+	</PropertyGroup>
+	<Target Name="AddSourceGeneratedFiles" AfterTargets="CoreCompile">
+		<ItemGroup>
+			<Compile Include="Generated\**" />
+		</ItemGroup>
+	</Target>
+	<Target Name="RemoveSourceGeneratedFiles" BeforeTargets="CoreCompile">
+		<ItemGroup>
+			<Compile Remove="Generated\**" />
+		</ItemGroup>
+	</Target>
 
   <!-- <ItemGroup>
     <Compile Include="..\esprima-dotnet\src\Esprima\*.cs">
@@ -54,6 +67,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj" />
+    <ProjectReference Include="..\YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
   
   <ItemGroup>
@@ -61,5 +75,5 @@
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Microsoft.Build.Tasks.v4.0.dll</HintPath>
     </Reference>
   </ItemGroup>
-
+  
 </Project>

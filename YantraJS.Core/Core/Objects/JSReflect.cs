@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core.Objects
 {
-    public class JSReflect: JSObject
+    [JSClassGenerator("Reflect"), JSInternalObject]
+    public partial class JSReflect: JSObject
     {
 
-        [Static("apply", Length = 3)]
+        [JSExport( Length = 3)]
         public static JSValue Apply(in Arguments a)
         {
             var (target, thisArgument, arguments) = a.Get3();
@@ -16,7 +19,7 @@ namespace YantraJS.Core.Objects
             return fx.InvokeFunction(Arguments.ForApply(thisArgument, arguments));
         }
 
-        [Static("construct", Length = 2)]
+        [JSExport( Length = 2)]
         public static JSValue Construct(in Arguments a)
         {
             var (target, arguments, newTarget) = a.Get3();
@@ -25,7 +28,7 @@ namespace YantraJS.Core.Objects
             return fx.CreateInstance(Arguments.ForApply(new JSObject(), arguments));
         }
 
-        [Static("defineProperty", Length = 3)]
+        [JSExport( Length = 3)]
         public static JSValue DefineProperty(in Arguments a)
         {
             var (target, propertyKey, attributes) = a.Get3();
@@ -56,7 +59,7 @@ namespace YantraJS.Core.Objects
             //return JSBoolean.True;
         }
 
-        [Static("deleteProperty", Length = 2)]
+        [JSExport( Length = 2)]
         public static JSValue DeleteProperty(in Arguments a)
         {
             var (target, propertyKey) = a.Get2();
@@ -77,7 +80,7 @@ namespace YantraJS.Core.Objects
             return properties.RemoveAt(key.Index) ? JSBoolean.True : JSBoolean.False;
         }
 
-        [Static("get", Length = 2)]
+        [JSExport( Length = 2)]
         public static JSValue Get(in Arguments a)
         {
             var (target, propertyKey, receiver) = a.Get3();
@@ -87,14 +90,14 @@ namespace YantraJS.Core.Objects
             return target.GetValue(propertyKey, receiver, false);
         }
 
-        [Static("getOwnPropertyDescriptor", Length = 2)]
+        [JSExport( Length = 2)]
         public static JSValue GetOwnPropertyDescriptor(in Arguments a)
         {
             var (target, propertyKey) = a.Get2();
             if (!(target is JSObject @object))
                 throw JSContext.Current.NewTypeError($"Not an object");
             var key = propertyKey.ToKey();
-            ref var p = ref JSProperty.Empty;
+            JSProperty p;
             if (key.IsSymbol)
             {
                 p = @object.GetInternalProperty(key.Symbol);
@@ -127,14 +130,14 @@ namespace YantraJS.Core.Objects
             return p;
         }
 
-        [Static("has", Length = 2)]
+        [JSExport( Length = 2)]
         public static JSValue Has(in Arguments a)
         {
             var (target, propertyKey, receiver) = a.Get3();
             if (!(target is JSObject @object))
                 throw JSContext.Current.NewTypeError($"Not an object");
             var key = propertyKey.ToKey();
-            ref var p = ref JSProperty.Empty;
+            JSProperty p;
             if (key.IsSymbol)
             {
                 p = @object.GetInternalProperty(key.Symbol);
@@ -155,7 +158,7 @@ namespace YantraJS.Core.Objects
             return JSBoolean.True;
         }
 
-        [Static("isExtensible", Length = 1)]
+        [JSExport( Length = 1)]
         public static JSValue IsExtensible(in Arguments a)
         {
             var target = a.Get1();
@@ -164,7 +167,7 @@ namespace YantraJS.Core.Objects
             return @object.IsExtensible() ? JSBoolean.True : JSBoolean.False;
         }
 
-        [Static("ownKeys", Length = 1)]
+        [JSExport( Length = 1)]
         public static JSValue OwnKeys(in Arguments a)
         {
             var target = a.Get1();
@@ -191,7 +194,7 @@ namespace YantraJS.Core.Objects
             return r;
         }
 
-        [Static("preventExtensions", Length = 1)]
+        [JSExport( Length = 1)]
         public static JSValue PreventExtensions(in Arguments a)
         {
             var target = a.Get1();
@@ -201,7 +204,7 @@ namespace YantraJS.Core.Objects
             return JSBoolean.True;
         }
 
-        [Static("set", Length = 2)]
+        [JSExport( Length = 2)]
         public static JSValue Set(in Arguments a)
         {
             var (target, propertyKey, value, receiver) = a.Get4();
@@ -209,11 +212,10 @@ namespace YantraJS.Core.Objects
                 throw JSContext.Current.NewTypeError($"Not an object");
             receiver = receiver.IsUndefined ? target : receiver;
             var key = propertyKey.ToKey();
-            ref var p = ref JSProperty.Empty;
             if (key.IsSymbol)
             {
                 var symbol = key.Symbol;
-                p = @object.GetInternalProperty(symbol, false);
+                var p = @object.GetInternalProperty(symbol, false);
                 if (p.IsProperty)
                 {
                     p.set.InvokeFunction(new Arguments(receiver, value));
@@ -227,7 +229,7 @@ namespace YantraJS.Core.Objects
             {
                 if (key.IsUInt)
                 {
-                    p = @object.GetInternalProperty(key.Index, false);
+                    var p = @object.GetInternalProperty(key.Index, false);
                     if (p.IsProperty)
                     {
                         p.set.InvokeFunction(new Arguments(receiver, value));
@@ -239,7 +241,7 @@ namespace YantraJS.Core.Objects
                 }
                 else
                 {
-                    p = @object.GetInternalProperty(in key.KeyString, false);
+                    var p = @object.GetInternalProperty(in key.KeyString, false);
                     if (p.IsProperty)
                     {
                         p.set.InvokeFunction(new Arguments(receiver, value));
@@ -252,7 +254,7 @@ namespace YantraJS.Core.Objects
             }
         }
 
-        [Static("setPrototypeOf")]
+        [JSExport]
         public static JSValue SetPrototypeOf(in Arguments a)
         {
             var (target,p) = a.Get2();

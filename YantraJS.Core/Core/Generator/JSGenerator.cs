@@ -3,13 +3,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.CodeGen;
 using YantraJS.Core.LightWeight;
 using YantraJS.Core.LinqExpressions.GeneratorsV2;
 
 namespace YantraJS.Core.Generator
 {
-    public class JSGenerator : JSObject
+    [JSClassGenerator("Generator")]
+    public partial class JSGenerator : JSObject
     {
         readonly IElementEnumerator en;
         private ClrGeneratorV2 cg;
@@ -18,15 +21,18 @@ namespace YantraJS.Core.Generator
         internal JSValue value;
         internal bool done;
 
-        public JSGenerator(IElementEnumerator en, string name) {
-            this.BasePrototypeObject = JSContext.Current.GeneratorPrototype;
+        public JSGenerator(in Arguments a): base(a.NewPrototype)
+        {
+            throw new NotImplementedException();
+        }
+
+        public JSGenerator(IElementEnumerator en, string name): this() {
             this.en = en;
             this.name = name;
         }
 
-        public JSGenerator(ClrGeneratorV2 g)
+        public JSGenerator(ClrGeneratorV2 g): this()
         {
-            this.BasePrototypeObject = JSContext.Current.GeneratorPrototype;
             this.cg = g;
             value = JSUndefined.Value;
         }
@@ -36,11 +42,10 @@ namespace YantraJS.Core.Generator
             return $"[object {name}]";
         }
 
-        [Prototype("toString")]
-        public static JSValue ToString(in Arguments a)
+        [JSExport("toString")]
+        public JSValue ToString(in Arguments a)
         {
-            var a1 = a.This as JSGenerator;
-            return new JSString(a1.ToString());
+            return new JSString(ToString());
         }
 
 
@@ -196,34 +201,22 @@ namespace YantraJS.Core.Generator
 
         }
 
-        [Prototype("next", Length = 1)]
-        public static JSValue Next(in Arguments a)
+        [JSExport("next", Length = 1)]
+        public JSValue Next(in Arguments a)
         {
-            if(!(a.This is JSGenerator generator))
-            {
-                throw JSContext.Current.NewTypeError($"receiver for Generator.prototype.next should be generator");
-            }
-            return generator.Next(a.Length == 0 ? null : a.Get1());
+            return Next(a.Length == 0 ? null : a.Get1());
         }
 
-        [Prototype("return", Length = 1)]
-        public static JSValue Return(in Arguments a)
+        [JSExport("return", Length = 1)]
+        public JSValue Return(in Arguments a)
         {
-            if (!(a.This is JSGenerator generator))
-            {
-                throw JSContext.Current.NewTypeError($"receiver for Generator.prototype.next should be generator");
-            }
-            return generator.Return(a.Get1());
+            return Return(a.Get1());
         }
 
-        [Prototype("throw", Length = 1)]
-        public static JSValue Throw(in Arguments a)
+        [JSExport("throw", Length = 1)]
+        public JSValue Throw(in Arguments a)
         {
-            if (!(a.This is JSGenerator generator))
-            {
-                throw JSContext.Current.NewTypeError($"receiver for Generator.prototype.next should be generator");
-            }
-            return generator.Throw(a.Get1());
+            return Throw(a.Get1());
         }
 
     }

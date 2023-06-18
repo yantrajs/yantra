@@ -155,6 +155,12 @@ namespace YantraJS.Core.FastParser
                         throw stream.Unexpected();
                     previous = new AstConditionalExpression(previous, @true, @false);
                     previousType = stream.Current.Type;
+                    if(stream.Previous.Type == TokenTypes.SemiColon)
+                    {
+                        node = null;
+                        type = TokenTypes.SemiColon;
+                        return true;
+                    }
                     return NextExpression(ref previous, ref previousType, out node, out type, depth+1);
             }
 
@@ -203,6 +209,8 @@ namespace YantraJS.Core.FastParser
                     // previous = previous.Combine(previousType, node);
                     // node = null;
                     type = TokenTypes.SemiColon;
+                    return true;
+                case TokenTypes.TemplateEnd:
                     return true;
 
 

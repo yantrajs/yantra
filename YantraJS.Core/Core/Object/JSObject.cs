@@ -6,11 +6,12 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using Yantra.Core;
 using YantraJS.Core.Core;
 using YantraJS.Core.Core.Generator;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Core.Enumerators;
-using YantraJS.Core.Runtime;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -19,7 +20,10 @@ namespace YantraJS.Core
 
     internal delegate void PropertyChangedEventHandler(JSObject sender, (uint keyString, uint index, JSSymbol symbol) index);
 
-    [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
+    // [JSRuntime(typeof(JSObjectStatic), typeof(JSObjectPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Object", Register = false)]
+
     public partial class JSObject : JSValue
     {
         private JSPrototype currentPrototype;
@@ -54,6 +58,10 @@ namespace YantraJS.Core
         private ElementArray elements;
         private PropertySequence ownProperties;
         private UInt32Map<JSProperty> symbols;
+        private long? uid;
+
+        private static long NextID = 0;
+        internal long UniqueID => uid ??= Interlocked.Increment(ref NextID);
 
         public override bool BooleanValue => true;
 
@@ -148,16 +156,12 @@ namespace YantraJS.Core
             return JSConstants.Object;
         }
 
-        internal JSObject(JSObject prototype) : base(prototype)
-        {
-        }
-
-        public JSObject() : this(JSContext.Current?.ObjectPrototype)
+        public JSObject() : base((JSObject)null)
         {
             
         }
 
-        public IEnumerable<(string Key, JSValue value)> Entries
+        public virtual IEnumerable<(string Key, JSValue value)> Entries
         {
             get
             {
@@ -481,7 +485,7 @@ namespace YantraJS.Core
             set => SetValue(name, value, null, true);
         }
 
-        internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var start = this;
             var p = GetInternalProperty(name, true);
@@ -531,7 +535,7 @@ namespace YantraJS.Core
             set => SetValue(name, value, this, true);
         }
 
-        internal override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var p = GetInternalProperty(name);
             if (p.IsProperty)
@@ -561,9 +565,9 @@ namespace YantraJS.Core
             set => SetValue(name, value, null, true);
         }
 
-        internal override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
         {
-            if (name == JSSymbolStatic.iterator)
+            if (name == JSSymbol.iterator)
             {
                 HasIterator = true;
             }
@@ -588,7 +592,7 @@ namespace YantraJS.Core
             return true;
         }
 
-        internal override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
         {
             ref var p = ref symbols.GetRefOrDefault(key.Key, ref JSProperty.Empty);
             if (!p.IsEmpty)
@@ -598,7 +602,7 @@ namespace YantraJS.Core
             return base.GetValue(key, receiver, throwError);
         }
 
-        internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
             ref var p = ref ownProperties.GetValue(key.Key);
             if (!p.IsEmpty)
@@ -608,7 +612,7 @@ namespace YantraJS.Core
             return base.GetValue(key, receiver, throwError);
         }
 
-        internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             ref var p = ref elements.Get(key);
             if (!p.IsEmpty)
@@ -1130,7 +1134,7 @@ namespace YantraJS.Core
         {
             if (this.HasIterator)
             {
-                var v = this.GetValue(this.symbols[JSSymbolStatic.iterator.Key]);
+                var v = this.GetValue(this.symbols[JSSymbol.iterator.Key]);
                 return new JSIterator(v.InvokeFunction(new Arguments(this)));
             }
             return new ElementEnumerator(this);

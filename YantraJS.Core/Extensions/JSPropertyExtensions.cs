@@ -14,7 +14,9 @@ namespace YantraJS.Extensions
         {
             if (p.IsEmpty)
                 return JSUndefined.Value;
-            return p.IsValue ? p.value : p.get.f(new Arguments(target));
+            return !p.IsProperty
+                ? p.value
+                : p.get.f(new Arguments(target));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

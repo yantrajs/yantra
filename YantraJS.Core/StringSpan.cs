@@ -11,20 +11,6 @@ using YantraJS.Internals;
 namespace YantraJS.Core
 {
 
-    public static class StringSpanExtensions
-    {
-        public static StringSpan ToStringSpan(this string text, int offset, int length) => new StringSpan(text, offset, length);
-
-        public unsafe static void Append(this StringBuilder sb , in StringSpan span)
-        {
-            fixed (char* start = span.Source)
-            {
-                char* ch1 = start + (span.Offset);
-                sb.Append(ch1, span.Length);
-            }
-        }
-    }
-
     [DebuggerDisplay("{Key}: {Value}")]
     public struct KeyValue
     {
@@ -54,7 +40,10 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StringSpan(string? buffer, int offset, int length)
         {
-            if (buffer == null || (uint)offset > (uint)buffer.Length || (uint)length > (uint)(buffer.Length - offset))
+            if (buffer == null
+                || (uint)offset > (uint)buffer.Length
+                || (uint)length > (uint)(buffer.Length - offset
+                ))
             {
                 throw new InvalidOperationException($"offset/length represents invalid string or string is null");
             }
@@ -179,6 +168,113 @@ namespace YantraJS.Core
             return Value ?? string.Empty;
         }
 
+        public StringSpan Trim()
+        {
+            return TrimStart().TrimEnd();
+        }
+
+        public unsafe StringSpan TrimStart()
+        {
+            int offset = this.Offset;
+            int length = this.Length;
+            if (length == 0)
+            {
+                return this;
+            }
+            fixed (char* src = this.Source)
+            {
+                char* start = (src + offset);
+                int currentLength = length;
+                for (int i = 0; i < currentLength; i++)
+                {
+                    if (char.IsWhiteSpace(*start))
+                    {
+                        offset++;
+                        length--;
+                        start++;
+                        continue;
+                    }
+                    break;
+                }
+            }
+            return new StringSpan(Source, offset, length);
+        }
+
+        public unsafe StringSpan TrimEnd()
+        {
+            int offset = this.Offset;
+            int length = this.Length;
+            if (length == 0)
+            {
+                return this;
+            }
+            fixed (char* src = this.Source)
+            {
+                char* start = (src + offset + length - 1);
+                int currentLength = length;
+                for (int i = 0; i < currentLength; i++)
+                {
+                    if (char.IsWhiteSpace(*start))
+                    {
+                        length--;
+                        start++;
+                        continue;
+                    }
+                    break;
+                }
+            }
+            return new StringSpan(Source, offset, length);
+        }
+
+        public unsafe string ToLower()
+        {
+            var length = this.Length;
+            if(length == 0)
+            {
+                return string.Empty;
+            }
+            var d = new char[length];
+            fixed (char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                for (int i = 0; i < length; i++)
+                {
+                    d[i] = Char.ToLower(*(startOffset++));
+                }
+            }
+            return new string(d);
+        }
+
+        public unsafe string ToCamelCase()
+        {
+            var length = this.Length;
+            if (length == 0)
+            {
+                return string.Empty;
+            }
+            var d = new char[length];
+            fixed (char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    var ch = *(startOffset++);
+                    d[i] = Char.ToLower(ch);
+                    if (!Char.IsUpper(ch))
+                    {
+                        i++;
+                        break;
+                    }
+                }
+                for (; i < length; i++)
+                {
+                    d[i] = *(startOffset++);
+                }
+            }
+            return new string(d);
+        }
+
         internal bool IsNullOrWhiteSpace()
         {
             return Source == null || string.IsNullOrWhiteSpace(Value);
@@ -212,6 +308,33 @@ namespace YantraJS.Core
 
 
         public bool Equals(StringSpan other) => Equals(in other, StringComparison.Ordinal);
+
+        public unsafe bool StartsWith(StringSpan other)
+        {
+            var length = other.Length;
+            if(length > Length)
+            {
+                return false;
+            }
+            fixed(char* start = Source)
+            {
+                char* startOffset = start + Offset;
+                fixed(char* otherSource = other.Source)
+                {
+                    char* otherOffset = otherSource + other.Offset;
+                    for (int i = 0; i < length; i++)
+                    {
+                        if(*startOffset != *otherOffset)
+                        {
+                            return false;
+                        }
+                        startOffset++;
+                        otherOffset++;
+                    }
+                }
+            }
+            return true;
+        }
 
         public bool Equals(in StringSpan other, StringComparison comparisonType)
         {
@@ -296,6 +419,25 @@ namespace YantraJS.Core
         IEnumerator<char> IEnumerable<char>.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public unsafe byte[] Encode(Encoding encoding)
+        {
+            if (this.IsEmpty)
+            {
+                return Array.Empty<byte>();
+            }
+            fixed(char* source = this.Source)
+            {
+                char* start = (source + Offset);
+                var len = encoding.GetByteCount(start, Length);
+                var buffer = new byte[len];
+                fixed (byte* buf = buffer)
+                {
+                    encoding.GetBytes(start, Length, buf, buffer.Length);
+                }
+                return buffer;
+            }
         }
 
         public struct CharEnumerator: IEnumerator<char>

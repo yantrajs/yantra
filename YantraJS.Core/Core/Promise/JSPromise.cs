@@ -8,8 +8,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Yantra.Core;
 using YantraJS.Core.Clr;
-using YantraJS.Core.Runtime;
 using YantraJS.Core.Storage;
 using YantraJS.Extensions;
 
@@ -24,8 +24,9 @@ namespace YantraJS.Core
     /// <summary>
     /// 
     /// </summary>
-    [JSRuntime(typeof(JSPromiseStatic), typeof(JSPromisePrototype))]
-    public class JSPromise : JSObject
+    // [JSRuntime(typeof(JSPromiseStatic), typeof(JSPromisePrototype))]
+    [JSFunctionGenerator("Promise")]
+    public partial class JSPromise : JSObject
     {
 
 
@@ -78,6 +79,7 @@ namespace YantraJS.Core
 
         internal JSPromise(JSValue value, PromiseState state): this()
         {
+            InitPromise();
             this.state = state;
             this.result = value;
         }
@@ -86,8 +88,7 @@ namespace YantraJS.Core
         /// Promise must stay alive till resolved...
         /// </summary>
         /// <param name="value"></param>
-        public JSPromise(Task<JSValue> value)
-            : base(JSContext.Current.PromisePrototype)
+        public JSPromise(Task<JSValue> value) : this()
         {
             sc = JSContext.Current.synchronizationContext;
             RegisterPromise();
@@ -107,8 +108,10 @@ namespace YantraJS.Core
             });
         }
 
-        public JSPromise(JSValue @delegate): this()
+        public JSPromise(in Arguments a): base(a.NewPrototype)
         {
+            InitPromise();
+            JSValue @delegate = a[0];
             try
             {
                 @delegate.InvokeFunction(new Arguments(this, resolveFunction, rejectFunction));
@@ -119,8 +122,22 @@ namespace YantraJS.Core
             }
         }
 
+        //public JSPromise(JSValue @delegate): this()
+        //{
+        //    InitPromise();
+        //    try
+        //    {
+        //        @delegate.InvokeFunction(new Arguments(this, resolveFunction, rejectFunction));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        rejectFunction.InvokeFunction(new Arguments(JSUndefined.Value, JSError.From(ex)));
+        //    }
+        //}
+
         public JSPromise(JSPromiseDelegate @delegate) : this()
         {
+            InitPromise();
             try
             {
                 @delegate((v) => resolveFunction.Call(JSUndefined.Value,v), (v) => rejectFunction.Call(JSUndefined.Value, v));
@@ -131,9 +148,7 @@ namespace YantraJS.Core
             }
         }
 
-
-        private JSPromise() :
-            base(JSContext.Current.PromisePrototype)
+        private void InitPromise()
         {
             // to improve speed of promise, we will add then/catch here...
             sc = JSContext.Current.synchronizationContext;
@@ -152,7 +167,9 @@ namespace YantraJS.Core
                 Reject(a.Get1());
                 return JSUndefined.Value;
             });
+
         }
+
 
         /// <summary>
         /// This prevents garbage collection
@@ -293,7 +310,12 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSValue Then(JSFunctionDelegate resolve, JSFunctionDelegate fail, JSPromise @return = null)
         {
-            @return ??= new JSPromise();
+            // @return ??= new JSPromise();
+            if (@return == null)
+            {
+                @return = new JSPromise();
+                @return.InitPromise();
+            }
             var resolved = new Reaction { Promise = @return, Type = ReactionType.Resolve, Handler = resolve };
             var rejected = new Reaction { Promise = @return, Type = ReactionType.Reject, Handler = fail };
 

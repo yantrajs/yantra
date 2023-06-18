@@ -6,15 +6,16 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using YantraJS;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
 
-    public class JSArrayStatic
+    public partial class JSArray
     {
 
-        [Static("from", Length = 1)]
+        [JSExport("from", Length = 1)]
         public static JSValue StaticFrom(in Arguments a)
         {
             var r = new JSArray();
@@ -43,13 +44,13 @@ namespace YantraJS.Core
             return r;
         }
 
-        [Static("isArray", Length = 1)]
+        [JSExport("isArray", Length = 1)]
         public static JSValue StaticIsArray(in Arguments a)
         {
             return a.Get1() is JSArray ? JSBoolean.True : JSBoolean.False;
         }
 
-        [Static("of")]
+        [JSExport("of")]
         public static JSValue StaticOf(in Arguments a)
         {
             var r = new JSArray();

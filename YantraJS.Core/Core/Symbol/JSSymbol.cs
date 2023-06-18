@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using YantraJS.Core.Runtime;
+using Yantra.Core;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
-    [JSRuntime(typeof(JSSymbolStatic), typeof(JSSymbolPrototype))]
-    public class JSSymbol: JSValue
+    // [JSRuntime(typeof(JSSymbolStatic), typeof(JSSymbolPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Symbol")]
+    public partial class JSSymbol: JSValue
     {
 
         private static int SymbolID = 1;

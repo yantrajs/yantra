@@ -40,11 +40,23 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 `*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 
 # Mixed modules
-Currently YantraJS supports Both CommonJS and ES modules without any extra work, with little trick, module resolution is `node like`, it does not take `.js` extension into account. We are trying to make a workaround and we will update the product soon. Module loader loads module asynchronously, so `import` will work without any extra effort. However, `require` will run `AsyncPump` to wait till the module is loaded correctly, this may lead to some deadlocks.
+Currently YantraJS supports Both CommonJS and ES modules without any extra work, with little trick, module resolution is `node like`. Module loader loads module asynchronously, so `import` will work without any extra effort. However, `require` will run `AsyncPump` to wait till the module is loaded correctly. Unless you do some multithreading, mixed modules will not lead to any deadlocks.
 
-## Mixed Modules Roadmap
-1. Detect the loading order, first check if the same named file exists, if yes, load it, allow auto appending extension in the configuration, so module loader can load corresponding files accordingly.
-2. Create correct algorithm to resolve module name to support loading of CSX module in the mix. YantraJS supports loading module independent of the implementation. We can support other languages like python, php in the YantraJS. This is only possible to load modules without extension.
+## Module loading order,
+
+* Module names may or may not have extensions.
+* File will be loaded if same name exists on disk.
+* Engine will try to load `${name}.csx` file, if it exists it will load the module.
+* Engine will then try to load `${name}.js` file, if it exits it will load the module.
+* Otherwise it will travel to parent directory and search modules in `node_modules` folder in exact same order defined earlier.
+
+# Roadmap
+As we often have difficulty in writing cross environment scripts (browser and process such as node), we want to first implement basic common features on both.
+1. Generate Runtime with Source Generator, this will allow us to load Yantra in AOT environment. Currently Runtime objects are loaded through reflection, however we are moving reflection code to Source Generator one class a at a time.
+2. Next in plan is Network API, Simple `fetch` is available in `YantraContext`, we will focus on adding Stream API.
+3. Next is File API, we will implement `FileSytem` of Web Browser API and allow an easy native interface. So you can write script that will execute correctly in browser and in native
+4. V8 Protocol Implementation is in progress.
+
 
 # Documentation
 

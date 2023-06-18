@@ -139,6 +139,15 @@ namespace YantraJS.Core
         public readonly static KeyString @throw;
         public readonly static KeyString @return;
 
+        // intl...
+        public readonly static KeyString weekday;
+        public readonly static KeyString year;
+        public readonly static KeyString month;
+        public readonly static KeyString day;
+        public readonly static KeyString hour;
+        public readonly static KeyString minute;
+        public readonly static KeyString second;
+
 
         // global methods...
         public readonly static KeyString eval;
@@ -166,6 +175,15 @@ namespace YantraJS.Core
         public readonly static KeyString @true;
 
         public readonly static KeyString @false;
+
+        public readonly static KeyString bubbles;
+        public readonly static KeyString detail;
+        public readonly static KeyString cancelable;
+        public readonly static KeyString composed;
+
+        public readonly static KeyString capture;
+        public readonly static KeyString deferred;
+        public readonly static KeyString once;
 
 
         public readonly static KeyString raw;

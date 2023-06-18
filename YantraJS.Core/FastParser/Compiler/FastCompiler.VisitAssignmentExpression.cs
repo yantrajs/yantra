@@ -120,7 +120,8 @@ namespace YantraJS.Core.FastParser.Compiler
                             switch (property.Key.Type)
                             {
                                 case FastNodeType.Identifier:
-                                    var id = property.Key as AstIdentifier;
+                                case FastNodeType.Literal:
+                                    var id = property.Key;
                                     var propertyInit = property.Init;
                                     if (propertyInit != null)
                                     {

@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
 
-namespace YantraJS.Core.Runtime
+namespace YantraJS.Core
 {
-    public static class JSNumberPrototype
+    internal static class JSNumberExtensions
     {
-
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static JSNumber ToNumber(this JSValue target, [CallerMemberName] string name = null)
+        internal static JSNumber ToNumber(this JSValue target, [CallerMemberName] string name = null)
         {
             if (!(target is JSNumber n))
             {
@@ -26,16 +25,30 @@ namespace YantraJS.Core.Runtime
             return n;
         }
 
-        [Constructor(Length = 1)]
+    }
+
+    partial class JSNumber
+    {
+
+        [JSExport(Length = 1, IsConstructor = true)]
         public static JSValue Constructor(in Arguments a)
         {
+            if (a.NewTarget == null)
+            {
+                if(a.Length == 0)
+                {
+                    return JSNumber.Zero;
+                }
+                return new JSNumber(a[0].DoubleValue);
+            }
             if (a.Length == 0)
                 return new JSPrimitiveObject(JSNumber.Zero);
             return new JSPrimitiveObject(new JSNumber(a.Get1().DoubleValue));
         }
 
 
-        [Prototype("clz")]
+        [JSPrototypeMethod]
+        [JSExport("clz")]
         public static JSValue Clz(in Arguments a)
         {
             uint x = (uint)a.This.ToNumber().value;
@@ -66,13 +79,15 @@ namespace YantraJS.Core.Runtime
             return (int)(x & 0x0000003f);
         }
 
-        [Prototype("valueOf")]
+        [JSPrototypeMethod]
+        [JSExport("valueOf")]
         public static JSValue ValueOf(in Arguments a)
         {
             return a.This.ToNumber();
         }
 
-        [Prototype("toString", Length =1)]
+        [JSPrototypeMethod]
+        [JSExport("toString", Length =1)]
 
         public static JSString ToString(in Arguments a)
         {
@@ -116,7 +131,8 @@ namespace YantraJS.Core.Runtime
 
         }
 
-        [Prototype("toExponential", Length = 1)]
+        [JSPrototypeMethod]
+        [JSExport("toExponential", Length = 1)]
 
         public static JSString ToExponential(in Arguments a)
         {
@@ -155,7 +171,8 @@ namespace YantraJS.Core.Runtime
             // return new JSString(n.value.ToString());
         }
 
-        [Prototype("toFixed", Length = 1)]
+        [JSPrototypeMethod]
+        [JSExport("toFixed", Length = 1)]
         public static JSString ToFixed(in Arguments a)
         {
             var n = a.This.ToNumber();
@@ -178,7 +195,8 @@ namespace YantraJS.Core.Runtime
             return new JSString(nv.ToString("F0"));
         }
 
-        [Prototype("toPrecision", Length = 1)]
+        [JSPrototypeMethod]
+        [JSExport("toPrecision", Length = 1)]
         public static JSString ToPrecision(in Arguments a)
         {
             var n = a.This.ToNumber();
@@ -272,7 +290,8 @@ namespace YantraJS.Core.Runtime
             return new JSString(n.value.ToString());
         }
 
-        [Prototype("toLocaleString")]
+        [JSPrototypeMethod]
+        [JSExport("toLocaleString")]
         public static JSString ToLocaleString(in Arguments a)
         {
             var n = a.This.ToNumber();

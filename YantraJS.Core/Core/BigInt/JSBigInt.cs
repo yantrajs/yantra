@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
-using YantraJS.Core.Core.Primitive;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 
 namespace YantraJS.Core.BigInt
 {
-    [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
-    public class JSBigInt : JSPrimitive
+    // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("BigInt")]
+    public partial class JSBigInt : JSPrimitive
     {
 
         internal readonly long value;
@@ -16,6 +20,26 @@ namespace YantraJS.Core.BigInt
         public override double DoubleValue => value;
 
         public override long BigIntValue => value; 
+
+        public JSBigInt(in Arguments a): base(a.NewPrototype)
+        {
+            var f = a[0];
+            switch (f)
+            {
+                case JSNumber number:
+                    this.value = (long)number.value;
+                    return;
+                case JSBigInt bigint:
+                    value = bigint.value;
+                    return;
+            }
+            if (long.TryParse(f.ToString(), out var n))
+            {
+                this.value = n;
+                return;
+            }
+            throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
+        }
 
         public JSBigInt(long value)
         {
@@ -89,7 +113,7 @@ namespace YantraJS.Core.BigInt
 
         protected override JSObject GetPrototype()
         {
-            return JSContext.Current.BigIntPrototype;
+            return (JSContext.Current[Names.BigInt] as JSFunction).prototype;
         }
 
         internal override PropertyKey ToKey(bool create = true)
@@ -146,6 +170,25 @@ namespace YantraJS.Core.BigInt
             if (value is JSObject @object)
                 return new JSString(this.value + @object.StringValue);
             return new JSBigInt(this.value + value.BigIntValue);
+        }
+
+        [JSExport("toString")]
+        public new JSValue ToString()
+        {
+            return new JSString(value.ToString());
+        }
+
+        [JSExport("toLocaleString")]
+        public JSValue ToLocaleString(in Arguments a)
+        {
+            return new JSString(value.ToString(CultureInfo.CurrentCulture));
+        }
+
+
+        [JSExport("valueOf")]
+        public override JSValue ValueOf()
+        {
+            return this;
         }
     }
 }
