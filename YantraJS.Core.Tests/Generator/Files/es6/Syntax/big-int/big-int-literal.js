@@ -51,3 +51,9 @@ assert.strictEqual(250n, BigInt.asUintN(8, 65530n));
 assert.strictEqual(typeof 250n, "bigint");
 
 assert.strictEqual(typeof BigInt("250n"), "bigint");
+
+
+var n = 24n;
+n = -n;
+
+assert.strictEqual(-24n, n);

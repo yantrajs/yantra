@@ -224,6 +224,11 @@ namespace YantraJS.Core
             return double.IsNaN(n.DoubleValue);
         }
 
+        public override JSValue Negate()
+        {
+            return new JSNumber(-this.value);
+        }
+
         public override JSValue AddValue(JSValue value)
         {
             value = value.IsObject ? value.ValueOf() : value;

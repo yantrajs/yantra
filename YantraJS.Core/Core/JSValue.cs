@@ -167,6 +167,11 @@ namespace YantraJS.Core {
             return this;
         }
 
+        public virtual JSValue Negate()
+        {
+            return new JSNumber(-DoubleValue);
+        }
+
         /// <summary>
         /// Speed improvements for string contact operations
         /// </summary>

@@ -83,6 +83,9 @@ namespace YantraJS.ExpHelper
         private static MethodInfo _StrictEqualsLiteralString
             = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(string));
 
+        private static MethodInfo _Negate
+            = type.PublicMethod(nameof(JSValue.Negate));
+
         public static Expression AddString(Expression target, Expression @string)
         {
             return Expression.Call(target, _AddString, @string);
@@ -167,6 +170,10 @@ namespace YantraJS.ExpHelper
             return Expression.Field( Expression.Field(exp, _PrototypeChain), "object");
         }
 
+        public static Expression Negate(Expression exp)
+        {
+            return Expression.Call(exp, _Negate);
+        }
 
         public static Expression Power(Expression left,Expression right) {
             return Expression.Call(left, _Power, right);

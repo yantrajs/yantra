@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
@@ -150,9 +151,14 @@ namespace YantraJS.Core.BigInt
             return base.ConvertTo(type, out value);
         }
 
+        public override JSValue Negate()
+        {
+            return new JSBigInt(-this.value);
+        }
+
         public override JSValue AddValue(double value)
         {
-            return new JSBigInt(this.value + (BigInteger)value);
+            throw JSContext.Current.NewTypeError("Cannot mix BigInt and other types, use explicit conversions");
         }
 
         public override JSValue AddValue(string value)
@@ -166,6 +172,14 @@ namespace YantraJS.Core.BigInt
             if (value is JSPrimitiveObject primitive)
             {
                 value = primitive.value;
+            }
+            if (value is JSBigInt b)
+            {
+                return new JSBigInt(this.value + b.value);
+            }
+            if (value.IsBoolean || value.IsNumber)
+            {
+                throw JSContext.Current.NewTypeError("Cannot mix BigInt and other types, use explicit conversions");
             }
             if (value is JSString @string)
             {
