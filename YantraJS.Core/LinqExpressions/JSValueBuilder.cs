@@ -19,6 +19,26 @@ using YantraJS.Expressions;
 
 namespace YantraJS.ExpHelper
 {
+
+    internal static class ExpressionExtensions
+    {
+        public static Expression InstanceCall<TIn, TOut>(
+            this Expression exp, Expression<Func<TIn, TOut>> fx)
+        {
+            var m = (fx.Body as MethodCallExpression).Method;
+            return Expression.Call(exp, m);
+        }
+        public static Expression InstanceCall<TIn, P1, TOut>(
+            this Expression exp, Expression<Func<TIn, P1, TOut>> fx,
+            Expression arg1)
+        {
+            var m = (fx.Body as MethodCallExpression).Method;
+            return Expression.Call(exp, m, arg1);
+        }
+
+    }
+
+
     public class JSValueBuilder
     {
         private static readonly Type type = typeof(JSValue);
@@ -82,6 +102,9 @@ namespace YantraJS.ExpHelper
             = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(double));
         private static MethodInfo _StrictEqualsLiteralString
             = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(string));
+
+        private static MethodInfo _Negate
+            = type.PublicMethod(nameof(JSValue.Negate));
 
         public static Expression AddString(Expression target, Expression @string)
         {
@@ -167,6 +190,10 @@ namespace YantraJS.ExpHelper
             return Expression.Field( Expression.Field(exp, _PrototypeChain), "object");
         }
 
+        public static Expression Negate(Expression exp)
+        {
+            return Expression.Call(exp, _Negate);
+        }
 
         public static Expression Power(Expression left,Expression right) {
             return Expression.Call(left, _Power, right);

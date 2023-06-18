@@ -39,6 +39,7 @@ namespace YantraJS.Core.FastParser
         EOF,
         Identifier,
         Number,
+        BigInt,
         String,
         BracketEnd,
         BracketStart,

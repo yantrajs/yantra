@@ -64,6 +64,11 @@ namespace YantraJS.Core
             return JSConstants.Boolean;
         }
 
+        public override JSValue Negate()
+        {
+            return this._value ? JSNumber.MinusOne : JSNumber.NegativeZero;
+        }
+
         public override bool ConvertTo(Type type, out object value)
         {
             if (type == typeof(bool))
