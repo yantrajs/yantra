@@ -11,19 +11,33 @@ using YantraJS.Core.Core.Primitive;
 
 namespace YantraJS.Core.BigInt
 {
+    static class JSBigIntExtensions
+    {
+        public static BigInteger AsBigIntegerOnly(this JSValue @this)
+        {
+            return @this is JSBigInt v ? v.value : throw JSBigInt.CannotMix();
+        }
+    }
+
     // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("BigInt")]
     public partial class JSBigInt : JSPrimitive
     {
 
+
+        public static JSException CannotMix()
+        {
+            return JSContext.Current.NewTypeError("Cannot mix BigInt and other types, use explicit conversions");
+        }
+
         internal readonly BigInteger value;
 
         public override bool BooleanValue => value != 0;
 
-        public override double DoubleValue => (double)value;
+        public override double DoubleValue => throw CannotMix();
 
-        public override long BigIntValue => (long)value;
+        public override long BigIntValue => throw CannotMix();
 
         [JSExport(IsConstructor = true)]
         public static JSValue Constructor(in Arguments a)
@@ -156,9 +170,54 @@ namespace YantraJS.Core.BigInt
             return new JSBigInt(-this.value);
         }
 
+        public override JSValue BitwiseAnd(JSValue value)
+        {
+            return new JSBigInt(this.value & value.AsBigIntegerOnly());
+        }
+
+        public override JSValue BitwiseOr(JSValue value)
+        {
+            return new JSBigInt(this.value | value.AsBigIntegerOnly());
+        }
+
+        public override JSValue BitwiseXor(JSValue value)
+        {
+            return new JSBigInt(this.value | value.AsBigIntegerOnly());
+        }
+
+        public override JSValue LeftShift(JSValue value)
+        {
+            return new JSBigInt(this.value << (int)value.AsBigIntegerOnly());
+        }
+
+        public override JSValue RightShift(JSValue value)
+        {
+            return new JSBigInt(this.value >> (byte)value.AsBigIntegerOnly());
+        }
+
+        public override JSValue UnsignedRightShift(JSValue value)
+        {
+            return new JSBigInt(this.value >> (int)value.AsBigIntegerOnly());
+        }
+
+        public override JSValue Multiply(JSValue value)
+        {
+            return new JSBigInt(this.value * value.AsBigIntegerOnly());
+        }
+
+        public override JSValue Divide(JSValue value)
+        {
+            return new JSBigInt(this.value / value.AsBigIntegerOnly());
+        }
+
+        public override JSValue Subtract(JSValue value)
+        {
+            return new JSBigInt(this.value - value.AsBigIntegerOnly());
+        }
+
         public override JSValue AddValue(double value)
         {
-            throw JSContext.Current.NewTypeError("Cannot mix BigInt and other types, use explicit conversions");
+            throw CannotMix();
         }
 
         public override JSValue AddValue(string value)
@@ -179,7 +238,7 @@ namespace YantraJS.Core.BigInt
             }
             if (value.IsBoolean || value.IsNumber)
             {
-                throw JSContext.Current.NewTypeError("Cannot mix BigInt and other types, use explicit conversions");
+                throw CannotMix();
             }
             if (value is JSString @string)
             {

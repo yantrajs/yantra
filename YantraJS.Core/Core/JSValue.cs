@@ -172,7 +172,59 @@ namespace YantraJS.Core {
             return new JSNumber(-DoubleValue);
         }
 
+        public virtual JSValue Subtract(JSValue value)
+        {
+            return new JSNumber(this.DoubleValue - value.DoubleValue);
+        }
+
+        public virtual JSValue Multiply(JSValue value)
+        {
+            return new JSNumber(this.DoubleValue * value.DoubleValue);
+        }
+
         /// <summary>
+        public virtual JSValue Divide(JSValue value)
+        {
+            // if (value.DoubleValue == 0)
+                // return JSNumber.PositiveInfinity;
+            return new JSNumber(this.DoubleValue / value.DoubleValue);
+        }
+
+        public virtual JSValue BitwiseAnd(JSValue value)
+        {
+            return new JSNumber(this.IntValue & value.IntValue);
+        }
+
+        public virtual JSValue BitwiseOr(JSValue value)
+        {
+            return new JSNumber(this.IntValue | value.IntValue);
+        }
+
+        public virtual JSValue BitwiseXor(JSValue value)
+        {
+            return new JSNumber(this.IntValue ^ value.IntValue);
+        }
+
+        public virtual JSValue LeftShift(JSValue value)
+        {
+            return new JSNumber(this.IntValue << value.IntValue);
+        }
+
+        public virtual JSValue RightShift(JSValue value)
+        {
+            return new JSNumber(this.IntValue >> (value.IntValue & 0x1F));
+        }
+
+        public virtual JSValue UnsignedRightShift(JSValue value)
+        {
+            return new JSNumber(this.UIntValue >> value.IntValue);
+        }
+
+        public virtual JSValue Modulo(JSValue value)
+        {
+            return new JSNumber(this.DoubleValue % value.DoubleValue);
+        }
+
         /// Speed improvements for string contact operations
         /// </summary>
         /// <param name="value"></param>
