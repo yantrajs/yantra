@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using YantraJS.Core.FastParser.Ast;
 
 namespace YantraJS.Core.FastParser
 {
@@ -49,7 +50,7 @@ namespace YantraJS.Core.FastParser
         bool SingleStatement(in StreamLocation begin, out AstStatement node)
         {
             var token = begin.Token;
-            if(token.IsKeyword)
+            if (token.IsKeyword)
             {
                 switch (token.Keyword)
                 {
@@ -73,6 +74,14 @@ namespace YantraJS.Core.FastParser
                         return Break(out node);
                     case FastKeywords.@return:
                         return Return(out node);
+                    case FastKeywords.@using:
+                        return Using(out node);
+                    case FastKeywords.await:
+                        if(Using(out node, true))
+                        {
+                            return true;
+                        }
+                        break;
                     case FastKeywords.with:
                     case FastKeywords.@else:
                         throw stream.Unexpected();
@@ -101,11 +110,12 @@ namespace YantraJS.Core.FastParser
                 }
             }
 
+
             // goto....
             if (LabeledLoop(out node))
                 return true;
 
-            if(ExpressionSequence(out var expression, TokenTypes.SemiColon))
+            if (ExpressionSequence(out var expression, TokenTypes.SemiColon))
             {
                 node = new AstExpressionStatement(token, PreviousToken, expression);
                 return true;
@@ -116,7 +126,7 @@ namespace YantraJS.Core.FastParser
             bool LabeledLoop(out AstStatement statement)
             {
 
-                if(stream.CheckAndConsume(TokenTypes.Identifier, TokenTypes.Colon, out var id, out var _))
+                if (stream.CheckAndConsume(TokenTypes.Identifier, TokenTypes.Colon, out var id, out var _))
                 {
                     SkipNewLines();
 
@@ -137,7 +147,7 @@ namespace YantraJS.Core.FastParser
                                 throw stream.Unexpected();
                             break;
                         default:
-                            if(Statement(out statement))
+                            if (Statement(out statement))
                             {
                                 statement = new AstLabeledStatement(id, statement);
                                 return true;
@@ -161,7 +171,7 @@ namespace YantraJS.Core.FastParser
                 return true;
             }
 
-            bool Try(out  AstStatement statement)
+            bool Try(out AstStatement statement)
             {
                 var begin = stream.Current;
                 stream.Consume();
@@ -170,7 +180,8 @@ namespace YantraJS.Core.FastParser
                     throw stream.Unexpected();
 
                 // we may not have catch...
-                if(stream.CheckAndConsume(FastKeywords.@catch)) {
+                if (stream.CheckAndConsume(FastKeywords.@catch))
+                {
 
                     stream.Expect(TokenTypes.BracketStart);
                     if (!Identitifer(out var id))
@@ -250,13 +261,13 @@ namespace YantraJS.Core.FastParser
                 stream.Consume();
 
                 var current = stream.Current;
-                if(current.Type == TokenTypes.SemiColon || current.Type == TokenTypes.LineTerminator)
+                if (current.Type == TokenTypes.SemiColon || current.Type == TokenTypes.LineTerminator)
                 {
                     statement = new AstReturnStatement(begin, current);
                     return true;
                 }
 
-                if(ExpressionSequence(out var target, TokenTypes.SemiColon))
+                if (ExpressionSequence(out var target, TokenTypes.SemiColon))
                 {
                     statement = new AstReturnStatement(begin, PreviousToken, target);
                     EndOfStatement();
@@ -264,9 +275,37 @@ namespace YantraJS.Core.FastParser
                 }
                 throw stream.Unexpected();
             }
+
+
+            bool Using(out AstStatement statement, bool isAsync = false)
+            {
+                var start = stream.Current;
+                statement = default;
+                if (isAsync)
+                {
+                    if (stream.Next.Keyword != FastKeywords.@using)
+                    {
+                        return false;
+                    }
+                    stream.Consume();
+                    stream.Consume();
+                } else
+                {
+                    stream.Consume();
+                }
+                
+                if (stream.Current.Type != TokenTypes.Identifier)
+                {
+                    return false;
+                }
+                if (!Parameters(out var declarators, TokenTypes.SemiColon, false, FastVariableKind.Const))
+                {
+                    throw stream.Unexpected();
+                }
+                statement = new AstVariableDeclaration(start, PreviousToken, declarators, FastVariableKind.Const, true, await: isAsync);
+                return true;
+            }
         }
-
-
     }
 
 }

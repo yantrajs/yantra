@@ -177,6 +177,15 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSValue InvokeMethod(this JSValue @this, JSSymbol name, in Arguments a)
+        {
+            var fx = @this[name];
+            if (fx.IsUndefined)
+                throw JSContext.Current.NewTypeError($"Method {name} not found on {@this}");
+            return fx.InvokeFunction(a.OverrideThis(@this));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue InvokeMethod(this JSValue @this, JSValue name, in Arguments a)
         {
             var key = name.ToKey();

@@ -9,6 +9,13 @@ namespace YantraJS.Core
     public partial class JSSymbol
     {
 
+        [JSExport("asyncDispose")]
+        public static JSSymbol asyncDispose = new JSSymbol("@asyncDispose");
+
+
+        [JSExport("dispose")]
+        public static JSSymbol dispose = new JSSymbol("@dispose");
+
         [JSExport("asyncIterator")]
         public static JSSymbol asyncIterator = new JSSymbol("Symbol.asyncIterator");
 

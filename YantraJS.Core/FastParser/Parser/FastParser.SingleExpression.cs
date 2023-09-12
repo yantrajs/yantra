@@ -216,6 +216,7 @@ namespace YantraJS.Core.FastParser
             {
                 var begin = stream.Current;
                 stream.Consume();
+
                 if (Expression(out var target))
                 {
                     this.isAsync = true;

@@ -80,6 +80,17 @@ namespace YantraJS.Tests.Generator
     }
 
     [TestClass]
+    public class ES2023
+    {
+        [TestFolder("es\\2023")]
+        public void Disposables()
+        {
+
+        }
+
+    }
+
+    [TestClass]
     public class Modules
     {
         [ModuleFolder("es6\\Modules\\clr")]

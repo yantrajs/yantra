@@ -31,10 +31,20 @@ namespace YantraJS.Core
         }
 
         [JSExport("toString")]
-        public JSValue ToString(in Arguments a)
+        public new JSValue ToString(in Arguments a)
         {
             var name = this.prototypeChain.@object[KeyStrings.constructor][KeyStrings.name];
             return new JSString($"{name}: {this[KeyStrings.message]}");
+        }
+
+        public override string ToString()
+        {
+            return ToString(Arguments.Empty).ToString();
+        }
+
+        public override string ToDetailString()
+        {
+            return ToString(Arguments.Empty).ToString() + "\r\n" + this.Exception.JSStackTrace.ToString();
         }
 
 
@@ -62,7 +72,7 @@ namespace YantraJS.Core
         //    this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         //}
 
-        internal JSError(
+        internal protected JSError(
             JSException ex,
             JSObject prototype = null) : base(prototype)
         {

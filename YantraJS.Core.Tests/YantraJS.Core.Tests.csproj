@@ -31,4 +31,8 @@
     <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Generator\Files\es\2023\disposables\" />
+  </ItemGroup>
+
 </Project>

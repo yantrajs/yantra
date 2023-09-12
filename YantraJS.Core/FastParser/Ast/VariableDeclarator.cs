@@ -110,6 +110,11 @@ namespace YantraJS.Core.FastParser
             }
         }
 
+        public bool Equals(VariableDeclarator d)
+        {
+            return this.Identifier == d.Identifier && this.Init == d.Init;
+        }
+
         public override string ToString()
         {
             if (Init == null)

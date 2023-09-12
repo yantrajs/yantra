@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
@@ -11,6 +12,36 @@ namespace YantraJS.Core
 {
     public partial class JSPromise
     {
+        public static Task Await(JSValue value)
+        {
+            if (value.IsNullOrUndefined)
+            {
+                return System.Threading.Tasks.Task.CompletedTask;
+            }
+            if (value is JSPromise p)
+            {
+                return p.Task;
+            }
+
+            var then = value["then"];
+            if (then.IsNullOrUndefined)
+            {
+                return System.Threading.Tasks.Task.CompletedTask;
+            }
+
+            return new JSPromise((resolve, reject) => {
+                then.Call( value, ToFunction(resolve), ToFunction(reject));
+            }).Task;
+
+            static JSFunction ToFunction(Action<JSValue> action)
+            {
+                return new JSFunction((in Arguments a) => {
+                    action(a[0]);
+                    return JSUndefined.Value;
+                });
+            }
+        }
+
         [JSExport("resolve")]
         public static JSValue Resolve(in Arguments a)
         {
