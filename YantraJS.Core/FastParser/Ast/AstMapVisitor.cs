@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.FastParser;
+using YantraJS.Core.FastParser.Ast;
 using YantraJS.Parser;
 
 namespace YantraJS.Utils

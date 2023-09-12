@@ -8,7 +8,7 @@ namespace YantraJS.Core.FastParser
         None,
         Let,
         Const,
-        Var
+        Var,
     }
 
     public class AstVariableDeclaration: AstStatement
@@ -17,15 +17,29 @@ namespace YantraJS.Core.FastParser
 
         public readonly FastVariableKind Kind;
 
+        /// <summary>
+        /// This declaration must be disposed at end of the containing scope.
+        /// </summary>
+        public readonly bool Using;
+
+        /// <summary>
+        /// This declaration must be disposed asynchronously at end of the containing scope.
+        /// </summary>
+        public readonly bool AwaitUsing;
+
         public AstVariableDeclaration(
             FastToken begin,
             FastToken previousToken,
             in VariableDeclarator declarator,
-            FastVariableKind kind = FastVariableKind.Var)
+            FastVariableKind kind = FastVariableKind.Var, 
+            bool @using = false,
+            bool @await = false)
             : base(begin, FastNodeType.VariableDeclaration, previousToken)
         {
             this.Declarators = new Sequence<VariableDeclarator>(1) { declarator };
             this.Kind = kind;
+            this.Using = @using;
+            this.AwaitUsing = @await;
         }
 
 
@@ -33,16 +47,28 @@ namespace YantraJS.Core.FastParser
             FastToken begin, 
             FastToken previousToken, 
             IFastEnumerable<VariableDeclarator> declarators, 
-            FastVariableKind kind = FastVariableKind.Var)
+            FastVariableKind kind = FastVariableKind.Var,
+            bool @using = false,
+            bool @await = false)
             :base(begin, FastNodeType.VariableDeclaration, previousToken)
         {
             this.Declarators = declarators;
             this.Kind = kind;
+            this.Using = @using;
+            this.AwaitUsing = @await;
         }
 
         public override string ToString()
         {
-            switch(Kind)
+            if (this.Using)
+            {
+                if (this.AwaitUsing)
+                {
+                    return $"await using {Declarators.Join()}";
+                }
+                return $"using {Declarators.Join()}";
+            }
+            switch (Kind)
             {
                 case FastVariableKind.Let:
                     return $"let {Declarators.Join()}";

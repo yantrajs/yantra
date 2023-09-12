@@ -576,7 +576,13 @@ namespace YantraJS.Core.FastParser.Ast
         protected override AstNode VisitVariableDeclaration(AstVariableDeclaration variableDeclaration)
         {
             if (Modified(variableDeclaration.Declarators, VisitVariableDeclarator, out var declarators))
-                return new AstVariableDeclaration(variableDeclaration.Start, variableDeclaration.End, declarators, variableDeclaration.Kind);
+                return new AstVariableDeclaration(
+                    variableDeclaration.Start,
+                    variableDeclaration.End,
+                    declarators,
+                    variableDeclaration.Kind,
+                    variableDeclaration.Using,
+                    variableDeclaration.AwaitUsing);
             return variableDeclaration;
         }
 

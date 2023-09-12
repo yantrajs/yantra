@@ -36,6 +36,19 @@ namespace YantraJS.ExpHelper
             return Expression.Call(exp, m, arg1);
         }
 
+        public static Expression InstanceAction<TIn, TP1>(
+            this Expression exp, Expression<Action<TIn, TP1>> fx, Expression arg1)
+        {
+            var m = (fx.Body as MethodCallExpression).Method;
+            return Expression.Call(exp, m, arg1);
+        }
+        public static Expression InstanceAction<TIn, P1, P2>(
+            this Expression exp, Expression<Action<TIn, P1, P2>> fx,
+            Expression arg1, Expression arg2)
+        {
+            var m = (fx.Body as MethodCallExpression).Method;
+            return Expression.Call(exp, m, arg1, arg2);
+        }
     }
 
 

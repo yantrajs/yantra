@@ -12,6 +12,7 @@ using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Expressions;
+using YantraJS.Core.Core.Disposable;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -205,6 +206,9 @@ namespace YantraJS.Core.FastParser.Compiler
         public Expression ThisExpression => _this ?? (_this = this.GetVariable("this", true).Expression);
 
         public Expression NewTarget => Expression.Field(ArgumentsExpression, nameof(YantraJS.Core.Arguments.NewTarget));
+
+        private VariableScope _dispoable;
+        public VariableScope Disposable => _dispoable ?? (_dispoable = this.GetTempVariable(typeof(JSDisposableStack)));
 
         public Expression ArgumentsExpression { get; }
 
