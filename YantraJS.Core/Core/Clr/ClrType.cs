@@ -241,32 +241,34 @@ namespace YantraJS.Core.Clr
                 clrPrototype.SetElementAt = indexSetter;
 
             // setup disposables...
-            //if (type.GetInterfaceMap(typeof(IDisposable))
-            //    .InterfaceMethods
-            //    .Any())
-            //{
-            //    target.FastAddValue(JSSymbol.dispose, new JSFunction((in Arguments a) =>
-            //    {
-            //        if (a.This is ClrProxy p && p.value is IDisposable d)
-            //        {
-            //            d.Dispose();
-            //        }
-            //        return JSUndefined.Value;
-            //    }), JSPropertyAttributes.ConfigurableValue);
-            //}
-            //if (type.GetInterfaceMap(typeof(IAsyncDisposable))
-            //    .InterfaceMethods
-            //    .Any())
-            //{
-            //    target.FastAddValue(JSSymbol.dispose, new JSFunction((in Arguments a) =>
-            //    {
-            //        if (a.This is ClrProxy p && p.value is IAsyncDisposable d)
-            //        {
-            //            return ClrProxy.From(d.DisposeAsync().AsTask());
-            //        }
-            //        return JSUndefined.Value;
-            //    }), JSPropertyAttributes.ConfigurableValue);
-            //}
+            var disposableType = typeof(IDisposable);
+            var asyncDisposableType = typeof(IAsyncDisposable);
+            if (disposableType.IsAssignableFrom(type) && type.GetInterfaceMap(disposableType)
+                .InterfaceMethods
+                .Any())
+            {
+                target.FastAddValue(JSSymbol.dispose, new JSFunction((in Arguments a) =>
+                {
+                    if (a.This is ClrProxy p && p.value is IDisposable d)
+                    {
+                        d.Dispose();
+                    }
+                    return JSUndefined.Value;
+                }), JSPropertyAttributes.ConfigurableValue);
+            }
+            if (asyncDisposableType.IsAssignableFrom(type) && type.GetInterfaceMap(typeof(IAsyncDisposable))
+                .InterfaceMethods
+                .Any())
+            {
+                target.FastAddValue(JSSymbol.asyncDispose, new JSFunction((in Arguments a) =>
+                {
+                    if (a.This is ClrProxy p && p.value is IAsyncDisposable d)
+                    {
+                        return ClrProxy.From(d.DisposeAsync().AsTask());
+                    }
+                    return JSUndefined.Value;
+                }), JSPropertyAttributes.ConfigurableValue);
+            }
         }
 
         private ClrType(
