@@ -14,6 +14,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.Core.Disposable;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -22,6 +23,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
 
         private Expression Scoped(FastFunctionScope scope, IFastEnumerable<Expression> body) {
+
             var list = new Sequence<Exp>();
             list.AddRange(scope.InitList);
             list.AddRange(body);
@@ -29,8 +31,32 @@ namespace YantraJS.Core.FastParser.Compiler
                 throw new InvalidOperationException();
             if (!list.Any())
                 return Exp.Empty;
+
+
             var r = Exp.Block(scope.VariableParameters.AsSequence(), list);
             // list.Clear();
+
+            if (scope.HasDisposable)
+            {
+                var d = scope.Disposable;
+                var dispose = d.Expression.InstanceCall<JSDisposableStack, JSValue>(
+                            (j) => j.Dispose()
+                        );
+                if (scope.Function.Async)
+                {
+                    // we will move everything inside await dispose...
+                    Exp.TryFinally(
+                        r,
+                        Exp.Yield(dispose)
+                    );
+                } else
+                {
+                    Exp.TryFinally(
+                        r,
+                        dispose
+                    );
+                }
+            }
             return r;
         }
 
