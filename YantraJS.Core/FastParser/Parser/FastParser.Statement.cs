@@ -77,7 +77,11 @@ namespace YantraJS.Core.FastParser
                     case FastKeywords.@using:
                         return Using(out node);
                     case FastKeywords.await:
-                        return Using(out node, true);
+                        if(Using(out node, true))
+                        {
+                            return true;
+                        }
+                        break;
                     case FastKeywords.with:
                     case FastKeywords.@else:
                         throw stream.Unexpected();
@@ -275,15 +279,21 @@ namespace YantraJS.Core.FastParser
 
             bool Using(out AstStatement statement, bool isAsync = false)
             {
-                var start = stream.Consume();
+                var start = stream.Current;
                 statement = default;
                 if (isAsync)
                 {
-                    if(!stream.CheckAndConsume(FastKeywords.@using))
+                    if (stream.Next.Keyword != FastKeywords.@using)
                     {
                         return false;
                     }
+                    stream.Consume();
+                    stream.Consume();
+                } else
+                {
+                    stream.Consume();
                 }
+                
                 if (stream.Current.Type != TokenTypes.Identifier)
                 {
                     return false;

@@ -10,7 +10,13 @@ namespace YantraJS.Core
     public class JSException: Exception
     {
 
-        public JSValue Error { get; }
+        public JSValue Error { get; private set; }
+
+        internal protected JSException With(JSValue error)
+        {
+            this.Error = error;
+            return this;
+        }
 
         private List<(StringSpan target, string file, int line, int column)> trace
             = new List<(StringSpan target, string file, int line, int column)>();

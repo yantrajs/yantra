@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using YantraJS.Core.Clr;
+using YantraJS.Core.Core.Error;
 
 namespace YantraJS.Core.Core.Disposable
 {
@@ -56,7 +57,7 @@ namespace YantraJS.Core.Core.Disposable
                     v.InvokeMethod(JSSymbol.dispose);
                 } catch (Exception ex)
                 {
-                    this.Error = JSError.From(ex);
+                    this.Error = new JSSuppressedError(JSError.From(ex), this.Error);
                 }
             }
 
@@ -71,10 +72,6 @@ namespace YantraJS.Core.Core.Disposable
             while (stack.Count > 0)
             {
                 var (v, a) = stack.Pop();
-                if (a)
-                {
-                    throw JSContext.Current.NewTypeError("Async resource must not be disposed synchronously.");
-                }
                 try
                 {
                     if (a)
@@ -89,7 +86,7 @@ namespace YantraJS.Core.Core.Disposable
                 }
                 catch (Exception ex)
                 {
-                    this.Error = JSError.From(ex);
+                    this.Error = new JSSuppressedError(JSError.From(ex), this.Error);
                 }
             }
 

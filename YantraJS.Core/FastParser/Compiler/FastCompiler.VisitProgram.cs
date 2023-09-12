@@ -55,9 +55,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     Expression.Assign(
                         scope.Disposable,
                         Expression.New(scope.Disposable.Type)
-                    ),
-
-                    r
+                    )
                 };
 
                 var d = scope.Disposable;
