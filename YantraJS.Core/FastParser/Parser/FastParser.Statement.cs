@@ -284,7 +284,7 @@ namespace YantraJS.Core.FastParser
                         return false;
                     }
                 }
-                if (!stream.CheckAndConsume(TokenTypes.Identifier))
+                if (stream.Current.Type != TokenTypes.Identifier)
                 {
                     return false;
                 }

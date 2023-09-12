@@ -209,8 +209,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public bool HasDisposable => _dispoable != null;
 
-        private VariableScope _dispoable;
-        public VariableScope Disposable => _dispoable ?? (_dispoable = this.GetTempVariable(typeof(JSDisposableStack)));
+        private ParameterExpression _dispoable;
+        public ParameterExpression Disposable => _dispoable ?? (_dispoable = Expression.Parameter(typeof(JSDisposableStack)));
 
         public Expression ArgumentsExpression { get; }
 

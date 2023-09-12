@@ -42,7 +42,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         }
                         if (dispose)
                         {
-                            list.Add(top.Disposable.Expression.InstanceAction<JSDisposableStack, JSValue, bool>(
+                            list.Add(top.Disposable.InstanceAction<JSDisposableStack, JSValue, bool>(
                                 (j,v,b) => j.AddDisposableResource(v, b), v.Expression, Expression.Constant(async)));
                         }
                         break;
@@ -56,7 +56,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                             if (dispose)
                             {
-                                list.Add(top.Disposable.Expression.InstanceAction<JSDisposableStack, JSValue, bool>(
+                                list.Add(top.Disposable.InstanceAction<JSDisposableStack, JSValue, bool>(
                                     (j, v, b) => j.AddDisposableResource(v, b), temp.Variable, Expression.Constant(async)));
                             }
                         }
@@ -69,7 +69,7 @@ namespace YantraJS.Core.FastParser.Compiler
                             list.Add(CreateAssignment(arrayPattern, temp.Expression, true, newScope));
                             if (dispose)
                             {
-                                list.Add(top.Disposable.Expression.InstanceAction<JSDisposableStack, JSValue, bool>(
+                                list.Add(top.Disposable.InstanceAction<JSDisposableStack, JSValue, bool>(
                                     (j, v, b) => j.AddDisposableResource(v, b), temp.Variable, Expression.Constant(async)));
                             }
                         }

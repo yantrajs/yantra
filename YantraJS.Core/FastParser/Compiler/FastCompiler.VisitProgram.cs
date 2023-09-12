@@ -32,30 +32,54 @@ namespace YantraJS.Core.FastParser.Compiler
             if (!list.Any())
                 return Exp.Empty;
 
+            //if (scope.HasDisposable)
+            //{
+            //    // create new disposable and assign ...
+            //    list.Add(
+            //        Expression.Assign(
+            //            scope.Disposable.Variable,
+            //            Expression.New(scope.Disposable.Type)
+            //        )
+            //    );
+            //}
+
 
             var r = Exp.Block(scope.VariableParameters.AsSequence(), list);
             // list.Clear();
 
             if (scope.HasDisposable)
             {
+                list = new Sequence<Exp>
+                {
+                    // create new disposable and assign ...
+                    Expression.Assign(
+                        scope.Disposable,
+                        Expression.New(scope.Disposable.Type)
+                    ),
+
+                    r
+                };
+
                 var d = scope.Disposable;
-                var dispose = d.Expression.InstanceCall<JSDisposableStack, JSValue>(
+                var dispose = d.InstanceCall<JSDisposableStack, JSValue>(
                             (j) => j.Dispose()
                         );
                 if (scope.Function.Async)
                 {
                     // we will move everything inside await dispose...
-                    Exp.TryFinally(
+                    list.Add(Exp.TryFinally(
                         r,
                         Exp.Yield(dispose)
-                    );
+                    ));
                 } else
                 {
-                    Exp.TryFinally(
+                    list.Add(Exp.TryFinally(
                         r,
                         dispose
-                    );
+                    ));
                 }
+
+                return Exp.Block( new Sequence<ParameterExpression> { scope.Disposable }, list);
             }
             return r;
         }
