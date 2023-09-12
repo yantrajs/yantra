@@ -239,6 +239,13 @@ namespace YantraJS.Core.Clr
                 clrPrototype.GetElementAt = indexGetter;
             if (indexSetter != null)
                 clrPrototype.SetElementAt = indexSetter;
+
+            // setup disposables...
+            //var disposableMap = type.GetInterfaceMap(typeof(IDisposable));
+            //if (disposableMap.InterfaceMethods.Length > 0)
+            //{
+
+            //}
         }
 
         private ClrType(
