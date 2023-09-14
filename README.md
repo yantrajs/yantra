@@ -36,6 +36,7 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 24. Easily marshal CLR Object to JavaScript and other way around
 25. CSX Module support
 26. Mixed module system, YantraJS supports `require` and `import`.
+27. Explicit resource management with `using` and `await using` keywords.
 
 `*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 
