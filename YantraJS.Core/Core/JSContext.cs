@@ -24,6 +24,7 @@ using System.ComponentModel;
 using YantraJS.Core.Core.DataView;
 using YantraJS.Debugger;
 using YantraJS.Core.Clr;
+using YantraJS.Core.Core;
 
 namespace YantraJS.Core
 {
@@ -47,6 +48,7 @@ namespace YantraJS.Core
             int nameLength, int line, int column)
         {
             context = context ?? JSContext.Current;
+            context.EnsureSufficientExecutionStack();
             this.context = context;
             this.FileName = scriptInfo.FileName;
             this.Function = (nameLength>0) 
@@ -62,6 +64,7 @@ namespace YantraJS.Core
         public CallStackItem(JSContext context, string fileName, in StringSpan function, int line, int column)
         {
             context = context ?? JSContext.Current;
+            context.EnsureSufficientExecutionStack();
             this.context = context;
             this.FileName = fileName;
             this.Function = function;
