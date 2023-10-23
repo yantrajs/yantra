@@ -193,7 +193,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         @this, paramArray1);
                 }
 
-                var paramArray = VisitArguments(JSUndefinedBuilder.Value, arguments);
+                var paramArray = VisitArguments(null, arguments);
                 var target = VisitExpression(callee);
                 return JSFunctionBuilder.InvokeFunction(target, paramArray, coalesce);
             }
