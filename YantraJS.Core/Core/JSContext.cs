@@ -87,11 +87,10 @@ namespace YantraJS.Core
             System.Diagnostics.Debug.WriteLine($"{Function} at {Line}, {Column}");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Step(int line, int column)
         {
-            // pop..
-            if (this != context.Top)
-                context.Top = this;
+            context.Top = this;
             this.Line = line;
             this.Column = column;
         }
