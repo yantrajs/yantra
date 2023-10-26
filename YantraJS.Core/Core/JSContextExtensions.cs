@@ -19,6 +19,7 @@ namespace YantraJS.Core.Core
             try
             {
                 RuntimeHelpers.EnsureSufficientExecutionStack();
+                return;
             }
             catch (Exception ex)
             {
