@@ -204,6 +204,7 @@ namespace YantraJS.Core.Core.Storage
     public struct ElementArray
     {
 
+        // private SAUint32Trie<JSProperty> Storage;
         private UInt32Map<JSProperty> Storage;
         private uint length;
 

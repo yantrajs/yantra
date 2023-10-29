@@ -2,11 +2,261 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.FastParser;
 using YantraJS.Core.Storage;
 
 namespace YantraJS.Core
 {
+
+    public struct SAUint32Trie<T>
+    {
+        [DebuggerDisplay("{Key}: {Value}")]
+        public struct KeyValue
+        {
+            public uint Key;
+            public T Value;
+        }
+
+
+        enum NodeState : byte
+        {
+            Empty = 0,
+            Filled = 1,
+            HasValue = 4
+        }
+
+        static Node Empty = new Node();
+
+        struct Node
+        {
+            public bool HasValue
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get
+                {
+                    return (State & NodeState.HasValue) > 0;
+                }
+            }
+
+            /// <summary>
+            /// Current key
+            /// </summary>
+            public uint Key;
+            public NodeState State;
+            /// <summary>
+            /// Current value
+            /// </summary>
+            public T Value;
+            /// <summary>
+            /// Index of First Child.
+            /// All children must be allocated
+            /// in advance.
+            /// </summary>
+            public uint Children;
+        }
+
+        private Node[] storage;
+        private uint last;
+
+        public T this[uint index]
+        {
+            get
+            {
+                ref var node = ref GetNode(index);
+                return node.HasValue ? node.Value : default;
+            }
+        }
+
+        public SAUint32Trie()
+        {
+            
+        }
+
+        public bool HasChildren => storage != null;
+
+
+        public IEnumerable<KeyValue> All
+        {
+            get
+            {
+                foreach (var (k, v) in AllValues())
+                    yield return new KeyValue { Key = k, Value = v };
+            }
+        }
+
+        public IEnumerable<(uint key, T value)> AllValues()
+        {
+            if (this.storage != null)
+            {
+                for (int i = 0; i < this.storage.Length; i++)
+                {
+                    var node = this.storage[i];
+                    if (node.HasValue)
+                    {
+                        yield return (node.Key, node.Value);
+                    }
+                }
+            }
+        }
+
+        public bool HasKey(uint key)
+        {
+            ref var node = ref GetNode(key);
+            return node.HasValue;
+        }
+
+        public bool TryGetValue(uint key, out T value)
+        {
+            ref var node = ref GetNode(key);
+            if (node.HasValue)
+            {
+                value = node.Value;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        public bool TryRemove(uint key, out T value)
+        {
+            ref var node = ref GetNode(key);
+            if (node.HasValue)
+            {
+                value = node.Value;
+                node.Value = default;
+                node.State = NodeState.Filled;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        public void Save(uint key, T value)
+        {
+            ref var node = ref GetNode(key, true);
+            node.Value = value;
+            node.State |= NodeState.HasValue;
+        }
+
+        public ref T Put(uint key)
+        {
+            ref var node = ref GetNode(key, true);
+            node.State |= NodeState.HasValue;
+            return ref node.Value;
+        }
+
+        public ref T GetRefOrDefault(uint key, ref T def) {
+            ref var node = ref GetNode(key);
+            if (node.HasValue)
+            {
+                return ref node.Value;
+            }
+            return ref def;
+        }
+
+        public bool RemoveAt(uint key)
+        {
+            ref var node = ref GetNode(key);
+            if (node.HasValue)
+            {
+                node.State = NodeState.Filled;
+                return true;
+            }
+            return false;
+        }
+
+
+        private ref Node GetNode(uint originalKey, bool create = false)
+        {
+            ref var node = ref Empty;
+
+            uint start = 0;
+            if (storage == null) { 
+                if (!create)
+                {
+                    return ref node;
+                }
+                // extend...
+                storage = new Node[16];
+                ref var first = ref storage[0];
+                first.State = NodeState.Filled;
+                last = 4;
+            }
+
+            if (originalKey == 0)
+            {
+                node = ref storage[0];
+                return ref node;
+            }
+
+            // let us walk the nodes...
+            for (long key = originalKey; key > 0; key >>= 2)
+            {
+                node = ref storage[start + (int)(key & 0x3)];
+                if (node.Key == originalKey) {
+                    if (create)
+                    {
+                        if (node.State == NodeState.Empty)
+                        {
+                            node.State = NodeState.Filled;
+                        }
+                    }
+                    return ref node;
+                }
+                if (create)
+                {
+                    if (node.State == NodeState.Empty)
+                    {
+                        // lets occupy current node.
+                        node.State = NodeState.Filled;
+                        node.Key = originalKey;
+                        return ref node;
+                    }
+                    if (node.Key > originalKey)
+                    {
+                        var oldKey = node.Key;
+                        var oldValue = node.Value;
+                        var oldChild = node.Children;
+                        node.Key = originalKey;
+                        node.State = NodeState.Filled;
+                        node.Value = default;
+                        // node.Children = 0;
+                        ref var newChild = ref GetNode(oldKey, true);
+                        newChild.Key = oldKey;
+                        newChild.Value = oldValue;
+                        newChild.State |= NodeState.HasValue;
+                        // newChild.Children = oldChild;
+                        return ref node;
+                    }
+                    node.State |= NodeState.Filled;
+                }
+                var next = node.Children;
+                if (next == 0)
+                {
+                    if (!create)
+                    {
+                        return ref Empty;
+                    }
+                    // check if we have allocation space !!!
+                    if ((last + 4) >= storage.Length)
+                    {
+                        // extend...
+                        Array.Resize(ref storage, storage.Length + 16);
+                    }
+                    node.Children = last;
+                    last += 4;
+                }
+                start = node.Children;
+            }
+
+            return ref node;
+        }
+
+    }
+
+
     //internal abstract class BaseMap<TKey, TValue> : IBitTrie<TKey, TValue, BaseMap<TKey, TValue>.TrieNode>
     //    where TKey : IComparable<TKey>
     //{
