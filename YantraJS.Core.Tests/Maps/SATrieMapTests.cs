@@ -5,7 +5,7 @@ using YantraJS.Core.Core.Storage;
 namespace YantraJS.Tests
 {
     [TestClass]
-    public class BinaryMapTests
+    public class SATrieMapTests
     {
         [TestMethod]
         public void CharTest()
@@ -53,6 +53,42 @@ namespace YantraJS.Tests
             im.RemoveAt(i2);
 
             Assert.IsNull(im[i2]);
+        }
+
+        [TestMethod]
+        public void UIntMapTest()
+        {
+            var map = new SAUint32Map<uint>();
+
+            int max = 100;
+            for (int i = max; i >= 0; i--)
+            {
+                map.Save((uint)i, (uint)i);
+            }
+
+            for (uint i = 0; i < max; i++)
+            {
+                if (!map.TryGetValue(i, out var value))
+                    Assert.Fail($"Could not get value for {i}");
+                Assert.AreEqual(i, value);
+            }
+
+
+            map = new SAUint32Map<uint>();
+
+            for (int i = 0; i < max; i++)
+            {
+                map.Save((uint)i, (uint)i);
+            }
+
+            for (uint i = 0; i < max; i++)
+            {
+                if (!map.TryGetValue(i, out var value))
+                    Assert.Fail();
+                Assert.AreEqual(i, value);
+            }
+
+
         }
     }
 }

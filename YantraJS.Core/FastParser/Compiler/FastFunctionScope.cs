@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
     public class SharedParserStringMap<T>
     {
         private static ConcurrentNameMap parserStringCache = new ConcurrentNameMap();
-        private UInt32Map<uint> indexes;
+        private SAUint32Map<uint> indexes;
         private (StringSpan Key, T Value)[] storage;
 
         private uint length;

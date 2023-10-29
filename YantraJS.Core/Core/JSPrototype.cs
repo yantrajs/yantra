@@ -13,9 +13,9 @@ namespace YantraJS.Core.Core
 
         internal class JSPropertySet
         {
-            internal UInt32Map<(JSProperty property, JSPrototype owner)> properties;
-            internal UInt32Map<(JSProperty property, JSPrototype owner)> elements;
-            internal UInt32Map<(JSProperty property, JSPrototype owner)> symbols;
+            internal SAUint32Map<(JSProperty property, JSPrototype owner)> properties;
+            internal SAUint32Map<(JSProperty property, JSPrototype owner)> elements;
+            internal SAUint32Map<(JSProperty property, JSPrototype owner)> symbols;
 
             internal Sequence<KeyString> stringKeys = new Sequence<KeyString>();
             internal Sequence<uint> uintKeys = new Sequence<uint>();
@@ -42,9 +42,9 @@ namespace YantraJS.Core.Core
             {
                 if (!this.dirty)
                     return;
-                ps.properties = new UInt32Map<(JSProperty, JSPrototype)>();
-                ps.elements = new UInt32Map<(JSProperty, JSPrototype)>();
-                ps.symbols = new UInt32Map<(JSProperty, JSPrototype)>();
+                ps.properties = new SAUint32Map<(JSProperty, JSPrototype)>();
+                ps.elements = new SAUint32Map<(JSProperty, JSPrototype)>();
+                ps.symbols = new SAUint32Map<(JSProperty, JSPrototype)>();
 
                 Build(ps, this);
                 dirty = false;

@@ -28,7 +28,7 @@ namespace YantraJS.Core
 
         public struct PropertyEnumerator
         {
-            private UInt32Map<JSObjectProperty> map;
+            private SAUint32Map<JSObjectProperty> map;
             private readonly uint tail;
             private readonly bool showEnumerableOnly;
             private uint start;
@@ -132,7 +132,7 @@ namespace YantraJS.Core
         public struct ValueEnumerator
         {
             public JSObject target;
-            private UInt32Map<JSObjectProperty> map;
+            private SAUint32Map<JSObjectProperty> map;
             private uint start;
             readonly bool showEnumerableOnly;
             public ValueEnumerator(JSObject target, bool showEnumerableOnly)
@@ -227,7 +227,7 @@ namespace YantraJS.Core
         #endregion
 
 
-        private UInt32Map<JSObjectProperty> map;
+        private SAUint32Map<JSObjectProperty> map;
         private uint head;
         private uint tail;
 
