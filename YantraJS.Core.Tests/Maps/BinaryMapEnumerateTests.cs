@@ -71,14 +71,12 @@ namespace YantraJS.Tests.Maps
         [TestMethod]
         public void IntMap()
         {
-            var a = new UInt32Map<int>();
+            var a = new SAUint32Trie<int>();
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            a[1] = 1;
-            a[3] = 2;
-            a[2] = 3;
-            a[4] = 4;
-#pragma warning restore CS0618 // Type or member is obsolete
+            a.Put(1) = 1;
+            a.Put(3) = 2;
+            a.Put(2) = 3;
+            a.Put(4) = 4;
 
             var all = a.AllValues().ToList();
             Assert.AreEqual(4, all.Count);
@@ -114,7 +112,7 @@ namespace YantraJS.Tests.Maps
         [TestMethod]
         public void UIntMapTest()
         {
-            var map = new UInt32Map<uint>();
+            var map = new SAUint32Trie<uint>();
 
             int max = 100;
             for (int i = max; i >= 0; i--)
@@ -130,7 +128,7 @@ namespace YantraJS.Tests.Maps
             }
 
 
-            map = new UInt32Map<uint>();
+            map = new SAUint32Trie<uint>();
 
             for (int i = 0; i < max; i++)
             {

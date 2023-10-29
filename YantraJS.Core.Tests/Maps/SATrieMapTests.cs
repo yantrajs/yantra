@@ -60,7 +60,7 @@ namespace YantraJS.Tests
         {
             var map = new SAUint32Trie<uint>();
 
-            int max = 10;
+            int max = 100;
             for (int i = max; i >= 0; i--)
             {
                 map.Save((uint)i, (uint)i);

@@ -35,15 +35,13 @@ namespace YantraJS.Tests
         [TestMethod]
         public void IntTest()
         {
-            var im = new UInt32Map<string>();
+            var im = new SAUint32Trie<string>();
 
             var i1 = (uint)4;
             var i2 = (uint)687;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            im[i1] = "a";
-            im[i2] = "b";
-#pragma warning restore CS0618 // Type or member is obsolete
+            im.Put(i1) = "a";
+            im.Put(i2) = "b";
 
             Assert.AreEqual("a", im[i1]);
             Assert.AreEqual("b", im[i2]);

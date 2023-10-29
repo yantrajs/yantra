@@ -23,8 +23,8 @@ namespace Yantra.Core.Events
         private static ConcurrentNameMap eventNames = new ConcurrentNameMap();
 
 
-        private UInt32Map<List<DomEventHandler>> captureHandlers;
-        private UInt32Map<List<DomEventHandler>> handlers;
+        private SAUint32Trie<List<DomEventHandler>> captureHandlers;
+        private SAUint32Trie<List<DomEventHandler>> handlers;
 
         [JSExport]
         public virtual JSValue DispatchEvent(Event e) {

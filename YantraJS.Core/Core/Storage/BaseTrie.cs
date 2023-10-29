@@ -76,6 +76,8 @@ namespace YantraJS.Core
 
         public bool HasChildren => storage != null;
 
+        public bool IsNull => storage == null;
+
 
         public IEnumerable<KeyValue> All
         {
@@ -86,7 +88,7 @@ namespace YantraJS.Core
             }
         }
 
-        public IEnumerable<(uint key, T value)> AllValues()
+        public IEnumerable<(uint Key, T Value)> AllValues()
         {
             if (this.storage != null)
             {
@@ -162,6 +164,7 @@ namespace YantraJS.Core
             if (node.HasValue)
             {
                 node.State = NodeState.Filled;
+                node.Value = default;
                 return true;
             }
             return false;
@@ -194,7 +197,8 @@ namespace YantraJS.Core
             // let us walk the nodes...
             for (long key = originalKey; key > 0; key >>= 2)
             {
-                node = ref storage[start + (int)(key & 0x3)];
+                var index = start + (int)(key & 0x3);
+                node = ref storage[index];
                 if (node.Key == originalKey) {
                     if (create)
                     {
@@ -222,36 +226,38 @@ namespace YantraJS.Core
                         node.Key = originalKey;
                         node.State = NodeState.Filled;
                         node.Value = default;
-                        // node.Children = 0;
                         ref var newChild = ref GetNode(oldKey, true);
                         newChild.Key = oldKey;
                         newChild.Value = oldValue;
                         newChild.State |= NodeState.HasValue;
-                        // newChild.Children = oldChild;
+                        // this is case when array is resized
+                        // and we still might have reference to old node
+                        node = ref storage[index];
                         return ref node;
                     }
                     node.State |= NodeState.Filled;
+                    if (node.Children == 0)
+                    {
+                        node.Children = last;
+                        last += 4;
+                        if (last >= storage.Length)
+                        {
+                            Array.Resize(ref storage, storage.Length + 16);
+                        }
+                    }
                 }
                 var next = node.Children;
                 if (next == 0)
                 {
-                    if (!create)
-                    {
-                        return ref Empty;
-                    }
-                    // check if we have allocation space !!!
-                    if ((last + 4) >= storage.Length)
-                    {
-                        // extend...
-                        Array.Resize(ref storage, storage.Length + 16);
-                    }
-                    node.Children = last;
-                    last += 4;
+                    return ref Empty;
                 }
-                start = node.Children;
+                start = next;
             }
-
-            return ref node;
+            if (node.Key == originalKey)
+            {
+                return ref node;
+            }
+            return ref Empty;
         }
 
     }

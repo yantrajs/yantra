@@ -330,7 +330,7 @@ namespace YantraJS.Core
         //    }
         //}
 
-        UInt32Map<JSVariable> globalVars = new UInt32Map<JSVariable>();
+        SAUint32Trie<JSVariable> globalVars = new SAUint32Trie<JSVariable>();
 
         internal JSValue Register(JSVariable variable)
         {
