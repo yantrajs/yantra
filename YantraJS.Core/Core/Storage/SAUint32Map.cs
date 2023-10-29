@@ -69,11 +69,6 @@ namespace YantraJS.Core
             }
         }
 
-        public SAUint32Map()
-        {
-            
-        }
-
         public bool HasChildren => storage != null;
 
         public bool IsNull => storage == null;
