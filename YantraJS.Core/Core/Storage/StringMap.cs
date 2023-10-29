@@ -15,135 +15,63 @@ namespace YantraJS.Core.Core.Storage
         private const int Mask = ~(-1 << Bits);
 
 
-        public static StringMap<T> Null = new StringMap<T>() { State = MapValueState.Null };
-
-        public bool IsNull
+        enum NodeState : byte
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return State == MapValueState.Null;
-            }
+            Empty = 0,
+            Filled = 1,
+            HasValue = 4
         }
 
-        public bool IsEmpty
+        static Node Empty = new Node();
+
+        struct Node
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
+            public bool HasValue
             {
-                return State == MapValueState.Empty;
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get
+                {
+                    return (State & NodeState.HasValue) > 0;
+                }
             }
+
+            /// <summary>
+            /// Current key
+            /// </summary>
+            public HashedString Key;
+            public NodeState State;
+            /// <summary>
+            /// Current value
+            /// </summary>
+            public T Value;
+            /// <summary>
+            /// Index of First Child.
+            /// All children must be allocated
+            /// in advance.
+            /// </summary>
+            public uint Children;
         }
 
-        public bool HasIndex
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return (State & MapValueState.Filled) > 0 && State != MapValueState.Null;
-            }
-        }
+        private Node[] storage;
+        private uint last;
 
-
-        public bool HasValue
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return (State & MapValueState.HasValue) > 0 && State != MapValueState.Null;
-            }
-        }
-
-        public bool HasDefaultValue
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return (State & MapValueState.HasDefaultValue) > 0 && State != MapValueState.Null;
-            }
-        }
-
-        //struct Iterator : IEnumerator<(string Key, T Value)>
-        //{
-
-        //    StringMap<T>[] array;
-        //    int index;
-        //    public Iterator(StringMap<T>[] array)
-        //    {
-        //        this.array = array;
-        //        this.index = -1;
-        //    }
-
-        //    public (string Key, T Value) Current {
-        //        get
-        //        {
-        //            ref var node = ref array[index];
-        //            return (node.Key.Value, node.value);
-        //        }
-        //    }
-
-        //    object IEnumerator.Current => Current;
-
-        //    public void Dispose()
-        //    {
-                
-        //    }
-
-        //    public bool MoveNext()
-        //    {
-        //        return (this.index++) < this.array.Length;
-        //    }
-
-        //    public void Reset()
-        //    {
-                
-        //    }
-        //}
+        public bool IsNull => storage == null;
 
         public IEnumerable<(StringSpan Key, T Value)> AllValues()
         {
-            if (Nodes != null)
+            if (storage != null)
             {
-                (StringSpan Key, T Value) pair;
-                for (int i = 0; i < Size; i++)
+                for (int i = 0; i < storage.Length; i++)
                 {
-                    if(TryGetAt(i, out pair)) {
-                        yield return pair;
-                    }
-                    foreach (var item in AllValues(i))
+                    var node = storage[i];
+                    if (node.HasValue)
                     {
-                        yield return item;
+                        yield return (node.Key.Value, node.Value);
                     }
                 }
             } 
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerable<(StringSpan Key, T Value)> AllValues(int i)
-        {
-            ref var node = ref Nodes[i];
-            return node.AllValues();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetAt(int index, out (StringSpan Key, T Value) pair)
-        {
-            ref var node = ref Nodes[index];
-            if (node.HasValue)
-            {
-                pair = (node.Key.Value, node.value);
-                return true;
-            }
-            pair = (null, default);
-            return false;
-        }
-
-        private MapValueState State;
-
-        private StringMap<T>[] Nodes;
-
-        internal T value;
-        private HashedString Key;
 
         public T this[in HashedString index]
         {
@@ -152,7 +80,7 @@ namespace YantraJS.Core.Core.Storage
             {
                 ref var node = ref GetNode(index);
                 if (node.HasValue)
-                    return node.value;
+                    return node.Value;
                 return default;
             }
             //[Obsolete("Use Put")]
@@ -160,8 +88,8 @@ namespace YantraJS.Core.Core.Storage
             set
             {
                 ref var node = ref GetNode(index, true);
-                node.State = MapValueState.HasValue | MapValueState.Filled;
-                node.value = value;
+                node.State |= NodeState.HasValue;
+                node.Value = value;
 
             }
         }
@@ -169,8 +97,8 @@ namespace YantraJS.Core.Core.Storage
         public ref T Put(in HashedString index)
         {
             ref var node = ref GetNode(index, true);
-            node.State = MapValueState.HasValue | MapValueState.Filled;
-            return ref node.value;
+            node.State |= NodeState.HasValue;
+            return ref node.Value;
         }
 
 
@@ -181,7 +109,7 @@ namespace YantraJS.Core.Core.Storage
             {
                 ref var node = ref GetNode(index);
                 if (node.HasValue)
-                    return node.value;
+                    return node.Value;
                 return default;
             }
             [Obsolete("Use Put")]
@@ -189,8 +117,8 @@ namespace YantraJS.Core.Core.Storage
             set
             {
                 ref var node = ref GetNode(index, true);
-                node.State = MapValueState.HasValue | MapValueState.Filled;
-                node.value = value;
+                node.State |= NodeState.HasValue;
+                node.Value = value;
 
             }
         }
@@ -201,7 +129,7 @@ namespace YantraJS.Core.Core.Storage
             ref var node = ref GetNode(key);
             if (node.HasValue)
             {
-                value = node.value;
+                value = node.Value;
                 return true;
             }
             value = default;
@@ -214,7 +142,7 @@ namespace YantraJS.Core.Core.Storage
             ref var node = ref GetNode(in key);
             if (node.HasValue)
             {
-                value = node.value;
+                value = node.Value;
                 return true;
             }
             value = default;
@@ -236,8 +164,8 @@ namespace YantraJS.Core.Core.Storage
             ref var node = ref GetNode(key);
             if (node.HasValue)
             {
-                value = node.value;
-                node.State &= MapValueState.Filled;
+                value = node.Value;
+                node.State = NodeState.Filled;
                 return true;
             }
             value = default;
@@ -249,139 +177,289 @@ namespace YantraJS.Core.Core.Storage
         public void Save(in HashedString key, T value)
         {
             ref var node = ref GetNode(in key, true);
-            node.State = MapValueState.HasValue | MapValueState.Filled;
-            node.value = value;
+            node.State |= NodeState.HasValue;
+            node.Value = value;
         }
 
-        private ref StringMap<T> GetNode(in HashedString originalKey, bool create = false)
+        private ref Node GetNode(in HashedString originalKey, bool create = false)
         {
-            ref var node = ref Null;
-            ref var current = ref this;
+            ref var node = ref Empty;
 
-            if (originalKey.Hash == 0 && originalKey.Value.Length == 0)
+            if (storage == null)
             {
-                // empty string....
-                if (Nodes == null && !create)
-                {
-                    return ref Null;
-                }
-                Nodes = Nodes ?? new StringMap<T>[Size];
-                node = ref Nodes[0];
-                if (node.Key.CompareToRef(in originalKey) != 0)
-                {
-                    // move...
-                    var oldKey = node.Key;
-                    var oldValue = node.value;
-                    var oldState = node.State;
-                    node.Key = originalKey;
-                    node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
-                    node.value = default;
-
-                    ref var child = ref GetNode(oldKey, true);
-                    child.Key = oldKey;
-                    child.value = oldValue;
-                    child.State = oldState;
-                }
-                node.State |= MapValueState.Filled;
-                return ref node;
-
-            }
-
-            int start = originalKey.Hash;
-            for(; start != 0; start >>= Bits)
-            {
-                if(current.Nodes == null)
-                {
-                    if (!create)
-                        return ref Null;
-                    current.Nodes = new StringMap<T>[Size];
-                }
-                node = ref current.Nodes[start & Mask];
-                if (!node.HasIndex)
-                {
-                    if (create)
-                    {
-                        node.Key = originalKey;
-                        node.State = MapValueState.Filled;
-                        return ref node;
-                    }
-                    return ref Null;
-                }
-                if (node.Key == originalKey)
+                if (!create)
                 {
                     return ref node;
                 }
-                if (create) {
-                    if (node.Key.CompareToRef(in originalKey) > 0)
+                // extend...
+                storage = new Node[16];
+                ref var first = ref storage[0];
+                first.State = NodeState.Filled;
+                first.Key = "";
+                last = Size;
+            }
+
+            if (originalKey.Value.IsEmpty)
+            {
+                node = ref storage[0];
+                return ref node;
+            }
+
+            // let us walk the nodes...
+            uint offset = 0;
+            int start = originalKey.Hash;
+            for(; start != 0; start >>= Bits)
+            {
+                var index = offset + (start & Mask);
+                node = ref storage[index];
+                if (node.Key == originalKey)
+                {
+                    if (create)
                     {
-                        node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
-                        var oldKey = node.Key;
-                        var oldValue = node.value;
+                        if (node.State == NodeState.Empty)
+                        {
+                            node.State = NodeState.Filled;
+                        }
+                    }
+                    return ref node;
+                }
+                if (create)
+                {
+                    if (node.State == NodeState.Empty)
+                    {
+                        // lets occupy current node.
+                        node.State = NodeState.Filled;
                         node.Key = originalKey;
-                        ref var child = ref this.GetNode(in oldKey, true);
-                        child.Key = oldKey;
-                        child.State = MapValueState.HasValue | MapValueState.Filled;
-                        child.value = oldValue;
                         return ref node;
                     }
+                    if (node.Key.CompareToRef(in originalKey) > 0)
+                    {
+                        var oldKey = node.Key;
+                        var oldValue = node.Value;
+                        var oldChild = node.Children;
+                        node.Key = originalKey;
+                        node.State = NodeState.Filled;
+                        node.Value = default;
+                        ref var newChild = ref GetNode(oldKey, true);
+                        newChild.Key = oldKey;
+                        newChild.Value = oldValue;
+                        newChild.State |= NodeState.HasValue;
+                        // this is case when array is resized
+                        // and we still might have reference to old node
+                        node = ref storage[index];
+                        return ref node;
+                    }
+                    node.State |= NodeState.Filled;
+                    if (node.Children == 0)
+                    {
+                        node.Children = last;
+                        last += Size;
+                        if (last >= storage.Length)
+                        {
+                            global::System.Array.Resize(ref storage, storage.Length + Size*Size);
+                        }
+                    }
                 }
-                current = ref node;
+                var next = node.Children;
+                if (next == 0)
+                {
+                    return ref Empty;
+                }
+                offset = next;
             }
             if (node.Key == originalKey)
             {
                 return ref node;
             }
             var en = originalKey.Value.GetEnumerator();
-            while(en.MoveNext(out var ch))
+            while (en.MoveNext(out var ch))
             {
                 Int32 uch = ch;
                 for (; uch > 0; uch >>= Bits)
                 {
-                    if(current.Nodes == null)
-                    {
-                        if (!create)
-                            return ref Null;
-                        current.Nodes = new StringMap<T>[Size];
-                    }
-
-                    node = ref current.Nodes[uch & Mask];
-                    if (!node.HasIndex)
-                    {
-                        if (create)
-                        {
-                            node.Key = originalKey;
-                            node.State = MapValueState.Filled;
-                            return ref node;
-                        }
-                        return ref Null;
-                    }
+                    var index = start + uch & Mask;
+                    node = ref storage[index];
                     if (node.Key == originalKey)
                     {
                         return ref node;
                     }
                     if (create)
                     {
-                        if (node.Key.CompareToRef(in originalKey) > 0)
+                        if (node.State == NodeState.Empty)
                         {
-                            node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
-                            var oldKey = node.Key;
-                            var oldValue = node.value;
+                            // lets occupy current node.
+                            node.State = NodeState.Filled;
                             node.Key = originalKey;
-
-                            ref var child = ref this.GetNode(in oldKey, create);
-                            child.Key = oldKey;
-                            child.State = MapValueState.HasValue | MapValueState.Filled;
-                            child.value = oldValue;
                             return ref node;
                         }
+                        if (node.Key.CompareToRef(in originalKey) > 0)
+                        {
+                            var oldKey = node.Key;
+                            var oldValue = node.Value;
+                            var oldChild = node.Children;
+                            node.Key = originalKey;
+                            node.State = NodeState.Filled;
+                            node.Value = default;
+                            ref var newChild = ref GetNode(oldKey, true);
+                            newChild.Key = oldKey;
+                            newChild.Value = oldValue;
+                            newChild.State |= NodeState.HasValue;
+                            // this is case when array is resized
+                            // and we still might have reference to old node
+                            node = ref storage[index];
+                            return ref node;
+                        }
+                        node.State |= NodeState.Filled;
+                        if (node.Children == 0)
+                        {
+                            node.Children = last;
+                            last += Size;
+                            if (last >= storage.Length)
+                            {
+                                global::System.Array.Resize(ref storage, storage.Length + 16);
+                            }
+                        }
                     }
-                    current = ref node;
+                    var next = node.Children;
+                    if (next == 0)
+                    {
+                        return ref Empty;
+                    }
+                    offset = next;
                 }
             }
-            if (node.Key == originalKey)
-                return ref node;
-            return ref Null;
+            return ref Empty;
         }
+
+        //private ref StringMap<T> GetNode(in HashedString originalKey, bool create = false)
+        //{
+        //    ref var node = ref Null;
+        //    ref var current = ref this;
+
+        //    if (originalKey.Hash == 0 && originalKey.Value.Length == 0)
+        //    {
+        //        // empty string....
+        //        if (Nodes == null && !create)
+        //        {
+        //            return ref Null;
+        //        }
+        //        Nodes = Nodes ?? new StringMap<T>[Size];
+        //        node = ref Nodes[0];
+        //        if (node.Key.CompareToRef(in originalKey) != 0)
+        //        {
+        //            // move...
+        //            var oldKey = node.Key;
+        //            var oldValue = node.value;
+        //            var oldState = node.State;
+        //            node.Key = originalKey;
+        //            node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+        //            node.value = default;
+
+        //            ref var child = ref GetNode(oldKey, true);
+        //            child.Key = oldKey;
+        //            child.value = oldValue;
+        //            child.State = oldState;
+        //        }
+        //        node.State |= MapValueState.Filled;
+        //        return ref node;
+
+        //    }
+
+        //    int start = originalKey.Hash;
+        //    for(; start != 0; start >>= Bits)
+        //    {
+        //        if(current.Nodes == null)
+        //        {
+        //            if (!create)
+        //                return ref Null;
+        //            current.Nodes = new StringMap<T>[Size];
+        //        }
+        //        node = ref current.Nodes[start & Mask];
+        //        if (!node.HasIndex)
+        //        {
+        //            if (create)
+        //            {
+        //                node.Key = originalKey;
+        //                node.State = MapValueState.Filled;
+        //                return ref node;
+        //            }
+        //            return ref Null;
+        //        }
+        //        if (node.Key == originalKey)
+        //        {
+        //            return ref node;
+        //        }
+        //        if (create) {
+        //            if (node.Key.CompareToRef(in originalKey) > 0)
+        //            {
+        //                node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+        //                var oldKey = node.Key;
+        //                var oldValue = node.value;
+        //                node.Key = originalKey;
+        //                ref var child = ref this.GetNode(in oldKey, true);
+        //                child.Key = oldKey;
+        //                child.State = MapValueState.HasValue | MapValueState.Filled;
+        //                child.value = oldValue;
+        //                return ref node;
+        //            }
+        //        }
+        //        current = ref node;
+        //    }
+        //    if (node.Key == originalKey)
+        //    {
+        //        return ref node;
+        //    }
+        //    var en = originalKey.Value.GetEnumerator();
+        //    while(en.MoveNext(out var ch))
+        //    {
+        //        Int32 uch = ch;
+        //        for (; uch > 0; uch >>= Bits)
+        //        {
+        //            if(current.Nodes == null)
+        //            {
+        //                if (!create)
+        //                    return ref Null;
+        //                current.Nodes = new StringMap<T>[Size];
+        //            }
+
+        //            node = ref current.Nodes[uch & Mask];
+        //            if (!node.HasIndex)
+        //            {
+        //                if (create)
+        //                {
+        //                    node.Key = originalKey;
+        //                    node.State = MapValueState.Filled;
+        //                    return ref node;
+        //                }
+        //                return ref Null;
+        //            }
+        //            if (node.Key == originalKey)
+        //            {
+        //                return ref node;
+        //            }
+        //            if (create)
+        //            {
+        //                if (node.Key.CompareToRef(in originalKey) > 0)
+        //                {
+        //                    node.State = MapValueState.HasDefaultValue | MapValueState.Filled;
+        //                    var oldKey = node.Key;
+        //                    var oldValue = node.value;
+        //                    node.Key = originalKey;
+
+        //                    ref var child = ref this.GetNode(in oldKey, create);
+        //                    child.Key = oldKey;
+        //                    child.State = MapValueState.HasValue | MapValueState.Filled;
+        //                    child.value = oldValue;
+        //                    return ref node;
+        //                }
+        //            }
+        //            current = ref node;
+        //        }
+        //    }
+        //    if (node.Key == originalKey)
+        //        return ref node;
+        //    return ref Null;
+        //}
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool RemoveAt(in StringSpan key)
         {
@@ -389,8 +467,8 @@ namespace YantraJS.Core.Core.Storage
             ref var node = ref GetNode(in hsKey);
             if(node.HasValue)
             {
-                node.State = MapValueState.Filled;
-                node.value = default;
+                node.State = NodeState.Filled;
+                node.Value = default;
                 return true;
             }
             return false;

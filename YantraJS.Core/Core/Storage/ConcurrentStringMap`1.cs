@@ -106,7 +106,7 @@ namespace YantraJS.Core.Core.Storage
     public class ConcurrentUInt32Map<T>
     {
 
-        private SAUint32Trie<T> Map;
+        private SAUint32Map<T> Map;
 
         private ReaderWriterLockSlim lockSlim;
 

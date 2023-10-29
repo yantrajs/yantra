@@ -71,7 +71,7 @@ namespace YantraJS.Tests.Maps
         [TestMethod]
         public void IntMap()
         {
-            var a = new SAUint32Trie<int>();
+            var a = new SAUint32Map<int>();
 
             a.Put(1) = 1;
             a.Put(3) = 2;
@@ -112,7 +112,7 @@ namespace YantraJS.Tests.Maps
         [TestMethod]
         public void UIntMapTest()
         {
-            var map = new SAUint32Trie<uint>();
+            var map = new SAUint32Map<uint>();
 
             int max = 100;
             for (int i = max; i >= 0; i--)
@@ -128,7 +128,7 @@ namespace YantraJS.Tests.Maps
             }
 
 
-            map = new SAUint32Trie<uint>();
+            map = new SAUint32Map<uint>();
 
             for (int i = 0; i < max; i++)
             {

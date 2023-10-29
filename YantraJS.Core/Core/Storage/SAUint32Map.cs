@@ -10,7 +10,7 @@ using YantraJS.Core.Storage;
 namespace YantraJS.Core
 {
 
-    public struct SAUint32Trie<T>
+    public struct SAUint32Map<T>
     {
         [DebuggerDisplay("{Key}: {Value}")]
         public struct KeyValue
@@ -69,7 +69,7 @@ namespace YantraJS.Core
             }
         }
 
-        public SAUint32Trie()
+        public SAUint32Map()
         {
             
         }

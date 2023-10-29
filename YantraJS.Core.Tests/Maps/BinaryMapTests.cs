@@ -35,7 +35,7 @@ namespace YantraJS.Tests
         [TestMethod]
         public void IntTest()
         {
-            var im = new SAUint32Trie<string>();
+            var im = new SAUint32Map<string>();
 
             var i1 = (uint)4;
             var i2 = (uint)687;
