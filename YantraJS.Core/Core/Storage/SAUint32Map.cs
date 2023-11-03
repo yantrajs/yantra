@@ -144,6 +144,14 @@ namespace YantraJS.Core
             return ref node.Value;
         }
 
+        public ref T Put(uint key, out bool added)
+        {
+            ref var node = ref GetNode(key, true);
+            added = (node.State & NodeState.HasValue) == 0;
+            node.State |= NodeState.HasValue;
+            return ref node.Value;
+        }
+
         public ref T GetRefOrDefault(uint key, ref T def) {
             ref var node = ref GetNode(key);
             if (node.HasValue)
