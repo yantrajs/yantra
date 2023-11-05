@@ -87,7 +87,7 @@ namespace YantraJS.Core
             System.Diagnostics.Debug.WriteLine($"{Function} at {Line}, {Column}");
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Step(int line, int column)
         {
             context.Top = this;
@@ -688,22 +688,27 @@ namespace YantraJS.Core
         /// <param name="code"></param>
         /// <param name="codeFilePath"></param>
         /// <returns></returns>
-        public JSValue Eval(string code, string codeFilePath = null)
+        public JSValue Eval(string code, string codeFilePath = null, JSValue @this = null)
         {
             if (Debugger == null)
             {
 
 
                 var fx = CoreScript.Compile(code, codeFilePath);
-                return fx(Arguments.Empty);
+                return @this == null
+                    ? fx(in Arguments.Empty)
+                    : fx(new Arguments(@this));
             }
 
             try
             {
                 var f = CoreScript.Compile(code, codeFilePath);
                 Debugger.ScriptParsed(this.ID, code, codeFilePath);
-                return f(Arguments.Empty);
-            } catch (Exception ex) {
+                return @this == null
+                    ? f(in Arguments.Empty)
+                    : f(new Arguments(@this));
+            }
+            catch (Exception ex) {
                 this.ReportError(ex);
                 throw ex;
             }

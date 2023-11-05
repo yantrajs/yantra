@@ -13,7 +13,6 @@ namespace YantraJS.Core
     /// </summary>
     public abstract class JSPrimitive: JSValue
     {
-
         internal protected void ResolvePrototype() { 
             if (prototypeChain == null)
             {

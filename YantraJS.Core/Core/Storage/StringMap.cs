@@ -256,7 +256,7 @@ namespace YantraJS.Core.Core.Storage
                         last += Size;
                         if (last >= storage.Length)
                         {
-                            global::System.Array.Resize(ref storage, storage.Length + Size*Size);
+                            global::System.Array.Resize(ref storage, storage.Length * 2);
                         }
                     }
                 }

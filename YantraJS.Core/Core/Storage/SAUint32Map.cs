@@ -12,6 +12,8 @@ namespace YantraJS.Core
 
     public struct SAUint32Map<T>
     {
+        public const int NodeBlock = 4;
+
         [DebuggerDisplay("{Key}: {Value}")]
         public struct KeyValue
         {
@@ -237,7 +239,7 @@ namespace YantraJS.Core
                         last += 4;
                         if (last >= storage.Length)
                         {
-                            Array.Resize(ref storage, storage.Length + 16);
+                            Array.Resize(ref storage, storage.Length * 2);
                         }
                     }
                 }

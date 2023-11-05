@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Core.InternalExtensions;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core.Core.Primitive
@@ -44,6 +45,18 @@ namespace YantraJS.Core.Core.Primitive
         public override JSValue AddValue(JSValue value)
         {
             return this.value.AddValue(value);
+        }
+
+        protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            if (key.Key == KeyStrings.length.Key)
+            {
+                if (value is JSString @string)
+                {
+                    return new JSNumber(@string.Length);
+                }
+            }
+            return base.GetValue(key, receiver, throwError);
         }
 
         public override JSValue this[uint name] {

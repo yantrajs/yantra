@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ModuleExtensions",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.Network", "YantraJS.Network\YantraJS.Network.csproj", "{F06DFF43-84D9-452F-A398-D4E024C449CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YantraJS.JSClassGenerator", "YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj", "{8158D755-B50D-4447-8697-03E7E0D63BA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.JSClassGenerator", "YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj", "{8158D755-B50D-4447-8697-03E7E0D63BA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
