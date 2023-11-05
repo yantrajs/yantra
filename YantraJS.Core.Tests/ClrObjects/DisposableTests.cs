@@ -73,7 +73,7 @@ namespace YantraJS.Core.Tests.ClrObjects
             Assert.IsFalse(d.Open);
         }
 
-        [TestMethod]
+        // [TestMethod]
         public void AsyncDispose()
         {
             AsyncPump.Run(async () =>

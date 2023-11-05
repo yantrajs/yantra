@@ -82,58 +82,66 @@ namespace YantraJS.Core
             }
         }
 
-        public unsafe static string Concat(in StringSpan a, in StringSpan b)
+        public static string Concat(in StringSpan a, in StringSpan b)
         {
             var alen = a.Length;
             var blen = b.Length;
             var n = alen + blen;
-            var s = new string('\0', n);
-            fixed (char* dest = s)
-            {
-                fixed (char* aa = a.Source)
-                {
-                    char* astart = aa + a.Offset;
-                    for (int i = 0; i < alen; i++)
-                    {
-                        dest[i] = astart[i];
-                    }
-                }
-                fixed (char* aa = b.Source)
-                {
-                    char* astart = aa + b.Offset;
-                    for (int i = 0; i < blen; i++)
-                    {
-                        dest[alen + i] = astart[i];
-                    }
-                }
-            }
-            return s;
+            var sb = new StringBuilder(n);
+            sb.Append(a.Value, a.Offset, a.Length);
+            sb.Append(b.Value, b.Offset, b.Length);
+            return sb.ToString();
+            //var s = new string('\0', n);
+            //fixed (char* dest = s)
+            //{
+            //    fixed (char* aa = a.Source)
+            //    {
+            //        char* astart = aa + a.Offset;
+            //        for (int i = 0; i < alen; i++)
+            //        {
+            //            dest[i] = astart[i];
+            //        }
+            //    }
+            //    fixed (char* aa = b.Source)
+            //    {
+            //        char* astart = aa + b.Offset;
+            //        for (int i = 0; i < blen; i++)
+            //        {
+            //            dest[alen + i] = astart[i];
+            //        }
+            //    }
+            //}
+            //return s;
         }
 
-        public unsafe static string Concat(in StringSpan a, string value)
+        public static string Concat(in StringSpan a, string value)
         {
             var alen = a.Length;
             var n = alen + value.Length;
-            var s = new string('\0', n);
-            fixed (char* dest = s)
-            {
-                fixed(char* aa = a.Source)
-                {
-                    char* astart = aa + a.Offset;
-                    for (int i = 0; i < alen; i++)
-                    {
-                        dest[i] = astart[i];
-                    }
-                }
-                fixed(char* aa = value)
-                {
-                    for (int i = 0; i < value.Length; i++)
-                    {
-                        dest[alen + i] = aa[i];
-                    }
-                }
-            }
-            return s;
+            var sb = new StringBuilder(n);
+            sb.Append(a.Source, a.Offset, a.Length);
+            sb.Append(value);
+            return sb.ToString();
+            //var s = new string('\0', n);
+            //fixed (char* dest = s)
+            //{
+            //    fixed(char* aa = a.Source)
+            //    {
+            //        char* astart = aa + a.Offset;
+            //        for (int i = 0; i < alen; i++)
+            //        {
+            //            dest[i] = astart[i];
+            //        }
+            //    }
+            //    fixed(char* aa = value)
+            //    {
+            //        for (int i = 0; i < value.Length; i++)
+            //        {
+            //            dest[alen + i] = aa[i];
+            //        }
+            //    }
+            //}
+            //return s;
         }
 
         public static int Compare(in StringSpan a, in StringSpan b, StringComparison comparisonType)
@@ -226,23 +234,14 @@ namespace YantraJS.Core
             return new StringSpan(Source, offset, length);
         }
 
-        public unsafe string ToLower()
+        public string ToLower()
         {
             var length = this.Length;
             if(length == 0)
             {
                 return string.Empty;
             }
-            var d = new char[length];
-            fixed (char* start = Source)
-            {
-                char* startOffset = start + Offset;
-                for (int i = 0; i < length; i++)
-                {
-                    d[i] = Char.ToLower(*(startOffset++));
-                }
-            }
-            return new string(d);
+            return this.Value!.ToLower();
         }
 
         public unsafe string ToCamelCase()

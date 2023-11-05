@@ -211,16 +211,23 @@ namespace YantraJS.Core
             if (searchStr is JSRegExp)
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
             //int position = pos.IntValue;
+            var search = searchStr.ToString();
             if (pos == 0)
-                return @this.StartsWith(searchStr.ToString()) ? JSBoolean.True : JSBoolean.False;
+                return @this.StartsWith(search) ? JSBoolean.True : JSBoolean.False;
 
             pos = Math.Min(Math.Max(0, pos), @this.Length);
-            if (pos + searchStr.Length > @this.Length)
+            if (pos + search.Length > @this.Length)
                 return JSBoolean.False;
 
-            var result = @this.Substring(pos, searchStr.Length);
-            if (result == searchStr.ToString())
+            int index = @this.IndexOf(search);
+            if (index == pos)
+            {
                 return JSBoolean.True;
+            }
+
+            //var result = @this.Substring(pos, searchStr.Length);
+            //if (result == searchStr.ToString())
+            //    return JSBoolean.True;
 
             return JSBoolean.False;
         }
