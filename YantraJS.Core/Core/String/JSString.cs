@@ -24,7 +24,9 @@ namespace YantraJS.Core
 
         internal static JSString Empty = new JSString(string.Empty);
 
-        internal readonly StringSpan value;
+        internal StringSpan Value => value;
+
+        private StringSpan value;
         KeyString _keyString;
 
         private double NumberValue = 0;
@@ -46,7 +48,7 @@ namespace YantraJS.Core
 
         public override bool BooleanValue => value.Length > 0;
 
-        public override long BigIntValue => long.TryParse(value.Value, out var n) ? n : 0;
+        public override long BigIntValue => long.TryParse(this.ToString(), out var n) ? n : 0;
 
         public override bool IsString => true;
 
@@ -188,6 +190,11 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
+            if(value.Offset == 0 && value.Length == value.Source.Length)
+            {
+                return value.Source;
+            }
+            value = new StringSpan(value.Value);
             return value.Value;
         }
 

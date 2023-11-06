@@ -61,7 +61,7 @@ namespace YantraJS.Core
                         indent = new string(' ', pi.IntValue);
                     } else if (pi is JSString js)
                     {
-                        indent = js.value.Value;
+                        indent = js.ToString();
                     }
                 }
 
@@ -132,7 +132,7 @@ namespace YantraJS.Core
                     sb.Write(n.value.ToString());
                     return;
                 case JSString str:
-                    QuoteString(str.value, sb);
+                    QuoteString(str.Value, sb);
                     return;
                 case JSFunction _:
                     return;

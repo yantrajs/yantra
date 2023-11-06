@@ -58,7 +58,7 @@ namespace YantraJS.Core.Tests.Imported
                     case JSPrimitiveObject primitiveObject:
                         return ToPrimitive(primitiveObject.value);
                     case JSString sv:
-                        return sv.value.Value;
+                        return sv.ToString();
                     case JSNumber number:
                         //if (double.IsNaN(number.value))
                         //    return "NaN";

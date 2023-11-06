@@ -963,7 +963,7 @@ namespace YantraJS.Core
             if (Object.ReferenceEquals(this, value))
                 return true;
             if (value is JSString str)
-                if (this.ToString() == str.value)
+                if (str.Value.Equals(this.ToString()))
                     return true;
             if (DoubleValue == value.DoubleValue)
                 return true;
@@ -995,7 +995,7 @@ namespace YantraJS.Core
             switch(value)
             {
                 case JSString strValue:
-                    if (this.ToString().CompareTo(strValue.value) < 0)
+                    if (this.ToString().CompareTo(strValue.ToString()) < 0)
                         return true;
                     break;
             }
@@ -1009,7 +1009,7 @@ namespace YantraJS.Core
             switch (value)
             {
                 case JSString strValue
-                    when (this.ToString().CompareTo(strValue.value) <= 0):
+                    when (this.ToString().CompareTo(strValue.ToString()) <= 0):
                         return true;
             }
             return false;
@@ -1020,7 +1020,7 @@ namespace YantraJS.Core
             switch (value)
             {
                 case JSString strValue
-                    when (this.ToString().CompareTo(strValue.value) > 0):
+                    when (this.ToString().CompareTo(strValue.ToString()) > 0):
                         return true;
             }
             return false;
@@ -1033,7 +1033,7 @@ namespace YantraJS.Core
             switch (value)
             {
                 case JSString strValue
-                    when (this.ToString().CompareTo(strValue.value) >= 0):
+                    when (this.ToString().CompareTo(strValue.ToString()) >= 0):
                         return true;
             }
             return false;

@@ -20,13 +20,13 @@ namespace YantraJS.ExpHelper
     {
 
 
-        private static FieldInfo _Value =
-            typeof(JSString).InternalField(nameof(Core.JSString.value));
+        //private static FieldInfo _Value =
+        //    typeof(JSString).InternalField(nameof(Core.JSString.Value));
 
-        public static Expression Value(Expression ex)
-        {
-            return Expression.Field(ex, _Value);
-        }
+        //public static Expression Value(Expression ex)
+        //{
+        //    return Expression.Field(ex, _Value);
+        //}
 
         private static ConstructorInfo _New = typeof(JSString).Constructor(typeof(string));
 

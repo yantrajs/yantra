@@ -21,7 +21,7 @@ namespace YantraJS.Core.String
         {
             if (value is JSString @string)
             {
-                var span = @string.value;
+                var span = @string.Value;
                 fixed (char* start = span.Source)
                 {
                     char* ch1 = start + (span.Offset);
@@ -42,7 +42,7 @@ namespace YantraJS.Core.String
         {
             if (value is JSString @string)
             {
-                var span = @string.value;
+                var span = @string.Value;
                 fixed (char* start = span.Source)
                 {
                     char* ch1 = start + (span.Offset);

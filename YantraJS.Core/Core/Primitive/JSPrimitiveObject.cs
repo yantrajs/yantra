@@ -68,7 +68,7 @@ namespace YantraJS.Core.Core.Primitive
             }
             set {
                 if (value is JSString @string) {
-                    if (name < @string.value.Length) {
+                    if (name < @string.Length) {
                         return;
                     }
                 }

@@ -36,7 +36,7 @@ namespace YantraJS.Tests.Core.Number
             string financial(object x)
             {
                 JSString d = Number.parseFloat(x).toFixed(2);
-                return d.value.Value;
+                return d.ToString();
             }
 
             Assert.AreEqual("123.46", financial(123.456));
@@ -51,7 +51,7 @@ namespace YantraJS.Tests.Core.Number
             string Precision(object x)
             {
                 JSString s = Number.parseFloat(x).toPrecision(4);
-                return s.value.Value;
+                return s.ToString();
             }
 
             Assert.AreEqual("123.5", Precision(123.456));

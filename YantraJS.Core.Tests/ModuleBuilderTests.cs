@@ -61,7 +61,7 @@ namespace YantraJS.Tests
                 String.Empty);
             if (modulereturn[KeyStrings.@default] is JSString str)
             {
-                Assert.AreEqual("bar", str.value.Value);
+                Assert.AreEqual("bar", str.ToString());
             }
             else
             {
@@ -79,7 +79,7 @@ namespace YantraJS.Tests
                 String.Empty);
             if (modulereturn[KeyStrings.@default] is JSString str)
             {
-                Assert.AreEqual("prop", str.value.Value);
+                Assert.AreEqual("prop", str.ToString());
             }
             else
             {

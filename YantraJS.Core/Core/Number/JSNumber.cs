@@ -199,9 +199,9 @@ namespace YantraJS.Core
         public override string ToString()
         {
             if (double.IsPositiveInfinity(value))
-                return JSConstants.Infinity.value.Value;
+                return JSConstants.Infinity.ToString();
             if (double.IsNegativeInfinity(value))
-                return JSConstants.NegativeInfinity.value.Value;
+                return JSConstants.NegativeInfinity.ToString();
             if (value > 999999999999999.0)
                 return value.ToString("g21");
             var v = value.ToString("g");
@@ -235,7 +235,7 @@ namespace YantraJS.Core
             if (value is JSPrimitiveObject po)
                 value = po.value;
             if (value is JSString @string)
-                return new JSString(this.value + @string.value);
+                return new JSString(this.value + @string.ToString());
             if(value is JSObject @object)
                 return new JSString(this.value + @object.StringValue);
             return new JSNumber(this.value + value.DoubleValue);

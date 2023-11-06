@@ -98,7 +98,7 @@ namespace YantraJS.Core.Typed
                     length = array.Length;
                     break;
                 case JSString @string:
-                    length = @string.value.Length;
+                    length = @string.Length;
                     break;
                 case JSTypedArray typed:
                     length = typed.Length;
