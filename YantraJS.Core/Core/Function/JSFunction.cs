@@ -37,7 +37,7 @@ namespace YantraJS.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSObject prototype;
 
-        readonly StringSpan source;
+        private StringSpan source;
 
         internal JSFunction constructor;
 
@@ -247,7 +247,7 @@ namespace YantraJS.Core
         }
 
         [JSPrototypeMethod][JSExport("valueOf", Length = 1)]
-        public static JSValue ValueOf(in Arguments a)
+        public new static JSValue ValueOf(in Arguments a)
         {
             return a.This;
         }
@@ -293,11 +293,20 @@ namespace YantraJS.Core
         }
 
         [JSPrototypeMethod][JSExport("toString", Length = 0)]
-        public static JSValue ToString(in Arguments a)
+        public new static JSValue ToString(in Arguments a)
         {
             if (!(a.This is JSFunction fx))
                 throw JSContext.Current.NewTypeError($"Function.prototype.toString cannot be called with non function");
-            return new JSString(fx.source);
+            var source = fx.source;
+            if (source.IsEmpty)
+            {
+                return new JSString(string.Empty);
+            }
+            if (source.Source.Length != source.Length || source.Offset != 0)
+            {
+                source = source.Value;
+            }
+            return new JSString(source.Source);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -311,7 +320,7 @@ namespace YantraJS.Core
         }
 
         [JSExport(IsConstructor = true)]
-        internal static JSValue Constructor(in Arguments args)
+        internal new static JSValue Constructor(in Arguments args)
         {
 
             var len = args.Length;

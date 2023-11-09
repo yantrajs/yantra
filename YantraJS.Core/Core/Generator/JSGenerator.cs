@@ -43,7 +43,7 @@ namespace YantraJS.Core.Generator
         }
 
         [JSExport("toString")]
-        public JSValue ToString(in Arguments a)
+        public new JSValue ToString(in Arguments a)
         {
             return new JSString(ToString());
         }

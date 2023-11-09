@@ -246,6 +246,11 @@ namespace YantraJS.Core
         [JSExport]
         public override int Length => value.Length;
 
+        public override int GetHashCode()
+        {
+            return value.GetHashCode();
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is JSString v)

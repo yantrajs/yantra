@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,7 +27,7 @@ namespace YantraJS.Core.FastParser
                 return true;
 
             }
-            AstIdentifier all = null;
+            AstIdentifier? all = null;
             IFastEnumerable<(StringSpan, StringSpan)>? names = null;
             if(Identitifer(out id))
             {

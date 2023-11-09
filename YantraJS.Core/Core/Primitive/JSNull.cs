@@ -111,6 +111,11 @@ namespace YantraJS.Core
         //    return new JSString("null" + value);
         //}
 
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+
         public override bool Equals(JSValue value)
         {
             if (value.IsNull)

@@ -118,7 +118,7 @@ namespace Test262Runner
                         CoreScript.Evaluate(code, filePath);
                         throw new Exception($"Exception not thrown");
                     }
-                    catch (JSException ex)
+                    catch (JSException)
                     {
                         return;
                     }

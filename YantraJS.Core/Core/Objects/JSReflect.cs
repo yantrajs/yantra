@@ -29,7 +29,7 @@ namespace YantraJS.Core.Objects
         }
 
         [JSExport( Length = 3)]
-        public static JSValue DefineProperty(in Arguments a)
+        public new static JSValue DefineProperty(in Arguments a)
         {
             var (target, propertyKey, attributes) = a.Get3();
             if (!(target is JSObject targetObject))
@@ -91,7 +91,7 @@ namespace YantraJS.Core.Objects
         }
 
         [JSExport( Length = 2)]
-        public static JSValue GetOwnPropertyDescriptor(in Arguments a)
+        public new static JSValue GetOwnPropertyDescriptor(in Arguments a)
         {
             var (target, propertyKey) = a.Get2();
             if (!(target is JSObject @object))
@@ -119,7 +119,7 @@ namespace YantraJS.Core.Objects
         }
 
         [Static("getPrototypeOf")]
-        public static JSValue GetPrototypeOf(in Arguments a)
+        public new static JSValue GetPrototypeOf(in Arguments a)
         {
             var target = a.Get1();
             if(!(target is JSObject))
@@ -159,7 +159,7 @@ namespace YantraJS.Core.Objects
         }
 
         [JSExport( Length = 1)]
-        public static JSValue IsExtensible(in Arguments a)
+        public new static JSValue IsExtensible(in Arguments a)
         {
             var target = a.Get1();
             if(!(target is JSObject @object))
@@ -195,7 +195,7 @@ namespace YantraJS.Core.Objects
         }
 
         [JSExport( Length = 1)]
-        public static JSValue PreventExtensions(in Arguments a)
+        public new static JSValue PreventExtensions(in Arguments a)
         {
             var target = a.Get1();
             if (!(target is JSObject @object))
@@ -255,7 +255,7 @@ namespace YantraJS.Core.Objects
         }
 
         [JSExport]
-        public static JSValue SetPrototypeOf(in Arguments a)
+        public new static JSValue SetPrototypeOf(in Arguments a)
         {
             var (target,p) = a.Get2();
             if (!(target is JSObject))

@@ -890,7 +890,7 @@ namespace YantraJS.Core
 
 
         [JSExport("toString", Length = 0)]
-        internal JSValue ToString(in Arguments a)
+        internal new JSValue ToString(in Arguments a)
         {
             
             if (this.value == JSDate.InvalidDate)
@@ -944,7 +944,7 @@ namespace YantraJS.Core
 
 
         [JSExport("valueOf", Length = 0)]
-        internal JSValue ValueOf(in Arguments a)
+        internal new JSValue ValueOf(in Arguments a)
         {
             
             if (this.value == DateTimeOffset.MinValue)

@@ -1,4 +1,5 @@
-﻿namespace YantraJS.Core.FastParser
+﻿#nullable enable
+namespace YantraJS.Core.FastParser
 {
     public class AstBlock : AstStatement
     {

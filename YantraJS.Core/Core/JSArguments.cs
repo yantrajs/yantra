@@ -15,7 +15,7 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError($"Cannot access callee in strict mode");
         }
 
-        public JSValue Values(in Arguments a)
+        public new JSValue Values(in Arguments a)
         {
             return new JSGenerator(this.GetElementEnumerator(), "Arguments");
         }

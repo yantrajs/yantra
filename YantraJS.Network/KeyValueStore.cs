@@ -51,7 +51,7 @@ namespace YantraJS.Network
                 var ve = new PropertySequence.ValueEnumerator(@object, true);
                 while (ve.MoveNext(out var value, out var p))
                 {
-                    headers[p.Value.Value] = value.ToString();
+                    headers[p.Value.Value!] = value.ToString();
                 }
                 return;
             }
@@ -102,7 +102,7 @@ namespace YantraJS.Network
         }
 
         [JSExport]
-        public IEnumerable<JSValue> Entries()
+        public new IEnumerable<JSValue> Entries()
         {
             if (headers == null)
                 yield break;
@@ -151,7 +151,7 @@ namespace YantraJS.Network
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
-            if (headers.ContainsKey(name.ToLower()))
+            if (headers!.ContainsKey(name.ToLower()))
             {
                 return JSBoolean.True;
             }

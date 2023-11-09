@@ -8,7 +8,7 @@ public class ModuleBuilder
     private List<(string name,object value)> exportedObjects = new List<(string name, object value)>();
     private string _moduleName;
 
-    public ModuleBuilder ExportType<T>(string name = null)
+    public ModuleBuilder ExportType<T>(string? name = null)
     {
         exportedObjects.Add((name ?? typeof(T).Name, typeof(T)));
         return this;
@@ -19,7 +19,7 @@ public class ModuleBuilder
         _moduleName = moduleName;
     }
 
-    public ModuleBuilder ExportType(Type type, string name = null)
+    public ModuleBuilder ExportType(Type type, string? name = null)
     {
         exportedObjects.Add((type.Name, type));
         return this;

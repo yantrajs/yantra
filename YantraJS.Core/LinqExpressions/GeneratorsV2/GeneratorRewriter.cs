@@ -25,7 +25,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private readonly ParameterExpression nextJump;
         private readonly ParameterExpression nextValue;
         private readonly ParameterExpression exception;
-        private readonly YFieldExpression StackItem;
+        // private readonly YFieldExpression StackItem;
         private readonly YFieldExpression Context;
         // private readonly YFieldExpression ScriptInfo;
         // private readonly YFieldExpression Closures;
@@ -39,7 +39,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private readonly ParameterExpression replaceArgs;
         // private readonly ParameterExpression replaceStackItem;
         private readonly ParameterExpression replaceContext;
-        private readonly ParameterExpression replaceScriptInfo;
+        // private readonly ParameterExpression replaceScriptInfo;
         private Sequence<(LabelTarget label, int id)> jumps = new Sequence<(LabelTarget label, int id)>();
 
         public GeneratorRewriter(

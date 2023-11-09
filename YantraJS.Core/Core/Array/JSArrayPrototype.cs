@@ -18,7 +18,7 @@ namespace YantraJS.Core
     {
 
         [JSExport(IsConstructor = true, Length = 1)]
-        public static JSValue Constructor(in Arguments a)
+        public new static JSValue Constructor(in Arguments a)
         {
             // throw JSContext.Current.NewTypeError("Not supported");
             var @this = a.This;
@@ -181,7 +181,7 @@ namespace YantraJS.Core
 
 
         [JSPrototypeMethod][JSExport("entries")]
-        public static JSValue Entries(in Arguments a)
+        public new static JSValue Entries(in Arguments a)
         {
             var array = a.This as JSArray;
           
@@ -453,7 +453,7 @@ namespace YantraJS.Core
         }
 
         [JSPrototypeMethod][JSExport("keys")]
-        public static JSValue Keys(in Arguments a)
+        public new static JSValue Keys(in Arguments a)
         {
             var @this = a.This;
 
@@ -1112,7 +1112,7 @@ namespace YantraJS.Core
         }
 
         [JSPrototypeMethod][JSExport("toString")]
-        internal static JSValue ToString(in Arguments args) {
+        internal new static JSValue ToString(in Arguments args) {
             if(args.This.IsArray)
                 return Join(in args);
             return args.This.InvokeMethod(KeyStrings.join,in args);
@@ -1125,7 +1125,7 @@ namespace YantraJS.Core
 
         [JSPrototypeMethod][JSExport("values", Length = 2)]
         [Symbol("@@iterator")]
-        public static JSValue Values(in Arguments a)
+        public new static JSValue Values(in Arguments a)
         {
             return new JSGenerator(a.This.GetElementEnumerator(), "Array Iterator");
         }

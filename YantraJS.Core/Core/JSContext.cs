@@ -200,7 +200,7 @@ namespace YantraJS.Core
 
         // public readonly JSObject NumberPrototype;
 
-        public readonly JSObject ObjectPrototype;
+        public new readonly JSObject ObjectPrototype;
 
         // public readonly JSObject ArrayPrototype;
 

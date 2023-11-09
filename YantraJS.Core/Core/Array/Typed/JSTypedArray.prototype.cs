@@ -10,7 +10,7 @@ namespace YantraJS.Core.Typed
     partial class JSTypedArray
     {
         [JSExport("toString")]
-        private JSValue ToString(in Arguments a)
+        private new JSValue ToString(in Arguments a)
         {
             return new JSString(ToString());
         }
@@ -70,7 +70,7 @@ namespace YantraJS.Core.Typed
 
 
         [JSExport("entries")]
-        public JSValue Entries(in Arguments a)
+        public new JSValue Entries(in Arguments a)
         {
             return new JSGenerator(GetEntries(), "Array Iterator");
         }
@@ -282,7 +282,7 @@ namespace YantraJS.Core.Typed
         }
 
         [JSExport("keys", Length = 0)]
-        public JSValue Keys(in Arguments a)
+        public new JSValue Keys(in Arguments a)
         {
             
             return this.GetKeys();
@@ -616,7 +616,7 @@ namespace YantraJS.Core.Typed
         }
 
         [JSExport("values", Length = 2)]
-        public JSValue Values(in Arguments a)
+        public new JSValue Values(in Arguments a)
         {
             return new JSGenerator(GetElementEnumerator(), "Array Iterator");
         }

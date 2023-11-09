@@ -96,6 +96,11 @@ namespace YantraJS.Core
             return _value ? "true" : "false";
         }
 
+        public override int GetHashCode()
+        {
+            return _value ? 1 : 0;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is JSBoolean b)

@@ -88,14 +88,14 @@ namespace YantraJS.Tests
         }
         
         [TestMethod]
-        public async Task ImportModuleThrowException()
+        public void ImportModuleThrowException()
         {
             JSModuleContext context = new JSModuleContext();
             Assert.ThrowsException<ArgumentException>((() => context.ImportModule("test")));
         }
         
         [TestMethod]
-        public async Task ImportModuleFindModule()
+        public void ImportModuleFindModule()
         {
             JSModuleContext context = new JSModuleContext();
             context.CreateModule("test", x => x.ExportType<TestClass>());

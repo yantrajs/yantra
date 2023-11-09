@@ -288,6 +288,10 @@ namespace YantraJS.Core
         //    return new JSString(this.value.ToString() + value);
         //}
 
+        public override int GetHashCode()
+        {
+            return (int)value;
+        }
         public override bool Equals(object obj)
         {
             if (obj is JSNumber n)

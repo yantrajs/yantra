@@ -179,7 +179,7 @@ namespace YantraJS.Core
         }
 
         [Constructor]
-        public static JSValue Constructor(in Arguments a)
+        public new static JSValue Constructor(in Arguments a)
         {
             var (f, s) = a.Get2();
             return new JSProxy(f as JSObject, s as JSObject);
