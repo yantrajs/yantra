@@ -24,9 +24,7 @@ namespace YantraJS.Core
 
         internal static JSString Empty = new JSString(string.Empty);
 
-        internal StringSpan Value => value;
-
-        private StringSpan value;
+        internal readonly string value;
         KeyString _keyString;
 
         private double NumberValue = 0;
@@ -54,31 +52,31 @@ namespace YantraJS.Core
 
         public override JSValue AddValue(double value)
         {
-            if (this.value.IsEmpty)
+            if (this.value.IsEmpty())
                 return new JSString(value.ToString());
-            return new JSString( StringSpan.Concat(in this.value, value.ToString()) );
+            return new JSString( string.Concat(this.value, value.ToString()) );
         }
 
         public override JSValue AddValue(string value)
         {
-            if (this.value.IsEmpty)
+            if (this.value.IsEmpty())
                 return new JSString(value);
-            return new JSString( StringSpan.Concat(in this.value, value));
+            return new JSString( string.Concat(this.value, value));
         }
 
         public override JSValue AddValue(JSValue value)
         {
             if (value is JSString vString)
             {
-                if (this.value.IsEmpty)
+                if (this.value.IsEmpty())
                 {
                     return vString;
                 }
-                if (vString.value.IsEmpty)
+                if (vString.value.IsEmpty())
                 {
                     return this;
                 }
-                return new JSString(StringSpan.Concat(in this.value, in vString.value));
+                return new JSString(string.Concat(this.value, vString.value));
             }
 
             if (value.IsObject)
@@ -86,7 +84,7 @@ namespace YantraJS.Core
                 value = value.ValueOf();
             }
 
-            if (this.value.IsEmpty)
+            if (this.value.IsEmpty())
                 return new JSString(value.StringValue);
 
             var v = value.StringValue;
@@ -94,19 +92,19 @@ namespace YantraJS.Core
             {
                 return this;
             }
-            return new JSString(StringSpan.Concat(in this.value, v));
+            return new JSString(string.Concat(this.value, v));
         }
 
         public override bool ConvertTo(Type type, out object value)
         {
             if (type == typeof(string))
             {
-                value = this.value.Value;
+                value = this.value;
                 return true;
             }
             if (type == typeof(object))
             {
-                value = this.value.Value;
+                value = this.value;
                 return true;
             }
             if(type == typeof(char))
@@ -162,7 +160,7 @@ namespace YantraJS.Core
 
         public JSString(in StringSpan value) : base()
         {
-            this.value = value;
+            this.value = value.Value;
         }
 
 
@@ -190,28 +188,23 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            if(value.Offset == 0 && value.Length == value.Source.Length)
-            {
-                return value.Source;
-            }
-            value = new StringSpan(value.Value);
-            return value.Value;
+            return value;
         }
 
         public byte[] Encode(System.Text.Encoding encoding)
         {
-            return value.Encode(encoding);
+            return encoding.GetBytes(value);
         }
 
         public override string ToDetailString()
         {
-            return value.Value;
+            return value;
         }
 
         public override string ToLocaleString(string format, CultureInfo culture)
         {
 
-            return value.Value;
+            return value;
           
         }
 
@@ -304,8 +297,7 @@ namespace YantraJS.Core
             {
                 return this.DoubleValue < value.DoubleValue;
             }
-            int n = this.value.CompareTo(value.ToString());
-            return n < 0;
+            return this.value.Less(value.ToString());
 
         }
 
@@ -317,7 +309,7 @@ namespace YantraJS.Core
             {
                 return (this.DoubleValue <= value.DoubleValue);
             }
-            return this.value.CompareTo(value.ToString()) <= 0;
+            return this.value.LessOrEqual(value.ToString());
         }
 
         public override bool Greater(JSValue value)
@@ -328,7 +320,7 @@ namespace YantraJS.Core
             {
                 return (this.DoubleValue > value.DoubleValue);
             }
-            return this.value.CompareTo(value.ToString()) > 0;
+            return this.value.Greater(value.ToString());
         }
 
         public override bool GreaterOrEqual(JSValue value)
@@ -339,7 +331,7 @@ namespace YantraJS.Core
             {
                 return (this.DoubleValue >= value.DoubleValue);
             }
-            return this.value.CompareTo(value.ToString()) >= 0;
+            return this.value.GreaterOrEqual(value.ToString());
         }
 
         public override bool StrictEquals(JSValue value)

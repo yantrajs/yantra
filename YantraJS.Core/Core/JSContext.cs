@@ -123,7 +123,7 @@ namespace YantraJS.Core
     {
         public JSContext Context { get; set; }
 
-        public StringSpan Script { get; set; }
+        public string Script { get; set; }
 
         public string Location { get; set; }
     }
@@ -178,7 +178,7 @@ namespace YantraJS.Core
 
         public event EventHandler<EvalEventArgs> EvalEvent;
 
-        internal void DispatchEvalEvent(ref StringSpan script, ref string location)
+        internal void DispatchEvalEvent(ref string script, ref string location)
         {
             var ee = EvalEvent;
             if (ee != null)

@@ -259,7 +259,7 @@ namespace YantraJS.Core.Clr
                     //if (this.value.ToString() == proxy.value.ToString())
                     //    return true;
                     break;
-                case JSString @string when @string.Value.Equals(this.value):
+                case JSString @string when @string.value.Equals(this.value):
                     return true;
                 case JSNumber number:
                     switch (this.value)

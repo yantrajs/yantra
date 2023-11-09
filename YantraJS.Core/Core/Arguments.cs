@@ -740,7 +740,7 @@ namespace YantraJS.Core
             [CallerFilePath] string? filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return this[index] is JSString s ? s.Value : throw new JSException(
+            return this[index] is JSString s ? s.value : throw new JSException(
                 name + " is required", function, filePath, line);
         }
 

@@ -636,7 +636,7 @@ namespace YantraJS.Core {
                     if (this.DoubleValue < value.DoubleValue)
                         return true;
                 }
-                else if (this.ToString().CompareTo(value.ToString()) < 0)
+                else if (this.ToString().Less(value.ToString()))
                     return true;
             }
             return false;
@@ -651,7 +651,7 @@ namespace YantraJS.Core {
                     if (this.DoubleValue <= value.DoubleValue)
                         return true;
                 }
-                else if (this.ToString().CompareTo(value.ToString()) <= 0)
+                else if (this.ToString().LessOrEqual(value.ToString()))
                     return true;
             }
             return false;
@@ -667,7 +667,7 @@ namespace YantraJS.Core {
                     if (this.DoubleValue > value.DoubleValue)
                         return true;
                 }
-                else if (this.ToString().CompareTo(value.ToString()) > 0)
+                else if (this.ToString().Greater(value.ToString()))
                     return true;
             }
             return false;
@@ -681,7 +681,7 @@ namespace YantraJS.Core {
                     if (this.DoubleValue >= value.DoubleValue)
                         return true;
                 }
-                else if (this.ToString().CompareTo(value.ToString()) >= 0)
+                else if (this.ToString().Greater(value.ToString()))
                     return true;
             }
             return false;

@@ -132,7 +132,7 @@ namespace YantraJS.Core
                     sb.Write(n.value.ToString());
                     return;
                 case JSString str:
-                    QuoteString(str.Value, sb);
+                    QuoteString(str.value, sb);
                     return;
                 case JSFunction _:
                     return;

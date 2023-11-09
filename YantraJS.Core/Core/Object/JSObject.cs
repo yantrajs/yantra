@@ -963,7 +963,7 @@ namespace YantraJS.Core
             if (Object.ReferenceEquals(this, value))
                 return true;
             if (value is JSString str)
-                if (str.Value.Equals(this.ToString()))
+                if (str.value.Equals(this.ToString()))
                     return true;
             if (DoubleValue == value.DoubleValue)
                 return true;

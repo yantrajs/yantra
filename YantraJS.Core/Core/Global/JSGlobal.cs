@@ -48,10 +48,10 @@ namespace YantraJS.Core
             var f = a.Get1();
             if (!f.IsString)
                 return f;
-            var text = (f as JSString).Value;
+            var text = (f as JSString).value;
             string location = null;
             JSContext.Current.DispatchEvalEvent(ref text, ref location);
-            return CoreScript.Evaluate(text.Value, null);
+            return CoreScript.Evaluate(text, null);
         }
 
         [JSExport("encodeURI", Length = 1)]

@@ -336,7 +336,7 @@ namespace YantraJS.Core
                 }
             }
 
-            var bodyText = body is JSString @string ? @string.Value : body.ToString();
+            var bodyText = body is JSString @string ? @string.value : body.ToString();
             string location = null;
             JSContext.Current.DispatchEvalEvent(ref bodyText, ref location);
 
