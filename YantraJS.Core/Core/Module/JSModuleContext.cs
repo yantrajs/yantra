@@ -377,7 +377,7 @@ namespace YantraJS.Core
 
         internal protected virtual async Task CompileModuleAsync(JSModule module)
         {
-            Console.WriteLine($"{DateTime.Now} - Compiling module {module.filePath}");
+            // Console.WriteLine($"{DateTime.Now} - Compiling module {module.filePath}");
             var filePath = module.filePath;
             // if this is a json file... then pad with module.exports = 
             if (module.Code == null)
