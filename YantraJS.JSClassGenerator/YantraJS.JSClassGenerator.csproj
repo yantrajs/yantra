@@ -21,7 +21,7 @@
 	
   <ItemGroup>
 	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" PrivateAssets="all" />
-	    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.216">
+	    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

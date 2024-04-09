@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <TargetFramework>net6</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
