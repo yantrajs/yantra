@@ -377,8 +377,10 @@ namespace YantraJS.Core
 
         internal protected virtual async Task CompileModuleAsync(JSModule module)
         {
+
             // Console.WriteLine($"{DateTime.Now} - Compiling module {module.filePath}");
             var filePath = module.filePath;
+
             // if this is a json file... then pad with module.exports = 
             if (module.Code == null)
             {
@@ -392,10 +394,10 @@ namespace YantraJS.Core
             {
                 code = $"module.exports = {code};";
             }
-            else
-            {
-                // code = @$"(async function({{module, import, exports, require, filePath: __filename, dirPath: __dirname}}) {{ return (\r\n{code}\r\n); }})";
-            }
+            // else
+            // {
+            //     code = @$"(async function({{module, import, exports, require, filePath: __filename, dirPath: __dirname}}) {{ return (\r\n{code}\r\n); }})";
+            // }
 
             // var factory = FastEval(code, filePath);
             var factory = CoreScript.Compile(code, module.filePath, new string[]
