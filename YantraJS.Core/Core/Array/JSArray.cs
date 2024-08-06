@@ -57,8 +57,6 @@ namespace YantraJS.Core
             return new EntryEnumerator(this);
         }
 
-        
-
         public JSArray(uint count): this()
         {
             CreateElements(count);
