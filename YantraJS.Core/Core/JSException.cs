@@ -10,6 +10,17 @@ namespace YantraJS.Core
     public class JSException: Exception
     {
 
+        public override string Message
+        {
+            get {
+                if (this.Error is JSError error)
+                {
+                    return error[KeyStrings.message].ToString();
+                }
+                return this.Error.ToString();
+            }
+        }
+
         public JSValue Error { get; private set; }
 
         internal protected JSException With(JSValue error)
@@ -25,7 +36,7 @@ namespace YantraJS.Core
                     JSValue message,
                     [CallerMemberName] string function = null,
                     [CallerFilePath] string filePath = null,
-                    [CallerLineNumber] int line = 0) : base(message.ToString())
+                    [CallerLineNumber] int line = 0) : base()
         {
             if (function != null)
             {
@@ -68,6 +79,7 @@ namespace YantraJS.Core
             get
             {
                 var sb = new StringBuilder();
+
                 if (trace.Count > 0)
                 {
                     var f = trace[0];
@@ -186,6 +198,13 @@ namespace YantraJS.Core
                     // sb.Append(item.column + 1);
                     sb.AppendLine();
                 }
+
+                // add internal stack..
+                if (this.Error is JSError error)
+                {
+                    sb.AppendLine(error.Stack);
+                }
+
                 return sb.ToString();
             }
         }

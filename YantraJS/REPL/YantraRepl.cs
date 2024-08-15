@@ -34,7 +34,11 @@ namespace YantraJS.REPL
                 try
                 {
                     result = CoreScript.Evaluate(command).ToString();
-                } catch (Exception ex)
+                }
+                catch (JSException ex1) {
+                    result = ex1.Error[KeyStrings.stack].ToString();
+                }
+                catch (Exception ex)
                 {
                     result = ex.ToString();
                 }

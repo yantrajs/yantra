@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Yantra.Core;
@@ -12,7 +13,35 @@ namespace YantraJS.Core
     [JSClassGenerator("Error")]
     public partial class JSError : JSObject
     {
+        public string Message { get; private set; }
 
+        public string Stack { get; private set; }
+
+        private string CreateStack()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"{this.ToString(Arguments.Empty)}");
+
+            var top = JSContext.Current.Top;
+            while (top != null)
+            {
+                // ref var top = ref walker.Current;
+                var fx = top.Function;
+                var file = top.FileName;
+                if (fx.IsNullOrWhiteSpace())
+                {
+                    fx = "native";
+                }
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    file = "file";
+                }
+                sb.AppendLine($"    at {fx}:{file}:{top.Line},{top.Column}");
+                top = top.Parent;
+            }
+            return sb.ToString();
+        }
 
         public JSError(in Arguments a,
             [CallerMemberName] string function = null,
@@ -26,15 +55,17 @@ namespace YantraJS.Core
                 filePath: filePath,
                 line: line);
             var message = a[0]?.ToString() ?? "Internal Error";
+            this.Message = message;
+            this.Stack = this.CreateStack();
             this.FastAddValue(KeyStrings.message, message.Marshal(), JSPropertyAttributes.ConfigurableValue);
-            this.FastAddValue(KeyStrings.stack, Exception.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyStrings.stack, Stack.Marshal(), JSPropertyAttributes.ConfigurableValue);
         }
 
         [JSExport("toString")]
         public new JSValue ToString(in Arguments a)
         {
             var name = this.prototypeChain.@object[KeyStrings.constructor][KeyStrings.name];
-            return new JSString($"{name}: {this[KeyStrings.message]}");
+            return new JSString($"{name}: {this.Message}");
         }
 
         public override string ToString()
@@ -95,7 +126,7 @@ namespace YantraJS.Core
             {
                 return jse.Error;
             }
-            return new JSError(new JSException(ex.Message));
+            return new JSError(new JSException(ex.ToString()));
         }
     }
 
