@@ -113,10 +113,11 @@ namespace YantraJS.Core
         }
 
 
-        internal JSError(JSException ex) : this()
+        internal JSError(JSException ex, string msg) : this()
         {
             this.Exception = ex;
-            this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.Message = msg;
+            this.FastAddValue(KeyStrings.message, msg.Marshal(), JSPropertyAttributes.ConfigurableValue);
             this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         }
 

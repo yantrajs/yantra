@@ -55,7 +55,7 @@ namespace YantraJS.Core
             {
                 this.trace.Add((function, filePath ?? "Unknown", line, 1));
             }
-            Error = new JSError(this);
+            Error = new JSError(this, message);
         }
 
         public JSException(
