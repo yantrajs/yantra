@@ -70,7 +70,7 @@ namespace YantraJS.Core
         public JSVariable(Exception e, string name)
             : this(e is JSException je 
                   ? je.Error
-                  : (new JSException(e.ToString())).Error , name)
+                  : JSException.From(e).Error , name)
         {
 
         }
