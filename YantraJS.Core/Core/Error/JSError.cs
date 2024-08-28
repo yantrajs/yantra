@@ -108,6 +108,7 @@ namespace YantraJS.Core
             JSObject prototype = null) : base(prototype)
         {
             this.Exception = ex;
+            ex.Error ??= this;
             this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
             this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         }
@@ -116,6 +117,7 @@ namespace YantraJS.Core
         internal JSError(JSException ex, string msg) : this()
         {
             this.Exception = ex;
+            ex.Error ??= this;
             this.Message = msg;
             this.FastAddValue(KeyStrings.message, msg.Marshal(), JSPropertyAttributes.ConfigurableValue);
             this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);

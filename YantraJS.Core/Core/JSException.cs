@@ -21,7 +21,7 @@ namespace YantraJS.Core
             }
         }
 
-        public JSValue Error { get; private set; }
+        public JSValue Error { get; internal set; }
 
         internal protected JSException With(JSValue error)
         {
