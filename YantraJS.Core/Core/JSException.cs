@@ -80,6 +80,8 @@ namespace YantraJS.Core
             {
                 var sb = new StringBuilder();
 
+                sb.AppendLine(this.Message);
+
                 if (trace.Count > 0)
                 {
                     var f = trace[0];
