@@ -127,7 +127,8 @@ namespace YantraJS.Core
             {
                 return jse.Error;
             }
-            return new JSError(new JSException(ex.ToString()));
+            var je = new JSException(ex.Message + "\r\n" + ex.ToString());
+            return je.Error;
         }
     }
 
