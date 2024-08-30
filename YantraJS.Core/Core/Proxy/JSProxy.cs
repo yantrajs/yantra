@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Yantra.Core;
+using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
-    public class JSProxy : JSObject
+    [JSBaseClass("Object")]
+    [JSFunctionGenerator("Proxy")]
+    public partial class JSProxy : JSObject
     {
         readonly JSObject target;
         private readonly JSObject handler;
 
-        protected JSProxy(JSObject target, JSObject handler) : base((JSObject)null)
+        protected JSProxy((JSObject target, JSObject handler) p) : base(JSContext.Current.ObjectPrototype)
         {
+            var (target, handler) = p;
             if (target == null || handler == null)
             {
                 throw JSContext.Current.NewTypeError("Cannot create proxy with a non-object as target or handler");
@@ -33,7 +38,8 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.apply];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(a.OverrideThis(target));
+                var args = new JSArray(a.ToArray());
+                return fxFunction.Call(this, this.target, a.This, args);
             }
             return target.InvokeFunction(a);
         }
@@ -43,7 +49,8 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.constructor];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(a.OverrideThis(target));
+                var args = new JSArray(a.ToArray());
+                return fxFunction.Call(this, this.target, args);
             }
             return target.CreateInstance(a);
         }
@@ -53,7 +60,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.defineProperty];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(new Arguments(target, key, propertyDescription));
+                return fxFunction.InvokeFunction(new Arguments(target, target, key, propertyDescription));
             }
             return target.DefineProperty(key, propertyDescription);
         }
@@ -63,7 +70,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.deleteProperty];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(new Arguments(target, index));
+                return fxFunction.InvokeFunction(new Arguments(target, target, index));
             }
             return target.Delete(index);
         }
@@ -73,7 +80,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.get];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(new Arguments(target, key, receiver));
+                return fxFunction.InvokeFunction(new Arguments(target, target, key, receiver));
             }
             return target.GetValue(key, receiver, throwError);
         }
@@ -83,7 +90,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.get];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(new Arguments(target, key.ToJSValue(), receiver));
+                return fxFunction.InvokeFunction(new Arguments(target,target, key.ToJSValue(), receiver));
             }
             return target.GetValue(key, receiver, throwError);
         }
@@ -93,7 +100,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.get];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(new Arguments(target, new JSNumber(key), receiver));
+                return fxFunction.InvokeFunction(new Arguments(target, target, new JSNumber(key), receiver));
             }
             return target.GetValue(key, receiver, throwError);
         }
@@ -103,7 +110,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.set];
             if (fx is JSFunction fxFunction)
             {
-                fxFunction.InvokeFunction(new Arguments(target, name, receiver));
+                fxFunction.InvokeFunction(new Arguments(target, target, name, receiver));
                 return true;
             }
             return target.SetValue(name, value, receiver, false);
@@ -114,7 +121,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.set];
             if (fx is JSFunction fxFunction)
             {
-                fxFunction.InvokeFunction(new Arguments(target, name.ToJSValue(), receiver));
+                fxFunction.InvokeFunction(new Arguments(target, target, name.ToJSValue(), receiver));
                 return true;
             }
             return target.SetValue(name, value, receiver, false);
@@ -125,7 +132,7 @@ namespace YantraJS.Core
             var fx = handler[KeyStrings.set];
             if (fx is JSFunction fxFunction)
             {
-                fxFunction.InvokeFunction(new Arguments(target, new JSNumber(name), receiver));
+                fxFunction.InvokeFunction(new Arguments(target, target, new JSNumber(name), receiver));
                 return true;
             }
             return target.SetValue(name, value, receiver, false);
@@ -178,11 +185,11 @@ namespace YantraJS.Core
             return target.ToKey();
         }
 
-        [Constructor]
+        [JSExport(IsConstructor = true)]
         public new static JSValue Constructor(in Arguments a)
         {
             var (f, s) = a.Get2();
-            return new JSProxy(f as JSObject, s as JSObject);
+            return new JSProxy((f as JSObject, s as JSObject));
         }
     }
 }
