@@ -121,6 +121,16 @@ namespace YantraJS.Core
 
         }
 
+        public JSFunction(Func<JSFunctionDelegate> fx, in StringSpan name)
+            : this(empty, in name, StringSpan.Empty)
+        {
+            this.f = (in Arguments a) =>
+            {
+                this.f = fx();
+                return this.f(in a);
+            };
+        }
+
         public JSFunction(
             JSFunctionDelegate f,
             in StringSpan name,
