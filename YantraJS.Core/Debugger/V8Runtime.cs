@@ -115,7 +115,7 @@ namespace YantraJS.Core.Debugger
 
             try {
 
-                var fx = CoreScript.Compile(a.FunctionDeclaration);
+                var fx = CoreScript.Compile(a.FunctionDeclaration, codeCache: c.CodeCache);
                 var previous = JSContext.Current;
                 try {
                     JSContext.Current = c;

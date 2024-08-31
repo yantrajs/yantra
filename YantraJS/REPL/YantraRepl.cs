@@ -33,7 +33,7 @@ namespace YantraJS.REPL
                 string result;
                 try
                 {
-                    result = CoreScript.Evaluate(command).ToString();
+                    result = CoreScript.Evaluate(command, codeCache: CodeCache).ToString();
                 }
                 catch (JSException ex1) {
                     result = ex1.Error[KeyStrings.stack].ToString();

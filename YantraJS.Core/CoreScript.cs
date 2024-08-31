@@ -53,9 +53,9 @@ namespace YantraJS
 
         public static JSValue EvaluateWithTasks(string code, string location = null)
         {
-            var fx = Compile(code, location);
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
+            var fx = Compile(code, location, codeCache: ctx.CodeCache);
             AsyncPump.Run(() =>
             {
                 result = fx(new Arguments(ctx));
@@ -67,9 +67,9 @@ namespace YantraJS
 
         public static JSValue Evaluate(string code, string location = null, ICodeCache codeCache = null)
         {
-            var fx = Compile(code, location, null, codeCache);
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
+            var fx = Compile(code, location, null, codeCache ?? ctx.CodeCache);
             result = fx(new Arguments(ctx));
             return result;
         }
@@ -79,9 +79,9 @@ namespace YantraJS
             string location = null, 
             ICodeCache codeCache = null)
         {
-            var fx = Compile(code, location, null, codeCache);
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
+            var fx = Compile(code, location, null, codeCache ?? ctx.CodeCache);
             result = fx(new Arguments(ctx));
             if (ctx.WaitTask != null)
             {

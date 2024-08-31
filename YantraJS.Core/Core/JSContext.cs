@@ -25,6 +25,7 @@ using YantraJS.Core.Core.DataView;
 using YantraJS.Debugger;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core;
+using YantraJS.Emit;
 
 namespace YantraJS.Core
 {
@@ -678,6 +679,7 @@ namespace YantraJS.Core
 
         }
 
+        public ICodeCache CodeCache = DictionaryCodeCache.Current;
 
         internal ConcurrentDictionary<long, JSPromise> PendingPromises
             = new ConcurrentDictionary<long, JSPromise>();
@@ -692,9 +694,7 @@ namespace YantraJS.Core
         {
             if (Debugger == null)
             {
-
-
-                var fx = CoreScript.Compile(code, codeFilePath);
+                var fx = CoreScript.Compile(code, codeFilePath, codeCache: CodeCache);
                 return @this == null
                     ? fx(in Arguments.Empty)
                     : fx(new Arguments(@this));
@@ -702,7 +702,7 @@ namespace YantraJS.Core
 
             try
             {
-                var f = CoreScript.Compile(code, codeFilePath);
+                var f = CoreScript.Compile(code, codeFilePath, codeCache: CodeCache);
                 Debugger.ScriptParsed(this.ID, code, codeFilePath);
                 return @this == null
                     ? f(in Arguments.Empty)
@@ -724,7 +724,7 @@ namespace YantraJS.Core
         /// <returns></returns>
         public async Task<JSValue> ExecuteAsync(string code, string codeFilePath = null)
         {
-            var r = CoreScript.Evaluate(code, codeFilePath);
+            var r = CoreScript.Evaluate(code, codeFilePath, codeCache: CodeCache);
             var wt = this.WaitTask;
             if (wt != null)
                 await wt;

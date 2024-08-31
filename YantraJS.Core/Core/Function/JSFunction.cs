@@ -357,13 +357,14 @@ namespace YantraJS.Core
 
             var bodyText = body is JSString @string ? @string.value : body.ToString();
             string location = null;
-            JSContext.Current.DispatchEvalEvent(ref bodyText, ref location);
+            var context = JSContext.Current;
+            context.DispatchEvalEvent(ref bodyText, ref location);
 
             var fx = new JSFunction(JSFunction.empty, "internal", bodyText);
 
 
             // parse and create method...
-            var fx1 = CoreScript.Compile(bodyText, "internal", sargs);
+            var fx1 = CoreScript.Compile(bodyText, "internal", sargs, codeCache: context.CodeCache);
             fx.f = fx1;
             return fx;
         }

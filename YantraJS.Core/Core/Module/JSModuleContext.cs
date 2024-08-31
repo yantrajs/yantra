@@ -408,7 +408,7 @@ namespace YantraJS.Core
                 "import",
                 "__fileame",
                 "__dirname"
-            });
+            }, codeCache: CodeCache);
 
             var result = factory(new Arguments(module, new JSValue[]
             {
