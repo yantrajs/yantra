@@ -27,11 +27,11 @@
   <ItemGroup>
     <PackageReference Include="NuGet.Client" Version="4.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.10.0" />
-    <PackageReference Include="NuGet.Protocol" Version="6.10.1" />
-    <PackageReference Include="NuGet.Resolver" Version="6.10.1" />
+    <PackageReference Include="NuGet.Protocol" Version="6.11.0" />
+    <PackageReference Include="NuGet.Resolver" Version="6.11.0" />
     <!--<PackageReference Include="Lokad.ILPack" Version="0.1.6" />-->
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.1" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.141">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.143">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
