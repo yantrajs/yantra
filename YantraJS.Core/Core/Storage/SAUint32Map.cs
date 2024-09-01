@@ -217,11 +217,11 @@ namespace YantraJS.Core
                 this.roots = this.nodes.Allocate(4);
             }
 
-            if (originalKey == 0)
-            {
-                node = ref this.nodes[this.roots, 0];
-                return ref node;
-            }
+            //if (originalKey == 0)
+            //{
+            //    node = ref this.nodes[this.roots, 0];
+            //    return ref node;
+            //}
 
             var leaves = this.roots;
 
