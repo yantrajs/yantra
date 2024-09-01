@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using YantraJS.Core.Core.Storage;
 using YantraJS.Core.FastParser;
 using YantraJS.Core.Storage;
 
@@ -56,11 +57,16 @@ namespace YantraJS.Core
             /// All children must be allocated
             /// in advance.
             /// </summary>
-            public uint Children;
+            public VirtualArray Children;
         }
 
-        private Node[] storage;
-        private uint last;
+        // private Node[] storage;
+        // private uint last;
+
+        private VirtualMemory<Node> nodes;
+
+        // first set of roots
+        private VirtualArray roots;
 
         public T this[uint index]
         {
@@ -71,9 +77,9 @@ namespace YantraJS.Core
             }
         }
 
-        public bool HasChildren => storage != null;
+        // public bool HasChildren => storage != null;
 
-        public bool IsNull => storage == null;
+        public bool IsNull => nodes.IsEmpty;
 
 
         public IEnumerable<KeyValue> All
@@ -87,14 +93,44 @@ namespace YantraJS.Core
 
         public IEnumerable<(uint Key, T Value)> AllValues()
         {
-            if (this.storage != null)
+            if (!this.nodes.IsEmpty)
             {
-                for (int i = 0; i < this.storage.Length; i++)
+                if (!this.roots.IsEmpty)
                 {
-                    var node = this.storage[i];
-                    if (node.HasValue)
+                    foreach(var c in this.EnumerateNode(this.roots))
                     {
-                        yield return (node.Key, node.Value);
+                        yield return c;
+                    }
+                }
+                //for (int i = 0; i < this.storage.Length; i++)
+                //{
+                //    var node = this.storage[i];
+                //    if (node.HasValue)
+                //    {
+                //        yield return (node.Key, node.Value);
+                //    }
+                //}
+            }
+        }
+
+        private IEnumerable<(uint Key, T Value)> EnumerateNode(VirtualArray nodes)
+        {
+            for (var i = 0; i<nodes.Length;i++)
+            {
+                var n = this.nodes[nodes, i];
+                if (n.HasValue)
+                {
+                    yield return (n.Key, n.Value);
+                }
+            }
+            for (var i = 0; i < nodes.Length; i++)
+            {
+                var n = this.nodes[nodes, i];
+                if (!n.Children.IsEmpty)
+                {
+                    foreach (var c in this.EnumerateNode(n.Children))
+                    {
+                        yield return c;
                     }
                 }
             }
@@ -172,30 +208,27 @@ namespace YantraJS.Core
         {
             ref var node = ref Empty;
 
-            uint start = 0;
-            if (storage == null) { 
-                if (!create)
-                {
+            if (this.roots.IsEmpty) { 
+                if (!create) {
                     return ref node;
                 }
                 // extend...
-                storage = new Node[16];
-                ref var first = ref storage[0];
-                first.State = NodeState.Filled;
-                last = 4;
+                this.roots = this.nodes.Allocate(4);
             }
 
             if (originalKey == 0)
             {
-                node = ref storage[0];
+                node = ref this.nodes[this.roots, 0];
                 return ref node;
             }
+
+            var leaves = this.roots;
 
             // let us walk the nodes...
             for (long key = originalKey; key > 0; key >>= 2)
             {
-                var index = start + (int)(key & 0x3);
-                node = ref storage[index];
+                var index = (int)(key & 0x3);
+                node = ref this.nodes[leaves, (int)index];
                 if (node.Key == originalKey) {
                     if (create)
                     {
@@ -229,26 +262,21 @@ namespace YantraJS.Core
                         newChild.State |= NodeState.HasValue;
                         // this is case when array is resized
                         // and we still might have reference to old node
-                        node = ref storage[index];
+                        node = ref this.nodes[leaves, index];
                         return ref node;
                     }
                     node.State |= NodeState.Filled;
-                    if (node.Children == 0)
+                    if (node.Children.IsEmpty)
                     {
-                        node.Children = last;
-                        last += 4;
-                        if (last >= storage.Length)
-                        {
-                            Array.Resize(ref storage, storage.Length * 2);
-                        }
+                        node.Children = this.nodes.Allocate(4);
                     }
                 }
                 var next = node.Children;
-                if (next == 0)
+                if (next.IsEmpty)
                 {
                     return ref Empty;
                 }
-                start = next;
+                leaves = next;
             }
             if (node.Key == originalKey)
             {
@@ -265,15 +293,7 @@ namespace YantraJS.Core
             }
             // right align to 4 bits..
             size = ((size / 4)+1)*4;
-            if (storage == null)
-            {
-                storage = new Node[size];
-                return;
-            }
-            if (this.storage.Length < size)
-            {
-                Array.Resize(ref storage, size);
-            }
+            this.nodes.SetCapacity(size);
         }
     }
 
