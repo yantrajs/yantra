@@ -59,6 +59,7 @@ namespace YantraJS.Core
 
         public JSArray(uint count): this()
         {
+            AllocateElements(count);
             CreateElements(count);
             _length = count;
         }
@@ -122,6 +123,9 @@ namespace YantraJS.Core
                     {
                         elements.RemoveAt(i);
                     }
+                } else
+                {
+                    elements.Resize(this._length);
                 }
             }
         }

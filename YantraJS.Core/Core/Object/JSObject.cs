@@ -143,6 +143,12 @@ namespace YantraJS.Core
             return ref symbols;
         }
 
+        internal void AllocateElements(uint size)
+        {
+            size = size > 1024 ? 1024 : size;
+            elements.Resize(size);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ref ElementArray CreateElements(uint size = 4)
         {

@@ -290,6 +290,13 @@ namespace YantraJS.Core.Core.Storage
             return Storage.HasKey(key);
         }
 
+        public void Resize(uint size)
+        {
+            if (length <= size)
+            {
+                Storage.Resize((int)size);
+            }
+        }
 
         //     PRIVATE IMPLEMENTATION METHODS
         //_________________________________________________________________________________________

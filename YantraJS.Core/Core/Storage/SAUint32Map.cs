@@ -257,6 +257,24 @@ namespace YantraJS.Core
             return ref Empty;
         }
 
+        internal void Resize(int size)
+        {
+            if (size < 0)
+            {
+                return;
+            }
+            // right align to 4 bits..
+            size = ((size / 4)+1)*4;
+            if (storage == null)
+            {
+                storage = new Node[size];
+                return;
+            }
+            if (this.storage.Length < size)
+            {
+                Array.Resize(ref storage, size);
+            }
+        }
     }
 
 
