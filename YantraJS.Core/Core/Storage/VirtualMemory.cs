@@ -28,13 +28,13 @@ namespace YantraJS.Core.Core.Storage
         public VirtualArray Allocate(int length)
         {
             var max = this.last + length;
-            if (this.nodes == null || this.nodes.Length <= length)
+            if (this.nodes == null || this.nodes.Length <= max)
             {
                 // we need to resize...
                 var capacity = this.last * 2;
-                if (capacity <= length)
+                if (capacity <= max)
                 {
-                    capacity = ((length / 16)+ 1) * 16;
+                    capacity = ((max / 16)+ 1) * 16;
                 }
                 this.SetCapacity(capacity);
             }
@@ -67,11 +67,6 @@ namespace YantraJS.Core.Core.Storage
     {
         public readonly int Offset;
         public readonly int Length;
-
-        public VirtualArray()
-        {
-            this.Offset = -1;
-        }
 
         public VirtualArray(int offset, int length)
         {

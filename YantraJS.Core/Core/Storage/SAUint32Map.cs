@@ -32,6 +32,7 @@ namespace YantraJS.Core
 
         static Node Empty = new Node();
 
+        [DebuggerDisplay("{Key}={Value}")]
         struct Node
         {
             public bool HasValue
@@ -210,7 +211,7 @@ namespace YantraJS.Core
 
             if (this.roots.IsEmpty) { 
                 if (!create) {
-                    return ref node;
+                    return ref Empty;
                 }
                 // extend...
                 this.roots = this.nodes.Allocate(4);
@@ -228,7 +229,7 @@ namespace YantraJS.Core
             for (long key = originalKey; key > 0; key >>= 2)
             {
                 var index = (int)(key & 0x3);
-                node = ref this.nodes[leaves, (int)index];
+                node = ref this.nodes[leaves, index];
                 if (node.Key == originalKey) {
                     if (create)
                     {
@@ -259,6 +260,7 @@ namespace YantraJS.Core
                         ref var newChild = ref GetNode(oldKey, true);
                         newChild.Key = oldKey;
                         newChild.Value = oldValue;
+                        newChild.Children = oldChild;
                         newChild.State |= NodeState.HasValue;
                         // this is case when array is resized
                         // and we still might have reference to old node
