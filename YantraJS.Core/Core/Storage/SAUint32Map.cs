@@ -260,7 +260,7 @@ namespace YantraJS.Core
                         ref var newChild = ref GetNode(oldKey, true);
                         newChild.Key = oldKey;
                         newChild.Value = oldValue;
-                        newChild.Children = oldChild;
+                        // newChild.Children = oldChild;
                         newChild.State |= NodeState.HasValue;
                         // this is case when array is resized
                         // and we still might have reference to old node
