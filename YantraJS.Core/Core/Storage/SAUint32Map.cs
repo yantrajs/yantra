@@ -96,46 +96,46 @@ namespace YantraJS.Core
         {
             if (!this.nodes.IsEmpty)
             {
-                if (!this.roots.IsEmpty)
-                {
-                    foreach(var c in this.EnumerateNode(this.roots))
-                    {
-                        yield return c;
-                    }
-                }
-                //for (int i = 0; i < this.storage.Length; i++)
+                //if (!this.roots.IsEmpty)
                 //{
-                //    var node = this.storage[i];
-                //    if (node.HasValue)
+                //    foreach(var c in this.EnumerateNode(this.roots))
                 //    {
-                //        yield return (node.Key, node.Value);
+                //        yield return c;
                 //    }
                 //}
+                for (int i = 0; i < this.nodes.Count; i++)
+                {
+                    var node = this.nodes.GetAt(i);
+                    if (node.HasValue)
+                    {
+                        yield return (node.Key, node.Value);
+                    }
+                }
             }
         }
 
-        private IEnumerable<(uint Key, T Value)> EnumerateNode(VirtualArray nodes)
-        {
-            for (var i = 0; i<nodes.Length;i++)
-            {
-                var n = this.nodes[nodes, i];
-                if (n.HasValue)
-                {
-                    yield return (n.Key, n.Value);
-                }
-            }
-            for (var i = 0; i < nodes.Length; i++)
-            {
-                var n = this.nodes[nodes, i];
-                if (!n.Children.IsEmpty)
-                {
-                    foreach (var c in this.EnumerateNode(n.Children))
-                    {
-                        yield return c;
-                    }
-                }
-            }
-        }
+        //private IEnumerable<(uint Key, T Value)> EnumerateNode(VirtualArray nodes)
+        //{
+        //    for (var i = 0; i<nodes.Length;i++)
+        //    {
+        //        var n = this.nodes[nodes, i];
+        //        if (n.HasValue)
+        //        {
+        //            yield return (n.Key, n.Value);
+        //        }
+        //    }
+        //    for (var i = 0; i < nodes.Length; i++)
+        //    {
+        //        var n = this.nodes[nodes, i];
+        //        if (!n.Children.IsEmpty)
+        //        {
+        //            foreach (var c in this.EnumerateNode(n.Children))
+        //            {
+        //                yield return c;
+        //            }
+        //        }
+        //    }
+        //}
 
         public bool HasKey(uint key)
         {
@@ -215,13 +215,14 @@ namespace YantraJS.Core
                 }
                 // extend...
                 this.roots = this.nodes.Allocate(4);
+                this.nodes[this.roots, 0].State = NodeState.Filled;
             }
 
-            //if (originalKey == 0)
-            //{
-            //    node = ref this.nodes[this.roots, 0];
-            //    return ref node;
-            //}
+            if (originalKey == 0)
+            {
+                node = ref this.nodes[this.roots, 0];
+                return ref node;
+            }
 
             var leaves = this.roots;
 
@@ -251,26 +252,32 @@ namespace YantraJS.Core
                     }
                     if (node.Key > originalKey)
                     {
+                        // need to make this non recursive...
                         var oldKey = node.Key;
                         var oldValue = node.Value;
-                        var oldChild = node.Children;
+                        // var oldChild = node.Children;
                         node.Key = originalKey;
                         node.State = NodeState.Filled;
                         node.Value = default;
                         ref var newChild = ref GetNode(oldKey, true);
                         newChild.Key = oldKey;
                         newChild.Value = oldValue;
+                        // var newChildren = newChild.Children;
                         // newChild.Children = oldChild;
                         newChild.State |= NodeState.HasValue;
                         // this is case when array is resized
                         // and we still might have reference to old node
                         node = ref this.nodes[leaves, index];
+                        // node.Children = newChildren;
                         return ref node;
                     }
                     node.State |= NodeState.Filled;
                     if (node.Children.IsEmpty)
                     {
-                        node.Children = this.nodes.Allocate(4);
+                        var c = this.nodes.Allocate(4);
+                        // allocation may have moved node
+                        node = ref this.nodes[leaves, index];
+                        node.Children = c;
                     }
                 }
                 var next = node.Children;

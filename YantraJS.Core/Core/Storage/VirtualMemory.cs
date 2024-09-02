@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace YantraJS.Core.Core.Storage
@@ -10,11 +11,13 @@ namespace YantraJS.Core.Core.Storage
         private T[] nodes = null;
         private int last = 0;
 
-        public bool IsEmpty => this.nodes == null;
+        public bool IsEmpty => this.Count == 0;
+
+        public int Count => this.nodes?.Length ?? 0;
 
         public VirtualMemory()
         {
-            
+
         }
 
         public ref T this[VirtualArray a, int index]
@@ -23,6 +26,11 @@ namespace YantraJS.Core.Core.Storage
             {
                 return ref this.nodes[a.Offset + index];
             }
+        }
+
+        [Browsable(false)]
+        public ref T GetAt(int index) {
+            return ref this.nodes[index];
         }
 
         public VirtualArray Allocate(int length)
