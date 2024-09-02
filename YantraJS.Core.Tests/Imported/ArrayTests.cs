@@ -81,6 +81,7 @@ namespace YantraJS.Core.Tests.Imported
 
             // The array indexer can see the prototype elements.
             Evaluate("var array = [1, ,3]");
+            var a = Evaluate("array");
             Evaluate("Array.prototype[1] = 'two'");
             Evaluate("Array.prototype[20] = 'twenty'");
             try
@@ -90,7 +91,6 @@ namespace YantraJS.Core.Tests.Imported
                 Assert.AreEqual(true, Evaluate("array.hasOwnProperty(2)"));
                 Assert.AreEqual(false, Evaluate("array.hasOwnProperty(20)"));
                 Assert.AreEqual(1, Evaluate("array[0]"));
-                var a = Evaluate("array");
                 Assert.AreEqual("two", Evaluate("array[1]"));
                 Assert.AreEqual(3, Evaluate("array[2]"));
                 Assert.AreEqual("twenty", Evaluate("array[20]"));

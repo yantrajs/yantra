@@ -255,7 +255,7 @@ namespace YantraJS.Core.Core.Storage
             //}
         }
 
-        public bool IsNull => !Storage.IsNull;
+        public bool IsNull => Storage.IsNull;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(uint key, out JSProperty value)
