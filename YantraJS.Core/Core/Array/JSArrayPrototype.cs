@@ -48,6 +48,28 @@ namespace YantraJS.Core
             
         }
 
+        [JSPrototypeMethod][JSExport("at", Length = 1)]
+        public static JSValue At(in Arguments a)
+        {
+            var index = a[0];
+            var @this = a.This;
+            var length = a.Length;
+            var i = index.IntegerValue;
+            if (i < 0)
+            {
+                if (i < -length)
+                {
+                    return JSUndefined.Value;
+                }
+                i += length;
+            }
+            if (i >= length)
+            {
+                return JSUndefined.Value;
+            }
+            return @this.GetOwnProperty((uint)i);
+        }
+
         [JSPrototypeMethod][JSExport("concat", Length = 1)]
         public static JSValue Concat(in Arguments a)
         {
@@ -297,7 +319,7 @@ namespace YantraJS.Core
             return result;
         }
 
-            private static void FlattenTo(JSArray result, JSValue @this, JSValue callback, JSValue  thisArg, int depth)
+        private static void FlattenTo(JSArray result, JSValue @this, JSValue callback, JSValue  thisArg, int depth)
         {
             
             
