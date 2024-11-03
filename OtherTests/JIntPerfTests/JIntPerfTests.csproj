@@ -4,13 +4,12 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
-  </ItemGroup>
 	<ItemGroup>
 		<None Include=".\Scripts\*.*" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\Jint.Tests.CommonScripts\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\YantraJS.Core\YantraJS.Core.csproj" />
 	</ItemGroup>
 
 

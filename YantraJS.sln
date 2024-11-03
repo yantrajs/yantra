@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.Network", "YantraJ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.JSClassGenerator", "YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj", "{8158D755-B50D-4447-8697-03E7E0D63BA5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JIntPerfTests", "OtherTests\JIntPerfTests\JIntPerfTests.csproj", "{75C8A8AC-7A81-46AE-AF4C-706BDC7AB6D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,12 +89,17 @@ Global
 		{8158D755-B50D-4447-8697-03E7E0D63BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8158D755-B50D-4447-8697-03E7E0D63BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8158D755-B50D-4447-8697-03E7E0D63BA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75C8A8AC-7A81-46AE-AF4C-706BDC7AB6D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75C8A8AC-7A81-46AE-AF4C-706BDC7AB6D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75C8A8AC-7A81-46AE-AF4C-706BDC7AB6D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75C8A8AC-7A81-46AE-AF4C-706BDC7AB6D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{15F50837-F0DF-4A16-BDC5-E02921C61B58} = {0F0852BD-9906-4ABC-9BA8-7F49E63728A0}
+		{75C8A8AC-7A81-46AE-AF4C-706BDC7AB6D6} = {8D5F60A8-566A-4068-8B83-1BA48F66E60B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {51CB0E2B-8005-4839-8808-C1CA8C9C2BA7}
