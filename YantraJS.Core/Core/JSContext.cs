@@ -692,21 +692,18 @@ namespace YantraJS.Core
         /// <returns></returns>
         public JSValue Eval(string code, string codeFilePath = null, JSValue @this = null)
         {
+            @this ??= this;
             if (Debugger == null)
             {
                 var fx = CoreScript.Compile(code, codeFilePath, codeCache: CodeCache);
-                return @this == null
-                    ? fx(in Arguments.Empty)
-                    : fx(new Arguments(@this));
+                return fx(new Arguments(@this));
             }
 
             try
             {
                 var f = CoreScript.Compile(code, codeFilePath, codeCache: CodeCache);
                 Debugger.ScriptParsed(this.ID, code, codeFilePath);
-                return @this == null
-                    ? f(in Arguments.Empty)
-                    : f(new Arguments(@this));
+                return f(new Arguments(@this));
             }
             catch (Exception ex) {
                 this.ReportError(ex);
