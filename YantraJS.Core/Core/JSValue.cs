@@ -122,7 +122,7 @@ namespace YantraJS.Core {
 
         public abstract JSValue TypeOf();
 
-        public virtual int IntValue => (int)(uint)this.DoubleValue;
+        public virtual int IntValue => (int)((long)this.DoubleValue << 32) >> 32;
 
         /// <summary>
         /// Integer value restricts value within int.MaxValue and
