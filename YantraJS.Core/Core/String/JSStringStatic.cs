@@ -22,7 +22,7 @@ namespace YantraJS.Core
             for(var ai = 0; ai < al; ai++)
             {
                 var ch = a.GetAt(ai);
-                sb.Append((char)(ushort)(uint)ch.DoubleValue);
+                sb.Append((char)ch.IntValue);
             }
             return new JSString(sb.ToString());
         }

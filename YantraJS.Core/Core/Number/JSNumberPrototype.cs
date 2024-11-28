@@ -51,7 +51,7 @@ namespace YantraJS.Core
         [JSExport("clz")]
         public static JSValue Clz(in Arguments a)
         {
-            uint x = (uint)a.This.ToNumber().value;
+            var x = a.This.ToNumber().IntValue;
 
             // Propagate leftmost 1-bit to the right 
             x = x | (x >> 1);
@@ -60,7 +60,7 @@ namespace YantraJS.Core
             x = x | (x >> 8);
             x = x | (x >> 16);
 
-            int i = sizeof(int) * 8 - CountOneBits(x);
+            int i = sizeof(int) * 8 - CountOneBits((uint)x);
             return new JSNumber(i);
         }
 

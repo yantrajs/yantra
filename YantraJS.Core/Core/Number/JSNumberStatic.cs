@@ -175,7 +175,7 @@ namespace YantraJS.Core
                             var n = a1.DoubleValue;
                             if (!double.IsNaN(n))
                             {
-                                radix = (int)(uint)n;
+                                radix = a1.IntValue;
                                 if (radix < 0 || radix == 1 || radix > 36)
                                     return nan;
                             }

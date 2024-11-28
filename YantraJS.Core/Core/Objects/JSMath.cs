@@ -399,8 +399,8 @@ namespace YantraJS.Core.Objects
         public static JSValue Imul(in Arguments args)
         {
             var (first, second) = args.Get2();
-            var d1 = (uint)first.DoubleValue;
-            var d2 = (uint)second.DoubleValue;
+            var d1 = first.IntValue;
+            var d2 = second.IntValue;
             var r = (int)(d1 * d2);
             return new JSNumber(r);
 
