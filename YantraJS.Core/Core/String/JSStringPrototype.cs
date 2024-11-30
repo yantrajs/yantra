@@ -269,7 +269,7 @@ namespace YantraJS.Core
             // if (pos.IsUndefined)
             //     return new JSNumber(@this.LastIndexOf(searchStr.ToString()));
             // var startIndex = a.TryGetAt(1, out var n) ? (double.IsNaN(n.DoubleValue) ? int.MaxValue : n.IntValue ): n.IntValue;
-            var startIndex = double.IsNaN(fromIndex) ? int.MaxValue : (int)(uint)fromIndex;
+            var startIndex = double.IsNaN(fromIndex) ? int.MaxValue : (int)(((long)fromIndex << 32) >> 32);
             startIndex = Math.Min(startIndex, @this.Length - 1);
             startIndex = Math.Min(startIndex + searchStr.Length - 1, @this.Length - 1);
             if (startIndex < 0)
@@ -493,7 +493,7 @@ namespace YantraJS.Core
             var limitMax = uint.MaxValue;
 
             if (!limit.IsUndefined)
-                limitMax = (uint)limit.DoubleValue;
+                limitMax = limit.UIntValue;
 
             if (_separator is JSRegExp jSRegExp)
             {

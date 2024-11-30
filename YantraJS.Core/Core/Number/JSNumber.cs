@@ -118,7 +118,7 @@ namespace YantraJS.Core
             this.value = value;
         }
 
-        public override int IntValue => (int)(((long)value << 32) >> 32);
+        // public override int IntValue => (int)((long)value << 32) >> 32;
 
         public override double DoubleValue => value;
 
@@ -139,6 +139,7 @@ namespace YantraJS.Core
                 return true;
             }
             if (type == typeof(int)) {
+                // value = (int)((long)this.value << 32) >> 32;
                 value = (int)this.value;
                 return true;
             }

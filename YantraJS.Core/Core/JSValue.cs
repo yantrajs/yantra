@@ -122,7 +122,7 @@ namespace YantraJS.Core {
 
         public abstract JSValue TypeOf();
 
-        public virtual int IntValue => (int)((long)this.DoubleValue << 32) >> 32;
+        public virtual int IntValue => (int)(((long)this.DoubleValue << 32) >> 32);
 
         /// <summary>
         /// Integer value restricts value within int.MaxValue and
@@ -145,7 +145,7 @@ namespace YantraJS.Core {
 
         public virtual long BigIntValue => (long)(ulong)this.DoubleValue;
 
-        public virtual uint UIntValue => (uint)this.DoubleValue;
+        public virtual uint UIntValue => (uint)(((long)this.DoubleValue << 32) >> 32);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSPrototype prototypeChain;

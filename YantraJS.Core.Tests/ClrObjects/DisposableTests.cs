@@ -73,6 +73,15 @@ namespace YantraJS.Core.Tests.ClrObjects
             Assert.IsFalse(d.Open);
         }
 
+        [TestMethod]
+        public void FieldAccess()
+        {
+            var c = new JSTestContext();
+            JSValue guidTypeValue = ClrType.From(typeof(Guid));
+            c["guid"] = guidTypeValue;
+            string result = c.Eval("guid.empty.toString()").ToString();
+        }
+
         // [TestMethod]
         public void AsyncDispose()
         {

@@ -3,8 +3,9 @@ using System.Reflection;
 using YantraJS.ExpHelper;
 using YantraJS.LinqExpressions;
 using YantraJS.Runtime;
+using YantraJS.Core.Clr;
 
-namespace YantraJS.Core.Clr
+namespace YantraJS.Core.Core.Clr
 {
     internal readonly struct JSFieldInfo
     {
@@ -17,15 +18,16 @@ namespace YantraJS.Core.Clr
         {
             this.field = field;
             var (name, export) = ClrTypeExtensions.GetJSName(namingConvention, field);
-            this.Name = name;
-            this.Export = export;
+            Name = name;
+            Export = export;
         }
 
         public JSFunction GenerateFieldGetter()
         {
             var name = $"get {Name}";
             var field = this.field;
-            return new JSFunction(() => {
+            return new JSFunction(() =>
+            {
                 var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
                 Expression convertedThis = field.IsStatic
                     ? null
@@ -44,7 +46,8 @@ namespace YantraJS.Core.Clr
         {
             var name = $"set {Name}";
             var field = this.field;
-            return new JSFunction(() => {
+            return new JSFunction(() =>
+            {
                 var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
                 var a1 = ArgumentsBuilder.Get1(args);
                 var convert = field.IsStatic

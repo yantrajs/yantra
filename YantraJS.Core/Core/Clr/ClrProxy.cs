@@ -73,6 +73,7 @@ namespace YantraJS.Core.Clr
                 && x.ReturnType == typeof(JSValue)
                 && x.GetParameters().Length == 1
                 && x.GetParameters()[0].ParameterType != typeof(object)).ToArray();
+
         public static Func<TInput,JSValue> GetDelegate<TInput>()
         {
             var method = methods.FirstOrDefault(x => x.GetParameters()[0].ParameterType == typeof(TInput));

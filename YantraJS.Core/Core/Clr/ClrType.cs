@@ -478,39 +478,20 @@ namespace YantraJS.Core.Clr
 
         private JSFunctionDelegate GenerateConstructor(ConstructorInfo m, JSObject prototype)
         {
-            var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
-
-            var parameters = new List<Expression>();
-            var pList = m.GetParameters();
-            for (int i = 0; i < pList.Length; i++)
+            var jfs = m.CompileToJSFunctionDelegate(m.DeclaringType.Name);
+            JSValue Factory(in Arguments a)
             {
-                var ai = ArgumentsBuilder.GetAt(args, i);
-                var pi = pList[i];
-                Expression defValue;
-                if (pi.HasDefaultValue)
-                {
-                    defValue = Expression.Constant(pi.DefaultValue);
-                    if (pi.ParameterType.IsValueType)
-                    {
-                        defValue = Expression.Box(Expression.Constant(pi.DefaultValue));
-                    }
-                    parameters.Add(JSValueToClrConverter.Get(ai, pi.ParameterType, defValue, pi.Name));
-                    continue;
-                }
-                defValue = null;
-                if(pi.ParameterType.IsValueType)
-                {
-                    defValue = Expression.Box(Expression.Constant(Activator.CreateInstance(pi.ParameterType)));
-                } else
-                {
-                    defValue = Expression.Null;
-                }
-                parameters.Add(JSValueToClrConverter.Get(ai, pi.ParameterType, defValue, pi.Name));
+                var r = jfs(in a);
+                return ClrProxy.From(r, prototype);
             }
-            var call = Expression.TypeAs( Expression.New(m, parameters), typeof(object));
-            var lambda = Expression.Lambda<JSValueFactory>(m.DeclaringType.Name, call, args);
-            var factory = lambda.Compile();
-            return JSValueFactoryDelegate(factory, prototype);
+            return Factory;
+
+            //var args = Expression.Parameter(typeof(Arguments).MakeByRefType());
+            //var parameters = m.GetArgumentsExpression(args);
+            //var call = Expression.TypeAs( Expression.New(m, parameters), typeof(object));
+            //var lambda = Expression.Lambda<JSValueFactory>(m.DeclaringType.Name, call, args);
+            //var factory = lambda.Compile();
+            //return JSValueFactoryDelegate(factory, prototype);
         }
 
 

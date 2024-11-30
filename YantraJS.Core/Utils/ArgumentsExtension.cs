@@ -224,6 +224,17 @@ namespace YantraJS.Core
                             defaultValue);
         }
 
+
+        public static Func<JSValue, string, T> ToFastClrDelegate<T>()
+        {
+            var type = typeof(T);
+            if (methods.TryGetValue(type, out var m))
+            {
+                return m.CreateDelegate<Func<JSValue, string, T>>();
+            }
+            return (v,n) => GetAsOrThrow<T>(v, n);
+        }
+
         public static T ToFastClrValue<T>(this JSValue value)
         {
             var type = typeof(T);

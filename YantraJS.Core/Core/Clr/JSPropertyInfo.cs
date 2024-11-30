@@ -14,8 +14,9 @@ using YantraJS.ExpHelper;
 using YantraJS.LinqExpressions;
 using YantraJS.Runtime;
 using static YantraJS.Core.Clr.ClrType;
+using YantraJS.Core.Clr;
 
-namespace YantraJS.Core.Clr
+namespace YantraJS.Core.Core.Clr
 {
 
     internal class JSPropertyInfo
@@ -33,88 +34,27 @@ namespace YantraJS.Core.Clr
 
         public JSPropertyInfo(ClrMemberNamingConvention namingConvention, PropertyInfo property)
         {
-            this.Property = property;
+            Property = property;
             var (name, export) = ClrTypeExtensions.GetJSName(namingConvention, property);
-            this.Name = name;
-            this.Export = export;
-            this.PropertyType = property.PropertyType;
-            this.GetMethod = property.GetMethod;
-            this.SetMethod = property.SetMethod;
-            this.CanRead = property.CanRead;
-            this.CanWrite = property.CanWrite;
+            Name = name;
+            Export = export;
+            PropertyType = property.PropertyType;
+            GetMethod = property.GetMethod;
+            SetMethod = property.SetMethod;
+            CanRead = property.CanRead;
+            CanWrite = property.CanWrite;
         }
 
-        public JSFunction GetValue<TOwner, TValue>()
+        public JSFunction GeneratePropertyGetter()
         {
             var name = $"get {Name}";
-            var getter = (Func<TOwner, TValue>)Property.GetMethod.CreateDelegate(typeof(Func<TOwner, TValue>));
-            var del = ClrProxy.GetDelegate<TValue>();
-            return new JSFunction((in Arguments a) => {
-                var owner = a.This;
-                var value = getter((TOwner)owner.ForceConvert(typeof(TOwner)));
-                return del(value);
-            }, name);
+            return new JSFunction(Property.GetMethod.CompileToJSFunctionDelegate(name), name);
         }
 
-        public JSFunction GetStaticValue<TValue>()
-        {
-            var name = $"get {Name}";
-            var getter = (Func<TValue>)Property.GetMethod.CreateDelegate(typeof(Func<TValue>));
-            var del = ClrProxy.GetDelegate<TValue>();
-            return new JSFunction( (in Arguments a) => {
-                var value = getter();
-                return del(value);
-            }, name);
-        }
-
-        public JSFunction SetValue<TOwner, TValue>()
+        public JSFunction GeneratePropertySetter()
         {
             var name = $"set {Name}";
-            var setter = (Action<TOwner, TValue>)Property.SetMethod.CreateDelegate(typeof(Action<TOwner, TValue>));
-            return new JSFunction((in Arguments a) =>
-            {
-                var owner = a.This;
-                var value = a.Get1();
-                setter(
-                    (TOwner)owner.ForceConvert(typeof(TOwner)),
-                    (TValue)value.ForceConvert(typeof(TValue)));
-                return JSUndefined.Value;
-            }, name);
-        }
-
-        public JSFunction SetStaticValue<TValue>()
-        {
-            var name = $"set {Name}";
-            var setter = (Action<TValue>)Property.SetMethod.CreateDelegate(typeof(Action<TValue>));
-            return new JSFunction((in Arguments a) =>
-            {
-                var value = a.Get1();
-                setter(
-                    (TValue)value.ForceConvert(typeof(TValue)));
-                return JSUndefined.Value;
-            }, name);
-        }
-
-        internal JSFunction GeneratePropertySetter()
-        {
-            if (Property.SetMethod.IsStatic)
-            {
-                return this.InvokeAs(Property.PropertyType, SetStaticValue<object>);
-            }
-            // return (JSFunction)SetValueMethod
-                // .MakeGenericMethod(property.DeclaringType, property.PropertyType).Invoke(null, new object[] { property });
-            return this.InvokeAs(Property.DeclaringType, Property.PropertyType, SetValue<object,object>);
-        }
-
-        internal JSFunction GeneratePropertyGetter()
-        {
-            if (Property.GetMethod.IsStatic)
-            {
-                return this.InvokeAs(Property.PropertyType, GetStaticValue<object>);
-            }
-            // return (JSFunction)SetValueMethod
-            // .MakeGenericMethod(property.DeclaringType, property.PropertyType).Invoke(null, new object[] { property });
-            return this.InvokeAs(Property.DeclaringType, Property.PropertyType, GetValue<object, object>);
+            return new JSFunction(Property.SetMethod.CompileToJSFunctionDelegate(name), name);
         }
 
         internal Func<object, uint, JSValue> GenerateIndexedGetter()
