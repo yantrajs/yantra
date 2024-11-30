@@ -37,6 +37,7 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET Standard wr
 25. CSX Module support
 26. Mixed module system, YantraJS supports `require` and `import`.
 27. Explicit resource management with `using` and `await using` keywords.
+28. Partially AOT ready (Source Generators have been used for loading Runtime Objects).
 
 `*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 
@@ -53,9 +54,9 @@ Currently YantraJS supports Both CommonJS and ES modules without any extra work,
 
 # Roadmap
 As we often have difficulty in writing cross environment scripts (browser and process such as node), we want to first implement basic common features on both.
-1. Generate Runtime with Source Generator, this will allow us to load Yantra in AOT environment. Currently Runtime objects are loaded through reflection, however we are moving reflection code to Source Generator one class a at a time.
-2. Next in plan is Network API, Simple `fetch` is available in `YantraContext`, we will focus on adding Stream API.
-3. Next is File API, we will implement `FileSytem` of Web Browser API and allow an easy native interface. So you can write script that will execute correctly in browser and in native
+1. Next in plan is Network API, Simple `fetch` is available in `YantraContext`, we will focus on adding Stream API.
+2. Unified API to access system resources through JavaScript modules that dynamically utilize .NET objects.
+3. Add node modules compatibility.
 4. V8 Protocol Implementation is in progress.
 
 
