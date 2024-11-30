@@ -19,6 +19,7 @@ using YantraJS.Runtime;
 using System.ComponentModel;
 using YantraJS.Expressions;
 using YantraJS.Generator;
+using YantraJS.Core.Core.Clr;
 
 namespace YantraJS.Core.Clr
 {

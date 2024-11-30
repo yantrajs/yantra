@@ -80,6 +80,7 @@ namespace YantraJS.Core.Tests.ClrObjects
             JSValue guidTypeValue = ClrType.From(typeof(Guid));
             c["guid"] = guidTypeValue;
             string result = c.Eval("guid.empty.toString()").ToString();
+            Assert.AreEqual("00000000-0000-0000-0000-000000000000", result);
         }
 
         // [TestMethod]
