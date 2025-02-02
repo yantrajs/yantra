@@ -34,8 +34,8 @@ namespace YantraJS.ExpHelper
         //    = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(string));
         //private static MethodInfo _StrictEqualsLiteralDouble
         //    = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(double));
-        private static MethodInfo _StrictEqualsLiteralString
-            = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(string));
+        //private static MethodInfo _StrictEqualsLiteralString
+        //    = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(string));
 
         private static MethodInfo _Negate
             = type.PublicMethod(nameof(JSValue.Negate));
@@ -440,7 +440,7 @@ namespace YantraJS.ExpHelper
         public static Expression StrictEquals(Expression target, Expression value)
         {
             if (value.Type == typeof(string))
-                return JSBooleanBuilder.NewFromCLRBoolean( Expression.Call(target, _StrictEqualsLiteralString, value));
+                return JSBooleanBuilder.NewFromCLRBoolean( target.CallExpression<JSValue, string, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value));
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value));
             return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _StrictEquals, value));
@@ -450,7 +450,7 @@ namespace YantraJS.ExpHelper
         {
             if (value.Type == typeof(string))
                 return JSBooleanBuilder.NewFromCLRBoolean(
-                    Expression.Not(Expression.Call(target, _StrictEqualsLiteralString, value)));
+                    Expression.Not(target.CallExpression<JSValue, string, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value)));
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(
                     Expression.Not(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value)));
