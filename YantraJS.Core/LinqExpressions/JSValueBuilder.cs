@@ -32,8 +32,8 @@ namespace YantraJS.ExpHelper
 
         //private static MethodInfo _EqualsLiteralString
         //    = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(string));
-        private static MethodInfo _StrictEqualsLiteralDouble
-            = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(double));
+        //private static MethodInfo _StrictEqualsLiteralDouble
+        //    = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(double));
         private static MethodInfo _StrictEqualsLiteralString
             = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(string));
 
@@ -442,7 +442,7 @@ namespace YantraJS.ExpHelper
             if (value.Type == typeof(string))
                 return JSBooleanBuilder.NewFromCLRBoolean( Expression.Call(target, _StrictEqualsLiteralString, value));
             if (value.Type == typeof(double))
-                return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _StrictEqualsLiteralDouble, value));
+                return JSBooleanBuilder.NewFromCLRBoolean(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value));
             return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _StrictEquals, value));
         }
 
@@ -453,7 +453,7 @@ namespace YantraJS.ExpHelper
                     Expression.Not(Expression.Call(target, _StrictEqualsLiteralString, value)));
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(
-                    Expression.Not(Expression.Call(target, _StrictEqualsLiteralDouble, value)));
+                    Expression.Not(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value)));
             return
                 ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
                 Expression.Not(Expression.Call(target, _StrictEquals, value)));
