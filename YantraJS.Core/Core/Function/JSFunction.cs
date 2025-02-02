@@ -254,7 +254,12 @@ namespace YantraJS.Core
 
         public JSValue InvokeSuper(in Arguments a)
         {
-            return f(in a);
+            var r = f(in a);
+            if (r.IsObject)
+            {
+                return r;
+            }
+            return a.This;
             //var prototype = JSContext.NewTargetPrototype;
             //if (prototype == null)
             //{

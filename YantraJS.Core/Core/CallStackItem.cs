@@ -23,7 +23,9 @@ namespace YantraJS.Core
             JSContext context, 
             ScriptInfo scriptInfo, 
             int nameOffset,
-            int nameLength, int line, int column)
+            int nameLength,
+            int line,
+            int column)
         {
             context = context ?? JSContext.Current;
             context.EnsureSufficientExecutionStack();

@@ -35,7 +35,9 @@ namespace YantraJS.Core.LinqExpressions
             int column)
         {
 
-            return NewLambdaExpression.NewExpression(() => new CallStackItem(null, null, "", 0, 0),
+            return NewLambdaExpression.NewExpression(() => new CallStackItem(
+                (JSContext)null,
+                (ScriptInfo)null, 0, 0, 0, 0),
                 context,
                 scriptInfo,
                 YExpression.Constant(nameOffset),

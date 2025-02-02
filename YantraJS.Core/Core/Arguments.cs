@@ -63,7 +63,7 @@ namespace YantraJS.Core
         {
             // need to append a's parameter to self...
             //var @this = a.NewTarget != null ? a.This! : this[0]!;
-            var @this = a.This!;
+            var @this = this[0]!;
             var total = this.Length - 1 + a.Length;
             var list = new JSValue[total + a.Length];
             int i;
