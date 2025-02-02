@@ -35,7 +35,7 @@ namespace YantraJS.Core.LinqExpressions
             int column)
         {
 
-            return NewLambdaExpression.NewExpression(() => new CallStackItem(
+            return NewLambdaExpression.NewExpression<CallStackItem>(() => () => new CallStackItem(
                 (JSContext)null,
                 (ScriptInfo)null, 0, 0, 0, 0),
                 context,
@@ -44,15 +44,6 @@ namespace YantraJS.Core.LinqExpressions
                 YExpression.Constant(nameLength),
                 YExpression.Constant(line),
                 YExpression.Constant(column));
-
-            //return YExpression.New(
-            //    _new, 
-            //    context, 
-            //    scriptInfo, 
-            //    YExpression.Constant(nameOffset),
-            //    YExpression.Constant(nameLength),
-            //    YExpression.Constant(line),
-            //    YExpression.Constant(column));
         }
 
         public static YExpression Step(YExpression target, int line, int column)

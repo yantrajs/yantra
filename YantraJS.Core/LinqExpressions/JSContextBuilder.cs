@@ -6,6 +6,7 @@ using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.LambdaGen;
 using YantraJS.Core.LightWeight;
+using YantraJS.Core.Types;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
 using ParameterExpression = YantraJS.Expressions.YParameterExpression;
@@ -102,9 +103,10 @@ namespace YantraJS.ExpHelper
 
         public static Expression NewTarget()
         {
+
             return Current
-                .FieldExpression<JSContext, CallStackItem>((x) => x.Top)
-                .FieldExpression<CallStackItem, JSFunction>((x) => x.NewTarget);
+                .FieldExpression<JSContext, CallStackItem>(() => (x) => x.Top)
+                .FieldExpression<CallStackItem, JSFunction>(() => (x) => x.NewTarget);
         }
 
         //public static Expression Pop(Expression context)s
