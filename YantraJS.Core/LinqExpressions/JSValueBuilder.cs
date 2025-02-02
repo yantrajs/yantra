@@ -26,18 +26,6 @@ namespace YantraJS.ExpHelper
     {
         private static readonly Type type = typeof(JSValue);
 
-        private static PropertyInfo _DoubleValue =
-            type.Property(nameof(Core.JSValue.DoubleValue));
-
-        private static PropertyInfo _IntValue =
-            type.Property(nameof(Core.JSValue.IntValue));
-
-        private static PropertyInfo _BigIntValue =
-            type.Property(nameof(Core.JSValue.BigIntValue));
-
-        private static PropertyInfo _UIntValue =
-            type.Property(nameof(JSValue.UIntValue));
-
         private static PropertyInfo _IsNullOrUndefined
             = type.Property(nameof(Core.JSValue.IsNullOrUndefined));
 
@@ -58,18 +46,6 @@ namespace YantraJS.ExpHelper
 
         private static MethodInfo _AddDouble
             = type.PublicMethod(nameof(JSValue.AddValue), typeof(double));
-
-        private static PropertyInfo _IsNumber
-            = type.Property(nameof(JSValue.IsNumber));
-
-        private static PropertyInfo _IsString
-            = type.Property(nameof(JSValue.IsString));
-
-        private static PropertyInfo _IsBoolean
-            = type.Property(nameof(JSValue.IsBoolean));
-
-        private static PropertyInfo _IsSymbol
-            = type.Property(nameof(JSValue.IsSymbol));
 
         private static PropertyInfo _IsFunction
             = type.Property(nameof(JSValue.IsFunction));
@@ -137,7 +113,8 @@ namespace YantraJS.ExpHelper
         {
             if (target.Type == typeof(JSVariable))
                 target = JSVariable.ValueExpression(target);
-            return Expression.Property(target, _IsNullOrUndefined);
+            // return Expression.Property(target, _IsNullOrUndefined);
+            return target.PropertyExpression<JSValue, bool>(() => (x) => x.IsNullOrUndefined);
         }
 
         private static PropertyInfo _lengthProperty
@@ -150,22 +127,26 @@ namespace YantraJS.ExpHelper
 
         public static Expression DoubleValue(Expression exp)
         {
-            return Expression.Property(exp, _DoubleValue);
+            // return Expression.Property(exp, _DoubleValue);
+            return exp.PropertyExpression<JSValue, double>(() => (x) => x.DoubleValue);
         }
 
         public static Expression IntValue(Expression exp)
         {
-            return Expression.Property(exp, _IntValue);
+            // return Expression.Property(exp, _IntValue);
+            return exp.PropertyExpression<JSValue, int>(() => (x) => x.IntValue);
         }
 
         public static Expression BigIntValue(Expression exp)
         {
-            return Expression.Property(exp, _BigIntValue);
+            // return Expression.Property(exp, _BigIntValue);
+            return exp.PropertyExpression<JSValue, long>(() => (x) => x.BigIntValue);
         }
 
         public static Expression UIntValue(Expression exp)
         {
-            return Expression.Property(exp, _UIntValue);
+            /// return Expression.Property(exp, _UIntValue);
+            return exp.PropertyExpression<JSValue, uint>(() => (x) => x.UIntValue);
         }
 
         public static Expression PrototypeChain(Expression exp)
