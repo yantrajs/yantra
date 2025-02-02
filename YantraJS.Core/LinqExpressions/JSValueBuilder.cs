@@ -27,16 +27,11 @@ namespace YantraJS.ExpHelper
     {
         private static readonly Type type = typeof(JSValue);
 
-        private static PropertyInfo _IsFunction
-            = type.Property(nameof(JSValue.IsFunction));
+        //private static MethodInfo _EqualsLiteralDouble
+        //    = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(double));
 
-        private static PropertyInfo _IsObject
-            = type.Property(nameof(JSValue.IsObject));
-
-        private static MethodInfo _EqualsLiteralDouble
-            = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(double));
-        private static MethodInfo _EqualsLiteralString
-            = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(string));
+        //private static MethodInfo _EqualsLiteralString
+        //    = type.PublicMethod(nameof(JSValue.EqualsLiteral), typeof(string));
         private static MethodInfo _StrictEqualsLiteralDouble
             = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(double));
         private static MethodInfo _StrictEqualsLiteralString
@@ -89,7 +84,12 @@ namespace YantraJS.ExpHelper
 
         public static Expression IsObjectType(Expression exp)
         {
-            return Expression.And(Expression.Property(exp, _IsObject), Expression.Not(Expression.Property(exp, _IsFunction)));
+            // return Expression.And(Expression.Property(exp, _IsObject), Expression.Not(Expression.Property(exp, _IsFunction)));
+
+            return Expression.And(
+                exp.PropertyExpression<JSValue, bool>(() => (x) => x.IsObject),
+                Expression.Not(exp.PropertyExpression<JSValue, bool>(() => (x) => x.IsFunction))
+                );
         }
 
         public static Expression IsNullOrUndefined(Expression target)
@@ -402,9 +402,15 @@ namespace YantraJS.ExpHelper
         public static Expression Equals(Expression target, Expression value)
         {
             if (value.Type == typeof(string))
-                return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralString, value));
+                // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralString, value));
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    target.CallExpression<JSValue, string, bool>(() => (x, a) => x.EqualsLiteral(a), value)
+                    );
             if (value.Type == typeof(double))
-                return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralDouble, value));
+                // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralDouble, value));
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    target.CallExpression<JSValue,double, bool>(() =>(x, a) => x.EqualsLiteral(a), value)
+                    );
             return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _Equals, value));
         }
 
@@ -412,10 +418,14 @@ namespace YantraJS.ExpHelper
         {
             if (value.Type == typeof(string))
                 return JSBooleanBuilder.NewFromCLRBoolean(
-                    Expression.Not(Expression.Call(target, _EqualsLiteralString, value)));
+                    // Expression.Not(Expression.Call(target, _EqualsLiteralString, value))
+                    Expression.Not(target.CallExpression<JSValue, string, bool>(() => (x, a) => x.EqualsLiteral(a), value))
+                    );
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(
-                    Expression.Not( Expression.Call(target, _EqualsLiteralDouble, value)));
+                    // Expression.Not( Expression.Call(target, _EqualsLiteralDouble, value))
+                    Expression.Not(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.EqualsLiteral(a), value))
+                    );
             return
                 ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
                     Expression.Not(
