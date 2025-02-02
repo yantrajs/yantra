@@ -15,6 +15,7 @@ using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Core.Core.Disposable;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -59,9 +60,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 };
 
                 var d = scope.Disposable;
-                var dispose = d.InstanceCall<JSDisposableStack, JSValue>(
-                            (j) => j.Dispose()
-                        );
+                var dispose = d.CallExpression<JSDisposableStack, JSValue>(() => (j) => j.Dispose());
                 if (scope.Function.Async)
                 {
                     // we will move everything inside await dispose...

@@ -14,6 +14,7 @@ using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Core.Core.Disposable;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -42,8 +43,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         }
                         if (dispose)
                         {
-                            list.Add(top.Disposable.InstanceAction<JSDisposableStack, JSValue, bool>(
-                                (j,v,b) => j.AddDisposableResource(v, b), v.Expression, Expression.Constant(async)));
+                            list.Add(top.Disposable.CallExpression<JSDisposableStack, JSValue, bool>(
+                                () => (j,v,b) => j.AddDisposableResource(v, b), v.Expression, Expression.Constant(async)));
                         }
                         break;
                     case FastNodeType.ObjectPattern:
@@ -56,8 +57,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
                             if (dispose)
                             {
-                                list.Add(top.Disposable.InstanceAction<JSDisposableStack, JSValue, bool>(
-                                    (j, v, b) => j.AddDisposableResource(v, b), temp.Variable, Expression.Constant(async)));
+                                list.Add(top.Disposable.CallExpression<JSDisposableStack, JSValue, bool>(
+                                    () => (j, v, b) => j.AddDisposableResource(v, b), temp.Variable, Expression.Constant(async)));
                             }
                         }
                         break;
@@ -69,8 +70,8 @@ namespace YantraJS.Core.FastParser.Compiler
                             list.Add(CreateAssignment(arrayPattern, temp.Expression, true, newScope));
                             if (dispose)
                             {
-                                list.Add(top.Disposable.InstanceAction<JSDisposableStack, JSValue, bool>(
-                                    (j, v, b) => j.AddDisposableResource(v, b), temp.Variable, Expression.Constant(async)));
+                                list.Add(top.Disposable.CallExpression<JSDisposableStack, JSValue, bool>(
+                                    () => (j, v, b) => j.AddDisposableResource(v, b), temp.Variable, Expression.Constant(async)));
                             }
                         }
                         break;

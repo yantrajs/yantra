@@ -15,6 +15,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 
 namespace YantraJS.Utils
@@ -260,16 +261,16 @@ namespace YantraJS.Utils
                     return ExpHelper.JSValueBuilder.Add(left, right);
                 case TokenTypes.Minus:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Subtract(leftDouble, rightDouble));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a,b) => a.Subtract(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a,b) => a.Subtract(b), right);
                 case TokenTypes.Multiply:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Multiply(leftDouble, rightDouble));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.Multiply(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.Multiply(b), right);
                 case TokenTypes.Divide:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Divide(leftDouble, rightDouble));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.Divide(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.Divide(b), right);
                 case TokenTypes.Mod:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Modulo(leftDouble, rightDouble));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.Modulo(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.Modulo(b), right);
                 case TokenTypes.Greater:
                     return ExpHelper.JSValueBuilder.Greater(left, right);
                 case TokenTypes.GreaterOrEqual:
@@ -280,24 +281,24 @@ namespace YantraJS.Utils
                     return ExpHelper.JSValueBuilder.LessOrEqual(left, right);
                 case TokenTypes.BitwiseAnd:
                     // return ExpHelper.JSNumberBuilder.New(Expression.And(leftInt, rightInt));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.BitwiseAnd(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.BitwiseAnd(b), right);
                 case TokenTypes.BitwiseOr:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Or(leftInt, rightInt));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.BitwiseOr(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.BitwiseOr(b), right);
                 case TokenTypes.Xor:
                     // return ExpHelper.JSNumberBuilder.New(Expression.ExclusiveOr(leftInt, rightInt));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.BitwiseXor(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.BitwiseXor(b), right);
                 case TokenTypes.LeftShift:
                     // return ExpHelper.JSNumberBuilder.New(Expression.LeftShift(leftInt, rightInt));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.LeftShift(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.LeftShift(b), right);
                 case TokenTypes.RightShift:
                     // return ExpHelper.JSNumberBuilder.New(Expression.RightShift(leftInt,Expression.And( rightInt, oneF)));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.RightShift(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.RightShift(b), right);
                 case TokenTypes.UnsignedRightShift:
                     //return ExpHelper.JSNumberBuilder.New(
                     //    Expression.UnsignedRightShift(
                     //        JSValueBuilder.UIntValue(left) , rightInt));
-                    return left.InstanceCall<JSValue, JSValue, JSValue>((a, b) => a.UnsignedRightShift(b), right);
+                    return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.UnsignedRightShift(b), right);
                 case TokenTypes.BooleanAnd:
                     return ExpHelper.JSValueBuilder.LogicalAnd(left, right);
                 case TokenTypes.BooleanOr:

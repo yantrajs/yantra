@@ -20,37 +20,6 @@ using YantraJS.Expressions;
 namespace YantraJS.ExpHelper
 {
 
-    internal static class ExpressionExtensions
-    {
-        public static Expression InstanceCall<TIn, TOut>(
-            this Expression exp, Expression<Func<TIn, TOut>> fx)
-        {
-            var m = (fx.Body as MethodCallExpression).Method;
-            return Expression.Call(exp, m);
-        }
-        public static Expression InstanceCall<TIn, P1, TOut>(
-            this Expression exp, Expression<Func<TIn, P1, TOut>> fx,
-            Expression arg1)
-        {
-            var m = (fx.Body as MethodCallExpression).Method;
-            return Expression.Call(exp, m, arg1);
-        }
-
-        public static Expression InstanceAction<TIn, TP1>(
-            this Expression exp, Expression<Action<TIn, TP1>> fx, Expression arg1)
-        {
-            var m = (fx.Body as MethodCallExpression).Method;
-            return Expression.Call(exp, m, arg1);
-        }
-        public static Expression InstanceAction<TIn, P1, P2>(
-            this Expression exp, Expression<Action<TIn, P1, P2>> fx,
-            Expression arg1, Expression arg2)
-        {
-            var m = (fx.Body as MethodCallExpression).Method;
-            return Expression.Call(exp, m, arg1, arg2);
-        }
-    }
-
 
     public class JSValueBuilder
     {

@@ -70,6 +70,16 @@ public static class TypeQuery
 
     }
 
+    public static MethodInfo QueryInstanceMethod(Func<LambdaExpression> fx)
+    {
+        return GetOrCreate(fx.Method, () => {
+            var exp = fx();
+            if (exp.Body is not MethodCallExpression me)
+                throw new ArgumentException($"Method found in {exp}");
+            return me.Method;
+        });
+
+    }
 
     private static ConstructorInfo QueryConstructor<T>(Expression<Func<T>> expression)
     {
