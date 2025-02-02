@@ -27,12 +27,6 @@ namespace YantraJS.ExpHelper
     {
         private static readonly Type type = typeof(JSValue);
 
-        private static MethodInfo _AddString
-            = type.PublicMethod(nameof(JSValue.AddValue), typeof(string));
-
-        private static MethodInfo _AddDouble
-            = type.PublicMethod(nameof(JSValue.AddValue), typeof(double));
-
         private static PropertyInfo _IsFunction
             = type.Property(nameof(JSValue.IsFunction));
 
@@ -58,7 +52,8 @@ namespace YantraJS.ExpHelper
         }
         public static Expression AddDouble(Expression target, Expression @double)
         {
-            return Expression.Call(target, _AddDouble, @double);
+            // return Expression.Call(target, _AddDouble, @double);
+            return target.CallExpression<JSValue, double, JSValue>(() => (x, a) => x.AddValue(a), @double);
         }
 
         public static Expression ToKey(Expression exp)
