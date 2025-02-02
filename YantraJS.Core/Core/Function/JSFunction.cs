@@ -242,6 +242,7 @@ namespace YantraJS.Core
                 BasePrototypeObject = prototype
             };
             var a1 = a.OverrideThis(obj);
+            JSContext.Current.CurrentNewTarget = this;
             var r = f(a1);
             if (r.IsObject)
             {
@@ -253,7 +254,24 @@ namespace YantraJS.Core
 
         public JSValue InvokeSuper(in Arguments a)
         {
-            return f(a);
+            return f(in a);
+            //var prototype = JSContext.NewTargetPrototype;
+            //if (prototype == null)
+            //{
+            //    throw JSContext.Current.NewTypeError($"{name} is called as super outside constructor");
+            //}
+            //JSValue obj = new JSObject
+            //{
+            //    BasePrototypeObject = prototype
+            //};
+            //var a1 = a.OverrideThis(obj);
+            //var r = f(a1);
+            //if (r.IsObject)
+            //{
+            //    r.BasePrototypeObject = prototype;
+            //    return r;
+            //}
+            //return obj;
         }
 
         public override JSValue InvokeFunction(in Arguments a)

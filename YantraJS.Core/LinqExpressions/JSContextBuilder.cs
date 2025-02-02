@@ -25,17 +25,17 @@ namespace YantraJS.ExpHelper
         //public static MethodInfo _Pop =
         //    type.InternalMethod(nameof(LightWeightStack<CallStackItem>.Pop));
 
-        private static FieldInfo _fileName =
-            itemType.InternalField(nameof(CallStackItem.FileName));
+        //private static FieldInfo _fileName =
+        //    itemType.InternalField(nameof(CallStackItem.FileName));
 
-        private static FieldInfo _Function =
-            itemType.InternalField(nameof(CallStackItem.Function));
+        //private static FieldInfo _Function =
+        //    itemType.InternalField(nameof(CallStackItem.Function));
 
-        private static FieldInfo _Line =
-            itemType.InternalField(nameof(CallStackItem.Line));
+        //private static FieldInfo _Line =
+        //    itemType.InternalField(nameof(CallStackItem.Line));
 
-        private static FieldInfo _Column =
-            itemType.InternalField(nameof(CallStackItem.Column));
+        //private static FieldInfo _Column =
+        //    itemType.InternalField(nameof(CallStackItem.Column));
 
 
         public static void Push(Sequence<Expression> stmtList, Expression context,  Expression stack, 

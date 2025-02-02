@@ -31,7 +31,7 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            if (JSContext.NewTarget == null)
+            if (JSContext.NewTarget == null && JSContext.Current.CurrentNewTarget == null)
                 throw JSContext.Current.NewTypeError($"{this} is not a function");
             return f(a);
         }
@@ -44,6 +44,7 @@ namespace YantraJS.Core
                 BasePrototypeObject = this.prototype
             };
             var ao = a.OverrideThis(@object);
+            JSContext.Current.CurrentNewTarget = this;
             var @this = f(ao);
             if (!@this.IsUndefined)
             {

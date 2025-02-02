@@ -109,9 +109,12 @@ namespace YantraJS.Core
         {
             get
             {
-                return Current.Top.NewTarget?.prototype;
+                return Current.Top?.NewTarget?.prototype;
             }
         }
+
+        internal JSFunction CurrentNewTarget;
+
 
         public event EventHandler<EvalEventArgs> EvalEvent;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using YantraJS.Core.CodeGen;
+using YantraJS.Core.LambdaGen;
 using YantraJS.Expressions;
 
 namespace YantraJS.Core.LinqExpressions
@@ -12,15 +13,15 @@ namespace YantraJS.Core.LinqExpressions
 
         static Type type = typeof(CallStackItem);
 
-        static ConstructorInfo _new =
-            type.GetConstructor(new Type[] { 
-                typeof(JSContext),
-                typeof(ScriptInfo),
-                typeof(int),
-                typeof(int),
-                typeof(int),
-                typeof(int)
-            });
+        //static ConstructorInfo _new =
+        //    type.GetConstructor(new Type[] { 
+        //        typeof(JSContext),
+        //        typeof(ScriptInfo),
+        //        typeof(int),
+        //        typeof(int),
+        //        typeof(int),
+        //        typeof(int)
+        //    });
 
         static MethodInfo _step =
             type.PublicMethod(nameof(CallStackItem.Step), typeof(int), typeof(int));
@@ -33,14 +34,23 @@ namespace YantraJS.Core.LinqExpressions
             int line,
             int column)
         {
-            return YExpression.New(
-                _new, 
-                context, 
-                scriptInfo, 
+
+            return NewLambdaExpression.NewExpression(() => new CallStackItem(null, null, "", 0, 0),
+                context,
+                scriptInfo,
                 YExpression.Constant(nameOffset),
                 YExpression.Constant(nameLength),
                 YExpression.Constant(line),
                 YExpression.Constant(column));
+
+            //return YExpression.New(
+            //    _new, 
+            //    context, 
+            //    scriptInfo, 
+            //    YExpression.Constant(nameOffset),
+            //    YExpression.Constant(nameLength),
+            //    YExpression.Constant(line),
+            //    YExpression.Constant(column));
         }
 
         public static YExpression Step(YExpression target, int line, int column)

@@ -99,6 +99,14 @@ internal static class NewLambdaExpression
         return Expression.New(m, p1, p2, p3, p4, p5);
     }
 
+    public static Expression NewExpression<TOut>(
+        Expression<Func<TOut>> fx,
+        params Expression[] args)
+    {
+        var m = (fx.Body as NewExpression).Constructor;
+        return Expression.New(m, args);
+    }
+
     public static Expression StaticCallExpression<TIn, TOut>(
         Expression<Func<TIn, TOut>> fx,
         params Expression[] args)

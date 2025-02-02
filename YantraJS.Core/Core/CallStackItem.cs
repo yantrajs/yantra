@@ -2,6 +2,7 @@
 using YantraJS.Core.CodeGen;
 using System.ComponentModel;
 using YantraJS.Core.Core;
+using System.Runtime.InteropServices;
 
 namespace YantraJS.Core
 {
@@ -27,6 +28,12 @@ namespace YantraJS.Core
             context = context ?? JSContext.Current;
             context.EnsureSufficientExecutionStack();
             this.context = context;
+            var ctx = context.CurrentNewTarget;
+            if (ctx != null)
+            {
+                this.NewTarget = ctx;
+                context.CurrentNewTarget = null;
+            }
             this.FileName = scriptInfo.FileName;
             this.Function = (nameLength>0) 
                 ? scriptInfo.Code.ToStringSpan(nameOffset, nameLength)
