@@ -27,6 +27,15 @@ internal static class NewLambdaExpression
         return Expression.Field(exp, f);
     }
 
+    public static Expression PropertyExpression<TTarget, TTOut>(
+        this Expression exp,
+        Func<Expression<Func<TTarget, TTOut>>> func)
+    where TTarget : class
+    {
+        var f = TypeQuery.QueryInstanceProperty(func);
+        return Expression.Property(exp, f);
+    }
+
     public static Expression NewExpression<TOut>(
         Func<Expression<Func<TOut>>> fx,
         params Expression[] args)

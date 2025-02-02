@@ -16,6 +16,7 @@ using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Core.FastParser;
 using YantraJS.Expressions;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
@@ -104,27 +105,27 @@ namespace YantraJS.ExpHelper
 
         public static Expression IsNumber(Expression exp)
         {
-            return Expression.Property(exp, _IsNumber);
+            return exp.PropertyExpression<JSValue, bool>(() => (x) => x.IsNumber);
         }
 
         public static Expression IsString(Expression exp)
         {
-            return Expression.Property(exp, _IsString);
+            return exp.PropertyExpression<JSValue, bool>(() => (x) => x.IsString);
         }
 
         public static Expression IsBoolean(Expression exp)
         {
-            return Expression.Property(exp, _IsBoolean);
+            return exp.PropertyExpression<JSValue, bool>(() => (x) => x.IsBoolean);
         }
 
         public static Expression IsSymbol(Expression exp)
         {
-            return Expression.Property(exp, _IsSymbol);
+            return exp.PropertyExpression<JSValue, bool>(() => (x) => x.IsSymbol);
         }
 
         public static Expression IsFunction(Expression exp)
         {
-            return Expression.Property(exp, _IsFunction);
+            return exp.PropertyExpression<JSValue, bool>(() => (x) => x.IsFunction);
         }
 
         public static Expression IsObjectType(Expression exp)
