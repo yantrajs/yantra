@@ -17,6 +17,7 @@ using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Core.FastParser;
 using YantraJS.Expressions;
 using YantraJS.Core.LambdaGen;
+using YantraJS.Core.Core;
 
 namespace YantraJS.ExpHelper
 {
@@ -25,21 +26,6 @@ namespace YantraJS.ExpHelper
     public class JSValueBuilder
     {
         private static readonly Type type = typeof(JSValue);
-
-        private static PropertyInfo _IsNullOrUndefined
-            = type.Property(nameof(Core.JSValue.IsNullOrUndefined));
-
-        private static FieldInfo _PrototypeChain
-            = type.PublicField(nameof(Core.JSValue.prototypeChain));
-
-        private static MethodInfo _ToKey
-            = type.InternalMethod(nameof(Core.JSValue.ToKey), typeof(bool));
-
-        private static MethodInfo _Power
-            = type.PublicMethod(nameof(Core.JSValue.Power), typeof(JSValue));
-
-        private static MethodInfo _ValueOf
-            = type.PublicMethod(nameof(Core.JSValue.ValueOf));
 
         private static MethodInfo _AddString
             = type.PublicMethod(nameof(JSValue.AddValue), typeof(string));
@@ -67,7 +53,8 @@ namespace YantraJS.ExpHelper
 
         public static Expression AddString(Expression target, Expression @string)
         {
-            return Expression.Call(target, _AddString, @string);
+            // return Expression.Call(target, _AddString, @string);
+            return target.CallExpression<JSValue, string, JSValue>(() => (x, a) => x.AddValue(a), @string);
         }
         public static Expression AddDouble(Expression target, Expression @double)
         {
@@ -76,7 +63,8 @@ namespace YantraJS.ExpHelper
 
         public static Expression ToKey(Expression exp)
         {
-            return Expression.Call(exp, _ToKey, Expression.Constant(true));
+            // return Expression.Call(exp, _ToKey, Expression.Constant(true));
+            return exp.CallExpression<JSValue, PropertyKey>(() => (x) => x.ToKey(true), Expression.Constant(true));
         }
 
         public static Expression IsNumber(Expression exp)
@@ -151,7 +139,9 @@ namespace YantraJS.ExpHelper
 
         public static Expression PrototypeChain(Expression exp)
         {
-            return Expression.Field( Expression.Field(exp, _PrototypeChain), "object");
+            return exp
+                .FieldExpression<JSValue, JSPrototype>(() => (x) => x.prototypeChain)
+                .FieldExpression<JSPrototype, JSObject>(() => (x) => x.@object);
         }
 
         public static Expression Negate(Expression exp)
@@ -160,7 +150,8 @@ namespace YantraJS.ExpHelper
         }
 
         public static Expression Power(Expression left,Expression right) {
-            return Expression.Call(left, _Power, right);
+            // return Expression.Call(left, _Power, right);
+            return left.CallExpression<JSValue, JSValue, JSValue>(() => (x, a) => x.Power(a), right);
         }
 
         private static PropertyInfo _BooleanValue =
@@ -494,7 +485,8 @@ namespace YantraJS.ExpHelper
         }
 
         public static Expression ValueOf(Expression target) {
-            return Expression.Call(target, _ValueOf);
+            // return Expression.Call(target, _ValueOf);
+            return target.CallExpression<JSValue, JSValue>(() => (x) => x.ValueOf());
         }
 
         public static Expression LogicalAnd(Expression target, Expression value)
