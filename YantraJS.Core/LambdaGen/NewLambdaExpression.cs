@@ -35,20 +35,20 @@ internal static class NewLambdaExpression
         return Expression.New(m, args);
     }
 
-    public static Expression StaticCallExpression<TIn, TOut>(
-        Expression<Func<TIn, TOut>> fx,
+    public static Expression StaticCallExpression<TOut>(
+        Func<Expression<Func<TOut>>> fx,
         params Expression[] args)
     {
-        var m = (fx.Body as MethodCallExpression).Method;
+        var m = TypeQuery.QueryStaticMethod(fx);
         return Expression.Call(null, m, args);
     }
 
     public static Expression CallExpression<TIn, TOut>(
         this Expression @this,
-        Expression<Func<TIn, TOut>> fx,
+        Func<Expression<Func<TIn, TOut>>> fx,
         params Expression[] args)
     {
-        var m = (fx.Body as MethodCallExpression).Method;
+        var m = TypeQuery.QueryInstanceMethod(fx);
         return Expression.Call(@this, m, args);
     }
 }

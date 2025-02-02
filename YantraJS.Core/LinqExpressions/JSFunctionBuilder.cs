@@ -90,7 +90,7 @@ namespace YantraJS.ExpHelper
             Expression returnValue, Expression args)
         {
             return Expression.Assign(returnValue,
-                super.CallExpression<JSFunction, JSValue>((x) => x.InvokeSuper(Arguments.Empty), args)
+                super.CallExpression<JSFunction, JSValue>(() => (x) => x.InvokeSuper(Arguments.Empty), args)
                 );
             //return Expression.Assign(returnValue, 
             //    Expression.Call(null, _invokeSuperConstructor, newTarget, super, args));
