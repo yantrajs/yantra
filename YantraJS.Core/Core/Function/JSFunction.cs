@@ -241,7 +241,7 @@ namespace YantraJS.Core
             {
                 BasePrototypeObject = prototype
             };
-            var a1 = a.OverrideThis(obj, constructor);
+            var a1 = a.OverrideThis(obj);
             var r = f(a1);
             if (r.IsObject)
             {
@@ -249,6 +249,11 @@ namespace YantraJS.Core
                 return r;
             }
             return obj;
+        }
+
+        public JSValue InvokeSuper(in Arguments a)
+        {
+            return f(a);
         }
 
         public override JSValue InvokeFunction(in Arguments a)
@@ -325,7 +330,7 @@ namespace YantraJS.Core
             var target = newTarget;
 
             var @this = a.This;
-            var r = (super as JSFunction).f(a.OverrideThis(a.This, super));
+            var r = (super as JSFunction).CreateInstance(a.OverrideThis(a.This));
             return r.IsObject ? r : @this;
         }
 

@@ -29,7 +29,7 @@ namespace YantraJS.Core.Internal
             }
             var args = a[1];
             var newTarget = a[2];
-            return fx.CreateInstance(Arguments.ForApply(JSUndefined.Value, args, newTarget));
+            return fx.CreateInstance(Arguments.ForApply(JSUndefined.Value, args));
 
         }
 

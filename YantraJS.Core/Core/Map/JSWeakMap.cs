@@ -41,7 +41,7 @@ namespace YantraJS.Core
 
         private StringMap<WeakReference<WeakValue>> index;
 
-        public JSWeakMap(in Arguments a) : base(a.NewPrototype)
+        public JSWeakMap(in Arguments a) : base(JSContext.NewTargetPrototype)
         {
             if (a[0] is JSArray array)
             {

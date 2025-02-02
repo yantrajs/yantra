@@ -11,7 +11,7 @@ namespace YantraJS.Network
     public partial class URL: JSObject
     {
     
-        public URL(in Arguments a): base(a.NewPrototype)
+        public URL(in Arguments a): base(JSContext.NewTargetPrototype)
         {
             
         }
@@ -20,7 +20,7 @@ namespace YantraJS.Network
     [JSClassGenerator]
     public partial class URLSearchParams: KeyValueStore
     {
-        public URLSearchParams(in Arguments a): base(a.NewPrototype)
+        public URLSearchParams(in Arguments a): base(JSContext.NewTargetPrototype)
         {
             
         }

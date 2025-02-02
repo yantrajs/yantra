@@ -23,7 +23,7 @@ namespace YantraJS.Core
 
         public readonly JSValue? This;
 
-        public readonly JSValue? NewTarget;
+        //public readonly JSValue? NewTarget;
 
         private readonly JSValue? Arg0;
 
@@ -62,7 +62,8 @@ namespace YantraJS.Core
         public Arguments CopyForBind(in Arguments a)
         {
             // need to append a's parameter to self...
-            var @this = a.NewTarget != null ? a.This! : this[0]!;
+            //var @this = a.NewTarget != null ? a.This! : this[0]!;
+            var @this = a.This!;
             var total = this.Length - 1 + a.Length;
             var list = new JSValue[total + a.Length];
             int i;
@@ -75,13 +76,13 @@ namespace YantraJS.Core
             {
                 list[i] = a[i - start]!;
             }
-            return new Arguments(@this, list, a.NewTarget!);
+            return new Arguments(@this, list);
         }
 
-        public JSObject? NewPrototype => (NewTarget is JSFunction o) ? o.prototype : null;
+        //public JSObject? NewPrototype => (NewTarget is JSFunction o) ? o.prototype : null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Arguments ForApply(JSValue @this, JSValue args, JSValue? newTarget = null)
+        public static Arguments ForApply(JSValue @this, JSValue args)
         {
             if (args.IsArray && args is JSArray argArray)
             {
@@ -89,15 +90,15 @@ namespace YantraJS.Core
                 switch (length)
                 {
                     case 0:
-                        return new Arguments(@this, 0, null, null, null, null, null, newTarget);
+                        return new Arguments(@this, 0, null, null, null, null, null);
                     case 1:
-                        return new Arguments(@this, 1, argArray[0], null, null, null, null, newTarget);
+                        return new Arguments(@this, 1, argArray[0], null, null, null, null);
                     case 2:
-                        return new Arguments(@this, 2, argArray[0], argArray[1], null, null, null, newTarget);
+                        return new Arguments(@this, 2, argArray[0], argArray[1], null, null, null);
                     case 3:
-                        return new Arguments(@this, 3, argArray[0], argArray[1], argArray[2], null, null, newTarget);
+                        return new Arguments(@this, 3, argArray[0], argArray[1], argArray[2], null, null);
                     case 4:
-                        return new Arguments(@this, 4, argArray[0], argArray[1], argArray[2], argArray[3], null, newTarget);
+                        return new Arguments(@this, 4, argArray[0], argArray[1], argArray[2], argArray[3], null);
                     default:
                         var argList = new JSValue[argArray._length];
                         var ee = argArray.GetElementEnumerator();
@@ -105,7 +106,7 @@ namespace YantraJS.Core
                         {
                             argList[index] = hasValue ? value : JSUndefined.Value;
                         }
-                        return new Arguments(@this, (int)length, null, null, null, null, argList, newTarget);
+                        return new Arguments(@this, (int)length, null, null, null, null, argList);
                 }
             }
             if (args is JSArguments arguments)
@@ -114,15 +115,15 @@ namespace YantraJS.Core
                 switch (length)
                 {
                     case 0:
-                        return new Arguments(@this, 0, null, null, null, null, null, newTarget);
+                        return new Arguments(@this, 0, null, null, null, null, null);
                     case 1:
-                        return new Arguments(@this, 1, arguments[0], null, null, null, null, newTarget);
+                        return new Arguments(@this, 1, arguments[0], null, null, null, null);
                     case 2:
-                        return new Arguments(@this, 2, arguments[0], arguments[1], null, null, null, newTarget);
+                        return new Arguments(@this, 2, arguments[0], arguments[1], null, null, null);
                     case 3:
-                        return new Arguments(@this, 3, arguments[0], arguments[1], arguments[2], null, null, newTarget);
+                        return new Arguments(@this, 3, arguments[0], arguments[1], arguments[2], null, null);
                     case 4:
-                        return new Arguments(@this, 4, arguments[0], arguments[1], arguments[2], arguments[3], null, newTarget);
+                        return new Arguments(@this, 4, arguments[0], arguments[1], arguments[2], arguments[3], null);
                     default:
                         var argList = new JSValue[arguments.Length];
                         var ee = arguments.GetElementEnumerator();
@@ -130,11 +131,11 @@ namespace YantraJS.Core
                         {
                             argList[index] = hasValue ? value : JSUndefined.Value;
                         }
-                        return new Arguments(@this, length, null, null, null, null, argList, newTarget);
+                        return new Arguments(@this, length, null, null, null, null, argList);
                 }
 
             }
-            return new Arguments(@this, 0, null, null, null, null, null, newTarget);
+            return new Arguments(@this, 0, null, null, null, null, null);
         }
 
 
@@ -150,7 +151,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this)
         {
-            NewTarget = null;
+            // NewTarget = null;
             This = @this;
             Length = 0;
             Arg0 = null;
@@ -162,7 +163,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0)
         {
-            NewTarget = null;
+            // NewTarget = null;
             This = @this;
             Length = 1;
             Arg0 = a0;
@@ -174,7 +175,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1)
         {
-            NewTarget = null;
+            // NewTarget = null;
             This = @this;
             Length = 2;
             Arg0 = a0;
@@ -187,7 +188,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2)
         {
-            NewTarget = null;
+            // NewTarget = null;
             This = @this;
             Length = 3;
             Arg0 = a0;
@@ -199,7 +200,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue a0, JSValue a1, JSValue a2, JSValue a3)
         {
-            NewTarget = null;
+            // NewTarget = null;
             This = @this;
             Length = 4;
             Arg0 = a0;
@@ -223,7 +224,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue[] list, int length)
         {
-            NewTarget = null;
+            // NewTarget = null;
             This = @this;
             Length = length;
             JSValue[] args = new JSValue[length];
@@ -291,7 +292,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue[] args)
         {
-            NewTarget = null;
+            // NewTarget = null;
             This = @this;
             Length = args.Length;
             switch(Length)
@@ -341,63 +342,63 @@ namespace YantraJS.Core
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments(JSValue @this, JSValue[] args, JSValue newTarget)
-        {
-            NewTarget = newTarget;
-            This = @this;
-            Length = args.Length;
-            switch (Length)
-            {
-                case 0:
-                    Arg0 = null;
-                    Arg1 = null;
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 1:
-                    Arg0 = args[0];
-                    Arg1 = null;
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 2:
-                    Arg0 = args[0];
-                    Arg1 = args[1];
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 3:
-                    Arg0 = args[0];
-                    Arg1 = args[1];
-                    Arg2 = args[2];
-                    Arg3 = null;
-                    Args = null;
-                    break;
-                case 4:
-                    Arg0 = args[0];
-                    Arg1 = args[1];
-                    Arg2 = args[2];
-                    Arg3 = args[3];
-                    Args = null;
-                    break;
-                default:
-                    Arg0 = null;
-                    Arg1 = null;
-                    Arg2 = null;
-                    Arg3 = null;
-                    Args = args;
-                    break;
-            }
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public Arguments(JSValue @this, JSValue[] args)
+        //{
+        //    // NewTarget = newTarget;
+        //    This = @this;
+        //    Length = args.Length;
+        //    switch (Length)
+        //    {
+        //        case 0:
+        //            Arg0 = null;
+        //            Arg1 = null;
+        //            Arg2 = null;
+        //            Arg3 = null;
+        //            Args = null;
+        //            break;
+        //        case 1:
+        //            Arg0 = args[0];
+        //            Arg1 = null;
+        //            Arg2 = null;
+        //            Arg3 = null;
+        //            Args = null;
+        //            break;
+        //        case 2:
+        //            Arg0 = args[0];
+        //            Arg1 = args[1];
+        //            Arg2 = null;
+        //            Arg3 = null;
+        //            Args = null;
+        //            break;
+        //        case 3:
+        //            Arg0 = args[0];
+        //            Arg1 = args[1];
+        //            Arg2 = args[2];
+        //            Arg3 = null;
+        //            Args = null;
+        //            break;
+        //        case 4:
+        //            Arg0 = args[0];
+        //            Arg1 = args[1];
+        //            Arg2 = args[2];
+        //            Arg3 = args[3];
+        //            Args = null;
+        //            break;
+        //        default:
+        //            Arg0 = null;
+        //            Arg1 = null;
+        //            Arg2 = null;
+        //            Arg3 = null;
+        //            Args = args;
+        //            break;
+        //    }
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Arguments(JSValue @this, Arguments src, JSValue? newTarget = null)
+        private Arguments(JSValue @this, Arguments src)
         {
-            NewTarget = newTarget;
+            // NewTarget = newTarget;
             Length = src.Length;
             Arg0 = src.Arg0;
             Arg1 = src.Arg1;
@@ -415,10 +416,9 @@ namespace YantraJS.Core
             JSValue? arg1,
             JSValue? arg2,
             JSValue? arg3,
-            JSValue[]? args,
-            JSValue? newTarget = null)
+            JSValue[]? args)
         {
-            NewTarget = newTarget;
+            // NewTarget = newTarget;
             Length = length;
             Arg0 = arg0;
             Arg1 = arg1;
@@ -434,11 +434,11 @@ namespace YantraJS.Core
             return new Arguments(@this, this);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arguments OverrideThis(JSValue @this, JSValue newTarget)
-        {
-            return new Arguments(@this, this, newTarget);
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public Arguments OverrideThis(JSValue @this)
+        //{
+        //    return new Arguments(@this, this);
+        //}
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

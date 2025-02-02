@@ -33,7 +33,7 @@ namespace YantraJS.Core
         [JSExport(Length = 1, IsConstructor = true)]
         public static JSValue Constructor(in Arguments a)
         {
-            if (a.NewTarget == null)
+            if (JSContext.NewTargetPrototype == null)
             {
                 if(a.Length == 0)
                 {

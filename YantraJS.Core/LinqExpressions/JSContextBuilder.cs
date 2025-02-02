@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using YantraJS.Core;
+using YantraJS.Core.LambdaGen;
 using YantraJS.Core.LightWeight;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
@@ -97,6 +98,13 @@ namespace YantraJS.ExpHelper
         public static Expression Index(Expression key)
         {
             return Expression.MakeIndex(Current, _Index, new Expression[] { key });
+        }
+
+        public static Expression NewTarget()
+        {
+            return Current
+                .FieldExpression<JSContext, CallStackItem>((x) => x.Top)
+                .FieldExpression<CallStackItem, JSFunction>((x) => x.NewTarget);
         }
 
         //public static Expression Pop(Expression context)s

@@ -23,7 +23,7 @@ namespace YantraJS.Core
         [JSExport]
         public int Size => store.Count;
 
-        public JSMap(in Arguments a): base(a.NewPrototype)
+        public JSMap(in Arguments a): base(JSContext.NewTargetPrototype)
         {
             if (a[0] is JSArray array)
             {

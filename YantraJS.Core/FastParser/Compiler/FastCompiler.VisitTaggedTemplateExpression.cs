@@ -125,7 +125,6 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         var paramArray1 = ArgumentsBuilder.New(JSUndefinedBuilder.Value, args);
                         return JSFunctionBuilder.InvokeSuperConstructor(
-                            this.scope.Top.NewTarget,
                             this.scope.Top.Super,
                             this.scope.Top.ThisExpression, paramArray1);
                     }

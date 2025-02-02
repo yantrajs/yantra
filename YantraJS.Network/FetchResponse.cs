@@ -14,7 +14,7 @@ namespace YantraJS.Network
         private readonly HttpResponseMessage message;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private FetchResponse(in Arguments a): base(a.NewPrototype)
+        private FetchResponse(in Arguments a): base(JSContext.NewTargetPrototype)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
 

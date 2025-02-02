@@ -108,7 +108,7 @@ namespace YantraJS.Core
             });
         }
 
-        public JSPromise(in Arguments a): base(a.NewPrototype)
+        public JSPromise(in Arguments a): base(JSContext.NewTargetPrototype)
         {
             InitPromise();
             JSValue @delegate = a[0];

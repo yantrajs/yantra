@@ -33,7 +33,7 @@ namespace YantraJS.Core
         public int lastIndex = 0;
 
 
-        public JSRegExp(in Arguments a): base(a.NewPrototype)
+        public JSRegExp(in Arguments a): base(JSContext.NewTargetPrototype)
         {
             var pattern = "";
             var flags = "";

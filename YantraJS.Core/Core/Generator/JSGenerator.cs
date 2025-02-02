@@ -21,7 +21,7 @@ namespace YantraJS.Core.Generator
         internal JSValue value;
         internal bool done;
 
-        public JSGenerator(in Arguments a): base(a.NewPrototype)
+        public JSGenerator(in Arguments a): base(JSContext.NewTargetPrototype)
         {
             throw new NotImplementedException();
         }

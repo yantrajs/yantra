@@ -25,7 +25,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 &&  astMeta.Property.Name.Equals("target")))
                 throw JSContext.Current.NewSyntaxError($"{astMeta.Identifier.Name}.{astMeta.Property} not supported");
 
-            return ArgumentsBuilder.NewTarget(scope.Top.ArgumentsExpression);
+            return JSContextBuilder.NewTarget();
         }
     }
 }

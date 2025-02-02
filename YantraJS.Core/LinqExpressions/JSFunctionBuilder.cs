@@ -22,6 +22,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
@@ -85,12 +86,14 @@ namespace YantraJS.ExpHelper
                 typeof(Arguments).MakeByRefType());
 
         public static Expression InvokeSuperConstructor(
-            Expression newTarget, 
             Expression super,
             Expression returnValue, Expression args)
         {
-            return Expression.Assign(returnValue, 
-                Expression.Call(null, _invokeSuperConstructor, newTarget, super, args));
+            return Expression.Assign(returnValue,
+                super.CallExpression<JSFunction, JSValue>((x) => x.InvokeSuper(Arguments.Empty), args)
+                );
+            //return Expression.Assign(returnValue, 
+            //    Expression.Call(null, _invokeSuperConstructor, newTarget, super, args));
         }
 
         public static Expression InvokeFunction(Expression target, Expression args, bool coalesce = false)

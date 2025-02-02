@@ -170,7 +170,7 @@ namespace YantraJS.Core.FastParser.Compiler
                     // check if there are pending member inits...
                     var paramArray1 = VisitArguments(@this, arguments);
                     FastFunctionScope top = this.scope.Top;
-                    var newTarget = top.NewTarget;
+                    // var newTarget = top.NewTarget;
                     var members = top.MemberInits;
                     var super = top.Super;
                     // we need to set this to null
@@ -179,7 +179,6 @@ namespace YantraJS.Core.FastParser.Compiler
                     if (members?.Any() ?? false) {
                         var initList = new Sequence<Exp>() {
                             JSFunctionBuilder.InvokeSuperConstructor(
-                            newTarget,
                             super,
                             @this, paramArray1)
                         };
@@ -188,7 +187,6 @@ namespace YantraJS.Core.FastParser.Compiler
                         return Exp.Block(initList);
                     }
                     return JSFunctionBuilder.InvokeSuperConstructor(
-                        newTarget, 
                         super,
                         @this, paramArray1);
                 }

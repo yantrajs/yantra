@@ -205,7 +205,7 @@ namespace YantraJS.Core.FastParser.Compiler
         private Expression _this;
         public Expression ThisExpression => _this ?? (_this = this.GetVariable("this", true).Expression);
 
-        public Expression NewTarget => Expression.Field(ArgumentsExpression, nameof(YantraJS.Core.Arguments.NewTarget));
+        // public Expression NewTarget => Expression.Field(ArgumentsExpression, nameof(YantraJS.Core.Arguments.NewTarget));
 
         public bool HasDisposable => _dispoable != null;
 

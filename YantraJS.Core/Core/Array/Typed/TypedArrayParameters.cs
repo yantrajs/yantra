@@ -56,7 +56,7 @@
             copyFrom = null;
             map = null;
             thisArg = null;
-            prototype = a.NewPrototype;
+            prototype = JSContext.NewTargetPrototype;
             if (a.Length == 0)
             {
                 buffer = null;

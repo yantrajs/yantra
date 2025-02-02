@@ -47,7 +47,7 @@ namespace YantraJS.Core
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0
-            ): this(a.NewPrototype)
+            ): this(JSContext.NewTargetPrototype)
         {
             this.Exception = new JSException(
                 this,
