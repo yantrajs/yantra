@@ -37,8 +37,8 @@ namespace YantraJS.ExpHelper
         //private static MethodInfo _StrictEqualsLiteralString
         //    = type.PublicMethod(nameof(JSValue.StrictEqualsLiteral), typeof(string));
 
-        private static MethodInfo _Negate
-            = type.PublicMethod(nameof(JSValue.Negate));
+        //private static MethodInfo _Negate
+        //    = type.PublicMethod(nameof(JSValue.Negate));
 
         public static Expression AddString(Expression target, Expression @string)
         {
@@ -141,7 +141,8 @@ namespace YantraJS.ExpHelper
 
         public static Expression Negate(Expression exp)
         {
-            return Expression.Call(exp, _Negate);
+            // return Expression.Call(exp, _Negate);
+            return exp.CallExpression<JSValue, JSValue>(() => (x) => x.Negate());
         }
 
         public static Expression Power(Expression left,Expression right) {
@@ -149,8 +150,8 @@ namespace YantraJS.ExpHelper
             return left.CallExpression<JSValue, JSValue, JSValue>(() => (x, a) => x.Power(a), right);
         }
 
-        private static PropertyInfo _BooleanValue =
-            type.Property(nameof(JSValue.BooleanValue));
+        //private static PropertyInfo _BooleanValue =
+        //    type.Property(nameof(JSValue.BooleanValue));
         public static Expression BooleanValue(Expression exp)
         {
             if(exp.NodeType == Expressions.YExpressionType.Conditional && exp is YConditionalExpression ce)
@@ -168,16 +169,18 @@ namespace YantraJS.ExpHelper
             {
                 return YExpression.Constant(false);
             }
-            return Expression.Property(exp, _BooleanValue);
+            // return Expression.Property(exp, _BooleanValue);
+            return exp.PropertyExpression<JSValue, bool>(() => (x) => x.BooleanValue);
         }
 
 
-        private static MethodInfo _Add =
-            type.InternalMethod(nameof(Core.JSValue.AddValue), typeof(JSValue));
+        //private static MethodInfo _Add =
+        //    type.InternalMethod(nameof(Core.JSValue.AddValue), typeof(JSValue));
 
         public static Expression Add(Expression target, Expression value)
         {
-            return Expression.Call(target, _Add, value);
+            // return Expression.Call(target, _Add, value);
+            return target.CallExpression<JSValue, JSValue, JSValue>(() => (x, a) => x.AddValue(a), value);
         }
 
         private static MethodInfo _TypeOf =
@@ -390,6 +393,7 @@ namespace YantraJS.ExpHelper
         public static Expression CreateInstance(Expression target, Expression args)
         {
             return Expression.Call(target, _CreateInstance, args);
+            // return target.CallExpression<JSValue, JSValue>(() => (x) => x.CreateInstance())
         }
 
         internal static MethodInfo StaticEquals
@@ -520,14 +524,14 @@ namespace YantraJS.ExpHelper
                     ;
         }
 
-        private static MethodInfo _ConvertTo =
-            type.InternalMethod(nameof(JSValue.TryConvertTo), typeof(Type), typeof(object).MakeByRefType());
+        //private static MethodInfo _ConvertTo =
+        //    type.InternalMethod(nameof(JSValue.TryConvertTo), typeof(Type), typeof(object).MakeByRefType());
 
-        private static MethodInfo _ForceConvert =
-            type.PublicMethod(nameof(JSValue.ForceConvert), typeof(Type));
+        //private static MethodInfo _ForceConvert =
+        //    type.PublicMethod(nameof(JSValue.ForceConvert), typeof(Type));
 
-        private static MethodInfo _Convert =
-    type.InternalMethod(nameof(JSValue.Convert), typeof(Type), typeof(object));
+        //private static MethodInfo _Convert =
+        //    type.InternalMethod(nameof(JSValue.Convert), typeof(Type), typeof(object));
 
         //public static Expression Convert(Expression jsValue, Type type, Expression defaultValue)
         //{
