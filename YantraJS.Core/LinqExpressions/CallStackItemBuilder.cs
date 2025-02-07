@@ -11,21 +11,6 @@ namespace YantraJS.Core.LinqExpressions
     internal static class CallStackItemBuilder
     {
 
-        static Type type = typeof(CallStackItem);
-
-        //static ConstructorInfo _new =
-        //    type.GetConstructor(new Type[] { 
-        //        typeof(JSContext),
-        //        typeof(ScriptInfo),
-        //        typeof(int),
-        //        typeof(int),
-        //        typeof(int),
-        //        typeof(int)
-        //    });
-
-        static MethodInfo _step =
-            type.PublicMethod(nameof(CallStackItem.Step), typeof(int), typeof(int));
-
         public static YExpression New(
             YExpression context,
             YExpression scriptInfo,
@@ -48,10 +33,10 @@ namespace YantraJS.Core.LinqExpressions
 
         public static YExpression Step(YExpression target, int line, int column)
         {
-            return YExpression.Call(target,
-                _step,
+            return target.CallExpression<CallStackItem, int, int>(() => (x, a, b) => x.Step(a, b),
                 YExpression.Constant(line),
-                YExpression.Constant(column));
+                YExpression.Constant(column)
+                );
         }
 
     }

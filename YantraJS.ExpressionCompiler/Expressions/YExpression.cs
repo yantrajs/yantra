@@ -861,9 +861,9 @@ namespace YantraJS.Expressions
         }
 
 
-        public static YYieldExpression Yield(YExpression arg)
+        public static YYieldExpression Yield(YExpression arg, bool @delegate = false)
         {
-            return new YYieldExpression(arg);
+            return new YYieldExpression(arg, @delegate);
         }
     }
 }
