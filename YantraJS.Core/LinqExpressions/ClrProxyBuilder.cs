@@ -51,13 +51,6 @@ namespace YantraJS.LinqExpressions
 
         private static Dictionary<Type, MethodInfo> _from;
 
-        private static ConstructorInfo _new =
-            type.Constructor(typeof(object), typeof(JSObject));
-
-        public static Expression New(Expression target, Expression prototype)
-        {
-            return Expression.New(_new, target, prototype).ToJSValue();
-        }
         public static Expression Marshal(Expression target)
         {
             if (typeof(JSValue).IsAssignableFrom(target.Type))

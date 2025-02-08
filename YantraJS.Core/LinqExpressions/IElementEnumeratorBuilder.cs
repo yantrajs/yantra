@@ -12,6 +12,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
@@ -48,6 +49,10 @@ namespace YantraJS.ExpHelper
 
         public static Expression MoveNext(Expression target, Expression item)
         {
+            //return target.CallExpression<IElementEnumerator, JSValue, bool>(
+            //    () => (x, a) => x.MoveNext(out a),
+            //    item
+            //);
             return Expression.Call(target, moveNext, item);
         }
 
@@ -62,6 +67,12 @@ namespace YantraJS.ExpHelper
             Expression assignee,
             Expression target)
         {
+            //return Expression.Assign(assignee,
+            //    target.CallExpression<IElementEnumerator, JSValue, JSValue>(
+            //        () => (x, a) => x.NextOrDefault(a),
+            //        target
+            //        )
+            //    );
             return Expression.Assign(assignee, Expression.Call(target, nextOrDefault, JSUndefinedBuilder.Value));
         }
 
