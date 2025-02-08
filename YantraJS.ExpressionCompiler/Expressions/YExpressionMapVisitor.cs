@@ -559,7 +559,7 @@ namespace YantraJS.Expressions
         protected override YExpression VisitYield(YYieldExpression node)
         {
             if (Modified(node.Argument, out var arg))
-                return new YYieldExpression(arg);
+                return new YYieldExpression(arg, node.DelegateYield);
             return node;
         }
 

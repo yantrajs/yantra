@@ -255,7 +255,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             var (label, id) = GetNextYieldJumpTarget();
             return Expression.Block(
                 Expression.Return(generatorReturn, 
-                    GeneratorStateBuilder.New( arg, id)),
+                    GeneratorStateBuilder.New( arg, id, node.DelegateYield)),
                 Expression.Label(label),
                 nextValue
                 );

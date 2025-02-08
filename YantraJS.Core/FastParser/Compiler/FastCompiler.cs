@@ -243,14 +243,7 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override Expression VisitYieldExpression(AstYieldExpression yieldExpression)
         {
             var target = VisitExpression(yieldExpression.Argument);
-            if (yieldExpression.Delegate)
-            {
-                throw new NotSupportedException();
-                // return JSGeneratorBuilder.Delegate(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
-            }
-            // return JSGeneratorBuilder.Yield(this.scope.Top.Generator, VisitExpression(yieldExpression.Argument));
-            // return YantraJS.Core.LinqExpressions.Generators.YieldExpression.New(target);
-            return YExpression.Yield(target);
+            return YExpression.Yield(target, yieldExpression.Delegate);
 
         }
     }

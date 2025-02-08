@@ -32,13 +32,15 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
     {
         public readonly bool HasValue;
         public readonly JSValue Value;
+        public readonly bool IsValueDelegate;
         public readonly int NextJump;
 
-        public GeneratorState(JSValue value, int nextJump)
+        public GeneratorState(JSValue value, int nextJump, bool isValueDelegate)
         {
             this.HasValue = value != null;
             this.Value = value;
             this.NextJump = nextJump;
+            IsValueDelegate = isValueDelegate;  
         }
     }
 
@@ -54,8 +56,6 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
     public class ClrGeneratorV2
     {
-        //public ScriptInfo ScriptInfo;
-        //public JSVariable[] Closures;
         public CallStackItem StackItem;
 
         private Exception lastError = null;
@@ -71,6 +71,8 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         private JSGeneratorFunctionV2 generator;
         private JSGeneratorDelegateV2 @delegate;
         private readonly Arguments arguments;
+
+        private IElementEnumerator delegatedEnumerator;
 
         public JSValue LastValue;
 
@@ -113,12 +115,28 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         internal void Next(JSValue next, out JSValue value, out bool done)
         {
+            if (this.delegatedEnumerator != null)
+            {
+                if(this.delegatedEnumerator.MoveNext(out value))
+                {
+                    done = false;
+                    return;
+                }
+                this.delegatedEnumerator = null;
+            }
+
             LastValue = next ?? LastValue ?? JSUndefined.Value;
 
             var v = GetNext(this.NextJump, LastValue);
             NextJump = v.NextJump;
             if (v.HasValue)
             {
+                if (v.IsValueDelegate)
+                {
+                    this.delegatedEnumerator = v.Value.GetElementEnumerator();
+                    Next(next, out value, out done);
+                    return;
+                }
                 value = v.Value;
 
                 if(v.NextJump == 0 || v.NextJump == -1) {
@@ -127,6 +145,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     if (this.Root != null && this.Root.Finally > 0)
                     {
                         v = GetNext(this.Root.Finally, value);
+                        if (v.IsValueDelegate)
+                        {
+                            this.delegatedEnumerator = v.Value.GetElementEnumerator();
+                            Next(next, out value, out done);
+                            return;
+                        }
                         //if (v.HasValue)
                         //{
                         //    value = v.Value;
