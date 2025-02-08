@@ -67,13 +67,13 @@ namespace YantraJS.ExpHelper
             Expression assignee,
             Expression target)
         {
-            //return Expression.Assign(assignee,
-            //    target.CallExpression<IElementEnumerator, JSValue, JSValue>(
-            //        () => (x, a) => x.NextOrDefault(a),
-            //        target
-            //        )
-            //    );
-            return Expression.Assign(assignee, Expression.Call(target, nextOrDefault, JSUndefinedBuilder.Value));
+            return Expression.Assign(assignee,
+                target.CallExpression<IElementEnumerator, JSValue, JSValue>(
+                    () => (x, a) => x.NextOrDefault(a),
+                    JSUndefinedBuilder.Value
+                    )
+                );
+            // return Expression.Assign(assignee, Expression.Call(target, nextOrDefault, JSUndefinedBuilder.Value));
         }
 
     }
