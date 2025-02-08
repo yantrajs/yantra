@@ -1,27 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net.Http.Headers;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using YantraJS.Core;
-using YantraJS.Core.CodeGen;
-using YantraJS.Core.Generator;
-using YantraJS.Core.String;
-using YantraJS.Extensions;
-
-using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
-using ParameterExpression = YantraJS.Expressions.YParameterExpression;
-using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
-using LabelTarget = YantraJS.Expressions.YLabelTarget;
-using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
-using GotoExpression = YantraJS.Expressions.YGoToExpression;
-using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
@@ -68,10 +48,10 @@ namespace YantraJS.ExpHelper
         }
 
 
-        private static ConstructorInfo _New =
-            type.Constructor(new Type[] { typeof(JSFunctionDelegate), 
-                StringSpanBuilder.RefType, 
-                StringSpanBuilder.RefType, typeof(int), typeof(bool) });
+        //private static ConstructorInfo _New =
+        //    type.Constructor(new Type[] { typeof(JSFunctionDelegate), 
+        //        StringSpanBuilder.RefType, 
+        //        StringSpanBuilder.RefType, typeof(int), typeof(bool) });
 
         private static FieldInfo _f =
             type.InternalField(nameof(JSFunction.f));
@@ -111,14 +91,26 @@ namespace YantraJS.ExpHelper
                     Expression.Assign(pe, target),
                     Expression.Condition(JSValueBuilder.IsNullOrUndefined(pe),
                     JSUndefinedBuilder.Value,
-                    Expression.Call(pe, invokeFunction, args)));
+                    // Expression.Call(pe, invokeFunction, args)
+                    pe.CallExpression<JSFunction, Arguments, JSValue>(() => (x,a) => x.InvokeFunction(a),
+                    args)
+                ));
             }
-            return Expression.Call(target, invokeFunction, args);
+            //return Expression.Call(target, invokeFunction, args);
+            return target.CallExpression<JSFunction, Arguments, JSValue>(() => (x, a) => x.InvokeFunction(a), args);
         }
 
         public static Expression New(Expression del, Expression name, Expression code, int length)
         {
-            return Expression.New(_New , del, 
+            return NewLambdaExpression.NewExpression<JSFunction>(
+                () => () => new JSFunction(
+                    (JSFunctionDelegate)null,
+                    "",
+                    "",
+                    0,
+                    false
+                )
+                , del, 
                 name, 
                 code,
                 Expression.Constant(length),
