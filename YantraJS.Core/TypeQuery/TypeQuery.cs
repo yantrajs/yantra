@@ -86,6 +86,16 @@ public static class TypeQuery
 
     }
 
+    public static MethodInfo QueryStaticMethod(Func<Expression<Action>> fx)
+    {
+        return GetOrCreate(fx.Method, () => {
+            var exp = fx();
+            if (exp.Body is not MethodCallExpression me)
+                throw new ArgumentException($"Method found in {exp}");
+            return me.Method;
+        });
+    }
+
     public static MethodInfo QueryInstanceMethod<T, TOut>(Func<Expression<Func<T, TOut>>> fx)
     {
         return GetOrCreate(fx.Method, () => {

@@ -12,19 +12,21 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
     public class JSDebuggerBuilder
     {
-        private static Type type = typeof(JSDebugger);
+        //private static Type type = typeof(JSDebugger);
 
-        private static MethodInfo _RaiseBreak
-            = type.InternalMethod(nameof(JSDebugger.RaiseBreak));
+        //private static MethodInfo _RaiseBreak
+        //    = type.InternalMethod(nameof(JSDebugger.RaiseBreak));
 
         public static Expression RaiseBreak()
         {
-            return Expression.Call(null, _RaiseBreak);
+            return NewLambdaExpression.StaticCallExpression(() => () => JSDebugger.RaiseBreak());
+            // return Expression.Call(null, _RaiseBreak);
         }
     }
 }

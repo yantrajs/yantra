@@ -60,6 +60,14 @@ internal static class NewLambdaExpression
         var m = TypeQuery.QueryStaticMethod(fx);
         return Expression.Call(null, m, args);
     }
+    public static Expression StaticCallExpression(
+    Func<Expression<Action>> fx,
+    params Expression[] args)
+    {
+        var m = TypeQuery.QueryStaticMethod(fx);
+        return Expression.Call(null, m, args);
+    }
+
 
     public static Expression CallExpression<TIn, TOut>(
         this Expression @this,
