@@ -12,26 +12,29 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
     public class JSBooleanBuilder 
     {
-        static Type type = typeof(JSBoolean);
+        // static Type type = typeof(JSBoolean);
 
         public static Expression True =
-            Expression.TypeAs( Expression.Field(null, type.GetField(nameof(JSBoolean.True))), typeof(JSValue));
+            NewLambdaExpression.StaticFieldExpression<JSValue>(() => () => JSBoolean.True);
+            // Expression.TypeAs( Expression.Field(null, type.GetField(nameof(JSBoolean.True))), typeof(JSValue));
 
         public static Expression False =
-            Expression.TypeAs( Expression.Field(null, type.GetField(nameof(JSBoolean.False))), typeof(JSValue));
+            NewLambdaExpression.StaticFieldExpression<JSValue>(() => () => JSBoolean.False);
+            // Expression.TypeAs( Expression.Field(null, type.GetField(nameof(JSBoolean.False))), typeof(JSValue));
 
-        private static FieldInfo _Value =
-            type.InternalField(nameof(Core.JSBoolean._value));
+        //private static FieldInfo _Value =
+        //    type.InternalField(nameof(Core.JSBoolean._value));
 
-        public static Expression Value(Expression target)
-        {
-            return Expression.Field(target, _Value);
-        }
+        //public static Expression Value(Expression target)
+        //{
+        //    return Expression.Field(target, _Value);
+        //}
 
         public static Expression NewFromCLRBoolean(Expression target)
         {

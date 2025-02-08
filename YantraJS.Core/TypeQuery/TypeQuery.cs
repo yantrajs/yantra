@@ -48,6 +48,19 @@ public static class TypeQuery
 
     }
 
+    public static FieldInfo QueryStaticField<TReturn>(Func<Expression<Func<TReturn>>> fx)
+    {
+        return GetOrCreate(fx.Method, () => {
+            var exp = fx();
+            if (exp.Body is not MemberExpression me)
+                throw new ArgumentException($"Field not found in {exp}");
+            if (me.Member is not FieldInfo field)
+                throw new ArgumentException($"{me.Member} is not a field");
+            return field;
+        });
+
+    }
+
     public static PropertyInfo QueryInstanceProperty<T, TReturn>(Func<Expression<Func<T, TReturn>>> fx)
         where T : class
     {
