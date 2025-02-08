@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.FastParser;
+using YantraJS.Core.LambdaGen;
 using YantraJS.Core.LinqExpressions;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
@@ -58,8 +59,8 @@ namespace YantraJS.ExpHelper
         private readonly static MethodInfo _spread
             = type.PublicMethod(nameof(Arguments.Spread), typeof(JSValue), typeof(JSValue[]));
 
-        private readonly static MethodInfo _GetElementEnumerator
-            = type.PublicMethod(nameof(Arguments.GetElementEnumerator));
+        //private readonly static MethodInfo _GetElementEnumerator
+        //    = type.PublicMethod(nameof(Arguments.GetElementEnumerator));
 
         public static Expression New(Expression @this, Expression arg0)
         {
@@ -211,7 +212,8 @@ namespace YantraJS.ExpHelper
 
         public static Expression GetElementEnumerator(Expression target)
         {
-            return Expression.Call(target, _GetElementEnumerator);
+            return target.CallExpression<Arguments, IElementEnumerator>(() => (x) => x.GetElementEnumerator());
+            // return Expression.Call(target, _GetElementEnumerator);
         }
 
     }
