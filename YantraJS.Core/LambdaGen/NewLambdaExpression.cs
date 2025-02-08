@@ -8,6 +8,7 @@ using Expression = YantraJS.Expressions.YExpression;
 using System.Reflection;
 using System.Diagnostics.Contracts;
 using YantraJS.Core.Types;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.LambdaGen;
 
@@ -44,7 +45,7 @@ internal static class NewLambdaExpression
         return Expression.Property(exp, f);
     }
 
-    public static Expression NewExpression<TOut>(
+    public static YNewExpression NewExpression<TOut>(
         Func<Expression<Func<TOut>>> fx,
         params Expression[] args)
     {
