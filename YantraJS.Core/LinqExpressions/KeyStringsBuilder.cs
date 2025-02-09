@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using YantraJS.Core;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Core.LambdaGen;
 using YantraJS.Expressions;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
@@ -13,14 +14,14 @@ namespace YantraJS.ExpHelper
 {
     internal class KeyStringsBuilder
     {
-        private static MethodInfo _GetOrAdd =
-            typeof(KeyStrings).PublicMethod(nameof(KeyStrings.GetOrCreate), StringSpanBuilder.RefType);
-
         public static readonly Type RefType = typeof(KeyString).MakeByRefType();
 
         public static Expression GetOrCreate(Expression text)
         {
-            return Expression.Call(null, _GetOrAdd, text);
+            return NewLambdaExpression.StaticCallExpression<KeyString>(() =>
+                () => KeyStrings.GetOrCreate((StringSpan)"")
+            , text);
+            // return Expression.Call(null, _GetOrAdd, text);
         }
 
         public readonly static StringMap<YFieldExpression> Fields =
