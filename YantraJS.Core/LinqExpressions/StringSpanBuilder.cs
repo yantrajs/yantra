@@ -13,9 +13,6 @@ namespace YantraJS.ExpHelper
 {
     public static class StringSpanBuilder
     {
-
-        public static Type RefType = typeof(StringSpan).MakeByRefType();
-
         // public static Type type = typeof(StringSpan);
 
         //private static ConstructorInfo _new =
