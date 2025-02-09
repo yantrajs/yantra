@@ -42,7 +42,6 @@ namespace YantraJS.Core
                 : Inline;
             this.Line = line;
             this.Column = column;
-            this.Parent = context.Top;
             context.Top = this;
         }
 
@@ -65,7 +64,7 @@ namespace YantraJS.Core
         public StringSpan Function;
         public int Line;
         public int Column;
-        private readonly JSContext context;
+        public readonly JSContext context;
         public string FileName;
 
         public void Update()

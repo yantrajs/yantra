@@ -10,6 +10,7 @@ using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
 using YantraJS.Expressions;
 using System.Reflection;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -68,7 +69,14 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     vList.Add(cs.Context);
                     vList.Add(cs.StackItem);
+                    if (previousScope != null)
+                {
+                    sList.Add(Exp.Assign(cs.Context, Expression.Coalesce( previousScope.Context, JSContextBuilder.Current)));
+                } else
+                {
                     sList.Add(Exp.Assign(cs.Context, JSContextBuilder.Current));
+                }
+                    // sList.Add(Exp.Assign(cs.Context, JSContextBuilder.Current));
 
                     FastFunctionScope.VariableScope jsFVarScope = null;
 
@@ -124,9 +132,9 @@ namespace YantraJS.Core.FastParser.Compiler
                         point.Column
                         )));
 
-                    // var pList = functionDeclaration.Params.OfType<Identifier>();
+                // var pList = functionDeclaration.Params.OfType<Identifier>();
 
-                    var argumentElements = args;
+                var argumentElements = args;
 
                     var pe = functionDeclaration.Params.GetFastEnumerator();
                     while (pe.MoveNext(out var v, out var i))

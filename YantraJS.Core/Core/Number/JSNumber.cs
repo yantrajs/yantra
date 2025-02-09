@@ -17,6 +17,7 @@ namespace YantraJS.Core
     // [JSRuntime(typeof(JSNumberStatic), typeof(JSNumberPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Number")]
+    [JSFunctionConstructorField]
     public sealed partial class JSNumber : JSPrimitive
     {
 
@@ -110,6 +111,15 @@ namespace YantraJS.Core
         }
 
         public JSNumber(double value) : base()
+        {
+            //if (value > 0 && value < double.Epsilon)
+            //{
+            //    value = 0;
+            //}
+            this.value = value;
+        }
+
+        public JSNumber(JSObject prototype, double value) : base(prototype)
         {
             //if (value > 0 && value < double.Epsilon)
             //{

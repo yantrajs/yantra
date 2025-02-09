@@ -11,6 +11,19 @@ namespace YantraJS.Core.LinqExpressions
     internal static class CallStackItemBuilder
     {
 
+        public static YExpression NewString(this YParameterExpression stackItem, string value)
+        {
+            return stackItem
+                .StackItemContextField()
+                .CallExpression<JSContext, JSValue>(() => (x) => x.NewString("")
+                , YExpression.Constant(value));
+        }        
+
+        public static YExpression StackItemContextField(this YParameterExpression stackItem)
+        {
+            return stackItem.FieldExpression<CallStackItem, JSContext>(() => (x) => x.context);
+        }
+
         public static YExpression New(
             YExpression context,
             YExpression scriptInfo,

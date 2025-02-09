@@ -24,6 +24,7 @@ namespace YantraJS.JSClassGenerator
         public readonly List<JSExportInfo> Members;
         public readonly bool Register = true;
         public readonly bool Globals = false;
+        public readonly bool CachedConstructorField = false;
 
         public JSTypeInfo(ITypeSymbol type)
         {
@@ -65,6 +66,10 @@ namespace YantraJS.JSClassGenerator
                                 Globals = globals.Value.ToCSharpString() == "true";
                             }
                         }
+                        break;
+                    case "JSFunctionConstructorField":
+                    case "JSFunctionConstructorFieldAttribute":
+                        CachedConstructorField = true;
                         break;
                     case "JSBaseClass":
                     case "JSBaseClassAttribute":

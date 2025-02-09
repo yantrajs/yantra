@@ -19,6 +19,7 @@ namespace YantraJS.Core
     // [JSRuntime(typeof(JSStringStatic), typeof(JSStringPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("String")]
+    [JSFunctionConstructorField]
     public partial class JSString : JSPrimitive
     {
 

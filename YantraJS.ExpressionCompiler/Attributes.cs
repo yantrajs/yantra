@@ -44,6 +44,10 @@ namespace Yantra.Core
         }
     }
 
+    public class JSFunctionConstructorFieldAttribute: Attribute
+    {
+    }
+
     public class JSClassGeneratorAttribute : Attribute
     {
         public readonly string? Name;
