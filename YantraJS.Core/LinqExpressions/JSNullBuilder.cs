@@ -11,6 +11,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
@@ -18,11 +19,13 @@ namespace YantraJS.ExpHelper
     {
 
         public static Expression Value =
-             Expression.TypeAs(
-                 Expression.Field(
-                        null, 
-                        typeof(JSNull)
-                            .GetField(nameof(JSNull.Value))), 
-                 typeof(JSValue));
+             // Expression.TypeAs(
+                 NewLambdaExpression.StaticFieldExpression<JSValue>(() => () => JSNull.Value)
+                 //, Expression.Field(
+                 //       null, 
+                 //       typeof(JSNull)
+                 //           .GetField(nameof(JSNull.Value))), 
+                 // typeof(JSValue))
+                 ;
     }
 }
