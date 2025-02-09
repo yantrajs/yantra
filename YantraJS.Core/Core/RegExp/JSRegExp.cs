@@ -9,6 +9,7 @@ namespace YantraJS.Core
 {
 
 
+    [JSFunctionConstructorField]
     [JSClassGenerator("RegExp")]
     public partial class JSRegExp: JSObject
     {
@@ -50,6 +51,24 @@ namespace YantraJS.Core
 
             (this.value, globalSearch, ignoreCase, multiline) = CreateRegex(pattern, flags);
 
+        }
+
+        public JSRegExp(JSObject prototype, string pattern, string flags) : base(prototype)
+        {
+            this.flags = flags;
+            this.pattern = pattern;
+
+            (this.value, globalSearch, ignoreCase, multiline) = CreateRegex(pattern, flags);
+
+            //this.DefineProperty(KeyStrings.lastIndex, 
+            //    JSProperty.Property(KeyStrings.lastIndex, 
+            //    (in Arguments a) => new JSNumber(lastIndex), 
+            //    (in Arguments a) =>
+            //    {
+            //        this.lastIndex = a.Get1().IntValue;
+            //        return a.Get1();
+            //    }, 
+            //    JSPropertyAttributes.ConfigurableProperty ));
         }
 
 

@@ -22,6 +22,7 @@ namespace YantraJS.Core.BigInt
     // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("BigInt")]
+    [JSFunctionConstructorField]
     public partial class JSBigInt : JSPrimitive
     {
 
@@ -64,6 +65,16 @@ namespace YantraJS.Core.BigInt
         {
             this.value = value;
         }
+
+        public JSBigInt(JSObject prototype, string stringValue): base(prototype)
+        {
+            var v = stringValue.TrimEnd('n').Replace("_", "");
+            if (!BigInteger.TryParse(v, out var n))
+                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
+            this.value = n;
+        }
+
+
         public JSBigInt(string stringValue)
         {
             var v = stringValue.TrimEnd('n').Replace("_", "");

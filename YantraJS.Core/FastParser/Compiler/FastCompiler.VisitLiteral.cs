@@ -28,14 +28,16 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.False:
                     return ExpHelper.JSBooleanBuilder.False;
                 case TokenTypes.String:
-                    return scope.Top.StackItem.NewString(literal.StringValue);
+                    return scope.Top.NewString(literal.StringValue);
                     /// return ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue));
                 case TokenTypes.BigInt:
-                    return ExpHelper.JSBigIntBuilder.New(literal.StringValue);
+                    // return ExpHelper.JSBigIntBuilder.New(literal.StringValue);
+                    return scope.Top.NewBigInt(literal.StringValue);
                 case TokenTypes.RegExLiteral:
-                    return ExpHelper.JSRegExpBuilder.New(
-                        Exp.Constant(literal.Regex.Pattern),
-                        Exp.Constant(literal.Regex.Flags));
+                    return this.scope.Top.NewRegExp(literal.Regex.Pattern, literal.Regex.Flags);
+                    //return ExpHelper.JSRegExpBuilder.New(
+                    //    Exp.Constant(literal.Regex.Pattern),
+                    //    Exp.Constant(literal.Regex.Flags));
                 case TokenTypes.Null:
                     return ExpHelper.JSNullBuilder.Value;
                 case TokenTypes.Number:
@@ -48,7 +50,8 @@ namespace YantraJS.Core.FastParser.Compiler
                         return JSNumberBuilder.Two;
                     if (n == 0 && n != -0)
                         return JSNumberBuilder.Zero;
-                    return ExpHelper.JSNumberBuilder.New(Exp.Constant(n));
+                    // return ExpHelper.JSNumberBuilder.New(Exp.Constant(n));
+                    return this.scope.Top.NewNumber(n);
             }
             throw new NotImplementedException();
         }
