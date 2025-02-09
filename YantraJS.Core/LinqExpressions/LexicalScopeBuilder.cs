@@ -19,21 +19,21 @@ namespace YantraJS.ExpHelper
 {
     public class LexicalScopeBuilder
     {
-        private static Type type = typeof(CallStackItem);
+        //private static Type type = typeof(CallStackItem);
 
-        private static MethodInfo _Pop
-            = type.GetMethod(nameof(Core.CallStackItem.Pop));
+        //private static MethodInfo _Pop
+        //    = type.GetMethod(nameof(Core.CallStackItem.Pop));
 
 
-        private static ConstructorInfo _New
-            = typeof(Core.CallStackItem)
-            .PublicConstructor(
-                    typeof(JSContext),
-                    typeof(string),
-                    StringSpanBuilder.RefType,
-                    typeof(int),
-                    typeof(int)
-                );
+        //private static ConstructorInfo _New
+        //    = typeof(Core.CallStackItem)
+        //    .PublicConstructor(
+        //            typeof(JSContext),
+        //            typeof(string),
+        //            StringSpanBuilder.RefType,
+        //            typeof(int),
+        //            typeof(int)
+        //        );
 
         public static Expression NewScope(
             Expression context,
@@ -42,25 +42,31 @@ namespace YantraJS.ExpHelper
             int line,
             int column)
         {
-            return Expression.New(_New,
-                context,
-                fileName,
-                function,
-                Expression.Constant(line),
-                Expression.Constant(column));
+            return NewLambdaExpression.NewExpression<CallStackItem>(() => () => new CallStackItem(null as JSContext, "", "", 0, 0)
+                ,context
+                ,fileName
+                ,function
+                ,Expression.Constant(line)
+                ,Expression.Constant(column));
+            //return Expression.New(_New,
+            //    context,
+            //    fileName,
+            //    function,
+            //    Expression.Constant(line),
+            //    Expression.Constant(column));
         }
 
         //private static PropertyInfo _Position =
         //    type.Property(nameof(Core.LexicalScope.Position));
 
-        private static FieldInfo _Line =
-            type.PublicField(nameof(CallStackItem.Line));
+        //private static FieldInfo _Line =
+        //    type.PublicField(nameof(CallStackItem.Line));
 
-        private static FieldInfo _Column =
-            type.PublicField(nameof(CallStackItem.Column));
+        //private static FieldInfo _Column =
+        //    type.PublicField(nameof(CallStackItem.Column));
 
-        private static MethodInfo _Update =
-            type.InternalMethod(nameof(CallStackItem.Update));
+        //private static MethodInfo _Update =
+        //    type.InternalMethod(nameof(CallStackItem.Update));
 
 
         //public static Expression Update(Expression exp, int line, int column, Expression next)
