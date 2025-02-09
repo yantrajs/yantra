@@ -47,8 +47,9 @@ namespace YantraJS.Core.FastParser.Compiler
                             {
                                 r = r.Substring(0, r.Length - 2);
                             }
-                            raw.Add(JSStringBuilder.New(Expression.Constant(r)));
-                            parts.Add(new YElementInit( JSArrayBuilder._Add, JSStringBuilder.New(Expression.Constant(l.StringValue))));
+                            raw.Add(this.scope.Top.NewString(r));
+                            parts.Add(new YElementInit(
+                                JSArrayBuilder._Add, this.scope.Top.NewString(l.StringValue)));
                             continue;
                         }
                     }
