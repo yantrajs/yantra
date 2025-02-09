@@ -12,6 +12,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
@@ -28,17 +29,21 @@ namespace YantraJS.ExpHelper
         //    return Expression.Field(ex, _Value);
         //}
 
-        private static ConstructorInfo _New = typeof(JSString).Constructor(typeof(string));
+        // private static ConstructorInfo _New = typeof(JSString).Constructor(typeof(string));
 
         public static Expression New(Expression exp)
         {
-            return Expression.TypeAs( Expression.New(_New, exp), typeof(JSValue));
+            return
+                Expression.TypeAs(
+                    NewLambdaExpression.NewExpression<JSString>(() => () => new JSString(""), exp)
+                    , typeof(JSValue));
+            // return Expression.TypeAs( Expression.New(_New, exp), typeof(JSValue));
         }
 
-        public static Expression ConcatBasicStrings(Expression left, Expression right)
-        {
-            return Expression.New(_New, ClrStringBuilder.Concat(left, right));
-        }
+        //public static Expression ConcatBasicStrings(Expression left, Expression right)
+        //{
+        //    return Expression.New(_New, ClrStringBuilder.Concat(left, right));
+        //}
 
     }
 }
