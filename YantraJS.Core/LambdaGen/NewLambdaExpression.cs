@@ -78,6 +78,15 @@ internal static class NewLambdaExpression
         return Expression.Call(@this, m, args);
     }
 
+    public static Expression CallExpression<T>(
+        this Expression @this,
+        Func<Expression<Action<T>>> fx,
+        params Expression[] args)
+    {
+        var m = TypeQuery.QueryInstanceMethod(fx);
+        return Expression.Call(@this, m, args);
+    }
+
     public static Expression CallExpression<TIn, T, TOut>(
         this Expression @this,
         Func<Expression<Func<TIn, T, TOut>>> fx,

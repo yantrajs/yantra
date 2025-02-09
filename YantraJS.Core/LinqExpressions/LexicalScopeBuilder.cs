@@ -13,6 +13,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.ExpHelper
 {
@@ -62,18 +63,19 @@ namespace YantraJS.ExpHelper
             type.InternalMethod(nameof(CallStackItem.Update));
 
 
-        public static Expression Update(Expression exp, int line, int column, Expression next)
-        {
-            return Expression.Block(
-                Expression.Assign(Expression.Field(exp, _Line), Expression.Constant(line)),
-                Expression.Assign(Expression.Field(exp, _Column), Expression.Constant(column)),
-                next
-                );
-        }
+        //public static Expression Update(Expression exp, int line, int column, Expression next)
+        //{
+        //    return Expression.Block(
+        //        Expression.Assign(Expression.Field(exp, _Line), Expression.Constant(line)),
+        //        Expression.Assign(Expression.Field(exp, _Column), Expression.Constant(column)),
+        //        next
+        //        );
+        //}
 
         public static Expression Pop(Expression exp, Expression context)
         {
-            return Expression.Call(exp, _Pop , context);
+            return exp.CallExpression<CallStackItem>(() => (x) => x.Pop(null as JSContext), context);
+            // return Expression.Call(exp, _Pop , context);
         }
 
         //public static Expression SetPosition(Expression exp, int line, int column)
