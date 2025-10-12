@@ -39,11 +39,12 @@ Multi threaded shared object cache are difficult to achieve in Node, but YantraJ
 21. Tail call optimization
 22. Many ES5 + ES6 features
 23. CommonJS & ES6 Module Support
-24. Easily marshal CLR Object to JavaScript and other way around
-25. CSX Module support
-26. Mixed module system, YantraJS supports `require` and `import`.
-27. Explicit resource management with `using` and `await using` keywords.
-28. AOT ready (Source Generators have been used for loading Runtime Objects).
+24. Decimal support, number with `0.2m` prefix has a new literal type called decimal, `typeof 0.2m` is `'decimal'`.
+25. Easily marshal CLR Object to JavaScript and other way around
+26. CSX Module support
+27. Mixed module system, YantraJS supports `require` and `import`.
+28. Explicit resource management with `using` and `await using` keywords.
+29. AOT ready (Source Generators have been used for loading Runtime Objects).
 
 `*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 
