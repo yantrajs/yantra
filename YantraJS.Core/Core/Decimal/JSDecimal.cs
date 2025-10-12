@@ -9,20 +9,20 @@ using Yantra.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
 
-namespace YantraJS.Core.BigInt
+namespace YantraJS.Core
 {
-    static class JSBigIntExtensions
+    static class JSDecimalExtensions
     {
-        public static BigInteger AsBigIntegerOnly(this JSValue @this)
+        public static decimal AsDecimalOnly(this JSValue @this)
         {
-            return @this is JSBigInt v ? v.value : throw JSBigInt.CannotMix();
+            return @this is JSDecimal v ? v.value : throw JSDecimal.CannotMix();
         }
     }
 
     // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
     [JSBaseClass("Object")]
-    [JSFunctionGenerator("BigInt")]
-    public partial class JSBigInt : JSPrimitive
+    [JSFunctionGenerator("Decimal")]
+    public partial class JSDecimal : JSPrimitive
     {
 
 
@@ -31,7 +31,7 @@ namespace YantraJS.Core.BigInt
             return JSContext.Current.NewTypeError("Cannot mix BigInt and other types, use explicit conversions");
         }
 
-        internal readonly BigInteger value;
+        internal readonly decimal value;
 
         public override bool BooleanValue => value != 0;
 
@@ -46,35 +46,35 @@ namespace YantraJS.Core.BigInt
             switch (f)
             {
                 case JSNumber number:
-                    return new JSBigInt((BigInteger)number.value);
-                case JSBigInt bigint:
+                    return new JSDecimal((decimal)number.value);
+                case JSDecimal bigint:
                     return bigint;
             }
             var text = f.ToString();
             text = text.TrimEnd('n').Replace("_", "");
-            if (!BigInteger.TryParse(text, out var v))
+            if (!decimal.TryParse(text, out var v))
             {
                 throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
             }
-            return new JSBigInt(v);
+            return new JSDecimal(v);
 
         }
 
-        public JSBigInt(BigInteger value)
+        public JSDecimal(decimal value)
         {
             this.value = value;
         }
-        public JSBigInt(string stringValue)
+        public JSDecimal(string stringValue)
         {
-            var v = stringValue.TrimEnd('n').Replace("_", "");
-            if (!BigInteger.TryParse(v, out var n))
+            var v = stringValue.TrimEnd('m').Replace("_", "");
+            if (!decimal.TryParse(v, out var n))
                 throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
             this.value = n;
         }
 
         public override bool Equals(JSValue value)
         {
-            if (value is JSBigInt bigint)
+            if (value is JSDecimal bigint)
             {
                 return this.value == bigint.value;
             }
@@ -96,24 +96,24 @@ namespace YantraJS.Core.BigInt
         {
             if (a.Length == 0)
             {
-                return new JSBigInt(0);
+                return new JSDecimal(0);
             }
             var value = a[0];
-            if (value is JSBigInt bigint)
+            if (value is JSDecimal d)
             {
-                return bigint;
+                return d;
             }
             if (value.IsNumber)
             {
-                return new JSBigInt((long)value.DoubleValue);
+                return new JSDecimal((long)value.DoubleValue);
             }
             var v = long.Parse(value.ToString());
-            return new JSBigInt(v);
+            return new JSDecimal(v);
         }
 
         public override bool StrictEquals(JSValue value)
         {
-            if (!(value is JSBigInt bigint))
+            if (!(value is JSDecimal bigint))
                 return false;
             return this.value == bigint.value;
         }
@@ -131,12 +131,12 @@ namespace YantraJS.Core.BigInt
 
         public override JSValue TypeOf()
         {
-            return JSConstants.BigInt;
+            return JSConstants.Decimal;
         }
 
         protected override JSObject GetPrototype()
         {
-            return (JSContext.Current[Names.BigInt] as JSFunction).prototype;
+            return (JSContext.Current[Names.Decimal] as JSFunction).prototype;
         }
 
         internal override PropertyKey ToKey(bool create = true)
@@ -156,7 +156,7 @@ namespace YantraJS.Core.BigInt
                 value = (ulong)this.value;
                 return true;
             }
-            if (type.IsAssignableFrom(typeof(JSBigInt)))
+            if (type.IsAssignableFrom(typeof(JSDecimal)))
             {
                 value = this;
                 return true;
@@ -171,52 +171,52 @@ namespace YantraJS.Core.BigInt
 
         public override JSValue Negate()
         {
-            return new JSBigInt(-this.value);
+            return new JSDecimal(-this.value);
         }
 
         public override JSValue BitwiseAnd(JSValue value)
         {
-            return new JSBigInt(this.value & value.AsBigIntegerOnly());
+            throw JSDecimal.CannotMix();
         }
 
         public override JSValue BitwiseOr(JSValue value)
         {
-            return new JSBigInt(this.value | value.AsBigIntegerOnly());
+            throw JSDecimal.CannotMix();
         }
 
         public override JSValue BitwiseXor(JSValue value)
         {
-            return new JSBigInt(this.value | value.AsBigIntegerOnly());
+            throw JSDecimal.CannotMix();
         }
 
         public override JSValue LeftShift(JSValue value)
         {
-            return new JSBigInt(this.value << (int)value.AsBigIntegerOnly());
+            throw JSDecimal.CannotMix();
         }
 
         public override JSValue RightShift(JSValue value)
         {
-            return new JSBigInt(this.value >> (byte)value.AsBigIntegerOnly());
+            throw JSDecimal.CannotMix();
         }
 
         public override JSValue UnsignedRightShift(JSValue value)
         {
-            return new JSBigInt(this.value >> (int)value.AsBigIntegerOnly());
+            throw JSDecimal.CannotMix();
         }
 
         public override JSValue Multiply(JSValue value)
         {
-            return new JSBigInt(this.value * value.AsBigIntegerOnly());
+            return new JSDecimal(this.value * value.AsDecimalOnly());
         }
 
         public override JSValue Divide(JSValue value)
         {
-            return new JSBigInt(this.value / value.AsBigIntegerOnly());
+            return new JSDecimal(this.value / value.AsDecimalOnly());
         }
 
         public override JSValue Subtract(JSValue value)
         {
-            return new JSBigInt(this.value - value.AsBigIntegerOnly());
+            return new JSDecimal(this.value - value.AsDecimalOnly());
         }
 
         public override JSValue AddValue(double value)
@@ -236,9 +236,9 @@ namespace YantraJS.Core.BigInt
             {
                 value = primitive.value;
             }
-            if (value is JSBigInt b)
+            if (value is JSDecimal b)
             {
-                return new JSBigInt(this.value + b.value);
+                return new JSDecimal(this.value + b.value);
             }
             if (value.IsBoolean || value.IsNumber)
             {
@@ -250,7 +250,7 @@ namespace YantraJS.Core.BigInt
             }
             if (value is JSObject @object)
                 return new JSString(this.value + @object.StringValue);
-            return new JSBigInt(this.value + value.BigIntValue);
+            return new JSDecimal(this.value + value.BigIntValue);
         }
 
         [JSExport("toString")]
@@ -273,123 +273,5 @@ namespace YantraJS.Core.BigInt
         }
 
 
-
-        [JSExport("asIntN")]
-        public static JSValue AsIntN(long bits, JSBigInt bigint)
-        {
-            if (bits < 0 || bits > 9007199254740991)
-            {
-                throw JSContext.Current.NewRangeError("Invalid range for bits");
-            }
-            var n = bigint.value;
-            var buffer = n.ToByteArray();
-            if (buffer.Length * 8 < bits)
-            {
-                return bigint;
-            }
-
-            var reminderBits = (long)bits % (long)8;
-
-            var length = (int)((long)bits / (long)8);
-            if (reminderBits > 0)
-            {
-                length++;
-            }
-
-            var copy = new byte[length];
-            Buffer.BlockCopy(buffer, 0, copy, 0, length);
-
-            if (reminderBits > 0)
-            {
-                // here we need to pad leftmost bits as 1s
-                // as BigInteger uses bytes and only if the
-                // eighth bit is 1, it will consider it as a
-                // negative integer
-
-                // so we need to create mask to first remove
-                // bits as byte contains eight bits
-
-                // then check the most significant digit
-                // if it is negative, then we need to pad
-                // 1s before it
-
-                ref byte last = ref copy[copy.Length - 1];
-
-                byte padMask = 0xFF;
-
-                byte mask = 1;
-                byte start = 1;
-                reminderBits--;
-                while (reminderBits > 0)
-                {
-                    padMask &= (byte)~start;
-                    start <<= 1;
-                    start |= 1;
-                    mask <<= 1;
-                    reminderBits--;
-                }
-                last &= start;
-                var lastValue = last;
-
-                if ((mask & lastValue) > 0)
-                {
-                    last |= padMask;
-                }
-            }
-
-            var r = new BigInteger(copy);
-            return new JSBigInt(r);
-
-        }
-
-
-        [JSExport("asUintN")]
-        public static JSValue AsUintN(long bits, JSBigInt bigint)
-        {
-            if (bits < 0 || bits > 9007199254740991)
-            {
-                throw JSContext.Current.NewRangeError("Invalid range for bits");
-            }
-            var n = bigint.value;
-            if (n.Sign == BigInteger.MinusOne.Sign)
-            {
-                n = -n;
-            }
-            var buffer = n.ToByteArray();
-            if (buffer.Length * 8 < bits)
-            {
-                return bigint;
-            }
-
-            var reminderBits = (long)bits % (long)8;
-
-            var length = (int)((long)bits / (long)8);
-            if (reminderBits > 0)
-            {
-                length++;
-            }
-
-            // extra pad will result in a UInt
-            var copy = new byte[length + 1];
-            Buffer.BlockCopy(buffer, 0, copy, 0, length);
-
-            if (reminderBits > 0)
-            {
-                ref byte last = ref copy[length - 1];
-                byte start = 1;
-                reminderBits--;
-                while (reminderBits > 0)
-                {
-                    start <<= 1;
-                    start |= 1;
-                    reminderBits--;
-                }
-                last &= start;
-            }
-
-            var r = new BigInteger(copy);
-            return new JSBigInt(r);
-
-        }
     }
 }

@@ -6,6 +6,8 @@ namespace YantraJS.Core
 {
     internal class JSConstants
     {
+        public static readonly JSString Decimal =
+            new JSString("decimal");
 
         public static readonly JSString Arguments =
             new JSString("arguments");

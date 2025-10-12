@@ -91,6 +91,17 @@ namespace YantraJS.Tests.Generator
     }
 
     [TestClass]
+    public class ES2025
+    {
+        [TestFolder("es\\2025\\decimal")]
+        public void Decimals()
+        {
+
+        }
+
+    }
+
+    [TestClass]
     public class Modules
     {
         [ModuleFolder("es6\\Modules\\clr")]

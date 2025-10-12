@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="Generator\Files\es\2023\disposables\" />
+    <Folder Include="Generator\Files\es\2025\decimal\" />
   </ItemGroup>
 
 </Project>
