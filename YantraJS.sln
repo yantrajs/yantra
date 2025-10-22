@@ -23,10 +23,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.Core.Tests", "Yant
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ExpressionCompiler", "YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj", "{1A17F57A-C7B1-4C49-85D4-36FF973C9222}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test262Runner", "Test262Runner", "{0F0852BD-9906-4ABC-9BA8-7F49E63728A0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test262Runner", "Test262Runner\Test262Runner.csproj", "{15F50837-F0DF-4A16-BDC5-E02921C61B58}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.NodePollyfill", "YantraJS.NodePollyfill\YantraJS.NodePollyfill.csproj", "{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YantraJS.ExpressionCompiler.Tests", "YantraJS.ExpressionCompiler.Tests\YantraJS.ExpressionCompiler.Tests.csproj", "{56196EFB-172B-4C4F-AC0A-3C6C5BCF72F3}"
@@ -65,10 +61,6 @@ Global
 		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A17F57A-C7B1-4C49-85D4-36FF973C9222}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15F50837-F0DF-4A16-BDC5-E02921C61B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15F50837-F0DF-4A16-BDC5-E02921C61B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15F50837-F0DF-4A16-BDC5-E02921C61B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15F50837-F0DF-4A16-BDC5-E02921C61B58}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3783896F-14B3-46C4-9AFD-13F9E6B25CFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -98,7 +90,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{15F50837-F0DF-4A16-BDC5-E02921C61B58} = {0F0852BD-9906-4ABC-9BA8-7F49E63728A0}
 		{75C8A8AC-7A81-46AE-AF4C-706BDC7AB6D6} = {8D5F60A8-566A-4068-8B83-1BA48F66E60B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
