@@ -34,5 +34,10 @@ partial class JSContext
         return new JSBigInt(BigIntPrototype, value);
     }
 
+    public JSValue NewDecimal(string value)
+    {
+        return new JSDecimal(BigIntPrototype, value);
+    }
+
 }
 

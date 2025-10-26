@@ -42,6 +42,13 @@ namespace YantraJS.Core.LinqExpressions
                 , YExpression.Constant(value));
         }
 
+        public static YExpression NewDecimal(this FastFunctionScope scope, string value)
+        {
+            return scope.Context
+                .CallExpression<JSContext, JSValue>(() => (x) => x.NewDecimal("0")
+                , YExpression.Constant(value));
+        }
+
         public static YExpression New(
             YExpression context,
             YExpression scriptInfo,

@@ -72,6 +72,15 @@ namespace YantraJS.Core
             this.value = n;
         }
 
+        public JSDecimal(JSObject prototype, string stringValue) : base(prototype)
+        {
+            var v = stringValue.TrimEnd('n').Replace("_", "");
+            if (!Decimal.TryParse(v, out var n))
+                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
+            this.value = n;
+        }
+
+
         public override bool Equals(JSValue value)
         {
             if (value is JSDecimal bigint)
