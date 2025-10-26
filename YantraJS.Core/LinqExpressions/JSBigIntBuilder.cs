@@ -16,4 +16,14 @@ namespace YantraJS.ExpHelper
                 );
         }
     }
+
+    public class JSDecimalBuilder
+    {
+        internal static YExpression New(string value)
+        {
+            return NewLambdaExpression.NewExpression<JSDecimal>(() => () => new JSDecimal("a"),
+                YExpression.Constant(value)
+                );
+        }
+    }
 }

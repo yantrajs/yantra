@@ -1,6 +1,12 @@
 ﻿# YantraJS
 Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET (Core and Standard 2) written completely in C#.
 
+Node and V8's tight C++ intgration makes it difficult to write plugins, resulting in unresolved bugs and very complicated source code structure.
+
+C# offers platform independent near native performance, so YantraJS is designed to replace parts of Node that requires high performance.
+
+Multi threaded shared object cache are difficult to achieve in Node, but YantraJS offers smooth connectivity between C# and JavaScript as both objects live under same runtime.
+
 # NuGet
 | Name                                               | Package                                                                                                                                                        |
 |----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -33,11 +39,12 @@ Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET (Core and S
 21. Tail call optimization
 22. Many ES5 + ES6 features
 23. CommonJS & ES6 Module Support
-24. Easily marshal CLR Object to JavaScript and other way around
-25. CSX Module support
-26. Mixed module system, YantraJS supports `require` and `import`.
-27. Explicit resource management with `using` and `await using` keywords.
-28. AOT ready (Source Generators have been used for loading Runtime Objects).
+24. Decimal support, number with `0.2m` prefix has a new literal type called decimal, `typeof 0.2m` is `'decimal'`.
+25. Easily marshal CLR Object to JavaScript and other way around
+26. CSX Module support
+27. Mixed module system, YantraJS supports `require` and `import`.
+28. Explicit resource management with `using` and `await using` keywords.
+29. AOT ready (Source Generators have been used for loading Runtime Objects).
 
 `*` Most JavaScript today is available in strict mode, we do not feel any need to support non strict mode as modules are strict by default.
 

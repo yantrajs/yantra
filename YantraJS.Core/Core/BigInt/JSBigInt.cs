@@ -110,6 +110,10 @@ namespace YantraJS.Core.BigInt
                 return new JSBigInt(0);
             }
             var value = a[0];
+            if (value is JSBigInt bigint)
+            {
+                return bigint;
+            }
             if (value.IsNumber)
             {
                 return new JSBigInt((long)value.DoubleValue);

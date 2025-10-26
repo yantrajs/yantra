@@ -1115,6 +1115,10 @@ namespace YantraJS.Core.FastParser
             {
                 ConsumeDigits();
             }
+            if (CanConsume('m'))
+            {
+                return state.Commit(TokenTypes.Decimal);
+            }
             if (CanConsume('e', 'E'))
             {
                 if (CanConsume('+', '-'))

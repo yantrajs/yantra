@@ -40,6 +40,7 @@ namespace YantraJS.Core.FastParser
         Identifier,
         Number,
         BigInt,
+        Decimal,
         String,
         BracketEnd,
         BracketStart,

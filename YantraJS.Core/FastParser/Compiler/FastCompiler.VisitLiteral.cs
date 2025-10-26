@@ -33,6 +33,8 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.BigInt:
                     // return ExpHelper.JSBigIntBuilder.New(literal.StringValue);
                     return scope.Top.NewBigInt(literal.StringValue);
+                case TokenTypes.Decimal:
+                    return scope.Top.NewDecimal(literal.StringValue);
                 case TokenTypes.RegExLiteral:
                     return this.scope.Top.NewRegExp(literal.Regex.Pattern, literal.Regex.Flags);
                     //return ExpHelper.JSRegExpBuilder.New(
