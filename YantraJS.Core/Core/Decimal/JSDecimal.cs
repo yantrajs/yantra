@@ -51,7 +51,7 @@ namespace YantraJS.Core
                     return bigint;
             }
             var text = f.ToString();
-            text = text.TrimEnd('n').Replace("_", "");
+            text = text.TrimEnd('m').Replace("_", "");
             if (!decimal.TryParse(text, out var v))
             {
                 throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
@@ -267,6 +267,26 @@ namespace YantraJS.Core
         {
             return new JSString(value.ToString());
         }
+
+
+        [JSExport("toFixed")]
+        public JSValue JSToFixed(in Arguments a)
+        {
+            var nv = value;
+            if (a.Get1() is JSNumber n1)
+            {
+                if (double.IsNaN(n1.value) || n1.value > 20 || n1.value < 0)
+                    throw JSContext.Current.NewRangeError("toFixed() digitis argument must be between 0 and 100");
+                var i = (int)n1.value;
+                if (nv > 999999999999999.0m && i <= 15)
+                    return new JSString(nv.ToString("g21"));
+                return new JSString(nv.ToString($"F{i}"));
+            }
+            if (nv > 999999999999999.0m)
+                return new JSString(nv.ToString("g21"));
+            return new JSString(nv.ToString("F0"));
+        }
+
 
         [JSExport("toLocaleString")]
         public JSValue ToLocaleString(in Arguments a)
