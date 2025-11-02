@@ -270,6 +270,8 @@ public partial class JSContext: JSObject, IDisposable
     //    }
     //}
 
+    public Arguments EmptyArguments = new Arguments(JSUndefined.Value);
+
     SAUint32Map<JSVariable> globalVars = new SAUint32Map<JSVariable>();
 
     internal JSValue Register(JSVariable variable)
