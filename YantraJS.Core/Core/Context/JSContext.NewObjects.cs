@@ -14,6 +14,7 @@ partial class JSContext
     internal JSObject RegExpPrototype;
     internal JSObject BigIntPrototype;
     internal JSObject DecimalPrototype;
+    internal JSObject BooleanPrototype;
     public JSValue NewString(string text)
     {
         return new JSString(StringPrototype, text);

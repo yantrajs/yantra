@@ -20,7 +20,7 @@ namespace YantraJS.Core
     [JSBaseClass("Object")]
     [JSFunctionGenerator("String")]
     [JSFunctionConstructorField]
-    public partial class JSString : JSPrimitive
+    public partial class JSString : JSValue
     {
 
         internal static JSString Empty = new JSString(string.Empty);
@@ -145,12 +145,7 @@ namespace YantraJS.Core
                 : (_keyString = KeyStrings.GetOrCreate(this.value));
         }
 
-        protected override JSObject GetPrototype()
-        {
-            return (JSContext.Current[Names.String] as JSFunction).prototype;
-        }
-
-        public JSString(string value): base()
+        public JSString(string value): base(JSContext.Current.StringPrototype)
         {
             this.value = value;
         }
@@ -159,7 +154,7 @@ namespace YantraJS.Core
             this.value = value;
         }
 
-        public JSString(in StringSpan value) : base()
+        public JSString(in StringSpan value) : base(JSContext.Current.StringPrototype)
         {
             this.value = value.Value;
         }

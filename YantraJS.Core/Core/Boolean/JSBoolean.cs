@@ -11,16 +11,17 @@ namespace YantraJS.Core
 {
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Boolean")]
-    public partial class JSBoolean : JSPrimitive
+    [JSFunctionConstructorField]
+    public partial class JSBoolean : JSValue
     {
 
-        public static JSBoolean True = new JSBoolean(true);
+        //public static JSBoolean True = new JSBoolean(true);
 
-        public static JSBoolean False = new JSBoolean(false);
+        //public static JSBoolean False = new JSBoolean(false);
 
         internal readonly bool _value;
 
-        private JSBoolean(bool _value) : base()
+        private JSBoolean(bool _value) : base(JSContext.Current.BooleanPrototype)
         {
             this._value = _value;
         }
@@ -29,11 +30,6 @@ namespace YantraJS.Core
         public static JSValue Constructor(in Arguments a)
         {
             return (a[0]?.BooleanValue ?? false) ? True : False;
-        }
-
-        protected override JSObject GetPrototype()
-        {
-            return GetCurrentPrototype();
         }
 
 

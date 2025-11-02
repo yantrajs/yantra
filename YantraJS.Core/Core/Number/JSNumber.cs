@@ -18,7 +18,7 @@ namespace YantraJS.Core
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Number")]
     [JSFunctionConstructorField]
-    public sealed partial class JSNumber : JSPrimitive
+    public sealed partial class JSNumber : JSValue
     {
 
         internal readonly double value;
@@ -87,11 +87,6 @@ namespace YantraJS.Core
             return JSConstants.Number;
         }
 
-        protected override JSObject GetPrototype()
-        {
-            return (JSContext.Current[Names.Number] as JSFunction).prototype;
-        }
-
         internal override PropertyKey ToKey(bool create = false)
         {
             var n = this.value;
@@ -110,7 +105,7 @@ namespace YantraJS.Core
             return KeyStrings.GetOrCreate(n.ToString());
         }
 
-        public JSNumber(double value) : base()
+        public JSNumber(double value) : base(JSContext.Current.NumberPrototype)
         {
             //if (value > 0 && value < double.Epsilon)
             //{

@@ -10,10 +10,9 @@ namespace YantraJS.Core.Core.Primitive
     {
         internal readonly JSValue value;
 
-        public JSPrimitiveObject(JSPrimitive value): base(JSContext.Current.ObjectPrototype)
+        public JSPrimitiveObject(JSValue value): base(JSContext.Current.ObjectPrototype)
         {
             this.value = value;
-            value.ResolvePrototype();
             prototypeChain = value.prototypeChain;
             //this.DefineProperty(KeyStrings.constructor, 
             //    JSProperty.Property(value.prototypeChain[KeyStrings.constructor], JSPropertyAttributes.ReadonlyValue));

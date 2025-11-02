@@ -23,7 +23,7 @@ namespace YantraJS.Core
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Decimal")]
     [JSFunctionConstructorField]
-    public partial class JSDecimal : JSPrimitive
+    public partial class JSDecimal : JSValue
     {
 
 
@@ -61,11 +61,11 @@ namespace YantraJS.Core
 
         }
 
-        public JSDecimal(decimal value)
+        public JSDecimal(decimal value): base(JSContext.Current.DecimalPrototype)
         {
             this.value = value;
         }
-        public JSDecimal(string stringValue)
+        public JSDecimal(string stringValue) : base(JSContext.Current.DecimalPrototype)
         {
             var v = stringValue.TrimEnd('m').Replace("_", "");
             if (!decimal.TryParse(v, out var n))
@@ -142,11 +142,6 @@ namespace YantraJS.Core
         public override JSValue TypeOf()
         {
             return JSConstants.Decimal;
-        }
-
-        protected override JSObject GetPrototype()
-        {
-            return (JSContext.Current[Names.Decimal] as JSFunction).prototype;
         }
 
         internal override PropertyKey ToKey(bool create = true)

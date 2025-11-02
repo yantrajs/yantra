@@ -23,7 +23,7 @@ namespace YantraJS.Core.BigInt
     [JSBaseClass("Object")]
     [JSFunctionGenerator("BigInt")]
     [JSFunctionConstructorField]
-    public partial class JSBigInt : JSPrimitive
+    public partial class JSBigInt : JSValue
     {
 
 
@@ -61,7 +61,7 @@ namespace YantraJS.Core.BigInt
 
         }
 
-        public JSBigInt(BigInteger value)
+        public JSBigInt(BigInteger value):base(JSContext.Current.BigIntPrototype)
         {
             this.value = value;
         }
@@ -75,7 +75,7 @@ namespace YantraJS.Core.BigInt
         }
 
 
-        public JSBigInt(string stringValue)
+        public JSBigInt(string stringValue): base(JSContext.Current.BigIntPrototype)
         {
             var v = stringValue.TrimEnd('n').Replace("_", "");
             if (!BigInteger.TryParse(v, out var n))
@@ -143,11 +143,6 @@ namespace YantraJS.Core.BigInt
         public override JSValue TypeOf()
         {
             return JSConstants.BigInt;
-        }
-
-        protected override JSObject GetPrototype()
-        {
-            return (JSContext.Current[Names.BigInt] as JSFunction).prototype;
         }
 
         internal override PropertyKey ToKey(bool create = true)
