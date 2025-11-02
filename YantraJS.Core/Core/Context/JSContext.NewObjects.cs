@@ -13,7 +13,7 @@ partial class JSContext
     internal JSObject NumberPrototype;
     internal JSObject RegExpPrototype;
     internal JSObject BigIntPrototype;
-
+    internal JSObject DecimalPrototype;
     public JSValue NewString(string text)
     {
         return new JSString(StringPrototype, text);
@@ -36,7 +36,7 @@ partial class JSContext
 
     public JSValue NewDecimal(string value)
     {
-        return new JSDecimal(BigIntPrototype, value);
+        return new JSDecimal(DecimalPrototype, value);
     }
 
 }

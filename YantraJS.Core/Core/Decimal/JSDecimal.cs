@@ -22,6 +22,7 @@ namespace YantraJS.Core
     // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Decimal")]
+    [JSFunctionConstructorField]
     public partial class JSDecimal : JSPrimitive
     {
 
@@ -54,7 +55,7 @@ namespace YantraJS.Core
             text = text.TrimEnd('m').Replace("_", "");
             if (!decimal.TryParse(text, out var v))
             {
-                throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
+                throw JSContext.Current.NewTypeError($"{f} is not a valid decimal");
             }
             return new JSDecimal(v);
 
@@ -68,15 +69,15 @@ namespace YantraJS.Core
         {
             var v = stringValue.TrimEnd('m').Replace("_", "");
             if (!decimal.TryParse(v, out var n))
-                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
+                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid decimal");
             this.value = n;
         }
 
         public JSDecimal(JSObject prototype, string stringValue) : base(prototype)
         {
-            var v = stringValue.TrimEnd('n').Replace("_", "");
+            var v = stringValue.TrimEnd('m').Replace("_", "");
             if (!Decimal.TryParse(v, out var n))
-                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
+                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid decimal");
             this.value = n;
         }
 
@@ -93,7 +94,7 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return value.ToString() + "n";
+            return value.ToString();
         }
 
         public override JSValue InvokeFunction(in Arguments a)
