@@ -22,13 +22,19 @@ public class FunctionScope
 {
     public string Calle { get; set; }
 
-    public SAUint32Map<JSValue> Variables;
+    public BlockScope Variables = new BlockScope();
 
     public Arguments Arguments;
 
     public FunctionScope Caller { get; set; }
 
+}
 
+public class BlockScope
+{
+    SAUint32Map<JSValue> Variables;
+
+    public BlockScope Parent;
 }
 
 public delegate JSValue ExecuteStep(FunctionScope scope);
@@ -58,12 +64,46 @@ public class AstToStepVisitor : AstMapVisitor<ExecuteStep>
 
     protected override ExecuteStep VisitBinaryExpression(AstBinaryExpression binaryExpression)
     {
+        var left = this.Visit(binaryExpression.Left);
+        var right = this.Visit(binaryExpression.Right);
+        switch (binaryExpression.Operator)
+        {
+            case TokenTypes.BooleanAnd:
+                return (fc) => (left(fc).BooleanValue && right(fc).BooleanValue) ? JSBoolean.True : JSBoolean.False;
+            case TokenTypes.BooleanOr:
+                return (fc) => (left(fc).BooleanValue || right(fc).BooleanValue) ? JSBoolean.True : JSBoolean.False;
+            case TokenTypes.BitwiseAnd:
+                return (fc) => (left(fc).BitwiseAnd(right(fc)));
+            case TokenTypes.BitwiseOr:
+                return (fc) => (left(fc).BitwiseOr(right(fc)));
+            case TokenTypes.Plus:
+                return (fc) => (left(fc).AddValue(right(fc)));
+            case TokenTypes.Minus:
+                return (fc) => (left(fc).Subtract(right(fc)));
+            case TokenTypes.Mod:
+                return (fc) => (left(fc).Modulo(right(fc)));
+            case TokenTypes.Multiply:
+                return (fc) => (left(fc).Multiply(right(fc)));
+            case TokenTypes.NotEqual:
+                return (fc) => !left(fc).Equals(right(fc)) ? JSBoolean.True : JSBoolean.False ;
+            case TokenTypes.Equal:
+                return (fc) => left(fc).Equals(right(fc)) ? JSBoolean.True : JSBoolean.False;
+            case TokenTypes.StrictlyNotEqual:
+                return (fc) => !left(fc).StrictEquals(right(fc)) ? JSBoolean.True : JSBoolean.False;
+            case TokenTypes.StrictlyEqual:
+                return (fc) => left(fc).StrictEquals(right(fc)) ? JSBoolean.True : JSBoolean.False;
+            case TokenTypes.Assign:
+                return "=";
+        }
         throw new NotImplementedException();
     }
 
     protected override ExecuteStep VisitBlock(AstBlock block)
     {
-        throw new NotImplementedException();
+        var statements = block.Statements.Select(this.Visit);
+        return (fc) => {
+            fc.Enter();
+        };
     }
 
     protected override ExecuteStep VisitBreakStatement(AstBreakStatement breakStatement)
