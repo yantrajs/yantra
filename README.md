@@ -63,7 +63,7 @@ Currently YantraJS supports Both CommonJS and ES modules without any extra work,
 As we often have difficulty in writing cross environment scripts (browser and process such as node), we want to first implement basic common features on both.
 1. Next in plan is Network API, Simple `fetch` is available in `YantraContext`, we will focus on adding Stream API.
 2. Unified API to access system resources through JavaScript modules that dynamically utilize .NET objects.
-3. Add node modules compatibility.
+3. Add forward compatibility, we will write native modules in such a way that they can execute correctly on node, so new projects written for YantraJS can run correctly on node, but node's existing code will not work on YantraJS. 
 4. V8 Protocol Implementation is in progress.
 
 
