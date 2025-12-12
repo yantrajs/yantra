@@ -39,7 +39,7 @@ Multi threaded shared object cache are difficult to achieve in Node, but YantraJ
 21. Tail call optimization
 22. Many ES5 + ES6 features
 23. CommonJS & ES6 Module Support
-24. Decimal support, number with `0.2m` prefix has a new literal type called decimal, `typeof 0.2m` is `'decimal'`.
+24. Decimal support, number with `0.2m` prefix has a new literal type called decimal, `typeof 0.2m` is `'decimal'`. Behaviour of decimal is similar to BigInt, you can only use mathematical operators between decimal only. To convert number to decimal you can use `new Decimal(number)`. Math library operates on decimal if input is decimal for methods wherever dotnet supports direct decimal operations.
 25. Easily marshal CLR Object to JavaScript and other way around
 26. CSX Module support
 27. Mixed module system, YantraJS supports `require` and `import`.

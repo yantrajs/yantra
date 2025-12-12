@@ -56,6 +56,10 @@ namespace YantraJS.Core.Objects
                 return JSNumber.NaN;
             if (first.IsNull)
                 return JSNumber.Zero;
+            if (first is JSDecimal @decimal) {
+                var dv = @decimal.value;
+                return new JSDecimal(Math.Floor(dv + 0.5m));
+            }
             var number = first.DoubleValue;
             if (number > 0.0)
                 return new JSNumber(Math.Floor(number + 0.5));
@@ -80,6 +84,10 @@ namespace YantraJS.Core.Objects
         [JSExport]
         public static JSValue Floor(in Arguments args) {
             var first = args.Get1();
+            if (first is JSDecimal @decimal)
+            {
+                return new JSDecimal(Math.Floor(@decimal.value));
+            }
             var d = first.DoubleValue;
             //if (double.IsNaN(d))
             //    return JSNumber.NaN;
@@ -116,6 +124,10 @@ namespace YantraJS.Core.Objects
         public static JSValue Abs(in Arguments args)
         {
             var first = args.Get1();
+            if (first is JSDecimal @decimal)
+            {
+                return new JSDecimal(Math.Abs(@decimal.value));
+            }
             var d = first.DoubleValue;
             //if (double.IsNaN(d))
             //    return JSNumber.NaN;
@@ -238,6 +250,10 @@ namespace YantraJS.Core.Objects
         public static JSValue Ceil(in Arguments args)
         {
             var first = args.Get1();
+            if (first is JSDecimal @decimal)
+            {
+                return new JSDecimal(Math.Ceiling(@decimal.value));
+            }
             var d = first.DoubleValue;
             var r = new JSNumber(Math.Ceiling(d));
             return r;
@@ -543,6 +559,10 @@ namespace YantraJS.Core.Objects
         public static JSValue Sign(in Arguments args)
         {
             var first = args.Get1();
+            if (first is JSDecimal @decimal)
+            {
+                return new JSDecimal(Math.Sign(@decimal.value));
+            }
             var d = first.DoubleValue;
             if (double.IsNaN(d))
                 return JSNumber.NaN; 
@@ -607,6 +627,10 @@ namespace YantraJS.Core.Objects
         public static JSValue Trunc(in Arguments args)
         {
             var first = args.Get1();
+            if (first is JSDecimal @decimal)
+            {
+                return new JSDecimal(Math.Truncate(@decimal.value));
+            }
             var d = first.DoubleValue;
             var r = new JSNumber(Math.Truncate(d));
             return r;
