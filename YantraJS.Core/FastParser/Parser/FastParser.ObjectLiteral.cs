@@ -84,7 +84,7 @@ namespace YantraJS.Core.FastParser
                         PreviousToken,
                         AstPropertyKind.Data,
                         false,
-                        false,
+                        isStatic,
                         key,
                         computed,
                         value);

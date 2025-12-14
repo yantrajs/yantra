@@ -2,6 +2,8 @@
 
 class Shape {
 
+    static a = 1;
+
     static get shapeName() {
         return Shape._name;
     }
@@ -13,3 +15,5 @@ class Shape {
 
 Shape.shapeName = "shape";
 assert.strictEqual("shape", Shape.shapeName);
+
+assert.strictEqual(1, Shape.a);

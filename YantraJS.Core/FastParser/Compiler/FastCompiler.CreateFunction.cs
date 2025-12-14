@@ -10,6 +10,7 @@ using ParameterExpression = YantraJS.Expressions.YParameterExpression;
 using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
 using YantraJS.Expressions;
 using System.Reflection;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -22,6 +23,7 @@ namespace YantraJS.Core.FastParser.Compiler
             bool createClass = false,
             string className = null,
             IFastEnumerable<AstClassProperty> memberInits = null
+            // bool invokeSuper = false
             )
         {
             var node = functionDeclaration;
@@ -68,6 +70,12 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     vList.Add(cs.Context);
                     vList.Add(cs.StackItem);
+                /* There is no way to access previous CallStackItem without accessing
+                 * current context.
+                 * To optimize this if we use current Argument, then we might have to 
+                 * pass context around arguments everytime where in native functions
+                 * may miss. So it is better to access Current of JSContext.
+                */
                     sList.Add(Exp.Assign(cs.Context, JSContextBuilder.Current));
 
                     FastFunctionScope.VariableScope jsFVarScope = null;
@@ -152,6 +160,11 @@ namespace YantraJS.Core.FastParser.Compiler
                     sList.AddRange(s.InitList);
 
                     sList.AddRange(bodyInits);
+
+                //if (invokeSuper)
+                //{
+                //    sList.Add(JSFunctionBuilder.InvokeSuperConstructor( super, s.ThisExpression, s.ArgumentsExpression ));
+                //}
 
                 if (s.MemberInits != null)
                 {
