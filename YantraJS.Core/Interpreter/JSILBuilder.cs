@@ -98,7 +98,106 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitBinaryExpression(AstBinaryExpression binaryExpression)
     {
-        throw new NotImplementedException();
+        switch (binaryExpression.Operator)
+        {
+            case TokenTypes.Assign:
+                break;
+            case TokenTypes.AssignMultiply:
+                break;
+            case TokenTypes.AssignDivide:
+                break;
+            case TokenTypes.AssignMod:
+                break;
+            case TokenTypes.AssignAdd:
+                break;
+            case TokenTypes.AssignXor:
+                break;
+            case TokenTypes.AssignSubtract:
+                break;
+            case TokenTypes.AssignUnsignedRightShift:
+                break;
+            case TokenTypes.AssignBitwideAnd:
+                break;
+            case TokenTypes.AssignBitwideOr:
+                break;
+            case TokenTypes.AssignRightShift:
+                break;
+            case TokenTypes.AssignLeftShift:
+                break;
+            case TokenTypes.AssignCoalesce:
+                break;
+            case TokenTypes.AssignPower:
+                break;
+            case TokenTypes.Negate:
+                break;
+            case TokenTypes.Power:
+                break;
+            case TokenTypes.Multiply:
+                break;
+            case TokenTypes.Divide:
+                break;
+            case TokenTypes.Mod:
+                break;
+            case TokenTypes.Plus:
+                break;
+            case TokenTypes.Minus:
+                break;
+            case TokenTypes.LeftShift:
+                break;
+            case TokenTypes.RightShift:
+                break;
+            case TokenTypes.UnsignedRightShift:
+                break;
+            case TokenTypes.Less:
+                break;
+            case TokenTypes.LessOrEqual:
+                break;
+            case TokenTypes.Greater:
+                break;
+            case TokenTypes.GreaterOrEqual:
+                break;
+            case TokenTypes.In:
+                break;
+            case TokenTypes.InstanceOf:
+                break;
+            case TokenTypes.Equal:
+                break;
+            case TokenTypes.NotEqual:
+                break;
+            case TokenTypes.StrictlyEqual:
+                break;
+            case TokenTypes.StrictlyNotEqual:
+                break;
+            case TokenTypes.Coalesce:
+                break;
+            case TokenTypes.BitwiseAnd:
+                break;
+            case TokenTypes.Xor:
+                break;
+            case TokenTypes.BitwiseOr:
+                break;
+            case TokenTypes.BooleanAnd:
+                break;
+            case TokenTypes.BooleanOr:
+                break;
+            case TokenTypes.QuestionMark:
+                break;
+            case TokenTypes.BitwiseNot:
+                break;
+            case TokenTypes.QuestionDot:
+                break;
+            case TokenTypes.Dot:
+                break;
+            case TokenTypes.Increment:
+                break;
+            case TokenTypes.Decrement:
+                break;
+            case TokenTypes.OptionalCall:
+                break;
+            case TokenTypes.OptionalIndex:
+                break;
+        }
+        return builder;
     }
 
     protected override JSILBuilder VisitBlock(AstBlock block)
@@ -147,12 +246,17 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitDoWhileStatement(AstDoWhileStatement doWhileStatement, string label = null)
     {
-        throw new NotImplementedException();
+        var start = builder.Label("while-start");
+        builder.Apply(start);
+        this.Visit(doWhileStatement.Body);
+        this.Visit(doWhileStatement.Test);
+        builder.Add(JSIL.JmpT, start);
+        return builder;
     }
 
     protected override JSILBuilder VisitEmptyExpression(AstEmptyExpression emptyExpression)
     {
-        throw new NotImplementedException();
+        return builder;
     }
 
     protected override JSILBuilder VisitExportStatement(AstExportStatement astExportStatement)
@@ -192,7 +296,21 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitIfStatement(AstIfStatement ifStatement)
     {
-        throw new NotImplementedException();
+        var falseLabel = builder.Label("false");
+        this.Visit(ifStatement.Test);
+        builder.Add(JSIL.JmpF, falseLabel);
+        this.Visit(ifStatement.True);
+        if (ifStatement.False != null)
+        {
+            var endLabel = builder.Label("end");
+            builder.Add(JSIL.Jump, endLabel);
+            this.Visit(ifStatement.False);
+            builder.Apply(endLabel);
+        } else
+        {
+            builder.Apply(falseLabel);
+        }
+        return builder;
     }
 
     protected override JSILBuilder VisitImportStatement(AstImportStatement astImportStatement)
@@ -294,10 +412,8 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
     {
         var start = builder.Label("while-start");
         var end = builder.Label("while-end");
-        builder.Apply(start);
 
         this.Visit(whileStatement.Test);
-
         builder.Add(JSIL.JmpF, end);
         builder.Apply(start);
         this.Visit(whileStatement.Body);
