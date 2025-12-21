@@ -33,6 +33,9 @@ public class JSILBlock
                 case JSIL.Stor:
                     Variables.Put(current.ArgKey.Key) = Stack.Pop();
                     continue;
+                case JSIL.Dup:
+                    Stack.Push(Stack.Peek());
+                    continue;
                 case JSIL.Jump:
                     pointer = current.ArgInt;
                     continue;
@@ -46,6 +49,27 @@ public class JSILBlock
                     if (!Stack.Pop().BooleanValue)
                     {
                         pointer = current.ArgInt;
+                    }
+                    continue;
+                case JSIL.Apd:
+                    {
+                        var target = Stack.Pop();
+                        var arg = Stack.Pop();
+                        (target as JSArray).Add(arg);
+                        Stack.Push(target);
+                    }
+                    continue;
+                case JSIL.ApdS:
+                    {
+                        var target = Stack.Pop();
+                        var arg = Stack.Pop();
+                        (target as JSArray).AddRange(arg);
+                        Stack.Push(target);
+                    }
+                    continue;
+                case JSIL.NAry:
+                    {
+                        Stack.Push(new JSArray(current.ArgUint));
                     }
                     continue;
                 case JSIL.LdSE:

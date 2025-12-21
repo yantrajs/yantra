@@ -77,6 +77,11 @@ public enum JSIL
     /// </summary>
     StVE,
 
+    Apd,
+    ApdS,
+
+    NAry,
+
     Inv0,
     Inv1,
     Inv2,
@@ -140,6 +145,9 @@ public enum JSIL
     Yild,
 
     Thro,
+
+    Awit,
+    Dup,
 
     /// <summary>
     /// Begin Try

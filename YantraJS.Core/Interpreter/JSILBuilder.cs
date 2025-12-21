@@ -37,6 +37,11 @@ internal class JSILBuilder
         instructions.Add(new JSInstruction(il));
     }
 
+    public void Add(JSIL il, uint uVal)
+    {
+        instructions.Add(new JSInstruction(il, uVal));
+    }
+
     public void Add(JSIL il, JSILLabel label)
     {
         instructions.Add(new JSInstruction(il, label.Id));
@@ -59,7 +64,24 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitArrayExpression(AstArrayExpression arrayExpression)
     {
-        throw new NotImplementedException();
+        // [ a, b, ... c, ... d, e];
+        // need to add spread to an array...
+        // lets count min lenght
+        var total = arrayExpression.Elements.Count;
+        builder.Add(JSIL.NAry, (uint)total);
+        foreach (var e in arrayExpression.Elements) {
+            if (e.IsSpreadElement(out var s))
+            {
+                this.Visit(s.Argument);
+                builder.Add(JSIL.ApdS);
+            }
+            else
+            {
+                this.Visit(e);
+                builder.Add(JSIL.Apd);
+            }
+        }
+        return builder;
     }
 
     protected override JSILBuilder VisitArrayPattern(AstArrayPattern arrayPattern)
@@ -69,7 +91,9 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitAwaitExpression(AstAwaitExpression node)
     {
-        throw new NotImplementedException();
+        this.Visit(node.Argument);
+        builder.Add(JSIL.Awit);
+        return builder;
     }
 
     protected override JSILBuilder VisitBinaryExpression(AstBinaryExpression binaryExpression)
@@ -99,7 +123,16 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitConditionalExpression(AstConditionalExpression conditionalExpression)
     {
-        throw new NotImplementedException();
+        var falseLabel = builder.Label("false");
+        var endLabel = builder.Label("end");
+        this.Visit(conditionalExpression.Test);
+        builder.Add(JSIL.JmpF, falseLabel);
+        this.Visit(conditionalExpression.True);
+        builder.Add(JSIL.Jump, endLabel);
+        builder.Apply(falseLabel);
+        this.Visit(conditionalExpression.False);
+        builder.Apply(endLabel);
+        return builder;
     }
 
     protected override JSILBuilder VisitContinueStatement(AstContinueStatement continueStatement)
@@ -266,9 +299,9 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
         this.Visit(whileStatement.Test);
 
         builder.Add(JSIL.JmpF, end);
-
+        builder.Apply(start);
         this.Visit(whileStatement.Body);
-
+        builder.Add(JSIL.Jump, start);
         builder.Apply(end);
         return builder;
     }

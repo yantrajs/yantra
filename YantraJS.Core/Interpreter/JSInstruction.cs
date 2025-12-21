@@ -23,4 +23,10 @@ public readonly struct JSInstruction
         ArgInt = label;
     }
 
+    public JSInstruction(JSIL code, uint uVal)
+    {
+        Code = code;
+        ArgUint = uVal;
+    }
+
 }
