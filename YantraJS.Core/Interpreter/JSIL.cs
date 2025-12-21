@@ -12,6 +12,8 @@ public enum JSIL
     /// </summary>
     None,
 
+    Pop,
+
     /// <summary>
     /// Load String named Variable to stack
     /// </summary>
@@ -118,6 +120,8 @@ public enum JSIL
     BOr,
     BXor,
     BNot,
+
+    Dbg,
 
     // logical and/or do not exist
     // use operator coalesce

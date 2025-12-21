@@ -53,6 +53,13 @@ internal class JSILBuilder
     }
 }
 
+/// <summary>
+/// 
+/// 1. The reason we cannot evaluate expression directly is because we want to implement generators.
+/// And to do that, we need to save the execution stack, which is not possible in C# unless we
+/// 
+/// 2. It is possible to save IL builder output and skip this step next time. 
+/// </summary>
 internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 {
     private readonly JSILBuilder builder;
@@ -360,16 +367,35 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitReturnStatement(AstReturnStatement returnStatement)
     {
-        throw new NotImplementedException();
+        if (returnStatement.Argument != null)
+        {
+            this.Visit(returnStatement.Argument);
+            builder.Add(JSIL.RetV);
+            return builder;
+        }
+        builder.Add(JSIL.RetU);
+        return builder;
     }
 
     protected override JSILBuilder VisitSequenceExpression(AstSequenceExpression sequenceExpression)
     {
-        throw new NotImplementedException();
+        // we should pop till last expression..
+        var fe = sequenceExpression.Expressions.GetFastEnumerator();
+        if (fe.MoveNext(out var e))
+        {
+            this.Visit(e);
+        }
+        while(fe.MoveNext(out e))
+        {
+            builder.Add(JSIL.Pop);
+            this.Visit(e);
+        }
+        return builder;
     }
 
     protected override JSILBuilder VisitSpreadElement(AstSpreadElement spreadElement)
     {
+        // program should not reach here...
         throw new NotImplementedException();
     }
 
@@ -390,7 +416,9 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitThrowStatement(AstThrowStatement throwStatement)
     {
-        throw new NotImplementedException();
+        this.Visit(throwStatement.Argument);
+        builder.Add(JSIL.Thro);
+        return builder;
     }
 
     protected override JSILBuilder VisitTryStatement(AstTryStatement tryStatement)

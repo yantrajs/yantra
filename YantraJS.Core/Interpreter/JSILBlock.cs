@@ -27,6 +27,9 @@ public class JSILBlock
             {
                 case JSIL.None:
                     continue;
+                case JSIL.Pop:
+                    Stack.Pop();
+                    continue;
                 case JSIL.Load:
                     Stack.Push(Variables[current.ArgKey.Key]);
                     continue;
