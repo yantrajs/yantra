@@ -2,22 +2,6 @@
 
 namespace YantraJS.Core.Interpreter;
 
-
-public readonly struct JSInstruction
-{   
-    public readonly string Label;
-
-    public readonly JSIL Code;
-
-    public readonly string ArgS;
-
-    public readonly uint ArgUint;
-
-    public readonly KeyString ArgKey;
-
-    public readonly int ArgInt;
-}
-
 public class JSILBlock
 {
     private readonly JSILBlock parent;
@@ -63,29 +47,62 @@ public class JSILBlock
                         pointer = current.ArgInt;
                     }
                     continue;
-                case JSIL.StrM:
+                case JSIL.LdSE:
                     {
                         var target = Stack.Pop();
                         Stack.Push(target[current.ArgS]);
                     }
                     continue;
-                case JSIL.KeyM:
+                case JSIL.LdKE:
                     {
                         var target = Stack.Pop();
                         Stack.Push(target[current.ArgKey]);
                     }
                     continue;
-                case JSIL.IntM:
+                case JSIL.LdIE:
                     {
                         var target = Stack.Pop();
                         Stack.Push(target[current.ArgUint]);
                     }
                     continue;
-                case JSIL.ValM:
+                case JSIL.LdVE:
                     {
                         var target = Stack.Pop();
                         var symbol = Stack.Pop();
                         Stack.Push(target[symbol]);
+                    }
+                    continue;
+                case JSIL.StSE:
+                    {
+                        var target = Stack.Pop();
+                        var arg = Stack.Pop();
+                        target[current.ArgS] = arg;
+                        Stack.Push(arg);
+                    }
+                    continue;
+                case JSIL.StKE:
+                    {
+                        var target = Stack.Pop();
+                        var arg = Stack.Pop();
+                        target[current.ArgKey] = arg;
+                        Stack.Push(arg);
+                    }
+                    continue;
+                case JSIL.StIE:
+                    {
+                        var target = Stack.Pop();
+                        var arg = Stack.Pop();
+                        target[current.ArgUint] = arg;
+                        Stack.Push(arg);
+                    }
+                    continue;
+                case JSIL.StVE:
+                    {
+                        var target = Stack.Pop();
+                        var name = Stack.Pop();
+                        var arg = Stack.Pop();
+                        target[name] = arg;
+                        Stack.Push(arg);
                     }
                     continue;
                 case JSIL.Inv0:

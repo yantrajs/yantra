@@ -38,24 +38,44 @@ public enum JSIL
     JmpF,
 
     /// <summary>
-    /// String member
+    /// Load String member
     /// </summary>
-    StrM,
+    LdSE,
 
     /// <summary>
-    /// KeyString Member
+    /// Load KeyString Member
     /// </summary>
-    KeyM,
+    LdKE,
 
     /// <summary>
-    /// Integer member
+    /// Load Integer member
     /// </summary>
-    IntM,
+    LdIE,
 
     /// <summary>
-    /// Value member a[m]
+    /// Load Value member a[m]
     /// </summary>
-    ValM,
+    LdVE,
+
+    /// <summary>
+    /// Load String member
+    /// </summary>
+    StSE,
+
+    /// <summary>
+    /// Load KeyString Member
+    /// </summary>
+    StKE,
+
+    /// <summary>
+    /// Load Integer member
+    /// </summary>
+    StIE,
+
+    /// <summary>
+    /// Load Value member a[m]
+    /// </summary>
+    StVE,
 
     Inv0,
     Inv1,
