@@ -2,8 +2,6 @@
 
 public readonly struct JSInstruction
 {   
-    public readonly string Label;
-
     public readonly JSIL Code;
 
     public readonly string ArgS;
@@ -13,4 +11,16 @@ public readonly struct JSInstruction
     public readonly KeyString ArgKey;
 
     public readonly int ArgInt;
+
+    public JSInstruction(JSIL code)
+    {
+        Code = code;
+    }
+
+    public JSInstruction(JSIL code, int label)
+    {
+        Code = code;
+        ArgInt = label;
+    }
+
 }

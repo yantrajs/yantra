@@ -11,6 +11,7 @@ public class JSILBlock
     SAUint32Map<JSValue> Variables;
 
     Stack<JSValue> Stack = new Stack<JSValue>();
+    private int last;
 
     public JSILBlock(JSILBlock parent = null)
     {
@@ -19,7 +20,7 @@ public class JSILBlock
 
     public JSValue Run()
     {
-        var pointer = 0;
+        var pointer = this.last;
         for(; ;) {
             ref var current = ref this.Instructions[pointer++];
             switch (current.Code)
@@ -386,6 +387,7 @@ public class JSILBlock
                     return Stack.Pop();
                     // continue;
                 case JSIL.Yild:
+                    this.last = pointer;
                     return Stack.Pop();
                     // continue;
                 case JSIL.Thro:
