@@ -38,11 +38,6 @@ public enum JSIL
     JmpF,
 
     /// <summary>
-    /// Coalesce
-    /// </summary>
-    Colc,
-
-    /// <summary>
     /// String member
     /// </summary>
     StrM,
@@ -70,21 +65,40 @@ public enum JSIL
 
 
     InvN,
+    InvS,
 
-    Met0,
-    Met1,
-    Met2,
-    Met3,
-    Met4,
+    MetV0,
+    MetV1,
+    MetV2,
+    MetV3,
+    MetV4,
 
-    MetN,
+    MetVN,
+    MetVS,
+
+    MetK0,
+    MetK1,
+    MetK2,
+    MetK3,
+    MetK4,
+
+    MetKN,
+    MetKS,
 
     Add,
     Mul,
     Div,
     Mod,
-    And,
-    Or,
+    BAnd,
+    BOr,
+    BXor,
+    BNot,
+
+    // logical and/or do not exist
+    // use operator coalesce
+
+    //And,
+    //Or,
     Not,
 
     /// <summary>
