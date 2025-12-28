@@ -94,6 +94,11 @@ public enum JSIL
     InvN,
     InvS,
 
+    New0,
+    New1, New2, New3, New4,
+    NewS,
+    NewN,
+
     MetV0,
     MetV1,
     MetV2,

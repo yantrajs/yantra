@@ -201,6 +201,74 @@ public class JSILBlock
                         Stack.Push(target.Call(JSUndefined.Value, argList.ToArray()));
                     }
                     continue;
+                case JSIL.New0:
+                    {
+                        var target = Stack.Pop();
+                        Stack.Push(target.CreateInstance());
+                    }
+                    continue;
+                case JSIL.New1:
+                    {
+                        var target = Stack.Pop();
+                        var arg0 = Stack.Pop();
+                        Stack.Push(target.CreateInstance(arg0));
+                    }
+                    continue;
+                case JSIL.New2:
+                    {
+                        var target = Stack.Pop();
+                        var arg0 = Stack.Pop();
+                        var arg1 = Stack.Pop();
+                        Stack.Push(target.CreateInstance(arg0, arg1));
+                    }
+                    continue;
+                case JSIL.New3:
+                    {
+                        var target = Stack.Pop();
+                        var arg0 = Stack.Pop();
+                        var arg1 = Stack.Pop();
+                        var arg2 = Stack.Pop();
+                        Stack.Push(target.CreateInstance(arg0, arg1, arg2));
+                    }
+                    continue;
+                case JSIL.New4:
+                    {
+                        var target = Stack.Pop();
+                        var arg0 = Stack.Pop();
+                        var arg1 = Stack.Pop();
+                        var arg2 = Stack.Pop();
+                        var arg3 = Stack.Pop();
+                        Stack.Push(target.CreateInstance(arg0, arg1, arg3));
+                    }
+                    continue;
+                case JSIL.NewN:
+                    {
+                        var target = Stack.Pop();
+                        var argList = new JSValue[current.ArgInt];
+                        for (int i = 0; i < current.ArgInt; i++)
+                        {
+                            argList[i] = Stack.Pop();
+                        }
+                        Stack.Push(target.CreateInstance(argList));
+                    }
+                    continue;
+                case JSIL.NewS:
+                    {
+                        var target = Stack.Pop();
+                        var argList = new Sequence<JSValue>();
+                        for (int i = 0; i < current.ArgInt; i++)
+                        {
+                            argList[i] = Stack.Pop();
+                        }
+                        var spread = Stack.Pop();
+                        var e = spread.GetElementEnumerator();
+                        while (e.MoveNextOrDefault(out var v, JSUndefined.Value))
+                        {
+                            argList.Add(v);
+                        }
+                        Stack.Push(target.Call(JSUndefined.Value, argList.ToArray()));
+                    }
+                    continue;
                 case JSIL.MetK0:
                     {
                         var target = Stack.Pop();
