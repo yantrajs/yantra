@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using YantraJS.Core.FastParser;
 using YantraJS.Utils;
@@ -273,7 +274,8 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitExpressionStatement(AstExpressionStatement expressionStatement)
     {
-        throw new NotImplementedException();
+        this.Visit(expressionStatement.Expression);
+        return builder;
     }
 
     protected override JSILBuilder VisitForInStatement(AstForInStatement forInStatement, string label = null)
@@ -401,7 +403,38 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitSwitchStatement(AstSwitchStatement switchStatement)
     {
-        throw new NotImplementedException();
+        var endOfSwich = builder.Label("switch-end");
+
+        this.Visit(switchStatement.Target);
+        var i = 0;
+
+        foreach (var @case in switchStatement.Cases)
+        {
+
+            var next = builder.Label($"next-{i++}");
+
+            if (@case.Test != null)
+            {
+
+                builder.Add(JSIL.Dup);
+                // test case...
+                this.Visit(@case.Test);
+                builder.Add(JSIL.JmpF, next);
+            }
+            else
+            {
+                builder.Add(JSIL.Pop);
+            }
+            foreach (var stmt in @case.Statements)
+            {
+                this.Visit(stmt);
+            }
+            builder.Add(JSIL.Jump, endOfSwich);
+            builder.Apply(next);
+        }
+
+        builder.Apply(endOfSwich);
+        return builder;
     }
 
     protected override JSILBuilder VisitTaggedTemplateExpression(AstTaggedTemplateExpression astTaggedTemplateExpression)
