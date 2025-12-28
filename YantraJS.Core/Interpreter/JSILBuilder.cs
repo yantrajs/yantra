@@ -349,7 +349,16 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitNewExpression(AstNewExpression newExpression)
     {
-        throw new NotImplementedException();
+        foreach (var item in newExpression.Arguments)
+        {
+            if (item is AstSpreadElement)
+            {
+
+            }
+            this.Visit(item);
+        }
+        this.Visit(newExpression.Callee);
+        return builder;
     }
 
     protected override JSILBuilder VisitObjectLiteral(AstObjectLiteral objectLiteral)
