@@ -84,38 +84,13 @@ public enum JSIL
 
     NAry,
 
-    Inv0,
-    Inv1,
-    Inv2,
-    Inv3,
-    Inv4,
+    Inv,
 
+    New,
 
-    InvN,
-    InvS,
+    MetV,
 
-    New0,
-    New1, New2, New3, New4,
-    NewS,
-    NewN,
-
-    MetV0,
-    MetV1,
-    MetV2,
-    MetV3,
-    MetV4,
-
-    MetVN,
-    MetVS,
-
-    MetK0,
-    MetK1,
-    MetK2,
-    MetK3,
-    MetK4,
-
-    MetKN,
-    MetKS,
+    MetK,
 
     Add,
     Mul,

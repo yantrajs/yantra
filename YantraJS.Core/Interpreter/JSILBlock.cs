@@ -133,289 +133,47 @@ public class JSILBlock
                         Stack.Push(arg);
                     }
                     continue;
-                case JSIL.Inv0:
-                    {
-                        var target = Stack.Pop();
-                        Stack.Push( target.Call());
-                    }
-                    continue;
-                case JSIL.Inv1:
-                    {
-                        var target = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.Call(JSUndefined.Value, arg0));
-                    }
-                    continue;
-                case JSIL.Inv2:
-                    {
-                        var target = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.Call(JSUndefined.Value, arg0, arg1));
-                    }
-                    continue;
-                case JSIL.Inv3:
-                    {
-                        var target = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.Call(JSUndefined.Value, arg0, arg1, arg2));
-                    }
-                    continue;
-                case JSIL.Inv4:
-                    {
-                        var target = Stack.Pop();
-                        var arg3 = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.Call(JSUndefined.Value, arg0, arg1, arg3));
-                    }
-                    continue;
-                case JSIL.InvN:
-                    {
-                        var target = Stack.Pop();
-                        var argList = new JSValue[current.ArgInt];
-                        var j = argList.Length;
-                        for(int i = 0; i < current.ArgInt;i++)
-                        {
-                            argList[--j] = Stack.Pop();
-                        }
-                        Stack.Push(target.Call(JSUndefined.Value, argList));
-                    }
-                    continue;
-                case JSIL.InvS:
+                case JSIL.Inv:
                     {
                         var target = Stack.Pop();
                         var argList = new Sequence<JSValue>();
-                        var j = argList.Count;
-                        var spread = Stack.Pop();
-                        for (int i = 0; i < current.ArgInt; i++)
+                        for (int i = current.ArgInt; i >= 0; i--)
                         {
-                            argList[--j] = Stack.Pop();
-                        }
-                        var e = spread.GetElementEnumerator();
-                        while(e.MoveNextOrDefault(out var v, JSUndefined.Value))
-                        {
-                            argList.Add(v);
+                            argList[i] = Stack.Pop();
                         }
                         Stack.Push(target.Call(JSUndefined.Value, argList.ToArray()));
                     }
                     continue;
-                case JSIL.New0:
-                    {
-                        var target = Stack.Pop();
-                        Stack.Push(target.CreateInstance());
-                    }
-                    continue;
-                case JSIL.New1:
-                    {
-                        var target = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.CreateInstance(arg0));
-                    }
-                    continue;
-                case JSIL.New2:
-                    {
-                        var target = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.CreateInstance(arg0, arg1));
-                    }
-                    continue;
-                case JSIL.New3:
-                    {
-                        var target = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.CreateInstance(arg0, arg1, arg2));
-                    }
-                    continue;
-                case JSIL.New4:
-                    {
-                        var target = Stack.Pop();
-                        var arg3 = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.CreateInstance(arg0, arg1, arg3));
-                    }
-                    continue;
-                case JSIL.NewN:
-                    {
-                        var target = Stack.Pop();
-                        var argList = new JSValue[current.ArgInt];
-                        var j = argList.Length;
-                        for (int i = 0; i < current.ArgInt; i++)
-                        {
-                            argList[--j] = Stack.Pop();
-                        }
-                        Stack.Push(target.CreateInstance(argList));
-                    }
-                    continue;
-                case JSIL.NewS:
+                case JSIL.New:
                     {
                         var target = Stack.Pop();
                         var argList = new Sequence<JSValue>();
-                        var spread = Stack.Pop();
-                        var j = argList.Count;
-                        for (int i = 0; i < current.ArgInt; i++)
+                        for (int i = current.ArgInt; i >= 0; i--)
                         {
-                            argList[--j] = Stack.Pop();
+                            argList[i] = Stack.Pop();
                         }
-                        var e = spread.GetElementEnumerator();
-                        while (e.MoveNextOrDefault(out var v, JSUndefined.Value))
-                        {
-                            argList.Add(v);
-                        }
-                        Stack.Push(target.Call(JSUndefined.Value, argList.ToArray()));
+                        Stack.Push(target.CreateInstance(argList.ToArray()));
                     }
                     continue;
-                case JSIL.MetK0:
-                    {
-                        var target = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(in current.ArgKey));
-                    }
-                    continue;
-                case JSIL.MetK1:
-                    {
-                        var target = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(in current.ArgKey, arg0));
-                    }
-                    continue;
-                case JSIL.MetK2:
-                    {
-                        var target = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(in current.ArgKey, arg0, arg1));
-                    }
-                    continue;
-                case JSIL.MetK3:
-                    {
-                        var target = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(in current.ArgKey, arg0, arg1, arg2));
-                    }
-                    continue;
-                case JSIL.MetK4:
-                    {
-                        var target = Stack.Pop();
-                        var arg3 = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(in current.ArgKey, arg0, arg1, arg2, arg3));
-                    }
-                    continue;
-                case JSIL.MetKN:
-                    {
-                        var target = Stack.Pop();
-                        var argList = new JSValue[current.ArgInt];
-                        var j = argList.Length;
-                        for (int i = 0; i < current.ArgInt; i++)
-                        {
-                            argList[--j] = Stack.Pop();
-                        }
-                        Stack.Push(target.InvokeMethod(in current.ArgKey, argList));
-                    }
-                    continue;
-                case JSIL.MetKS:
+                case JSIL.MetK:
                     {
                         var target = Stack.Pop();
                         var argList = new Sequence<JSValue>();
-                        var spread = Stack.Pop();
-                        var j = argList.Count;
-                        for (int i = 0; i < current.ArgInt; i++)
+                        for (int i = current.ArgInt; i >= 0; i--)
                         {
-                            argList[--j] = Stack.Pop();
-                        }
-                        var e = spread.GetElementEnumerator();
-                        while (e.MoveNextOrDefault(out var v, JSUndefined.Value))
-                        {
-                            argList.Add(v);
+                            argList[i] = Stack.Pop();
                         }
                         Stack.Push(target.InvokeMethod(current.ArgKey, argList.ToArray()));
                     }
                     continue;
-                case JSIL.MetV0:
-                    {
-                        var target = Stack.Pop();
-                        var name = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(name));
-                    }
-                    continue;
-                case JSIL.MetV1:
-                    {
-                        var target = Stack.Pop();
-                        var name = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(name, arg0));
-                    }
-                    continue;
-                case JSIL.MetV2:
-                    {
-                        var target = Stack.Pop();
-                        var name = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(name, arg0, arg1));
-                    }
-                    continue;
-                case JSIL.MetV3:
-                    {
-                        var target = Stack.Pop();
-                        var name = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(name, arg0, arg1, arg2));
-                    }
-                    continue;
-                case JSIL.MetV4:
-                    {
-                        var target = Stack.Pop();
-                        var name = Stack.Pop();
-                        var arg3 = Stack.Pop();
-                        var arg2 = Stack.Pop();
-                        var arg1 = Stack.Pop();
-                        var arg0 = Stack.Pop();
-                        Stack.Push(target.InvokeMethod(name, arg0, arg1, arg2, arg3));
-                    }
-                    continue;
-                case JSIL.MetVN:
-                    {
-                        var target = Stack.Pop();
-                        var name = Stack.Pop();
-                        var argList = new JSValue[current.ArgInt];
-                        var j = argList.Length;
-                        for (int i = 0; i < current.ArgInt; i++)
-                        {
-                            argList[--j] = Stack.Pop();
-                        }
-                        Stack.Push(target.InvokeMethod(name, argList));
-                    }
-                    continue;
-                case JSIL.MetVS:
+                case JSIL.MetV:
                     {
                         var target = Stack.Pop();
                         var name = Stack.Pop();
                         var argList = new Sequence<JSValue>();
-                        var spread = Stack.Pop();
-                        var j = argList.Count;
-                        for (int i = 0; i < current.ArgInt; i++)
+                        for (int i = current.ArgInt; i >= 0; i--)
                         {
-                            argList[--j] = Stack.Pop();
-                        }
-                        var e = spread.GetElementEnumerator();
-                        while (e.MoveNextOrDefault(out var v, JSUndefined.Value))
-                        {
-                            argList.Add(v);
+                            argList[i] = Stack.Pop();
                         }
                         Stack.Push(target.InvokeMethod(name, argList.ToArray()));
                     }
