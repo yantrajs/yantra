@@ -152,7 +152,7 @@ public class JSILBlock
                         {
                             argList[i] = Stack.Pop();
                         }
-                        Stack.Push(target.CreateInstance(argList.ToArray()));
+                        Stack.Push(target.CreateInstance(Arguments.Spread(JSUndefined.Value, argList));
                     }
                     continue;
                 case JSIL.MetK:

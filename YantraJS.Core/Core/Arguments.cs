@@ -220,6 +220,23 @@ namespace YantraJS.Core
             return new Arguments(@this, list, length);
         }
 
+
+        public static Arguments Spread(JSValue @this, Sequence<JSValue> values)
+        {
+            int length = 0;
+            var flatten = new Sequence<JSValue>(values.Count);
+            var fe = values.GetFastEnumerator();
+            while(fe.MoveNext(out var item))
+            {
+                if (item.IsSpread)
+                {
+                    flatten.AddRange((item as JSSpreadValue).Value);
+                    continue;
+                }
+            }
+            return new Arguments(@this, list, length);
+        }
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arguments(JSValue @this, JSValue[] list, int length)
