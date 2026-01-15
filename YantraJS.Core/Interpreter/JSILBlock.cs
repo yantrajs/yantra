@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace YantraJS.Core.Interpreter;
 
@@ -141,41 +142,63 @@ public class JSILBlock
                         {
                             argList[i] = Stack.Pop();
                         }
-                        Stack.Push(target.Call(JSUndefined.Value, argList.ToArray()));
+                        Stack.Push(target.InvokeFunction(Arguments.Spread(JSUndefined.Value, argList)));
                     }
                     continue;
                 case JSIL.New:
                     {
                         var target = Stack.Pop();
-                        var argList = new Sequence<JSValue>();
-                        for (int i = current.ArgInt; i >= 0; i--)
-                        {
-                            argList[i] = Stack.Pop();
-                        }
-                        Stack.Push(target.CreateInstance(Arguments.Spread(JSUndefined.Value, argList));
+                        var a = this.CreateArguments(JSUndefined.Value, current.ArgInt);
+                        Stack.Push(target.CreateInstance(in a));
+                    }
+                    continue;
+                case JSIL.NewS:
+                    {
+                        var target = Stack.Pop();
+                        var a = this.CreateSpreadArguments(JSUndefined.Value, current.ArgInt);
+                        Stack.Push(target.CreateInstance(in a));
                     }
                     continue;
                 case JSIL.MetK:
                     {
                         var target = Stack.Pop();
-                        var argList = new Sequence<JSValue>();
-                        for (int i = current.ArgInt; i >= 0; i--)
-                        {
-                            argList[i] = Stack.Pop();
-                        }
-                        Stack.Push(target.InvokeMethod(current.ArgKey, argList.ToArray()));
+                        var fx = target.GetMethod(in current.ArgKey);
+                        if (fx == null)
+                            throw JSContext.Current.NewTypeError($"Method {current.ArgKey.Value} not found in {target}");
+                        var a = this.CreateArguments(target, current.ArgInt);
+                        Stack.Push(fx(in a));
+                    }
+                    continue;
+                case JSIL.MetKS:
+                    {
+                        var target = Stack.Pop();
+                        var fx = target.GetMethod(in current.ArgKey);
+                        if (fx == null)
+                            throw JSContext.Current.NewTypeError($"Method {current.ArgKey.Value} not found in {target}");
+                        var a = this.CreateSpreadArguments(target, current.ArgInt);
+                        Stack.Push(fx(in a));
                     }
                     continue;
                 case JSIL.MetV:
                     {
                         var target = Stack.Pop();
                         var name = Stack.Pop();
-                        var argList = new Sequence<JSValue>();
-                        for (int i = current.ArgInt; i >= 0; i--)
-                        {
-                            argList[i] = Stack.Pop();
-                        }
-                        Stack.Push(target.InvokeMethod(name, argList.ToArray()));
+                        var fx = target[name];
+                        if (fx == JSUndefined.Value)
+                            throw JSContext.Current.NewTypeError($"Method {name} not found in {target}");
+                        var a = this.CreateArguments(target, current.ArgInt);
+                        Stack.Push(fx.InvokeFunction(in a));
+                    }
+                    continue;
+                case JSIL.MetVS:
+                    {
+                        var target = Stack.Pop();
+                        var name = Stack.Pop();
+                        var fx = target[name];
+                        if (fx == JSUndefined.Value)
+                            throw JSContext.Current.NewTypeError($"Method {name} not found in {target}");
+                        var a = this.CreateSpreadArguments(target, current.ArgInt);
+                        Stack.Push(fx.InvokeFunction(in a));
                     }
                     continue;
                 case JSIL.Add:
@@ -269,4 +292,47 @@ public class JSILBlock
         }
     }
 
+    private Arguments CreateArguments(JSValue @this, int argInt)
+    {
+        JSValue a1, a2, a3, a4;
+        switch (argInt)
+        {
+            case 0:
+                return Arguments.Empty;
+            case 1:
+                return new Arguments(@this, Stack.Pop());
+            case 2:
+                a2 = Stack.Pop();
+                a1 = Stack.Pop();
+                return new Arguments(@this, a1, a2);
+            case 3:
+                a3 = Stack.Pop();
+                a2 = Stack.Pop();
+                a1 = Stack.Pop();
+                return new Arguments(@this, a1, a2, a3);
+            case 4:
+                a4 = Stack.Pop();
+                a3 = Stack.Pop();
+                a2 = Stack.Pop();
+                a1 = Stack.Pop();
+                return new Arguments(@this, a1, a2, a3, a4);
+        }
+
+        var argList = new JSValue[argInt];
+        for (int i = argInt; i >= 0; i--)
+        {
+            argList[i] = Stack.Pop();
+        }
+        return new Arguments(@this, argList);
+    }
+
+    private Arguments CreateSpreadArguments(JSValue @this, int argInt)
+    {
+        var argList = new Sequence<JSValue>(argInt);
+        for (int i = argInt; i >= 0; i--)
+        {
+            argList[i] = Stack.Pop();
+        }
+        return Arguments.Spread(@this, argList);
+    }
 }

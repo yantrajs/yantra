@@ -85,12 +85,16 @@ public enum JSIL
     NAry,
 
     Inv,
+    InvS,
 
     New,
+    NewS,
 
     MetV,
+    MetVS,
 
     MetK,
+    MetKS,
 
     Add,
     Mul,

@@ -230,11 +230,32 @@ namespace YantraJS.Core
             {
                 if (item.IsSpread)
                 {
-                    flatten.AddRange((item as JSSpreadValue).Value);
+                    var ee = (item as JSSpreadValue)!.Value.GetElementEnumerator();
+                    while(ee.MoveNext(out var value))
+                    {
+                        flatten.Add(value);
+                        length++;
+                    }
                     continue;
                 }
+                flatten.Add(item);
+                length++;
             }
-            return new Arguments(@this, list, length);
+            switch (length)
+            {
+                case 0:
+                    return new Arguments(@this);
+                case 1:
+                    return new Arguments(@this, flatten[0]);
+                case 2:
+                    return new Arguments(@this, flatten[0], flatten[1]);
+                case 3:
+                    return new Arguments(@this, flatten[0], flatten[1], flatten[2]);
+                case 4:
+                    return new Arguments(@this, flatten[0], flatten[1], flatten[2], flatten[3]);
+                default:
+                    return new Arguments(@this, flatten.ToArray());
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
