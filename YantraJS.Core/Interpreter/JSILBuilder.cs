@@ -465,12 +465,55 @@ internal class JSILAstVisitor : AstMapVisitor<JSILBuilder>
 
     protected override JSILBuilder VisitTryStatement(AstTryStatement tryStatement)
     {
-        throw new NotImplementedException();
+        builder.Add(JSIL.BegT);
+        this.Visit(tryStatement.Block);
+        builder.Add(JSIL.EndT);
+        if (tryStatement.Catch != null)
+        {
+            builder.Add(JSIL.BegC);
+            this.Visit(tryStatement.Catch);
+            builder.Add(JSIL.EndC);
+        }
+        if (tryStatement.Finally != null)
+        {
+            builder.Add(JSIL.BegF);
+            this.Visit(tryStatement.Finally);
+            builder.Add(JSIL.EndF);
+        }
+        return builder;
     }
 
     protected override JSILBuilder VisitUnaryExpression(AstUnaryExpression unaryExpression)
     {
-        throw new NotImplementedException();
+        this.Visit(unaryExpression.Argument);
+
+        // something must be on stack..
+        switch(unaryExpression.Operator)
+        {
+            case UnaryOperator.Minus:
+                builder.Add(JSIL.Negate);
+                break;
+            case UnaryOperator.BitwiseNot:
+                builder.Add(JSIL.BNot);
+                break;
+            case UnaryOperator.@void:
+                builder.Add(JSIL.LdUndef);
+                break;
+            case UnaryOperator.@typeof:
+                builder.Add(JSIL.TypeOf);
+                break;
+            case UnaryOperator.delete:
+                builder.Add(JSIL.Del);
+                break;
+            case UnaryOperator.Increment:
+                builder.Add(JSIL.Inc);
+                break;
+            case UnaryOperator.Decrement:
+                builder.Add(JSIL.Inc);
+                break;
+        }
+
+        return builder;
     }
 
     protected override JSILBuilder VisitVariableDeclaration(AstVariableDeclaration variableDeclaration)

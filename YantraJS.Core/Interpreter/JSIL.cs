@@ -104,6 +104,12 @@ public enum JSIL
     BOr,
     BXor,
     BNot,
+    Negate,
+    LdUndef,
+    TypeOf,
+    Del,
+    Inc,
+    Dec,
 
     Dbg,
 
