@@ -49,6 +49,7 @@ namespace YantraJS.Core.Typed
         }
 
         public JSTypedArray(in TypedArrayParameters p): this(p.prototype) {
+            this.InvokeFunction = PreventInvoke;
             buffer = p.buffer;
             length = p.length;
             byteOffset = p.byteOffset;
@@ -183,10 +184,10 @@ namespace YantraJS.Core.Typed
             return Object.ReferenceEquals(this, value);
         }
 
-        //public override JSValue InvokeFunction(in Arguments a)
-        //{
-        //    throw JSContext.Current.NewTypeError($"{this} is not a function");
-        //}
+        private JSValue PreventInvoke(in Arguments a)
+        {
+            throw JSContext.Current.NewTypeError($"{this} is not a function");
+        }
 
         public override bool StrictEquals(JSValue value)
         {

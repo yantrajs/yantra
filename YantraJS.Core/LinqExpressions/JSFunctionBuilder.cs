@@ -56,8 +56,8 @@ namespace YantraJS.ExpHelper
         //private static FieldInfo _f =
         //    type.InternalField(nameof(JSFunction.InvokeFunction));
 
-        private static MethodInfo invokeFunction =
-            typeof(JSValue).InternalMethod(nameof(JSFunction.InvokeFunction), ArgumentsBuilder.refType);
+        //private static MethodInfo invokeFunction =
+        //    typeof(JSValue).InternalMethod(nameof(JSFunction.InvokeFunction), ArgumentsBuilder.refType);
 
         private static MethodInfo _invokeSuperConstructor
             = typeof(JSFunction).PublicMethod(nameof(JSFunction.InvokeSuperConstructor), 
