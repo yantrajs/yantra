@@ -118,6 +118,19 @@ public static class TypeQuery
 
     }
 
+    public static FieldInfo QueryDelegateField(Func<LambdaExpression> fx)
+    {
+        return GetOrCreate(fx.Method, () => {
+            var exp = fx();
+            if (exp.Body is not System.Linq.Expressions.InvocationExpression ie)
+                throw new ArgumentException($"Delegate not found in {exp}");
+            if (ie.Expression is not System.Linq.Expressions.MemberExpression me)
+                throw new ArgumentException($"Member not found in {exp}");
+            return me.Member as FieldInfo;
+        });
+
+    }
+
     public static MethodInfo QueryInstanceMethod(Func<LambdaExpression> fx)
     {
         return GetOrCreate(fx.Method, () => {

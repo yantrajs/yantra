@@ -27,7 +27,7 @@ namespace YantraJS.Core
             var t = a.This;
             if (receiver is JSFunction function)
             {
-                r = (p) => function.f( new Arguments(t, new JSString(p.key), p.value));
+                r = (p) => function.InvokeFunction( new Arguments(t, new JSString(p.key), p.value));
             }
             return JSJsonParser.Parse(text.ToString(), r) ?? JSNull.Value;
 
@@ -68,7 +68,7 @@ namespace YantraJS.Core
                 if (r is JSFunction rf)
                 {
                     replacer = (item) =>
-                     rf.f(new Arguments(item.target, item.key, item.value));
+                     rf.InvokeFunction(new Arguments(item.target, item.key, item.value));
                 } else if (r is JSArray ra)
                 {
 
@@ -184,7 +184,7 @@ namespace YantraJS.Core
                 {
                     if (value.get == null)
                         continue;
-                    jsValue = (value.get as JSFunction).f(new Arguments(target));
+                    jsValue = (value.get as JSFunction).InvokeFunction(new Arguments(target));
                 } else
                 {
                     jsValue = value.value;

@@ -349,10 +349,10 @@ namespace YantraJS.Core
             return false;
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw new NotImplementedException($"\"{value}\" is not a function");
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw new NotImplementedException($"\"{value}\" is not a function");
+        //}
 
         internal override JSBoolean Is(JSValue value)
         {

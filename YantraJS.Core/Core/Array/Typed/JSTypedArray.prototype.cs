@@ -86,7 +86,7 @@ namespace YantraJS.Core.Typed
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
                 var itemArgs = new Arguments(thisArg, item, new JSNumber(index), this);
-                if (!fn.f(itemArgs).BooleanValue)
+                if (!fn.InvokeFunction(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
             return JSBoolean.True;
@@ -125,7 +125,7 @@ namespace YantraJS.Core.Typed
             {
                 if (!hasValue) continue;
                 var itemParams = new Arguments(thisArg, item, new JSNumber(index), this);
-                if (fn.f(itemParams).BooleanValue)
+                if (fn.InvokeFunction(itemParams).BooleanValue)
                 {
                     r.Add(item);
                 }
@@ -150,7 +150,7 @@ namespace YantraJS.Core.Typed
                 if (!hasValue)
                     continue;
                 var itemParams = new Arguments(thisArg, item, new JSNumber(index), this);
-                if (fn.f(itemParams).BooleanValue)
+                if (fn.InvokeFunction(itemParams).BooleanValue)
                 {
                     return item;
                 }
@@ -173,7 +173,7 @@ namespace YantraJS.Core.Typed
                     continue;
                 var index = new JSNumber(n);
                 var itemParams = new Arguments(thisArg, item, index, this);
-                if (fn.f(itemParams).BooleanValue)
+                if (fn.InvokeFunction(itemParams).BooleanValue)
                 {
                     return index;
                 }
@@ -197,7 +197,7 @@ namespace YantraJS.Core.Typed
                     continue;
                 var n = new JSNumber(index);
                 var itemParams = new Arguments(thisArg, item, n, this);
-                fn.f(itemParams);
+                fn.InvokeFunction(itemParams);
             }
             return JSUndefined.Value;
         }
@@ -344,7 +344,7 @@ namespace YantraJS.Core.Typed
                     continue;
                 }
                 var itemArgs = new Arguments(thisArg, item, new JSNumber(index), this);
-                rElements.Put(r._length++, fn.f(itemArgs));
+                rElements.Put(r._length++, fn.InvokeFunction(itemArgs));
             }
             return r;
         }
@@ -368,7 +368,7 @@ namespace YantraJS.Core.Typed
                 if (!hasValue)
                     continue;
                 var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), this);
-                initialValue = fn.f(itemArgs);
+                initialValue = fn.InvokeFunction(itemArgs);
             }
             return initialValue;
         }
@@ -394,7 +394,7 @@ namespace YantraJS.Core.Typed
             {
                 var item = this[(uint)i];
                 var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), this);
-                initialValue = fn.f(itemArgs);
+                initialValue = fn.InvokeFunction(itemArgs);
             }
             return initialValue;
         }
@@ -526,7 +526,7 @@ namespace YantraJS.Core.Typed
                 if (!hasValue)
                     continue;
                 var itemArgs = new Arguments(thisArg, item, new JSNumber(index), this);
-                if (fn.f(itemArgs).BooleanValue)
+                if (fn.InvokeFunction(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
             return JSBoolean.False;
@@ -543,7 +543,7 @@ namespace YantraJS.Core.Typed
             {
                 cx = (l, r) => {
                     var arg = new Arguments(this, l, r);
-                    return (int)(fn.f(arg).DoubleValue);
+                    return (int)(fn.InvokeFunction(arg).DoubleValue);
                 };
             }
             else

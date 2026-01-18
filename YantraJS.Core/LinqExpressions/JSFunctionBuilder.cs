@@ -53,8 +53,8 @@ namespace YantraJS.ExpHelper
         //        StringSpanBuilder.RefType, 
         //        StringSpanBuilder.RefType, typeof(int), typeof(bool) });
 
-        private static FieldInfo _f =
-            type.InternalField(nameof(JSFunction.f));
+        //private static FieldInfo _f =
+        //    type.InternalField(nameof(JSFunction.InvokeFunction));
 
         private static MethodInfo invokeFunction =
             typeof(JSValue).InternalMethod(nameof(JSFunction.InvokeFunction), ArgumentsBuilder.refType);
@@ -92,12 +92,12 @@ namespace YantraJS.ExpHelper
                     Expression.Condition(JSValueBuilder.IsNullOrUndefined(pe),
                     JSUndefinedBuilder.Value,
                     // Expression.Call(pe, invokeFunction, args)
-                    pe.CallExpression<JSFunction, Arguments, JSValue>(() => (x,a) => x.InvokeFunction(a),
+                    pe.CallDelegate<JSFunction, Arguments, JSValue>(() => (x,a) => x.InvokeFunction(a),
                     args)
                 ));
             }
             //return Expression.Call(target, invokeFunction, args);
-            return target.CallExpression<JSFunction, Arguments, JSValue>(() => (x, a) => x.InvokeFunction(a), args);
+            return target.CallDelegate<JSFunction, Arguments, JSValue>(() => (x, a) => x.InvokeFunction(a), args);
         }
 
         public static Expression New(Expression del, Expression name, Expression code, int length)

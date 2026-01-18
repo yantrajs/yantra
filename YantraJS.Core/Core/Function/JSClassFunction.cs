@@ -9,12 +9,12 @@
             in StringSpan source,
             int length = 0) : base(@delegate, name, source, length)
         {
-
+            // this.InvokeFunction = InvokeClass;
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw JSContext.Current.NewTypeError($"{this.name} cannot be invoked directly");
-        }
+        //public JSValue InvokeClass(in Arguments a)
+        //{
+        //    throw JSContext.Current.NewTypeError($"{this.name} cannot be invoked directly");
+        //}
     }
 }

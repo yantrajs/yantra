@@ -135,10 +135,10 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError("cannot create instance of null");
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw new NotImplementedException("null is not a function");
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw new NotImplementedException("null is not a function");
+        //}
 
         public override bool ConvertTo(Type type, out object value)
         {

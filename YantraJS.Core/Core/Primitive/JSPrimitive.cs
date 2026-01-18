@@ -24,7 +24,7 @@ namespace YantraJS.Core
 
         protected JSPrimitive() : base(null)
         {
-
+            this.InvokeFunction = (in Arguments a) => throw JSContext.Current.NewTypeError($"{this.ToString()} is not a function");
         }
 
         protected JSPrimitive(JSObject prototype): base(prototype)

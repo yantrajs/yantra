@@ -21,22 +21,22 @@ namespace YantraJS.Core
             {
                 if (!(fail is JSFunction failFx))
                     throw JSContext.Current.NewTypeError($"Parameter for then is not a function");
-                return Then(successFx.f, failFx.f);
+                return Then(successFx.InvokeFunction, failFx.InvokeFunction);
             }
-            return Then(successFx.f, null);
+            return Then(successFx.InvokeFunction, null);
         }
 
         [JSExport("catch")]
         public JSValue Catch(JSFunction fx)
         {
-            Then(null, fx.f);
+            Then(null, fx.InvokeFunction);
             return this;
         }
 
         [JSExport("finally")]
         public JSValue Finally(JSFunction fx)
         {
-            return Then(fx.f, fx.f);
+            return Then(fx. InvokeFunction  , fx.InvokeFunction);
         }
     }
 }

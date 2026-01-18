@@ -87,10 +87,10 @@ namespace YantraJS.Core.BigInt
             return value.ToString() + "n";
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw new NotImplementedException();
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public override JSValue CreateInstance(in Arguments a)
         {

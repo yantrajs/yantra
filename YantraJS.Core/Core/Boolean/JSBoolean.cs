@@ -23,6 +23,7 @@ namespace YantraJS.Core
         private JSBoolean(bool _value) : base()
         {
             this._value = _value;
+            this.InvokeFunction = (in Arguments a) => throw new NotImplementedException("boolean is not a function");
         }
 
         [JSExport(IsConstructor = true)]
@@ -147,10 +148,10 @@ namespace YantraJS.Core
             return Object.ReferenceEquals(this, value);
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw new NotImplementedException("boolean is not a function");
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw new NotImplementedException("boolean is not a function");
+        //}
 
         internal override PropertyKey ToKey(bool create = false)
         {

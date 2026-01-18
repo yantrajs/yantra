@@ -23,6 +23,7 @@ namespace YantraJS.Core
             }
             this.target = target;
             this.handler = handler;
+            this.InvokeFunction = InvokeProxyFunction;
         }
 
         public override bool BooleanValue => target.BooleanValue;
@@ -33,7 +34,7 @@ namespace YantraJS.Core
             return target.Equals(value);
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
+        public JSValue InvokeProxyFunction(in Arguments a)
         {
             var fx = handler[KeyStrings.apply];
             if (fx is JSFunction fxFunction)

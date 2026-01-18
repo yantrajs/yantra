@@ -135,11 +135,11 @@ namespace YantraJS.Core.Core
             if(p.IsValue)
             {
                 if (p.get != null)
-                    return p.get.f;
+                    return p.get.InvokeFunction;
             }
             if (p.IsProperty)
             {
-                return p.get.f;
+                return p.get.InvokeFunction;
             }
             return null;
         }

@@ -478,10 +478,10 @@ namespace YantraJS.Core
                 {
                     var g = p.get;
                     if (g != null)
-                        return g.f;
+                        return g.InvokeFunction;
                 }
                 if(p.IsProperty)
-                    return p.get.f;
+                    return p.get.InvokeFunction;
             }
             return prototypeChain?.GetMethod(key);
         }
@@ -499,7 +499,7 @@ namespace YantraJS.Core
             {
                 if (p.set != null)
                 {
-                    p.set.f(new Arguments(receiver ?? this, value));
+                    p.set.InvokeFunction(new Arguments(receiver ?? this, value));
                     return true;
                 }
                 if (throwError)
@@ -548,7 +548,7 @@ namespace YantraJS.Core
             {
                 if (p.set != null)
                 {
-                    p.set.f(new Arguments(receiver ?? this, value));
+                    p.set.InvokeFunction(new Arguments(receiver ?? this, value));
                     return true;
                 }
                 return false;
@@ -582,7 +582,7 @@ namespace YantraJS.Core
             {
                 if (p.set != null)
                 {
-                    p.set.f(new Arguments(receiver ?? this, value));
+                    p.set.InvokeFunction(new Arguments(receiver ?? this, value));
                     return true;
                 }
                 return false;
@@ -991,10 +991,10 @@ namespace YantraJS.Core
             return Object.ReferenceEquals(this, value);
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw JSContext.Current.NewTypeError($"{this} is not a function");
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw JSContext.Current.NewTypeError($"{this} is not a function");
+        //}
 
         public override bool Less(JSValue value)
         {

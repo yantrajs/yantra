@@ -86,10 +86,10 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError("cannot create instance of undefined");
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw JSContext.Current.NewTypeError("undefined is not a function", null);
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw JSContext.Current.NewTypeError("undefined is not a function", null);
+        //}
 
         public override IElementEnumerator GetElementEnumerator()
         {

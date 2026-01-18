@@ -36,6 +36,7 @@ namespace YantraJS.Core
         {
             this.name = name;
             Key = (uint)Interlocked.Increment(ref SymbolID);
+            this.InvokeFunction = JSSymbol.CreateSymbol;
         }
 
         public override JSValue TypeOf()
@@ -63,7 +64,7 @@ namespace YantraJS.Core
             return (int)Key;
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
+        public static JSValue CreateSymbol(in Arguments a)
         {
             var f = a.Get1();
             if (f.IsUndefined)

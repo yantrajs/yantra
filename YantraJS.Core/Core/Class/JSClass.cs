@@ -11,13 +11,18 @@ namespace YantraJS.Core
     {
 
         internal readonly JSFunction super;
+
+        internal JSFunctionDelegate classFunction;
+
         public JSClass(
             JSFunctionDelegate fx, 
             JSFunction super ,
             string name = null,
             string code = null)
-            : base( fx ?? super.f ?? JSFunction.empty, name,code)
+            : base( fx ?? super.InvokeFunction ?? JSFunction.empty, name,code)
         {
+            this.InvokeFunction = InvokeClassFunction;
+            this.classFunction = fx ?? super.InvokeFunction ?? JSFunction.empty;
             this.super = super;
             this.BasePrototypeObject = super;
             this.prototype.BasePrototypeObject = super.prototype;
@@ -26,14 +31,14 @@ namespace YantraJS.Core
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void AddConstructor(JSFunction fx)
         {
-            this.f = fx.f;
+            this.classFunction = fx.InvokeFunction;
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
+        public JSValue InvokeClassFunction(in Arguments a)
         {
             if (JSContext.NewTarget == null && JSContext.Current.CurrentNewTarget == null)
                 throw JSContext.Current.NewTypeError($"{this} is not a function");
-            return f(a);
+            return classFunction(a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,7 +50,7 @@ namespace YantraJS.Core
             };
             var ao = a.OverrideThis(@object);
             JSContext.Current.CurrentNewTarget = this;
-            var @this = f(ao);
+            var @this = InvokeFunction(ao);
             if (!@this.IsUndefined)
             {
                 @this.BasePrototypeObject = this.prototype;

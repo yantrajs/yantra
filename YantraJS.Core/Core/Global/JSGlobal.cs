@@ -109,7 +109,7 @@ namespace YantraJS.Core
             var c = JSContext.Current;
             SynchronizationContext.Current.Post((_1) => { 
                 try {
-                    f.f(new Arguments(_1 as JSValue));
+                    f.InvokeFunction(new Arguments(_1 as JSValue));
                 } catch (Exception ex)
                 {
                     c.ReportError(ex);

@@ -43,7 +43,7 @@ namespace YantraJS.Core
 
         public readonly StringSpan name;
 
-        internal JSFunctionDelegate f;
+        //internal JSFunctionDelegate f;
         
         public override bool IsFunction => true;
 
@@ -62,7 +62,7 @@ namespace YantraJS.Core
             : this()
         {
             ref var ownProperties = ref this.GetOwnProperties();
-            this.f = clrDelegate;
+            this.InvokeFunction = clrDelegate;
             this.name = "clr-native";
             this.source = source.IsEmpty 
                 ? $"function {type.name}() {{ [clr-native] }}"
@@ -99,7 +99,7 @@ namespace YantraJS.Core
             : this()
         {
             ref var ownProperties = ref this.GetOwnProperties();
-            this.f = empty;
+            this.InvokeFunction = empty;
             this.name = name.IsEmpty ? "native" : name;
             this.source = source.IsEmpty 
                 ? $"function {this.name}() {{ [native] }}"
@@ -124,10 +124,10 @@ namespace YantraJS.Core
         public JSFunction(Func<JSFunctionDelegate> fx, in StringSpan name)
             : this(empty, in name, StringSpan.Empty)
         {
-            this.f = (in Arguments a) =>
+            this.InvokeFunction = (in Arguments a) =>
             {
-                this.f = fx();
-                return this.f(in a);
+                this.InvokeFunction = fx();
+                return this.InvokeFunction(in a);
             };
         }
 
@@ -148,7 +148,7 @@ namespace YantraJS.Core
             bool createPrototype = true) : base(basePrototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
-            this.f = f;
+            this.InvokeFunction = f;
             this.name = name.IsEmpty ? "native" : name;
             this.source = source.IsEmpty
                 ? $"function {this.name}() {{ [native] }}"
@@ -181,8 +181,8 @@ namespace YantraJS.Core
             int length = 0,
             bool createPrototype = true): base(JSContext.Current?.FunctionPrototype)
         {
+            this.InvokeFunction = f;
             ref var ownProperties = ref this.GetOwnProperties();
-            this.f = f;
             this.name = name.IsEmpty ? "native" : name;
             this.source = source.IsEmpty
                 ? $"function {this.name}() {{ [native] }}"
@@ -243,7 +243,7 @@ namespace YantraJS.Core
             };
             var a1 = a.OverrideThis(obj);
             JSContext.Current.CurrentNewTarget = this;
-            var r = f(a1);
+            var r = InvokeFunction(a1);
             if (r.IsObject)
             {
                 r.BasePrototypeObject = this.prototype;
@@ -254,7 +254,7 @@ namespace YantraJS.Core
 
         public JSValue InvokeSuper(in Arguments a)
         {
-            var r = f(in a);
+            var r = InvokeFunction(in a);
             if (r.IsObject)
             {
                 return r;
@@ -279,10 +279,10 @@ namespace YantraJS.Core
             //return obj;
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            return f(a);
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    return f(a);
+        //}
 
         [JSPrototypeMethod][JSExport("valueOf", Length = 1)]
         public new static JSValue ValueOf(in Arguments a)
@@ -393,7 +393,7 @@ namespace YantraJS.Core
 
             // parse and create method...
             var fx1 = CoreScript.Compile(bodyText, "internal", sargs, codeCache: context.CodeCache);
-            fx.f = fx1;
+            fx.InvokeFunction = fx1;
             return fx;
         }
 
@@ -438,7 +438,7 @@ namespace YantraJS.Core
             }
             // var retVar = Expression.Parameter(method.ReturnType == typeof(void) ? typeof(object) : method.ReturnType);
             // veList.Add(retVar);
-            var @delegate = function.f;
+            var @delegate = function.InvokeFunction;
             var d = Expression.Constant(@delegate);
             var @this = Expression.Constant(function);
             var nargs = ArgumentsBuilder.New(@this, veList.AsSequence<Expression>());

@@ -707,7 +707,7 @@ namespace YantraJS.Core {
             throw JSContext.Current.NewTypeError($"Cannot create instance of {this}");
         }
 
-        public abstract JSValue InvokeFunction(in Arguments a);
+        public JSFunctionDelegate InvokeFunction = (in Arguments a) => throw JSContext.Current.NewTypeError("Invoke not implemented");
 
         internal virtual JSFunctionDelegate GetMethod(in KeyString key)
         {

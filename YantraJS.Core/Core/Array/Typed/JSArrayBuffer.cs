@@ -37,6 +37,7 @@ namespace YantraJS.Core.Typed
                 throw JSContext.Current.NewRangeError("Buffer length out of range");
             }
             this.buffer = new byte[length];
+            this.InvokeFunction = (in Arguments a) => throw JSContext.Current.NewTypeError($"{this} is not a function");
         }
 
         public JSArrayBuffer(int length) : this()
@@ -57,10 +58,10 @@ namespace YantraJS.Core.Typed
             return Object.ReferenceEquals(this, value); 
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw JSContext.Current.NewTypeError($"{this} is not a function");
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw JSContext.Current.NewTypeError($"{this} is not a function");
+        //}
 
         public override bool StrictEquals(JSValue value)
         {

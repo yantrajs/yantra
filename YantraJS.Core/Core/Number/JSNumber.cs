@@ -385,10 +385,10 @@ namespace YantraJS.Core
             return this.value == value;
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw JSContext.Current.NewTypeError($"{this.value} is not a function");
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw JSContext.Current.NewTypeError($"{this.value} is not a function");
+        //}
 
         internal override JSBoolean Is(JSValue value)
         {

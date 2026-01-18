@@ -106,7 +106,7 @@ namespace YantraJS.Core
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
-                if (!fn.f(itemArgs).BooleanValue)
+                if (!fn.InvokeFunction(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
             return JSBoolean.True;
@@ -250,7 +250,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue) continue;
                 var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
-                if (fn.f(itemParams).BooleanValue)
+                if (fn.InvokeFunction(itemParams).BooleanValue)
                 {
                     r.Add(item);
                 }
@@ -272,7 +272,7 @@ namespace YantraJS.Core
                 if (!hasValue)
                     continue;
                 var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
-                if (fn.f(itemParams).BooleanValue)
+                if (fn.InvokeFunction(itemParams).BooleanValue)
                 {
                     return item;
                 }
@@ -355,7 +355,7 @@ namespace YantraJS.Core
                     continue;
                 var index = new JSNumber(n);
                 var itemParams = new Arguments(thisArg, item, index, @this);
-                if (fn.f(itemParams).BooleanValue)
+                if (fn.InvokeFunction(itemParams).BooleanValue)
                 {
                     return index;
                 }
@@ -378,7 +378,7 @@ namespace YantraJS.Core
                     continue;
                 var n = new JSNumber(index);
                 var itemParams = new Arguments(thisArg, item, n, @this);
-                fn.f(itemParams);
+                fn.InvokeFunction(itemParams);
             }
             return JSUndefined.Value;
         }
@@ -529,7 +529,7 @@ namespace YantraJS.Core
                 }
                 var item = @this.GetValue(e);
                 var itemArgs = new Arguments(@this, item, new JSNumber(i), @this);
-                relements.Put(i, fn.f(itemArgs));
+                relements.Put(i, fn.InvokeFunction(itemArgs));
             }
             r._length = length;
             return r;
@@ -624,7 +624,7 @@ namespace YantraJS.Core
                 if (!hasValue)
                     continue;
                 var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), @this);
-                initialValue = fn.f(itemArgs);
+                initialValue = fn.InvokeFunction(itemArgs);
             }
             return initialValue;
         }
@@ -649,7 +649,7 @@ namespace YantraJS.Core
             {
                 var item = @this[(uint)i];
                 var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), @this);
-                initialValue = fn.f(itemArgs);
+                initialValue = fn.InvokeFunction(itemArgs);
             }
             return initialValue;
         }
@@ -792,7 +792,7 @@ namespace YantraJS.Core
                 if (!hasValue)
                     continue;
                 var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
-                if (fn.f(itemArgs).BooleanValue)
+                if (fn.InvokeFunction(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
             return JSBoolean.False;
@@ -835,7 +835,7 @@ namespace YantraJS.Core
                     if (right == JSUndefined.Value)
                         return -1;
                     var arg = new Arguments(JSUndefined.Value, left, right);
-                    var r = fn.f(arg).DoubleValue;
+                    var r = fn.InvokeFunction(arg).DoubleValue;
                     if (double.IsNaN(r))
                         return 0;
                     return Math.Sign(r);

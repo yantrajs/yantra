@@ -281,7 +281,7 @@ namespace YantraJS.Core.Clr
                 $"function {type.Name}() {{ [clr-native] }}", 
                 new ClrPrototype())
         {
-            this.f = Create;
+            this.InvokeFunction = Create;
             this.namingConvention = namingConvention;
             this.Type = type;
 
@@ -299,7 +299,7 @@ namespace YantraJS.Core.Clr
                 if (parameters.Length == 1 && parameters[0].ParameterType == typeof(Arguments).MakeByRefType())
                 {
                     var cx = CreateConstuctorDelegate(method);
-                    f = cx.f;
+                    this.InvokeFunction = cx.InvokeFunction;
                 }
             }
 

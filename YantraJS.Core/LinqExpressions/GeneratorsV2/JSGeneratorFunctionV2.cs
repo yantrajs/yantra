@@ -17,15 +17,15 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             base(null, name, code)
         {
             this.@delegate = @delegate;
-            this.f = InvokeFunction;
+            this.InvokeFunction = (in Arguments a) => new Generator.JSGenerator(new ClrGeneratorV2(this, @delegate, a));
         }
 
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            // var c = new CallStackItem(script.FileName, this.name, 0, 0);
-            return new Generator.JSGenerator( new ClrGeneratorV2(this, @delegate, a));
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    // var c = new CallStackItem(script.FileName, this.name, 0, 0);
+        //    return new Generator.JSGenerator( new ClrGeneratorV2(this, @delegate, a));
+        //}
     }
 
     public class GeneratorState

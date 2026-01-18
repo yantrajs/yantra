@@ -33,10 +33,10 @@ namespace YantraJS.Core.Core.Array
             throw new NotImplementedException();
         }
 
-        public override JSValue InvokeFunction(in Arguments a)
-        {
-            throw new NotImplementedException();
-        }
+        //public override JSValue InvokeFunction(in Arguments a)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public override bool StrictEquals(JSValue value)
         {

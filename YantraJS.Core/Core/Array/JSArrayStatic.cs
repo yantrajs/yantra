@@ -27,7 +27,7 @@ namespace YantraJS.Core
 
             if (map is JSFunction fx)
             {
-                var cb = fx.f;
+                var cb = fx.InvokeFunction;
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
                     elements.Put(length++, cb(new Arguments(mapThis, item,new JSNumber(index))));

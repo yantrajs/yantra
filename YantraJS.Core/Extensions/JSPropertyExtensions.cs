@@ -16,7 +16,7 @@ namespace YantraJS.Extensions
                 return JSUndefined.Value;
             return !p.IsProperty
                 ? p.value
-                : p.get.f(new Arguments(target));
+                : p.get.InvokeFunction(new Arguments(target));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
