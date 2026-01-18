@@ -75,52 +75,47 @@ namespace YantraJS.Core.FastParser.Compiler
 
             var list = new Sequence<Exp>();
 
-            try
-            {
                 
-                switch (exportStatement.Declaration.Type)
-                {
-                    case FastNodeType.VariableDeclaration:
-                        var vd = this.Visit(declaration);
-                        var names = Names(declaration);
-                        var en = names.GetFastEnumerator();
-                        list.Add(vd);
-                        while(en.MoveNext(out var name))
-                        {
-                            left = JSValueBuilder.Index(exports.Expression, KeyOfName(name));
-                            var right = top.GetVariable(name);
-                            list.Add(Exp.Assign(left, right.Expression));
-                        }
-                        return Exp.Block(list);
-                    case FastNodeType.Identifier:
-                        var id = exportStatement.Declaration as AstIdentifier;
-                        return JSValueBuilder.Index(exports.Expression, KeyOfName(id.Name));
-                    case FastNodeType.FunctionExpression:
-                        var fe = this.Visit(declaration);
-                        var fd = declaration as AstFunctionExpression;
-                        if(fd.Id != null)
-                        {
-                            left = JSValueBuilder.Index(exports.Expression, KeyOfName(fd.Id.Name));
-                            return Exp.Assign(left, fe);
-                        }
-                        break;
-                    case FastNodeType.ClassStatement:
-                        var ce = this.Visit(declaration);
-                        var cd = declaration as AstFunctionExpression;
-                        if (cd.Id != null)
-                        {
-                            left = JSValueBuilder.Index(exports.Expression, KeyOfName(cd.Id.Name));
-                            return Exp.Assign(left, ce);
-                        }
-                        break;
-                }
-
-
-                throw new FastParseException(exportStatement.Start, $"Unexpected export type {exportStatement.Declaration.Type}");
-            }finally
+            switch (exportStatement.Declaration.Type)
             {
-                // list.Clear();
+                case FastNodeType.VariableDeclaration:
+                    var vd = this.Visit(declaration);
+                    var names = Names(declaration);
+                    var en = names.GetFastEnumerator();
+                    list.Add(vd);
+                    while(en.MoveNext(out var name))
+                    {
+                        left = JSValueBuilder.Index(exports.Expression, KeyOfName(name));
+                        var right = top.GetVariable(name);
+                        list.Add(Exp.Assign(left, right.Expression));
+                    }
+                    return Exp.Block(list);
+                case FastNodeType.Identifier:
+                    var id = exportStatement.Declaration as AstIdentifier;
+                    return JSValueBuilder.Index(exports.Expression, KeyOfName(id.Name));
+                case FastNodeType.FunctionExpression:
+                    var fe = this.Visit(declaration);
+                    var fd = declaration as AstFunctionExpression;
+                    if(fd.Id != null)
+                    {
+                        left = JSValueBuilder.Index(exports.Expression, KeyOfName(fd.Id.Name));
+                        return Exp.Assign(left, fe);
+                    }
+                    break;
+                case FastNodeType.ClassStatement:
+                    var ce = this.Visit(declaration);
+                    var cd = declaration as AstFunctionExpression;
+                    if (cd.Id != null)
+                    {
+                        left = JSValueBuilder.Index(exports.Expression, KeyOfName(cd.Id.Name));
+                        return Exp.Assign(left, ce);
+                    }
+                    break;
             }
+
+
+            throw new FastParseException(exportStatement.Start, $"Unexpected export type {exportStatement.Declaration.Type}");
+
         }
     }
 }
