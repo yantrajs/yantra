@@ -185,6 +185,11 @@ namespace YantraJS.JSClassGenerator
                     GenerateMember(sb, member);
                 }
 
+                if (type.CachedConstructorField)
+                {
+                    sb.AppendLine($"context.{className}Prototype = prototype;");
+                }
+
                 sb.AppendLine("return @class;");
                 sb.AppendLine("}");
 

@@ -43,7 +43,7 @@ namespace YantraJS.Core.FastParser.Compiler
         private Exp CreateClass(AstIdentifier id, AstExpression super, AstClassExpression body)
         {
 
-            var scope = pool.NewScope();
+            // var scope = pool.NewScope();
             var tempVar = this.scope.Top.GetTempVariable(typeof(JSClass));
 
             var prototypeElements = new Sequence<YElementInit>();
@@ -218,7 +218,7 @@ namespace YantraJS.Core.FastParser.Compiler
             }
 
             var result = Exp.Block(new Sequence<ParameterExpression> { superVar, superPrototypeVar }, stmts);
-            scope.Dispose();
+            // scope.Dispose();
             return result;
         }
     }
