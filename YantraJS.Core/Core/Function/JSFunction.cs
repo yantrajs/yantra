@@ -139,6 +139,26 @@ namespace YantraJS.Core
 
         }
 
+        public JSFunction(string name, int length = 0, bool createPrototype = false, JSObject prototype = null): base(prototype)
+        {
+            this.name = name;
+            this.Length = length;
+            this.source = $"function {name}() {{ [native] }}";
+            ref var ownProperties = ref this.GetOwnProperties();
+            if (createPrototype)
+            {
+                prototype = new JSObject();
+                // prototype[KeyStrings.constructor] = this;
+                prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
+                ownProperties.Put(KeyStrings.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
+            }
+            // ref var opp = ref prototype.GetOwnProperties(true);
+            // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
+            ownProperties.Put(KeyStrings.length, new JSNumber(length));
+            ownProperties.Put(KeyStrings.name, new JSString(name));
+            constructor = this;
+        }
+
         public JSFunction(
             JSObject basePrototype,
             JSFunctionDelegate f,

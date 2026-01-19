@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using Yantra.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
 
@@ -19,11 +14,27 @@ namespace YantraJS.Core.BigInt
         }
     }
 
-    // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
-    [JSBaseClass("Object")]
-    [JSFunctionGenerator("BigInt")]
     public partial class JSBigInt : JSPrimitive
     {
+
+        public static JSFunction CreateClass(JSContext context, bool register = true)
+        {
+            var @class = new Constructor(context.FunctionPrototype);
+            if (register)
+            {
+                context[Names.BigInt] = @class;
+            }
+
+            @class.FastAddValue(Names.asIntN, new AsIntNMethod(context.FunctionPrototype), JSPropertyAttributes.ConfigurableValue);
+            @class.FastAddValue(Names.asUintN, new AsUintNMethod(context.FunctionPrototype), JSPropertyAttributes.ConfigurableValue);
+
+            var prototype = @class.prototype;
+            prototype.FastAddValue(Names.toString, new ToStringMethod(context.FunctionPrototype), JSPropertyAttributes.ConfigurableValue);
+            prototype.FastAddValue(Names.toLocaleString, new ToLocaleStringMethod(context.FunctionPrototype), JSPropertyAttributes.ConfigurableValue);
+            prototype.FastAddValue(Names.valueOf, new ValueOfMethod(context.FunctionPrototype), JSPropertyAttributes.ConfigurableValue);
+
+            return @class;
+        }
 
 
         public static JSException CannotMix()
@@ -38,27 +49,6 @@ namespace YantraJS.Core.BigInt
         public override double DoubleValue => throw CannotMix();
 
         public override long BigIntValue => throw CannotMix();
-
-        [JSExport(IsConstructor = true)]
-        public static JSValue Constructor(in Arguments a)
-        {
-            var f = a[0];
-            switch (f)
-            {
-                case JSNumber number:
-                    return new JSBigInt((BigInteger)number.value);
-                case JSBigInt bigint:
-                    return bigint;
-            }
-            var text = f.ToString();
-            text = text.TrimEnd('n').Replace("_", "");
-            if (!BigInteger.TryParse(text, out var v))
-            {
-                throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
-            }
-            return new JSBigInt(v);
-
-        }
 
         public JSBigInt(BigInteger value)
         {
@@ -253,143 +243,10 @@ namespace YantraJS.Core.BigInt
             return new JSBigInt(this.value + value.BigIntValue);
         }
 
-        [JSExport("toString")]
-        public JSValue JSToString()
-        {
-            return new JSString(value.ToString());
-        }
-
-        [JSExport("toLocaleString")]
-        public JSValue ToLocaleString(in Arguments a)
-        {
-            return new JSString(value.ToString(CultureInfo.CurrentCulture));
-        }
-
-
-        [JSExport("valueOf")]
         public override JSValue ValueOf()
         {
             return this;
         }
 
-
-
-        [JSExport("asIntN")]
-        public static JSValue AsIntN(long bits, JSBigInt bigint)
-        {
-            if (bits < 0 || bits > 9007199254740991)
-            {
-                throw JSContext.Current.NewRangeError("Invalid range for bits");
-            }
-            var n = bigint.value;
-            var buffer = n.ToByteArray();
-            if (buffer.Length * 8 < bits)
-            {
-                return bigint;
-            }
-
-            var reminderBits = (long)bits % (long)8;
-
-            var length = (int)((long)bits / (long)8);
-            if (reminderBits > 0)
-            {
-                length++;
-            }
-
-            var copy = new byte[length];
-            Buffer.BlockCopy(buffer, 0, copy, 0, length);
-
-            if (reminderBits > 0)
-            {
-                // here we need to pad leftmost bits as 1s
-                // as BigInteger uses bytes and only if the
-                // eighth bit is 1, it will consider it as a
-                // negative integer
-
-                // so we need to create mask to first remove
-                // bits as byte contains eight bits
-
-                // then check the most significant digit
-                // if it is negative, then we need to pad
-                // 1s before it
-
-                ref byte last = ref copy[copy.Length - 1];
-
-                byte padMask = 0xFF;
-
-                byte mask = 1;
-                byte start = 1;
-                reminderBits--;
-                while (reminderBits > 0)
-                {
-                    padMask &= (byte)~start;
-                    start <<= 1;
-                    start |= 1;
-                    mask <<= 1;
-                    reminderBits--;
-                }
-                last &= start;
-                var lastValue = last;
-
-                if ((mask & lastValue) > 0)
-                {
-                    last |= padMask;
-                }
-            }
-
-            var r = new BigInteger(copy);
-            return new JSBigInt(r);
-
-        }
-
-
-        [JSExport("asUintN")]
-        public static JSValue AsUintN(long bits, JSBigInt bigint)
-        {
-            if (bits < 0 || bits > 9007199254740991)
-            {
-                throw JSContext.Current.NewRangeError("Invalid range for bits");
-            }
-            var n = bigint.value;
-            if (n.Sign == BigInteger.MinusOne.Sign)
-            {
-                n = -n;
-            }
-            var buffer = n.ToByteArray();
-            if (buffer.Length * 8 < bits)
-            {
-                return bigint;
-            }
-
-            var reminderBits = (long)bits % (long)8;
-
-            var length = (int)((long)bits / (long)8);
-            if (reminderBits > 0)
-            {
-                length++;
-            }
-
-            // extra pad will result in a UInt
-            var copy = new byte[length + 1];
-            Buffer.BlockCopy(buffer, 0, copy, 0, length);
-
-            if (reminderBits > 0)
-            {
-                ref byte last = ref copy[length - 1];
-                byte start = 1;
-                reminderBits--;
-                while (reminderBits > 0)
-                {
-                    start <<= 1;
-                    start |= 1;
-                    reminderBits--;
-                }
-                last &= start;
-            }
-
-            var r = new BigInteger(copy);
-            return new JSBigInt(r);
-
-        }
     }
 }
