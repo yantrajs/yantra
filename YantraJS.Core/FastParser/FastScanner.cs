@@ -372,7 +372,11 @@ namespace YantraJS.Core.FastParser
                 case '&':
                     switch (Consume()) {
                         case '&':
-                            Consume();
+                            if(Consume() == '=')
+                            {
+                                Consume();
+                                return state.Commit(TokenTypes.AssignBooleanAnd);
+                            }
                             return state.Commit(TokenTypes.BooleanAnd);
                         case '=':
                             Consume();
@@ -383,7 +387,11 @@ namespace YantraJS.Core.FastParser
                     switch (Consume())
                     {
                         case '|':
-                            Consume();
+                            if(Consume() == '=')
+                            {
+                                Consume();
+                                return state.Commit(TokenTypes.AssignBooleanOr);
+                            }
                             return state.Commit(TokenTypes.BooleanOr);
                         case '=':
                             Consume();

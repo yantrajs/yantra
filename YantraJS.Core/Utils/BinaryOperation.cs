@@ -113,6 +113,10 @@ namespace YantraJS.Utils
                     return Assign(left, right);
                 case TokenTypes.AssignAdd:
                     return Assign(left, ExpHelper.JSValueBuilder.Add(left, right));
+                case TokenTypes.AssignBooleanAnd:
+                    return Assign(left, JSValueBuilder.LogicalAnd(left, right));
+                case TokenTypes.AssignBooleanOr:
+                    return Assign(left, JSValueBuilder.LogicalOr(left, right));
             }
 
             var leftDouble = ExpHelper.JSValueBuilder.DoubleValue(left);
