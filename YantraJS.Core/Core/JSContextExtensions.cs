@@ -16,6 +16,12 @@ namespace YantraJS.Core.Core
                 return;
             }
 #else
+    #if NET5_0_OR_GREATER
+                if(RuntimeHelpers.TryEnsureSufficientExecutionStack())
+                {
+                    return;
+                }
+    #else
             try
             {
                 RuntimeHelpers.EnsureSufficientExecutionStack();
@@ -28,6 +34,7 @@ namespace YantraJS.Core.Core
                     throw ex;
                 }
             }
+    #endif
 #endif
             throw context.NewRangeError("Maximum call stack size exceeded");
         }
