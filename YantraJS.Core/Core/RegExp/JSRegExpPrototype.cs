@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Yantra.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Extensions;
 
@@ -90,6 +91,23 @@ namespace YantraJS.Core
             var minIndex = maxIndex < input.Length ? maxIndex : input.Length;
             // return Math.Min(Math.Max(r.lastIndex, 0), input.Length);
             return minIndex;
+        }
+
+        [JSPrototypeMethod]
+        [JSExport("toString", Length = 1)]
+
+        public static JSString ToString(in Arguments a)
+        {
+            var regexp = a.This as JSRegExp;
+            return new JSString("/" + regexp.value.ToString() + "/" + regexp.flags);
+        }
+
+        [JSPrototypeMethod]
+        [JSExport("toLocaleString", Length = 1)]
+
+        public static JSString ToLocaleString(in Arguments a)
+        {
+            return JSRegExp.ToString(in a);
         }
     }
 }

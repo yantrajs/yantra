@@ -1,18 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Schema;
 using Yantra.Core;
 using YantraJS.Core.Clr;
+using YantraJS.Core.Core.Primitive;
 
 namespace YantraJS.Core
 {
+    internal static class JSBooleanStatic
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static JSBoolean AsBooleanOnly(this JSValue value, [CallerMemberName] string name = null)
+        {
+            if (value is JSPrimitiveObject p)
+            {
+                value = p.value;
+            }
+            if (!(value is JSBoolean b))
+            {
+                throw JSContext.Current.NewTypeError($"Boolean.prototype.{name} requires that 'this' be a Number");
+            }
+            return b;
+        }
+    }
+
+
+
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Boolean")]
     public partial class JSBoolean : JSPrimitive
     {
+
 
         public static JSBoolean True = new JSBoolean(true);
 
@@ -28,12 +50,12 @@ namespace YantraJS.Core
         [JSExport(IsConstructor = true)]
         public static JSValue Constructor(in Arguments a)
         {
-            return (a[0]?.BooleanValue ?? false) ? True : False;
+            return new JSPrimitiveObject( (a[0]?.BooleanValue ?? false) ? True : False);
         }
 
         protected override JSObject GetPrototype()
         {
-            return GetCurrentPrototype();
+            return (JSContext.Current[Names.Boolean] as JSFunction).prototype; ;
         }
 
 
@@ -155,6 +177,28 @@ namespace YantraJS.Core
         internal override PropertyKey ToKey(bool create = false)
         {
             return this._value ? KeyStrings.@true : KeyStrings.@false;
+        }
+
+        [JSPrototypeMethod]
+        [JSExport("toString", Length = 1)]
+        public static JSString ToString(in Arguments a)
+        {
+            return new JSString(a.This.AsBooleanOnly()._value ? "true" : "false");
+        }
+
+        [JSPrototypeMethod]
+        [JSExport("valueOf")]
+        public static JSValue ValueOf(in Arguments a)
+        {
+            return a.This.AsBooleanOnly();
+        }
+
+        [JSPrototypeMethod]
+        [JSExport("toLocaleString", Length = 1)]
+
+        public static JSString ToLocaleString(in Arguments a)
+        {
+            return new JSString(a.This.AsBooleanOnly()._value ? "true" : "false");
         }
     }
 }

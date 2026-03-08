@@ -408,13 +408,17 @@ namespace YantraJS.Core
             //return new JSString(@this.Replace(f.ToString(), s.ToString()));
         }
 
-        /*[JSPrototypeMethod][JSExport("replaceAll")]
+        [JSPrototypeMethod][JSExport("replaceAll")]
         internal static JSValue ReplaceAll(in Arguments a)
         {
             var @this = a.This.AsString();
             var (f, s) = a.Get2();
-            return new JSString(@this.ReplaceAll(f.ToString(), s.ToString()));
-        }*/
+            if (f is JSRegExp jSRegExp)
+            {
+                return new JSString(jSRegExp.Replace(@this, s));
+            }
+            return new JSString(@this.Replace(f.ToString(), s.ToString()));
+        }
 
         [JSPrototypeMethod][JSExport("search", Length =1)]
         internal static JSValue Search(in Arguments a)
