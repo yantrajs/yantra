@@ -31,7 +31,7 @@ namespace YantraJS.Core.FastParser
 
             stream.Expect(TokenTypes.BracketStart);
 
-            AstNode? beginNode;
+            AstNode? beginNode = null;
 
             // desugar let/const in following scope
             bool newScope = false;
@@ -65,15 +65,18 @@ namespace YantraJS.Core.FastParser
                                 throw stream.Unexpected();
                             beginNode = declaration;
                             break;
-                        default:
-                            throw stream.Unexpected();
+                        // default:
+                        //     throw stream.Unexpected();
                     }
                 }
-                else if (ExpressionList(out var expressions))
+                if (beginNode == null)
                 {
-                    beginNode = expressions;
+                    if (ExpressionSequence(out var expressions, TokenTypes.SemiColon, true))
+                    {
+                        beginNode = expressions;
+                    }
+                    else throw stream.Unexpected();
                 }
-                else throw stream.Unexpected();
 
 
                 AstExpression? inTarget = null;

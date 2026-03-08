@@ -22,4 +22,8 @@
     <ProjectReference Include="..\YantraJS.Core.Tests\YantraJS.Core.Tests.csproj" />
     <ProjectReference Include="..\YantraJS\YantraJS.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Modules\box2d\" />
+  </ItemGroup>
 </Project>
