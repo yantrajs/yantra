@@ -120,7 +120,8 @@ namespace YantraJS.Core.FastParser
                         if (!Statement(out var body))
                             throw stream.Unexpected();
 
-                        var fx = new AstFunctionExpression(current, PreviousToken, false, isAsync, isGenerator, null, parameters, body);
+                        var fx = new AstFunctionExpression(current, PreviousToken, false, isAsync, isGenerator,
+                            key is AstIdentifier id ? id : null, parameters, body);
 
                         property = new AstClassProperty(
                             current,
