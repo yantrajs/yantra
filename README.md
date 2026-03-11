@@ -66,7 +66,6 @@ As we often have difficulty in writing cross environment scripts (browser and pr
 3. Add forward compatibility, we will write native modules in such a way that they can execute correctly on node, so new projects written for YantraJS can run correctly on node, but node's existing code will not work on YantraJS. 
 4. V8 Protocol Implementation is in progress.
 
-
 # Documentation
 
 1. [Introduction](https://github.com/yantrajs/yantra/wiki)
