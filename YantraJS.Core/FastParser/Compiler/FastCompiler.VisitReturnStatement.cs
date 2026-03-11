@@ -20,7 +20,7 @@ namespace YantraJS.Core.FastParser.Compiler
     {
         protected override Exp VisitReturnStatement(AstReturnStatement returnStatement) {
             return Exp.Return(this.scope.Top.ReturnLabel,
-                returnStatement.Argument != null
+                returnStatement.Argument != null && returnStatement.Argument is not AstEmptyExpression
                 ? VisitExpression(returnStatement.Argument)
                 : JSUndefinedBuilder.Value);
         }
