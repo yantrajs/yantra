@@ -19,202 +19,201 @@ namespace YantraJS.Core
     /// 
     /// KeyString created with same string will always save.
     /// </summary>
-    public static class KeyStrings
+    public class KeyStrings
     {
-        public readonly static KeyString __proto__;
-        public readonly static KeyString length;
+        public readonly KeyString __proto__;
+        public readonly KeyString length;
 
-        public readonly static KeyString Number;
+        public readonly KeyString Number;
 
-        public readonly static KeyString BigInt;
+        public readonly KeyString BigInt;
 
-        public readonly static KeyString Object;
-        public readonly static KeyString toString;
+        public readonly KeyString Object;
+        public readonly KeyString toString;
 
-        public readonly static KeyString String;
-        public readonly static KeyString substring;
+        public readonly KeyString String;
+        public readonly KeyString substring;
 
-        public readonly static KeyString Array;
-        public readonly static KeyString join;
+        public readonly KeyString Array;
+        public readonly KeyString join;
 
-        public readonly static KeyString Function;
-        public readonly static KeyString apply;
-        public readonly static KeyString call;
-        public readonly static KeyString callee;
-        public readonly static KeyString bind;
+        public readonly KeyString Function;
+        public readonly KeyString apply;
+        public readonly KeyString call;
+        public readonly KeyString callee;
+        public readonly KeyString bind;
 
-        public readonly static KeyString Boolean;
-        public readonly static KeyString Math;
-        public readonly static KeyString Reflect;
-        public readonly static KeyString Date;
-        public readonly static KeyString Symbol;
+        public readonly KeyString Boolean;
+        public readonly KeyString Math;
+        public readonly KeyString Reflect;
+        public readonly KeyString Date;
+        public readonly KeyString Symbol;
 
-        public readonly static KeyString Promise;
-        public readonly static KeyString then;
-        public readonly static KeyString @catch;
+        public readonly KeyString Promise;
+        public readonly KeyString then;
+        public readonly KeyString @catch;
 
-        public readonly static KeyString JSON;
-        public readonly static KeyString parse;
-        public readonly static KeyString stringify;
-        public readonly static KeyString toJSON;
+        public readonly KeyString JSON;
+        public readonly KeyString parse;
+        public readonly KeyString stringify;
+        public readonly KeyString toJSON;
 
 
-        public readonly static KeyString RegExp;
-        public readonly static KeyString test;
-        public readonly static KeyString index;
-        public readonly static KeyString input;
-        public readonly static KeyString lastIndex;
+        public readonly KeyString RegExp;
+        public readonly KeyString test;
+        public readonly KeyString index;
+        public readonly KeyString input;
+        public readonly KeyString lastIndex;
 
-        public readonly static KeyString Error;
-        public readonly static KeyString message;
-        public readonly static KeyString stack;
-        public readonly static KeyString RangeError;
-        public readonly static KeyString SyntaxError;
-        public readonly static KeyString TypeError;
-        public readonly static KeyString URIError;
-        public readonly static KeyString EvalError;
-        public readonly static KeyString ReferenceError;
+        public readonly KeyString Error;
+        public readonly KeyString message;
+        public readonly KeyString stack;
+        public readonly KeyString RangeError;
+        public readonly KeyString SyntaxError;
+        public readonly KeyString TypeError;
+        public readonly KeyString URIError;
+        public readonly KeyString EvalError;
+        public readonly KeyString ReferenceError;
 
-        public readonly static KeyString ArrayBuffer;
+        public readonly KeyString ArrayBuffer;
 
-        public readonly static KeyString Int8Array;
-        public readonly static KeyString Uint8Array;
-        public readonly static KeyString Uint8ClampedArray;
-        public readonly static KeyString Int16Array;
-        public readonly static KeyString Uint16Array;
-        public readonly static KeyString Int32Array;
-        public readonly static KeyString Uint32Array;
-        public readonly static KeyString Float32Array;
-        public readonly static KeyString Float64Array;
+        public readonly KeyString Int8Array;
+        public readonly KeyString Uint8Array;
+        public readonly KeyString Uint8ClampedArray;
+        public readonly KeyString Int16Array;
+        public readonly KeyString Uint16Array;
+        public readonly KeyString Int32Array;
+        public readonly KeyString Uint32Array;
+        public readonly KeyString Float32Array;
+        public readonly KeyString Float64Array;
 
-        public readonly static KeyString DataView;
+        public readonly KeyString DataView;
 
-        public readonly static KeyString Map;
-        public readonly static KeyString Set;
-        public readonly static KeyString WeakRef;
-        public readonly static KeyString WeakMap; 
-        public readonly static KeyString WeakSet;
-        public readonly static KeyString valueOf;
-        public readonly static KeyString name;
-        public readonly static KeyString prototype;
-        public readonly static KeyString constructor;
-        public readonly static KeyString defineProperty;
-        public readonly static KeyString deleteProperty;
+        public readonly KeyString Map;
+        public readonly KeyString Set;
+        public readonly KeyString WeakRef;
+        public readonly KeyString WeakMap; 
+        public readonly KeyString WeakSet;
+        public readonly KeyString valueOf;
+        public readonly KeyString name;
+        public readonly KeyString prototype;
+        public readonly KeyString constructor;
+        public readonly KeyString defineProperty;
+        public readonly KeyString deleteProperty;
 
-        public readonly static KeyString FinalizationRegistry;
+        public readonly KeyString FinalizationRegistry;
 
-        public readonly static KeyString configurable;
-        public readonly static KeyString enumerable;
-        public readonly static KeyString @readonly;
-        public readonly static KeyString writable;
+        public readonly KeyString configurable;
+        public readonly KeyString enumerable;
+        public readonly KeyString @readonly;
+        public readonly KeyString writable;
 
-        public readonly static KeyString @assert;
+        public readonly KeyString @assert;
         
-        public readonly static KeyString native;
-        public readonly static KeyString value;
-        public readonly static KeyString done;
-        public readonly static KeyString get;
-        public readonly static KeyString set;
-        public readonly static KeyString undefined;
-        public readonly static KeyString NaN;
-        public readonly static KeyString @null;
-        public readonly static KeyString getPrototypeOf;
-        public readonly static KeyString ownKeys;
-        public readonly static KeyString setPrototypeOf;
+        public readonly KeyString native;
+        public readonly KeyString value;
+        public readonly KeyString done;
+        public readonly KeyString get;
+        public readonly KeyString set;
+        public readonly KeyString undefined;
+        public readonly KeyString NaN;
+        public readonly KeyString @null;
+        public readonly KeyString getPrototypeOf;
+        public readonly KeyString ownKeys;
+        public readonly KeyString setPrototypeOf;
 
-        public readonly static KeyString @global;
-        public readonly static KeyString globalThis;
+        public readonly KeyString @global;
+        public readonly KeyString globalThis;
 
-        public readonly static KeyString Module;
-        public readonly static KeyString module;
-        public readonly static KeyString resolve;
-        public readonly static KeyString require;
-        public readonly static KeyString @default;
-        public readonly static KeyString import;
+        public readonly KeyString Module;
+        public readonly KeyString module;
+        public readonly KeyString resolve;
+        public readonly KeyString require;
+        public readonly KeyString @default;
+        public readonly KeyString import;
 
-        public readonly static KeyString exports;
+        public readonly KeyString exports;
 
-        public readonly static KeyString Generator;
-        public readonly static KeyString next;
-        public readonly static KeyString @throw;
-        public readonly static KeyString @return;
+        public readonly KeyString Generator;
+        public readonly KeyString next;
+        public readonly KeyString @throw;
+        public readonly KeyString @return;
 
         // intl...
-        public readonly static KeyString weekday;
-        public readonly static KeyString year;
-        public readonly static KeyString month;
-        public readonly static KeyString day;
-        public readonly static KeyString hour;
-        public readonly static KeyString minute;
-        public readonly static KeyString second;
+        public readonly KeyString weekday;
+        public readonly KeyString year;
+        public readonly KeyString month;
+        public readonly KeyString day;
+        public readonly KeyString hour;
+        public readonly KeyString minute;
+        public readonly KeyString second;
 
 
         // global methods...
-        public readonly static KeyString eval;
-        public readonly static KeyString encodeURI;
-        public readonly static KeyString encodeURIComponent;
-        public readonly static KeyString decodeURI;
-        public readonly static KeyString decodeURIComponent;
+        public readonly KeyString eval;
+        public readonly KeyString encodeURI;
+        public readonly KeyString encodeURIComponent;
+        public readonly KeyString decodeURI;
+        public readonly KeyString decodeURIComponent;
 
-        public readonly static KeyString isFinite;
-        public readonly static KeyString isNaN;
-        public readonly static KeyString parseFloat;
-        public readonly static KeyString parseInt;
+        public readonly KeyString isFinite;
+        public readonly KeyString isNaN;
+        public readonly KeyString parseFloat;
+        public readonly KeyString parseInt;
 
-        public readonly static KeyString arguments;
+        public readonly KeyString arguments;
 
-        public readonly static KeyString Infinity;
-
-
-        public readonly static KeyString console;
-        public readonly static KeyString @debug;
-        public readonly static KeyString log;
-
-        public readonly static KeyString clr;
-
-        public readonly static KeyString @true;
-
-        public readonly static KeyString @false;
-
-        public readonly static KeyString bubbles;
-        public readonly static KeyString detail;
-        public readonly static KeyString cancelable;
-        public readonly static KeyString composed;
-
-        public readonly static KeyString capture;
-        public readonly static KeyString deferred;
-        public readonly static KeyString once;
+        public readonly KeyString Infinity;
 
 
-        public readonly static KeyString raw;
+        public readonly KeyString console;
+        public readonly KeyString @debug;
+        public readonly KeyString log;
 
-        static KeyStrings()
+        public readonly KeyString clr;
+
+        public readonly KeyString @true;
+
+        public readonly KeyString @false;
+
+        public readonly KeyString bubbles;
+        public readonly KeyString detail;
+        public readonly KeyString cancelable;
+        public readonly KeyString composed;
+
+        public readonly KeyString capture;
+        public readonly KeyString deferred;
+        public readonly KeyString once;
+
+
+        public readonly KeyString raw;
+
+        public static readonly KeyStrings Instance = new KeyStrings();
+
+        KeyStrings()
         {
-            lock (typeof(KeyStrings))
+            map = ConcurrentStringMap<KeyString>.Create();
+            names = ConcurrentUInt32Map<StringSpan>.Create();
+            KeyString Create(string key)
             {
-                map = ConcurrentStringMap<KeyString>.Create();
-                names = ConcurrentUInt32Map<StringSpan>.Create();
-                KeyString Create(string key)
-                {
-                    var i = (uint)(NextID++);
-                    var js = new KeyString(i);
-                    map[key] =  js;
-                    names[i] = key;
-                    return js;
-                }
-                var t = typeof(KeyString);
-                foreach (var f in typeof(KeyStrings)
-                    .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static))
-                {
-                    if (f.FieldType != t)
-                        continue;
-                    f.SetValue(null, Create(f.Name));
-                }
+                var i = (uint)(NextID++);
+                var js = new KeyString(i);
+                map[key] =  js;
+                names[i] = key;
+                return js;
+            }
+            var t = typeof(KeyString);
+            foreach (var f in typeof(KeyStrings)
+                .GetFields(System.Reflection.BindingFlags.Public))
+            {
+                if (f.FieldType != t)
+                    continue;
+                f.SetValue(null, Create(f.Name));
             }
         }
 
-        private static ConcurrentStringMap<KeyString> map;
-        private static ConcurrentUInt32Map<StringSpan> names;
+        private ConcurrentStringMap<KeyString> map;
+        private ConcurrentUInt32Map<StringSpan> names;
 
         private static int NextID = 1;
 
@@ -222,7 +221,7 @@ namespace YantraJS.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static KeyString GetOrCreate(in StringSpan key)
+        public KeyString GetOrCreate(in StringSpan key)
         {
             return map.GetOrCreate(key, (keyName) =>
             {
@@ -233,19 +232,19 @@ namespace YantraJS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool TryGet(in StringSpan key, out KeyString ks)
+        internal bool TryGet(in StringSpan key, out KeyString ks)
         {
             return map.TryGetValue(key, out ks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static KeyString GetName(uint id)
+        internal KeyString GetName(uint id)
         {
             return new KeyString(id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static StringSpan GetNameString(uint id)
+        internal StringSpan GetNameString(uint id)
         {
             return names[id];
         }
@@ -253,7 +252,7 @@ namespace YantraJS.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static JSString GetJSString(uint id)
+        internal JSString GetJSString(uint id)
         {
             var name = GetName(id);
             return new JSString(name.Value, name);
