@@ -15,25 +15,25 @@ namespace YantraJS.Core.FastParser.Compiler
         public Expression KeyOfName(string name)
         {
             // search for variable...
-            if (KeyStringsBuilder.Fields.TryGetValue(name, out var fx))
-                return fx;
+            if (Enum.TryParse<KeyString>(name, out var v))
+                return Expression.Constant((int)v, typeof(KeyString));
 
             // var i = _KeyString.GetOrAdd(name);
             // return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
             var key = KeyStrings.Instance.GetOrCreate(name);
-            return Expression.Constant((uint)key, typeof(KeyString));
+            return Expression.Constant((int)key, typeof(KeyString));
         }
 
         public Expression KeyOfName(in StringSpan name)
         {
             // search for variable...
-            if (KeyStringsBuilder.Fields.TryGetValue(name, out var fx))
-                return fx;
+            if (Enum.TryParse<KeyString>(name.Value, out var v))
+                return Expression.Constant((int)v, typeof(KeyString));
 
             //var i = _KeyString.GetOrAdd(name);
             //return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
             var key = KeyStrings.Instance.GetOrCreate(name);
-            return Expression.Constant((uint)key, typeof(KeyString));
+            return Expression.Constant((int)key, typeof(KeyString));
         }
     }
 }
