@@ -12,7 +12,8 @@ namespace YantraJS.Core
     public class KeyStrings
     {
 
-        public static readonly KeyStrings Instance = new KeyStrings();
+        public static KeyStrings Instance => _instance.Value;
+        private static Lazy<KeyStrings> _instance = new Lazy<KeyStrings>(() => new KeyStrings());
 
         KeyStrings()
         {
