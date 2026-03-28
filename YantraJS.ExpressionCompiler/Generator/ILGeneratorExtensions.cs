@@ -42,6 +42,18 @@ namespace YantraJS.Generator
 
             valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
 
+            if (valueType == typeof(uint))
+            {
+                il.EmitConstant((uint)value);
+                return;
+            }
+
+            if (value is uint uv)
+            {
+                il.EmitConstant((uint)value);
+                return;
+            }
+
             switch (Type.GetTypeCode(valueType))
             {
                 case TypeCode.Boolean:
