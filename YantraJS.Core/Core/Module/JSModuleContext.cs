@@ -63,8 +63,8 @@ namespace YantraJS.Core
         /// <param name="exports">JSObject, that you import by import or require</param>
         public void RegisterModule(in KeyString name, JSObject exports)
         {
-            var n = name.ToString();
-            moduleCache.GetOrCreate(name.ToString(), () => new JSModule(this, exports, n));
+            var n = name.ToStringSpan();
+            moduleCache.GetOrCreate(n, () => new JSModule(this, exports, n.Value));
         }
         
         
