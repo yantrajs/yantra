@@ -160,7 +160,7 @@ namespace YantraJS.Core
                     var en = new PropertyEnumerator(@object, true, true);
                     while(en.MoveNext(out var key, out var value))
                     {
-                        if (properties.TryGetValue(key.ToString().ToLower(), out var p))
+                        if (properties.TryGetValue(key.ToStringSpan().ToLower(), out var p))
                         {
                             p.SetValue(result, value.ForceConvert(p.PropertyType));
                         }
