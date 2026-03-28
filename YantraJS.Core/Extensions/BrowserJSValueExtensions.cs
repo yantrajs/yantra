@@ -37,7 +37,7 @@ namespace YantraJS.Core
                 property = null;
                 return false;
             }
-            var v = value.GetValue(name.Key, value, false);
+            var v = value.GetValue(name, value, false);
             if (v.IsNull || v.IsUndefined)
             {
                 property = null;

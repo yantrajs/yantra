@@ -146,7 +146,7 @@ namespace YantraJS.Core
 
         protected override JSObject GetPrototype()
         {
-            return (JSContext.Current[Names.String] as JSFunction).prototype;
+            return (JSContext.Current[KeyString.String] as JSFunction).prototype;
         }
 
         public JSString(string value): base()
@@ -177,7 +177,7 @@ namespace YantraJS.Core
 
         public static implicit operator KeyString(JSString value)
         {
-            return value.ToString();
+            return value.value.ToKeyString();
         }
 
         public override JSValue TypeOf()

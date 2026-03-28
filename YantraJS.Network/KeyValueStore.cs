@@ -26,7 +26,7 @@ namespace YantraJS.Network
                     var pair = first[i];
                     if (pair.IsArray && pair.Length > 1)
                     {
-                        headers[pair[0].ToString().ToLower()] = pair[1].ToString();
+                        headers[pair[0u].ToString().ToLower()] = pair[1].ToString();
                         continue;
                     }
                 }
@@ -51,7 +51,7 @@ namespace YantraJS.Network
                 var ve = new PropertySequence.ValueEnumerator(@object, true);
                 while (ve.MoveNext(out var value, out var p))
                 {
-                    headers[p.Value.Value!] = value.ToString();
+                    headers[p.AsString()] = value.ToString();
                 }
                 return;
             }

@@ -30,19 +30,19 @@ namespace YantraJS.Tests.Core.Object
             Assert.AreEqual(2, Assign(2, JSUndefined.Value).IntValue);
 
             var source = JSObject.NewWithProperties()
-                .AddProperty("c", new JSNumber(4))
-                .AddProperty("d", new JSNumber(5));
+                .AddProperty("c".ToKeyString(), new JSNumber(4))
+                .AddProperty("d".ToKeyString(), new JSNumber(5));
 
             Assert.AreEqual(2, Assign(2, source).IntValue);
 
             var target = JSObject.NewWithProperties()
-                .AddProperty("a", new JSNumber(1))
-                .AddProperty("b", new JSNumber(2));
+                .AddProperty("a".ToKeyString(), new JSNumber(1))
+                .AddProperty("b".ToKeyString(), new JSNumber(2));
 
             var r = Assign(target, source);
 
-            Assert.AreEqual(target["c"], source["c"]);
-            Assert.AreEqual(target["d"], source["d"]);
+            Assert.AreEqual(target["c".ToKeyString()], source["c".ToKeyString()]);
+            Assert.AreEqual(target["d".ToKeyString()], source["d".ToKeyString()]);
 
 
         }

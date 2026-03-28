@@ -88,15 +88,15 @@ namespace YantraJS.Core.LinqExpressions
 
         public static Expression Build(Expression scriptInfo, StringArray keyStrings)
         {
-            Sequence<Expression> list = new Sequence<Expression>(KeyString.List.Count);
-            foreach(var item in KeyString.List)
-            {
-                var code = Code(scriptInfo);
-                var key = item.Offset > 0 
-                    ? KeyStringsBuilder.GetOrCreate(StringSpanBuilder.New(code, item.Offset, item.Length))
-                    : KeyStringsBuilder.GetOrCreate(StringSpanBuilder.New(item.Value));
-                list.Add(key);
-            }
+            Sequence<Expression> list = new Sequence<Expression>();
+            //foreach(var item in KeyString.List)
+            //{
+            //    var code = Code(scriptInfo);
+            //    var key = item.Offset > 0 
+            //        ? KeyStringsBuilder.GetOrCreate(StringSpanBuilder.New(code, item.Offset, item.Length))
+            //        : KeyStringsBuilder.GetOrCreate(StringSpanBuilder.New(item.Value));
+            //    list.Add(key);
+            //}
             return Expression.Assign(
                 scriptInfo.FieldExpression<ScriptInfo, KeyString[]>(() => (x) => x.Indices)
                 ,Expression.NewArrayInit(typeof(KeyString), list));

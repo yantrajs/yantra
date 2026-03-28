@@ -196,7 +196,7 @@ namespace YantraJS.Core
                     var vi = vaElements[i];
                     if (!(vi.value is JSArray ia))
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
-                    var first = ia[0];
+                    var first = ia[(uint)0];
                     var second = ia[1];
                     r.FastAddValue(first, second, JSPropertyAttributes.EnumerableConfigurableValue);
                 }
@@ -368,7 +368,7 @@ namespace YantraJS.Core
             var en = jobj.GetOwnProperties(false).GetEnumerator();
             while(en.MoveNext(out var key, out var property))
             {
-                p.Put(key.Key) = property;    
+                p.Put((uint)key) = property;    
             }
             return r;
         }
@@ -401,7 +401,7 @@ namespace YantraJS.Core
             if (!(first is JSObject jobj))
                 return new JSArray();
             ref var symbols = ref jobj.GetSymbols();
-            var keys = symbols.AllValues().Select(x => KeyString.GetJSString( x.Value.key));
+            var keys = symbols.AllValues().Select(x => KeyStrings.Instance.GetJSString( x.Value.key));
             return new JSArray(keys);
         }
 

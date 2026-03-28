@@ -355,12 +355,12 @@ namespace YantraJS.Core
             //    return r;
             //}
 
-            this[Names.Symbol] = JSSymbol.CreateClass(this, false);
+            this[KeyString.Symbol] = JSSymbol.CreateClass(this, false);
             var func = JSFunction.CreateClass(this, false);
-            this[Names.Function] = func;
+            this[KeyString.Function] = func;
             FunctionPrototype = func.prototype;
             Object = JSObject.CreateClass(this, false);
-            this[Names.Object] = Object;
+            this[KeyString.Object] = Object;
             ObjectPrototype = Object.prototype;
             ObjectPrototype.BasePrototypeObject = null;
             // ObjectPrototype.Delete(KeyString.constructor);

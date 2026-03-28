@@ -55,7 +55,7 @@ namespace YantraJS.Core
 
         protected override JSObject GetPrototype()
         {
-            return (JSContext.Current[Names.Boolean] as JSFunction).prototype; ;
+            return (JSContext.Current[KeyString.Boolean] as JSFunction).prototype; ;
         }
 
 

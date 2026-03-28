@@ -44,7 +44,7 @@ namespace YantraJS.Network
             var array = a[0] ?? throw JSContext.CurrentContext.NewTypeError("array is required");
             if(a.TryGetAt(1, out var options))
             {
-                this.Type = options.TryGetProperty(Names.type, out var p) ? p : new JSString(StringSpan.Empty);
+                this.Type = options.TryGetProperty(KeyString.type, out var p) ? p : new JSString(StringSpan.Empty);
             }
 
             // save to array... 

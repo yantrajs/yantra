@@ -23,7 +23,7 @@ namespace YantraJS.Core
                 return p.Task;
             }
 
-            var then = value["then"];
+            var then = value[KeyString.then];
             if (then.IsNullOrUndefined)
             {
                 return System.Threading.Tasks.Task.CompletedTask;

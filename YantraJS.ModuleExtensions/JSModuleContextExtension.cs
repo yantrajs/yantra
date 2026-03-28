@@ -27,8 +27,7 @@ namespace YantraJS.ModuleExtensions
         {
             FieldInfo fi = typeof(JSModuleContext).GetField("moduleCache", BindingFlags.NonPublic | BindingFlags.Instance);
             var moduleCache = (ModuleCache) fi.GetValue(context);
-            var n = name.Value;
-            return moduleCache.GetOrCreate(n, () => throw new ArgumentException($"module {n} not found"));
+            return moduleCache.GetOrCreate(name.ToStringSpan(), () => throw new ArgumentException($"module {fi.Name} not found"));
         }
     }
 }

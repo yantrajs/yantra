@@ -16,13 +16,13 @@ namespace YantraJS.Core.Typed
         [JSExport]
         private static JSValue From(in Arguments a)
         {
-            return a.This.InvokeMethod(Names.from, a);
+            return a.This.InvokeMethod(KeyString.from, a);
         }
 
         [JSExport]
         private static JSValue Of(in Arguments a)
         {
-            return a.This.InvokeMethod(Names.of, a);
+            return a.This.InvokeMethod(KeyString.of, a);
         }
 
         [JSExport]

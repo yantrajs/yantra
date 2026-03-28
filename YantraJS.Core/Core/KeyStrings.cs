@@ -92,5 +92,15 @@ namespace YantraJS.Core
         {
             return KeyStrings.Instance.GetJSString((uint)key);
         }
+
+        public static StringSpan ToStringSpan(this KeyString key)
+        {
+            return KeyStrings.Instance.GetNameString((uint)key);
+        }
+
+        public static string AsString(this KeyString key)
+        {
+            return KeyStrings.Instance.GetNameString((uint)key).Value;
+        }
     }
 }

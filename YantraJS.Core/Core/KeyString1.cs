@@ -187,6 +187,8 @@ public enum KeyString : int
     getMethod,
     getConstructor,
 
+    type,
+
 at,
 concat,
 every,
@@ -440,4 +442,18 @@ doubleEqual,
 notEqual,
 throws,
 fail,
+
+
+method,
+headers,
+body,
+mode,
+credentials,
+cache,
+redirect,
+referrer,
+referrerPolicy,
+integrity,
+keepalive,
+signal
 }

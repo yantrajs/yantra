@@ -18,8 +18,10 @@ namespace YantraJS.Core.FastParser.Compiler
             if (KeyStringsBuilder.Fields.TryGetValue(name, out var fx))
                 return fx;
 
-            var i = _KeyString.GetOrAdd(name);
-            return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
+            // var i = _KeyString.GetOrAdd(name);
+            // return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
+            var key = KeyStrings.Instance.GetOrCreate(name);
+            return Expression.Constant((uint)key, typeof(KeyString));
         }
 
         public Expression KeyOfName(in StringSpan name)
@@ -28,8 +30,10 @@ namespace YantraJS.Core.FastParser.Compiler
             if (KeyStringsBuilder.Fields.TryGetValue(name, out var fx))
                 return fx;
 
-            var i = _KeyString.GetOrAdd(name);
-            return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
+            //var i = _KeyString.GetOrAdd(name);
+            //return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
+            var key = KeyStrings.Instance.GetOrCreate(name);
+            return Expression.Constant((uint)key, typeof(KeyString));
         }
     }
 }

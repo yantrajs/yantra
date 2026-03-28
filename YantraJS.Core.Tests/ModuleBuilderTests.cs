@@ -91,7 +91,7 @@ namespace YantraJS.Tests
         public void ImportModuleThrowException()
         {
             JSModuleContext context = new JSModuleContext();
-            Assert.ThrowsException<ArgumentException>((() => context.ImportModule("test")));
+            Assert.ThrowsException<ArgumentException>((() => context.ImportModule("test".ToKeyString())));
         }
         
         [TestMethod]
@@ -99,7 +99,7 @@ namespace YantraJS.Tests
         {
             JSModuleContext context = new JSModuleContext();
             context.CreateModule("test", x => x.ExportType<TestClass>());
-            JSValue val = context.ImportModule("test");
+            JSValue val = context.ImportModule("test".ToKeyString());
             Assert.IsNotNull(val);
         }
 

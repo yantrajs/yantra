@@ -262,7 +262,7 @@ namespace YantraJS.Core
                     if (!p.IsEnumerable)
                         continue;
                 }
-                yield return (KeyString.GetJSString(p.key), value.GetValue(in p));
+                yield return (KeyStrings.Instance.GetJSString(p.key), value.GetValue(in p));
             }
 
             var @base = value.prototypeChain?.@object;

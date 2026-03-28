@@ -56,7 +56,7 @@ namespace YantraJS.Core.Debugger
                     var en = new PropertySequence.PropertyEnumerator(c.GetOwnProperties(), false);
                     while (en.MoveNext(out var key, out var p))
                     {
-                        list.Add(new V8PropertyDescriptor(KeyStrings.Instance.GetNameString(key.Key).Value, v, p, true));
+                        list.Add(new V8PropertyDescriptor(KeyStrings.Instance.GetNameString((uint)key).Value, v, p, true));
                     }
                     list.Add(new V8PropertyDescriptor(c.prototypeChain));
                 } else
@@ -70,7 +70,7 @@ namespace YantraJS.Core.Debugger
                         list.Add(new V8PropertyDescriptor(KeyStrings.Instance.GetNameString(pt.key).Value, v, pt));
                     }
 
-                    ref var p = ref JSContext.Current.ObjectPrototype.GetOwnProperties(false).GetValue(KeyStrings.__proto__.Key);
+                    ref var p = ref JSContext.Current.ObjectPrototype.GetOwnProperties(false).GetValue((uint)KeyString.__proto__);
                     list.Add(new V8PropertyDescriptor("__proto__", c, p));
                 }
 

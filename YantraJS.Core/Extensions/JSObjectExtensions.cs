@@ -15,7 +15,7 @@ namespace YantraJS
         public static void FastAddSetter(JSObject target, KeyString key, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
         {
             ref var pr = ref target.GetOwnProperties();
-            ref var existing = ref pr.Put(key.Key);
+            ref var existing = ref pr.Put((uint)key);
             var getter = existing.get;
             existing = new JSProperty(key, getter, setter, attributes);
         }
@@ -24,7 +24,7 @@ namespace YantraJS
         public static void FastAddGetter(JSObject target, KeyString key, JSFunction getter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
         {
             ref var pr = ref target.GetOwnProperties();
-            ref var existing = ref pr.Put(key.Key);
+            ref var existing = ref pr.Put((uint)key);
             var setter = existing.set;
             existing = new JSProperty(key, getter, setter, attributes);
         }
@@ -120,10 +120,10 @@ namespace YantraJS
         public static JSObject AddProperty(this JSObject target, in KeyString key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
             ref var ownProperties = ref target.GetOwnProperties();
-            ref var p = ref ownProperties.GetValue(key.Key);
+            ref var p = ref ownProperties.GetValue((uint)key);
             if (p.IsEmpty)
             {
-                ownProperties.Put(key.Key) = JSProperty.Property(key, getter, setter, attributes);
+                ownProperties.Put((uint)key) = JSProperty.Property(key, getter, setter, attributes);
                 return target;
             }
             p = JSProperty.Property(key, getter ?? p.get, setter ?? p.set, attributes);

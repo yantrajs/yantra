@@ -105,7 +105,7 @@ namespace YantraJS
                 var exports = module.Exports;
                 foreach(var (name, type) in et)
                 {
-                    exports[name] = ClrType.From(type);
+                    exports[name.ToKeyString()] = ClrType.From(type);
                 }
                 return Task.CompletedTask;
             }

@@ -154,7 +154,7 @@ namespace YantraJS.JSClassGenerator
                 {
                     if (type.BaseJSClassName != "Object")
                     {
-                        sb.AppendLine($" var @base = context[\"{type.BaseJSClassName}\"] as JSFunction;");
+                        sb.AppendLine($" var @base = context[{type.BaseJSClassName.ToKeyStringName()}] as JSFunction;");
                         sb = sb.AppendLine($"@class.SetPrototypeOf(@base);");
                         if (!type.InternalClass)
                         {

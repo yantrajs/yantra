@@ -41,25 +41,26 @@ public class ModuleBuilder
         JSObject globalExport = new JSObject();
         foreach ((string name, object value)  in exportedObjects)
         {
+            var keyName = name.ToKeyString();
             switch (value)
             {
                 case Type type:
-                    globalExport[name] = ClrType.From(type);
+                    globalExport[keyName] = ClrType.From(type);
                     break;
                 case JSFunctionDelegate @delegate:
-                    globalExport[name] = new JSFunction(@delegate);
+                    globalExport[keyName] = new JSFunction(@delegate);
                     break;
                 case JSValue jsValue:
-                    globalExport[name] = globalExport[name] = jsValue;
+                    globalExport[keyName] = globalExport[keyName] = jsValue;
                     break;
                 default:
-                    globalExport[name] = ClrProxy.Marshal(value);
+                    globalExport[keyName] = ClrProxy.Marshal(value);
                     break;
             }
         }
 
         globalExport[KeyString.@default] = globalExport;
-        context.RegisterModule(_moduleName, globalExport);
+        context.RegisterModule(_moduleName.ToKeyString(), globalExport);
     }
 }
 

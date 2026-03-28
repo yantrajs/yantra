@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Runtime;
 

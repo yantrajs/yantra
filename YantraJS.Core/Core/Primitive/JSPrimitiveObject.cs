@@ -49,7 +49,7 @@ namespace YantraJS.Core.Core.Primitive
 
         protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
-            if (key.Key == KeyString.length.Key)
+            if (key == KeyString.length)
             {
                 if (value is JSString @string)
                 {
