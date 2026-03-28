@@ -71,7 +71,7 @@ namespace YantraJS.Core.Core
             ref var objectProperties = ref @object.GetOwnProperties(false);
             var ve = objectProperties.GetEnumerator(false);
             while(ve.MoveNext(out var key, out var value)){
-                ps.properties.Put(key.Key) = (value.ToNotReadOnly(),target);
+                ps.properties.Put((uint)key) = (value.ToNotReadOnly(),target);
             }
 
             ref var objectElements = ref @object.GetElements(false);
@@ -112,7 +112,7 @@ namespace YantraJS.Core.Core
         internal JSProperty GetInternalProperty(in KeyString name)
         {
             this.Build();
-            var (p, owner) = propertySet.properties[name.Key];
+            var (p, owner) = propertySet.properties[(uint)name];
             return p;
         }
 
@@ -131,7 +131,7 @@ namespace YantraJS.Core.Core
         internal JSFunctionDelegate GetMethod(in KeyString key)
         {
             this.Build();
-            var (p, _) = propertySet.properties[key.Key];
+            var (p, _) = propertySet.properties[(uint)key];
             if(p.IsValue)
             {
                 if (p.get != null)

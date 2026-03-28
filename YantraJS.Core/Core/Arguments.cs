@@ -92,13 +92,13 @@ namespace YantraJS.Core
                     case 0:
                         return new Arguments(@this, 0, null, null, null, null, null);
                     case 1:
-                        return new Arguments(@this, 1, argArray[0], null, null, null, null);
+                        return new Arguments(@this, 1, argArray[(uint)0], null, null, null, null);
                     case 2:
-                        return new Arguments(@this, 2, argArray[0], argArray[1], null, null, null);
+                        return new Arguments(@this, 2, argArray[(uint)0], argArray[1], null, null, null);
                     case 3:
-                        return new Arguments(@this, 3, argArray[0], argArray[1], argArray[2], null, null);
+                        return new Arguments(@this, 3, argArray[(uint)0], argArray[1], argArray[2], null, null);
                     case 4:
-                        return new Arguments(@this, 4, argArray[0], argArray[1], argArray[2], argArray[3], null);
+                        return new Arguments(@this, 4, argArray[(uint)0], argArray[1], argArray[2], argArray[3], null);
                     default:
                         var argList = new JSValue[argArray._length];
                         var ee = argArray.GetElementEnumerator();
@@ -117,13 +117,13 @@ namespace YantraJS.Core
                     case 0:
                         return new Arguments(@this, 0, null, null, null, null, null);
                     case 1:
-                        return new Arguments(@this, 1, arguments[0], null, null, null, null);
+                        return new Arguments(@this, 1, arguments[(uint)0], null, null, null, null);
                     case 2:
-                        return new Arguments(@this, 2, arguments[0], arguments[1], null, null, null);
+                        return new Arguments(@this, 2, arguments[(uint)0], arguments[1], null, null, null);
                     case 3:
-                        return new Arguments(@this, 3, arguments[0], arguments[1], arguments[2], null, null);
+                        return new Arguments(@this, 3, arguments[(uint)0], arguments[1], arguments[2], null, null);
                     case 4:
-                        return new Arguments(@this, 4, arguments[0], arguments[1], arguments[2], arguments[3], null);
+                        return new Arguments(@this, 4, arguments[(uint)0], arguments[1], arguments[2], arguments[3], null);
                     default:
                         var argList = new JSValue[arguments.Length];
                         var ee = arguments.GetElementEnumerator();

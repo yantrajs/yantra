@@ -28,10 +28,10 @@ namespace YantraJS.Tests.Generator
         [TestMethod]
         public void GlobalVariable()
         {
-            context["a"] = new JSNumber(3);
+            context["a".ToKeyString()] = new JSNumber(3);
             var r = CoreScript.Evaluate("a++");
             Assert.AreEqual(3, r.IntValue);
-            var a = context["a"];
+            var a = context["a".ToKeyString()];
             Assert.AreEqual(4, a.IntValue);
         }
 

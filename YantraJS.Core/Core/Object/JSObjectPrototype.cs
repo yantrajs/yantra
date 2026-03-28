@@ -36,7 +36,7 @@ namespace YantraJS.Core
             if (a.Length > 0)
             {
                 var text = a.Get1().ToString();
-                var px = @object.GetInternalProperty(text, false);
+                var px = @object.GetInternalProperty(text.ToKeyString(), false);
                 if (!px.IsEmpty && px.IsEnumerable)
                     return JSBoolean.True;
             }
@@ -95,7 +95,7 @@ namespace YantraJS.Core
                 return JSBoolean.False;
             }
             ref var op = ref @object.GetOwnProperties(false);
-            if (op.HasKey(key.KeyString.Key))
+            if (op.HasKey((uint)key.KeyString))
                 return JSBoolean.True;
             return JSBoolean.False;
         }

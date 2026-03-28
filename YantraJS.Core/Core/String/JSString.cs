@@ -123,7 +123,7 @@ namespace YantraJS.Core
 
         internal override PropertyKey ToKey(bool create = true)
         {
-            if (_keyString.HasValue)
+            if (_keyString > 0)
                 return _keyString;
             var d = this.DoubleValue;
             if (!double.IsNaN(d))
@@ -135,18 +135,18 @@ namespace YantraJS.Core
             }
             if (!create)
             {
-                if(!KeyStrings.TryGet(this.value, out _keyString))
-                    return KeyStrings.undefined;
+                if(!KeyStrings.Instance.TryGet(this.value, out _keyString))
+                    return KeyString.undefined;
                 return _keyString;
             }
-            return _keyString.Value != null
+            return _keyString > 0
                 ? _keyString
-                : (_keyString = KeyStrings.GetOrCreate(this.value));
+                : (_keyString = KeyStrings.Instance.GetOrCreate(this.value));
         }
 
         protected override JSObject GetPrototype()
         {
-            return (JSContext.Current[Names.String] as JSFunction).prototype;
+            return (JSContext.Current[KeyString.String] as JSFunction).prototype;
         }
 
         public JSString(string value): base()
@@ -177,7 +177,7 @@ namespace YantraJS.Core
 
         public static implicit operator KeyString(JSString value)
         {
-            return value.ToString();
+            return value.value.ToKeyString();
         }
 
         public override JSValue TypeOf()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YantraJS.Core;
 using YantraJS.Expressions;
 
 namespace YantraJS.Linq
@@ -21,7 +22,7 @@ namespace YantraJS.Linq
 
             var indices = typeof(ScriptInfo).GetField(nameof(ScriptInfo.Indices));
 
-            var getOrCreate = typeof(KeyString).GetMethod(nameof(KeyString.GetOrCreate));
+            var getOrCreate = typeof(KeyString).GetMethod(nameof(KeyStrings.Instance.GetOrCreate));
 
             var ns = YExpression.New(typeof(StringSpan), b[0]);
 

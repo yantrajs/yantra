@@ -16,7 +16,7 @@ namespace YantraJS.Core
 
         internal override PropertyKey ToKey(bool create = true)
         {
-            return KeyStrings.undefined;
+            return KeyString.undefined;
         }
 
         public override JSValue TypeOf()

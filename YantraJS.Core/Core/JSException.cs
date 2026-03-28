@@ -15,7 +15,7 @@ namespace YantraJS.Core
             get {
                 if (this.Error is JSError error)
                 {
-                    return error[KeyStrings.message].ToString();
+                    return error[KeyString.message].ToString();
                 }
                 return this.Error.ToString();
             }

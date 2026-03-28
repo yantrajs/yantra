@@ -59,8 +59,8 @@ namespace YantraJS.Tests.Core.Object
         public void Length()
         {
             var a = new JSObject();
-            a["a"] = JSContext.Current;
-            a["valueOf"] = new JSFunction((in Arguments a1) => {
+            a["a".ToKeyString()] = JSContext.Current;
+            a[KeyString.valueOf] = new JSFunction((in Arguments a1) => {
                 return JSUndefined.Value;
             });
             // a["length"] = a;

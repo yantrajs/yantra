@@ -31,15 +31,15 @@ namespace YantraJS.Core
 
         internal override PropertyKey ToKey(bool create = false)
         {
-            return KeyStrings.arguments;
+            return KeyString.arguments;
         }
 
         public JSArguments(in Arguments args)
         {
             // arguments = args;
             ref var properties = ref this.GetOwnProperties(true);
-            properties.Put(KeyStrings.length, new JSNumber(args.Length), JSPropertyAttributes.ConfigurableValue);
-            properties.Put(KeyStrings.callee, (JSFunctionDelegate)Callee, Callee, JSPropertyAttributes.Property);
+            properties.Put(KeyString.length, new JSNumber(args.Length), JSPropertyAttributes.ConfigurableValue);
+            properties.Put(KeyString.callee, (JSFunctionDelegate)Callee, Callee, JSPropertyAttributes.Property);
 
             ref var symbols = ref this.GetSymbols();
             symbols.Put(JSSymbol.iterator.Key) = JSProperty.Property(new JSFunction(Values), JSPropertyAttributes.ConfigurableValue);

@@ -33,15 +33,15 @@ namespace Yantra.Core.Events
             e.EventPhase = Event.AT_TARGET;
 
             var pname = "on" + e.Type;
-            var px = this[pname];
+            var px = this[pname.ToKeyString()];
             if(px?.IsFunction ?? false)
             {
                 px.Call();
             }
 
             // there is no capturing phase for simple events...
-            KeyString name = e.Type;
-            if(!handlers.TryGetValue(name.Key,out var list))
+            KeyString name = e.Type.ToKeyString();
+            if(!handlers.TryGetValue((uint)name,out var list))
             {
                 return e;
             }
@@ -81,9 +81,9 @@ namespace Yantra.Core.Events
             var once = false;
             if (arg3.IsObject)
             {
-                capture = arg3[KeyStrings.capture].BooleanValue;
-                deferred = arg3[KeyStrings.deferred].BooleanValue;
-                once = arg3[KeyStrings.once].BooleanValue;
+                capture = arg3[KeyString.capture].BooleanValue;
+                deferred = arg3[KeyString.deferred].BooleanValue;
+                once = arg3[KeyString.once].BooleanValue;
             } else
             {
                 capture = arg3.BooleanValue;
@@ -103,9 +103,9 @@ namespace Yantra.Core.Events
             var once = false;
             if (arg3.IsObject)
             {
-                capture = arg3[KeyStrings.capture].BooleanValue;
-                deferred = arg3[KeyStrings.deferred].BooleanValue;
-                once = arg3[KeyStrings.once].BooleanValue;
+                capture = arg3[KeyString.capture].BooleanValue;
+                deferred = arg3[KeyString.deferred].BooleanValue;
+                once = arg3[KeyString.once].BooleanValue;
             }
             else
             {

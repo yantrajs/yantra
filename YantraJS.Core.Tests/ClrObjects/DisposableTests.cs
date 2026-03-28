@@ -56,7 +56,7 @@ namespace YantraJS.Core.Tests.ClrObjects
         {
             var c = new JSTestContext();
             
-            c["DisposableFile"] = ClrType.From(typeof(DisposableFile));
+            c["DisposableFile".ToKeyString()] = ClrType.From(typeof(DisposableFile));
 
 
             var a = c.Eval(@"
@@ -78,7 +78,7 @@ namespace YantraJS.Core.Tests.ClrObjects
         {
             var c = new JSTestContext();
             JSValue guidTypeValue = ClrType.From(typeof(Guid));
-            c["guid"] = guidTypeValue;
+            c["guid".ToKeyString()] = guidTypeValue;
             string result = c.Eval("guid.empty.toString()").ToString();
             Assert.AreEqual("00000000-0000-0000-0000-000000000000", result);
         }
@@ -90,7 +90,7 @@ namespace YantraJS.Core.Tests.ClrObjects
             {
                 var c = new JSTestContext();
 
-                c["AsyncDisposableFile"] = ClrType.From(typeof(AsyncDisposableFile));
+                c["AsyncDisposableFile".ToKeyString()] = ClrType.From(typeof(AsyncDisposableFile));
 
 
                 var a = await c.ExecuteAsync(@"

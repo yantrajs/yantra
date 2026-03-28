@@ -13,12 +13,12 @@ namespace YantraJS.REPL
 
         public YantraRepl(): base(Environment.CurrentDirectory)
         {
-            this[KeyStrings.require] = new JSFunction((in Arguments a1) => {
+            this[KeyString.require] = new JSFunction((in Arguments a1) => {
                 var r = this.LoadModuleAsync(System.Environment.CurrentDirectory, a1[0].ToString());
                 return AsyncPump.Run(() => r);
             });
 
-            this[KeyStrings.import] = new JSFunction((in Arguments a1) => {
+            this[KeyString.import] = new JSFunction((in Arguments a1) => {
                 var r = this.LoadModuleAsync(System.Environment.CurrentDirectory, a1[0].ToString());
                 return ClrProxy.Marshal(r);
             });
@@ -36,7 +36,7 @@ namespace YantraJS.REPL
                     result = CoreScript.Evaluate(command, codeCache: CodeCache).ToString();
                 }
                 catch (JSException ex1) {
-                    result = ex1.Error[KeyStrings.stack].ToString();
+                    result = ex1.Error[KeyString.stack].ToString();
                 }
                 catch (Exception ex)
                 {

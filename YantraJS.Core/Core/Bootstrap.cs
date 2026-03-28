@@ -67,8 +67,8 @@
 //                    if (cx.function != null && r.f == JSFunction.empty)
 //                    {
 //                        r.f = cx.function;
-//                        r.FastAddValue(KeyStrings.length, new JSNumber(cx.length), JSPropertyAttributes.EnumerableConfigurableValue);
-//                        // r[KeyStrings.length] = new JSNumber(cx.length);
+//                        r.FastAddValue(KeyString.length, new JSNumber(cx.length), JSPropertyAttributes.EnumerableConfigurableValue);
+//                        // r[KeyString.length] = new JSNumber(cx.length);
                         
 //                    }
 
@@ -76,8 +76,8 @@
 //                    if (cx.function != null && r.f == JSFunction.empty)
 //                    {
 //                        r.f = cx.function;
-//                        r.FastAddValue(KeyStrings.length, new JSNumber(cx.length), JSPropertyAttributes.EnumerableConfigurableValue);
-//                        // r[KeyStrings.length] = new JSNumber(cx.length);
+//                        r.FastAddValue(KeyString.length, new JSNumber(cx.length), JSPropertyAttributes.EnumerableConfigurableValue);
+//                        // r[KeyString.length] = new JSNumber(cx.length);
 //                    }
 //                }
 
@@ -438,7 +438,7 @@
 //                if (pr is ConstructorAttribute ca)
 //                {
 //                    r.f = f.CreateJSFunctionDelegate();
-//                    r[KeyStrings.length] = new JSNumber(ca.Length);
+//                    r[KeyString.length] = new JSNumber(ca.Length);
 //                    continue;
 //                }
 

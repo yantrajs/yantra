@@ -31,11 +31,11 @@ namespace YantraJS.Core
         public JSModuleContext(SynchronizationContext ctx = null, bool enableClrIntegration = true) :
             base(ctx ?? new SynchronizationContext())
         {
-            // this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
-            this[KeyStrings.assert] = JSAssert.CreateClass(this, false);
+            // this.CreateSharedObject(KeyString.assert, typeof(JSAssert), true);
+            this[KeyString.assert] = JSAssert.CreateClass(this, false);
 
 
-            Module = JSModule.CreateClass(this, false); // this.Create<JSModule>(KeyStrings.Module, null, false);
+            Module = JSModule.CreateClass(this, false); // this.Create<JSModule>(KeyString.Module, null, false);
             ModulePrototype = Module.prototype;
 
             if (enableClrIntegration)
@@ -43,8 +43,8 @@ namespace YantraJS.Core
             moduleCache[ModuleCache.module] = new JSModule(this, Module, "module");
 
 
-            this[KeyStrings.globalThis] = this;
-            this[KeyStrings.global] = this;
+            this[KeyString.globalThis] = this;
+            this[KeyString.global] = this;
         }
 
         
@@ -63,8 +63,8 @@ namespace YantraJS.Core
         /// <param name="exports">JSObject, that you import by import or require</param>
         public void RegisterModule(in KeyString name, JSObject exports)
         {
-            var n = name.ToString();
-            moduleCache.GetOrCreate(name.Value, () => new JSModule(this, exports, n));
+            var n = name.ToStringSpan();
+            moduleCache.GetOrCreate(n, () => new JSModule(this, exports, n.Value));
         }
         
         
@@ -279,7 +279,7 @@ namespace YantraJS.Core
                 if (filePath == null)
                     throw new FileNotFoundException($"{filePath} not found");
                 var main = await m.LoadModuleAsync(m.CurrentPath, filePath);
-                var exported = main[exportedFunctionName];
+                var exported = main[exportedFunctionName.ToKeyString()];
                 if (exported.IsUndefined)
                     throw new KeyNotFoundException($"{exportedFunctionName} not found on the module");
                 var rv = exported.InvokeFunction(a);

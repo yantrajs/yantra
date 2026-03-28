@@ -252,7 +252,7 @@ namespace YantraJS.Core.Tests.Imported
                   y[25] = 34
                   y[66] = 12;
                   x.concat(y)");
-            Assert.AreEqual(Undefined.Value, x[0]);
+            Assert.AreEqual(Undefined.Value, x[0u]);
             Assert.AreEqual(5, x[1].IntValue);
             Assert.AreEqual(Undefined.Value, x[2]);
             Assert.AreEqual(Undefined.Value, x[21]);

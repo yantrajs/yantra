@@ -20,7 +20,7 @@ namespace YantraJS.Core.Clr
     {
 
         public static JSObject Default = JSObject.NewWithProperties()
-            .AddProperty(KeyStrings.@default, ClrType.From(typeof(ClrModule)));
+            .AddProperty(KeyString.@default, ClrType.From(typeof(ClrModule)));
 
         public static JSValue Temp1 { get; set; } = new JSNumber(1);
 

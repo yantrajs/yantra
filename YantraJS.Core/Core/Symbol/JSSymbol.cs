@@ -68,7 +68,7 @@ namespace YantraJS.Core
             var f = a.Get1();
             if (f.IsUndefined)
                 return new JSSymbol("");
-            return new JSSymbol(a.ToString());
+            return new JSSymbol(f.ToString());
         }
 
         public override JSValue CreateInstance(in Arguments a)

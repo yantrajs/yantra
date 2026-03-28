@@ -15,8 +15,8 @@ namespace YantraJS.Core.Core.Primitive
             this.value = value;
             value.ResolvePrototype();
             prototypeChain = value.prototypeChain;
-            //this.DefineProperty(KeyStrings.constructor, 
-            //    JSProperty.Property(value.prototypeChain[KeyStrings.constructor], JSPropertyAttributes.ReadonlyValue));
+            //this.DefineProperty(KeyString.constructor, 
+            //    JSProperty.Property(value.prototypeChain[KeyString.constructor], JSPropertyAttributes.ReadonlyValue));
         }
 
 
@@ -49,7 +49,7 @@ namespace YantraJS.Core.Core.Primitive
 
         protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
-            if (key.Key == KeyStrings.length.Key)
+            if (key == KeyString.length)
             {
                 if (value is JSString @string)
                 {

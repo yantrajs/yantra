@@ -123,10 +123,10 @@ namespace YantraJS.Core.Debugger
             var p = v.prototypeChain?.@object;
             if(p != null)
             {
-                var c = p[KeyStrings.constructor];
+                var c = p[KeyString.constructor];
                 if (!c.IsNullOrUndefined)
                 {
-                    ClassName = c[KeyStrings.name].ToString();
+                    ClassName = c[KeyString.name].ToString();
                     Description = ClassName;
                 }
             }

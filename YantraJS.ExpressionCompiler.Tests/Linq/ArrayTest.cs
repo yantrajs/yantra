@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using YantraJS.Core;
 using YantraJS.Expressions;
 using YantraJS.Runtime;
 
@@ -68,7 +69,7 @@ namespace YantraJS.Linq
 
             var indices = typeof(ScriptInfo).GetField(nameof(ScriptInfo.Indices));
 
-            var getOrCreate = typeof(KeyString).GetMethod(nameof(KeyString.GetOrCreate));
+            var getOrCreate = typeof(KeyString).GetMethod(nameof(KeyStrings.Instance.GetOrCreate));
 
             var create = YExpression.MemberInit(
                     YExpression.New(typeof(ScriptInfo)),

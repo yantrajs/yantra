@@ -55,7 +55,7 @@ namespace YantraJS.Core
 
         protected override JSObject GetPrototype()
         {
-            return (JSContext.Current[Names.Boolean] as JSFunction).prototype; ;
+            return (JSContext.Current[KeyString.Boolean] as JSFunction).prototype; ;
         }
 
 
@@ -176,7 +176,7 @@ namespace YantraJS.Core
 
         internal override PropertyKey ToKey(bool create = false)
         {
-            return this._value ? KeyStrings.@true : KeyStrings.@false;
+            return this._value ? KeyString.@true : KeyString.@false;
         }
 
         [JSPrototypeMethod]

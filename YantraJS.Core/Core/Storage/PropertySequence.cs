@@ -90,7 +90,7 @@ namespace YantraJS.Core
                         }
                     }
                     property = p;
-                    key = KeyStrings.GetName(start);
+                    key = KeyStrings.Instance.GetName(start);
                     start = objP.Next;
                     return true;
                 }
@@ -119,7 +119,7 @@ namespace YantraJS.Core
                             continue;
                         }
                     }
-                    key = KeyStrings.GetName(start);
+                    key = KeyStrings.Instance.GetName(start);
                     start = objP.Next;
                     return true;
                 }
@@ -161,7 +161,7 @@ namespace YantraJS.Core
                         continue;
                     }
                     // property = p;
-                    key = KeyStrings.GetName(start);
+                    key = KeyStrings.Instance.GetName(start);
                     start = objP.Next;
                     return true;
                 }
@@ -188,7 +188,7 @@ namespace YantraJS.Core
                         continue;
                     }
                     value = target.GetValue(in p);
-                    key = KeyStrings.GetName(start);
+                    key = KeyStrings.Instance.GetName(start);
                     start = objP.Next;
                     return true;
                 }
@@ -214,7 +214,7 @@ namespace YantraJS.Core
                         continue;
                     }
                     value = p;
-                    key = KeyStrings.GetName(start);
+                    key = KeyStrings.Instance.GetName(start);
                     start = objP.Next;
                     return true;
                 }
@@ -288,7 +288,7 @@ namespace YantraJS.Core
             if (property.IsEmpty)
                 return false;
             if (property.IsReadOnly || !property.IsConfigurable)
-                throw JSContext.Current.NewTypeError($"Cannot delete property {KeyStrings.GetNameString(key)} of {this}");
+                throw JSContext.Current.NewTypeError($"Cannot delete property {KeyStrings.Instance.GetNameString(key)} of {this}");
             property = JSProperty.Empty;
             return true;
             //if (properties == null)
@@ -395,17 +395,17 @@ namespace YantraJS.Core
 
         public void Put(in KeyString key, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            Put(key.Key) = JSProperty.Property(key, value, attributes);
+            Put((uint)key) = JSProperty.Property(key, value, attributes);
         }
 
         public void Put(in KeyString key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            Put(key.Key) = JSProperty.Property(key, getter, setter, attributes);
+            Put((uint)key) = JSProperty.Property(key, getter, setter, attributes);
         }
 
         public void Put(in KeyString key, JSFunctionDelegate getter, JSFunctionDelegate setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            Put(key.Key) = JSProperty.Property(key, getter, setter, attributes);
+            Put((uint)key) = JSProperty.Property(key, getter, setter, attributes);
         }
 
         /// <summary>

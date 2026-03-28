@@ -97,7 +97,7 @@ namespace YantraJS.Core
             switch(key.Type)
             {
                 case KeyType.String:
-                    if(ownProperties.TryGetValue(key.KeyString.Key, out var p))
+                    if(ownProperties.TryGetValue((uint)key.KeyString, out var p))
                         return p.ToJSValue();
                     return JSUndefined.Value;
                 case KeyType.UInt:
@@ -114,7 +114,7 @@ namespace YantraJS.Core
 
         public override JSValue GetOwnProperty(in KeyString name)
         {
-            ref var p = ref ownProperties.GetValue(name.Key);
+            ref var p = ref ownProperties.GetValue((uint)name);
             return this.GetValue(p);
         }
 
@@ -182,7 +182,7 @@ namespace YantraJS.Core
                 var en = new PropertySequence.ValueEnumerator(this, false);
                 while(en.MoveNext(out var value, out var key))
                 {
-                    yield return (KeyStrings.GetNameString(key.Key).Value, value);
+                    yield return (KeyStrings.Instance.GetNameString((uint)key).Value, value);
                 }
                 //for(int i = 0; i< ownProperties.properties.Length; i++)
                 //{
@@ -194,7 +194,7 @@ namespace YantraJS.Core
                 //    {
                 //        System.Diagnostics.Debug.WriteLine(ex);
                 //    }
-                //    yield return ( KeyStrings.GetNameString(p.key).Value , v);
+                //    yield return ( KeyStrings.Instance.GetNameString(p.key).Value , v);
                 //}
             }
         }
@@ -267,7 +267,7 @@ namespace YantraJS.Core
         public void FastAddValue(KeyString key, JSValue value, JSPropertyAttributes attributes)
         {
             ref var pr = ref GetOwnProperties(true);
-            pr.Put(key.Key) = new JSProperty(key.Key, value, attributes);
+            pr.Put((uint)key) = new JSProperty((uint)key, value, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -275,7 +275,7 @@ namespace YantraJS.Core
         public void FastAddProperty(KeyString key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
         {
             ref var pr = ref GetOwnProperties(true);
-            pr.Put(key.Key) = new JSProperty(key,getter, setter, attributes);
+            pr.Put((uint)key) = new JSProperty(key,getter, setter, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -341,7 +341,7 @@ namespace YantraJS.Core
             var pe = target.ownProperties.GetEnumerator();
             while (pe.MoveNext(out var key, out var val) && !val.IsEmpty)
             {
-                this.ownProperties.Put(key.Key) = val.IsValue
+                this.ownProperties.Put((uint)key) = val.IsValue
                     ? JSProperty.Property(val.value)
                     : JSProperty.Property(target.GetValue(val));
             }
@@ -395,17 +395,17 @@ namespace YantraJS.Core
         {
             if (!create)
             {
-                if (KeyStrings.TryGet(this.ToString(), out var k))
+                if (KeyStrings.Instance.TryGet(this.ToString(), out var k))
                     return k;
-                return KeyStrings.undefined;
+                return KeyString.undefined;
             }
-            return KeyStrings.GetOrCreate(this.ToString());
+            return KeyStrings.Instance.GetOrCreate(this.ToString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal JSProperty GetInternalProperty(in KeyString key, bool inherited = true)
         {
-            var r = ownProperties.GetValue(key.Key);
+            var r = ownProperties.GetValue((uint)key);
             if (!r.IsEmpty)
                 return r;
             if (inherited && prototypeChain != null)
@@ -440,7 +440,7 @@ namespace YantraJS.Core
 
         public override JSValue ValueOf()
         {
-            var p = GetInternalProperty(KeyStrings.valueOf, false);
+            var p = GetInternalProperty(KeyString.valueOf, false);
             if (!p.IsEmpty)
             {
                 return this.GetValue(p).InvokeFunction(new Arguments(this));
@@ -451,7 +451,7 @@ namespace YantraJS.Core
 
         public bool HasValueOf(out JSValue value)
         {
-            var p = GetInternalProperty(KeyStrings.valueOf, false);
+            var p = GetInternalProperty(KeyString.valueOf, false);
             if (!p.IsEmpty)
             {
                 value = this.GetValue(p).InvokeFunction(new Arguments(this));
@@ -473,7 +473,7 @@ namespace YantraJS.Core
         {
             if (!ownProperties.IsEmpty)
             {
-                ref var p = ref ownProperties.GetValue(key.Key);
+                ref var p = ref ownProperties.GetValue((uint)key);
                 if (p.IsValue)
                 {
                     var g = p.get;
@@ -531,7 +531,7 @@ namespace YantraJS.Core
             }
             ref var ownProperties = ref this.GetOwnProperties();
             ownProperties.Put(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue);
-            PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
+            PropertyChanged?.Invoke(this, ((uint)name, uint.MaxValue, null));
             return true;
         }
 
@@ -610,7 +610,7 @@ namespace YantraJS.Core
 
         internal protected override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
-            ref var p = ref ownProperties.GetValue(key.Key);
+            ref var p = ref ownProperties.GetValue((uint)key);
             if (!p.IsEmpty)
             {
                 return (receiver ?? this).GetValue(p);
@@ -687,9 +687,9 @@ namespace YantraJS.Core
 
         public JSValue DefineProperty(in KeyString name, JSObject pd)
         {
-            var key = name.Key;
+            var key = (uint)name;
             ref var ownProperties = ref GetOwnProperties();
-            ref var old = ref ownProperties.GetValue(name.Key);
+            ref var old = ref ownProperties.GetValue((uint)name);
             if (!old.IsEmpty)
             {
                 if (!old.IsConfigurable)
@@ -699,7 +699,7 @@ namespace YantraJS.Core
             }
             // p.key = name;
             ownProperties.Put(key) = pd.ToProperty(key);
-            PropertyChanged?.Invoke(this, (name.Key, uint.MaxValue, null));
+            PropertyChanged?.Invoke(this, ((uint)name, uint.MaxValue, null));
             return JSUndefined.Value;
         }
 
@@ -725,7 +725,7 @@ namespace YantraJS.Core
         private bool toStringCalled = false;
         public override string ToString()
         {
-            var px = GetMethod(KeyStrings.toString);
+            var px = GetMethod(KeyString.toString);
             if (px != null)
             {
                 if (toStringCalled)
@@ -766,7 +766,7 @@ namespace YantraJS.Core
             get {
                 try
                 {
-                    var fx = this[KeyStrings.valueOf];
+                    var fx = this[KeyString.valueOf];
                     if (fx.IsUndefined)
                         return NumberParser.CoerceToNumber(this.ToString());
                     var v = fx.InvokeFunction(new Arguments(this));
@@ -786,7 +786,7 @@ namespace YantraJS.Core
             {
                 try
                 {
-                    //var px = this.GetInternalProperty(KeyStrings.length);
+                    //var px = this.GetInternalProperty(KeyString.length);
                     //if (!px.IsEmpty)
                     //{
                     //    var n = this.GetValue(px);
@@ -798,7 +798,7 @@ namespace YantraJS.Core
                     {
                         return -1;
                     }
-                    ref var l = ref ownp.GetValue(KeyStrings.length.Key);
+                    ref var l = ref ownp.GetValue((uint)KeyString.length);
                     if (!l.IsEmpty)
                     {
                         var n = this.GetValue(l);
@@ -816,8 +816,8 @@ namespace YantraJS.Core
                 if (this.IsSealedOrFrozenOrNonExtensible())
                     throw JSContext.Current.NewTypeError($"Cannot modify property length of {this}");
                 ref var ownp = ref GetOwnProperties();
-                ownp.Put(KeyStrings.length,new JSNumber(value));
-                PropertyChanged?.Invoke(this, (KeyStrings.length.Key, uint.MaxValue, null));
+                ownp.Put(KeyString.length,new JSNumber(value));
+                PropertyChanged?.Invoke(this, ((uint)KeyString.length, uint.MaxValue, null));
             }
         }
 
@@ -870,15 +870,15 @@ namespace YantraJS.Core
             JSFunction pget = null;
             JSFunction pset = null;
             JSValue pvalue = null;
-            var value = this[KeyStrings.value];
-            var get = this[KeyStrings.get] as JSFunction;
-            var set = this[KeyStrings.set] as JSFunction;
+            var value = this[KeyString.value];
+            var get = this[KeyString.get] as JSFunction;
+            var set = this[KeyString.set] as JSFunction;
             var pt = JSPropertyAttributes.Empty;
-            if (this[KeyStrings.configurable].BooleanValue)
+            if (this[KeyString.configurable].BooleanValue)
                 pt |= JSPropertyAttributes.Configurable;
-            if (this[KeyStrings.enumerable].BooleanValue)
+            if (this[KeyString.enumerable].BooleanValue)
                 pt |= JSPropertyAttributes.Enumerable;
-            if (!this[KeyStrings.writable].BooleanValue)
+            if (!this[KeyString.writable].BooleanValue)
                 pt |= JSPropertyAttributes.Readonly;
             if (get != null)
             {
@@ -925,9 +925,9 @@ namespace YantraJS.Core
         {
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
-            if (ownProperties.RemoveAt(key.Key))
+            if (ownProperties.RemoveAt((uint)key))
             {
-                PropertyChanged?.Invoke(this, (key.Key, uint.MaxValue, null));
+                PropertyChanged?.Invoke(this, ((uint)key, uint.MaxValue, null));
                 return JSBoolean.True;
             }
             return JSBoolean.True;

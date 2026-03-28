@@ -20,18 +20,18 @@ public class YUtil {
     public static JSValue inherits(JSValue child, JSValue parent) {
 
         var context = JSContext.CurrentContext;
-        var @object = context[KeyStrings.Object];
+        var @object = context[KeyString.Object];
 
         @object.InvokeMethod("setPrototypeOf", child, parent);
         if (parent == JSNull.Value) {
-            child[KeyStrings.prototype] = @object.InvokeMethod("create", parent);
+            child[KeyString.prototype] = @object.InvokeMethod("create", parent);
         } else {
             var __ = new JSFunction((in Arguments a) => {
-                a.This[KeyStrings.constructor] = child;
+                a.This[KeyString.constructor] = child;
                 return a.This;
             });
-            __[KeyStrings.prototype] = child[KeyStrings.prototype];
-            child[KeyStrings.prototype] = __.CreateInstance(Arguments.Empty);
+            __[KeyString.prototype] = child[KeyString.prototype];
+            child[KeyString.prototype] = __.CreateInstance(Arguments.Empty);
         }
 
         return JSUndefined.Value;

@@ -93,7 +93,7 @@ namespace YantraJS.Core.Tests.ClrObjects
         public void Test()
         {
             var c = new JSTestContext();
-            c["CustomObject"] = ClrType.From(typeof(CustomObject));
+            c["CustomObject".ToKeyString()] = ClrType.From(typeof(CustomObject));
 
 
             c.Eval(@"
@@ -122,7 +122,7 @@ namespace YantraJS.Core.Tests.ClrObjects
         {
             var c = new JSTestContext();
             c.ClrMemberNamingConvention = ClrMemberNamingConvention.Declared;
-            c["CustomObject"] = ClrType.From(typeof(CustomObject2));
+            c["CustomObject".ToKeyString()] = ClrType.From(typeof(CustomObject2));
 
 
             c.Eval(@"

@@ -90,7 +90,7 @@ namespace YantraJS.Core.Tests.Imported
             } catch (Exception ex)
             {
                 var ev = JSException.ErrorFrom(ex);
-                var v = ev?.prototypeChain?[KeyStrings.constructor] as JSFunction;
+                var v = ev?.prototypeChain?[KeyString.constructor] as JSFunction;
                 return v?.name.Value;
             }
             throw new Exception("No exception was thrown");
@@ -103,7 +103,7 @@ namespace YantraJS.Core.Tests.Imported
             } catch (Exception ex)
             {
                 var ev = JSException.ErrorFrom(ex);
-                var v = ev?.prototypeChain?[KeyStrings.constructor] as JSFunction;
+                var v = ev?.prototypeChain?[KeyString.constructor] as JSFunction;
                 var r = v?.name.Value;
                 return r;
             }

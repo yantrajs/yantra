@@ -24,7 +24,6 @@ namespace YantraJS.JSClassGenerator
 
         private JSTypeInfo type;
         private readonly JSGeneratorContext gc;
-        private List<string> names => gc.Names;
         public ClassGenerator(in JSTypeInfo type, JSGeneratorContext gc)
         {
             this.type = type;
@@ -69,15 +68,13 @@ namespace YantraJS.JSClassGenerator
                 if (!type.Globals)
                 {
 
-                    names.GetOrCreateName(className);
-
                     if (IsPrimitive(className))
                     {
                         sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => null;");
                     }
                     else
                     {
-                        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{names.GetOrCreateName(className)}] as JSFunction)?.prototype;");
+                        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{className.ToKeyStringName()}] as JSFunction)?.prototype;");
                     }
 
                     sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype) {{}}");
@@ -106,7 +103,7 @@ namespace YantraJS.JSClassGenerator
                     sb.AppendLine($@"
                     var @class = new JSObject();
                     if (register) {{
-                        context[Names.{className}] = @class;
+                        context[{className.ToKeyStringName()}] = @class;
                     }}
                 ");
                 } else if (type.Globals)
@@ -133,7 +130,7 @@ namespace YantraJS.JSClassGenerator
                             , ""{fxToString}""
                             {l});
                         if (register) {{
-                            context[Names.{className}] = @class;
+                            context[{className.ToKeyStringName()}] = @class;
                         }}
                         var prototype = @class.prototype;
                         ");
@@ -145,7 +142,7 @@ namespace YantraJS.JSClassGenerator
                             , ""{fxToString}""
                             {l});
                         if (register) {{
-                            context[Names.{className}] = @class;
+                            context[{className.ToKeyStringName()}] = @class;
                         }}
                         var prototype = @class.prototype;
                         ");
@@ -157,7 +154,7 @@ namespace YantraJS.JSClassGenerator
                 {
                     if (type.BaseJSClassName != "Object")
                     {
-                        sb.AppendLine($" var @base = context[\"{type.BaseJSClassName}\"] as JSFunction;");
+                        sb.AppendLine($" var @base = context[{type.BaseJSClassName.ToKeyStringName()}] as JSFunction;");
                         sb = sb.AppendLine($"@class.SetPrototypeOf(@base);");
                         if (!type.InternalClass)
                         {
@@ -171,7 +168,7 @@ namespace YantraJS.JSClassGenerator
                         // insert in list..
                         
 
-                        //sb.AppendLine($" var @base = context[KeyStrings.Object] as JSFunction;");
+                        //sb.AppendLine($" var @base = context[KeyString.Object] as JSFunction;");
                         //sb = sb.AppendLine($"@class.SetPrototypeOf(@base);");
                         //if (!type.InternalClass)
                         //{
@@ -251,7 +248,7 @@ namespace YantraJS.JSClassGenerator
 
             var clrProxyMarshal = access.ClrProxyMarshal(method.Type, name);
             var toClr = "a[0]".ToJSValueFromClr(method.Type, name);
-            var keyName = names.GetOrCreateName(name);
+            var keyName = name.ToKeyStringName();
 
             if (method.IsStatic && method.IsReadOnly)
             {
@@ -315,7 +312,7 @@ namespace YantraJS.JSClassGenerator
         {
             var method = exports.Property!;
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
-            var keyName = names.GetOrCreateName(name);
+            var keyName = name.ToKeyStringName();
 
             string setter = "null";
             string getter = "null";
@@ -383,7 +380,7 @@ namespace YantraJS.JSClassGenerator
                 return;
             }
 
-            var keyName = names.GetOrCreateName(name);
+            var keyName = name.ToKeyStringName();
             var fx = GenerateMethodBody(name, exports);
 
             if (e.Symbol == null)

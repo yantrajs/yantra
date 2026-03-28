@@ -43,7 +43,7 @@ namespace YantraJS.Tests.Core
         {
             var a = new JSArray();
             a.Length = 20;
-            a[0] = new JSNumber(0);
+            a[0u] = new JSNumber(0);
             a[5] = new JSNumber(4);
 
             var list = a.GetArrayElements().ToList();

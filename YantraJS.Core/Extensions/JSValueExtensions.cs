@@ -262,7 +262,7 @@ namespace YantraJS.Core
                     if (!p.IsEnumerable)
                         continue;
                 }
-                yield return (KeyStrings.GetJSString(p.key), value.GetValue(in p));
+                yield return (KeyStrings.Instance.GetJSString(p.key), value.GetValue(in p));
             }
 
             var @base = value.prototypeChain?.@object;
@@ -285,7 +285,7 @@ namespace YantraJS.Core
             var p = target.prototypeChain?.@object;
             if (p == null)
                 return JSBoolean.False;
-            var c = p[KeyStrings.constructor];
+            var c = p[KeyString.constructor];
             if (c.IsUndefined)
                 return JSBoolean.False;
             if (c.StrictEquals(value))

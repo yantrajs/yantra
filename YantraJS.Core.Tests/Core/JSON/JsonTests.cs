@@ -63,12 +63,12 @@ namespace YantraJS.Tests.Core.JSON
             Assert.AreEqual("{\"data\":\"data\"}", stringify(a));
 
             var aa = new JSObject();
-            aa["obj"] = a;
+            aa["obj".ToKeyString()] = a;
 
             Assert.AreEqual("{\"obj\":\"test\"}", stringify(aa));
 
             var ar = new JSArray();
-            ar[0] = a;
+            ar[0u] = a;
 
             Assert.AreEqual("[\"test\"]", stringify(ar));
         }
@@ -126,7 +126,7 @@ namespace YantraJS.Tests.Core.JSON
 
             Assert.AreEqual(expected, stringify(a, "  "));
 
-            a["b"] = new JSObject();
+            a["b".ToKeyString()] = new JSObject();
 
             da.b.a = "b";
 

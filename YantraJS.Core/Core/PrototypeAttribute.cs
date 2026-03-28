@@ -107,7 +107,7 @@ namespace YantraJS.Core
             this.Attributes = attributes;
             if (name != null)
             {
-                this.Name = name;
+                this.Name = name.ToKeyString();
             }
             this.MemberType = memberType;
         }

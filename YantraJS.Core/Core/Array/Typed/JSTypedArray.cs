@@ -16,13 +16,13 @@ namespace YantraJS.Core.Typed
         [JSExport]
         private static JSValue From(in Arguments a)
         {
-            return a.This.InvokeMethod(Names.from, a);
+            return a.This.InvokeMethod(KeyString.from, a);
         }
 
         [JSExport]
         private static JSValue Of(in Arguments a)
         {
-            return a.This.InvokeMethod(Names.of, a);
+            return a.This.InvokeMethod(KeyString.of, a);
         }
 
         [JSExport]
@@ -151,12 +151,12 @@ namespace YantraJS.Core.Typed
             switch (key.Type)
             {
                 case KeyType.String:
-                    if (key.KeyString.Key == KeyStrings.length.Key)
+                    if (key.KeyString == KeyString.length)
                     {
                         var l = new JSObject();
-                        l.FastAddValue(KeyStrings.value, new JSNumber(this.length), JSPropertyAttributes.ConfigurableValue);
-                        l.FastAddValue(KeyStrings.writable, JSBoolean.False, JSPropertyAttributes.ConfigurableValue);
-                        l.FastAddValue(KeyStrings.enumerable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.value, new JSNumber(this.length), JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.writable, JSBoolean.False, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.enumerable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
                         return l;
                     }
                     break;
@@ -165,10 +165,10 @@ namespace YantraJS.Core.Typed
                     {
                         var l = new JSObject();
                         var v = GetValue(key.Index, this, false);
-                        l.FastAddValue(KeyStrings.value, v, JSPropertyAttributes.ConfigurableValue);
-                        l.FastAddValue(KeyStrings.writable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
-                        l.FastAddValue(KeyStrings.enumerable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
-                        l.FastAddValue(KeyStrings.configurable, JSBoolean.False, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.value, v, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.writable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.enumerable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.configurable, JSBoolean.False, JSPropertyAttributes.ConfigurableValue);
                         return l;
 
                     }

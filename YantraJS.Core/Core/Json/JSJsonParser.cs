@@ -169,7 +169,7 @@ namespace YantraJS.Core
                         {
                             continue;
                         }
-                        j[name] = value;
+                        j[name.ToKeyString()] = value;
                         break;
                     default:
                         throw new InvalidOperationException($"Invalid token {reader.TokenType} at {reader.TokenStartIndex}");

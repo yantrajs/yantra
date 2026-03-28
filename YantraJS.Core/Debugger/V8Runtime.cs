@@ -56,7 +56,7 @@ namespace YantraJS.Core.Debugger
                     var en = new PropertySequence.PropertyEnumerator(c.GetOwnProperties(), false);
                     while (en.MoveNext(out var key, out var p))
                     {
-                        list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(key.Key).Value, v, p, true));
+                        list.Add(new V8PropertyDescriptor(KeyStrings.Instance.GetNameString((uint)key).Value, v, p, true));
                     }
                     list.Add(new V8PropertyDescriptor(c.prototypeChain));
                 } else
@@ -67,10 +67,10 @@ namespace YantraJS.Core.Debugger
                     {
                         if (pt.IsEmpty || !pt.IsProperty)
                             continue;
-                        list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(pt.key).Value, v, pt));
+                        list.Add(new V8PropertyDescriptor(KeyStrings.Instance.GetNameString(pt.key).Value, v, pt));
                     }
 
-                    ref var p = ref JSContext.Current.ObjectPrototype.GetOwnProperties(false).GetValue(KeyStrings.__proto__.Key);
+                    ref var p = ref JSContext.Current.ObjectPrototype.GetOwnProperties(false).GetValue((uint)KeyString.__proto__);
                     list.Add(new V8PropertyDescriptor("__proto__", c, p));
                 }
 
@@ -83,7 +83,7 @@ namespace YantraJS.Core.Debugger
                 //    {
                 //        if (p.IsEmpty)
                 //            continue;
-                //        list.Add(new V8PropertyDescriptor(KeyStrings.GetNameString(p.key).Value, v, in p, v == c));
+                //        list.Add(new V8PropertyDescriptor(KeyStrings.Instance.GetNameString(p.key).Value, v, in p, v == c));
                 //    }
                 //    c = v.prototypeChain?.@object;
                 //} while (!args.ownProperties && c != null);

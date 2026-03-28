@@ -27,26 +27,26 @@ namespace YantraJS.Network
 
             var options = a[1];
             JSValue? v;
-            this.Method = options.TryGetProperty(Names.method, out var p) ? p.ToString() : "GET";
-            this.Headers = new Headers(options.TryGetProperty(Names.headers, out v) ? v : null);
-            if(options.TryGetProperty(Names.body, out v))
+            this.Method = options.TryGetProperty(KeyString.method, out var p) ? p.ToString() : "GET";
+            this.Headers = new Headers(options.TryGetProperty(KeyString.headers, out v) ? v : null);
+            if(options.TryGetProperty(KeyString.body, out v))
             {
                 this.Body = v;
             }
-            this.Mode = options.TryGetProperty(Names.mode, out v) ? v.ToString() : "cors";
-            this.Credentials = options.TryGetProperty(Names.credentials, out v) ? v.ToString() : "same-origin";
-            this.Cache = options.TryGetProperty(Names.cache, out v) ? v.ToString() : null;
-            this.Redirect = options.TryGetProperty(Names.redirect, out v) ? v.ToString() : "follow";
-            this.Referrer = options.TryGetProperty(Names.referrer, out v) ? v.ToString() : "about:client";
-            if (options.TryGetProperty(Names.referrerPolicy, out v))
+            this.Mode = options.TryGetProperty(KeyString.mode, out v) ? v.ToString() : "cors";
+            this.Credentials = options.TryGetProperty(KeyString.credentials, out v) ? v.ToString() : "same-origin";
+            this.Cache = options.TryGetProperty(KeyString.cache, out v) ? v.ToString() : null;
+            this.Redirect = options.TryGetProperty(KeyString.redirect, out v) ? v.ToString() : "follow";
+            this.Referrer = options.TryGetProperty(KeyString.referrer, out v) ? v.ToString() : "about:client";
+            if (options.TryGetProperty(KeyString.referrerPolicy, out v))
             {
                 this.ReferrerPolicy = v.ToString();
             }
-            if (options.TryGetProperty(Names.integrity, out v))
+            if (options.TryGetProperty(KeyString.integrity, out v))
                 this.Integrity = v.ToString();
 
-            this.KeepAlive = options.TryGetProperty(Names.keepalive, out v) ? v.BooleanValue : false;
-            if (options.TryGetProperty(Names.signal, out v))
+            this.KeepAlive = options.TryGetProperty(KeyString.keepalive, out v) ? v.BooleanValue : false;
+            if (options.TryGetProperty(KeyString.signal, out v))
             {
                 if(v.ConvertTo<AbortSignal>(out var s)) {
                     this.Signal = s;

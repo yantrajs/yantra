@@ -136,7 +136,7 @@ namespace YantraJS.Core
 
         protected override JSObject GetPrototype()
         {
-            return (JSContext.Current[Names.Decimal] as JSFunction).prototype;
+            return (JSContext.Current[KeyString.Decimal] as JSFunction).prototype;
         }
 
         internal override PropertyKey ToKey(bool create = true)

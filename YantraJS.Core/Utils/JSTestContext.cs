@@ -22,10 +22,10 @@ namespace YantraJS.Utils
     {
         public JSTestContext(SynchronizationContext ctx = null): base(ctx)
         {
-            // this.CreateSharedObject(KeyStrings.assert, typeof(JSAssert), true);
-            this[KeyStrings.assert] = JSAssert.CreateClass(this, false);
-            this[KeyStrings.global] = this;
-            this[KeyStrings.clr] = ClrType.From(typeof(ClrModule));
+            // this.CreateSharedObject(KeyString.assert, typeof(JSAssert), true);
+            this[KeyString.assert] = JSAssert.CreateClass(this, false);
+            this[KeyString.global] = this;
+            this[KeyString.clr] = ClrType.From(typeof(ClrModule));
         }
 
     }

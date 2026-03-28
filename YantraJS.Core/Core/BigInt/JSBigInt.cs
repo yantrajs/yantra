@@ -136,7 +136,7 @@ namespace YantraJS.Core.BigInt
 
         protected override JSObject GetPrototype()
         {
-            return (JSContext.Current[Names.BigInt] as JSFunction).prototype;
+            return (JSContext.Current[KeyString.BigInt] as JSFunction).prototype;
         }
 
         internal override PropertyKey ToKey(bool create = true)
