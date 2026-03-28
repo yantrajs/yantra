@@ -19,7 +19,7 @@ namespace YantraJS.ExpHelper
         public static Expression GetOrCreate(Expression text)
         {
             return NewLambdaExpression.StaticCallExpression<KeyString>(() =>
-                () => KeyStrings.GetOrCreate((StringSpan)"")
+                () => KeyStrings.Instance.GetOrCreate((StringSpan)"")
             , text);
             // return Expression.Call(null, _GetOrAdd, text);
         }

@@ -202,7 +202,7 @@ namespace YantraJS.Core
             // get then...
             if (value.IsObject)
             {
-                var then = value[KeyStrings.then];
+                var then = value[KeyString.then];
                 if (then.IsFunction)
                 {
                     // do what....

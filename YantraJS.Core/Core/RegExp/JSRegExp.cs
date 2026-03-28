@@ -60,8 +60,8 @@ namespace YantraJS.Core
 
             (this.value, globalSearch, ignoreCase, multiline) = CreateRegex(pattern, flags);
 
-            //this.DefineProperty(KeyStrings.lastIndex, 
-            //    JSProperty.Property(KeyStrings.lastIndex, 
+            //this.DefineProperty(KeyString.lastIndex, 
+            //    JSProperty.Property(KeyString.lastIndex, 
             //    (in Arguments a) => new JSNumber(lastIndex), 
             //    (in Arguments a) =>
             //    {

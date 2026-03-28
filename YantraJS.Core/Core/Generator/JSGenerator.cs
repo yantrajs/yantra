@@ -56,8 +56,8 @@ namespace YantraJS.Core.Generator
             this.done = true;
             this.value = JSUndefined.Value;
             return (JSObject.NewWithProperties())
-                    .AddProperty(KeyStrings.value, value)
-                    .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+                    .AddProperty(KeyString.value, value)
+                    .AddProperty(KeyString.done, done ? JSBoolean.True : JSBoolean.False);
         }
 
         public JSValue Throw(JSValue value)
@@ -71,8 +71,8 @@ namespace YantraJS.Core.Generator
         }
 
         public JSValue ValueObject => (JSObject.NewWithProperties())
-                    .AddProperty(KeyStrings.value, this.value)
-                    .AddProperty(KeyStrings.done, done ? JSBoolean.True : JSBoolean.False);
+                    .AddProperty(KeyString.value, this.value)
+                    .AddProperty(KeyString.done, done ? JSBoolean.True : JSBoolean.False);
 
         public bool MoveNext(JSValue replaceOld, out JSValue item)
         {

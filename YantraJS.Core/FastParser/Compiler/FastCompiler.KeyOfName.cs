@@ -18,7 +18,7 @@ namespace YantraJS.Core.FastParser.Compiler
             if (KeyStringsBuilder.Fields.TryGetValue(name, out var fx))
                 return fx;
 
-            var i = _keyStrings.GetOrAdd(name);
+            var i = _KeyString.GetOrAdd(name);
             return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
         }
 
@@ -28,7 +28,7 @@ namespace YantraJS.Core.FastParser.Compiler
             if (KeyStringsBuilder.Fields.TryGetValue(name, out var fx))
                 return fx;
 
-            var i = _keyStrings.GetOrAdd(name);
+            var i = _KeyString.GetOrAdd(name);
             return ScriptInfoBuilder.KeyString(this.scriptInfo, (int)i);
         }
     }

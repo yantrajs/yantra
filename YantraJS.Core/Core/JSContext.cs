@@ -275,14 +275,14 @@ namespace YantraJS.Core
         internal JSValue Register(JSVariable variable)
         {
             var v = variable.Value;
-            var oldV = this[variable.Name];
+            KeyString name = variable.Name.ToKeyString();
+            var oldV = this[name];
             if (oldV != v)
             {
                 // avoid IsReadOnly error
-                this[variable.Name] = v;
+                this[name] = v;
             }
-            KeyString name = variable.Name;
-            globalVars.Put(name.Key) = variable;
+            globalVars.Put((uint)name) = variable;
             return v;
         }
 
@@ -291,7 +291,7 @@ namespace YantraJS.Core
             set
             {
                 base[name] = value;
-                if(globalVars.TryGetValue(name.Key, out var jsv))
+                if(globalVars.TryGetValue((uint)name, out var jsv))
                 {
                     jsv.Value = value;
                 }
@@ -363,54 +363,54 @@ namespace YantraJS.Core
             this[Names.Object] = Object;
             ObjectPrototype = Object.prototype;
             ObjectPrototype.BasePrototypeObject = null;
-            // ObjectPrototype.Delete(KeyStrings.constructor);
+            // ObjectPrototype.Delete(KeyString.constructor);
             func.BasePrototypeObject = Object;
             // Object.BasePrototypeObject = null;
             FunctionPrototype.BasePrototypeObject = ObjectPrototype;
 
             // create object prototype...
-            // Object =  this.Create<JSObject>(KeyStrings.Object);
+            // Object =  this.Create<JSObject>(KeyString.Object);
             //Object.f = JSObjectPrototype.Constructor;
-            //ObjectPrototype.Delete(KeyStrings.constructor);
+            //ObjectPrototype.Delete(KeyString.constructor);
             // ObjectPrototype.BasePrototypeObject = null;
             // func.BasePrototypeObject = Object;
             // FunctionPrototype.BasePrototypeObject = ObjectPrototype;
-            // ArrayPrototype = this.Create<JSArray>(KeyStrings.Array).prototype;
-            // StringPrototype = this.Create<JSString>(KeyStrings.String).prototype;
-            // NumberPrototype = this.Create<JSNumber>(KeyStrings.Number).prototype;
-            // BooleanPrototype = this.Create<JSBoolean>(KeyStrings.Boolean).prototype;
-            //ErrorPrototype = this.Create<JSError>(KeyStrings.Error).prototype;
-            //EvalErrorPrototype = this.Create<JSError>(KeyStrings.EvalError, ErrorPrototype).prototype;
-            //TypeErrorPrototype = this.Create<JSError>(KeyStrings.TypeError, ErrorPrototype).prototype;
-            //RangeErrorPrototype = this.Create<JSError>(KeyStrings.RangeError, ErrorPrototype).prototype;
-            //SyntaxErrorPrototype = this.Create<JSError>(KeyStrings.SyntaxError, ErrorPrototype).prototype;
-            //URIErrorPrototype = this.Create<JSError>(KeyStrings.URIError, ErrorPrototype).prototype;
-            //ReferenceErrorPrototype = this.Create<JSError>(KeyStrings.ReferenceError, ErrorPrototype).prototype;
-            // DatePrototype = this.Create<JSDate>(KeyStrings.Date).prototype;
-            // MapPrototype = this.Create<JSMap>(KeyStrings.Map).prototype;
-            // PromisePrototype = this.Create<JSPromise>(KeyStrings.Promise).prototype;
-            // RegExpPrototype = this.Create<JSRegExp>(KeyStrings.RegExp).prototype;
-            // SetPrototype = this.Create<JSSet>(KeyStrings.Set).prototype;
-            // WeakRefPrototype = this.Create<JSWeakRef>(KeyStrings.WeakRef).prototype;
-            // WeakSetPrototype = this.Create<JSWeakSet>(KeyStrings.WeakSet).prototype;
-            // WeakMapPrototype = this.Create<JSWeakMap>(KeyStrings.WeakMap).prototype;
-            // GeneratorPrototype = this.Create<JSGenerator>(KeyStrings.Generator).prototype;
-            // BigIntPrototype = this.Create<JSBigInt>(KeyStrings.BigInt).prototype;
-            // ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyStrings.ArrayBuffer).prototype;
-            //Int8ArrayPrototype = this.Create<Int8Array>(KeyStrings.Int8Array).prototype;
-            //Uint8ArrayPrototype = this.Create<Uint8Array>(KeyStrings.Uint8Array).prototype;
-            //Uint8ClampedArrayPrototype = this.Create<Uint8ClampedArray>(KeyStrings.Uint8ClampedArray).prototype;
-            //Int16ArrayPrototype = this.Create<Int16Array>(KeyStrings.Int16Array).prototype;
-            //Uint16ArrayPrototype = this.Create<Uint16Array>(KeyStrings.Uint16Array).prototype;
-            //Int32ArrayPrototype = this.Create<Int32Array>(KeyStrings.Int32Array).prototype;
-            //Uint32ArrayPrototype = this.Create<Uint32Array>(KeyStrings.Uint32Array).prototype;
-            //Float32ArrayPrototype = this.Create<Float32Array>(KeyStrings.Float32Array).prototype;
-            //Float64ArrayPrototype = this.Create<Float64Array>(KeyStrings.Float64Array).prototype;
-            // DataViewPrototype = this.Create<DataView>(KeyStrings.DataView).prototype;
-            // FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyStrings.FinalizationRegistry).prototype;
-            // JSON = CreateInternalObject<JSJSON>(KeyStrings.JSON);
-            // Math = CreateInternalObject<JSMath>(KeyStrings.Math);
-            // Reflect = CreateInternalObject<JSReflect>(KeyStrings.Reflect);
+            // ArrayPrototype = this.Create<JSArray>(KeyString.Array).prototype;
+            // StringPrototype = this.Create<JSString>(KeyString.String).prototype;
+            // NumberPrototype = this.Create<JSNumber>(KeyString.Number).prototype;
+            // BooleanPrototype = this.Create<JSBoolean>(KeyString.Boolean).prototype;
+            //ErrorPrototype = this.Create<JSError>(KeyString.Error).prototype;
+            //EvalErrorPrototype = this.Create<JSError>(KeyString.EvalError, ErrorPrototype).prototype;
+            //TypeErrorPrototype = this.Create<JSError>(KeyString.TypeError, ErrorPrototype).prototype;
+            //RangeErrorPrototype = this.Create<JSError>(KeyString.RangeError, ErrorPrototype).prototype;
+            //SyntaxErrorPrototype = this.Create<JSError>(KeyString.SyntaxError, ErrorPrototype).prototype;
+            //URIErrorPrototype = this.Create<JSError>(KeyString.URIError, ErrorPrototype).prototype;
+            //ReferenceErrorPrototype = this.Create<JSError>(KeyString.ReferenceError, ErrorPrototype).prototype;
+            // DatePrototype = this.Create<JSDate>(KeyString.Date).prototype;
+            // MapPrototype = this.Create<JSMap>(KeyString.Map).prototype;
+            // PromisePrototype = this.Create<JSPromise>(KeyString.Promise).prototype;
+            // RegExpPrototype = this.Create<JSRegExp>(KeyString.RegExp).prototype;
+            // SetPrototype = this.Create<JSSet>(KeyString.Set).prototype;
+            // WeakRefPrototype = this.Create<JSWeakRef>(KeyString.WeakRef).prototype;
+            // WeakSetPrototype = this.Create<JSWeakSet>(KeyString.WeakSet).prototype;
+            // WeakMapPrototype = this.Create<JSWeakMap>(KeyString.WeakMap).prototype;
+            // GeneratorPrototype = this.Create<JSGenerator>(KeyString.Generator).prototype;
+            // BigIntPrototype = this.Create<JSBigInt>(KeyString.BigInt).prototype;
+            // ArrayBufferPrototype = this.Create<JSArrayBuffer>(KeyString.ArrayBuffer).prototype;
+            //Int8ArrayPrototype = this.Create<Int8Array>(KeyString.Int8Array).prototype;
+            //Uint8ArrayPrototype = this.Create<Uint8Array>(KeyString.Uint8Array).prototype;
+            //Uint8ClampedArrayPrototype = this.Create<Uint8ClampedArray>(KeyString.Uint8ClampedArray).prototype;
+            //Int16ArrayPrototype = this.Create<Int16Array>(KeyString.Int16Array).prototype;
+            //Uint16ArrayPrototype = this.Create<Uint16Array>(KeyString.Uint16Array).prototype;
+            //Int32ArrayPrototype = this.Create<Int32Array>(KeyString.Int32Array).prototype;
+            //Uint32ArrayPrototype = this.Create<Uint32Array>(KeyString.Uint32Array).prototype;
+            //Float32ArrayPrototype = this.Create<Float32Array>(KeyString.Float32Array).prototype;
+            //Float64ArrayPrototype = this.Create<Float64Array>(KeyString.Float64Array).prototype;
+            // DataViewPrototype = this.Create<DataView>(KeyString.DataView).prototype;
+            // FinalizationRegistryPrototype = this.Create<JSFinalizationRegistry>(KeyString.FinalizationRegistry).prototype;
+            // JSON = CreateInternalObject<JSJSON>(KeyString.JSON);
+            // Math = CreateInternalObject<JSMath>(KeyString.Math);
+            // Reflect = CreateInternalObject<JSReflect>(KeyString.Reflect);
 
             this.RegisterGeneratedClasses();
             // this.Fill<JSGlobalStatic>();
@@ -419,9 +419,9 @@ namespace YantraJS.Core
             //{
             //    BasePrototypeObject = (Bootstrap.Create("console", typeof(JSConsole))).prototype
             //};
-            this[KeyStrings.console] = Clr.ClrProxy.From(new JSConsole(this));
+            this[KeyString.console] = Clr.ClrProxy.From(new JSConsole(this));
 
-            this[KeyStrings.debug] = new JSFunction(this.Debug);
+            this[KeyString.debug] = new JSFunction(this.Debug);
 
         }
 
@@ -518,14 +518,14 @@ namespace YantraJS.Core
         {
             OnError(ex);
             Error?.Invoke(this, ex);
-            //var cx = this[KeyStrings.console];
+            //var cx = this[KeyString.console];
             //if (cx.IsUndefined)
             //{
             //    System.Diagnostics.Debug.WriteLine(ex);
             //    return;
             //}
 
-            //var log = cx[KeyStrings.log];
+            //var log = cx[KeyString.log];
             //if (log.IsUndefined)
             //{
             //    System.Diagnostics.Debug.WriteLine(ex);
@@ -670,7 +670,7 @@ namespace YantraJS.Core
             }
             if (r is JSObject @object)
             {
-                var then = @object[KeyStrings.then];
+                var then = @object[KeyString.then];
                 if (then.IsFunction)
                 {
                     promise = new JSPromise((resolve, reject) => {

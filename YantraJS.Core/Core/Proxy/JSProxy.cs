@@ -35,7 +35,7 @@ namespace YantraJS.Core
 
         public override JSValue InvokeFunction(in Arguments a)
         {
-            var fx = handler[KeyStrings.apply];
+            var fx = handler[KeyString.apply];
             if (fx is JSFunction fxFunction)
             {
                 var args = new JSArray(a.ToArray());
@@ -46,7 +46,7 @@ namespace YantraJS.Core
 
         public override JSValue CreateInstance(in Arguments a)
         {
-            var fx = handler[KeyStrings.constructor];
+            var fx = handler[KeyString.constructor];
             if (fx is JSFunction fxFunction)
             {
                 var args = new JSArray(a.ToArray());
@@ -57,7 +57,7 @@ namespace YantraJS.Core
 
         public override JSValue DefineProperty(JSValue key, JSObject propertyDescription)
         {
-            var fx = handler[KeyStrings.defineProperty];
+            var fx = handler[KeyString.defineProperty];
             if (fx is JSFunction fxFunction)
             {
                 return fxFunction.InvokeFunction(new Arguments(target, target, key, propertyDescription));
@@ -67,7 +67,7 @@ namespace YantraJS.Core
 
         public override JSValue Delete(JSValue index)
         {
-            var fx = handler[KeyStrings.deleteProperty];
+            var fx = handler[KeyString.deleteProperty];
             if (fx is JSFunction fxFunction)
             {
                 return fxFunction.InvokeFunction(new Arguments(target, target, index));
@@ -77,7 +77,7 @@ namespace YantraJS.Core
 
         internal protected override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
         {
-            var fx = handler[KeyStrings.get];
+            var fx = handler[KeyString.get];
             if (fx is JSFunction fxFunction)
             {
                 return fxFunction.InvokeFunction(new Arguments(target, target, key, receiver));
@@ -87,7 +87,7 @@ namespace YantraJS.Core
 
         internal protected override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
-            var fx = handler[KeyStrings.get];
+            var fx = handler[KeyString.get];
             if (fx is JSFunction fxFunction)
             {
                 return fxFunction.InvokeFunction(new Arguments(target,target, key.ToJSValue(), receiver));
@@ -97,7 +97,7 @@ namespace YantraJS.Core
 
         internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
-            var fx = handler[KeyStrings.get];
+            var fx = handler[KeyString.get];
             if (fx is JSFunction fxFunction)
             {
                 return fxFunction.InvokeFunction(new Arguments(target, target, new JSNumber(key), receiver));
@@ -107,7 +107,7 @@ namespace YantraJS.Core
 
         internal protected override bool SetValue(JSSymbol name, JSValue value, JSValue receiver, bool throwError = true)
         {
-            var fx = handler[KeyStrings.set];
+            var fx = handler[KeyString.set];
             if (fx is JSFunction fxFunction)
             {
                 fxFunction.InvokeFunction(new Arguments(target, target, name, receiver));
@@ -118,7 +118,7 @@ namespace YantraJS.Core
 
         internal protected override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {
-            var fx = handler[KeyStrings.set];
+            var fx = handler[KeyString.set];
             if (fx is JSFunction fxFunction)
             {
                 fxFunction.InvokeFunction(new Arguments(target, target, name.ToJSValue(), receiver));
@@ -129,7 +129,7 @@ namespace YantraJS.Core
 
         internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
-            var fx = handler[KeyStrings.set];
+            var fx = handler[KeyString.set];
             if (fx is JSFunction fxFunction)
             {
                 fxFunction.InvokeFunction(new Arguments(target, target, new JSNumber(name), receiver));
@@ -140,7 +140,7 @@ namespace YantraJS.Core
 
         public override JSValue GetPrototypeOf()
         {
-            var fx = handler[KeyStrings.getPrototypeOf];
+            var fx = handler[KeyString.getPrototypeOf];
             if (fx is JSFunction fxFunction)
             {
                 return fxFunction.InvokeFunction(new Arguments(target));
@@ -150,7 +150,7 @@ namespace YantraJS.Core
 
         public override void SetPrototypeOf(JSValue proto)
         {
-            var fx = handler[KeyStrings.setPrototypeOf];
+            var fx = handler[KeyString.setPrototypeOf];
             if (fx is JSFunction fxFunction)
             {
                 fxFunction.InvokeFunction(new Arguments(this.target, proto));
@@ -162,7 +162,7 @@ namespace YantraJS.Core
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
 
-            var fx = handler[KeyStrings.ownKeys];
+            var fx = handler[KeyString.ownKeys];
             if (fx is JSFunction fxFunction)
             {
                 return fxFunction.InvokeFunction(new Arguments(this.target)).GetElementEnumerator();

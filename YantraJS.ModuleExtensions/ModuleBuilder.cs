@@ -58,7 +58,7 @@ public class ModuleBuilder
             }
         }
 
-        globalExport[KeyStrings.@default] = globalExport;
+        globalExport[KeyString.@default] = globalExport;
         context.RegisterModule(_moduleName, globalExport);
     }
 }

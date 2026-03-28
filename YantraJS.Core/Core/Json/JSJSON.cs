@@ -200,7 +200,7 @@ namespace YantraJS.Core
                 {
                     jsValue = replacer(
                         (target,
-                        KeyStrings.GetJSString(value.key), jsValue));
+                        KeyStrings.Instance.GetJSString(value.key), jsValue));
                     if (jsValue.IsUndefined)
                         continue;
                 }
@@ -216,7 +216,7 @@ namespace YantraJS.Core
                     sb.WriteLine();
                 }
 
-                QuoteString(key.Value, sb);
+                QuoteString(KeyStrings.Instance.GetNameString((uint)key), sb);
                 sb.Write(':');
                 if (indent != null)
                 {
@@ -239,7 +239,7 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject jobj))
                 return value;
-            var p = jobj.GetMethod(KeyStrings.toJSON);
+            var p = jobj.GetMethod(KeyString.toJSON);
             if (p == null)
                 return value;
             return p(new Arguments(value));

@@ -31,13 +31,13 @@ namespace YantraJS.Core.Core.Generator
                     return new JSPromise(r, JSPromise.PromiseState.Resolved);
                 }
 
-                var then = r[KeyStrings.then];
+                var then = r[KeyString.then];
                 if (then.IsUndefined)
                 {
                     return new JSPromise(r, JSPromise.PromiseState.Resolved);
                 }
 
-                r = r.InvokeMethod(in KeyStrings.then, new JSFunction((in Arguments a) =>
+                r = r.InvokeMethod(KeyString.then, new JSFunction((in Arguments a) =>
                 {
                     return ToPromise(gen, a.Get1());
                 }), new JSFunction((in Arguments a) =>

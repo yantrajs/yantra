@@ -211,7 +211,7 @@ namespace YantraJS.Core.Clr
                 var en = new PropertySequence.ValueEnumerator(this, false);
                 while (en.MoveNext(out var value, out var key))
                 {
-                    yield return (KeyStrings.GetNameString(key.Key).Value, value);
+                    yield return (KeyStrings.Instance.GetNameString((uint)key).Value, value);
                 }
                 //for(int i = 0; i< ownProperties.properties.Length; i++)
                 //{
@@ -223,7 +223,7 @@ namespace YantraJS.Core.Clr
                 //    {
                 //        System.Diagnostics.Debug.WriteLine(ex);
                 //    }
-                //    yield return ( KeyStrings.GetNameString(p.key).Value , v);
+                //    yield return ( KeyStrings.Instance.GetNameString(p.key).Value , v);
                 //}
             }
         }

@@ -25,7 +25,7 @@ namespace YantraJS.Core
         {
             if (name == "ToString")
                 return target.ToString();
-            return target.InvokeMethod(name, new Arguments(target, a));
+            return target.InvokeMethod(name.ToKeyString(), new Arguments(target, a));
         }
 
         public static JSValue[] __CreateArguments(object[] args)
@@ -63,7 +63,7 @@ namespace YantraJS.Core
                 throw new ArgumentNullException();
             switch (name)
             {
-                case string s: return value[s];
+                case string s: return value[s.ToKeyString()];
                 case uint ui: return value[ui];
                 case int i: return value[(uint)i];
                 case double d: return value[(uint)d];
@@ -74,7 +74,7 @@ namespace YantraJS.Core
                     var key = js.ToKey();
                     return key.IsUInt ? value[key.Index] : value[key.KeyString];
             }
-            return value[name.ToString()];
+            return value[name.ToString().ToKeyString()];
         }
 
         public static JSValue __SetMethod(JSValue target, object name, object _value)
@@ -84,7 +84,7 @@ namespace YantraJS.Core
             JSValue value = TypeConverter.FromBasic(_value);
             switch (name)
             {
-                case string s: return target[s] = value;
+                case string s: return target[s.ToKeyString()] = value;
                 case uint ui: return target[ui] = value;
                 case int i: return target[(uint)i] = value;
                 case double d: return target[(uint)d] = value;
@@ -105,7 +105,7 @@ namespace YantraJS.Core
                     }
                     return value;
             }
-            return target[name.ToString()] = value;
+            return target[name.ToString().ToKeyString()] = value;
         }
 
 

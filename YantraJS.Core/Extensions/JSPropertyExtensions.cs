@@ -28,17 +28,17 @@ namespace YantraJS.Extensions
             if (px.IsValue)
             {
                 obj = JSObject.NewWithProperties()
-                    .AddProperty(KeyStrings.configurable, px.IsConfigurable ? t : f)
-                    .AddProperty(KeyStrings.enumerable, px.IsEnumerable ? t : f)
-                    .AddProperty(KeyStrings.writable, !px.IsReadOnly ? t : f)
-                    .AddProperty(KeyStrings.value, px.value);
+                    .AddProperty(KeyString.configurable, px.IsConfigurable ? t : f)
+                    .AddProperty(KeyString.enumerable, px.IsEnumerable ? t : f)
+                    .AddProperty(KeyString.writable, !px.IsReadOnly ? t : f)
+                    .AddProperty(KeyString.value, px.value);
             } else
             {
                 obj = JSObject.NewWithProperties()
-                    .AddProperty(KeyStrings.configurable, px.IsConfigurable ? t : f)
-                    .AddProperty(KeyStrings.enumerable, px.IsEnumerable ? t : f)
-                    .AddProperty(KeyStrings.@get, px.get)
-                    .AddProperty(KeyStrings.@set, px.set);
+                    .AddProperty(KeyString.configurable, px.IsConfigurable ? t : f)
+                    .AddProperty(KeyString.enumerable, px.IsEnumerable ? t : f)
+                    .AddProperty(KeyString.@get, px.get)
+                    .AddProperty(KeyString.@set, px.set);
             }
             return obj;
         }

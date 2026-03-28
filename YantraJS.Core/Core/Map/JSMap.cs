@@ -30,7 +30,7 @@ namespace YantraJS.Core
                 var en = array.GetElementEnumerator();
                 while (en.MoveNext(out var item))
                 {
-                    this.Set(item[0], item[1]);
+                    this.Set(item[(uint)0], item[1]);
                 }
             }
         }

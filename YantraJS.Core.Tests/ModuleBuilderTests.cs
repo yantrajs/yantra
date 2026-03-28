@@ -46,9 +46,9 @@ namespace YantraJS.Tests
             context.CreateModule("test", x => x.ExportType<TestClass>());
             var val1 = await context.RunScriptAsync("import Test from 'test' \nexport default new Test.TestClass().foo()", string.Empty);
             var val2 = await context.RunScriptAsync("import * as Test from 'test' \nexport default new Test.TestClass().foo()", string.Empty);
-            var val1str = val1[KeyStrings.@default] as JSString;
-            var val2str = val2[@KeyStrings.@default] as JSString;
-            Assert.AreEqual(val1[KeyStrings.@default] as JSString, val2[@KeyStrings.@default] as JSString);
+            var val1str = val1[KeyString.@default] as JSString;
+            var val2str = val2[@KeyString.@default] as JSString;
+            Assert.AreEqual(val1[KeyString.@default] as JSString, val2[@KeyString.@default] as JSString);
         }
 
 
@@ -59,7 +59,7 @@ namespace YantraJS.Tests
             context.CreateModule("test", x => x.ExportFunction("lmao", TestMethod));
             var modulereturn = await context.RunScriptAsync("import {lmao} from 'test' \nexport default lmao()",
                 String.Empty);
-            if (modulereturn[KeyStrings.@default] is JSString str)
+            if (modulereturn[KeyString.@default] is JSString str)
             {
                 Assert.AreEqual("bar", str.ToString());
             }
@@ -77,7 +77,7 @@ namespace YantraJS.Tests
             context.CreateModule("test", x => x.ExportValue("t", @class));
             var modulereturn = await context.RunScriptAsync("import {t} from 'test' \nexport default t.prop",
                 String.Empty);
-            if (modulereturn[KeyStrings.@default] is JSString str)
+            if (modulereturn[KeyString.@default] is JSString str)
             {
                 Assert.AreEqual("prop", str.ToString());
             }

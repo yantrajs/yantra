@@ -70,7 +70,7 @@ namespace YantraJS.Core
             JSFunction set,
             JSPropertyAttributes attributes)
         {
-            this.key = key.Key;
+            this.key = (uint)key;
             this.get = get;
             this.set = set;
             this.value = get;
@@ -97,7 +97,7 @@ namespace YantraJS.Core
             JSValue value,
             JSPropertyAttributes attributes)
         {
-            this.key = key.Key;
+            this.key = (uint)key;
             this.get = get;
             this.set = set;
             this.value = value;
@@ -122,7 +122,7 @@ namespace YantraJS.Core
             JSValue get,
             JSPropertyAttributes attributes)
         {
-            this.key = key.Key;
+            this.key = (uint)key;
             this.get = get as JSFunction;
             this.set = null;
             this.value = get;

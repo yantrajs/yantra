@@ -95,18 +95,18 @@ namespace YantraJS.Core
         {
             var n = this.value;
             if (double.IsNaN(n))
-                return KeyStrings.NaN;
+                return KeyString.NaN;
             if (n == 0)
                 return 0;
             if (n > 0 && ((uint)n) == n)
                 return (uint)n;
             if (!create)
             {
-                if (KeyStrings.TryGet(n.ToString(), out var k))
+                if (KeyStrings.Instance.TryGet(n.ToString(), out var k))
                     return k;
-                return KeyStrings.undefined;
+                return KeyString.undefined;
             }
-            return KeyStrings.GetOrCreate(n.ToString());
+            return KeyStrings.Instance.GetOrCreate(n.ToString());
         }
 
         public JSNumber(double value) : base()

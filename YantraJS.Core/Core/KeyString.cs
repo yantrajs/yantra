@@ -47,7 +47,7 @@ namespace YantraJS.Core
 
         public static implicit operator PropertyKey(string key)
         {
-            return new PropertyKey(KeyType.String, 0, KeyStrings.GetOrCreate(key));
+            return new PropertyKey(KeyType.String, 0, KeyStrings.Instance.GetOrCreate(key));
         }
 
         public static implicit operator PropertyKey(JSSymbol key)
@@ -57,69 +57,69 @@ namespace YantraJS.Core
     }
 
 
-    [DebuggerDisplay("Key:{Key},{Value}")]
-    public readonly struct KeyString
-    {
+    //[DebuggerDisplay("Key:{Key},{Value}")]
+    //public readonly struct KeyString
+    //{
 
-        public readonly static KeyString Empty = new KeyString();
+    //    public readonly static KeyString Empty = new KeyString();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator KeyString(string value)
-        {
-            return KeyStrings.GetOrCreate(value);
-        }
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public static implicit operator KeyString(string value)
+    //    {
+    //        return KeyStrings.Instance.GetOrCreate(value);
+    //    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator KeyString(in StringSpan value)
-        {
-            return KeyStrings.GetOrCreate(value);
-        }
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public static implicit operator KeyString(in StringSpan value)
+    //    {
+    //        return KeyStrings.Instance.GetOrCreate(value);
+    //    }
 
 
-        // private readonly KeyType Type;
-        // public readonly StringSpan Value;
-        public readonly uint Key;
+    //    // private readonly KeyType Type;
+    //    // public readonly StringSpan Value;
+    //    public readonly uint Key;
 
-        public bool HasValue
-        {
-            get
-            {
-                return Key != 0;
-            }
-        }
+    //    public bool HasValue
+    //    {
+    //        get
+    //        {
+    //            return Key != 0;
+    //        }
+    //    }
 
-        internal KeyString(uint key)
-        {
-            // this.Value = value;
-            this.Key = key;
-        }
+    //    internal KeyString(uint key)
+    //    {
+    //        // this.Value = value;
+    //        this.Key = key;
+    //    }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is KeyString k)
-                return Key == k.Key;
-            return false;
-        }
+    //    public override bool Equals(object obj)
+    //    {
+    //        if (obj is KeyString k)
+    //            return Key == k.Key;
+    //        return false;
+    //    }
 
-        public override int GetHashCode()
-        {
-            return (int)Key;
-        }
+    //    public override int GetHashCode()
+    //    {
+    //        return (int)Key;
+    //    }
 
-        public override string ToString()
-        {
-            return KeyStrings.GetNameString(Key).Value;
-        }
+    //    public override string ToString()
+    //    {
+    //        return KeyStrings.Instance.GetNameString(Key).Value;
+    //    }
 
-        public JSValue ToJSValue()
-        {
-            return new JSString(KeyStrings.GetNameString(Key), this);
-        }
+    //    public JSValue ToJSValue()
+    //    {
+    //        return new JSString(KeyStrings.Instance.GetNameString(Key), this);
+    //    }
 
-        public StringSpan Value => KeyStrings.GetNameString(Key);
+    //    public StringSpan Value => KeyStrings.Instance.GetNameString(Key);
 
-        // public static (int size, int total, int next) Total =>
-            // KeyStrings.Total;
+    //    // public static (int size, int total, int next) Total =>
+    //        // KeyString.Total;
 
-    }
+    //}
 }

@@ -30,7 +30,7 @@ namespace Yantra.Core
                 {
                     continue;
                 }
-                context[ga.Name ?? type.Name] = ClrType.From(type);
+                context[(ga.Name ?? type.Name).ToKeyString()] = ClrType.From(type);
             }
         }
     }

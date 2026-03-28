@@ -88,8 +88,8 @@ namespace YantraJS.Core.LinqExpressions
 
         public static Expression Build(Expression scriptInfo, StringArray keyStrings)
         {
-            Sequence<Expression> list = new Sequence<Expression>(keyStrings.List.Count);
-            foreach(var item in keyStrings.List)
+            Sequence<Expression> list = new Sequence<Expression>(KeyString.List.Count);
+            foreach(var item in KeyString.List)
             {
                 var code = Code(scriptInfo);
                 var key = item.Offset > 0 

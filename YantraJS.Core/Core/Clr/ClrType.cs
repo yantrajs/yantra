@@ -103,7 +103,7 @@ namespace YantraJS.Core.Clr
                     // you can only read...
                     setter = f.GenerateFieldSetter();
                 }
-                target.FastAddProperty(name, getter, setter, JSPropertyAttributes.EnumerableConfigurableProperty);
+                target.FastAddProperty(name.ToKeyString(), getter, setter, JSPropertyAttributes.EnumerableConfigurableProperty);
             }
 
             var declaredProperties = isStatic
@@ -128,7 +128,7 @@ namespace YantraJS.Core.Clr
                     if (f.PropertyType.IsGenericTypeDefinition)
                         continue;
 
-                    KeyString name = f.Name;
+                    KeyString name = f.Name.ToKeyString();
                     if (isJavaScriptObject)
                     {
                         if (!f.Export)
@@ -140,7 +140,7 @@ namespace YantraJS.Core.Clr
                     if (fgm?.GetParameters().Length > 0)
                     {
                         // it is an index property...
-                        name = "index";
+                        name = KeyString.index;
                     }
 
                     if (f.GetMethod?.GetParameters().Length > 0)
@@ -187,11 +187,11 @@ namespace YantraJS.Core.Clr
                     var name = jsm.Name;
                     if (method.IsJSFunctionDelegate())
                     {
-                        target.FastAddValue(name,
+                        target.FastAddValue(name.ToKeyString(),
                             jsm.GenerateInvokeJSFunction(), JSPropertyAttributes.EnumerableConfigurableValue);
                     } else
                     {
-                        target.FastAddValue(name
+                        target.FastAddValue(name.ToKeyString()
                             ,new JSFunction( jsm.GenerateMethod(), name)
                             , JSPropertyAttributes.EnumerableConfigurableValue);
                     }
@@ -216,7 +216,7 @@ namespace YantraJS.Core.Clr
                 {
                     var jsm = new JSMethodInfo(namingConvention, jsMethod);
                     var name = jsm.Name;
-                    target.FastAddValue(name,
+                    target.FastAddValue(name.ToKeyString(),
                         jsm.GenerateInvokeJSFunction(), JSPropertyAttributes.EnumerableConfigurableValue);
 
 
@@ -230,7 +230,7 @@ namespace YantraJS.Core.Clr
                 //        return Invoke(name, type, all, a);
                 //        }, name)
                 //    , JSPropertyAttributes.EnumerableConfigurableValue);
-                target.FastAddValue(g.name, g.Generate(isStatic), JSPropertyAttributes.EnumerableConfigurableValue);
+                target.FastAddValue(g.name.ToKeyString(), g.Generate(isStatic), JSPropertyAttributes.EnumerableConfigurableValue);
             }
 
             if (isStatic)
@@ -308,15 +308,15 @@ namespace YantraJS.Core.Clr
                 // make generic type..
 
                 this.FastAddValue(
-                    "makeGenericType",
+                    KeyString.makeGenericType,
                     new JSFunction(MakeGenericType, "makeGenericType"), JSPropertyAttributes.EnumerableConfigurableValue);
             }
             else
             {
                 // getMethod... name and types...
-                this.FastAddValue("getMethod",
+                this.FastAddValue(KeyString.getMethod,
                     new JSFunction(GetMethod, "getMethod"), JSPropertyAttributes.EnumerableConfigurableValue);
-                this.FastAddValue("getConstructor",
+                this.FastAddValue(KeyString.getConstructor,
                     new JSFunction(GetConstructor, "getConstructor"),
                     JSPropertyAttributes.EnumerableConfigurableValue);
             }
@@ -405,7 +405,7 @@ namespace YantraJS.Core.Clr
 
         public JSValue Create(in Arguments a)
         {
-            var (c, values) = constructorCache.Match(a, KeyStrings.constructor);
+            var (c, values) = constructorCache.Match(a, KeyString.constructor);
             return ClrProxy.From(c.Invoke(values), prototype);
         }
 

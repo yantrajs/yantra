@@ -21,7 +21,7 @@ namespace YantraJS.Core.Extensions
                 rawArray.Add(new JSString(raw[i]));
             }
 
-            cookedArray[KeyStrings.raw] = rawArray;
+            cookedArray[KeyString.raw] = rawArray;
 
             args.Add(cookedArray);
 

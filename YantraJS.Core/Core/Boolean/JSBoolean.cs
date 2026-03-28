@@ -176,7 +176,7 @@ namespace YantraJS.Core
 
         internal override PropertyKey ToKey(bool create = false)
         {
-            return this._value ? KeyStrings.@true : KeyStrings.@false;
+            return this._value ? KeyString.@true : KeyString.@false;
         }
 
         [JSPrototypeMethod]

@@ -63,7 +63,7 @@ namespace YantraJS
             // reverse priority, select csx before js.
             this.extensions = new string[] { ".csx", ".js"  };
 
-            this[KeyStrings.console] = (typeof(YantraConsole)).Marshal();
+            this[KeyString.console] = (typeof(YantraConsole)).Marshal();
 
             this.InstallNetworkServices();
         }

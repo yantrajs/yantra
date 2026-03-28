@@ -722,7 +722,7 @@ namespace YantraJS.Core {
         {
             // use inherited version..
             throw new NotSupportedException($"Use inherited version ... {this.GetType().Name} ");
-            //var fx = this[KeyStrings.toString];
+            //var fx = this[KeyString.toString];
             //if (fx.IsUndefined)
             //    return "undefined";
             //var obj = fx.InvokeFunction(this, JSArguments.Empty);
@@ -792,7 +792,7 @@ namespace YantraJS.Core {
                     fx = this[ks];
                     break;
                 case string str:
-                    fx = this[str];
+                    fx = this[str.ToKeyString()];
                     break;
             }
             if (fx.IsUndefined)

@@ -401,7 +401,7 @@ namespace YantraJS.Core
             if (!(first is JSObject jobj))
                 return new JSArray();
             ref var symbols = ref jobj.GetSymbols();
-            var keys = symbols.AllValues().Select(x => KeyStrings.GetJSString( x.Value.key));
+            var keys = symbols.AllValues().Select(x => KeyString.GetJSString( x.Value.key));
             return new JSArray(keys);
         }
 

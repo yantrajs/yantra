@@ -130,7 +130,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 sList.Add(ScriptInfoBuilder.Build(scriptInfo, _keyStrings));
 
                 // ref var keyStrings = ref _keyStrings;
-                //foreach (var ks in keyStrings.AllValues())
+                //foreach (var ks in KeyString.AllValues())
                 //{
                 //    var v = ks.Value;
                 //    vList.Add(v);

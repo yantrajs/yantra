@@ -46,7 +46,7 @@ namespace YantraJS.Core.Clr
                 throw JSContext.Current.NewTypeError($"{type.Name}.prototype.{name} called with object not of type {type.Name}");
             try
             {
-                var (method, args) = all.Match(a, name);
+                var (method, args) = all.Match(a, name.ToKeyString());
                 return ClrProxy.Marshal(method.Invoke(target, args));
             }
             catch (Exception ex)
@@ -59,7 +59,7 @@ namespace YantraJS.Core.Clr
         {
             try
             {
-                var (method, args) = all.Match(a, name);
+                var (method, args) = all.Match(a, name.ToKeyString());
                 return ClrProxy.Marshal(method.Invoke(null, args));
             }
             catch (Exception ex)

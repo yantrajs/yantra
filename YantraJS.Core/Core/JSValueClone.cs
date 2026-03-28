@@ -15,9 +15,9 @@ namespace YantraJS.Core
             var en = new PropertySequence.ValueEnumerator(jsf.prototype, false);
             while (en.MoveNextProperty(out var Value, out var Key))
             {
-                if (Key.Key != KeyStrings.constructor.Key)
+                if (Key != KeyString.constructor)
                 {
-                    target.Put(Key.Key) = Value;
+                    target.Put((uint)Key) = Value;
                 }
             }
 
@@ -29,9 +29,9 @@ namespace YantraJS.Core
             {
                 /// this is the case when we do not
                 /// want to overwrite Function.prototype
-                if (Key.Key != KeyStrings.prototype.Key)
+                if (Key != KeyString.prototype)
                 {
-                    ro.Put(Key.Key) = Value;
+                    ro.Put((uint)Key) = Value;
                 }
             }
 

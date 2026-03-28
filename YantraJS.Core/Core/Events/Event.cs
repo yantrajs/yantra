@@ -71,9 +71,9 @@ namespace Yantra.Core.Events
                 return;
             }
 
-            this.Bubbles = options[KeyStrings.bubbles].BooleanValue ? JSBoolean.True : JSBoolean.False;
-            this.Cancelable = options[KeyStrings.cancelable].BooleanValue ? JSBoolean.True : JSBoolean.False;
-            this.Composed = options[KeyStrings.composed].BooleanValue ? JSBoolean.True : JSBoolean.False;
+            this.Bubbles = options[KeyString.bubbles].BooleanValue ? JSBoolean.True : JSBoolean.False;
+            this.Cancelable = options[KeyString.cancelable].BooleanValue ? JSBoolean.True : JSBoolean.False;
+            this.Composed = options[KeyString.composed].BooleanValue ? JSBoolean.True : JSBoolean.False;
         }
 
 

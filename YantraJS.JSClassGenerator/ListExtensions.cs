@@ -4,6 +4,14 @@ using System.Collections.Generic;
 
 namespace YantraJS.JSClassGenerator
 {
+
+    internal static class StringExtensions
+    {
+        public static string ToKeyStringName(this string name) {
+            return $"\"{name}\".ToKeyString()";
+        }
+    }
+
     internal static class ListExtensions
     {
         public static string ClrProxyMarshal(this string target, ITypeSymbol type, string value) {

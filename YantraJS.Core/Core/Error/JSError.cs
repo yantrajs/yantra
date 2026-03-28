@@ -57,14 +57,14 @@ namespace YantraJS.Core
             var message = a[0]?.ToString() ?? "Internal Error";
             this.Message = message;
             this.Stack = this.CreateStack();
-            this.FastAddValue(KeyStrings.message, message.Marshal(), JSPropertyAttributes.ConfigurableValue);
-            this.FastAddValue(KeyStrings.stack, Stack.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.message, message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.stack, Stack.Marshal(), JSPropertyAttributes.ConfigurableValue);
         }
 
         [JSExport("toString")]
         public new JSValue ToString(in Arguments a)
         {
-            var name = this.prototypeChain.@object[KeyStrings.constructor][KeyStrings.name];
+            var name = this.prototypeChain.@object[KeyString.constructor][KeyString.name];
             return new JSString($"{name}: {this.Message}");
         }
 
@@ -87,8 +87,8 @@ namespace YantraJS.Core
 
         //protected JSError( JSValue message, JSValue stack,  JSObject prototype) : base(prototype)
         //{
-        //    this.DefineProperty(KeyStrings.message, JSProperty.Property(message, JSPropertyAttributes.ConfigurableValue));
-        //    this.DefineProperty(KeyStrings.stack, JSProperty.Property(stack, JSPropertyAttributes.ConfigurableValue));
+        //    this.DefineProperty(KeyString.message, JSProperty.Property(message, JSPropertyAttributes.ConfigurableValue));
+        //    this.DefineProperty(KeyString.stack, JSProperty.Property(stack, JSPropertyAttributes.ConfigurableValue));
         //}
 
         //internal JSError(
@@ -99,8 +99,8 @@ namespace YantraJS.Core
         //    JSObject prototype = null) : base(prototype)
         //{
         //    this.Exception = new JSException();
-        //    this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
-        //    this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
+        //    this.FastAddValue(KeyString.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+        //    this.FastAddValue(KeyString.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         //}
 
         internal protected JSError(
@@ -109,8 +109,8 @@ namespace YantraJS.Core
         {
             this.Exception = ex;
             ex.Error ??= this;
-            this.FastAddValue(KeyStrings.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
-            this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.message, ex.Message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         }
 
 
@@ -119,8 +119,8 @@ namespace YantraJS.Core
             this.Exception = ex;
             ex.Error ??= this;
             this.Message = msg;
-            this.FastAddValue(KeyStrings.message, msg.Marshal(), JSPropertyAttributes.ConfigurableValue);
-            this.FastAddValue(KeyStrings.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.message, msg.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.stack, ex.JSStackTrace, JSPropertyAttributes.ConfigurableValue);
         }
 
         public static JSValue From(Exception ex)

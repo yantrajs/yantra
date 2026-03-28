@@ -45,7 +45,7 @@ namespace YantraJS.Core
 
         internal override PropertyKey ToKey(bool create = false)
         {
-            return KeyStrings.@null;
+            return KeyString.@null;
         }
 
         public override bool Equals(object obj)

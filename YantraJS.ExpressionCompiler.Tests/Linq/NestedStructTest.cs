@@ -21,7 +21,7 @@ namespace YantraJS.Linq
 
             var indices = typeof(ScriptInfo).GetField(nameof(ScriptInfo.Indices));
 
-            var getOrCreate = typeof(KeyString).GetMethod(nameof(KeyString.GetOrCreate));
+            var getOrCreate = typeof(KeyString).GetMethod(nameof(KeyStrings.Instance.GetOrCreate));
 
             var ns = YExpression.New(typeof(StringSpan), b[0]);
 

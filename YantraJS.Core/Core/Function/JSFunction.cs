@@ -68,13 +68,13 @@ namespace YantraJS.Core
                 ? $"function {type.name}() {{ [clr-native] }}"
                 : source;
             prototype = type.prototype;
-            prototype.FastAddValue(KeyStrings.constructor, type, JSPropertyAttributes.EnumerableConfigurableValue);
-            ownProperties.Put(KeyStrings.prototype.Key) = JSProperty.Property(KeyStrings.prototype, prototype);
+            prototype.FastAddValue(KeyString.constructor, type, JSPropertyAttributes.EnumerableConfigurableValue);
+            ownProperties.Put((uint)KeyString.prototype) = JSProperty.Property(KeyString.prototype, prototype);
 
-            this.FastAddValue(KeyStrings.name, name.IsEmpty
+            this.FastAddValue(KeyString.name, name.IsEmpty
                 ? new JSString("native")
                 : new JSString(name), JSPropertyAttributes.EnumerableConfigurableValue);
-            this.FastAddValue(KeyStrings.length, new JSNumber(0), JSPropertyAttributes.EnumerableConfigurableValue);
+            this.FastAddValue(KeyString.length, new JSNumber(0), JSPropertyAttributes.EnumerableConfigurableValue);
             constructor = this;
         }
 
@@ -105,13 +105,13 @@ namespace YantraJS.Core
                 ? $"function {this.name}() {{ [native] }}"
                 : source;
             prototype = _prototype;
-            prototype.GetOwnProperties(true).Put(KeyStrings.constructor, this);
-            ownProperties.Put(KeyStrings.prototype, prototype);
+            prototype.GetOwnProperties(true).Put(KeyString.constructor, this);
+            ownProperties.Put(KeyString.prototype, prototype);
 
-            ownProperties.Put(KeyStrings.name, name.IsEmpty 
+            ownProperties.Put(KeyString.name, name.IsEmpty 
                 ? new JSString("native")
                 : new JSString(name));
-            ownProperties.Put(KeyStrings.length, JSNumber.Zero);
+            ownProperties.Put(KeyString.length, JSNumber.Zero);
             constructor = this;
         }
 
@@ -156,21 +156,21 @@ namespace YantraJS.Core
             if (createPrototype)
             {
                 prototype = new JSObject();
-                // prototype[KeyStrings.constructor] = this;
-                prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
+                // prototype[KeyString.constructor] = this;
+                prototype.FastAddValue(KeyString.constructor, this, JSPropertyAttributes.ConfigurableValue);
                 // ref var opp = ref prototype.GetOwnProperties(true);
-                // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
-                ownProperties.Put(KeyStrings.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
+                // opp[KeyString.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
+                ownProperties.Put(KeyString.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
             }
 
-            //this[KeyStrings.name] = name.IsEmpty
+            //this[KeyString.name] = name.IsEmpty
             //    ? new JSString("native")
             //    : new JSString(name);
-            // this[KeyStrings.length] = new JSNumber(length);
-            ownProperties.Put(KeyStrings.name, name.IsEmpty
+            // this[KeyString.length] = new JSNumber(length);
+            ownProperties.Put(KeyString.name, name.IsEmpty
                 ? new JSString("native")
                 : new JSString(name));
-            ownProperties.Put(KeyStrings.length, new JSNumber(length));
+            ownProperties.Put(KeyString.length, new JSNumber(length));
             constructor = this;
         }
 
@@ -190,22 +190,22 @@ namespace YantraJS.Core
             if (createPrototype)
             {
                 prototype = new JSObject();
-                // prototype[KeyStrings.constructor] = this;
-                prototype.FastAddValue(KeyStrings.constructor, this, JSPropertyAttributes.ConfigurableValue);
+                // prototype[KeyString.constructor] = this;
+                prototype.FastAddValue(KeyString.constructor, this, JSPropertyAttributes.ConfigurableValue);
                 // ref var opp = ref prototype.GetOwnProperties(true);
-                // opp[KeyStrings.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
-                ownProperties.Put(KeyStrings.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
+                // opp[KeyString.constructor.Key] = JSProperty.Property(this, JSPropertyAttributes.ConfigurableReadonlyValue);
+                ownProperties.Put(KeyString.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
             }
 
-            //this[KeyStrings.name] = name.IsEmpty
+            //this[KeyString.name] = name.IsEmpty
             //    ? new JSString("native")
             //    : new JSString(name);
-            // this[KeyStrings.length] = new JSNumber(length);
-            ownProperties.Put(KeyStrings.name, name.IsEmpty
+            // this[KeyString.length] = new JSNumber(length);
+            ownProperties.Put(KeyString.name, name.IsEmpty
                 ? new JSString("native")
                 : new JSString(name),
                 JSPropertyAttributes.ConfigurableValue);
-            ownProperties.Put(KeyStrings.length, new JSNumber(length),
+            ownProperties.Put(KeyString.length, new JSNumber(length),
                 JSPropertyAttributes.ConfigurableValue);
             constructor = this;
         }
@@ -213,7 +213,7 @@ namespace YantraJS.Core
         public override JSValue this[KeyString name] { 
             get => base[name]; 
             set {
-                if (name.Key == KeyStrings.prototype.Key)
+                if (name == KeyString.prototype)
                 {
                     this.prototype = value as JSObject;
                 }
@@ -293,7 +293,7 @@ namespace YantraJS.Core
 
         //public override string ToString()
         //{
-        //    var fx = this[KeyStrings.toString];
+        //    var fx = this[KeyString.toString];
         //    if (fx.IsNullOrUndefined)
         //        return this.source.Value;
         //    return fx.InvokeFunction(Arguments.Empty).ToString();

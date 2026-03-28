@@ -60,7 +60,7 @@ public class YPath {
         @object[dir] = new JSString(file.DirectoryName);
         @object[root] = new JSString(file.Directory.Root.FullName);
         @object[@base] = new JSString(file.Name);
-        @object[KeyStrings.name] = new JSString(name);
+        @object[KeyString.name] = new JSString(name);
         @object[ext] = new JSString(file.Extension);
         return @object;
     }

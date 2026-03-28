@@ -14,7 +14,7 @@ namespace Yantra.Core.Events
             var options = a[1];
             if (options == null || options.IsUndefined || options.IsNull)
                 return;
-            this.Detail = options[KeyStrings.detail];
+            this.Detail = options[KeyString.detail];
         }
 
         [JSExport]

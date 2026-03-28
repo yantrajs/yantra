@@ -562,7 +562,7 @@ namespace YantraJS.Core
                         taElements.Put(i++, item);
                         ta._length = i;
                     } else {
-                        ta[l.ToString()] = item;
+                        ta[ KeyStrings.Instance.GetOrCreate(l.ToString())] = item;
                     }
                     l++;
                 }
@@ -572,7 +572,7 @@ namespace YantraJS.Core
                 return new JSNumber(ta._length);
             }
 
-            var oldLength = t[KeyStrings.length];
+            var oldLength = t[KeyString.length];
             uint ln = oldLength.IsUndefined ? 0 : (uint)oldLength.DoubleValue;
             al = a.Length;
             for(ai = 0; ai <al; ai++)
@@ -580,7 +580,7 @@ namespace YantraJS.Core
                 t[ln++] = a.GetAt(ai);
             }
             var n = new JSNumber(ln);
-            t[KeyStrings.length] = n;
+            t[KeyString.length] = n;
             return n;
         }
 
@@ -719,7 +719,7 @@ namespace YantraJS.Core
             ref var oe = ref @object.GetElements();
             if (oe.IsNull)
                 return first;
-            first = @this[0];
+            first = @this[(uint)0];
             var last = n - 1;
             for(uint i = 1; i < n; i++)
             {
@@ -1137,7 +1137,7 @@ namespace YantraJS.Core
         internal new static JSValue ToString(in Arguments args) {
             if(args.This.IsArray)
                 return Join(in args);
-            return args.This.InvokeMethod(KeyStrings.join,in args);
+            return args.This.InvokeMethod(KeyString.join,in args);
         }
         //=> new JSString(
         //    args.This is JSArray a

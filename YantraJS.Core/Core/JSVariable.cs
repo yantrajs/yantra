@@ -53,9 +53,9 @@ namespace YantraJS.Core
             set
             {
                 this.Value = value;
-                if (key.Value == null)
+                if (key == (uint)0)
                 {
-                    key = KeyStrings.GetOrCreate(this.Name);
+                    key = KeyStrings.Instance.GetOrCreate(this.Name);
                 }
                 var old = JSContext.Current[key];
                 if (old != value && !value.IsUndefined)
