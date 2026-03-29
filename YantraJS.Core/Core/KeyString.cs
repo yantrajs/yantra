@@ -1,125 +1,458 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿namespace YantraJS.Core;
 
-namespace YantraJS.Core
+/// <summary>
+/// KeyStrings is a collection of frequently used string, KeyString is created with
+/// a unique numeric ID, which can be used as a key to store key value pair in Object.
+/// 
+/// UInt32 has only 4 bytes, and using it as key will reduce storage in K map. 
+/// 
+/// Compiler will create KeyStrings of all referenced keys in the script if they are not part of
+/// this class.
+/// 
+/// KeyString created with same string will always save.
+/// </summary>
+public enum KeyString : int
 {
+    __proto__ = 1,
+    length,
 
-    public enum KeyType
-    {
-        Empty = 0,
-        UInt = 1,
-        String = 2,
-        Symbol = 3
-    }
+    Number,
 
-    public readonly struct PropertyKey
-    {
-        public readonly KeyType Type;
-        public readonly uint Index;
-        public readonly KeyString KeyString;
-        public readonly JSSymbol Symbol;
+    BigInt,
 
-        public bool IsUInt => Type == KeyType.UInt;
+    Object,
+    toString,
 
-        public bool IsSymbol => Type == KeyType.Symbol;
+    String,
+    substring,
 
-        private PropertyKey(KeyType type, uint index,in KeyString key, JSSymbol symbol = null) {
-            this.Type = type;
-            this.Index = index;
-            this.KeyString = key;
-            this.Symbol = symbol;
-        }
-        public static implicit operator PropertyKey(int index)
-        {
-            return new PropertyKey(KeyType.UInt, (uint)index, 0);
-        }
+    Array,
+    join,
 
-        public static implicit operator PropertyKey(uint index)
-        {
-            return new PropertyKey(KeyType.UInt, index, 0);
-        }
+    Function,
+    apply,
+    call,
+    callee,
+    bind,
 
-        public static implicit operator PropertyKey(in KeyString key)
-        {
-            return new PropertyKey(KeyType.String, 0, key);
-        }
+    Boolean,
+    Math,
+    Reflect,
+    Date,
+    Symbol,
 
-        public static implicit operator PropertyKey(string key)
-        {
-            return new PropertyKey(KeyType.String, 0, KeyStrings.Instance.GetOrCreate(key));
-        }
+    Promise,
+    then,
+    @catch,
 
-        public static implicit operator PropertyKey(JSSymbol key)
-        {
-            return new PropertyKey(KeyType.Symbol, key.Key, 0, key);
-        }
-    }
+    JSON,
+    parse,
+    stringify,
+    toJSON,
 
 
-    //[DebuggerDisplay("Key:{Key},{Value}")]
-    //public readonly struct KeyString
-    //{
+    RegExp,
+    test,
+    index,
+    input,
+    lastIndex,
 
-    //    public readonly static KeyString Empty = new KeyString();
+    fetch,
 
-    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //    public static implicit operator KeyString(string value)
-    //    {
-    //        return KeyStrings.Instance.GetOrCreate(value);
-    //    }
+    Error,
+    message,
+    stack,
+    RangeError,
+    SyntaxError,
+    TypeError,
+    URIError,
+    EvalError,
+    ReferenceError,
 
-    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //    public static implicit operator KeyString(in StringSpan value)
-    //    {
-    //        return KeyStrings.Instance.GetOrCreate(value);
-    //    }
+    ArrayBuffer,
+
+    Int8Array,
+    Uint8Array,
+    Uint8ClampedArray,
+    Int16Array,
+    Uint16Array,
+    Int32Array,
+    Uint32Array,
+    Float32Array,
+    Float64Array,
+
+    DataView,
 
 
-    //    // private readonly KeyType Type;
-    //    // public readonly StringSpan Value;
-    //    public readonly uint Key;
+    Map,
+    Set,
+    WeakRef,
+    WeakMap,
+    WeakSet,
+    valueOf,
+    name,
+    prototype,
+    constructor,
+    defineProperty,
+    deleteProperty,
 
-    //    public bool HasValue
-    //    {
-    //        get
-    //        {
-    //            return Key != 0;
-    //        }
-    //    }
+    FinalizationRegistry,
 
-    //    internal KeyString(uint key)
-    //    {
-    //        // this.Value = value;
-    //        this.Key = key;
-    //    }
+    configurable,
+    enumerable,
+    @readonly,
+    writable,
 
-    //    public override bool Equals(object obj)
-    //    {
-    //        if (obj is KeyString k)
-    //            return Key == k.Key;
-    //        return false;
-    //    }
+    @assert,
 
-    //    public override int GetHashCode()
-    //    {
-    //        return (int)Key;
-    //    }
+    native,
+    value,
+    done,
+    get,
+    set,
+    undefined,
+    NaN,
+    @null,
+    getPrototypeOf,
+    ownKeys,
+    setPrototypeOf,
 
-    //    public override string ToString()
-    //    {
-    //        return KeyStrings.Instance.GetNameString(Key).Value;
-    //    }
+    @global,
+    globalThis,
 
-    //    public JSValue ToJSValue()
-    //    {
-    //        return new JSString(KeyStrings.Instance.GetNameString(Key), this);
-    //    }
+    Module,
+    module,
+    resolve,
+    require,
+    @default,
+    import,
 
-    //    public StringSpan Value => KeyStrings.Instance.GetNameString(Key);
+    exports,
 
-    //    // public static (int size, int total, int next) Total =>
-    //        // KeyString.Total;
+    Generator,
+    next,
+    @throw,
+    @return,
 
-    //}
+    // intl...
+    weekday,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+
+
+    // global methods...
+    eval,
+    encodeURI,
+    encodeURIComponent,
+    decodeURI,
+    decodeURIComponent,
+
+    isFinite,
+    isNaN,
+    parseFloat,
+    parseInt,
+
+    arguments,
+
+    Infinity,
+
+
+    console,
+    @debug,
+    log,
+
+    clr,
+
+    @true,
+
+    @false,
+
+    bubbles,
+    detail,
+    cancelable,
+    composed,
+
+    capture,
+    deferred,
+    once,
+
+
+    raw,
+    makeGenericType,
+    getMethod,
+    getConstructor,
+
+    type,
+
+at,
+concat,
+every,
+copyWithin,
+entries,
+fill,
+filter,
+find,
+flat,
+flatMap,
+findIndex,
+forEach,
+includes,
+indexOf,
+keys,
+lastIndexOf,
+map,
+push,
+pop,
+reduce,
+reduceRight,
+reverse,
+shift,
+slice,
+some,
+sort,
+splice,
+unshift,
+toLocaleString,
+values,
+from,
+isArray,
+of,
+BYTES_PER_ELEMENT,
+TypedArray,
+buffer,
+byteOffset,
+byteLength,
+subarray,
+asIntN,
+asUintN,
+getBigInt64,
+getBigUInt64,
+getFloat32,
+getFloat64,
+getInt16,
+getInt32,
+getInt8,
+getUint16,
+getUint32,
+getUint8,
+setBigInt64,
+setBigUInt64,
+setFloat32,
+setFloat64,
+setInt16,
+setInt32,
+setInt8,
+setUint16,
+setUint32,
+setUint8,
+getDate,
+setDate,
+getDay,
+getFullYear,
+getHours,
+getMilliseconds,
+getMinutes,
+getMonth,
+getSeconds,
+getTime,
+getTimezoneOffset,
+getUTCDate,
+getUTCDay,
+getUTCFullYear,
+getUTCHours,
+getUTCMilliseconds,
+getUTCMinutes,
+getUTCMonth,
+getUTCSeconds,
+setFullYear,
+setHours,
+setMilliseconds,
+setMinutes,
+setMonth,
+setSeconds,
+setTime,
+setUTCDate,
+setUTCFullYear,
+setUTCHours,
+setUTCMilliseconds,
+setUTCMinutes,
+setUTCMonth,
+setUTCSeconds,
+toDateString,
+toISOString,
+toLocaleDateString,
+toLocaleTimeString,
+toTimeString,
+toUTCString,
+UTC,
+now,
+Decimal,
+toFixed,
+SuppressedError,
+error,
+suppressed,
+EventTarget,
+dispatchEvent,
+addEventListener,
+removeEventListener,
+Intl,
+setImmediate,
+setInterval,
+clearInterval,
+setTimeout,
+clearTimeout,
+size,
+clear,
+delete,
+has,
+code,
+id,
+compile,
+POSITIVE_INFINITY,
+NEGATIVE_INFINITY,
+EPSILON,
+MAX_SAFE_INTEGER,
+MAX_VALUE,
+MIN_SAFE_INTEGER,
+MIN_VALUE,
+clz,
+toExponential,
+toPrecision,
+isInteger,
+isSafeInteger,
+E,
+LN10,
+LN2,
+LOG10E,
+LOG2E,
+PI,
+SQRT1_2,
+SQRT2,
+random,
+round,
+floor,
+acos,
+abs,
+acosh,
+asin,
+asinh,
+atan,
+atan2,
+atanh,
+cbrt,
+ceil,
+clz32,
+cos,
+cosh,
+exp,
+expm1,
+fround,
+hypot,
+imul,
+log10,
+log1p,
+log2,
+max,
+min,
+pow,
+sign,
+sin,
+sinh,
+sqrt,
+tan,
+tanh,
+trunc,
+construct,
+getOwnPropertyDescriptor,
+isExtensible,
+preventExtensions,
+propertyIsEnumerable,
+hasOwnProperty,
+isPrototypeOf,
+create,
+assign,
+freeze,
+defineProperties,
+fromEntries,
+@is,
+isFrozen,
+isSealed,
+seal,
+getOwnPropertyDescriptors,
+getOwnPropertyNames,
+getOwnPropertySymbols,
+@finally,
+Proxy,
+source,
+flags,
+multiline,
+ignoreCase,
+exec,
+add,
+charAt,
+substr,
+charCodeAt,
+codePointAt,
+contains,
+endsWith,
+startsWith,
+localeCompare,
+match,
+normalize,
+padEnd,
+padStart,
+repeat,
+replace,
+replaceAll,
+search,
+split,
+toLocaleLowerCase,
+toLocaleUpperCase,
+toLowerCase,
+toUpperCase,
+trim,
+trimEnd,
+trimStart,
+fromCharCode,
+fromCodePoint,
+asyncDispose,
+dispose,
+asyncIterator,
+hasInstance,
+isConcatSpreadable,
+iterator,
+species,
+toPrimitive,
+toStringTag,
+unscopables,
+@for,
+unregister,
+register,
+deref,
+Assert,
+strictEqual,
+notStrictEqual,
+equal,
+doubleEqual,
+notEqual,
+throws,
+fail,
+
+
+method,
+headers,
+body,
+mode,
+credentials,
+cache,
+redirect,
+referrer,
+referrerPolicy,
+integrity,
+keepalive,
+signal
 }

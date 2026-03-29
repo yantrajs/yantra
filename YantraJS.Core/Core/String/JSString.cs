@@ -175,10 +175,10 @@ namespace YantraJS.Core
             this._keyString = keyString;
         }
 
-        public static implicit operator KeyString(JSString value)
-        {
-            return value.value.ToKeyString();
-        }
+        //public static implicit operator KeyString(JSString value)
+        //{
+        //    return value.ToKey().KeyString;
+        //}
 
         public override JSValue TypeOf()
         {
