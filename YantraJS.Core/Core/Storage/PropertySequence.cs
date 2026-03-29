@@ -95,7 +95,7 @@ namespace YantraJS.Core
                     return true;
                 }
                 property = JSProperty.Empty;
-                key = KeyString.Empty;
+                key = 0;
                 return false;
             }
 
@@ -123,7 +123,7 @@ namespace YantraJS.Core
                     start = objP.Next;
                     return true;
                 }
-                key = KeyString.Empty;
+                key = 0;
                 return false;
             }
         }
@@ -166,7 +166,7 @@ namespace YantraJS.Core
                     return true;
                 }
                 // property = JSProperty.Empty;
-                key = KeyString.Empty;
+                key = 0;
                 return false;
             }
 
@@ -193,7 +193,7 @@ namespace YantraJS.Core
                     return true;
                 }
                 value = null;
-                key = KeyString.Empty;
+                key = 0;
                 return false;
             }
 
@@ -219,7 +219,7 @@ namespace YantraJS.Core
                     return true;
                 }
                 value = JSProperty.Empty;
-                key = KeyString.Empty;
+                key = 0;
                 return false;
             }
 

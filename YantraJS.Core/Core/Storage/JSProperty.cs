@@ -185,7 +185,7 @@ namespace YantraJS.Core
             JSValue d,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            return new JSProperty(KeyString.Empty, d, attributes);
+            return new JSProperty(0, d, attributes);
         }
 
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -288,7 +288,7 @@ namespace YantraJS.Core
             JSFunction set = null,
             JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            return new JSProperty(KeyString.Empty, get, set, attributes);
+            return new JSProperty(0, get, set, attributes);
         }
 
     }

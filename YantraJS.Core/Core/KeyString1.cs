@@ -13,8 +13,7 @@
 /// </summary>
 public enum KeyString : int
 {
-    Empty = 0,
-    __proto__,
+    __proto__ = 1,
     length,
 
     Number,

@@ -51,7 +51,7 @@ namespace YantraJS.Core.Enumerators
                 }
                 parent = null;
             }
-            key = KeyString.Empty;
+            key = 0;
             value = default;
             return false;
         }
@@ -83,7 +83,7 @@ namespace YantraJS.Core.Enumerators
                 }
                 parent = null;
             }
-            key = KeyString.Empty;
+            key = 0;
             value = null;
             return false;
         }

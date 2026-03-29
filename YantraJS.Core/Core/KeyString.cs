@@ -32,12 +32,12 @@ namespace YantraJS.Core
         }
         public static implicit operator PropertyKey(int index)
         {
-            return new PropertyKey(KeyType.UInt, (uint)index, KeyString.Empty);
+            return new PropertyKey(KeyType.UInt, (uint)index, 0);
         }
 
         public static implicit operator PropertyKey(uint index)
         {
-            return new PropertyKey(KeyType.UInt, index, KeyString.Empty);
+            return new PropertyKey(KeyType.UInt, index, 0);
         }
 
         public static implicit operator PropertyKey(in KeyString key)
@@ -52,7 +52,7 @@ namespace YantraJS.Core
 
         public static implicit operator PropertyKey(JSSymbol key)
         {
-            return new PropertyKey(KeyType.Symbol, key.Key, KeyString.Empty, key);
+            return new PropertyKey(KeyType.Symbol, key.Key, 0, key);
         }
     }
 
