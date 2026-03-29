@@ -43,7 +43,7 @@ namespace YantraJS.Core
             return map.GetOrCreate(key, (keyName) =>
             {
                 var i = (uint)Interlocked.Increment(ref NextID);
-                names[i] = keyName;
+                names[i] = keyName.Value;
                 return (KeyString)i;
             });
         }
