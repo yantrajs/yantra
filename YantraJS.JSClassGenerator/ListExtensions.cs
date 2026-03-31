@@ -7,8 +7,25 @@ namespace YantraJS.JSClassGenerator
 
     internal static class StringExtensions
     {
+
+        internal static bool UseKeyStringEnum = false;
+
         public static string ToKeyStringName(this string name) {
-            return $"\"{name}\".ToKeyString()";
+            if (!UseKeyStringEnum)
+            {
+                return $"\"{name}\".ToKeyString()";
+            }
+            switch(name)
+            {
+                case "return":
+                case "throw":
+                case "is":
+                case "catch":
+                case "finally":
+                case "for":
+                    return $"KeyString.@{name}";
+            }
+            return $"KeyString.{name}";
         }
     }
 

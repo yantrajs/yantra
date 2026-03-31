@@ -41,6 +41,8 @@ namespace YantraJS.JSClassGenerator
         {
             // get attribute info...
 
+            StringExtensions.UseKeyStringEnum = type.Type.ContainingAssembly.Name == "YantraJS.Core";
+
             var sb = new StringBuilder();
 
             try
