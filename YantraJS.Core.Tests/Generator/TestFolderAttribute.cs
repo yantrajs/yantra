@@ -80,7 +80,7 @@ namespace YantraJS.Tests.Generator
 
         }
 
-        public override TestResult[] Execute(ITestMethod testMethod)
+        public override async Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)
         {
             if (!Parallel)
             {
@@ -93,27 +93,24 @@ namespace YantraJS.Tests.Generator
 
 
             watch.Start();
-            AsyncPump.Run(async () =>
+            var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
+            var r = await Task.WhenAll(tasks);
+            int resultIndex = 0;
+            // display errors first
+            foreach (var ri in r)
             {
-                var tasks = taskList.Select(x => Task.Run(() => RunAsyncTest(x))).ToList();
-                var r = await Task.WhenAll(tasks);
-                int resultIndex = 0;
-                // display errors first
-                foreach (var ri in r)
+                if (ri.Outcome != UnitTestOutcome.Passed)
                 {
-                    if (ri.Outcome != UnitTestOutcome.Passed)
-                    {
-                        result[resultIndex++] = ri;
-                    }
+                    result[resultIndex++] = ri;
                 }
-                foreach (var ri in r)
+            }
+            foreach (var ri in r)
+            {
+                if (ri.Outcome == UnitTestOutcome.Passed)
                 {
-                    if (ri.Outcome == UnitTestOutcome.Passed)
-                    {
-                        result[resultIndex++] = ri;
-                    }
+                    result[resultIndex++] = ri;
                 }
-            });
+            }
             watch.Stop();
             return result;
         }

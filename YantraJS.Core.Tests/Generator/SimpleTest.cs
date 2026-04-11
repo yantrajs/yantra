@@ -108,7 +108,7 @@ namespace YantraJS.Tests.Generator
         [TestMethod]
         public void AssertString()
         {
-            Assert.ThrowsException<JSException>(() =>
+            Assert.Throws<JSException>(() =>
             {
                 var f = CoreScript.Evaluate(@"(function () {
     return assert(2 === ""2"", ""failed .."");

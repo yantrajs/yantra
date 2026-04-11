@@ -91,7 +91,7 @@ namespace YantraJS.Tests
         public void ImportModuleThrowException()
         {
             JSModuleContext context = new JSModuleContext();
-            Assert.ThrowsException<ArgumentException>((() => context.ImportModule("test".ToKeyString())));
+            Assert.Throws<ArgumentException>((() => context.ImportModule("test".ToKeyString())));
         }
         
         [TestMethod]

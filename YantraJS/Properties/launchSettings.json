@@ -8,6 +8,10 @@
       "commandName": "Project",
       "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\box2d\\index.js"
     },
+    "Yantra CodeLoad": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\code-load\\code-loade.js"
+    },
     "Yantra XF-Samples": {
       "commandName": "Project",
       "commandLineArgs": "..\\..\\..\\..\\YantraJS.Core.Tests\\Generator\\Files\\es5\\Index\\Index.pack.js"

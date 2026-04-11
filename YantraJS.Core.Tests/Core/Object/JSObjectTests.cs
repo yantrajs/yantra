@@ -19,10 +19,10 @@ namespace YantraJS.Tests.Core.Object
                 return Object.assign(t, s);
             }
 
-            Assert.ThrowsException<JSException>(
+            Assert.Throws<JSException>(
                 () => Assign(JSNull.Value, JSNull.Value),
                 JSError.Cannot_convert_undefined_or_null_to_object);
-            Assert.ThrowsException<JSException>(
+            Assert.Throws<JSException>(
                 () => Assign(JSUndefined.Value, JSNull.Value), 
                 JSError.Cannot_convert_undefined_or_null_to_object);
 
