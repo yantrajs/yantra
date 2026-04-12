@@ -86,13 +86,23 @@ namespace YantraJS.Core.FastParser
                 
                 // we need to check if beginNode contains `in` expression
                 // as `a in b` is a valid single expression
-                if (beginNode is AstBinaryExpression b
+                if (beginNode.Type == FastNodeType.BinaryExpression
+                    && beginNode is AstBinaryExpression b
                     && b.Operator == TokenTypes.In
                     && stream.CheckAndConsume(TokenTypes.BracketEnd))
                 {
                     @in = true;
                     beginNode = b.Left;
                     inTarget = b.Right;
+
+                    /** This is not working, and we may not support it **/
+                    // this is also special case in non strict mode
+                    // we will need to move variable in outer scope
+                    // if (beginNode.Type == FastNodeType.Identifier)
+                    // {
+                    //     var id = (beginNode as AstIdentifier)!;
+                    //     scope.AddVariable(id.Start, in id.Name, FastVariableKind.Var);
+                    // }
                 }
                 else
                 {
