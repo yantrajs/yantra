@@ -356,3 +356,4 @@ MigrationBackup/
 /Test/Test.csproj
 /YantraJS.Network/Generated
 /YantraJS.Core/Generated
+.idea

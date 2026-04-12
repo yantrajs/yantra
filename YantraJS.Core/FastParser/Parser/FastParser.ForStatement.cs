@@ -83,35 +83,48 @@ namespace YantraJS.Core.FastParser
                 AstExpression? ofTarget = null;
                 AstExpression? test = null;
                 AstExpression? update = null;
-
-                if (stream.CheckAndConsume(TokenTypes.In))
+                
+                // we need to check if beginNode contains `in` expression
+                // as `a in b` is a valid single expression
+                if (beginNode is AstBinaryExpression b
+                    && b.Operator == TokenTypes.In
+                    && stream.CheckAndConsume(TokenTypes.BracketEnd))
                 {
                     @in = true;
-                    if (!Expression(out inTarget))
-                        throw stream.Unexpected();
-                    stream.Expect(TokenTypes.BracketEnd);
+                    beginNode = b.Left;
+                    inTarget = b.Right;
                 }
-                else if (stream.CheckAndConsumeContextualKeyword(FastKeywords.of))
+                else
                 {
-                    of = true;
-                    if (!Expression(out ofTarget))
-                        throw stream.Unexpected();
-                    stream.Expect(TokenTypes.BracketEnd);
-                }
-                else if (ExpressionSequence(out test, TokenTypes.SemiColon, true))
-                {
-                    // case of automatic semicolon insertion
-                    if (test.End.Type == TokenTypes.BracketEnd)
-                        throw stream.Unexpected();
-                    if (test.Type == FastNodeType.EmptyExpression)
-                        test = null;
-                    if (!ExpressionSequence(out update, TokenTypes.BracketEnd, true))
-                        throw stream.Unexpected();
-                    if (update.Type == FastNodeType.EmptyExpression)
-                        update = null;
-                }
-                else stream.Unexpected();
 
+                    if (stream.CheckAndConsume(TokenTypes.In))
+                    {
+                        @in = true;
+                        if (!Expression(out inTarget))
+                            throw stream.Unexpected();
+                        stream.Expect(TokenTypes.BracketEnd);
+                    }
+                    else if (stream.CheckAndConsumeContextualKeyword(FastKeywords.of))
+                    {
+                        of = true;
+                        if (!Expression(out ofTarget))
+                            throw stream.Unexpected();
+                        stream.Expect(TokenTypes.BracketEnd);
+                    }
+                    else if (ExpressionSequence(out test, TokenTypes.SemiColon, true))
+                    {
+                        // case of automatic semicolon insertion
+                        if (test.End.Type == TokenTypes.BracketEnd)
+                            throw stream.Unexpected();
+                        if (test.Type == FastNodeType.EmptyExpression)
+                            test = null;
+                        if (!ExpressionSequence(out update, TokenTypes.BracketEnd, true))
+                            throw stream.Unexpected();
+                        if (update.Type == FastNodeType.EmptyExpression)
+                            update = null;
+                    }
+                    else stream.Unexpected();
+                }
 
                 AstStatement statement;
                 if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart))

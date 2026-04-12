@@ -1,1 +1,1 @@
-import "./code-load.js";
+import * as a1 from "./code-load.js";

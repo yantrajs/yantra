@@ -2,19 +2,19 @@
   "profiles": {
     "Yantra TypeScript": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\ts\\index.js"
+      "commandLineArgs": "../../../../YantraTests/Modules/ts/index.js"
     },
     "Yantra Box2d": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\box2d\\index.js"
+      "commandLineArgs": "../../../../YantraTests/Modules/box2d/index.js"
     },
     "Yantra CodeLoad": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\YantraTests\\Modules\\code-load\\code-loade.js"
+      "commandLineArgs": "../../../../YantraTests/Modules/code-load/index.js"
     },
     "Yantra XF-Samples": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\YantraJS.Core.Tests\\Generator\\Files\\es5\\Index\\Index.pack.js"
+      "commandLineArgs": "../../../../YantraJS.Core.Tests/Generator/Files/es5/Index/Index.pack.js"
     },
     "Yantra REPL": {
       "commandName": "Project",
@@ -26,7 +26,7 @@
     },
     "Yantra File": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\git\\github\\yantrajs\\yantra\\YantraJS.Core.Tests\\Generator\\Files\\es6\\Syntax\\linq\\linqjs.js"
+      "commandLineArgs": "D:/git/github/yantrajs/yantra/YantraJS.Core.Tests/Generator/Files/es6/Syntax/linq/linqjs.js"
     }
   }
 }

@@ -10,7 +10,7 @@ namespace YantraJS.Core.Tests.Imported
     /// <summary>
     /// Language statement tests.
     /// </summary>
-    //[TestClass]
+    // [TestClass]
     public class StatementTests : TestBase
     {
         [TestMethod]
@@ -99,6 +99,14 @@ namespace YantraJS.Core.Tests.Imported
                         test();
                     }());
                 }");
+
+            Execute(@"
+                var a;
+                var b = { a: 1 }; 
+                for(a in b) {
+                    console.log(a);
+                }
+            ");
         }
 
         [TestMethod]
