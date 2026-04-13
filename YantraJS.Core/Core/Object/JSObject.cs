@@ -494,6 +494,7 @@ namespace YantraJS.Core
         internal protected override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {
             var start = this;
+            var originalName = name.ToStringSpan();
             var p = GetInternalProperty(name, true);
             if (p.IsProperty)
             {
@@ -503,7 +504,7 @@ namespace YantraJS.Core
                     return true;
                 }
                 if (throwError)
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this} which has only a getter");
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {originalName} of {this} which has only a getter");
                 return false;
             }
             if (p.IsReadOnly)
@@ -511,21 +512,21 @@ namespace YantraJS.Core
                 if (throwError)
                 {
                     // Only in Strict Mode ..
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {originalName} of {this}");
                 }
                 return false;
             }
             if (this.IsFrozen())
             {
                 if(throwError)
-                    throw JSContext.Current.NewTypeError($"Cannot modify property {name} of {this}");
+                    throw JSContext.Current.NewTypeError($"Cannot modify property {originalName} of {this}");
                 return false;
             }
             if (p.IsEmpty && !this.IsExtensible())
             {
                 if (throwError)
                 {
-                    throw JSContext.Current.NewTypeError($"Cannot add property {name} to {this}");
+                    throw JSContext.Current.NewTypeError($"Cannot add property {originalName} to {this}");
                 }
                 return false;
             }

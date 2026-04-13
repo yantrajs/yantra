@@ -70,7 +70,7 @@ namespace YantraJS.Core
         {
             var fx = @this.GetMethod(in name);
             if (fx == null)
-                throw JSContext.Current.NewTypeError($"Method {name} not found in {@this}");
+                throw JSContext.Current.NewTypeError($"Method {name.ToStringSpan()} not found in {@this}");
             return fx(a.OverrideThis(@this));
         }
 
