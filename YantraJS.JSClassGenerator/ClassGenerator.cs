@@ -127,26 +127,28 @@ namespace YantraJS.JSClassGenerator
                     {
 
                         sb.AppendLine($@"
-                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
+                        JSObject prototype = null;
+                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(prototype, in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
                         if (register) {{
                             context[{className.ToKeyStringName()}] = @class;
                         }}
-                        var prototype = @class.prototype;
+                        prototype = @class.prototype;
                         ");
                     } else
                     {
                         sb.AppendLine($@"
-                        var @class = new {clrFunctionType}({type.Name}.{type.ConstructorMethod}
+                        JSObject prototype = null;
+                        var @class = new {clrFunctionType}((in Arguments a) => {type.Name}.{type.ConstructorMethod}(prototype, in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
                         if (register) {{
                             context[{className.ToKeyStringName()}] = @class;
                         }}
-                        var prototype = @class.prototype;
+                        prototype = @class.prototype;
                         ");
 
                     }

@@ -13,12 +13,12 @@ namespace YantraJS.Core.Typed
 
 
         [JSExport(Length = 3)]
-        public JSUint8ClampedArray(in Arguments a)
-            : base(new TypedArrayParameters(a, BYTES_PER_ELENENT))
+        public JSUint8ClampedArray(JSObject prototype, in Arguments a)
+            : base(prototype, new TypedArrayParameters(a, BYTES_PER_ELENENT))
         {
         }
 
-        private JSUint8ClampedArray(TypedArrayParameters a) : base(a)
+        private JSUint8ClampedArray(JSObject prototype, TypedArrayParameters a) : base(prototype, a)
         {
 
         }

@@ -15,7 +15,7 @@ namespace Yantra.Core.Events
     [JSClassGenerator]
     public partial class EventTarget: JSObject
     {
-        public EventTarget(in Arguments a): base(JSContext.NewTargetPrototype)
+        public EventTarget(JSObject prototype, in Arguments a): base(prototype)
         {
 
         }

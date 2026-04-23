@@ -37,7 +37,7 @@ namespace YantraJS.Core
         }
 
 
-        public JSDate(DateTimeOffset time): this()
+        public JSDate(DateTimeOffset time): base()
         {
             this.value = time;
         }
