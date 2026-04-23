@@ -48,7 +48,7 @@ namespace YantraJS.Core
 
         public override long BigIntValue => long.TryParse(this.ToString(), out var n) ? n : 0;
 
-        public override bool IsString => true;
+        // public override bool IsString => true;
 
         public override JSValue AddValue(double value)
         {
@@ -149,16 +149,16 @@ namespace YantraJS.Core
             return (JSContext.Current[KeyString.String] as JSFunction).prototype;
         }
 
-        public JSString(string value): base()
+        public JSString(string value): base(JSValueType.String)
         {
             this.value = value;
         }
-        public JSString(JSObject prototype, string value): base(prototype)
+        public JSString(JSObject prototype, string value): base(JSValueType.String, prototype)
         {
             this.value = value;
         }
 
-        public JSString(in StringSpan value) : base()
+        public JSString(in StringSpan value) : base(JSValueType.String)
         {
             this.value = value.Value;
         }

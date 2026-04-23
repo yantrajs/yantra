@@ -79,7 +79,7 @@ namespace YantraJS.JSClassGenerator
                         sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{className.ToKeyStringName()}] as JSFunction)?.prototype;");
                     }
 
-                    sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype) {{}}");
+                    // sb = sb.AppendLine($"internal protected {type.Name}(JSValueType valueType, JSObject prototype = null): base(valueType, prototype) {{}}");
 
                     // sb = sb.AppendLine($"protected {type.Name}(JSObject prototype): base(prototype ?? throw new System.ArgumentException(\"Prototype not specified...\")) {{}}");
                 }

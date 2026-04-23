@@ -19,7 +19,7 @@ namespace YantraJS.Core
 
         public override bool BooleanValue => true;
 
-        public override bool IsSymbol => true;
+        // public override bool IsSymbol => true;
 
         public override double DoubleValue => throw JSContext.Current.NewTypeError("Cannot convert a Symbol value to a number.");
 
@@ -32,7 +32,7 @@ namespace YantraJS.Core
             return this;
         }
 
-        public JSSymbol(string name) : base(JSContext.Current.ObjectPrototype)
+        public JSSymbol(string name) : base(JSValueType.Symbol, JSContext.Current.ObjectPrototype)
         {
             this.name = name;
             Key = (uint)Interlocked.Increment(ref SymbolID);

@@ -27,7 +27,7 @@ namespace YantraJS.Core
         //}
 
 
-        public JSArray() : base((JSObject)null)
+        public JSArray() : base(JSValueType.Array, (JSObject)null)
         {
 
         }
@@ -83,7 +83,7 @@ namespace YantraJS.Core
             return $"[{this.ToString()}]"; ;
         }
 
-        public override bool IsArray => true;
+        // public override bool IsArray => true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(uint index, JSValue value)> GetArrayElements(bool withHoles = true)

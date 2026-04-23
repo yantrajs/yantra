@@ -92,7 +92,7 @@ namespace YantraJS.Core.Weak
 
         internal WeakReference<JSValue> weak;
 
-        public JSWeakRef(JSValue value): this()
+        public JSWeakRef(JSValue value): base(JSContext.NewTargetPrototype)
         {
             weak = new WeakReference<JSValue>(value);
         }

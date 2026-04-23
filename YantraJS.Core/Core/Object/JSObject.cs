@@ -65,7 +65,7 @@ namespace YantraJS.Core
 
         public override bool BooleanValue => true;
 
-        public override bool IsObject => true;
+        // public override bool IsObject => true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsSealed() => (this.status & ObjectStatus.Sealed) > 0;
@@ -162,10 +162,20 @@ namespace YantraJS.Core
             return JSConstants.Object;
         }
 
-        public JSObject() : base((JSObject)null)
+        public JSObject() : base(JSValueType.Object, (JSObject)null)
         {
             
         }
+
+        protected JSObject(JSObject prototype): base(JSValueType.Object, prototype)
+        {
+            
+        }
+        
+        protected JSObject(JSValueType valueType, JSObject prototype): base(valueType, prototype)
+        {
+            
+        }        
 
         public virtual IEnumerable<(string Key, JSValue value)> Entries
         {

@@ -79,7 +79,7 @@ namespace YantraJS.Core
         public static readonly double MinValue = double.Epsilon;
         
 
-        public override bool IsNumber => true;
+        // public override bool IsNumber => true;
 
         public override JSValue TypeOf()
         {
@@ -109,7 +109,7 @@ namespace YantraJS.Core
             return KeyStrings.Instance.GetOrCreate(n.ToString());
         }
 
-        public JSNumber(double value) : base()
+        public JSNumber(double value) : base(JSValueType.Number)
         {
             //if (value > 0 && value < double.Epsilon)
             //{

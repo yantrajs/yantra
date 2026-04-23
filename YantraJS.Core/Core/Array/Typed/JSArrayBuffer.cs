@@ -29,7 +29,7 @@ namespace YantraJS.Core.Typed
 
         // public override int Length { get => buffer.Length; set => throw new NotSupportedException(); }
 
-        public JSArrayBuffer(in Arguments a): this(JSContext.NewTargetPrototype)
+        public JSArrayBuffer(in Arguments a): base(JSContext.NewTargetPrototype)
         {
             int length = a.Get1().AsInt32OrDefault();
             if (length < 0 || length > JSNumber.MaxSafeInteger)
@@ -39,11 +39,11 @@ namespace YantraJS.Core.Typed
             this.buffer = new byte[length];
         }
 
-        public JSArrayBuffer(int length) : this()
+        public JSArrayBuffer(int length) : base(JSContext.NewTargetPrototype)
         {
             this.buffer = new byte[length];
         }
-        public JSArrayBuffer(byte[] buffer) : this()
+        public JSArrayBuffer(byte[] buffer) : base(JSContext.NewTargetPrototype)
         {
             this.buffer = buffer;
         }
