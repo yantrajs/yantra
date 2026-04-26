@@ -304,12 +304,17 @@ namespace YantraJS.Core {
         }
 
 
-
-        protected JSValue(JSValueType valueType, JSObject prototype)
+        protected JSValue(JSValueType valueType, JSPrototype prototype)
         {
             this.valueType = valueType;
-            this.BasePrototypeObject = prototype ?? GetCurrentPrototype();
+            this.prototypeChain = prototype;
         }
+
+        //protected JSValue(JSValueType valueType, JSObject prototype)
+        //{
+        //    this.valueType = valueType;
+        //    this.BasePrototypeObject = prototype ?? GetCurrentPrototype();
+        //}
 
         protected virtual JSObject GetCurrentPrototype()
         {

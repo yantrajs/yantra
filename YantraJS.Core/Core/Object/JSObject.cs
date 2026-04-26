@@ -162,17 +162,17 @@ namespace YantraJS.Core
             return JSConstants.Object;
         }
 
-        public JSObject() : base(JSValueType.Object, (JSObject)null)
+        public JSObject() : base(JSValueType.Object, JSContext.Current.ObjectPrototype)
         {
             
         }
 
-        protected JSObject(JSObject prototype): base(JSValueType.Object, prototype)
+        protected JSObject(JSPrototype prototype): base(JSValueType.Object, prototype)
         {
             
         }
         
-        protected JSObject(JSValueType valueType, JSObject prototype): base(valueType, prototype)
+        protected JSObject(JSValueType valueType, JSPrototype prototype): base(valueType, prototype)
         {
             
         }        

@@ -622,6 +622,7 @@ namespace YantraJS.Core
 
         internal ConcurrentDictionary<long, JSPromise> PendingPromises
             = new ConcurrentDictionary<long, JSPromise>();
+        internal JSPrototype Map_Prototype;
 
         /// <summary>
         /// Quickly evaluates the code, does not wait for promises and timeouts/intervals.
