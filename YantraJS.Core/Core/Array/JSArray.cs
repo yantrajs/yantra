@@ -27,7 +27,7 @@ namespace YantraJS.Core
         //}
 
 
-        public JSArray() : base(JSValueType.Array, (JSObject)null)
+        public JSArray() : base(JSValueType.Array, JSContext.Current.Array_Prototype)
         {
 
         }
