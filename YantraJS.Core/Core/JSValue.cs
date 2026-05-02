@@ -37,7 +37,7 @@ namespace YantraJS.Core {
         internal bool IsNullOrUndefined
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.valueType == JSValueType.Undefined || this.valueType == JSValueType.Null;
+            get => (this.valueType & JSValueType.NullOrUndefined) > 0;
         }
 
         public bool IsNumber
@@ -49,7 +49,7 @@ namespace YantraJS.Core {
         public bool IsObject
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.valueType == JSValueType.Object;
+            get => (this.valueType & JSValueType.Object) > 0;
         }
     
 
