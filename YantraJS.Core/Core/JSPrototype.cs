@@ -4,7 +4,7 @@ using System.Text;
 using YantraJS.Core.Core.Storage;
 using YantraJS.Extensions;
 
-namespace YantraJS.Core.Core
+namespace YantraJS.Core
 {
     
 

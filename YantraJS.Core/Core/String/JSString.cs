@@ -48,7 +48,7 @@ namespace YantraJS.Core
 
         public override long BigIntValue => long.TryParse(this.ToString(), out var n) ? n : 0;
 
-        public override bool IsString => true;
+        // public override bool IsString => true;
 
         public override JSValue AddValue(double value)
         {

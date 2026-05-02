@@ -17,41 +17,72 @@ using YantraJS.Utils;
 
 namespace YantraJS.Core {
 
-    public abstract partial class JSValue : IDynamicMetaObjectProvider {
+    public abstract partial class JSValue : IDynamicMetaObjectProvider
+    {
+
+        private readonly JSValueType valueType;
 
         public bool IsUndefined
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this == JSUndefined.Value;
+            get => this.valueType == JSValueType.Undefined;
         }
 
         public bool IsNull
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this == JSNull.Value;
+            get => this.valueType == JSValueType.Null;
         }
 
         internal bool IsNullOrUndefined
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this == JSNull.Value || this == JSUndefined.Value;
+            get => this.valueType == JSValueType.Undefined || this.valueType == JSValueType.Null;
         }
 
-        public virtual bool IsNumber => false;
+        public bool IsNumber
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.Number;
+        }
 
-        public virtual bool IsObject => false;
+        public bool IsObject
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.Object;
+        }
+    
 
-        public virtual bool IsSymbol => false;
+        public bool IsSymbol {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.Symbol;
+        }
 
-        public virtual bool IsArray => false;
 
-        public virtual bool IsString => false;
+        public bool IsArray {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.Array;
+        }
 
-        public virtual bool IsBoolean => false;
+        public bool IsString  {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.String;
+        }
 
-        public virtual bool IsFunction => false;
+        public bool IsBoolean {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.Boolean;
+        }
 
-        internal virtual bool IsSpread => false;
+        public bool IsFunction {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.Function;
+        }
+
+        internal bool IsSpread {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.valueType == JSValueType.Spread;
+        }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public object Convert(Type type, object def)
@@ -273,11 +304,22 @@ namespace YantraJS.Core {
         }
 
 
-
-        protected JSValue(JSObject prototype)
+        protected JSValue(JSValueType valueType, JSPrototypeObject prototype)
         {
-            this.BasePrototypeObject = prototype ?? GetCurrentPrototype();
+            this.valueType = valueType;
+            this.prototypeChain = prototype.prototype;
         }
+
+        protected JSValue(JSValueType valueType)
+        {
+            this.valueType = valueType;
+        }
+
+        //protected JSValue(JSValueType valueType, JSObject prototype)
+        //{
+        //    this.valueType = valueType;
+        //    this.BasePrototypeObject = prototype ?? GetCurrentPrototype();
+        //}
 
         protected virtual JSObject GetCurrentPrototype()
         {

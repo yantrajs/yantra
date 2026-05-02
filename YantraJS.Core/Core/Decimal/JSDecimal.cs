@@ -60,11 +60,16 @@ namespace YantraJS.Core
 
         }
 
-        public JSDecimal(decimal value)
+        private JSDecimal(): base(JSValueType.Decimal, JSContext.CurrentContext.Decimal_Prototype)
+        {
+
+        }
+
+        public JSDecimal(decimal value): this()
         {
             this.value = value;
         }
-        public JSDecimal(string stringValue)
+        public JSDecimal(string stringValue):this()
         {
             var v = stringValue.TrimEnd('m').Replace("_", "");
             if (!decimal.TryParse(v, out var n))

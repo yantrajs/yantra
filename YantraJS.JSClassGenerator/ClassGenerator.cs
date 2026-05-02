@@ -67,25 +67,25 @@ namespace YantraJS.JSClassGenerator
                 var className = type.JSClassName;
                 var hasBaseClasse = type.BaseClrClassName != null;
 
-                if (!type.Globals)
-                {
+                //if (!type.Globals)
+                //{
 
-                    if (IsPrimitive(className))
-                    {
-                        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => null;");
-                    }
-                    else
-                    {
-                        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{className.ToKeyStringName()}] as JSFunction)?.prototype;");
-                    }
+                //    if (IsPrimitive(className))
+                //    {
+                //        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => null;");
+                //    }
+                //    else
+                //    {
+                //        sb = sb.AppendLine($"protected override JSObject GetCurrentPrototype() => (JSContext.Current?[{className.ToKeyStringName()}] as JSFunction)?.prototype;");
+                //    }
 
-                    sb = sb.AppendLine($"internal protected {type.Name}(JSObject prototype = null): base(prototype) {{}}");
+                //    // sb = sb.AppendLine($"internal protected {type.Name}(JSValueType valueType, JSObject prototype = null): base(valueType, prototype) {{}}");
 
-                    // sb = sb.AppendLine($"protected {type.Name}(JSObject prototype): base(prototype ?? throw new System.ArgumentException(\"Prototype not specified...\")) {{}}");
-                }
+                //    // sb = sb.AppendLine($"protected {type.Name}(JSObject prototype): base(prototype ?? throw new System.ArgumentException(\"Prototype not specified...\")) {{}}");
+                //}
 
                 var createClassReturnType = "JSFunction";
-                if(type.InternalClass || type.Globals)
+                if (type.InternalClass || type.Globals)
                 {
                     createClassReturnType = "JSObject";
                 }
@@ -101,21 +101,24 @@ namespace YantraJS.JSClassGenerator
                 }
 
 
-                if (type.InternalClass) {
+                if (type.InternalClass)
+                {
                     sb.AppendLine($@"
                     var @class = new JSObject();
                     if (register) {{
                         context[{className.ToKeyStringName()}] = @class;
                     }}
                 ");
-                } else if (type.Globals)
+                }
+                else if (type.Globals)
                 {
                     sb.AppendLine($@"
                     var @class = context;");
                 }
-                else {
+                else
+                {
                     var l = type.ConstructorLength ?? "";
-                    if (l.Length>0)
+                    if (l.Length > 0)
                     {
                         l = ", length:" + l;
                     }
@@ -127,26 +130,33 @@ namespace YantraJS.JSClassGenerator
                     {
 
                         sb.AppendLine($@"
-                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
+                        JSObject prototype = null;
+                        JSPrototype internalPrototype = null;
+                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(internalPrototype, in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
                         if (register) {{
                             context[{className.ToKeyStringName()}] = @class;
                         }}
-                        var prototype = @class.prototype;
+                        prototype = @class.prototype;
+                        internalPrototype = prototype.PrototypeObject;
                         ");
-                    } else
+                    }
+                    else
                     {
                         sb.AppendLine($@"
-                        var @class = new {clrFunctionType}({type.Name}.{type.ConstructorMethod}
+                        JSObject prototype = null;
+                        JSPrototype internalPrototype = null;
+                        var @class = new {clrFunctionType}((in Arguments a) => {type.Name}.{type.ConstructorMethod}(internalPrototype, in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
                         if (register) {{
                             context[{className.ToKeyStringName()}] = @class;
                         }}
-                        var prototype = @class.prototype;
+                        prototype = @class.prototype;
+                        internalPrototype = prototype.PrototypeObject;
                         ");
 
                     }
@@ -163,12 +173,13 @@ namespace YantraJS.JSClassGenerator
                             sb = sb.AppendLine($"prototype.SetPrototypeOf(@base.prototype);");
                         }
                     }
-                } else
+                }
+                else
                 {
                     if (className != "Object")
                     {
                         // insert in list..
-                        
+
 
                         //sb.AppendLine($" var @base = context[KeyString.Object] as JSFunction;");
                         //sb = sb.AppendLine($"@class.SetPrototypeOf(@base);");
@@ -184,10 +195,14 @@ namespace YantraJS.JSClassGenerator
                     GenerateMember(sb, member);
                 }
 
-                if (type.CachedConstructorField)
+                //if (type.CachedConstructorField)
+                //{
+                //    sb.AppendLine($"context.{className}Prototype = prototype;");
+                if (type.RuntimeClass)
                 {
-                    sb.AppendLine($"context.{className}Prototype = prototype;");
+                    sb.AppendLine($"context.{className}_Prototype = prototype.PrototypeObject;");
                 }
+                //}
 
                 sb.AppendLine("return @class;");
                 sb.AppendLine("}");

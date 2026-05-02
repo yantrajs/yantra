@@ -31,7 +31,7 @@ namespace YantraJS.Core
 
         public DateTime DateTime => Value.DateTime;
 
-        internal JSDate(JSObject prototype, DateTimeOffset time) : base(prototype)
+        internal JSDate(JSPrototypeObject prototype, DateTimeOffset time) : base(JSValueType.Object, prototype)
         {
             this.value = time;
         }
@@ -40,6 +40,11 @@ namespace YantraJS.Core
         public JSDate(DateTimeOffset time): this()
         {
             this.value = time;
+        }
+
+        public JSDate(): base(JSValueType.Object, JSContext.CurrentContext.Date_Prototype)
+        {
+            
         }
 
         //public override string ToString()

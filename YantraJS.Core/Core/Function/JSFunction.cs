@@ -45,7 +45,7 @@ namespace YantraJS.Core
 
         internal JSFunctionDelegate f;
         
-        public override bool IsFunction => true;
+        // public override bool IsFunction => true;
 
         public override JSValue TypeOf()
         {

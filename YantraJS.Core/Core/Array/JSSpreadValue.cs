@@ -8,13 +8,11 @@ namespace YantraJS.Core.Core.Array
     {
         private int _length;
 
-        public JSSpreadValue(JSValue value) : base(null)
+        public JSSpreadValue(JSValue value) : base(JSValueType.Spread)
         {
             this.Value = value;
             _length = value.Length;
         }
-
-        internal override bool IsSpread => true;
 
         public override int Length { get => _length; set { } }
 

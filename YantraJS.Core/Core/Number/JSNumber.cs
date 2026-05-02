@@ -79,7 +79,7 @@ namespace YantraJS.Core
         public static readonly double MinValue = double.Epsilon;
         
 
-        public override bool IsNumber => true;
+        // public override bool IsNumber => true;
 
         public override JSValue TypeOf()
         {

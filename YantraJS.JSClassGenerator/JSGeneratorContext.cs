@@ -18,6 +18,8 @@ namespace YantraJS.JSClassGenerator
 
         public readonly bool InternalClass;
 
+        public readonly bool RuntimeClass;
+
         public readonly string? ConstructorLength;
         public readonly string? ConstructorMethod;
         public readonly bool GenerateClass;
@@ -34,6 +36,8 @@ namespace YantraJS.JSClassGenerator
             var className = type.Name;
 
             this.InternalClass = false;
+
+            this.RuntimeClass = type.ContainingAssembly.Name.Equals("YantraJS.Core");
 
             foreach(var attribute in type.GetAttributes())
             {
