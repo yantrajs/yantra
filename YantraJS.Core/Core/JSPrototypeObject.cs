@@ -21,7 +21,7 @@ public readonly struct JSPrototypeObject
     
     public JSPrototypeObject(JSObject @object) 
     {
-        this.prototype = @object.PrototypeObject;
+        this.prototype = @object?.PrototypeObject;
     }
     
     public JSPrototypeObject(JSPrototype prototype) 

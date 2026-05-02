@@ -324,6 +324,7 @@ namespace YantraJS.Core
         //}
 
         public JSContext(SynchronizationContext synchronizationContext = null)
+            : base((JSPrototypeObject)default)
         {
             this.synchronizationContext = synchronizationContext ?? SynchronizationContext.Current;
 

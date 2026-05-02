@@ -149,7 +149,7 @@ namespace YantraJS.Core
             in StringSpan name,
             in StringSpan source,
             int length = 0,
-            bool createPrototype = true) : base(new JSPrototypeObject(basePrototype))
+            bool createPrototype = true) : base(JSValueType.Function, new JSPrototypeObject(basePrototype))
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
@@ -183,7 +183,7 @@ namespace YantraJS.Core
             in StringSpan name,
             in StringSpan source,
             int length = 0,
-            bool createPrototype = true): base(JSContext.CurrentContext.Function_Prototype)
+            bool createPrototype = true): base(JSValueType.Function, JSContext.CurrentContext.Function_Prototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
