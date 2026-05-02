@@ -10,11 +10,11 @@ namespace YantraJS.Network
     [JSClassGenerator("Headers")]
     public partial class Headers : KeyValueStore
     {
-        public Headers(in Arguments a) : base(JSContext.NewTargetPrototype)
+        public Headers(in Arguments a) : base(a.NewTarget)
         {
         }
 
-        internal Headers(JSValue? first) : this()
+        internal Headers(JSValue? first) : base(JSContext.CurrentContext.GetGlobalPrototype("Headers"))
         {
         }
     }

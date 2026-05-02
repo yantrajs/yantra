@@ -100,6 +100,8 @@ namespace YantraJS.JSClassGenerator
                     sb.AppendLine($"public static {createClassReturnType} CreateClass(JSContext context, bool register = true) {{");
                 }
 
+                var prototypeCreated = false;
+
 
                 if (type.InternalClass)
                 {
@@ -126,13 +128,13 @@ namespace YantraJS.JSClassGenerator
 
                     var clrFunctionType = type.GenerateClass ? "JSClassFunction" : "JSFunction";
 
+                    prototypeCreated = true;
                     if (type.ConstructorMethod == null)
                     {
 
                         sb.AppendLine($@"
                         JSObject prototype = null;
-                        JSPrototype internalPrototype = null;
-                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(internalPrototype, in a)
+                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
@@ -140,15 +142,13 @@ namespace YantraJS.JSClassGenerator
                             context[{className.ToKeyStringName()}] = @class;
                         }}
                         prototype = @class.prototype;
-                        internalPrototype = prototype.PrototypeObject;
                         ");
                     }
                     else
                     {
                         sb.AppendLine($@"
                         JSObject prototype = null;
-                        JSPrototype internalPrototype = null;
-                        var @class = new {clrFunctionType}((in Arguments a) => {type.Name}.{type.ConstructorMethod}(internalPrototype, in a)
+                        var @class = new {clrFunctionType}((in Arguments a) => {type.Name}.{type.ConstructorMethod}(in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
@@ -156,7 +156,6 @@ namespace YantraJS.JSClassGenerator
                             context[{className.ToKeyStringName()}] = @class;
                         }}
                         prototype = @class.prototype;
-                        internalPrototype = prototype.PrototypeObject;
                         ");
 
                     }
@@ -200,7 +199,10 @@ namespace YantraJS.JSClassGenerator
                 //    sb.AppendLine($"context.{className}Prototype = prototype;");
                 if (type.RuntimeClass)
                 {
-                    sb.AppendLine($"context.{className}_Prototype = prototype.PrototypeObject;");
+                    if (prototypeCreated)
+                    {
+                        sb.AppendLine($"context.{className}_Prototype = prototype.PrototypeObject;");
+                    }
                 }
                 //}
 

@@ -21,7 +21,7 @@ namespace YantraJS.Core.Core.DataView
         }
 
         [JSExport(Length = 3)]
-        public DataView(in Arguments a): base(JSPrototypeObject.NewTarget)
+        public DataView(in Arguments a): base(a.NewTarget)
         {
             var buffer = a[0] as JSArrayBuffer ?? throw JSContext.CurrentContext.NewTypeError("First argument to DataView constructor must be an ArrayBuffer.");
 

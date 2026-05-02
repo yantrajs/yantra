@@ -12,6 +12,11 @@ namespace YantraJS.Utils
     [JSFunctionGenerator("Assert")]
     public partial class JSAssert: JSFunction
     {
+        private JSAssert(): base(JSContext.CurrentContext.Assert_Prototype)
+        {
+
+        }
+
         [JSExport(IsConstructor = true)]
         public static JSValue Assert(in Arguments args)
         {

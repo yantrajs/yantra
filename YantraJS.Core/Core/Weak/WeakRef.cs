@@ -17,7 +17,7 @@ namespace YantraJS.Core.Weak
 
         private readonly JSFunction finalizer;
 
-        public JSFinalizationRegistry(in Arguments a): base(JSContext.NewTargetPrototype)
+        public JSFinalizationRegistry(in Arguments a): base(a.NewTarget)
         {
             if (a[0] is not JSFunction fx)
                 throw JSContext.Current.NewTypeError($"Argument is not a function");
@@ -92,12 +92,17 @@ namespace YantraJS.Core.Weak
 
         internal WeakReference<JSValue> weak;
 
+        private JSWeakRef(): base(JSContext.CurrentContext.WeakRef_Prototype)
+        {
+
+        }
+
         public JSWeakRef(JSValue value): this()
         {
             weak = new WeakReference<JSValue>(value);
         }
 
-        public JSWeakRef(in Arguments a): base(JSContext.NewTargetPrototype)
+        public JSWeakRef(in Arguments a): base(a.NewTarget)
         {
             weak = new WeakReference<JSValue>(a[0] ?? throw new JSException($"argument is missing"));
         }

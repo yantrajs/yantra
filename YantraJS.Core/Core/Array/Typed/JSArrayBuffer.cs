@@ -34,7 +34,12 @@ namespace YantraJS.Core.Typed
 
         }
 
-        public JSArrayBuffer(in Arguments a): this()
+        private JSArrayBuffer(JSPrototypeObject p) : base(p)
+        {
+
+        }
+
+        public JSArrayBuffer(in Arguments a): this(a.NewTarget)
         {
             int length = a.Get1().AsInt32OrDefault();
             if (length < 0 || length > JSNumber.MaxSafeInteger)

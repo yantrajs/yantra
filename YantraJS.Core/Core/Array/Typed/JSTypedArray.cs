@@ -43,7 +43,7 @@ namespace YantraJS.Core.Typed
         public override int Length { get => length; set => throw new NotSupportedException(); }
 
 
-        public JSTypedArray(in Arguments a): this(JSPrototypeObject.NewTarget)
+        public JSTypedArray(in Arguments a): this(a.NewTarget)
         {
             throw new NotSupportedException();
         }

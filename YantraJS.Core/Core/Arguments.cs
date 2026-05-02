@@ -15,6 +15,8 @@ namespace YantraJS.Core
     public readonly partial struct Arguments
     {
 
+        public JSPrototypeObject NewTarget => new JSPrototypeObject(JSContext.CurrentContext.CurrentNewTarget);
+
         public static Arguments Empty = new Arguments(JSUndefined.Value);
 
         private const int MinArray = 5;

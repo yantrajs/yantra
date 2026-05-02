@@ -58,20 +58,20 @@ namespace YantraJS.Core
             Error = new JSError(this, message);
         }
 
-        public JSException(
-            string message, 
-            JSObject prototype,
-            [CallerMemberName] string function = null,
-            [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0) : base(message)
-        {
-            if (function != null)
-            {
-                this.trace.Add((function, filePath ?? "Unknown", line, 1));
-            }
+        //public JSException(
+        //    string message, 
+        //    JSObject prototype,
+        //    [CallerMemberName] string function = null,
+        //    [CallerFilePath] string filePath = null,
+        //    [CallerLineNumber] int line = 0) : base(message)
+        //{
+        //    if (function != null)
+        //    {
+        //        this.trace.Add((function, filePath ?? "Unknown", line, 1));
+        //    }
 
-            Error = new JSError(this, prototype);
-        }
+        //    Error = new JSError(this, prototype);
+        //}
 
 
         public JSValue JSStackTrace

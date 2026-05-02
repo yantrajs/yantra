@@ -13,7 +13,12 @@ namespace YantraJS.Network
     {
         private Dictionary<string, string>? headers;
 
-        internal KeyValueStore(JSValue? first, JSObject? prototype = null) : this(prototype)
+        protected KeyValueStore(JSPrototypeObject p): base(p)
+        {
+
+        }
+
+        internal KeyValueStore(JSValue? first, JSObject? prototype = null) : this(new JSPrototypeObject(prototype))
         {
             if (first == null)
                 return;

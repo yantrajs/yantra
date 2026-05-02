@@ -10,9 +10,13 @@ namespace YantraJS.Network
     [JSClassGenerator]
     public partial class AbortSignal: EventTarget
     {
-        internal AbortSignal(in Arguments a): this(JSContext.NewTargetPrototype) {
+        internal AbortSignal(in Arguments a): this() {
         }
 
+        public AbortSignal(): base(JSContext.CurrentContext.GetGlobalPrototype("AbortSignal"))
+        {
+
+        }
 
         [JSExport]
         public bool Aborted { get; internal set; }

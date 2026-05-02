@@ -46,7 +46,7 @@ namespace YantraJS.Core
                     throw JSContext.Current.NewTypeError("Object prototype may only be an Object or null");
                 proto = JSContext.Current.ObjectPrototype;
             }
-            return new JSObject(proto);
+            return new JSObject(new JSPrototypeObject(proto));
         }
 
         [JSExport("assign")]

@@ -16,7 +16,7 @@ namespace YantraJS.Core
         static long MaxTime = DateTimeOffset.MaxValue.ToUnixTimeMilliseconds();
 
         [JSExport( Length = 7 )]
-        JSDate(in Arguments a) {
+        JSDate(in Arguments a): base(JSValueType.Object, a.NewTarget) {
             DateTimeOffset date;
             if (a.Length == 0)
             {

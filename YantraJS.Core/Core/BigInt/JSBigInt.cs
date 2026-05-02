@@ -60,11 +60,16 @@ namespace YantraJS.Core.BigInt
 
         }
 
-        public JSBigInt(BigInteger value): base(JSValueType.BigInt)
+        private JSBigInt(): base(JSValueType.BigInt, JSContext.CurrentContext.BigInt_Prototype)
+        {
+
+        }
+
+        public JSBigInt(BigInteger value): this()
         {
             this.value = value;
         }
-        public JSBigInt(string stringValue): base(JSValueType.BigInt)
+        public JSBigInt(string stringValue): this()
         {
             var v = stringValue.TrimEnd('n').Replace("_", "");
             if (!BigInteger.TryParse(v, out var n))

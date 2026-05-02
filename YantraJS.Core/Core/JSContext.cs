@@ -473,7 +473,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return (new JSTypeError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
+            return (new JSTypeError(this.TypeError_Prototype, message, function, filePath,line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -482,7 +482,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return (new JSSyntaxError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
+            return (new JSSyntaxError(this.SyntaxError_Prototype, message, function, filePath, line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -491,7 +491,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return (new JSURIError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
+            return (new JSURIError(this.URIError_Prototype, message, function, filePath, line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -500,7 +500,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return (new JSRangeError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
+            return (new JSRangeError(this.RangeError_Prototype, message, function, filePath, line)).Exception;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -509,7 +509,7 @@ namespace YantraJS.Core
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
         {
-            return (new JSError(new Arguments(JSUndefined.Value, new JSString(message)), function: function, filePath: filePath, line: line)).Exception;
+            return (new JSError(this.Error_Prototype, message, function: function, filePath: filePath, line: line)).Exception;
         }
 
         partial void OnError(Exception ex);

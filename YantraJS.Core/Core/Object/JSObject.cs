@@ -220,7 +220,7 @@ namespace YantraJS.Core
         //    }
         //}
 
-        public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.Current?.ObjectPrototype)
+        public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.CurrentContext.Object_Prototype)
         {
             // ownProperties = new PropertySequence(4);
             foreach (var p in entries)

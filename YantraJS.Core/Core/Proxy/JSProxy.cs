@@ -14,7 +14,7 @@ namespace YantraJS.Core
         readonly JSObject target;
         private readonly JSObject handler;
 
-        protected JSProxy((JSObject target, JSObject handler) p) : base(JSContext.Current.ObjectPrototype)
+        protected JSProxy((JSObject target, JSObject handler) p) : base(JSContext.CurrentContext.Object_Prototype)
         {
             var (target, handler) = p;
             if (target == null || handler == null)

@@ -163,7 +163,7 @@ namespace YantraJS.Core.Debugger
             if(a.ThrowOnSideEffect && a.Expression == "(async function(){ await 1; })()")
             {
                 // return an error...
-                return new JSEvalError(new Arguments(JSUndefined.Value, new JSString("Has Side Effects")));
+                return new JSEvalError(JSContext.CurrentContext.EvalError_Prototype, "Has Side Effects");
             }
 
             if(!inspectorContext.Contexts.TryGetValue(a.ContextId, out var c))

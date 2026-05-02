@@ -21,10 +21,12 @@ namespace YantraJS.Core.Generator
         internal JSValue value;
         internal bool done;
 
-        public JSGenerator(in Arguments a): base(JSContext.NewTargetPrototype)
+        public JSGenerator(in Arguments a): base(a.NewTarget)
         {
             throw new NotImplementedException();
         }
+
+        private JSGenerator(): base(JSContext.CurrentContext.Generator_Prototype) { }
 
         public JSGenerator(IElementEnumerator en, string name): this() {
             this.en = en;

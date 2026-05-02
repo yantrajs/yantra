@@ -3,6 +3,18 @@
 partial class JSContext
 {
 
+    public JSPrototypeObject GetGlobalPrototype(string name)
+    {
+        var key = KeyStrings.Instance.GetOrCreate(name);
+        var @object = this[key];
+        if (@object[KeyString.prototype] is not JSObject o)
+        {
+            throw this.NewTypeError("Prototype not found");
+        }
+        return new JSPrototypeObject(o);
+    }
+
+
     internal JSPrototype String_Prototype;
     internal JSPrototype Object_Prototype;
     internal JSPrototype Map_Prototype;

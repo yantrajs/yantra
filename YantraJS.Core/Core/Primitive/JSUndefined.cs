@@ -7,7 +7,7 @@ namespace YantraJS.Core
 {
     public sealed class JSUndefined : JSValue
     {
-        private JSUndefined():base(null)
+        private JSUndefined():base(JSValueType.Undefined, default)
         {
 
         }

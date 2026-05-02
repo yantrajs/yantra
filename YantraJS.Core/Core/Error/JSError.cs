@@ -47,12 +47,12 @@ namespace YantraJS.Core
         {
 
         }
-
-        public JSError(in Arguments a,
+        public JSError(
+            JSPrototypeObject prototype,
+            string message,
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0,
-            JSPrototypeObject prototype = default
+            [CallerLineNumber] int line = 0
             ): this( prototype.PrototypeOrNewTrget)
         {
             this.Exception = new JSException(
@@ -60,6 +60,15 @@ namespace YantraJS.Core
                 function: function,
                 filePath: filePath,
                 line: line);
+            this.Message = message;
+            this.Stack = this.CreateStack();
+            this.FastAddValue(KeyString.message, message.Marshal(), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.stack, Stack.Marshal(), JSPropertyAttributes.ConfigurableValue);
+        }
+        public JSError(in Arguments a): this(a.NewTarget)
+        {
+            this.Exception = new JSException(
+                this);
             var message = a[0]?.ToString() ?? "Internal Error";
             this.Message = message;
             this.Stack = this.CreateStack();
@@ -143,17 +152,18 @@ namespace YantraJS.Core
     [JSClassGenerator("TypeError"), JSBaseClass("Error")]
     public partial class JSTypeError: JSError
     {
-        public JSTypeError(in Arguments a,
-            [CallerMemberName] string function = null,
-            [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0): base(in a,
-                function: function,
-                filePath: filePath,
-                line: line)
+        public JSTypeError(in Arguments a): base(in a)
         {
             
         }
 
+        public JSTypeError(JSPrototypeObject prototype,
+            string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(prototype, message, function, filePath, line)
+        {
+        }
 
         public static string NotIterable(object name) => $"{name} is not iterable";
 
@@ -162,58 +172,60 @@ namespace YantraJS.Core
     [JSClassGenerator("SyntaxError"), JSBaseClass("Error")]
     public partial class JSSyntaxError: JSError
     {
-        public JSSyntaxError(in Arguments a,
-            [CallerMemberName] string function = null,
-            [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0) : base(in a,
-                function: function,
-                filePath: filePath,
-                line: line)
+        public JSSyntaxError(in Arguments a) : base(in a)
         {
 
+        }
+
+
+        public JSSyntaxError(JSPrototypeObject prototype,
+            string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(prototype, message, function, filePath, line)
+        {
         }
     }
     [JSClassGenerator("URIError"), JSBaseClass("Error")]
     public partial class JSURIError: JSError
     {
-        public JSURIError(in Arguments a,
-            [CallerMemberName] string function = null,
-            [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0) : base(in a,
-                function: function,
-                filePath: filePath,
-                line: line)
+        public JSURIError(in Arguments a) : base(in a)
         {
 
+        }
+
+        public JSURIError(
+            JSPrototypeObject prototype,
+            string message,
+            [CallerMemberName] string function = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int line = 0) : base(prototype, message, function, filePath, line)
+        {
         }
     }
     [JSClassGenerator("RangeError"), JSBaseClass("Error")]
     public partial class JSRangeError: JSError
     {
-        public JSRangeError(in Arguments a,
-            [CallerMemberName] string function = null,
-            [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0) : base(in a,
-                function: function,
-                filePath: filePath,
-                line: line)
+        public JSRangeError(in Arguments a) : base(in a)
         {
 
+        }
+
+        public JSRangeError(JSPrototypeObject prototype, string message, [CallerMemberName] string function = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int line = 0) : base(prototype, message, function, filePath, line)
+        {
         }
     }
 
     [JSClassGenerator("EvalError"), JSBaseClass("Error")]
     public partial class JSEvalError : JSError
     {
-        public JSEvalError(in Arguments a,
-            [CallerMemberName] string function = null,
-            [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0) : base(in a,
-                function: function,
-                filePath: filePath,
-                line: line)
+        public JSEvalError(in Arguments a) : base(in a)
         {
 
         }
+        public JSEvalError(JSPrototypeObject prototype, string message, [CallerMemberName] string function = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int line = 0) : base(prototype, message, function, filePath, line)
+        {
+        }
+
     }
 }

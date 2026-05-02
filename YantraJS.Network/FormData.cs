@@ -11,11 +11,11 @@ namespace YantraJS.Network
     [JSClassGenerator]
     public partial class FormData : KeyValueStore
     {
-        public FormData(in Arguments a) : base(JSContext.NewTargetPrototype)
+        public FormData(in Arguments a) : base(a.NewTarget)
         {
         }
 
-        internal FormData(JSValue? first) : this()
+        internal FormData(JSValue? first) : base(JSContext.CurrentContext.GetGlobalPrototype("FormData"))
         {
         }
 

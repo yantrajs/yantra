@@ -77,6 +77,11 @@ namespace YantraJS.Core
             pending.TryAdd(promiseID, this);
         }
 
+        private JSPromise(): base(JSContext.CurrentContext.Promise_Prototype)
+        {
+
+        }
+
         internal JSPromise(JSValue value, PromiseState state): this()
         {
             InitPromise();
@@ -108,7 +113,7 @@ namespace YantraJS.Core
             });
         }
 
-        public JSPromise(in Arguments a): base(JSContext.NewTargetPrototype)
+        public JSPromise(in Arguments a): base(a.NewTarget)
         {
             InitPromise();
             JSValue @delegate = a[0];

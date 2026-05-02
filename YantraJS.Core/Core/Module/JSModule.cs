@@ -32,8 +32,10 @@ namespace YantraJS.Core
             throw new NotSupportedException();
         }
 
+        private JSModule(JSPrototypeObject prototype): base(prototype){}
+
         public JSModule(JSModuleContext context, JSObject exports, string name, bool isMain = false)
-            : this(context.ModulePrototype)
+            : this(context.Module_Prototype)
         {
             this.context = context;
             this.filePath = name;
@@ -43,7 +45,7 @@ namespace YantraJS.Core
         }
 
         internal JSModule(JSModuleContext context, string name, string code = null)
-            : this(context.ModulePrototype)
+            : this(context.Module_Prototype)
         {
             this.context = context;
             this.filePath = name;

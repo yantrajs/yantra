@@ -7,7 +7,7 @@ namespace YantraJS.Core
 {
     public sealed class JSNull : JSValue
     {
-        private JSNull(): base(null)
+        private JSNull(): base(JSValueType.Null, default)
         {
 
         }

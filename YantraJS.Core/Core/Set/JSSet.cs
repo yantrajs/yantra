@@ -23,7 +23,7 @@ namespace YantraJS.Core.Set
         [JSExport]
         public int Size => store?.Count ?? 0;
 
-        public JSSet(in Arguments a): base(JSContext.NewTargetPrototype)
+        public JSSet(in Arguments a): base(a.NewTarget)
         {
             if (a[0] is JSArray array)
             {

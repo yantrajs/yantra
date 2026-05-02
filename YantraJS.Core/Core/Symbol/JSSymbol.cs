@@ -32,7 +32,7 @@ namespace YantraJS.Core
             return this;
         }
 
-        public JSSymbol(string name) : base(JSValueType.Symbol, JSContext.Current.ObjectPrototype)
+        public JSSymbol(string name) : base(JSValueType.Symbol, JSContext.CurrentContext.Symbol_Prototype)
         {
             this.name = name;
             Key = (uint)Interlocked.Increment(ref SymbolID);

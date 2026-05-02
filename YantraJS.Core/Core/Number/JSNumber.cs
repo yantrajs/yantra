@@ -109,7 +109,7 @@ namespace YantraJS.Core
             return KeyStrings.Instance.GetOrCreate(n.ToString());
         }
 
-        public JSNumber(double value) : base()
+        public JSNumber(double value) : base(JSValueType.Number, JSContext.CurrentContext.Number_Prototype)
         {
             //if (value > 0 && value < double.Epsilon)
             //{
