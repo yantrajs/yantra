@@ -14,6 +14,10 @@ public readonly struct JSPrototypeObject
     }
     
     public readonly JSPrototype prototype;
+
+    public bool IsEmpty => prototype == null;
+
+    public JSPrototypeObject PrototypeOrNewTrget => prototype ?? NewTarget;
     
     public JSPrototypeObject(JSObject @object) 
     {

@@ -173,6 +173,12 @@ namespace YantraJS.Core
 
         }
 
+        protected JSObject(JSPrototypeObject prototype)
+            : base(JSValueType.Object, prototype)
+        {
+
+        }
+
         public virtual IEnumerable<(string Key, JSValue value)> Entries
         {
             get

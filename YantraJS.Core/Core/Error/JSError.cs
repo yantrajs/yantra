@@ -43,11 +43,17 @@ namespace YantraJS.Core
             return sb.ToString();
         }
 
+        protected JSError(JSPrototypeObject prototype): base(prototype)
+        {
+
+        }
+
         public JSError(in Arguments a,
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
-            [CallerLineNumber] int line = 0
-            ): this(JSContext.NewTargetPrototype)
+            [CallerLineNumber] int line = 0,
+            JSPrototypeObject prototype = default
+            ): this( prototype.PrototypeOrNewTrget)
         {
             this.Exception = new JSException(
                 this,
@@ -105,7 +111,7 @@ namespace YantraJS.Core
 
         internal protected JSError(
             JSException ex,
-            JSObject prototype = null) : base(prototype)
+            JSPrototypeObject prototype) : base(prototype)
         {
             this.Exception = ex;
             ex.Error ??= this;
@@ -114,7 +120,7 @@ namespace YantraJS.Core
         }
 
 
-        internal JSError(JSException ex, string msg) : this()
+        internal JSError(JSException ex, string msg) : this(JSContext.CurrentContext.Error_Prototype)
         {
             this.Exception = ex;
             ex.Error ??= this;

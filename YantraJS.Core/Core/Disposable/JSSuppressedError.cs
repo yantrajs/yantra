@@ -37,7 +37,7 @@ namespace YantraJS.Core.Core.Error
             [CallerMemberName] string function = null,
             [CallerFilePath] string filePath = null,
             [CallerLineNumber] int line = 0)
-            :base(new JSException(new JSString(message), function, filePath, line))
+            :base(new JSException(new JSString(message), function, filePath, line), JSContext.CurrentContext.SuppressedError_Prototype)
         {
             Error = error;
             this.Exception.With(this);
