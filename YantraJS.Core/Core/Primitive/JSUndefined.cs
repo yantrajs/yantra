@@ -19,10 +19,10 @@ namespace YantraJS.Core
             return KeyString.undefined;
         }
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Undefined;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Undefined;
+        // }
 
         public override bool BooleanValue => false;
 

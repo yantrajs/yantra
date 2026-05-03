@@ -11,7 +11,7 @@ namespace YantraJS.Core
     [JSFunctionGenerator("Proxy")]
     public partial class JSProxy : JSObject
     {
-        readonly JSObject target;
+        internal readonly JSObject target;
         private readonly JSObject handler;
 
         protected JSProxy((JSObject target, JSObject handler) p) : base(JSContext.CurrentContext.Object_Prototype)
@@ -175,10 +175,10 @@ namespace YantraJS.Core
             return target.StrictEquals(value);
         }
 
-        public override JSValue TypeOf()
-        {
-            return target.TypeOf();
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return target.TypeOf();
+        // }
 
         internal override PropertyKey ToKey(bool create = false)
         {

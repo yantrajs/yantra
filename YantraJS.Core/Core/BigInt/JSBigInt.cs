@@ -134,10 +134,10 @@ namespace YantraJS.Core.BigInt
         }
 
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.BigInt;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.BigInt;
+        // }
 
         protected override JSObject GetPrototype()
         {

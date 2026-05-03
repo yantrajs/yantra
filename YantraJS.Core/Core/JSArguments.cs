@@ -24,10 +24,10 @@ namespace YantraJS.Core
 
         public override bool BooleanValue => true;
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Arguments;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Arguments;
+        // }
 
         internal override PropertyKey ToKey(bool create = false)
         {

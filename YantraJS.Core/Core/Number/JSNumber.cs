@@ -81,10 +81,10 @@ namespace YantraJS.Core
 
         // public override bool IsNumber => true;
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Number;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Number;
+        // }
 
         protected override JSObject GetPrototype()
         {

@@ -134,10 +134,10 @@ namespace YantraJS.Core
         }
 
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Decimal;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Decimal;
+        // }
 
         protected override JSObject GetPrototype()
         {

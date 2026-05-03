@@ -38,10 +38,10 @@ namespace YantraJS.Core
             Key = (uint)Interlocked.Increment(ref SymbolID);
         }
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Symbol;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Symbol;
+        // }
 
         public override bool Equals(object obj)
         {

@@ -41,10 +41,10 @@ namespace YantraJS.Core.Core.Array
             throw new NotImplementedException();
         }
 
-        public override JSValue TypeOf()
-        {
-            throw new NotImplementedException();
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     throw new NotImplementedException();
+        // }
 
         internal override PropertyKey ToKey(bool create = true)
         {

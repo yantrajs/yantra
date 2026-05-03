@@ -157,10 +157,10 @@ namespace YantraJS.Core
             return ref elements;
         }
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Object;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Object;
+        // }
 
         public JSObject() : base(JSValueType.Object, JSContext.CurrentContext.Object_Prototype)
         {

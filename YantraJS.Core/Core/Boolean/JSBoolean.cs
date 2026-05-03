@@ -81,10 +81,10 @@ namespace YantraJS.Core
 
         // public override bool IsBoolean => true;
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Boolean;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Boolean;
+        // }
 
         public override JSValue Negate()
         {

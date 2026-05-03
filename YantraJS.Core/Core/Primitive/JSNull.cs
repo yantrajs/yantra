@@ -12,10 +12,10 @@ namespace YantraJS.Core
 
         }
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Object;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Object;
+        // }
 
         public static JSValue Value = new JSNull();
 

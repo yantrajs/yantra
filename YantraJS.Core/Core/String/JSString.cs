@@ -180,10 +180,10 @@ namespace YantraJS.Core
         //    return value.ToKey().KeyString;
         //}
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.String;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.String;
+        // }
 
 
         public override string ToString()

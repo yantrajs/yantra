@@ -151,7 +151,32 @@ namespace YantraJS.Core {
 
         internal virtual string StringValue => this.ToString();
 
-        public abstract JSValue TypeOf();
+        public JSValue TypeOf()
+        {
+            switch (this.ValueType)
+            {
+                case JSValueType.Undefined:
+                    return JSConstants.Undefined;
+                case JSValueType.BigInt:
+                    return JSConstants.BigInt;
+                case JSValueType.Number:
+                    return JSConstants.Number;
+                case JSValueType.Boolean:
+                    return JSConstants.Boolean;
+                case JSValueType.String:
+                    return JSConstants.String;
+                case JSValueType.Decimal:
+                    return JSConstants.Decimal;
+                case JSValueType.Function:
+                    return JSConstants.Function;
+                default:
+                    if (this is JSProxy proxy)
+                    {
+                        return proxy.target.TypeOf();
+                    }
+                    return JSConstants.Object;
+            }
+        }
 
         public virtual int IntValue => (int)(((long)this.DoubleValue << 32) >> 32);
 

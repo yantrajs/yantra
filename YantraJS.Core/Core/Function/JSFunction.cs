@@ -47,10 +47,10 @@ namespace YantraJS.Core
         
         // public override bool IsFunction => true;
 
-        public override JSValue TypeOf()
-        {
-            return JSConstants.Function;
-        }
+        // public override JSValue TypeOf()
+        // {
+        //     return JSConstants.Function;
+        // }
 
         private JSFunction(): base(JSValueType.Function, JSContext.CurrentContext.Function_Prototype) {
         }
