@@ -52,7 +52,7 @@ namespace YantraJS.Core
 
         }
 
-        private JSRegExp(): base(JSValueType.Object, JSContext.CurrentContext.Promise_Prototype)
+        private JSRegExp(): base(JSValueType.Object, JSContext.CurrentContext.RegExp_Prototype)
         {
 
         }

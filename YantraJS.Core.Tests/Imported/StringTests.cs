@@ -1199,7 +1199,7 @@ namespace YantraJS.Core.Tests.Imported
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.toLocaleLowerCase.call(undefined)"));
             Assert.AreEqual("TypeError", EvaluateExceptionType("''.toLocaleLowerCase.call(null)"));
             //TC added by Simmi
-            Assert.AreEqual("RangeError", EvaluateExceptionType("'Hello World'.toLocaleLowerCase('xx_yy')"));
+            Assert.AreEqual("RangeError", EvaluateExceptionType("'Hello World'.toLocaleLowerCase('$$$$')"));
         }
 
         [TestMethod]

@@ -14,7 +14,7 @@ using YantraJS.Core.Clr;
 namespace YantraJS.Core
 {
     // [JSRuntime(typeof(JSArrayStatic), typeof(JSArrayPrototype))]
-    [JSBaseClass("Object")]
+    [JSBaseClass("Function")]
     [JSFunctionGenerator("Array")]
 
     public partial class JSArray: JSObject

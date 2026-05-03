@@ -15,12 +15,11 @@ public enum JSValueType: byte
     Number = 8,
     String = 16,
     Spread = 24,
-    Function = 32,
     Symbol = 40,
     BigInt = 48,
     Decimal = 56,
 
     Object = 128,
-
-    Array = 136,
+    Function = 136,
+    Array = 168,
 } 

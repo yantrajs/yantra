@@ -276,12 +276,23 @@ namespace YantraJS.Core
 
         public static JSBoolean InstanceOf(this JSValue target, JSValue value)
         {
-            if (value.IsUndefined)
-                throw JSContext.Current.NewTypeError("Right side of instanceof is undefined");
-            if (value.IsNull)
-                throw JSContext.Current.NewTypeError("Right side of instanceof is null");
-            if(!value.IsFunction)
-                throw JSContext.Current.NewTypeError("Right side of instanceof is not a function");
+            switch (value.ValueType)
+            {
+                case JSValueType.Null:
+                    throw JSContext.Current.NewTypeError("Right side of instanceof is null");
+                    break;
+                case JSValueType.Undefined:
+                    throw JSContext.Current.NewTypeError("Right side of instanceof is undefined");
+                    break;
+                case JSValueType.Function:
+                    break;
+                default:
+                    throw JSContext.Current.NewTypeError("Right side of instanceof is not a function");
+            }
+            if (!target.IsObject)
+            {
+                return JSBoolean.False;
+            }
             var p = target.prototypeChain?.@object;
             if (p == null)
                 return JSBoolean.False;
