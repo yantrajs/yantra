@@ -29,7 +29,7 @@ namespace YantraJS.Core.Typed
 
         // public override int Length { get => buffer.Length; set => throw new NotSupportedException(); }
 
-        private JSArrayBuffer(): base(JSPrototypeObject.NewTarget)
+        private JSArrayBuffer(): base(JSContext.Current.ArrayBuffer_Prototype)
         {
 
         }
