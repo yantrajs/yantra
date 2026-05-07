@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using YantraJS.Core;
 using YantraJS.Core.FastParser;
 
 public class Program
@@ -50,7 +51,9 @@ public class Program
             var engine = new YantraJS.Core.JSContext();
             // By default YantraJS is strict mode only, in strict mode
             // unless you pass `this`, `this` in a global context is undefined.
+            var start = DateTime.Now;
             engine.Eval(content, item + ".js", engine);
+            Console.WriteLine($"{item} time {(DateTime.Now - start).TotalSeconds:N}");
         }
     }
 }
