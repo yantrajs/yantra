@@ -170,7 +170,7 @@ namespace YantraJS.ExpHelper
                 return YExpression.Constant(false);
             }
             // return Expression.Property(exp, _BooleanValue);
-            return exp.PropertyExpression<JSValue, bool>(() => (x) => x.BooleanValue);
+            return exp.FieldExpression<JSValue, bool>(() => (x) => x.BooleanValue);
         }
 
 

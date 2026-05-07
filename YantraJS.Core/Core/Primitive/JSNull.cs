@@ -24,7 +24,7 @@ namespace YantraJS.Core
             return "null";
         }
 
-        public override bool BooleanValue => false;
+        // public override bool BooleanValue => false;
 
         public override double DoubleValue => 0D;
 

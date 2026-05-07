@@ -33,11 +33,21 @@ namespace YantraJS.Core
 
         internal readonly decimal value;
 
-        public override bool BooleanValue => value != 0;
+        // public override bool BooleanValue => value != 0;
 
         public override double DoubleValue => throw CannotMix();
 
         public override long BigIntValue => throw CannotMix();
+
+        public static Decimal Parse(string text)
+        {
+            text = text.TrimEnd('m').Replace("_", "");
+            if (!decimal.TryParse(text, out var v))
+            {
+                throw JSContext.Current.NewTypeError($"{text} is not a valid big integer");
+            }
+            return v;
+        }
 
         [JSExport(IsConstructor = true)]
         public static JSValue Constructor(in Arguments a)
@@ -51,30 +61,17 @@ namespace YantraJS.Core
                     return bigint;
             }
             var text = f.ToString();
-            text = text.TrimEnd('m').Replace("_", "");
-            if (!decimal.TryParse(text, out var v))
-            {
-                throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
-            }
-            return new JSDecimal(v);
+            return new JSDecimal(text);
 
         }
 
-        private JSDecimal(): base(JSValueType.Decimal, JSContext.CurrentContext.Decimal_Prototype)
-        {
 
-        }
-
-        public JSDecimal(decimal value): this()
+        public JSDecimal(decimal value): base(JSValueType.Decimal, JSContext.CurrentContext.Decimal_Prototype, value != 0)
         {
             this.value = value;
         }
-        public JSDecimal(string stringValue):this()
+        public JSDecimal(string stringValue):this(Parse(stringValue))
         {
-            var v = stringValue.TrimEnd('m').Replace("_", "");
-            if (!decimal.TryParse(v, out var n))
-                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
-            this.value = n;
         }
 
         public override bool Equals(JSValue value)

@@ -22,12 +22,12 @@ namespace YantraJS.Core
 
         protected abstract JSObject GetPrototype();
 
-        protected JSPrimitive(JSValueType valueType) : base(valueType, null)
+        protected JSPrimitive(JSValueType valueType, bool truthy) : base(valueType, null, truthy)
         {
 
         }
 
-        protected JSPrimitive(JSValueType valueType, JSPrototypeObject prototype): base(valueType, prototype)
+        protected JSPrimitive(JSValueType valueType, JSPrototypeObject prototype, bool truthy): base(valueType, prototype , truthy  )
         {
 
         }

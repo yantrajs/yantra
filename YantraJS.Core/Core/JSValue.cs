@@ -147,7 +147,8 @@ namespace YantraJS.Core {
 
         public virtual double DoubleValue => Double.NaN;
 
-        public abstract bool BooleanValue { get; }
+        // public abstract bool BooleanValue { get; }
+        public readonly bool BooleanValue;
 
         internal virtual string StringValue => this.ToString();
 
@@ -329,15 +330,17 @@ namespace YantraJS.Core {
         }
 
 
-        protected JSValue(JSValueType valueType, JSPrototypeObject prototype)
+        protected JSValue(JSValueType valueType, JSPrototypeObject prototype, bool truthy)
         {
+            this.BooleanValue = truthy;
             this.ValueType = valueType;
             this.prototypeChain = prototype.prototype;
         }
 
-        protected JSValue(JSValueType valueType)
+        protected JSValue(JSValueType valueType, bool truthy)
         {
             this.ValueType = valueType;
+            this.BooleanValue = truthy;
         }
 
         //protected JSValue(JSValueType valueType, JSObject prototype)

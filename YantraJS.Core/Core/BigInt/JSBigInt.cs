@@ -8,6 +8,7 @@ using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace YantraJS.Core.BigInt
 {
@@ -25,6 +26,16 @@ namespace YantraJS.Core.BigInt
     public partial class JSBigInt : JSPrimitive
     {
 
+        public static BigInteger Parse(string bigIntValue)
+        {
+            bigIntValue = bigIntValue.TrimEnd('n').Replace("_", "");
+            if (!BigInteger.TryParse(bigIntValue, out var value))
+            {
+                throw JSContext.Current.NewTypeError($"{bigIntValue} is not a valid big integer");
+            }
+            return value;
+        }
+
 
         public static JSException CannotMix()
         {
@@ -33,7 +44,7 @@ namespace YantraJS.Core.BigInt
 
         internal readonly BigInteger value;
 
-        public override bool BooleanValue => value != 0;
+        // public override bool BooleanValue => value != 0;
 
         public override double DoubleValue => throw CannotMix();
 
@@ -51,31 +62,27 @@ namespace YantraJS.Core.BigInt
                     return bigint;
             }
             var text = f.ToString();
-            text = text.TrimEnd('n').Replace("_", "");
-            if (!BigInteger.TryParse(text, out var v))
-            {
-                throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
-            }
-            return new JSBigInt(v);
+            //text = text.TrimEnd('n').Replace("_", "");
+            //if (!BigInteger.TryParse(text, out var v))
+            //{
+            //    throw JSContext.Current.NewTypeError($"{f} is not a valid big integer");
+            //}
+            return new JSBigInt(text);
 
         }
 
-        private JSBigInt(): base(JSValueType.BigInt, JSContext.CurrentContext.BigInt_Prototype)
-        {
+        //private JSBigInt(bool truthy): base(JSValueType.BigInt, JSContext.CurrentContext.BigInt_Prototype)
+        //{
+        //}
 
-        }
-
-        public JSBigInt(BigInteger value): this()
+        public JSBigInt(BigInteger value): base(JSValueType.BigInt, JSContext.CurrentContext.BigInt_Prototype, value != 0 )
         {
             this.value = value;
         }
-        public JSBigInt(string stringValue): this()
+        public JSBigInt(string stringValue): this(JSBigInt.Parse(stringValue))
         {
-            var v = stringValue.TrimEnd('n').Replace("_", "");
-            if (!BigInteger.TryParse(v, out var n))
-                throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
-            this.value = n;
         }
+
 
         public override bool Equals(JSValue value)
         {

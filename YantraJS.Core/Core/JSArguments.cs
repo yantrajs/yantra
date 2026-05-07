@@ -22,7 +22,7 @@ namespace YantraJS.Core
 
         public static JSValue[] Empty = new JSValue[] { };
 
-        public override bool BooleanValue => true;
+        // public override bool BooleanValue => true;
 
         // public override JSValue TypeOf()
         // {

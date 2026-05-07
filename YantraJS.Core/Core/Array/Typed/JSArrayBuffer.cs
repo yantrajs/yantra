@@ -58,7 +58,7 @@ namespace YantraJS.Core.Typed
             this.buffer = buffer;
         }
 
-        public override bool BooleanValue => true;
+        // public override bool BooleanValue => true;
 
         public override double DoubleValue => Double.NaN;
 

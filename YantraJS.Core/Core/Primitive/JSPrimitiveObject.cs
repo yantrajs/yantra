@@ -29,7 +29,7 @@ namespace YantraJS.Core.Core.Primitive
 
         public override long BigIntValue => value.BigIntValue;
 
-        public override bool BooleanValue => value.BooleanValue;
+        // public override bool BooleanValue => value.BooleanValue;
 
         public override bool ConvertTo(Type type, out object value)
         {

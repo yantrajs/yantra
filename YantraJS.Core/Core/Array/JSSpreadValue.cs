@@ -8,7 +8,7 @@ namespace YantraJS.Core.Core.Array
     {
         private int _length;
 
-        public JSSpreadValue(JSValue value) : base(JSValueType.Spread)
+        public JSSpreadValue(JSValue value) : base(JSValueType.Spread, true)
         {
             this.Value = value;
             _length = value.Length;
@@ -22,7 +22,7 @@ namespace YantraJS.Core.Core.Array
         }
 
 
-        public override bool BooleanValue => throw new NotImplementedException();
+        // public override bool BooleanValue => throw new NotImplementedException();
 
         public JSValue Value { get; }
 

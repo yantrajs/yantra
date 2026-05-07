@@ -17,7 +17,7 @@ namespace YantraJS.Core
         private readonly string name;
         public readonly uint Key;
 
-        public override bool BooleanValue => true;
+        // public override bool BooleanValue => true;
 
         // public override bool IsSymbol => true;
 
@@ -32,7 +32,7 @@ namespace YantraJS.Core
             return this;
         }
 
-        public JSSymbol(string name) : base(JSValueType.Symbol, JSContext.CurrentContext.Symbol_Prototype)
+        public JSSymbol(string name) : base(JSValueType.Symbol, JSContext.CurrentContext.Symbol_Prototype, true)
         {
             this.name = name;
             Key = (uint)Interlocked.Increment(ref SymbolID);

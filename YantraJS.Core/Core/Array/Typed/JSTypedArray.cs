@@ -181,7 +181,7 @@ namespace YantraJS.Core.Typed
             }
             return base.GetOwnPropertyDescriptor(name);
         }
-        public override bool BooleanValue => true;
+        // public override bool BooleanValue => true;
         public override double DoubleValue => double.NaN;
         public override bool Equals(JSValue value)
         {

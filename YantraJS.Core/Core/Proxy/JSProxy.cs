@@ -25,7 +25,7 @@ namespace YantraJS.Core
             this.handler = handler;
         }
 
-        public override bool BooleanValue => target.BooleanValue;
+        // public override bool BooleanValue => target.BooleanValue;
 
 
         public override bool Equals(JSValue value)
