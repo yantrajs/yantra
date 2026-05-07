@@ -417,7 +417,7 @@ namespace YantraJS.Core
                 module,
                 module.Import,
                 module.Id,
-                new JSString(module.dirPath)
+                new JSString(module.dirPath ?? "")
             })) as JSPromise;
             if (result != null)
             {
