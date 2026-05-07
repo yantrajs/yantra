@@ -149,7 +149,7 @@ namespace YantraJS.Core
             return (JSContext.Current[KeyString.String] as JSFunction).prototype;
         }
 
-        public JSString(string value): base(JSValueType.String, JSContext.CurrentContext.String_Prototype, value != null && value.Length > 0)
+        public JSString(string value): base(JSValueType.String, JSContext.CurrentContext.String_Prototype, value.Length > 0)
         {
             this.value = value;
         }
