@@ -34,7 +34,14 @@ namespace YantraJS.Core
 
         public JSArray(params JSValue[] items): this()
         {
-            this.ArrayLength = items.Length;
+            this._length = (uint)items.Length;
+            ref var elements = ref GetElements(true);
+            elements.Initialize(items);
+        }
+
+        public JSArray(JSPrototypeObject p, params JSValue[] items) : base(JSValueType.Array, p)
+        {
+            this._length = (uint)items.Length;
             ref var elements = ref GetElements(true);
             elements.Initialize(items);
 
@@ -43,14 +50,14 @@ namespace YantraJS.Core
         public JSArray(List<JSValue> items) : this()
         {
             ref var elements = ref GetElements(true);
-            this.ArrayLength = items.Count;
+            this._length = (uint)items.Count;
             elements.Initialize(items);
         }
 
         public JSArray(IList<JSValue> items) : this()
         {
             ref var elements = ref GetElements(true);
-            this.ArrayLength = items.Count;
+            this._length = (uint)items.Count;
             elements.Initialize(items);
         }
 
@@ -347,7 +354,7 @@ namespace YantraJS.Core
             {
                 hasValue = true;
                 index = (uint)this.index;
-                value = new JSArray(new JSNumber(index), array[index]);
+                value = new JSArray(array.prototypeChain, new JSNumber(index), array[index]);
                 return true;
             }
 
@@ -361,7 +368,7 @@ namespace YantraJS.Core
         {
             if (++this.index < array.Length)
             {
-                value = new JSArray(new JSNumber(index), array[(uint)index]);
+                value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
                 return true;
             }
 
@@ -373,7 +380,7 @@ namespace YantraJS.Core
         {
             if (++this.index < array.Length)
             {
-                value = new JSArray(new JSNumber(index), array[(uint)index]);
+                value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
                 return true;
             }
 
@@ -385,7 +392,7 @@ namespace YantraJS.Core
         {
             if (++this.index < array.Length)
             {
-                return new JSArray(new JSNumber(index), array[(uint)index]);
+                return new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
             }
             return @default;
         }
