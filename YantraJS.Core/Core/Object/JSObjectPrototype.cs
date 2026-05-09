@@ -82,7 +82,7 @@ namespace YantraJS.Core
             if (key.IsUInt)
             {
                 ref var elements = ref @object.GetElements();
-                ref var property = ref elements.Get(key.Index);
+                var property = elements.Get(key.Index);
                 if (!property.IsEmpty)
                     return JSBoolean.True;
                 return JSBoolean.False;

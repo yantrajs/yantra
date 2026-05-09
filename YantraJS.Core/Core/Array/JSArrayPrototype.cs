@@ -183,7 +183,7 @@ namespace YantraJS.Core
                 if (!elementValue.IsEmpty)
                 {
                     // Copy the value to the new position.
-                    elements.Put((uint)target) = elementValue;
+                    elements.Put((uint)target,in elementValue);
                 }
                 else
                 {
@@ -522,7 +522,7 @@ namespace YantraJS.Core
             var length = (uint)@this.Length;
             for (uint i = 0; i < length; i++)
             {
-                ref var e = ref te.Get(i);
+                var e = te.Get(i);
                 if (e.IsEmpty)
                 {
                     continue;
@@ -669,8 +669,8 @@ namespace YantraJS.Core
             ref var elements = ref @this.GetElements();
             while (i < j) {
                 var swap = elements[(uint)i];
-                elements.Put((uint)i++) = elements[(uint)j];
-                elements.Put((uint)j--) = swap;
+                elements.Put((uint)i++, elements[(uint)j]);
+                elements.Put((uint)j--, swap);
 
             }
             // Assert.AreEqual(false, Evaluate("x.hasOwnProperty('0')")); This TC fails
@@ -723,7 +723,7 @@ namespace YantraJS.Core
             var last = n - 1;
             for(uint i = 1; i < n; i++)
             {
-                oe.Put(i - 1) = oe[i];
+                oe.Put(i - 1, oe[i]);
             }
             oe.RemoveAt(last);
             @this.Length = (int)last;
@@ -768,7 +768,7 @@ namespace YantraJS.Core
 
                     if (@this.TryGetValue(index, out var val))
                     {
-                        rElements.Put(ni++) = val;
+                        rElements.Put(ni++, val);
                     }
                     else {
                         ni++;
@@ -929,13 +929,13 @@ namespace YantraJS.Core
             ref var deletedItemsElements = ref deletedItems.GetElements();
             for (uint i = 0; i < deleteCount; i++)
             {
-                ref var property = ref elements.Get((uint)(start + i));
+                var property = elements.Get((uint)(start + i));
                 if (property.IsProperty)
                 {
-                    deletedItemsElements.Put(i) = JSProperty.Property(@this.GetValue(in property));
+                    deletedItemsElements.Put(i, JSProperty.Property(@this.GetValue(in property)));
                     continue;
                 }
-                deletedItemsElements.Put(i) = property;
+                deletedItemsElements.Put(i, property);
             }
 
             var itemsLength = a.Length > 1 ? a.Length - 2 : 0;
@@ -947,7 +947,7 @@ namespace YantraJS.Core
             {
                 for (int i = start + itemsLength; i < newLength; i++)
                 {
-                    elements.Put((uint)i) = elements.Get((uint)(i - offset));
+                    elements.Put((uint)i, elements.Get((uint)(i - offset)));
                     // @this[(uint)i] = @this[(uint)(i - offset)];
                 }
 
@@ -961,7 +961,7 @@ namespace YantraJS.Core
             {
                 for (int i = newLength - 1; i >= start + itemsLength; i--)
                 {
-                    elements.Put((uint)i) = elements.Get((uint)(i - offset));
+                    elements.Put((uint)i, elements.Get((uint)(i - offset)));
                     // @this[(uint)i] = @this[(uint)(i - offset)];
                 }
             }
@@ -972,7 +972,7 @@ namespace YantraJS.Core
             for (int i = 0; i < itemsLength; i++)
             {
                 // @this[(uint)(start + i)] = a[i + 2];
-                elements.Put((uint)(start + i)) = JSProperty.Property(a[i + 2]);
+                elements.Put((uint)(start + i), JSProperty.Property(a[i + 2]));
             }
 
             // Return the deleted items.
@@ -1055,7 +1055,7 @@ namespace YantraJS.Core
 
                 for (uint i = 0; i < a.Length; i++)
                 {
-                    elements.Put(i) = JSProperty.Property(a.GetAt((int)i));
+                    elements.Put(i, JSProperty.Property(a.GetAt((int)i)));
                 }
             }
             return new JSNumber(a.This.Length);

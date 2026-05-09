@@ -40,6 +40,7 @@ namespace YantraJS.Core
         {
             ref var elements = ref GetElements(true);
             AllocateElements((uint)items.Count);
+            this.ArrayLength = items.Count;
             uint i = 0;
             foreach (var item in items)
             {

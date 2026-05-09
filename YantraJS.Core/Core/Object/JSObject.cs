@@ -126,7 +126,7 @@ namespace YantraJS.Core
 
         public override JSValue GetOwnProperty(uint name)
         {
-            ref var p = ref elements.Get(name);
+            var p = elements.Get(name);
             return this.GetValue(p);
         }
 
@@ -271,7 +271,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddProperty(uint index, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
         {
-            elements.Put(index) = new JSProperty(index, getter, setter, getter, attributes);
+            elements.Put(index, new JSProperty(index, getter, setter, getter, attributes));
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -362,9 +362,9 @@ namespace YantraJS.Core
             {
                 if (target.elements.TryGetValue(i, out var p) && !p.IsEmpty)
                 {
-                    this.elements.Put(i) = p.IsValue
+                    this.elements.Put(i, p.IsValue
                         ? JSProperty.Property(p.value)
-                        : JSProperty.Property(target.GetValue(p));
+                        : JSProperty.Property(target.GetValue(p)));
                 }
             }
             foreach(var symbol in target.symbols.All)
@@ -633,7 +633,7 @@ namespace YantraJS.Core
 
         internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
-            ref var p = ref elements.Get(key);
+            var p = elements.Get(key);
             if (!p.IsEmpty)
             {
                 if (p.IsValue)
@@ -688,7 +688,7 @@ namespace YantraJS.Core
                 }
             }
             // p.key = name;
-            elements.Put(key) = pd.ToProperty(key);
+            elements.Put(key, pd.ToProperty(key));
             if (this is JSArray array)
             {
                 if (array._length <= key)
@@ -950,7 +950,7 @@ namespace YantraJS.Core
         {
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
-            ref var element = ref elements.Get(key);
+            var element = elements.Get(key);
             //if (!element.IsEmpty)
             //{
             //    PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
@@ -1092,7 +1092,7 @@ namespace YantraJS.Core
                 {
                     if (this.TryRemove(i, out var p))
                     {
-                        elements.Put(j) = p;
+                        elements.Put(j, p);
                     }
                 }
                 this.Length += diff;
@@ -1104,7 +1104,7 @@ namespace YantraJS.Core
                 {
                     if (this.TryRemove((uint)i, out var p))
                     {
-                        elements.Put((uint)j) = p;
+                        elements.Put((uint)j, p);
                     }
                 }
                 this.Length += diff;

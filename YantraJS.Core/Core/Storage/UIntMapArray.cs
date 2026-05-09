@@ -204,24 +204,113 @@ namespace YantraJS.Core.Core.Storage
     public struct ElementArray
     {
 
+        const int MaxArraySize = 1024 * 1024;
+
         private SAUint32Map<JSProperty> Storage;
+        private JSValue[] array;
+
+        private bool isDictionary;
+
         // private UInt32Map<JSProperty> Storage;
         private uint length;
 
         public uint Length => length;
 
-        public void Put(uint index, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
-        {
-            Put(index) = JSProperty.Property(getter, setter, attributes);
-        }
+        //public void Put(uint index, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
+        //{
+        //    this.EnsureCapacity(index);
+        //    Put(index) = JSProperty.Property(getter, setter, attributes);
+        //}
 
 
         public void Put(uint index, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
+            if (attributes != JSPropertyAttributes.EnumerableConfigurableValue)
+            {
+                this.TransferToDictionary();
+            }
+            else
+            {
+                this.EnsureCapacity(index + 1);
+                if (array != null)
+                {
+                    array[index] = value;
+                    return;
+                }
+            }
             Put(index) = JSProperty.Property(value, attributes);
         }
 
-        public ref JSProperty Put(uint index)
+        public void Put(uint index, in JSProperty p)
+        {
+            this.Put(index, p.value, p.Attributes);
+        }
+
+        private void EnsureCapacity(uint size)
+        {
+            if (this.isDictionary)
+            {
+                return;
+            }
+            if (this.length > size)
+            {
+                return;
+            }
+            this.length = size;
+            if (this.length < MaxArraySize)
+            {
+                if (this.array == null)
+                {
+                    int newLength = this.length < 16 ? 16 : ((((int)this.length >> 2) + 1) << 2);
+                    // lets allocate...
+                    this.array = new JSValue[newLength];
+                    return;
+                }
+                if (this.array.Length < this.length)
+                {
+                    var length2 = (int)this.array.Length * 2;
+                    var newLength = this.length < length2 ? length2 : (int)this.length;
+                    if (newLength < MaxArraySize)
+                    {
+                        System.Array.Resize(ref this.array, newLength);
+                        return;
+                    }
+                }
+                return;
+            }
+            TransferToDictionary();
+        }
+
+        private void TransferToDictionary()
+        {
+            if (this.isDictionary)
+            {
+                return;   
+            }
+            this.isDictionary = true;
+            var i = 0u;
+            if (this.array == null)
+            {
+                return;
+            }
+            foreach (var item in this.array)
+            {
+                if (item == null)
+                {
+                    i++;
+                    continue;
+                }
+                Storage.Put(i++) = JSProperty.Property(item, JSPropertyAttributes.EnumerableConfigurableValue);
+            }
+            this.array = null;
+        }
+
+        public void Put(uint index, JSValue value)
+        {
+            Put(index, value, JSPropertyAttributes.EnumerableConfigurableValue);
+        }
+
+        private ref JSProperty Put(uint index)
         {
             if(index >= length)
             {
@@ -229,19 +318,56 @@ namespace YantraJS.Core.Core.Storage
             }
             return ref Storage.Put(index);
         }
-        
-        public ref JSProperty Get(uint index)
+
+        public JSProperty Get(uint index)
         {
-            return ref Storage.GetRefOrDefault(index, ref JSProperty.Empty);
+
+            if (this.array != null)
+            {
+                if (index >= length)
+                {
+                    return default;
+                }
+
+                var value = this.array[index];
+                if (value == null)
+                {
+                    return default;
+                }
+                return JSProperty.Property(value, JSPropertyAttributes.EnumerableConfigurableValue);
+            }
+
+            if (!this.isDictionary)
+            {
+                return default;
+            }
+            ref var p = ref Storage.GetRefOrDefault(index, ref JSProperty.Empty);
+            return p;
         }
+        
+        //public ref JSProperty Get(uint index)
+        //{
+        //    if (index >= length)
+        //    {
+        //        return ref JSProperty.Empty;
+        //    }
+        //    if (!this.isDictionary)
+        //    {
+        //        if(this.array == null)
+        //        {
+        //            return ref JSProperty.Empty;
+        //        }
+        //    }
+        //    return ref Storage.GetRefOrDefault(index, ref JSProperty.Empty);
+        //}
 
         public JSProperty this[uint index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                ref var p = ref Storage.GetRefOrDefault(index, ref JSProperty.Empty);
-                return p;
+                // ref var p = ref Storage.GetRefOrDefault(index, ref JSProperty.Empty);
+                return this.Get(index);
             }
             //[Obsolete("Use Put")]
             //[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -255,46 +381,110 @@ namespace YantraJS.Core.Core.Storage
             //}
         }
 
-        public bool IsNull => Storage.IsNull;
+        public bool IsNull => length == 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(uint key, out JSProperty value)
         {
+            if (this.array != null)
+            {
+                if (key >= length)
+                {
+                    value = JSProperty.Empty;
+                    return false;
+                }
+                var v = this.array[key];
+                if (v == null)
+                {
+                    value = default;
+                    return false;
+                }
+                value = JSProperty.Property(v, JSPropertyAttributes.EnumerableConfigurableValue);
+                return true;
+            }
             return Storage.TryGetValue(key, out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryRemove(uint key, out JSProperty value)
         {
+            if (this.array != null)
+            {
+                if (key >= length)
+                {
+                    value = JSProperty.Empty;
+                    return false;
+                }
+                var v = this.array[key];
+                if (v == null)
+                {
+                    value = JSProperty.Empty;
+                    return false;
+                }
+                this.array[key] = null;
+                value = JSProperty.Property(v, JSPropertyAttributes.EnumerableConfigurableValue);
+                return true;
+            }
             return Storage.TryRemove(key, out value);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool RemoveAt(uint key)
         {
+            if (this.array != null)
+            {
+                if (key >= length)
+                {
+                    return false;
+                }
+                this.array[key] = null;
+                return true;
+            }
             return Storage.RemoveAt(key);
         }
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()
         {
-            for (uint i = 0; i < length; i++)
+            if (this.array != null)
             {
-                if (Storage.TryGetValue(i, out var v))
+                for (var i = 0u; i < this.length; i++)
                 {
-                    yield return (i, v);
+                    var v = this.array[i];
+                    if (v == null)
+                    {
+                        continue;
+                    }
+                    yield return (i, JSProperty.Property(v, JSPropertyAttributes.EnumerableConfigurableValue));
+                }
+            }
+            else
+            {
+                for (uint i = 0; i < length; i++)
+                {
+                    if (Storage.TryGetValue(i, out var v))
+                    {
+                        yield return (i, v);
+                    }
                 }
             }
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasKey(uint key)
-        {
-            return Storage.HasKey(key);
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public bool HasKey(uint key)
+        //{
+        //    return Storage.HasKey(key);
+        //}
 
         public void Resize(uint size)
         {
             if (length <= size)
             {
-                Storage.Resize((int)size);
+                if (this.isDictionary)
+                {
+                    this.length = size;
+                    Storage.Resize((int)size);
+                } else
+                {
+                    this.EnsureCapacity(size);
+                }
             }
         }
 
@@ -363,18 +553,18 @@ namespace YantraJS.Core.Core.Storage
                 var value = this[i];
                 uint j;
                 for (j = i - 1; j > start && comparer(this[j].value, value.value) > 0; j--)
-                    this.Put(j + 1) = this[j];
+                    this.Put(j + 1,this[j]);
 
                 // Normally the for loop above would continue until j < start but since we are
                 // using uint it doesn't work when start == 0.  Therefore the for loop stops one
                 // short of start then the extra loop iteration runs below.
                 if (j == start && comparer(this[j].value, value.value) > 0)
                 {
-                    this.Put(j + 1) = this[j];
+                    this.Put(j + 1, this[j]);
                     j--;
                 }
 
-                this.Put(j + 1) = value;
+                this.Put(j + 1, value);
             }
         }
 
@@ -386,8 +576,8 @@ namespace YantraJS.Core.Core.Storage
         private void Swap(uint index1, uint index2)
         {
             var temp = this[index1];
-            this.Put(index1) = this[index2];
-            this.Put(index2) = temp;
+            this.Put(index1, this[index2]);
+            this.Put(index2, temp);
         }
     }
 
