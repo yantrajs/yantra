@@ -1159,26 +1159,34 @@ namespace YantraJS.Core
             return new ElementEnumerator(this);
         }
 
-        private readonly struct ElementEnumerator : IElementEnumerator
+        private struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
-            readonly IEnumerator<(uint Key, JSProperty Value)> en;
+            private uint index = 0;
             public ElementEnumerator(JSObject @object)
             {
-                this.en = @object.elements.AllValues().GetEnumerator();
+                // this.en = @object.elements.AllValues().GetEnumerator();
                 this.@object = @object;
             }
 
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                if(en?.MoveNext() ?? false) {
-                    var (Key, Value) = en.Current;
-                    value = @object.GetValue(Value);
-                    index = Key;
+                if(@object.elements.TryGetValue(this.index, out var p))
+                {
+                    index = this.index++;
+                    value = @object.GetValue(p);
                     hasValue = true;
                     return true;
                 }
+                this.index++;
+                //if(en.MoveNext()) {
+                //    var (Key, Value) = en.Current;
+                //    value = @object.GetValue(Value);
+                //    index = Key;
+                //    hasValue = true;
+                //    return true;
+                //}
                 hasValue = false;
                 value = JSUndefined.Value;
                 index = 0;
@@ -1187,35 +1195,52 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value)
             {
-                if (en?.MoveNext() ?? false)
+                if (@object.elements.TryGetValue(this.index, out var p))
                 {
-                    var (Key, Value) = en.Current;
-                    value = @object.GetValue(Value);
+                    index = this.index++;
+                    value = @object.GetValue(p);
                     return true;
                 }
+                this.index++;
+                //if(en.MoveNext()) {
+                //    var (Key, Value) = en.Current;
+                //    value = @object.GetValue(Value);
+                //    index = Key;
+                //    hasValue = true;
+                //    return true;
+                //}
                 value = JSUndefined.Value;
+                index = 0;
                 return false;
             }
 
             public bool MoveNextOrDefault(out JSValue value, JSValue @default)
             {
-                if (en?.MoveNext() ?? false)
+                if (@object.elements.TryGetValue(this.index, out var p))
                 {
-                    var (Key, Value) = en.Current;
-                    value = @object.GetValue(Value);
+                    this.index++;
+                    value = @object.GetValue(p);
                     return true;
                 }
+                this.index++;
                 value = @default;
                 return false;
             }
 
             public JSValue NextOrDefault(JSValue @default)
             {
-                if (en?.MoveNext() ?? false)
+                //if (en.MoveNext())
+                //{
+                //    var (Key, Value) = en.Current;
+                //    return @object.GetValue(Value);
+                //}
+                //return @default;
+                if (@object.elements.TryGetValue(this.index, out var p))
                 {
-                    var (Key, Value) = en.Current;
-                    return @object.GetValue(Value);
+                    this.index++;
+                    return @object.GetValue(p);
                 }
+                this.index++;
                 return @default;
             }
         }

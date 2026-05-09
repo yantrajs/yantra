@@ -261,7 +261,7 @@ namespace YantraJS.Core.Core.Storage
             {
                 if (this.array == null)
                 {
-                    int newLength = this.length < 16 ? 16 : ((((int)this.length >> 2) + 1) << 2);
+                    int newLength = this.length < 4 ? 4 : ((((int)this.length >> 2) + 1) << 2);
                     // lets allocate...
                     this.array = new JSValue[newLength];
                     return;
@@ -307,7 +307,13 @@ namespace YantraJS.Core.Core.Storage
 
         public void Put(uint index, JSValue value)
         {
-            Put(index, value, JSPropertyAttributes.EnumerableConfigurableValue);
+            this.EnsureCapacity(index + 1);
+            if (array != null)
+            {
+                array[index] = value;
+                return;
+            }
+            Put(index) = JSProperty.Property( value, JSPropertyAttributes.EnumerableConfigurableValue);
         }
 
         private ref JSProperty Put(uint index)
@@ -321,14 +327,13 @@ namespace YantraJS.Core.Core.Storage
 
         public JSProperty Get(uint index)
         {
+            if (index >= length)
+            {
+                return default;
+            }
 
             if (this.array != null)
             {
-                if (index >= length)
-                {
-                    return default;
-                }
-
                 var value = this.array[index];
                 if (value == null)
                 {
@@ -386,13 +391,13 @@ namespace YantraJS.Core.Core.Storage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(uint key, out JSProperty value)
         {
+            if (key >= length)
+            {
+                value = default;
+                return false;
+            }
             if (this.array != null)
             {
-                if (key >= length)
-                {
-                    value = JSProperty.Empty;
-                    return false;
-                }
                 var v = this.array[key];
                 if (v == null)
                 {
@@ -408,17 +413,17 @@ namespace YantraJS.Core.Core.Storage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryRemove(uint key, out JSProperty value)
         {
+            if (key >= length)
+            {
+                value = default;
+                return false;
+            }
             if (this.array != null)
             {
-                if (key >= length)
-                {
-                    value = JSProperty.Empty;
-                    return false;
-                }
                 var v = this.array[key];
                 if (v == null)
                 {
-                    value = JSProperty.Empty;
+                    value = default;
                     return false;
                 }
                 this.array[key] = null;
