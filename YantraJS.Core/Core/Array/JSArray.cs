@@ -32,20 +32,26 @@ namespace YantraJS.Core
 
         }
 
-        public JSArray(params JSValue[] items): this((IList<JSValue>)items)
+        public JSArray(params JSValue[] items): this()
         {
+            this.ArrayLength = items.Length;
+            ref var elements = ref GetElements(true);
+            elements.Initialize(items);
+
+        }
+
+        public JSArray(List<JSValue> items) : this()
+        {
+            ref var elements = ref GetElements(true);
+            this.ArrayLength = items.Count;
+            elements.Initialize(items);
         }
 
         public JSArray(IList<JSValue> items) : this()
         {
             ref var elements = ref GetElements(true);
-            AllocateElements((uint)items.Count);
             this.ArrayLength = items.Count;
-            uint i = 0;
-            foreach (var item in items)
-            {
-                elements.Put(i++, item);
-            }
+            elements.Initialize(items);
         }
 
         public JSArray(IElementEnumerator en): this()

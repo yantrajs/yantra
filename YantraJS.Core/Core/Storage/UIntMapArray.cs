@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -583,6 +584,36 @@ namespace YantraJS.Core.Core.Storage
             var temp = this[index1];
             this.Put(index1, this[index2]);
             this.Put(index2, temp);
+        }
+
+        internal void Initialize(JSValue[] items)
+        {
+            this.array = items;
+            this.length = (uint)items.Length;
+            this.isDictionary = false;
+        }
+
+        internal void Initialize(IList<JSValue> items)
+        {
+            this.array = new JSValue[items.Count];
+            this.length = (uint)items.Count;
+            var i = 0;
+            foreach(var item in items) {
+                this.array[i++] = item;
+            }
+            this.isDictionary = false;
+        }
+
+        internal void Initialize(List<JSValue> items)
+        {
+            this.array = new JSValue[items.Count];
+            this.length = (uint)items.Count;
+            var i = 0;
+            foreach (var item in items)
+            {
+                this.array[i++] = item;
+            }
+            this.isDictionary = false;
         }
     }
 

@@ -16,9 +16,20 @@ namespace YantraJS.Core.Core.Array
 
         public override int Length { get => _length; set { } }
 
-        public override JSValue this[uint key] { 
-            get => Value[key]; 
-            set => Value[key] = value; 
+        //public override JSValue this[uint key] { 
+        //    get => Value[key]; 
+        //    set => Value[key] = value; 
+        //}
+
+        protected internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        {
+            return Value[key];
+        }
+
+        protected internal override bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            Value[key] = value;
+            return true;
         }
 
 

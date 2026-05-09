@@ -502,13 +502,15 @@ namespace YantraJS.Core {
             }
         }
 
-        public virtual JSValue this[uint key]
+        public JSValue this[uint key]
         {
             get
             {
                 return this.GetValue(key, this);
             }
-            set { }
+            set {
+                SetValue(key, value, this, true);
+            }
         }
 
         public virtual JSValue this[JSSymbol symbol]

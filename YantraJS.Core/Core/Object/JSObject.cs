@@ -548,11 +548,11 @@ namespace YantraJS.Core
             return true;
         }
 
-        public override JSValue this[uint name]
-        {
-            get => GetValue(name, this);
-            set => SetValue(name, value, this, true);
-        }
+        //public override JSValue this[uint name]
+        //{
+        //    get => GetValue(name, this);
+        //    set => SetValue(name, value, this, true);
+        //}
 
         internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
