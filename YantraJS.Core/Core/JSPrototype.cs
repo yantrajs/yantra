@@ -32,7 +32,7 @@ namespace YantraJS.Core
             this.Build();
         }
 
-        private void Build()
+        internal void Build()
         {
             
             if (!this.dirty)

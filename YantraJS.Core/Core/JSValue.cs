@@ -214,7 +214,40 @@ namespace YantraJS.Core {
             }
         }
 
-        
+
+        public virtual IEnumerable<(string Key, JSValue value)> PrototypeEntries
+        {
+            get
+            {
+                this.prototypeChain.Build();
+                var en = this.prototypeChain.propertySet.stringKeys.GetFastEnumerator();
+                while(en.MoveNext(out var key, out var value))
+                {
+                    if(this.prototypeChain.propertySet.properties.TryGetValue((uint)key, out var v))
+                    {
+                        yield return (key.ToStringSpan().Value, this.GetValue(v.property));
+                    }
+                }
+                //var en = new PropertySequence.ValueEnumerator(this.prototypeChain.propertySet.key, false);
+                //while (en.MoveNext(out var value, out var key))
+                //{
+                //    yield return (KeyStrings.Instance.GetNameString((uint)key).Value, value);
+                //}
+                //for(int i = 0; i< ownProperties.properties.Length; i++)
+                //{
+                //    var p = ownProperties.properties[i];
+                //    JSValue v = null;
+                //    try {
+                //        v = this.GetValue(p);
+                //    } catch (Exception ex)
+                //    {
+                //        System.Diagnostics.Debug.WriteLine(ex);
+                //    }
+                //    yield return ( KeyStrings.Instance.GetNameString(p.key).Value , v);
+                //}
+            }
+        }
+
         /// <summary>
         /// Unless overriden, it returns self
         /// </summary>
