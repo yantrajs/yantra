@@ -260,23 +260,24 @@ namespace YantraJS.Core.Core.Storage
             this.length = size;
             if (this.length < MaxArraySize)
             {
+                int newLength;
                 if (this.array == null)
                 {
-                    int newLength = this.length < 4 ? 4 : ((((int)this.length >> 2) + 1) << 2);
+                    newLength = this.length < 4 ? 4 : ((((int)this.length >> 2) + 1) << 2);
                     // lets allocate...
                     this.array = new JSValue[newLength];
                     return;
                 }
-                if (this.array.Length < this.length)
+                if (this.array.Length >= this.length)
                 {
-                    var length2 = (int)this.array.Length * 2;
-                    var newLength = this.length < length2 ? length2 : (int)this.length;
-                    if (newLength < MaxArraySize)
-                    {
-                        System.Array.Resize(ref this.array, newLength);
-                        return;
-                    }
+                    return;
                 }
+                //var length2 = (int)this.array.Length * 2;
+                //newLength = size > length2 ? (int)size : length2;
+                //newLength = newLength < MaxArraySize ? newLength : MaxArraySize;
+                newLength = (((int)this.length >> 4) + 1) << 4;
+                System.Array.Resize(ref this.array, newLength);
+                return;
             }
             TransferToDictionary();
         }
@@ -293,7 +294,7 @@ namespace YantraJS.Core.Core.Storage
             {
                 return;
             }
-            Storage.Resize((int)this.length);
+            // Storage.Resize((int)this.length);
             foreach (var item in this.array)
             {
                 if (item == null)
