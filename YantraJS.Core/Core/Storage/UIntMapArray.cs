@@ -277,7 +277,6 @@ namespace YantraJS.Core.Core.Storage
                         return;
                     }
                 }
-                return;
             }
             TransferToDictionary();
         }
@@ -294,6 +293,7 @@ namespace YantraJS.Core.Core.Storage
             {
                 return;
             }
+            Storage.Resize((int)this.length);
             foreach (var item in this.array)
             {
                 if (item == null)
