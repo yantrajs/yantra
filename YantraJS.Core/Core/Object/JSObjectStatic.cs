@@ -190,10 +190,10 @@ namespace YantraJS.Core
             if ((v is JSArray va))
             {
 
-                ref var vaElements = ref va.GetElements();
+                // ref var vaElements = ref va.GetElements();
                 for (uint i = 0; i < va._length; i++)
                 {
-                    var vi = vaElements[i];
+                    var vi = va.elements[i];
                     if (!(vi.value is JSArray ia))
                         throw JSContext.Current.NewTypeError(JSTypeError.NotEntry(vi));
                     var first = ia[(uint)0];
@@ -247,11 +247,11 @@ namespace YantraJS.Core
                 return new JSArray();
             var en = jobj.GetAllKeys(true, false);
             var r = new JSArray();
-            ref var e = ref r.GetElements();
+            // ref var e = ref r.GetElements();
             while (en.MoveNext(out var hasValue, out var value, out var index)) {
                 if (hasValue)
                 {
-                    e.Put(r._length++, value);
+                    r.elements.Put(r._length++, value);
                 }
             }
             return r;

@@ -44,10 +44,10 @@ namespace YantraJS.Core.Debugger
 
                 if (args.ownProperties)
                 {
-                    ref var e = ref c.GetElements(false);
-                    for (uint i = 0; i < e.Length; i++)
+                    // ref var e = ref c.GetElements(false);
+                    for (uint i = 0; i < c.elements.Length; i++)
                     {
-                        var p = e.Get(i);
+                        var p = c.elements.Get(i);
                         if (p.IsEmpty)
                             continue;
                         list.Add(new V8PropertyDescriptor(i.ToString(), v, p, true));

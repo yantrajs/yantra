@@ -719,12 +719,11 @@ namespace YantraJS.Core
         public JSValue RestFrom(uint index)
         {
             var a = new JSArray();
-            ref var ae = ref a.GetElements(true);
             uint i;
             uint ai;
             for (ai = 0,i = index; i < Length; i++, ai++)
             {
-                ae.Put(ai, GetAt((int)i));
+                a.elements.Put(ai, GetAt((int)i));
             }
             a._length = ai;
             return a;

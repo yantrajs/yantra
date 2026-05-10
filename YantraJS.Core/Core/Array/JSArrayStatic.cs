@@ -23,21 +23,21 @@ namespace YantraJS.Core
             var t = a.This;
             var en = f.GetElementEnumerator();
             uint length = 0;
-            ref var elements = ref r.GetElements();
+            // ref var elements = ref r.GetElements();
 
             if (map is JSFunction fx)
             {
                 var cb = fx.f;
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements.Put(length++, cb(new Arguments(mapThis, item,new JSNumber(index))));
+                    r.elements.Put(length++, cb(new Arguments(mapThis, item,new JSNumber(index))));
                 }
             }
             else
             {
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    elements.Put(length++, item);
+                    r.elements.Put(length++, item);
                 }
             }
             r._length = length;

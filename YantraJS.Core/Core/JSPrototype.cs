@@ -74,10 +74,10 @@ namespace YantraJS.Core
                 ps.properties.Put((uint)key) = (value.ToNotReadOnly(),target);
             }
 
-            ref var objectElements = ref @object.GetElements(false);
-            if (!objectElements.IsNull)
+            // ref var objectElements = ref @object.GetElements(false);
+            if (!@object.elements.IsNull)
             {
-                foreach(var e in objectElements.AllValues())
+                foreach(var e in @object.elements.AllValues())
                 {
                     if (!e.Value.IsEmpty)
                     {
@@ -149,8 +149,8 @@ namespace YantraJS.Core
             if(propertySet.elements.TryGetValue(i, out var ee))
             {
                 var @object = ee.owner.@object;
-                ref var elements = ref @object.GetElements(false);
-                return elements.TryRemove(i, out p);
+                // ref var elements = ref @object.GetElements(false);
+                return @object.elements.TryRemove(i, out p);
             }
             p = JSProperty.Empty;
             return false;

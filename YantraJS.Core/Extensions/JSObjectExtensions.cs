@@ -50,27 +50,27 @@ namespace YantraJS
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void FastAddSetter(JSObject target, uint key, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
         {
-            ref var pr = ref target.GetElements(true);
+           //  ref var pr = ref target.GetElements(true);
             // ref var existing = ref pr.Put(key);
             if (target is JSArray a)
                 a._length = a._length > key ? a._length : key + 1;
             // var getter = existing.get;
             // existing = new JSProperty(key, getter, setter, existing.value, attributes);
-            var existing = pr.Get(key);
+            var existing = target.elements.Get(key);
             existing = new JSProperty(key, existing.get, setter, existing.value, attributes);
-            pr.Put(key, existing);
+            target.elements.Put(key, existing);
 
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void FastAddGetter(JSObject target, uint key, JSFunction getter, JSPropertyAttributes attributes = JSPropertyAttributes.ConfigurableProperty)
         {
-            ref var pr = ref target.GetElements(true);
+            // ref var pr = ref target.GetElements(true);
             if (target is JSArray a)
                 a._length = a._length > key ? a._length : key + 1;
-            var existing = pr.Get(key);
+            var existing = target.elements.Get(key);
             existing = new JSProperty(key, getter, existing.set, existing.value, attributes);
-            pr.Put(key, existing);
+            target.elements.Put(key, existing);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -137,18 +137,18 @@ namespace YantraJS
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static JSObject AddProperty(this JSObject target, uint key, JSValue value, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableValue)
         {
-            target.GetElements().Put(key, value, attributes);
+            target.elements.Put(key, value, attributes);
             return target;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static JSObject AddProperty(this JSObject target, uint key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes = JSPropertyAttributes.EnumerableConfigurableProperty)
         {
-            ref var ownProperties = ref target.GetElements();
-            var p = ownProperties.Get(key);
+            // ref var ownProperties = ref target.GetElements();
+            var p = target.elements.Get(key);
             if (p.IsEmpty)
             {
-                ownProperties.Put(key, JSProperty.Property(getter, setter, attributes));
+                target.elements.Put(key, JSProperty.Property(getter, setter, attributes));
                 return target;
             }
             p = JSProperty.Property(getter ?? p.get, setter ?? p.set, attributes);

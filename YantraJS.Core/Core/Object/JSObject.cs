@@ -55,7 +55,10 @@ namespace YantraJS.Core
 
         // internal long version = 0;
         internal event PropertyChangedEventHandler PropertyChanged;
-        private ElementArray elements;
+        internal protected ElementArray elements;
+
+        //internal ref ElementArray Elements { get { return ref elements; } }
+
         private PropertySequence ownProperties;
         private SAUint32Map<JSProperty> symbols;
         private long? uid;
@@ -130,13 +133,13 @@ namespace YantraJS.Core
             return this.GetValue(p);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref ElementArray GetElements(bool create = true)
-        {
-            //if (elements.IsNull && create)
-            //    elements = new UInt32Map<JSProperty>();
-            return ref elements;
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public ref ElementArray GetElements(bool create = true)
+        //{
+        //    //if (elements.IsNull && create)
+        //    //    elements = new UInt32Map<JSProperty>();
+        //    return ref elements;
+        //}
 
         public ref SAUint32Map<JSProperty> GetSymbols()
         {
@@ -678,7 +681,7 @@ namespace YantraJS.Core
 
         public JSValue DefineProperty(uint key, JSObject pd)
         {
-            ref var elements = ref GetElements(true);
+            // ref var elements = ref GetElements(true);
             var old = elements[key];
             if (!old.IsEmpty)
             {

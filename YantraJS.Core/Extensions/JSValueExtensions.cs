@@ -238,13 +238,13 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject @object))
                 yield break;
-            var elements = @object.GetElements();
-            if (!elements.IsNull)
+            // var elements = @object.GetElements();
+            if (!@object.elements.IsNull)
             {
-                var len = elements.Length;
+                var len = @object.elements.Length;
                 for(uint Key = 0;Key<len;Key++)
                 {
-                    var Value = elements[Key];
+                    var Value = @object.elements[Key];
                     if (showEnumerableOnly)
                     {
                         if (!Value.IsEnumerable)
