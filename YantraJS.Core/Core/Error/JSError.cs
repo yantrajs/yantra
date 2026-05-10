@@ -79,7 +79,9 @@ namespace YantraJS.Core
         [JSExport("toString")]
         public new JSValue ToString(in Arguments a)
         {
-            var name = this.prototypeChain.@object[KeyString.constructor][KeyString.name];
+            var name = (this.prototypeChain.@object is JSFunction fx)
+                ? fx.name.Value
+                : this.prototypeChain.@object[KeyString.constructor][KeyString.name].ToString();
             return new JSString($"{name}: {this.Message}");
         }
 

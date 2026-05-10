@@ -80,6 +80,7 @@ namespace YantraJS.Core
                 : new JSString(name), JSPropertyAttributes.EnumerableConfigurableValue);
             this.FastAddValue(KeyString.length, new JSNumber(0), JSPropertyAttributes.EnumerableConfigurableValue);
             constructor = this;
+            prototype.Dirty();
         }
 
         internal void Seal()
@@ -117,6 +118,7 @@ namespace YantraJS.Core
                 : new JSString(name));
             ownProperties.Put(KeyString.length, JSNumber.Zero);
             constructor = this;
+            prototype.Dirty();
         }
 
         public JSFunction(JSFunctionDelegate f)
@@ -176,6 +178,10 @@ namespace YantraJS.Core
                 : new JSString(name));
             ownProperties.Put(KeyString.length, new JSNumber(length));
             constructor = this;
+            if (createPrototype)
+            {
+                prototype.Dirty();
+            }
         }
 
         public JSFunction(
@@ -212,6 +218,10 @@ namespace YantraJS.Core
             ownProperties.Put(KeyString.length, new JSNumber(length),
                 JSPropertyAttributes.ConfigurableValue);
             constructor = this;
+            if (createPrototype)
+            {
+                prototype.Dirty();
+            }
         }
 
         public override JSValue this[KeyString name] { 
