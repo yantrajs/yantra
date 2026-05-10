@@ -127,7 +127,7 @@ namespace YantraJS.Core
                     case 4:
                         return new Arguments(@this, 4, arguments[(uint)0], arguments[1], arguments[2], arguments[3], null);
                     default:
-                        var argList = new JSValue[arguments.Length];
+                        var argList = new JSValue[length];
                         var ee = arguments.GetElementEnumerator();
                         while (ee.MoveNext(out var hasValue, out var value, out var index))
                         {

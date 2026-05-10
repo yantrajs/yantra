@@ -157,13 +157,14 @@ namespace YantraJS.Core
             var start = s.IntValue;
             var end = a.TryGetAt(2, out var e) ? e.IntValue : int.MaxValue;
             var @this = a.This as JSArray;
+            var thisLength = (int)@this._length;
             // Negative values represent offsets from the end of the array.
-            target = target < 0 ? Math.Max(@this.Length + target, 0) : Math.Min(target, @this.Length);
-            start = start < 0 ? Math.Max(@this.Length + start, 0) : Math.Min(start, @this.Length);
-            end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
+            target = target < 0 ? Math.Max(thisLength + target, 0) : Math.Min(target, thisLength);
+            start = start < 0 ? Math.Max(thisLength + start, 0) : Math.Min(start, thisLength);
+            end = end < 0 ? Math.Max(thisLength + end, 0) : Math.Min(end, thisLength);
 
             // Calculate the number of values to copy.
-            int count = Math.Min(end - start, @this.Length - target);
+            int count = Math.Min(end - start, thisLength - target);
 
             // Check if we need to copy in reverse due to an overlap.
             int direction = 1;
@@ -764,22 +765,23 @@ namespace YantraJS.Core
             uint ni;
          
                 ni = 0;
-                //r.length is int
-                for (uint i = 0; i < r.Length; i++)
-                {
-                    var index = (uint)start + i;
+            //r.length is int
+            var rLength = r._length;
+            for (uint i = 0; i < rLength; i++)
+            {
+                var index = (uint)start + i;
 
-                    if (@this.TryGetValue(index, out var val))
-                    {
-                        r.elements.Put(ni++, val);
-                    }
-                    else {
-                        ni++;
-                    }
+                if (@this.TryGetValue(index, out var val))
+                {
+                    r.elements.Put(ni++, val);
                 }
-                //_length is uint for internal calculation
-                r._length = ni;
-                return r;
+                else {
+                    ni++;
+                }
+            }
+            //_length is uint for internal calculation
+            r._length = ni;
+            return r;
         }
 
         [JSPrototypeMethod][JSExport("some", Length = 1)]
@@ -838,7 +840,7 @@ namespace YantraJS.Core
                     if (right == JSUndefined.Value)
                         return -1;
                     var arg = new Arguments(JSUndefined.Value, left, right);
-                    var r = fn.f(arg).DoubleValue;
+                    var r = fn.f(in arg).DoubleValue;
                     if (double.IsNaN(r))
                         return 0;
                     return Math.Sign(r);

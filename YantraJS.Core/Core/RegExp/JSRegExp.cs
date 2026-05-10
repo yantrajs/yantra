@@ -141,7 +141,7 @@ namespace YantraJS.Core
                 var element = input.Substring(startIndex, match.Index - startIndex);
                 results.Add(new JSString(element));
                 //if (results.Count >= limit)
-                if (results.Length >= limit)
+                if (results._length >= limit)
                   return  results;
                 startIndex = match.Index + match.Length;
                 for (int i = 1; i < match.Groups.Count; i++)
@@ -151,7 +151,7 @@ namespace YantraJS.Core
                         results.Add(JSUndefined.Value);       // Non-capturing groups return "undefined".
                     else
                         results.Add(new JSString(match.Groups[i].Value));
-                    if (results.Length >= limit)
+                    if (results._length >= limit)
                         return results;
                 }
 

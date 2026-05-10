@@ -100,7 +100,7 @@ namespace YantraJS.Core.Typed
             switch (source)
             {
                 case JSArray array:
-                    length = array.Length;
+                    length = (int)array._length;
                     break;
                 case JSString @string:
                     length = @string.Length;

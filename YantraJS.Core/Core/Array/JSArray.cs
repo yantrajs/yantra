@@ -350,7 +350,7 @@ namespace YantraJS.Core
 
         public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
                 hasValue = true;
                 index = (uint)this.index;
@@ -366,7 +366,7 @@ namespace YantraJS.Core
 
         public bool MoveNext(out JSValue value)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
                 value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
                 return true;
@@ -378,7 +378,7 @@ namespace YantraJS.Core
 
         public bool MoveNextOrDefault(out JSValue value, JSValue @default)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
                 value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
                 return true;
@@ -390,7 +390,7 @@ namespace YantraJS.Core
 
         public JSValue NextOrDefault(JSValue @default)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
                 return new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
             }
