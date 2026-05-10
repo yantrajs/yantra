@@ -281,32 +281,28 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddValue(KeyString key, JSValue value, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetOwnProperties(true);
-            pr.Put((uint)key) = new JSProperty((uint)key, value, attributes);
+            ownProperties.Put((uint)key) = new JSProperty((uint)key, value, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddProperty(KeyString key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetOwnProperties(true);
-            pr.Put((uint)key) = new JSProperty(key,getter, setter, attributes);
+            ownProperties.Put((uint)key) = new JSProperty(key,getter, setter, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddValue(JSSymbol key, JSValue value, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetSymbols();
-            pr.Put(key.Key) = new JSProperty(key.Key, value, attributes);
+            symbols.Put(key.Key) = new JSProperty(key.Key, value, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddProperty(JSSymbol key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetSymbols();
-            pr.Put(key.Key) = new JSProperty(key.Key, getter, setter, getter, attributes);
+            symbols.Put(key.Key) = new JSProperty(key.Key, getter, setter, getter, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

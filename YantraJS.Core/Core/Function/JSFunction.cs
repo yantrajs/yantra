@@ -145,6 +145,14 @@ namespace YantraJS.Core
 
         }
 
+        public JSFunction(JSContext context,
+            JSFunctionDelegate f,
+            in StringSpan name,
+            int length = 0) : this(context, f, name, StringSpan.Empty, length)
+        {
+
+        }
+
         public JSFunction(
             JSObject basePrototype,
             JSFunctionDelegate f,
@@ -184,12 +192,23 @@ namespace YantraJS.Core
             }
         }
 
+        public JSFunction(JSFunctionDelegate f,
+            in StringSpan name,
+            in StringSpan source,
+            int length = 0,
+            bool createPrototype = true):
+            this(JSContext.CurrentContext, f, in name, in source, length, createPrototype)
+        {
+
+        }
+
         public JSFunction(
+            JSContext context,
             JSFunctionDelegate f,
             in StringSpan name,
             in StringSpan source,
             int length = 0,
-            bool createPrototype = true): base(JSValueType.Function, JSContext.CurrentContext.Function_Prototype)
+            bool createPrototype = true): base(JSValueType.Function, context.Function_Prototype)
         {
             ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;

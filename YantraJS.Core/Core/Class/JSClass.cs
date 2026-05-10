@@ -12,11 +12,24 @@ namespace YantraJS.Core
 
         internal readonly JSFunction super;
         public JSClass(
+            JSContext context,
             JSFunctionDelegate fx, 
             JSFunction super ,
             string name = null,
             string code = null)
-            : base( fx ?? super.f ?? JSFunction.empty, name,code)
+            : base(context, fx ?? super.f ?? JSFunction.empty, name,code)
+        {
+            this.super = super;
+            this.BasePrototypeObject = super;
+            this.prototype.BasePrototypeObject = super.prototype;
+        }
+
+        public JSClass(
+            JSFunctionDelegate fx,
+            JSFunction super,
+            string name = null,
+            string code = null)
+            : base(JSContext.CurrentContext, fx ?? super.f ?? JSFunction.empty, name, code)
         {
             this.super = super;
             this.BasePrototypeObject = super;
