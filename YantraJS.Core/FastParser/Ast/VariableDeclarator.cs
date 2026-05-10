@@ -133,13 +133,13 @@ namespace YantraJS.Core.FastParser
             }
         }
 
-        public static IFastEnumerable<VariableDeclarator> From(AstExpression node)
+        public static VariableDeclarator[] From(AstExpression node)
         {
             if (node.Type == FastNodeType.EmptyExpression)
-                return Sequence<VariableDeclarator>.Empty;
+                return Array.Empty<VariableDeclarator>();
             var list = new Sequence<VariableDeclarator>();
             Fill(list, node);
-            return list;
+            return list.ToArray();
         }
 
 

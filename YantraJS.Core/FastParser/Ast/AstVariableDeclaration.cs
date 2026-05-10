@@ -13,7 +13,11 @@ namespace YantraJS.Core.FastParser
 
     public class AstVariableDeclaration: AstStatement
     {
-        public readonly IFastEnumerable<VariableDeclarator> Declarators;
+        /// <summary>
+        /// Changed to Array for faster access usually the declaration line will contain
+        /// a single item
+        /// </summary>
+        public readonly VariableDeclarator[] Declarators;
 
         public readonly FastVariableKind Kind;
 
@@ -36,7 +40,7 @@ namespace YantraJS.Core.FastParser
             bool @await = false)
             : base(begin, FastNodeType.VariableDeclaration, previousToken)
         {
-            this.Declarators = new Sequence<VariableDeclarator>(1) { declarator };
+            this.Declarators = new VariableDeclarator [] { declarator };
             this.Kind = kind;
             this.Using = @using;
             this.AwaitUsing = @await;
@@ -46,7 +50,7 @@ namespace YantraJS.Core.FastParser
         public AstVariableDeclaration(
             FastToken begin, 
             FastToken previousToken, 
-            IFastEnumerable<VariableDeclarator> declarators, 
+            VariableDeclarator[] declarators, 
             FastVariableKind kind = FastVariableKind.Var,
             bool @using = false,
             bool @await = false)

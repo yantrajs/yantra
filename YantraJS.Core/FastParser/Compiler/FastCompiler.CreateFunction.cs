@@ -136,9 +136,11 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     var argumentElements = args;
 
-                    var pe = functionDeclaration.Params.GetFastEnumerator();
-                    while (pe.MoveNext(out var v, out var i))
+                    //var pe = functionDeclaration.Params.GetFastEnumerator();
+                    //while (pe.MoveNext(out var v, out var i))
+                    for(var i = 0;i<functionDeclaration.Params.Length;i++)
                     {
+                        var v = functionDeclaration.Params[i];
                         if (v.Identifier.IsSpreadElement(out var spe))
                         {
                             CreateAssignment(bodyInits, spe.Argument,
@@ -267,7 +269,7 @@ namespace YantraJS.Core.FastParser.Compiler
                         //}
                         //else
                         {
-                            jsf = JSFunctionBuilder.New(ToDelegate(lambda), fxName, code, functionDeclaration.Params.Count);
+                            jsf = JSFunctionBuilder.New(ToDelegate(lambda), fxName, code, functionDeclaration.Params.Length);
                         }
                     }
 

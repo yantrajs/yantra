@@ -285,8 +285,9 @@ namespace YantraJS.Core.FastParser
                 var list = new Sequence<(string id, AstIdentifier temp)>();
                 var hoisted = new Sequence<StringSpan>();
                 try {
-                    var en = declaration.Declarators.GetFastEnumerator();
-                    while(en.MoveNext(out var d))
+                    //var en = declaration.Declarators.GetFastEnumerator();
+                    //while(en.MoveNext(out var d))
+                    foreach(var d in declaration.Declarators)
                     {
                         // ref var d = ref declaration.Declarators[i];
                         if (requiresReplacement)
@@ -325,9 +326,9 @@ namespace YantraJS.Core.FastParser
                     }
 
 
-                    statementList[0] = new AstVariableDeclaration(declaration.Start, declaration.End, scopedDeclarations, FastVariableKind.Let);
+                    statementList[0] = new AstVariableDeclaration(declaration.Start, declaration.End, scopedDeclarations.ToArray(), FastVariableKind.Let);
 
-                    var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations);
+                    var r = new AstVariableDeclaration(declaration.Start, declaration.End, tempDeclarations.ToArray());
 
                     var last = body.Count == 0 ? declaration :  body.Last();
                     var block = new AstBlock(r.Start, last.End, statementList);
