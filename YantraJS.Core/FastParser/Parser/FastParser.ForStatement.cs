@@ -284,7 +284,6 @@ namespace YantraJS.Core.FastParser
                 var scopedDeclarations = new Sequence<VariableDeclarator>();
                 var list = new Sequence<(string id, AstIdentifier temp)>();
                 var hoisted = new Sequence<StringSpan>();
-                try {
                     //var en = declaration.Declarators.GetFastEnumerator();
                     //while(en.MoveNext(out var d))
                     foreach(var d in declaration.Declarators)
@@ -338,12 +337,7 @@ namespace YantraJS.Core.FastParser
                     }
                     return (r, block, update, test);
 
-                } finally {
-                    // tempDeclarations.Clear();
-                    // scopedDeclarations.Clear();
-                    // list.Clear();
-                    // hoisted.Clear();
-                }
+
             }
         }
 
