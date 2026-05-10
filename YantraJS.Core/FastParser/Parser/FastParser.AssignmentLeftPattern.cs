@@ -57,65 +57,60 @@ namespace YantraJS.Core.FastParser
                 AstExpression right;
                 AstExpression init = null;
                 var nodes = new Sequence<ObjectProperty>();
-                try
+                do
                 {
-                    do
+                    // added for empty object pattern
+                    if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
+                        break;
+                    if (Identitifer(out var id))
                     {
-                        // added for empty object pattern
-                        if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
-                            break;
-                        if (Identitifer(out var id))
-                        {
-                            left = id;
-                        }
-                        else if (StringLiteral(out var str))
-                        {
-                            left = str;
-                        }
-                        else if (NumberLiteral(out var num)) {
-                            left = num;
-                        } else  if (!AssignmentLeftPattern(out left, kind, modulePattern))
-                            throw stream.Unexpected();
-
-                        bool renamed = modulePattern
-                            ? stream.CheckAndConsumeContextualKeyword(FastKeywords.@as)
-                            : stream.CheckAndConsume(TokenTypes.Colon);
-
-                        if(renamed)
-                        {
-                            if (Identitifer(out var rid))
-                            {
-                                right = rid;
-                                variableScope.Top.AddVariable(right.Start, right.Start.Span, kind);
-                            }
-                            else if (AssignmentLeftPattern(out right, kind, modulePattern)) {
-                            }
-                            else throw stream.Unexpected();
-                        } else
-                        {
-                            variableScope.Top.AddVariable(left.Start, left.Start.Span, kind);
-                            right = left;
-                        }
-
-                        if (stream.CheckAndConsume(TokenTypes.Assign))
-                        {
-                            if (!Expression(out init))
-                                throw stream.Unexpected();
-                        }
-
-                        nodes.Add(new ObjectProperty(left, right, init));
-
-                        if (stream.CheckAndConsume(TokenTypes.Comma))
-                            continue;
-                        if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
-                            break;
+                        left = id;
+                    }
+                    else if (StringLiteral(out var str))
+                    {
+                        left = str;
+                    }
+                    else if (NumberLiteral(out var num)) {
+                        left = num;
+                    } else  if (!AssignmentLeftPattern(out left, kind, modulePattern))
                         throw stream.Unexpected();
-                    } while (true);
-                    objectPattern = new AstObjectPattern(begin, PreviousToken, nodes);
-                    return true;
-                } finally {
-                    // nodes.Clear();
-                }
+
+                    bool renamed = modulePattern
+                        ? stream.CheckAndConsumeContextualKeyword(FastKeywords.@as)
+                        : stream.CheckAndConsume(TokenTypes.Colon);
+
+                    if(renamed)
+                    {
+                        if (Identitifer(out var rid))
+                        {
+                            right = rid;
+                            variableScope.Top.AddVariable(right.Start, right.Start.Span, kind);
+                        }
+                        else if (AssignmentLeftPattern(out right, kind, modulePattern)) {
+                        }
+                        else throw stream.Unexpected();
+                    } else
+                    {
+                        variableScope.Top.AddVariable(left.Start, left.Start.Span, kind);
+                        right = left;
+                    }
+
+                    if (stream.CheckAndConsume(TokenTypes.Assign))
+                    {
+                        if (!Expression(out init))
+                            throw stream.Unexpected();
+                    }
+
+                    nodes.Add(new ObjectProperty(left, right, init));
+
+                    if (stream.CheckAndConsume(TokenTypes.Comma))
+                        continue;
+                    if (stream.CheckAndConsume(TokenTypes.CurlyBracketEnd))
+                        break;
+                    throw stream.Unexpected();
+                } while (true);
+                objectPattern = new AstObjectPattern(begin, PreviousToken, nodes);
+                return true;
             }
 
             bool ReadArrayPattern(out AstExpression arrayPattern, FastVariableKind kind, bool modulePattern = false)

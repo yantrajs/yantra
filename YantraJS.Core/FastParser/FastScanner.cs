@@ -540,7 +540,7 @@ namespace YantraJS.Core.FastParser
             return EOF;
         }
 
-        private bool ScanEscaped(char next, StringBuilder t)
+        private bool ScanEscaped(char next, in FastStringBuilder t)
         {
             if (next != '\\')
                 return false;
@@ -668,43 +668,36 @@ namespace YantraJS.Core.FastParser
 
         private FastToken ReadTemplateString(State state, TokenTypes part = TokenTypes.TemplateBegin)
         {
-            var sb = pool.AllocateStringBuilder();
-            var t = sb.Builder;
-            try
+            var t = pool.AllocateStringBuilder();
+            do
             {
-                do
+                char ch = Consume();
+                switch(ch)
                 {
-                    char ch = Consume();
-                    switch(ch)
-                    {
-                        case '$':
-                                ch = Consume();
-                                if (ch == '{') {
-                                    Consume();
-                                    // template part begin...
-                                    templateParts++;
-                                    return state.Commit(part, t);
-                                    // return state.Commit(TokenTypes.TemplatePart, t);
-                                }
-                                t.Append('$');
-                                t.Append(ch);
-                                continue;
-                        case '`':
-                            Consume();
-                            return state.Commit(TokenTypes.TemplateEnd, t);
-                        case char.MaxValue:
-                            break;
-                    }
-                    if (ch == char.MaxValue)
-                        throw Unexpected();
-                    if (ScanEscaped(ch, t))
-                        continue;
-                    t.Append(ch);
-                } while (true);
-            } finally
-            {
-                sb.Clear();
-            }
+                    case '$':
+                            ch = Consume();
+                            if (ch == '{') {
+                                Consume();
+                                // template part begin...
+                                templateParts++;
+                                return state.Commit(part, t.ReturnString());
+                                // return state.Commit(TokenTypes.TemplatePart, t);
+                            }
+                            t.Append('$');
+                            t.Append(ch);
+                            continue;
+                    case '`':
+                        Consume();
+                        return state.Commit(TokenTypes.TemplateEnd, t.ReturnString());
+                    case char.MaxValue:
+                        break;
+                }
+                if (ch == char.MaxValue)
+                    throw Unexpected();
+                if (ScanEscaped(ch, t))
+                    continue;
+                t.Append(ch);
+            } while (true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -807,85 +800,77 @@ namespace YantraJS.Core.FastParser
                         return false;
                 }
 
-                var sb = pool.AllocateStringBuilder();
-                var t = sb.Builder;
+                var t = pool.AllocateStringBuilder();
                 var classMarker = false;
                 var terminated = false;
                 token = null;
                 string regExp = null;
-                try
+                do
                 {
-                    do
+                    switch (first)
                     {
-                        switch (first)
-                        {
-                            case char.MaxValue:
-                                return false; 
-                            case '\n':
-                                return false;
-                            case '/':
-                                if(classMarker)
-                                {
-                                    t.Append(first);
-                                    break;
-                                }
-                                terminated = true;
-                                Consume();
-                                break;
-                            case '[':
-                                classMarker = true;
+                        case char.MaxValue:
+                            return false; 
+                        case '\n':
+                            return false;
+                        case '/':
+                            if(classMarker)
+                            {
                                 t.Append(first);
                                 break;
-                            case ']':
-                                classMarker = false;
-                                t.Append(first);
-                                break;
-                            case '\\':
-                                //if (ScanEscaped(first, t))
-                                //    continue;
-                                first = Consume();
-                                if (first == '/')
-                                {
-                                    t.Append('\\');
-                                    t.Append('/');
-                                    break;
-                                }
-                                if(first == 'u')
-                                {
-                                    first = Consume();
-                                    if(CanConsume('{'))
-                                    {
-                                        t.Append(ScanUnicodeCodePointEscape());
-                                        break;
-                                    }
-                                    t.Append('\\');
-                                    t.Append('u');
-                                    t.Append(first);
-                                    break;
-                                }
-                                if (CanConsume('\n'))
-                                {
-                                    return false;
-                                }
-
-                                t.Append('\\');
-                                t.Append(first);
-                                break;
-                            default:
-                                t.Append(first);
-                                break;
-                        }
-                        if (terminated)
+                            }
+                            terminated = true;
+                            Consume();
                             break;
-                        first = Consume();
-                    } while (true);
+                        case '[':
+                            classMarker = true;
+                            t.Append(first);
+                            break;
+                        case ']':
+                            classMarker = false;
+                            t.Append(first);
+                            break;
+                        case '\\':
+                            //if (ScanEscaped(first, t))
+                            //    continue;
+                            first = Consume();
+                            if (first == '/')
+                            {
+                                t.Append('\\');
+                                t.Append('/');
+                                break;
+                            }
+                            if(first == 'u')
+                            {
+                                first = Consume();
+                                if(CanConsume('{'))
+                                {
+                                    t.Append(ScanUnicodeCodePointEscape());
+                                    break;
+                                }
+                                t.Append('\\');
+                                t.Append('u');
+                                t.Append(first);
+                                break;
+                            }
+                            if (CanConsume('\n'))
+                            {
+                                return false;
+                            }
 
-                    regExp = t.ToString();
-                }
-                finally
-                {
-                    sb.Clear();
-                }
+                            t.Append('\\');
+                            t.Append(first);
+                            break;
+                        default:
+                            t.Append(first);
+                            break;
+                    }
+                    if (terminated)
+                        break;
+                    first = Consume();
+                } while (true);
+
+                regExp = t.ToString();
 
                 var flags = ScanFlags();
 
@@ -902,8 +887,7 @@ namespace YantraJS.Core.FastParser
 
             string ScanFlags()
             {
-                var sb = pool.AllocateStringBuilder();
-                var t = sb.Builder;
+                var t = pool.AllocateStringBuilder();
                 var d = false;
                 var g = false;
                 var i = false;
@@ -911,63 +895,57 @@ namespace YantraJS.Core.FastParser
                 var s = false;
                 var u = false;
                 var y = false;
-                try
+                do
                 {
-                    do
+                    var ch = Peek();
+                    switch(ch)
                     {
-                        var ch = Peek();
-                        switch(ch)
-                        {
-                            case 'd':
-                                if (d) throw Unexpected();
-                                d = true;
-                                t.Append(ch);
-                                Consume();
-                                continue;
-                            case 'g':
-                                if (g) throw Unexpected();
-                                g = true;
-                                t.Append(ch);
-                                Consume();
-                                continue;
-                            case 'i':
-                                if (i) throw Unexpected();
-                                i = true;
-                                t.Append(ch);
-                                Consume();
-                                continue;
-                            case 'm':
-                                if (m) throw Unexpected();
-                                m = true;
-                                t.Append(ch);
-                                Consume();
-                                continue;
-                            case 's':
-                                if (s) throw Unexpected();
-                                s = true;
-                                t.Append(ch);
-                                Consume();
-                                continue;
-                            case 'u':
-                                if (u) throw Unexpected();
-                                u = true;
-                                t.Append(ch);
-                                Consume();
-                                continue;
-                            case 'y':
-                                if (y) throw Unexpected();
-                                y = true;
-                                t.Append(ch);
-                                Consume();
-                                continue;
-                        }
-                        break;
-                    } while (true);
-                    return sb.ToString();
-                } finally
-                {
-                    sb.Clear();
-                }
+                        case 'd':
+                            if (d) throw Unexpected();
+                            d = true;
+                            t.Append(ch);
+                            Consume();
+                            continue;
+                        case 'g':
+                            if (g) throw Unexpected();
+                            g = true;
+                            t.Append(ch);
+                            Consume();
+                            continue;
+                        case 'i':
+                            if (i) throw Unexpected();
+                            i = true;
+                            t.Append(ch);
+                            Consume();
+                            continue;
+                        case 'm':
+                            if (m) throw Unexpected();
+                            m = true;
+                            t.Append(ch);
+                            Consume();
+                            continue;
+                        case 's':
+                            if (s) throw Unexpected();
+                            s = true;
+                            t.Append(ch);
+                            Consume();
+                            continue;
+                        case 'u':
+                            if (u) throw Unexpected();
+                            u = true;
+                            t.Append(ch);
+                            Consume();
+                            continue;
+                        case 'y':
+                            if (y) throw Unexpected();
+                            y = true;
+                            t.Append(ch);
+                            Consume();
+                            continue;
+                    }
+                    break;
+                } while (true);
+                return t.ReturnString();
             }
         }
 
@@ -1030,40 +1008,34 @@ namespace YantraJS.Core.FastParser
         private FastToken ReadString(State state, char first)
         {
             var start = first;
-            var sb = pool.AllocateStringBuilder();
-            var t = sb.Builder;
-            try
+            var t = pool.AllocateStringBuilder();
+            do
             {
-                do
+                first = Consume();
+                if(first == char.MaxValue)
                 {
-                    first = Consume();
-                    if(first == char.MaxValue)
+                    return state.Commit(TokenTypes.String, t.ReturnString());
+                }
+                if (first == start)
+                {
+                    var next = Consume();
+                    if (next == first)
                     {
-                        return state.Commit(TokenTypes.String, sb.Builder);
-                    }
-                    if (first == start)
-                    {
-                        var next = Consume();
-                        if (next == first)
-                        {
-                            t.Append(first);
-                            continue;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    if (ScanEscaped(first, t))
+                        t.Append(first);
                         continue;
-                    t.Append(first);
-                    if (first == start)
+                    }
+                    else
+                    {
                         break;
-                } while (true);
-                return state.Commit(TokenTypes.String, sb.Builder);
-            } finally {
-                sb.Clear();
-            }
+                    }
+                }
+                if (ScanEscaped(first, t))
+                    continue;
+                t.Append(first);
+                if (first == start)
+                    break;
+            } while (true);
+            return state.Commit(TokenTypes.String, t.ReturnString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1162,6 +1134,8 @@ namespace YantraJS.Core.FastParser
                 this.position = position;
             }
 
+
+
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public FastToken Commit(TokenTypes type, string cooked, string flags)
             {
@@ -1209,6 +1183,24 @@ namespace YantraJS.Core.FastParser
                     type,
                     scanner.Text.Source,
                     builder?.ToString(),
+                    null,
+                    start, cp - start,
+                    this.start,
+                    location);
+                scanner = null;
+                return token;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public FastToken Commit(TokenTypes type, string text)
+            {
+                var cp = scanner.position;
+                var start = scanner.Text.Offset + position;
+                var location = scanner.Location;
+                var token = new FastToken(
+                    type,
+                    scanner.Text.Source,
+                    text,
                     null,
                     start, cp - start,
                     this.start,

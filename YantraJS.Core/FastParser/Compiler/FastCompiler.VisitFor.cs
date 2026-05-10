@@ -21,45 +21,6 @@ namespace YantraJS.Core.FastParser.Compiler
     partial class FastCompiler
     {
 
-        //internal Exp Loop(
-        //    IList<ParameterExpression>? parameters,
-        //    LabelTarget breakTarget,
-        //    LabelTarget continueTarget,
-        //    Exp? initialize,
-        //    IList<Exp> body,
-        //    Exp? postLoop
-        //    )
-        //{
-        //    var statements = pool.AllocateList<Exp>();
-        //    var vars = pool.AllocateList<ParameterExpression>();
-        //    try
-        //    {
-        //        if(parameters!=null)
-        //            vars.AddRange(parameters);
-
-        //        if (initialize != null)
-        //        {
-        //            statements.AddExpanded(vars, initialize);
-        //        }
-
-        //        statements.Add(Exp.Label(continueTarget));
-        //        if (postLoop != null)
-        //        {
-        //            statements.AddExpanded(vars, postLoop);
-        //        }
-        //        foreach (var stmt in body)
-        //        {
-        //            statements.AddExpanded(vars, stmt);
-        //        }
-        //        statements.Add(Exp.Goto(continueTarget));
-        //        statements.Add(Exp.Label(breakTarget));
-        //        return Exp.Block(vars, statements);
-        //    } finally {
-        //        statements.Clear();
-        //        vars.Clear();
-        //    }
-        //}
-
 
         protected override Expression VisitForInStatement(AstForInStatement forInStatement, string? label = null)
         {
@@ -149,52 +110,49 @@ namespace YantraJS.Core.FastParser.Compiler
             Exp init = Visit(forStatement.Init);
             var innerBody = new Sequence<Exp>();
 
-            // try {
-                var update = Visit(forStatement.Update);
-                var test = Visit(forStatement.Test);
+            var update = Visit(forStatement.Update);
+            var test = Visit(forStatement.Test);
 
-                if(test != null)
+            if(test != null)
+            {
+                test = Exp.IfThen(Exp.Not(JSValueBuilder.BooleanValue(test)),
+                    Exp.Goto(breakTarget));
+                innerBody.Add(test);
+            }
+
+            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
+            {
+                var body = VisitStatement(forStatement.Body);
+
+                innerBody.Add(body);
+                innerBody.Add(Exp.Label(continueTarget));
+                if (update != null)
                 {
-                    test = Exp.IfThen(Exp.Not(JSValueBuilder.BooleanValue(test)),
-                        Exp.Goto(breakTarget));
-                    innerBody.Add(test);
+                    innerBody.Add(update);
                 }
 
-                using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
+                if (init == null)
                 {
-                    var body = VisitStatement(forStatement.Body);
-
-                    innerBody.Add(body);
-                    innerBody.Add(Exp.Label(continueTarget));
-                    if (update != null)
-                    {
-                        innerBody.Add(update);
-                    }
-
-                    if (init == null)
-                    {
-                        var r1 = Exp.Loop(
-                            Exp.Block(innerBody),
-                            breakTarget);
+                    var r1 = Exp.Loop(
+                        Exp.Block(innerBody),
+                        breakTarget);
                         
-                        // innerBody.Clear();
-                        return r1;
-                    }
+                    // innerBody.Clear();
+                    return r1;
+                }
 
-                    // return Loop(null, breakTarget, continueTarget, init, innerBody, update);
+                // return Loop(null, breakTarget, continueTarget, init, innerBody, update);
 
-                    var r = Exp.Block(
-                        init,
-                        Exp.Loop(
-                            Exp.Block(innerBody),
-                            breakTarget)
-                        );
+                var r = Exp.Block(
+                    init,
+                    Exp.Loop(
+                        Exp.Block(innerBody),
+                        breakTarget)
+                    );
                 // innerBody.Clear(); ;
                 return r;
-                }
-            //} finally {
-                
-            //}
+            }
+
         }
 
     }

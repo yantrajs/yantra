@@ -167,16 +167,16 @@ namespace YantraJS.Core.FastParser
             return new FastStringBuilder(this, new StringBuilder());
         }
 
-        internal void Release(in FastStringBuilder sb)
+        internal void Release(StringBuilder sb)
         {
             if(fastStringBuilders.Count < 5)
-                fastStringBuilders.Enqueue(sb.Builder);
+                fastStringBuilders.Enqueue(sb);
         }
     }
 
     public readonly struct FastStringBuilder
     {
-        public readonly StringBuilder Builder;
+        private readonly StringBuilder Builder;
         private readonly FastPool pool;
 
         public FastStringBuilder(FastPool pool, StringBuilder sb)
@@ -186,14 +186,27 @@ namespace YantraJS.Core.FastParser
             sb.Length = 0;
         }
 
+        public void Append(char ch)
+        {
+            Builder.Append(ch);
+        }
+
+        public void Append(string text)
+        {
+            Builder.Append(text);
+        }
+
+        public string ReturnString()
+        {
+            var text = Builder.ToString();
+            pool.Release(Builder);
+            return text;
+        }
+
         public override string ToString()
         {
             return Builder.ToString();
         }
 
-        public void Clear()
-        {
-            pool.Release(in this);
-        }
     }
 }
