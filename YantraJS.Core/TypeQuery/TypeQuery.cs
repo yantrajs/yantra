@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -125,6 +126,28 @@ public static class TypeQuery
             if (exp.Body is not MethodCallExpression me)
                 throw new ArgumentException($"Method found in {exp}");
             return me.Method;
+        });
+
+    }
+
+    public static PropertyInfo QueryInstanceIndex(Func<LambdaExpression> fx)
+    {
+        return GetOrCreate(fx.Method, () => {
+            var exp = fx();
+            if (exp.Body is not IndexExpression me)
+            {
+
+                // it also may be just a method invoke expression..
+                if (exp.Body is MethodCallExpression call)
+                {
+                    var p = call.Method.DeclaringType
+                        .GetProperties().First((p1) => p1.GetMethod == call.Method);
+                    return p;
+                }
+
+                throw new ArgumentException($"Method found in {exp}");
+            }
+            return me.Indexer;
         });
 
     }

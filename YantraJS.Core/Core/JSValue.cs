@@ -567,16 +567,16 @@ namespace YantraJS.Core {
             }
         }
 
-        internal virtual JSValue this[KeyString name, JSValue @this]
-        {
-            get
-            {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return GetValue(name, this);
-            }
-            set { }
-        }
+        //internal JSValue this[KeyString name, JSValue @this]
+        //{
+        //    get
+        //    {
+        //        if (prototypeChain == null)
+        //            return JSUndefined.Value;
+        //        return GetValue(name, this);
+        //    }
+        //    set { }
+        //}
 
         internal protected virtual JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {

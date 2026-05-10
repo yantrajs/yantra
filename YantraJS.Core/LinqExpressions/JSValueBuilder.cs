@@ -191,23 +191,23 @@ namespace YantraJS.ExpHelper
             return Expression.Call(target, _TypeOf);
         }
 
-        private static PropertyInfo _IndexKeyString =
-                type.IndexProperty(typeof(KeyString));
+        //private static PropertyInfo _IndexKeyString =
+        //        type.IndexProperty(typeof(KeyString));
 
-        private static PropertyInfo _IndexUInt =
-                type.IndexProperty(typeof(uint));
+        //private static PropertyInfo _IndexUInt =
+        //        type.IndexProperty(typeof(uint));
 
-        private static PropertyInfo _Index =
-                type.IndexProperty(typeof(JSValue));
+        //private static PropertyInfo _Index =
+        //        type.IndexProperty(typeof(JSValue));
 
-        private static PropertyInfo _SuperIndexKeyString =
-                    type.PublicIndex(typeof(JSObject), typeof(KeyString));
+        //private static PropertyInfo _SuperIndexKeyString =
+        //            type.PublicIndex(typeof(JSObject), typeof(KeyString));
 
-        private static PropertyInfo _SuperIndexUInt =
-                    type.PublicIndex(typeof(JSObject), typeof(uint));
+        //private static PropertyInfo _SuperIndexUInt =
+        //            type.PublicIndex(typeof(JSObject), typeof(uint));
 
-        private static PropertyInfo _SuperIndex =
-                    type.PublicIndex(typeof(JSObject), typeof(JSValue));
+        //private static PropertyInfo _SuperIndex =
+        //            type.PublicIndex(typeof(JSObject), typeof(JSValue));
 
         private static MethodInfo _PropertyOrUndefinedKeyString =
             type.PublicMethod(nameof(JSValue.PropertyOrUndefined), KeyStringsBuilder.RefType);
@@ -242,31 +242,38 @@ namespace YantraJS.ExpHelper
                 return JSValueExtensionsBuilder.InvokeMethod(target, name, args, spread);
             }
 
+            //Expression method = name.Type switch
+            //{
+            //    _ when 
+            //    _ => targetTemp.MakeIndexExpression<JSValue, JSValue, JSValue>(() => (x, i) => x[i], name)
+            //};
 
-            var method = _Index;
+            Expression method;
+
             if (name.Type == typeof(KeyString))
             {
-                method = _IndexKeyString;
-            }
-            else if (name.Type == typeof(uint))
+                method = targetTemp.MakeIndexExpression<JSValue, KeyString, JSValue>(() => (x, i) => x[i], name);
+            } else if (name.Type == typeof(uint))
             {
-                method = _IndexUInt;
+                method = targetTemp.MakeIndexExpression<JSValue, uint, JSValue>(() => (x, i) => x[i], name);
             }
             else if (name.Type == typeof(int))
             {
-                method = _IndexUInt;
-                name = Expression.Convert(name, typeof(uint));
+                method = targetTemp.MakeIndexExpression<JSValue, uint, JSValue>(() => (x, i) => x[i], Expression.Convert(name, typeof(uint)));
+            } else
+            {
+                method = targetTemp.MakeIndexExpression<JSValue, JSValue, JSValue>(() => (x, i) => x[i], name);
             }
 
             return Expression.Block(
-                Expression.Assign(targetTemp, target),
-                Expression.Assign(methodTemp, Expression.MakeIndex(targetTemp, method, name)),
-                Expression.Condition(
-                    JSValueBuilder.IsNullOrUndefined(methodTemp),
-                        JSUndefinedBuilder.Value,
-                        JSFunctionBuilder.InvokeFunction(methodTemp, ArgumentsBuilder.New(targetTemp, args, spread))
-                    )
-                );
+                        Expression.Assign(targetTemp, target),
+                        Expression.Assign(methodTemp, method /*Expression.MakeIndex(targetTemp, method, name)*/),
+                        Expression.Condition(
+                            JSValueBuilder.IsNullOrUndefined(methodTemp),
+                                JSUndefinedBuilder.Value,
+                                JSFunctionBuilder.InvokeFunction(methodTemp, ArgumentsBuilder.New(targetTemp, args, spread))
+                            )
+                        );
         }
 
         public static Expression Index(Expression target, Expression super, uint i, bool coalesce = false)
@@ -275,14 +282,18 @@ namespace YantraJS.ExpHelper
             {
                 return Index(target, i, coalesce);
             }
-            return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Constant(i) });
+            // return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Constant(i) });
+            return target.MakeIndexExpression<JSValue, JSObject, uint, JSValue>(
+                () => (t, super, index) => t[super, index], super, Expression.Constant(i));
         }
 
 
         public static Expression Index(Expression target, uint i, bool coalesce = false)
         {
 
-            return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Constant(i) });
+            return target.MakeIndexExpression<JSValue, uint, JSValue>(
+                () => (t, index) => t[index], Expression.Constant(i));
+            // return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Constant(i) });
         }
 
 
@@ -298,7 +309,9 @@ namespace YantraJS.ExpHelper
                 //{
                 //    return Expression.Call(target, _SuperPropertyOrUndefinedKeyString, super, property);
                 //}
-                return Expression.MakeIndex(target, _SuperIndexKeyString, new Expression[] { super, property });
+                // return Expression.MakeIndex(target, _SuperIndexKeyString, new Expression[] { super, property });
+                return target.MakeIndexExpression<JSValue, JSObject, KeyString, JSValue>(
+                    () => (t, super, index) => t[super, index], super, property);
             }
             if (property.Type == typeof(uint))
             {
@@ -306,7 +319,9 @@ namespace YantraJS.ExpHelper
                 //{
                 //    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, property);
                 //}
-                return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, property });
+                // return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, property });
+                return target.MakeIndexExpression<JSValue, JSObject, uint, JSValue>(
+                    () => (t, super, index) => t[super, index], super, property);
             }
             if (property.Type == typeof(int))
             {
@@ -314,13 +329,17 @@ namespace YantraJS.ExpHelper
                 //{
                 //    return Expression.Call(target, _SuperPropertyOrUndefinedUInt, super, Expression.Convert(property, typeof(uint)));
                 //}
-                return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Convert(property, typeof(uint)) });
+                //return Expression.MakeIndex(target, _SuperIndexUInt, new Expression[] { super, Expression.Convert(property, typeof(uint)) });
+                return target.MakeIndexExpression<JSValue, JSObject, uint, JSValue>(
+                    () => (t, super, index) => t[super, index], super, Expression.Convert(property, typeof(uint)));
             }
             //if (coalesce)
             //{
             //    return Expression.Call(target, _SuperPropertyOrUndefined, super, Expression.Convert(property, typeof(uint)));
             //}
-            return Expression.MakeIndex(target, _SuperIndex, new Expression[] { super, property });
+            // return Expression.MakeIndex(target, _SuperIndex, new Expression[] { super, property });
+            return target.MakeIndexExpression<JSValue, JSObject, JSValue, JSValue>(
+                    () => (t, super, index) => t[super, index], super, property);
         }
 
 
@@ -332,7 +351,8 @@ namespace YantraJS.ExpHelper
                 {
                     return Expression.Call(target, _PropertyOrUndefinedKeyString, property);
                 }
-                return Expression.MakeIndex(target, _IndexKeyString, new Expression[] { property });
+                return target.MakeIndexExpression<JSValue, KeyString, JSValue>(() => (x, i) => x[i], property);
+                // return Expression.MakeIndex(target, _IndexKeyString, new Expression[] { property });
             }
             if (property.Type == typeof(uint))
             {
@@ -340,7 +360,8 @@ namespace YantraJS.ExpHelper
                 {
                     return Expression.Call(target, _PropertyOrUndefinedUInt, property);
                 }
-                return Expression.MakeIndex(target, _IndexUInt, new Expression[] { property });
+                // return Expression.MakeIndex(target, _IndexUInt, new Expression[] { property });
+                return target.MakeIndexExpression<JSValue, uint, JSValue>(() => (x, i) => x[i], property);
             }
             if (property.Type == typeof(int))
             {
@@ -348,7 +369,8 @@ namespace YantraJS.ExpHelper
                 {
                     return Expression.Call(target, _PropertyOrUndefinedUInt, Expression.Convert(property, typeof(uint)));
                 }
-                return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Convert(property, typeof(uint)) });
+                // return Expression.MakeIndex(target, _IndexUInt, new Expression[] { Expression.Convert(property, typeof(uint)) });
+                return target.MakeIndexExpression<JSValue, uint, JSValue>(() => (x, i) => x[i], property.As<uint>() );
             }
             if (coalesce)
             {
@@ -360,13 +382,15 @@ namespace YantraJS.ExpHelper
                     Expression.Condition(
                         JSValueBuilder.IsNullOrUndefined(pe),
                         JSUndefinedBuilder.Value,
-                        Expression.Call(target, _Index.GetMethod, property)
+                        target.CallExpression<JSValue, JSValue, JSValue>(() => (x,i) => x[i], property)
+                        // Expression.Call(target, _Index.GetMethod, property)
                         )
                     );
 
                 // return Expression.Call(target, _PropertyOrUndefined, property);
             }
-            return Expression.MakeIndex(target, _Index, new Expression[] { property });
+            // return Expression.MakeIndex(target, _Index, new Expression[] { property });
+            return target.MakeIndexExpression<JSValue, JSValue, JSValue>(() => (x, i) => x[i], property);
         }
 
         private static MethodInfo _DeleteKeyString

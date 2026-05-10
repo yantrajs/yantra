@@ -106,4 +106,30 @@ internal static class NewLambdaExpression
         return Expression.Call(@this, m, p1, p2);
     }
 
+    public static Expression MakeIndexExpression<TIn, TIndex1, TIndex2, TOut>(
+        this Expression @this,
+        Func<Expression<Func<TIn, TIndex1, TIndex2, TOut>>> fx,
+        Expression p1,
+        Expression p2
+    )
+    {
+        var m = TypeQuery.QueryInstanceIndex(fx);
+        return Expression.MakeIndex(@this, m, p1, p2);
+    }
+
+    public static Expression MakeIndexExpression<TIn, TIndex1, TOut>(
+        this Expression @this,
+        Func<Expression<Func<TIn, TIndex1, TOut>>> fx,
+        Expression p1
+    )
+    {
+        var m = TypeQuery.QueryInstanceIndex(fx);
+        return Expression.MakeIndex(@this, m, p1);
+    }
+
+    public static Expression As<T>(this Expression @this)
+    {
+        return Expression.Convert(@this, typeof(T));
+    }
+
 }
