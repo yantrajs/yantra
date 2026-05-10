@@ -41,7 +41,7 @@ namespace YantraJS.Core
 
         public JSArray(JSPrototypeObject p, params JSValue[] items) : base(JSValueType.Array, p)
         {
-            // this._length = (uint)items.Length;
+            this._length = (uint)items.Length;
             // ref var elements = ref GetElements(true);
             elements.Initialize(items);
 
