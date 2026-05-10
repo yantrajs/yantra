@@ -22,7 +22,17 @@ public class JSErrorTests : BaseTest
             catch (JSException e)
             {
                 var msg = e.Error[KeyString.stack].AsStringOrDefault();
-                Assert.StartsWith(msg, "Error:");
+                Assert.StartsWith("Error:", msg);
+            }
+
+            try
+            {
+                context.Execute("throw new TypeError('Some error...');");
+            }
+            catch (JSException e)
+            {
+                var msg = e.Error[KeyString.stack].AsStringOrDefault();
+                Assert.StartsWith("TypeError:", msg);
             }
         }
     }
