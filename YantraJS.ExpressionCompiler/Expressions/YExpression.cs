@@ -379,26 +379,33 @@ namespace YantraJS.Expressions
             IFastEnumerable<YParameterExpression>? variables,
             params YExpression[] expressions)
         {
-            return new YBlockExpression(variables, expressions.AsSequence());
+            return new YBlockExpression(variables?.ToArray(), expressions.ToArray());
+        }
+
+        public static YBlockExpression Block(
+            YParameterExpression[]? variables,
+            params YExpression[] expressions)
+        {
+            return new YBlockExpression(variables, expressions.ToArray());
         }
 
         public static YBlockExpression Block(
             IFastEnumerable<YParameterExpression>? variables,
             IFastEnumerable<YExpression> expressions)
         {
-            return new YBlockExpression(variables, expressions);
+            return new YBlockExpression(variables?.ToArray(), expressions.ToArray());
         }
 
         public static YExpression Block(IFastEnumerable<YExpression> expressions)
         {
             if (expressions.Count == 1)
                 return expressions.First();
-            return new YBlockExpression(null, expressions);
+            return new YBlockExpression(null, expressions.ToArray());
         }
 
         public static YBlockExpression Block(params YExpression[] expressions)
         {
-            return new YBlockExpression(null, expressions.AsSequence());
+            return new YBlockExpression(null, expressions);
         }
 
 

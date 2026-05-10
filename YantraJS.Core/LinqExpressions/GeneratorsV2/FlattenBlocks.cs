@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using YantraJS.Expressions;
 using Exp = YantraJS.Expressions.YExpression;
 using Expression = YantraJS.Expressions.YExpression;
@@ -59,11 +60,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                     var p = Expression.Parameter(e.Type);
                     vars.Add(p);
                     args.Add(p);
-                    var length = block.Expressions.Count;
+                    var length = block.Expressions.Length;
                     var last = length - 1;
-                    var en = block.Expressions.GetFastEnumerator();
-                    while(en.MoveNext(out var exp, out var i))
+                    //var en = block.Expressions.GetFastEnumerator();
+                    //while(en.MoveNext(out var exp, out var i))
+                    for(var i = 0; i < block.Expressions.Length; i++)
                     {
+                        var exp = block.Expressions[i];
                         var be = Visit(exp);
                         if(i == last)
                         {
@@ -88,9 +91,10 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
         protected override Expression VisitBlock(YBlockExpression node)
         {
             var vars = new Sequence<ParameterExpression>( node.Variables);
-            var list = new Sequence<Expression>(node.Expressions.Count);
-            var en = node.Expressions.GetFastEnumerator();
-            while(en.MoveNext(out var e))
+            var list = new Sequence<Expression>(node.Expressions.Length);
+            //var en = node.Expressions.GetFastEnumerator();
+            //while(en.MoveNext(out var e))
+            foreach( var e in node.Expressions )
             {
                 var visited = Visit(e);
                 if(visited.NodeType == YExpressionType.Block && visited is YBlockExpression block)
@@ -113,13 +117,13 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             var block = exp as YBlockExpression;
             
             var vars = block.Variables;
-            var length = block.Expressions.Count;
+            var length = block.Expressions.Length;
             var list = new Sequence<Expression>(length);
             var last = length - 1;
-            var en = block.Expressions.GetFastEnumerator();
-            while(en.MoveNext(out var e, out var i))
-            {
-                // var e = block.Expressions[i];
+            //var en = block.Expressions.GetFastEnumerator();
+            //while(en.MoveNext(out var e, out var i))
+            for(var i = 0;i< block.Expressions.Length;i++) {
+                var e = block.Expressions[i];
                 if (last == i)
                 {
                     list.Add(p(Visit(e)));
@@ -127,7 +131,7 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
                 }
                 list.Add(Visit(e));
             }
-            result = Expression.Block(vars, list);
+            result = Expression.Block(vars, list.ToArray());
             return true;
             
         }

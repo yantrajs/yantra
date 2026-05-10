@@ -101,12 +101,13 @@ namespace YantraJS
 
             public static implicit operator Scope(YLambdaExpression e) => new Scope(e);
 
-            internal IDisposable Register(IFastEnumerable<YParameterExpression> variables)
+            internal IDisposable Register(YParameterExpression[] variables)
             {
                 Variables.AddRange(variables);
                 return new DisposableAction(() => {
-                    var ve = variables.GetFastEnumerator();
-                    while(ve.MoveNext(out var v))
+                    //var ve = variables.GetFastEnumerator();
+                    //while(ve.MoveNext(out var v))
+                    foreach(var v in variables)
                     {
                         Variables.Remove(v);
                     }
@@ -142,9 +143,9 @@ namespace YantraJS
             }
             if (node.This != null)
             {
-                Root.Register(node.This.AsSequence());
+                Root.Register(new[] { node.This });
             }
-            Root.Register(node.Parameters.AsSequence());
+            Root.Register(node.Parameters);
             return base.VisitLambda(node);
         }
 
