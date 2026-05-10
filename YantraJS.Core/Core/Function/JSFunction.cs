@@ -243,16 +243,25 @@ namespace YantraJS.Core
             }
         }
 
-        public override JSValue this[KeyString name] { 
-            get => base[name]; 
-            set {
-                if (name == KeyString.prototype)
-                {
-                    this.prototype = value as JSObject;
-                }
-                base[name] = value;
+        protected internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            if (name == KeyString.prototype)
+            {
+                this.prototype = value as JSObject;
             }
+            return base.SetValue(name, value, receiver, throwError);
         }
+
+        //public override JSValue this[KeyString name] { 
+        //    get => base[name]; 
+        //    set {
+        //        if (name == KeyString.prototype)
+        //        {
+        //            this.prototype = value as JSObject;
+        //        }
+        //        base[name] = value;
+        //    }
+        //}
 
         //public override string ToString()
         //{

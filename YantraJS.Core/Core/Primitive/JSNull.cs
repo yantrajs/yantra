@@ -63,17 +63,47 @@ namespace YantraJS.Core
             throw JSContext.Current.NewTypeError(JSError.Cannot_convert_undefined_or_null_to_object);
         }
 
-        public override JSValue this[KeyString name]
-        {
-            get => throw JSContext.Current.NewTypeError($"Cannot get property {name} of null");
-            set => throw JSContext.Current.NewTypeError($"Cannot set property {name} of null");
-        }
+        //public override JSValue this[KeyString name]
+        //{
+        //    get => throw JSContext.Current.NewTypeError($"Cannot get property {name} of null");
+        //    set => throw JSContext.Current.NewTypeError($"Cannot set property {name} of null");
+        //}
 
         //public override JSValue this[uint key]
         //{
         //    get => throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
         //    set => throw JSContext.Current.NewTypeError($"Cannot get property {key} of null");
         //}
+
+        protected internal sealed override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key.ToStringSpan()} of null");
+        }
+
+        protected internal sealed override bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot set property ${key.ToStringSpan()} of null");
+        }
+
+        protected internal sealed override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key.ToString()} of null");
+        }
+
+        protected internal sealed override bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot set property ${key.ToString()} of null");
+        }
+
+        protected internal sealed override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key} of null");
+        }
+
+        protected internal sealed override bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key} of null");
+        }
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {

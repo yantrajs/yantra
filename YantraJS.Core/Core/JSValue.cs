@@ -523,7 +523,7 @@ namespace YantraJS.Core {
             return PropertyOrUndefined(k.KeyString);
         }
 
-        public virtual JSValue this[KeyString name]
+        public JSValue this[KeyString name]
         {
             get
             {
@@ -531,7 +531,7 @@ namespace YantraJS.Core {
             }
             set
             {
-                // throw new NotSupportedException();
+                SetValue(name, value, null, true);
             }
         }
 

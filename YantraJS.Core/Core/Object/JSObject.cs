@@ -497,10 +497,10 @@ namespace YantraJS.Core
             return prototypeChain?.GetMethod(key);
         }
 
-        public override JSValue this[KeyString name] { 
-            get => this.GetValue(name, this);
-            set => SetValue(name, value, null, true);
-        }
+        //public override JSValue this[KeyString name] { 
+        //    get => this.GetValue(name, this);
+        //    set => SetValue(name, value, null, true);
+        //}
 
         internal protected override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {

@@ -286,17 +286,27 @@ namespace YantraJS.Core
             return v;
         }
 
-        public override JSValue this[KeyString name] { 
-            get => base[name];
-            set
+        protected internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            var r = base.SetValue(name, value, receiver, throwError);
+            if (globalVars.TryGetValue((uint)name, out var v))
             {
-                base[name] = value;
-                if(globalVars.TryGetValue((uint)name, out var jsv))
-                {
-                    jsv.Value = value;
-                }
+                v.Value = value;
             }
+            return r;
         }
+
+        //public override JSValue this[KeyString name] { 
+        //    get => base[name];
+        //    set
+        //    {
+        //        base[name] = value;
+        //        if(globalVars.TryGetValue((uint)name, out var jsv))
+        //        {
+        //            jsv.Value = value;
+        //        }
+        //    }
+        //}
 
         //internal LightWeightStack<CallStackItem>.StackWalker StackWalker
         //{

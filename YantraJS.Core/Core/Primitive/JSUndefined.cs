@@ -42,10 +42,47 @@ namespace YantraJS.Core
             return "undefined";
         }
 
-        public override JSValue this[KeyString name] {
-            get => throw JSContext.Current.NewTypeError($"Cannot get property {name} of undefined");
-            set => throw JSContext.Current.NewTypeError($"Cannot set property {name} of undefined");
+
+        protected internal sealed override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key.ToStringSpan()} of undefined");
         }
+
+        protected internal sealed override bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot set property ${key.ToStringSpan()} of undefined");
+        }
+
+        protected internal sealed override JSValue GetValue(JSSymbol key, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key.ToString()} of undefined");
+        }
+
+        protected internal sealed override bool SetValue(JSSymbol key, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot set property ${key.ToString()} of undefined");
+        }
+
+        protected internal sealed override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key} of undefined");
+        }
+
+        protected internal sealed override bool SetValue(uint key, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property ${key} of undefined");
+        }
+
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            throw JSContext.Current.NewTypeError($"Cannot get property {key} of undefined");
+        }
+
+
+        //public override JSValue this[KeyString name] {
+        //    get => throw JSContext.Current.NewTypeError($"Cannot get property {name} of undefined");
+        //    set => throw JSContext.Current.NewTypeError($"Cannot set property {name} of undefined");
+        //}
 
         //public override JSValue this[uint key]
         //{
@@ -53,10 +90,10 @@ namespace YantraJS.Core
         //    set => throw JSContext.Current.NewTypeError($"Cannot set property {key} of undefined");
         //}
 
-        internal override JSFunctionDelegate GetMethod(in KeyString key)
-        {
-            throw JSContext.Current.NewTypeError($"Cannot get property {key} of undefined");
-        }
+        //internal override JSFunctionDelegate GetMethod(in KeyString key)
+        //{
+        //    throw JSContext.Current.NewTypeError($"Cannot get property {key} of undefined");
+        //}
 
         public override JSValue Delete(in KeyString key)
         {
