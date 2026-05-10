@@ -53,7 +53,7 @@ public class Program
             // unless you pass `this`, `this` in a global context is undefined.
             var start = DateTime.Now;
             engine.Eval(content, item + ".js", engine);
-            Console.WriteLine($"{item} time {(DateTime.Now - start).TotalSeconds:N}");
+            Console.WriteLine($"{item} time {(DateTime.Now - start).TotalMilliseconds:N}");
         }
     }
 }

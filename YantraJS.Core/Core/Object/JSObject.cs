@@ -1078,9 +1078,9 @@ namespace YantraJS.Core
         /// <param name="start"></param>
         /// <param name="count"></param>
         /// <param name="to"></param>
-        internal override void MoveElements(int start, int to)
+        internal sealed override void MoveElements(int start, int to)
         {
-            ref var elements = ref CreateElements();
+            // ref var elements = ref CreateElements();
 
             var end = this.Length - 1;
             var diff = to - start;
@@ -1099,7 +1099,8 @@ namespace YantraJS.Core
             }
             else
             {
-                for (int i = end, j = (this.Length + diff - 1); i >= start; i--, j--)
+                var thisLength = this.Length;
+                for (int i = end, j = (thisLength + diff - 1); i >= start; i--, j--)
                 {
                     if (this.TryRemove((uint)i, out var p))
                     {
@@ -1118,7 +1119,7 @@ namespace YantraJS.Core
         /// <param name="i"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        internal override bool TryRemove(uint i, out JSProperty p)
+        internal sealed override bool TryRemove(uint i, out JSProperty p)
         {
             if (elements.TryRemove(i, out p))
             {
