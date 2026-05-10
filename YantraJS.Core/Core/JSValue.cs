@@ -215,7 +215,7 @@ namespace YantraJS.Core {
         }
 
 
-        public virtual IEnumerable<(string Key, JSValue value)> PrototypeEntries
+        public virtual IEnumerable<(string Key, JSValue value)> EntriesInherited
         {
             get
             {
