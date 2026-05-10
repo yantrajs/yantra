@@ -168,7 +168,6 @@ namespace YantraJS.Core
             }
             else
             {
-                ref var elements = ref CreateElements();
                 elements.Put(this._length++, item);
             }
             // return this;
