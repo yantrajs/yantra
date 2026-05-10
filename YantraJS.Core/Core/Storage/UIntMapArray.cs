@@ -486,7 +486,8 @@ namespace YantraJS.Core.Core.Storage
                 if (this.isDictionary)
                 {
                     this.length = size;
-                    Storage.Resize((int)size);
+                    var n = size > 1024 ? 1024 : size;
+                    Storage.Resize((int)n);
                 } else
                 {
                     this.EnsureCapacity(size);

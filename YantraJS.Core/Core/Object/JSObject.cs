@@ -148,7 +148,7 @@ namespace YantraJS.Core
 
         internal void AllocateElements(uint size)
         {
-            size = size > 1024 ? 1024 : size;
+            // size = size > 1024 ? 1024 : size;
             elements.Resize(size);
         }
 

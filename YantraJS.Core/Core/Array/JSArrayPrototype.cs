@@ -35,15 +35,16 @@ namespace YantraJS.Core
                 return new JSArray((uint)arg.DoubleValue);
             }
             // If elements are specified
-            for (int i = 0; i < a.Length; i++)
-            {
-                var ele = a.GetAt(i);
-                //if (ele == null)
-                //    ele = JSUndefined.Value;
-                result.Add(ele);
+            return new JSArray(a.ToArray());
+            //for (int i = 0; i < a.Length; i++)
+            //{
+            //    var ele = a.GetAt(i);
+            //    //if (ele == null)
+            //    //    ele = JSUndefined.Value;
+            //    result.Add(ele);
                 
-            }
-            return result;
+            //}
+            //return result;
 
             
         }
@@ -513,8 +514,8 @@ namespace YantraJS.Core
         {
             if (!(a.This is JSObject @this))
                 throw JSContext.Current.NewTypeError($"{a.This} is not an object or an array");
-            var callback = a.Get1();
-            if (!(callback is JSFunction fn))
+            var callback = a[0];
+            if (!(a[0] is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
             // ref var te = ref @this.GetElements();
             var r = new JSArray();
@@ -527,9 +528,9 @@ namespace YantraJS.Core
                 {
                     continue;
                 }
-                var item = @this.GetValue(e);
+                var item = @this.GetValue(in e);
                 var itemArgs = new Arguments(@this, item, new JSNumber(i), @this);
-                r.elements.Put(i, fn.f(itemArgs));
+                r.elements.Put(i, fn.f(in itemArgs));
             }
             r._length = length;
             return r;
@@ -738,26 +739,28 @@ namespace YantraJS.Core
             var end = a.TryGetAt(1, out var a2) 
                 ? (a2.IsUndefined ? int.MaxValue : a2.IntegerValue)  
                 : int.MaxValue;
-            
+
             var @this = a.This;
+            var thisLength = @this.Length;
+            
 
             // Fix the arguments so they are positive and within the bounds of the array.
             if (start < 0)
-                start += @this.Length;
+                start += thisLength;
 
             if (end < 0)
-                end += @this.Length;
+                end += thisLength;
 
             // return empty array
             if (end <= start)
                 return new JSArray();
 
-            start = Math.Min(Math.Max(start, 0), @this.Length);
-            end = Math.Min(Math.Max(end, 0), @this.Length);
+            start = Math.Min(Math.Max(start, 0), thisLength);
+            end = Math.Min(Math.Max(end, 0), thisLength);
 
             var resultLength = end - start;
             JSArray r = new JSArray((uint)resultLength);
-            ref var rElements = ref r.CreateElements();
+            // ref var rElements = ref r.CreateElements();
             uint ni;
          
                 ni = 0;
@@ -768,7 +771,7 @@ namespace YantraJS.Core
 
                     if (@this.TryGetValue(index, out var val))
                     {
-                        rElements.Put(ni++, val);
+                        r.elements.Put(ni++, val);
                     }
                     else {
                         ni++;
@@ -911,7 +914,7 @@ namespace YantraJS.Core
             int arrayLength = @this.Length;
 
             // This method only supports arrays of length up to 2^31 - 1.
-            if (@this.Length > int.MaxValue)
+            if (arrayLength > int.MaxValue)
                 throw JSContext.Current.NewRangeError("The array is too long");
 
 

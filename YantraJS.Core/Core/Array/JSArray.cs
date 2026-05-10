@@ -84,7 +84,7 @@ namespace YantraJS.Core
         public JSArray(uint count): this()
         {
             AllocateElements(count);
-            CreateElements(count);
+            // CreateElements(count);
             _length = count;
         }
 
