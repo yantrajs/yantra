@@ -21,7 +21,24 @@ namespace YantraJS.Core
     public struct PropertySequence
     {
 
-        public PropertyEnumerator GetEnumerator(bool showEnumerableOnly = true)
+        public IEnumerable<JSProperty> GetEnumerator()
+        {
+            var map = this.map;
+            uint start = this.head;
+            uint tail = this.tail;
+            while(start > 0)
+            {
+                ref var jp = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                start = jp.Next;
+                if (jp.Property.IsEmpty)
+                {
+                    continue;
+                }
+                yield return jp.Property;
+            }
+        }
+
+        public PropertyEnumerator GetPropertyEnumerator(bool showEnumerableOnly = true)
         {
             return new PropertyEnumerator(this, showEnumerableOnly);
         }

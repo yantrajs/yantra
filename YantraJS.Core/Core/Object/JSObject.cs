@@ -59,7 +59,7 @@ namespace YantraJS.Core
 
         //internal ref ElementArray Elements { get { return ref elements; } }
 
-        private PropertySequence ownProperties;
+        internal PropertySequence ownProperties;
         private SAUint32Map<JSProperty> symbols;
         private long? uid;
 
@@ -349,7 +349,7 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject target))
                 return;
-            var pe = target.ownProperties.GetEnumerator();
+            var pe = target.ownProperties.GetPropertyEnumerator();
             while (pe.MoveNext(out var key, out var val) && !val.IsEmpty)
             {
                 this.ownProperties.Put((uint)key) = val.IsValue

@@ -181,7 +181,7 @@ namespace YantraJS.Core.Objects
                 if (hasValue)
                     r.Add(new JSNumber(index));
             }
-            var en = @object.GetOwnProperties(false).GetEnumerator();
+            var en = @object.GetOwnProperties(false).GetPropertyEnumerator();
             while (en.MoveNext(out var property))
             {
                 r.Add(property.ToJSValue());

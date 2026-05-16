@@ -84,7 +84,7 @@ namespace YantraJS.Core
                         new JSArray(new JSString(index.ToString()), item)
                     ); 
             }
-            var en = (target as JSObject).GetOwnProperties(false).GetEnumerator();
+            var en = (target as JSObject).GetOwnProperties(false).GetPropertyEnumerator();
             while (en.MoveNext(out var key, out var property))
             {
                 rElements.Put(r._length++,
@@ -127,7 +127,7 @@ namespace YantraJS.Core
 
             }
 
-            var properties = pdObject.GetOwnProperties(false).GetEnumerator();
+            var properties = pdObject.GetOwnProperties(false).GetPropertyEnumerator();
             while (properties.MoveNext(out var keyString, out var property))
             {
                 var item = target.GetValue(property);
@@ -155,25 +155,31 @@ namespace YantraJS.Core
         [JSExport("entries")]
         internal static JSValue GetEntries(in  Arguments a)
         {
-            if(a[0] is not JSObject obj)
-            // if(@this.IsNullOrUndefined)
-                throw JSContext.Current.NewTypeError(JSTypeError.NotIterable("undefined"));
-            // var obj = @this as JSObject;
-            var r = new JSArray();
-
-            var es = obj.GetElementEnumerator();
-            while (es.MoveNext(out var hasValue, out var value, out var index))
+            var first = a.Get1();
+            if (first.IsNullOrUndefined)
+                throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
+            if (!(first is JSObject obj))
+                return new JSArray();
+            var list = new Sequence<JSValue>();
+            for (var i = 0u; i < obj.elements.Length; i++)
             {
-                if (hasValue)
-                    r[r._length++] = new JSArray(new JSNumber(index), value);
+                var p = obj.elements.Get(i);
+                if (!p.IsEnumerable)
+                {
+                    continue;
+                }
+                list.Add(new JSArray(new JSString(i.ToString()), obj.GetValue(p)));
             }
 
-            var vp = new PropertySequence.ValueEnumerator(obj, false);
-            while(vp.MoveNext(out var value, out var key))
+            foreach (var p in obj.ownProperties.GetEnumerator())
             {
-                r[r._length++] = new JSArray(key.ToJSValue(), value);
+                if (!p.IsEnumerable)
+                {
+                    continue;
+                }
+                list.Add(new JSArray(new JSString(((KeyString)p.key).ToStringSpan()), obj.GetValue(p)));
             }
-            return r;
+            return new JSArray(list.ToArray());
         }
 
 
@@ -243,18 +249,25 @@ namespace YantraJS.Core
             var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            if (!(first is JSObject jobj))
+            if (!(first is JSObject obj))
                 return new JSArray();
-            var en = jobj.GetAllKeys(true, false);
-            var r = new JSArray();
-            // ref var e = ref r.GetElements();
-            while (en.MoveNext(out var hasValue, out var value, out var index)) {
-                if (hasValue)
+            var list = new Sequence<JSValue>();
+            for (var i = 0u; i < obj.elements.Length; i++)
+            {
+                var p = obj.elements.Get(i);
+                if (!p.IsEnumerable)
                 {
-                    r.elements.Put(r._length++, value);
+                    continue;
                 }
+                list.Add(new JSString(i.ToString()));
             }
-            return r;
+
+            var en = obj.ownProperties.GetPropertyEnumerator(true);
+            while (en.MoveNextKey(out var key))
+            {
+                list.Add(new JSString(key.ToStringSpan()));
+            }
+            return new JSArray(list.ToArray());
         }
 
         [JSExport("preventExtensions")]
@@ -297,29 +310,28 @@ namespace YantraJS.Core
             var first = a.Get1();
             if (first.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
-            if (!(first is JSObject target))
+            if (!(first is JSObject obj))
                 return new JSArray();
-            var r = new JSArray();
-            ref var rElements = ref r.CreateElements();
-            var ownEntries = target.GetElementEnumerator();
-            while (ownEntries.MoveNext(out var hasValue, out var item, out var index))
+            var list = new Sequence<JSValue>();
+            for (var i = 0u; i < obj.elements.Length; i++)
             {
-                if(!hasValue)
+                var p = obj.elements.Get(i);
+                if (!p.IsEnumerable)
                 {
                     continue;
                 }
-                rElements.Put(r._length++,
-                        item
-                    );
+                list.Add(obj.GetValue(p));
             }
-            var en = target.GetOwnProperties(false).GetEnumerator();
-            while (en.MoveNext(out  var property))
+
+            foreach(var p in obj.ownProperties.GetEnumerator())
             {
-                rElements.Put(r._length++,
-                        target.GetValue(property)
-                    );
+                if (!p.IsEnumerable)
+                {
+                    continue;
+                }
+                list.Add(obj.GetValue(p));
             }
-            return r;
+            return new JSArray(list.ToArray());
         }
 
         [JSExport("getOwnPropertyDescriptor")]
@@ -364,11 +376,20 @@ namespace YantraJS.Core
             if (!(first is JSObject jobj))
                 return new JSArray();
             var r = new JSObject();
-            ref var p = ref r.GetOwnProperties(true);
-            var en = jobj.GetOwnProperties(false).GetEnumerator();
-            while(en.MoveNext(out var key, out var property))
+            for (var i = 0u; i < jobj.elements.Length; i++)
             {
-                p.Put((uint)key) = property;    
+                var p = jobj.elements.Get(i);
+                if (p.IsEmpty)
+                {
+                    continue;
+                }
+                r.elements.Put(i, p.ToJSValue());
+            }
+
+            var en = jobj.ownProperties.GetPropertyEnumerator(false);
+            while (en.MoveNext(out var key, out var property))
+            {
+                r.ownProperties.Put((uint)key, property.ToJSValue());    
             }
             return r;
         }
@@ -388,8 +409,24 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError(JSTypeError.Cannot_convert_undefined_or_null_to_object);
             if (!(first is JSObject jobj))
                 return new JSArray();
-            var r = new JSArray(jobj.GetAllKeys(false, false));
-            return r;
+            // var r = new JSArray(jobj.GetAllKeys(false, false));
+            var list = new Sequence<JSValue>();
+            for (var i = 0u; i < jobj.elements.Length; i++)
+            {
+                var p = jobj.elements.Get(i);
+                if (p.IsEmpty)
+                {
+                    continue;
+                }
+                list.Add(new JSNumber((double)i));
+            }
+
+            var en = jobj.ownProperties.GetPropertyEnumerator(false);
+            while (en.MoveNextKey(out var key))
+            {
+                list.Add(new JSString(key.ToStringSpan()));
+            }
+            return new JSArray(list.ToArray());
         }
 
         [JSExport("getOwnPropertySymbols")]

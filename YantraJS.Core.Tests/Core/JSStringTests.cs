@@ -19,25 +19,14 @@ namespace YantraJS.Tests.Core
             // this.context.Eval("class A { constructor(a) { this.a = a; } } class B extends A { constructor(a) { super(a); } }");
             // Assert.AreEqual(1, context.Eval("x = {get f() { return 1; }}; x.f = 5; x.f"));
             // this.context["array"] = new JSArray( new JSNumber(1) );
-//            this.context.Eval(@"
+            //            this.context.Eval(@"
 
-//(function(){return 1; /***/ })()
-//");
+            //(function(){return 1; /***/ })()
+            //");
             this.context.Execute(@"
-const add = ({ a = 1 }) => {
-    return a + a;
-}
+var result = Object.keys({ 100: 'a', 2: 'b', 7: 'c' });
+assert.strictEqual(result.toString(), '2,7,100');");
 
-assert.strictEqual(4, add({ a: 2 }));
-assert.strictEqual(2, add({}));
-
-function addAll([a = 2, b = 2, c = 2] = [1, 1, 1]) {
-    return a + b + c;
-}
-
-assert.strictEqual(6, addAll([1, 2, 3]));
-assert.strictEqual(6, addAll([]));
-assert.strictEqual(3, addAll());");
 }
 
     }
