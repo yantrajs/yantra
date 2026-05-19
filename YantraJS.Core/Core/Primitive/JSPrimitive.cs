@@ -49,12 +49,12 @@ namespace YantraJS.Core
             set => base[symbol] = value;
         }
 
-        protected internal override bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
+        protected internal sealed override bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
         {
             return false;
         }
 
-        protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        protected internal sealed override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
             ResolvePrototype();
             if (prototypeChain == null)

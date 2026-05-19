@@ -208,7 +208,7 @@ namespace YantraJS.Core
           
         }
 
-        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected sealed override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (key >= this.value.Length)
             {
