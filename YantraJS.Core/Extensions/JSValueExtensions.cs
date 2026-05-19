@@ -209,7 +209,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue NullIfUndefinedOrNull(JSValue value)
         {
-            if (value == JSNull.Value || value == JSUndefined.Value)
+            if (value.IsNullOrUndefined)
                 return null;
             return value;
         }

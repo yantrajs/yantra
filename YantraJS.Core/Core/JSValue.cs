@@ -446,7 +446,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(in KeyString name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             return GetValue(name, this);
         }
@@ -454,7 +454,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, in KeyString name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             var pc = prototypeChain;
             if (pc == null)
@@ -464,7 +464,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(uint name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             return GetValue(name, this);
         }
@@ -472,7 +472,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, uint name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             var pc = this.prototypeChain;
             if (pc == null)
@@ -482,7 +482,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(JSSymbol name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             return GetValue(name, this);
         }
@@ -490,7 +490,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, JSSymbol name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             var pc = prototypeChain;
             if (pc == null)
@@ -500,7 +500,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(JSValue name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             if (name is JSSymbol s)
                 return PropertyOrUndefined(s);
@@ -513,7 +513,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, JSValue name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             if (name is JSSymbol s)
                 return PropertyOrUndefined(super, s);
