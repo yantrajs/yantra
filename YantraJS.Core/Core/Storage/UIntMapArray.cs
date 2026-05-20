@@ -207,7 +207,7 @@ namespace YantraJS.Core.Core.Storage
 
         const int MaxArraySize = 1024 * 1024;
 
-        private SAUint32Map<JSProperty> Storage;
+        private Uint32Map<JSProperty> Storage;
         private JSValue[] array;
 
         private bool isDictionary;
@@ -487,8 +487,8 @@ namespace YantraJS.Core.Core.Storage
                 if (this.isDictionary)
                 {
                     this.length = size;
-                    var n = size > 1024 ? 1024 : size;
-                    Storage.Resize((int)n);
+                    //var n = size > 1024 ? 1024 : size;
+                    //Storage.Resize((int)n);
                 } else
                 {
                     this.EnsureCapacity(size);
