@@ -794,6 +794,16 @@ namespace YantraJS.Core {
         //    yield break;
         //}
 
+        public virtual IElementEnumerator GetForInUIntEnumerator()
+        {
+            return ElementEnumerator.Empty;
+        }
+
+        public virtual IElementEnumerator GetForInStringEnumerator()
+        {
+            return ElementEnumerator.Empty;
+        }
+
         public virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
             return new ElementEnumerator();
         }

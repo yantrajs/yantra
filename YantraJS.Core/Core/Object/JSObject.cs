@@ -833,6 +833,16 @@ namespace YantraJS.Core
             }
         }
 
+        public override IElementEnumerator GetForInUIntEnumerator()
+        {
+            return new ForInUIntEnumerator(this);
+        }
+
+        public override IElementEnumerator GetForInStringEnumerator()
+        {
+            return new ForInStringEnumerator(this);
+        }
+
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this, showEnumerableOnly, inherited);

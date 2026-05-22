@@ -540,12 +540,13 @@ namespace YantraJS.ExpHelper
 
         public static Expression GetAllKeys(Expression target)
         {
-            return
-                    // Expression.Call(
-                    Expression.Call(target, _GetAllKeys, Expression.Constant(true), Expression.Constant(false))
-                    // ,
-                    //_GetEnumerator);
-                    ;
+            return target.CallExpression<JSValue, IElementEnumerator>(() => (x) => x.GetAllKeys(true, true));
+            //return
+            //        // Expression.Call(
+            //        Expression.Call(target, _GetAllKeys, Expression.Constant(true), Expression.Constant(false))
+            //        // ,
+            //        //_GetEnumerator);
+            //        ;
         }
 
         //private static MethodInfo _ConvertTo =
