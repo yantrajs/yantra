@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using YantraJS.Core.Core.Storage;
@@ -18,7 +19,7 @@ public struct Uint32Map<T>
 
     private const int Bits = 4;
     private const int Size = 1 << Bits;
-    private const int Mask = ~(-1 << Bits);
+    private const long Mask = ~(-1 << Bits);
 
     [DebuggerDisplay("{Key}: {Value}")]
     public struct KeyValue
@@ -49,6 +50,14 @@ public struct Uint32Map<T>
             }
         }
 
+        public bool IsNotEmpty
+        {
+            get
+            {
+                return State != 0;
+            }
+        }
+
         /// <summary>
         /// Current key
         /// </summary>
@@ -64,11 +73,41 @@ public struct Uint32Map<T>
         /// in advance.
         /// </summary>
         public Node[] Children;
+
+        public IEnumerable<T> AllValues()
+        {
+            if (this.HasValue)
+            {
+                yield return this.Value;
+            }
+            if (this.Children == null)
+            {
+                yield break;
+            }
+            foreach(var node in this.Children)
+            {
+                foreach(var child in node.AllValues())
+                {
+                    yield return child;
+                }
+            }
+        }
     }
 
     private Node[] nodes;
 
     public bool IsNull => nodes == null;
+
+    public IEnumerable<T> AllValues()
+    {
+        foreach (var node in nodes)
+        {
+            foreach(var child in node.AllValues())
+            {
+                yield return child;
+            }
+        }
+    }
 
     public bool HasKey(uint key)
     {
@@ -138,11 +177,71 @@ public struct Uint32Map<T>
         return false;
     }
 
-
     private ref Node GetNode(uint originalKey, bool create = false)
     {
+        var storage = nodes;
+        if (storage == null)
+        {
+            if(!create)
+            {
+                return ref Empty;
+            }
+            storage = nodes = new Node[Size];
+            // special case, 0 should be filled first.
+            nodes[0].State |= NodeState.Filled;
+        }
+
+        long start = originalKey;
+        for(;;)
+        {
+            var index = start & Mask;
+            ref var node = ref storage[index];
+            if (node.Key == originalKey) {
+                if (node.IsNotEmpty)
+                {
+                    return ref node;
+                }
+            }
+            if (node.Key > originalKey)
+            {
+                if (!create)
+                {
+                    return ref Empty;
+                }
+                var oldKey = node.Key;
+                var oldValue = node.Value;
+                node.Key = originalKey;
+                node.Value = default;
+                ref var newChild = ref GetNode(oldKey, true);
+                newChild.Value = oldValue;
+                newChild.Key = oldKey;
+                newChild.State |= NodeState.HasValue;
+                return ref node;
+            }
+            if (node.State == 0 && create)
+            {
+                node.Key = originalKey;
+                node.State |= NodeState.Filled;
+                return ref node;
+            }
+
+            if (node.Children == null)
+            {
+                if (!create)
+                {
+                    return ref Empty;
+                }
+                node.Children = new Node[Size];
+            }
+            storage = node.Children;
+            start >>= Size;
+        } 
+    }
+
+    private ref Node OldGetNode(uint originalKey, bool create = false)
+    {
         ref var node = ref Empty;
-        ref var storage = ref nodes;
+        var storage = nodes;
         if (storage == null)
         {
             if (!create)
@@ -150,7 +249,7 @@ public struct Uint32Map<T>
                 return ref node;
             }
             // extend...
-            storage = new Node[Size];
+            storage = this.nodes = new Node[Size];
         }
 
         if (originalKey == 0)
@@ -160,11 +259,12 @@ public struct Uint32Map<T>
         }
 
         // let us walk the nodes...
-        uint offset = 0;
-        uint start = originalKey;
-        for (; start != 0; start >>= Size)
+        // uint offset = 0;
+        // uint start = originalKey;
+        long start = (originalKey << Size);
+        for (; start > 0; start >>= Size)
         {
-            var index = offset + (start & Mask);
+            var index = (start >> Size) & Mask;
             node = ref storage[index];
             if (node.Key == originalKey)
             {
@@ -198,22 +298,21 @@ public struct Uint32Map<T>
                     newChild.Key = oldKey;
                     newChild.Value = oldValue;
                     newChild.State |= NodeState.HasValue;
-                    // this is case when array is resized
-                    // and we still might have reference to old node
-                    node = ref storage[index];
                     return ref node;
                 }
                 node.State |= NodeState.Filled;
                 if (node.Children == null)
                 {
                     node.Children = new Node[Size];
+                    storage = node.Children;
+                    continue;
                 }
             }
             if (node.Children == null)
             {
                 return ref Empty;
             }
-            storage = ref node.Children;
+            storage = node.Children;
         }
         if (node.Key == originalKey)
         {
