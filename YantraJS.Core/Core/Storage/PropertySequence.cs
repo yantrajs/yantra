@@ -46,16 +46,19 @@ namespace YantraJS.Core
         public struct PropertyEnumerator
         {
             private CompactUint32Map<JSObjectProperty> map;
-            private readonly uint tail;
             private readonly bool showEnumerableOnly;
             private uint start;
+            private int mask;
 
             public PropertyEnumerator(PropertySequence sequence, bool showEnumerableOnly)
             {
                 this.map = sequence.map;
                 this.start = sequence.head;
-                this.tail = sequence.tail;
-                this.showEnumerableOnly = showEnumerableOnly;
+                this.mask = -1;
+                if (showEnumerableOnly)
+                {
+                    this.mask &= ~(int)JSPropertyAttributes.Enumerable;
+                }
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,18 +68,10 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
-                    }
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                        {
-                            start = objP.Next;
-                            continue;
-                        }
                     }
                     property = p;
                     start = objP.Next;
@@ -93,18 +88,10 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
-                    }
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                        {
-                            start = objP.Next;
-                            continue;
-                        }
                     }
                     property = p;
                     key = KeyStrings.Instance.GetName(start);
@@ -123,18 +110,10 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
-                    }
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                        {
-                            start = objP.Next;
-                            continue;
-                        }
                     }
                     key = KeyStrings.Instance.GetName(start);
                     start = objP.Next;
@@ -152,6 +131,7 @@ namespace YantraJS.Core
             private CompactUint32Map<JSObjectProperty> map;
             private uint start;
             readonly bool showEnumerableOnly;
+            private int mask;
             public ValueEnumerator(JSObject target, bool showEnumerableOnly)
             {
                 this.showEnumerableOnly = showEnumerableOnly;
@@ -159,6 +139,11 @@ namespace YantraJS.Core
                 ref var properties = ref target.GetOwnProperties();
                 this.map = properties.map;
                 this.start = properties.head;
+                this.mask = -1;
+                if (showEnumerableOnly)
+                {
+                    this.mask &= ~(int)JSPropertyAttributes.Enumerable;
+                }
             }
 
             public bool MoveNext(out KeyString key)
@@ -167,12 +152,7 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
-                    {
-                        start = objP.Next;
-                        continue;
-                    }
-                    if (showEnumerableOnly && !p.IsEnumerable)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
@@ -194,12 +174,7 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
-                    {
-                        start = objP.Next;
-                        continue;
-                    }
-                    if (showEnumerableOnly && !p.IsEnumerable)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
@@ -220,12 +195,7 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
-                    {
-                        start = objP.Next;
-                        continue;
-                    }
-                    if (showEnumerableOnly && !p.IsEnumerable)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
