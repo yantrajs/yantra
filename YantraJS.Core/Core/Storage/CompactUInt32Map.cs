@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using YantraJS.Core.Core.Storage;
-using YantraJS.Core.FastParser;
-using YantraJS.Core.Storage;
+using System.Text;
 
 namespace YantraJS.Core;
 
-
-public struct Uint32Map<T>
+public struct CompactUint32Map<T>
 {
 
-    private const int Bits = 4;
+    private const int Bits = 2;
     private const int Size = 1 << Bits;
     private const long Mask = ~(-1 << Bits);
 
@@ -74,68 +66,37 @@ public struct Uint32Map<T>
         /// </summary>
         public Node[] Children;
 
-        //public IEnumerable<(uint Key, T Value)> AllValues()
-        //{
-        //    if (this.HasValue)
-        //    {
-        //        yield return (this.Key, this.Value);
-        //    }
-        //    if (this.Children == null)
-        //    {
-        //        yield break;
-        //    }
-        //    foreach(var node in this.Children)
-        //    {
-        //        foreach(var child in node.AllValues())
-        //        {
-        //            yield return child;
-        //        }
-        //    }
-        //}
+        public IEnumerable<T> AllValues()
+        {
+            if (this.HasValue)
+            {
+                yield return this.Value;
+            }
+            if (this.Children == null)
+            {
+                yield break;
+            }
+            foreach (var node in this.Children)
+            {
+                foreach (var child in node.AllValues())
+                {
+                    yield return child;
+                }
+            }
+        }
     }
 
     private Node[] nodes;
 
     public bool IsNull => nodes == null;
 
-    public T this[uint index]
+    public IEnumerable<T> AllValues()
     {
-        get
+        foreach (var node in nodes)
         {
-            ref var node = ref GetNode(index);
-            return node.HasValue ? node.Value : default;
-        }
-    }
-
-    public IEnumerable<KeyValue> All
-    {
-        get
-        {
-            foreach (var (k, v) in AllValues())
-                yield return new KeyValue { Key = k, Value = v };
-        }
-    }
-
-    public IEnumerable<(uint Key, T Value)> AllValues()
-    {
-        if(this.nodes == null)
-        {
-            yield break;
-        }
-        var stack = new Stack<Node>(this.nodes);
-        while(stack.Count > 0)
-        {
-            var item = stack.Pop();
-            if (item.HasValue)
+            foreach (var child in node.AllValues())
             {
-                yield return (item.Key, item.Value);
-            }
-            if (item.Children != null)
-            {
-                foreach(var child in item.Children)
-                {
-                    stack.Push(child);
-                }
+                yield return child;
             }
         }
     }
@@ -213,7 +174,7 @@ public struct Uint32Map<T>
         var storage = nodes;
         if (storage == null)
         {
-            if(!create)
+            if (!create)
             {
                 return ref Empty;
             }
@@ -223,11 +184,12 @@ public struct Uint32Map<T>
         }
 
         long start = originalKey;
-        for(;;)
+        for (; ; )
         {
             var index = start & Mask;
             ref var node = ref storage[index];
-            if (node.Key == originalKey) {
+            if (node.Key == originalKey)
+            {
                 if (node.IsNotEmpty)
                 {
                     return ref node;
@@ -266,7 +228,7 @@ public struct Uint32Map<T>
             }
             storage = node.Children;
             start >>= Size;
-        } 
+        }
     }
 
     private ref Node OldGetNode(uint originalKey, bool create = false)
@@ -353,4 +315,3 @@ public struct Uint32Map<T>
     }
 
 }
-

@@ -98,17 +98,18 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char Peek()
         {
-            if (position >= Text.Length)
-                return char.MaxValue;
-            return Text[position];
+            //if (position >= Text.Length)
+            //    return char.MaxValue;
+            //return Text[position];
+            return Text.AtOrDefault(position, char.MaxValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char Next() {
             var next = position + 1;
-            if (next >= Text.Length)
-                return char.MaxValue;
-            return Text[next];
+            //if (next >= Text.Length)
+            //    return char.MaxValue;
+            return Text.AtOrDefault(next, char.MaxValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -126,9 +127,13 @@ namespace YantraJS.Core.FastParser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private char Consume()
         {
-            if (position >= Text.Length)
-                return char.MaxValue;
-            char ch = Text[position];
+            //if (position >= Text.Length)
+            //    return char.MaxValue;
+            char ch = Text.AtOrDefault(position, char.MaxValue);
+            if (ch == char.MaxValue)
+            {
+                return ch;
+            }
             if(ch == '\n') {
                 line++;
                 column = 0;
@@ -136,9 +141,7 @@ namespace YantraJS.Core.FastParser
                 column++;
             }
             position++;
-            if (position >= Text.Length)
-                return char.MaxValue;
-            ch = Text[position];
+            ch = Text.AtOrDefault(position, char.MaxValue);
             return ch;
         }
 

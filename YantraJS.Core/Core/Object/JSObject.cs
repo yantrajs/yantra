@@ -60,7 +60,7 @@ namespace YantraJS.Core
         //internal ref ElementArray Elements { get { return ref elements; } }
 
         internal PropertySequence ownProperties;
-        private SAUint32Map<JSProperty> symbols;
+        private Uint32Map<JSProperty> symbols;
         private long? uid;
 
         private static long NextID = 0;
@@ -141,7 +141,7 @@ namespace YantraJS.Core
         //    return ref elements;
         //}
 
-        public ref SAUint32Map<JSProperty> GetSymbols()
+        public ref Uint32Map<JSProperty> GetSymbols()
         {
             return ref symbols;
         }

@@ -45,7 +45,7 @@ namespace YantraJS.Core
 
         public struct PropertyEnumerator
         {
-            private Uint32Map<JSObjectProperty> map;
+            private CompactUint32Map<JSObjectProperty> map;
             private readonly uint tail;
             private readonly bool showEnumerableOnly;
             private uint start;
@@ -149,7 +149,7 @@ namespace YantraJS.Core
         public struct ValueEnumerator
         {
             public JSObject target;
-            private Uint32Map<JSObjectProperty> map;
+            private CompactUint32Map<JSObjectProperty> map;
             private uint start;
             readonly bool showEnumerableOnly;
             public ValueEnumerator(JSObject target, bool showEnumerableOnly)
@@ -244,7 +244,7 @@ namespace YantraJS.Core
         #endregion
 
 
-        private Uint32Map<JSObjectProperty> map;
+        private CompactUint32Map<JSObjectProperty> map;
         private uint head;
         private uint tail;
 
@@ -471,7 +471,7 @@ namespace YantraJS.Core
             //uint pkey;
             //if (map.IsNull)
             //{
-            //    map = new UInt32Map<uint>();
+            //    map = new CompactUint32Map<uint>();
             //    // copy..
             //    for (uint i = 0; i < length; i++)
             //    {
@@ -527,7 +527,7 @@ namespace YantraJS.Core
                 //uint pkey;
                 //if (map.IsNull)
                 //{
-                //    map = new UInt32Map<uint>();
+                //    map = new CompactUint32Map<uint>();
                 //    // copy..
                 //    for (uint i = 0; i < length; i++)
                 //    {
