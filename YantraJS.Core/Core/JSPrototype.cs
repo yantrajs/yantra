@@ -75,27 +75,23 @@ namespace YantraJS.Core
             }
 
             // ref var objectElements = ref @object.GetElements(false);
-            if (!@object.elements.IsNull)
+            foreach(var e in @object.elements.AllValues())
             {
-                foreach(var e in @object.elements.AllValues())
+                if (e.Value.IsEmpty)
                 {
-                    if (!e.Value.IsEmpty)
-                    {
-                        ps.elements.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
-                    }
+                    continue;
                 }
+                ps.elements.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
             }
 
             ref var objectSymbols = ref @object.GetSymbols();
-            if(!objectSymbols.IsNull)
+            foreach(var e in objectSymbols.AllValues())
             {
-                foreach(var e in objectSymbols.AllValues())
+                if (e.Value.IsEmpty)
                 {
-                    if (!e.Value.IsEmpty)
-                    {
-                        ps.symbols.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
-                    }
+                    continue;
                 }
+                ps.symbols.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
             }
         }
 

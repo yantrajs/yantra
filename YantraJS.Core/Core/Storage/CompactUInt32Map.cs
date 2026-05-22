@@ -90,16 +90,48 @@ public struct CompactUint32Map<T>
 
     public bool IsNull => nodes == null;
 
-    public IEnumerable<T> AllValues()
+    public T this[uint index]
     {
-        foreach (var node in nodes)
+        get
         {
-            foreach (var child in node.AllValues())
+            ref var node = ref GetNode(index);
+            return node.HasValue ? node.Value : default;
+        }
+    }
+
+    public IEnumerable<KeyValue> All
+    {
+        get
+        {
+            foreach (var (k, v) in AllValues())
+                yield return new KeyValue { Key = k, Value = v };
+        }
+    }
+
+    public IEnumerable<(uint Key, T Value)> AllValues()
+    {
+        if (this.nodes == null)
+        {
+            yield break;
+        }
+        var stack = new Stack<Node>(this.nodes);
+        while (stack.Count > 0)
+        {
+            var item = stack.Pop();
+            if (item.HasValue)
             {
-                yield return child;
+                yield return (item.Key, item.Value);
+            }
+            if (item.Children != null)
+            {
+                foreach (var child in item.Children)
+                {
+                    stack.Push(child);
+                }
             }
         }
     }
+
 
     public bool HasKey(uint key)
     {
