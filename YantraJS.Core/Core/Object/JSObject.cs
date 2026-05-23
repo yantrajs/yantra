@@ -193,35 +193,13 @@ namespace YantraJS.Core
                         yield return (index.ToString(), value);
                 }
 
-                var ownProperties = GetOwnProperties();
                 var en = new PropertySequence.ValueEnumerator(this, false);
                 while(en.MoveNext(out var value, out var key))
                 {
                     yield return (KeyStrings.Instance.GetNameString((uint)key).Value, value);
                 }
-                //for(int i = 0; i< ownProperties.properties.Length; i++)
-                //{
-                //    var p = ownProperties.properties[i];
-                //    JSValue v = null;
-                //    try {
-                //        v = this.GetValue(p);
-                //    } catch (Exception ex)
-                //    {
-                //        System.Diagnostics.Debug.WriteLine(ex);
-                //    }
-                //    yield return ( KeyStrings.Instance.GetNameString(p.key).Value , v);
-                //}
             }
         }
-
-        //public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
-        //{
-        //    ownProperties = new PropertySequence(4);
-        //    foreach (var p in entries)
-        //    {
-        //        ownProperties.Put(p.key.Key) = p;
-        //    }
-        //}
 
         public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.CurrentContext.Object_Prototype)
         {
@@ -492,9 +470,26 @@ namespace YantraJS.Core
                         return g.f;
                 }
                 if(p.IsProperty)
-                    return p.get.f;
+                    return p.get.f(new Arguments(this)) is JSFunction fx
+                        ? fx.f
+                        : null;
             }
-            return prototypeChain?.GetMethod(key);
+            if(prototypeChain == null)
+            {
+                return null;
+            }
+            var px = prototypeChain.GetInternalProperty(key);
+            if (px.IsValue)
+            {
+                return px.get?.f;
+            }
+            if(px.IsProperty)
+            {
+                return px.get.f(new Arguments(this)) is JSFunction fx
+                    ? fx.f
+                    : null;
+            }
+            return null;
         }
 
         //public override JSValue this[KeyString name] { 
@@ -541,8 +536,7 @@ namespace YantraJS.Core
                 }
                 return false;
             }
-            ref var ownProperties = ref this.GetOwnProperties();
-            ownProperties.Put(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue);
+            ownProperties.Put(name, value, JSPropertyAttributes.EnumerableConfigurableValue);
             PropertyChanged?.Invoke(this, ((uint)name, uint.MaxValue, null));
             return true;
         }

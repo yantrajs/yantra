@@ -327,10 +327,6 @@ namespace YantraJS.Core
             var en = obj.ownProperties.GetPropertyEnumerator(true);
             while(en.MoveNext(out var p))
             {
-                if (!p.IsEnumerable)
-                {
-                    continue;
-                }
                 list.Add(obj.GetValue(p));
             }
             return new JSArray(list.ToArray());

@@ -45,7 +45,7 @@ namespace YantraJS.Core
 
         protected internal sealed override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
-            throw JSContext.Current.NewTypeError($"Cannot get property ${key.ToStringSpan()} of undefined");
+            throw JSContext.Current.NewTypeError($"Cannot get property {key.ToStringSpan()} of undefined");
         }
 
         protected internal sealed override bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)

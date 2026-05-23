@@ -1,0 +1,49 @@
+{
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass"
+            ]
+        }
+   },
+   "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "cSpell.words": [
+        "Akash",
+        "castas",
+        "castyy",
+        "Cloner",
+        "Codesign",
+        "DATEDIFF",
+        "DATETIME",
+        "DATETIMEFROMPARTS",
+        "DATETIMEOFFSETFROMPARTS",
+        "FREETEXT",
+        "FROMPARTS",
+        "ISDATE",
+        "ISNUMERIC",
+        "Linq",
+        "mobileprovision",
+        "navigations",
+        "Neuro",
+        "neurospeech",
+        "syslanguages"
+    ],	"eslint.alwaysShowStatus": true,
+	"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+	"eslint.format.enable": true,
+	"emmet.showSuggestionsAsSnippets": false,
+	"emmet.showAbbreviationSuggestions": false,
+	"emmet.excludeLanguages": [
+		"markdown",
+		"typescript",
+		"typescriptreact"
+	],
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	}
+
+}

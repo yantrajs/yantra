@@ -529,7 +529,7 @@ namespace YantraJS.Core {
             }
             set
             {
-                SetValue(name, value, null, true);
+                SetValue(name, value, this, true);
             }
         }
 
