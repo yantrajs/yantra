@@ -524,12 +524,18 @@ namespace YantraJS.ExpHelper
 
         public static Expression LogicalAnd(Expression target, Expression value)
         {
-            return Expression.Coalesce(JSValueExtensionsBuilder.NullIfTrue(target), value);
+            // return Expression.Coalesce(JSValueExtensionsBuilder.NullIfTrue(target), value);
+            return Expression.Coalesce( target.CallExpression<JSValue, JSValue>(() =>
+                (x) => x.NullIfTrue()),
+                value);
         }
 
         public static Expression LogicalOr(Expression target, Expression value)
         {
-            return Expression.Coalesce(JSValueExtensionsBuilder.NullIfFalse(target), value);
+            // return Expression.Coalesce(JSValueExtensionsBuilder.NullIfFalse(target), value);
+            return Expression.Coalesce(target.CallExpression<JSValue, JSValue>(() =>
+                (x) => x.NullIfFalse()),
+                value);
         }
 
         private static MethodInfo _GetAllKeys =

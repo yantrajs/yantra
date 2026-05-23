@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
@@ -300,11 +302,15 @@ namespace YantraJS.Core.FastParser
                                 break;
                             if (type == TokenTypes.SemiColon)
                                 return true;
+                            
                             node = Combine(node, type, right);
                             type = rightType;
                             if (type == TokenTypes.SemiColon)
                                 break;
-                            continue;
+                            if (rightType == TokenTypes.QuestionMark)
+                            {
+                                return true;
+                            }
                         }
                         previous = Combine(previous, previousType, node);
                         previousType = type;

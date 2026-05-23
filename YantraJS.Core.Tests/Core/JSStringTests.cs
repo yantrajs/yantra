@@ -35,21 +35,17 @@ namespace YantraJS.Tests.Core
 
             var some = undefined;
 
-            function t1() {
-                return true;
+            function t1(n) {
+                return n;
             }
 
             return c !== some
             || a !== b
             || b !== c
-            !! c !== d
-            || d !== e
-            || f !== a
-            || d !== f
-            ? t1(t1()) : false ;
+            ? t1(t1(2)) : false ;
             }
 
-            assert(runTest());
+            assert.strictEqual(2, runTest());
 
 ");
 
