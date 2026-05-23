@@ -313,8 +313,25 @@ namespace YantraJS.Core.FastParser
                         }
                         previous = Combine(previous, previousType, node);
                         previousType = type;
+                        if (depth > 0)
+                        {
+                            if (type == TokenTypes.QuestionMark)
+                            {
+                                return false;
+                            }
+                        }
                         if (!NextExpression(ref previous, ref previousType, out node, out type, depth + 1))
+                        {
+                            if (previousType == type && type == TokenTypes.QuestionMark)
+                            {
+                                if (depth > 0)
+                                {
+                                    return false;
+                                }
+                                return NextExpression(ref previous, ref previousType, out node, out type);
+                            }
                             break;
+                        }
                         if (type == TokenTypes.SemiColon)
                             return true;
                     } while (true);
