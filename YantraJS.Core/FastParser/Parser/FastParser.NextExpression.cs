@@ -107,7 +107,7 @@ namespace YantraJS.Core.FastParser
             PreventStackoverFlow(ref lastNextExpressionPosition);
 
             AstExpression right;
-            TokenTypes rightType;
+            TokenTypes rightType = TokenTypes.Empty;
 
             //if (previous.End.LineTerminator)
             //{
@@ -298,18 +298,17 @@ namespace YantraJS.Core.FastParser
                     {
                         if (Precedes(type, previousType))
                         {
-                            if (!NextExpression(ref node, ref type, out right, out rightType, depth + 1))
-                                break;
-                            if (type == TokenTypes.SemiColon)
-                                return true;
-                            
-                            node = Combine(node, type, right);
-                            type = rightType;
-                            if (type == TokenTypes.SemiColon)
-                                break;
-                            if (rightType == TokenTypes.QuestionMark)
+                            // this is right most precedence...
+                            if (NextExpression(ref node, ref type, out right, out rightType, depth + 1))
                             {
-                                return true;
+                                if (type == TokenTypes.SemiColon)
+                                    return true;
+
+                                node = Combine(node, type, right);
+                                type = rightType;
+                                if (type == TokenTypes.SemiColon)
+                                    break;
+                                continue;
                             }
                         }
                         previous = Combine(previous, previousType, node);

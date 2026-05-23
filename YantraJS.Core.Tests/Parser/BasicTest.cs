@@ -49,6 +49,12 @@ namespace YantraJS.Core.Tests.Parser
             var x = Parse("a !== b || c !== d || e !== n ? 1 : 2");
             var ex = (x.Statements[0] as AstExpressionStatement).Expression;
             Assert.IsExactInstanceOfType<AstConditionalExpression>(ex);
+
+
+            x = Parse("a !== b || c !== d || e !== n || c !== n ? 1 : 2");
+            ex = (x.Statements[0] as AstExpressionStatement).Expression;
+            Assert.IsExactInstanceOfType<AstConditionalExpression>(ex);
+
         }
 
         [TestMethod]
