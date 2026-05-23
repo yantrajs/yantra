@@ -818,20 +818,18 @@ namespace YantraJS.Core {
 
             foreach (var item in prototypeChain.propertySet.elements.AllValues())
             {
-                if (!item.Value.property.IsEnumerable)
+                if (item.Value.property.IsEnumerable)
                 {
-                    continue;
+                    yield return new JSNumber(item.Key);
                 }
-                yield return new JSNumber(item.Key);
             }
 
             foreach (var item in prototypeChain.propertySet.properties.AllValues())
             {
-                if (!item.Value.property.IsEnumerable)
+                if (item.Value.property.IsEnumerable)
                 {
-                    continue;
+                    yield return new JSString(((KeyString)item.Key).ToStringSpan());
                 }
-                yield return new JSString(((KeyString)item.Key).ToStringSpan());
             }
         }
 

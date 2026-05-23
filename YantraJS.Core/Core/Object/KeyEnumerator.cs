@@ -153,7 +153,7 @@ namespace YantraJS.Core.Enumerators
             this.target = jSObject;
             this.elements = jSObject.GetElementEnumerator();
             this.properties = new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly);
-            this.mask = showEnumerableOnly ? (-1 & ~((int)JSPropertyAttributes.Enumerable)) : -1;
+            this.mask = showEnumerableOnly ? (-1 & (int)JSPropertyAttributes.Enumerable) : -1;
             this.inherited = inherited;
             parent = null;
         }

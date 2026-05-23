@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
+using YantraJS.Core.FastParser;
 using YantraJS.Core.Typed;
 using YantraJS.Extensions;
 using YantraJS.Utils;
@@ -238,6 +239,17 @@ namespace YantraJS.Core
         //    set { }
         //}
 
+        public override IEnumerable<JSValue> GetForInKeys()
+        {
+            for (int i = 0; i< this.value.Length;i++)
+            {
+                yield return new JSNumber(i);
+            }
+            foreach(var item in base.GetForInKeys())
+            {
+                yield return item;
+            }
+        }
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this.Length);

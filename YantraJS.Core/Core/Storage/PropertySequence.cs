@@ -54,11 +54,9 @@ namespace YantraJS.Core
             {
                 this.map = sequence.map;
                 this.start = sequence.head;
-                this.mask = -1;
-                if (showEnumerableOnly)
-                {
-                    this.mask &= ~(int)JSPropertyAttributes.Enumerable;
-                }
+                this.mask = showEnumerableOnly
+                    ? (int)JSPropertyAttributes.Enumerable
+                    : -1;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -139,11 +137,9 @@ namespace YantraJS.Core
                 ref var properties = ref target.GetOwnProperties();
                 this.map = properties.map;
                 this.start = properties.head;
-                this.mask = -1;
-                if (showEnumerableOnly)
-                {
-                    this.mask &= ~(int)JSPropertyAttributes.Enumerable;
-                }
+                this.mask = showEnumerableOnly
+                    ? (int)JSPropertyAttributes.Enumerable
+                    : -1;
             }
 
             public bool MoveNext(out KeyString key)

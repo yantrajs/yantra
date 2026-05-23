@@ -841,7 +841,7 @@ namespace YantraJS.Core
                 yield return new JSNumber(item.Key);
             }
 
-            var ep = this.ownProperties.GetPropertyEnumerator();
+            var ep = this.ownProperties.GetPropertyEnumerator(true);
             while(ep.MoveNextKey(out var key))
             {
                 yield return new JSString(key.ToStringSpan());
@@ -869,15 +869,14 @@ namespace YantraJS.Core
 
             foreach (var item in prototypeChain.propertySet.properties.AllValues())
             {
-                if (!item.Value.property.IsEnumerable)
-                {
-                    continue;
-                }
                 if (ownProperties.TryGetValue(item.Key, out var none))
                 {
                     continue;
                 }
-                yield return new JSString(((KeyString)item.Key).ToStringSpan());
+                if (item.Value.property.IsEnumerable)
+                {
+                    yield return new JSString(((KeyString)item.Key).ToStringSpan());
+                }
             }
         }
 

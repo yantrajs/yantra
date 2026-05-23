@@ -12,7 +12,7 @@ namespace YantraJS.Core
     public class JSPrototype
     {
 
-        internal class JSPropertySet
+        internal struct JSPropertySet
         {
             internal CompactUint32Map<(JSProperty property, JSPrototype owner)> properties;
             internal CompactUint32Map<(JSProperty property, JSPrototype owner)> elements;
@@ -52,13 +52,13 @@ namespace YantraJS.Core
                 ps.elements = new CompactUint32Map<(JSProperty, JSPrototype)>();
                 ps.symbols = new CompactUint32Map<(JSProperty, JSPrototype)>();
 
-                Build(ps, this);
+                Build(ref ps, this);
                 dirty = false;
                 this.propertySet = ps;
             }
         }
 
-        private void Build(JSPropertySet ps, JSPrototype target)
+        private void Build(ref JSPropertySet ps, JSPrototype target)
         {
             // first build the base class for correct inheritance...
 
@@ -67,7 +67,7 @@ namespace YantraJS.Core
             var @base = @object.prototypeChain;
             if (@base != null && @base != this)
             {
-                this.Build(ps, @base);
+                this.Build(ref ps, @base);
             }
 
             // if it is registered, remove it first
