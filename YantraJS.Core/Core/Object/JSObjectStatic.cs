@@ -171,13 +171,14 @@ namespace YantraJS.Core
                 list.Add(new JSArray(new JSString(i.ToString()), obj.GetValue(p)));
             }
 
-            foreach (var p in obj.ownProperties.GetEnumerator())
+            var en = obj.ownProperties.GetPropertyEnumerator(true);
+            while(en.MoveNext(out var key, out var p))
             {
                 if (!p.IsEnumerable)
                 {
                     continue;
                 }
-                list.Add(new JSArray(new JSString(((KeyString)p.key).ToStringSpan()), obj.GetValue(p)));
+                list.Add(new JSArray(new JSString(((KeyString)key).ToStringSpan()), obj.GetValue(p)));
             }
             return new JSArray(list.ToArray());
         }
@@ -323,7 +324,8 @@ namespace YantraJS.Core
                 list.Add(obj.GetValue(p));
             }
 
-            foreach(var p in obj.ownProperties.GetEnumerator())
+            var en = obj.ownProperties.GetPropertyEnumerator(true);
+            while(en.MoveNext(out var p))
             {
                 if (!p.IsEnumerable)
                 {

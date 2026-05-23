@@ -46,7 +46,6 @@ namespace YantraJS.Core
         public struct PropertyEnumerator
         {
             private CompactUint32Map<JSObjectProperty> map;
-            private readonly bool showEnumerableOnly;
             private uint start;
             private int mask;
 
