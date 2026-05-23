@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Core.Enumerators;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
@@ -17,8 +18,13 @@ namespace YantraJS.Core
             internal CompactUint32Map<(JSProperty property, JSPrototype owner)> elements;
             internal CompactUint32Map<(JSProperty property, JSPrototype owner)> symbols;
 
-            internal Sequence<KeyString> stringKeys = new Sequence<KeyString>();
-            internal Sequence<uint> uintKeys = new Sequence<uint>();
+            //internal Sequence<KeyString> stringKeys = new Sequence<KeyString>();
+            //internal Sequence<uint> uintKeys = new Sequence<uint>();
+
+            public JSPropertySet()
+            {
+                
+            }
         }
         internal JSPropertySet propertySet;
         public readonly JSObject @object;

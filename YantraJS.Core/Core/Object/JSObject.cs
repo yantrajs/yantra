@@ -833,14 +833,52 @@ namespace YantraJS.Core
             }
         }
 
-        public override IElementEnumerator GetForInUIntEnumerator()
+        public override IEnumerable<JSValue> GetForInKeys()
         {
-            return new ForInUIntEnumerator(this);
-        }
+            var en = this.elements.AllValues();
+            foreach(var item in en)
+            {
+                yield return new JSNumber(item.Key);
+            }
 
-        public override IElementEnumerator GetForInStringEnumerator()
-        {
-            return new ForInStringEnumerator(this);
+            var ep = this.ownProperties.GetPropertyEnumerator();
+            while(ep.MoveNextKey(out var key))
+            {
+                yield return new JSString(key.ToStringSpan());
+            }
+
+            if (prototypeChain == null)
+            {
+                yield break;
+            }
+
+            prototypeChain.Build();
+
+            foreach(var item in prototypeChain.propertySet.elements.AllValues())
+            {
+                if(!item.Value.property.IsEnumerable)
+                {
+                    continue;
+                }
+                if (elements.TryGetValue(item.Key, out var none))
+                {
+                    continue;
+                }
+                yield return new JSNumber(item.Key);
+            }
+
+            foreach (var item in prototypeChain.propertySet.properties.AllValues())
+            {
+                if (!item.Value.property.IsEnumerable)
+                {
+                    continue;
+                }
+                if (ownProperties.TryGetValue(item.Key, out var none))
+                {
+                    continue;
+                }
+                yield return new JSString(((KeyString)item.Key).ToStringSpan());
+            }
         }
 
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)

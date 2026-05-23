@@ -89,6 +89,12 @@ namespace YantraJS.Core
         //    }
         //}
 
+        public override IEnumerable<JSValue> GetForInKeys()
+        {
+            ResolvePrototype();
+            return base.GetForInKeys();
+        }
+
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             ResolvePrototype();

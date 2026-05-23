@@ -10,8 +10,10 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core;
+using YantraJS.Core.Enumerators;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -220,13 +222,9 @@ namespace YantraJS.Core {
             get
             {
                 this.prototypeChain.Build();
-                var en = this.prototypeChain.propertySet.stringKeys.GetFastEnumerator();
-                while(en.MoveNext(out var key, out var value))
+                foreach(var (key,v) in this.prototypeChain.propertySet.properties.AllValues())
                 {
-                    if(this.prototypeChain.propertySet.properties.TryGetValue((uint)key, out var v))
-                    {
-                        yield return (key.ToStringSpan().Value, this.GetValue(v.property));
-                    }
+                    yield return (((KeyString)key).ToStringSpan().Value, this.GetValue(v.property));
                 }
                 //var en = new PropertySequence.ValueEnumerator(this.prototypeChain.propertySet.key, false);
                 //while (en.MoveNext(out var value, out var key))
@@ -794,14 +792,47 @@ namespace YantraJS.Core {
         //    yield break;
         //}
 
-        public virtual IElementEnumerator GetForInUIntEnumerator()
-        {
-            return ElementEnumerator.Empty;
-        }
+        //public virtual IKeyEnumerator GetForInUIntEnumerator()
+        //{
+        //    return EmptyKeyEnumerator.Instance;
+        //}
 
-        public virtual IElementEnumerator GetForInStringEnumerator()
+        //public virtual IKeyEnumerator GetForInStringEnumerator()
+        //{
+        //    return EmptyKeyEnumerator.Instance;
+        //}
+
+        //public IKeyEnumerator GetPrototypeUIntEnumerator()
+        //{
+        //    if ()
+        //}
+
+        public virtual IEnumerable<JSValue> GetForInKeys()
         {
-            return ElementEnumerator.Empty;
+            if (prototypeChain == null)
+            {
+                yield break;
+            }
+
+            prototypeChain.Build();
+
+            foreach (var item in prototypeChain.propertySet.elements.AllValues())
+            {
+                if (!item.Value.property.IsEnumerable)
+                {
+                    continue;
+                }
+                yield return new JSNumber(item.Key);
+            }
+
+            foreach (var item in prototypeChain.propertySet.properties.AllValues())
+            {
+                if (!item.Value.property.IsEnumerable)
+                {
+                    continue;
+                }
+                yield return new JSString(((KeyString)item.Key).ToStringSpan());
+            }
         }
 
         public virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {

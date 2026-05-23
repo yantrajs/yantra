@@ -14,6 +14,7 @@ using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using System.Linq;
+using YantraJS.Core.LambdaGen;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -40,25 +41,33 @@ namespace YantraJS.Core.FastParser.Compiler
             }
             using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
             {
-                var en = Exp.Variable(typeof(IElementEnumerator));
+                var local = scope.Top.GetTempVariable(typeof(JSValue));
+                var en = scope.Top.GetTempVariable(typeof(IEnumerator<JSValue>));
 
-                var pList = en.AsSequence();
+                // var pList = en.AsSequence();
 
                 
 
                 var body = VisitStatement(forInStatement.Body);
 
                 var bodyList = Exp.Block(Exp.IfThen(
-                        Exp.Not(IElementEnumeratorBuilder.MoveNext(en, identifier)),
+                        Exp.Not(en.Variable.CallExpression<IEnumerator<JSValue>,bool>(() => (x) => x.MoveNext())),
                         Exp.Goto(s.Break)),
+                        Exp.Assign(identifier, en.Variable.PropertyExpression<IEnumerator<JSValue>, JSValue>(() => (x) => x.Current)),
                     body);
 
                 var right = VisitExpression(forInStatement.Target);
-                return Exp.Block(
-                    pList,
-                    Exp.Assign(en, JSValueBuilder.GetAllKeys(right)),
+                var r = Exp.Block(
+                    Exp.Assign(local.Variable, right),
+                    Exp.Assign(
+                        en.Variable,
+                        local.Variable.CallExpression<JSValue, IEnumerable<JSValue>>(() => (x) => x.GetForInKeys())
+                            .CallExpression<IEnumerable<JSValue>, IEnumerator<JSValue>>(() => (x) => x.GetEnumerator())
+                    ),
                     Exp.Loop(bodyList, s.Break, s.Continue)
                     );
+                local.Dispose();
+                return r;
             }
         }
 
