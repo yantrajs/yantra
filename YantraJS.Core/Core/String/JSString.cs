@@ -161,10 +161,10 @@ namespace YantraJS.Core
 
         public JSString(in StringSpan value) : base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
         {
-            if(value.Source == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            //if(value.Source == null)
+            //{
+            //    throw new ArgumentNullException(nameof(value));
+            //}
             this.value = value.Value;
         }
 
