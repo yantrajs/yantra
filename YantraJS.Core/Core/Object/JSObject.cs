@@ -536,7 +536,7 @@ namespace YantraJS.Core
                 }
                 return false;
             }
-            ownProperties.Put(name, value, JSPropertyAttributes.EnumerableConfigurableValue);
+            ownProperties.Put(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue);
             PropertyChanged?.Invoke(this, ((uint)name, uint.MaxValue, null));
             return true;
         }
