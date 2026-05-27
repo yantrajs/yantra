@@ -58,19 +58,19 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.Equal:
                     if (isLeftNull)
                     {
-                        return right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull);
+                        return JSBooleanBuilder.NewFromCLRBoolean(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
                     }
                     if (isRightNull)
                     {
-                        return left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull);
+                        return JSBooleanBuilder.NewFromCLRBoolean(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
                     }
                     if (isLeftUndefined)
                     {
-                        return right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined);
+                        return JSBooleanBuilder.NewFromCLRBoolean(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
                     }
                     if (isRightUndfined)
                     {
-                        return left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined);
+                        return JSBooleanBuilder.NewFromCLRBoolean(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
                     }
                     if (isLeftNumber)
                     {
@@ -90,19 +90,19 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.NotEqual:
                     if (isLeftNull)
                     {
-                        return Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull)));
                     }
                     if (isRightNull)
                     {
-                        return Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull)));
                     }
                     if (isLeftUndefined)
                     {
-                        return Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined)));
                     }
                     if (isRightUndfined)
                     {
-                        return Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined)));
                     }
                     if (isLeftNumber)
                     {
@@ -123,19 +123,19 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.StrictlyEqual:
                     if (isLeftNull)
                     {
-                        return right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull);
+                        return JSBooleanBuilder.NewFromCLRBoolean(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
                     }
                     if (isRightNull)
                     {
-                        return left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull);
+                        return JSBooleanBuilder.NewFromCLRBoolean(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
                     }
                     if (isLeftUndefined)
                     {
-                        return right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined);
+                        return JSBooleanBuilder.NewFromCLRBoolean(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
                     }
                     if (isRightUndfined)
                     {
-                        return left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined);
+                        return JSBooleanBuilder.NewFromCLRBoolean(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
                     }
                     if (isLeftNumber)
                     {
@@ -155,20 +155,20 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.StrictlyNotEqual:
                     if (isLeftNull)
                     {
-                        return Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull)));
                     }
                     if (isRightNull)
                     {
-                        return Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull));
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsNull)));
                     }
                     if (isLeftUndefined)
                     {
-                        return Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(right.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined)));
                     }
                     if (isRightUndfined)
                     {
-                        return Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined));
-                    }                
+                        return JSBooleanBuilder.NewFromCLRBoolean(Expression.Not(left.PropertyExpression<JSValue, bool>(() => (x) => x.IsUndefined)));
+                    }
                     if (isLeftNumber)
                     {
                         // to do
