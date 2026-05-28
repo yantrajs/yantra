@@ -96,21 +96,16 @@ namespace YantraJS.ExpHelper
         {
             if (target.Type == typeof(JSVariable))
                 target = JSVariable.ValueExpression(target);
-            // return Expression.Property(target, _IsNullOrUndefined);
             return target.PropertyExpression<JSValue, bool>(() => (x) => x.IsNullOrUndefined);
         }
 
-        private static PropertyInfo _lengthProperty
-            = type.Property(nameof(Core.JSValue.Length));
-
         public static Expression Length(Expression target)
         {
-            return Expression.Property(target, _lengthProperty);
+            return target.PropertyExpression<JSValue,int>(() => (x) => x.Length);
         }
 
         public static Expression DoubleValue(Expression exp)
         {
-            // return Expression.Property(exp, _DoubleValue);
             return exp.PropertyExpression<JSValue, double>(() => (x) => x.DoubleValue);
         }
 
@@ -507,7 +502,10 @@ namespace YantraJS.ExpHelper
             = type.PublicMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
         public static Expression Greater(Expression target, Expression value)
         {
-            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _Greater, ValueOf(value)));
+            // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _Greater, ValueOf(value)));
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                target.CallExpression<JSValue, JSValue, bool>(() => (x, y) => x.Greater(y), value)
+            );
         }
 
         private static MethodInfo _GreaterOrEqual
