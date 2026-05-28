@@ -122,19 +122,20 @@ public struct Uint32Map<T>
         {
             yield break;
         }
-        var stack = new Stack<Node>(this.nodes);
+        var stack = new Stack<Node[]>();
+        stack.Push(this.nodes);
         while(stack.Count > 0)
         {
-            var item = stack.Pop();
-            if (item.HasValue)
+            var top = stack.Pop();
+            foreach (var item in top)
             {
-                yield return (item.Key, item.Value);
-            }
-            if (item.Children != null)
-            {
-                foreach(var child in item.Children)
+                if (item.HasValue)
                 {
-                    stack.Push(child);
+                    yield return (item.Key, item.Value);
+                }
+                if (item.Children != null)
+                {
+                    stack.Push(item.Children);
                 }
             }
         }
