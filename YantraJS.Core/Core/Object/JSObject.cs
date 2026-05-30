@@ -1051,51 +1051,130 @@ namespace YantraJS.Core
 
         public override bool Less(JSValue value)
         {
-            switch(value)
+            if (value.IsNullOrUndefined)
             {
-                case JSString strValue:
-                    if (this.ToString().CompareTo(strValue.ToString()) < 0)
-                        return true;
-                    break;
+                return false;
             }
-            return false;
+            var self = this.ValueOf();
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return self.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? self.DoubleValue < value.DoubleValue
+                : self.ToString().Less(value.ToString());
+        }
+
+        public override bool LessLiteral(double value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue < value
+                : self.ToString().Less(value.ToString());
+        }
+
+        public override bool LessLiteral(string value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue < NumberParser.CoerceToNumber(value)
+                : self.ToString().Less(value.ToString());
         }
 
         public override bool LessOrEqual(JSValue value)
         {
+            if (value.IsNullOrUndefined)
+            {
+                return false;
+            }
             if (Object.ReferenceEquals(this, value))
                 return true;
-            switch (value)
-            {
-                case JSString strValue
-                    when (this.ToString().CompareTo(strValue.ToString()) <= 0):
-                        return true;
+            var self = this.ValueOf();
+            if (value.IsObject) {
+                value = value.ValueOf();
             }
-            return false;
+            return self.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? self.DoubleValue <= value.DoubleValue
+                : self.ToString().LessOrEqual(value.ToString());
+        }
+
+        public override bool LessOrEqualLiteral(double value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue <= value
+                : self.ToString().LessOrEqual(value.ToString());
+        }
+
+        public override bool LessOrEqualLiteral(string value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue <= NumberParser.CoerceToNumber(value)
+                : self.ToString().LessOrEqual(value.ToString());
         }
 
         public override bool Greater(JSValue value)
         {
-            switch (value)
+            if (value.IsNullOrUndefined)
             {
-                case JSString strValue
-                    when (this.ToString().CompareTo(strValue.ToString()) > 0):
-                        return true;
+                return false;
             }
-            return false;
+            var self = this.ValueOf();
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return self.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? self.DoubleValue > value.DoubleValue
+                : self.ToString().Greater(value.ToString());
+        }
+
+        public override bool GreaterLiteral(double value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue > value
+                : self.ToString().Greater(value.ToString());
+        }
+
+        public override bool GreaterLiteral(string value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue > NumberParser.CoerceToNumber(value)
+                : self.ToString().Greater(value);
         }
 
         public override bool GreaterOrEqual(JSValue value)
         {
+            if (value.IsNullOrUndefined)
+            {
+                return false;
+            }
             if (Object.ReferenceEquals(this, value))
                 return true;
-            switch (value)
-            {
-                case JSString strValue
-                    when (this.ToString().CompareTo(strValue.ToString()) >= 0):
-                        return true;
+            var self = this.ValueOf();
+            if (value.IsObject) {
+                value = value.ValueOf();
             }
-            return false;
+            return self.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? self.DoubleValue >= value.DoubleValue
+                : self.ToString().GreaterOrEqual(value.ToString());
+        }
+
+        public override bool GreaterOrEqualLiteral(double value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue >= value
+                : self.ToString().GreaterOrEqual(value.ToString());
+        }
+
+        public override bool GreaterOrEqualLiteral(string value)
+        {
+            var self = this.ValueOf();
+            return self.IsNumberOrBoolean
+                ? self.DoubleValue >= NumberParser.CoerceToNumber(value)
+                : self.ToString().GreaterOrEqual(value.ToString());
         }
 
         internal override bool TryGetValue(uint i, out JSProperty value)

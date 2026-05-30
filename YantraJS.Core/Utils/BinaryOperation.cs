@@ -112,6 +112,14 @@ namespace YantraJS.Utils
                 case TokenTypes.Assign:
                     return Assign(left, right);
                 case TokenTypes.AssignAdd:
+                    if(right.TryReduceToLiteral(out var doubleRight, out var stringRight))
+                    {
+                        if(doubleRight is not null)
+                        {
+                            return Assign(left, left.CallExpression<JSValue,double,JSValue>(() => (x,y) => x.AddValue(y), doubleRight));
+                        }
+                        return Assign(left, left.CallExpression<JSValue,string,JSValue>(() => (x,y) => x.AddValue(y), stringRight));
+                    }
                     return Assign(left, ExpHelper.JSValueBuilder.Add(left, right));
                 case TokenTypes.AssignBooleanAnd:
                     return Assign(left, JSValueBuilder.LogicalAnd(left, right));
@@ -262,12 +270,24 @@ namespace YantraJS.Utils
                 case TokenTypes.In:
                     return ExpHelper.JSValueExtensionsBuilder.IsIn(left, right);
                 case TokenTypes.Plus:
-                    return ExpHelper.JSValueBuilder.Add(left, right);
+                    if (right.TryReduceToDouble(out var doubleRight))
+                    {
+                        return left.CallExpression<JSValue,double,JSValue>(() => (x,y) => x.AddValue(y), doubleRight);
+                    }
+                    if (right.TryReduceToString(out var stringRight))
+                    {
+                        return left.CallExpression<JSValue,string,JSValue>(() => (x,y) => x.AddValue(y), stringRight);
+                    }
+                    return left.CallExpression<JSValue,JSValue,JSValue>(() => (x,y) => x.AddValue(y), right);
                 case TokenTypes.Minus:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Subtract(leftDouble, rightDouble));
                     return left.CallExpression<JSValue, JSValue, JSValue>(() => (a,b) => a.Subtract(b), right);
                 case TokenTypes.Multiply:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Multiply(leftDouble, rightDouble));
+                    if (right.TryReduceToDouble(out var rightDouble))
+                    {
+                        return left.CallExpression<JSValue, double, JSValue>(() => (a, b) => a.Multiply(b), rightDouble);
+                    }
                     return left.CallExpression<JSValue, JSValue, JSValue>(() => (a, b) => a.Multiply(b), right);
                 case TokenTypes.Divide:
                     // return ExpHelper.JSNumberBuilder.New(Expression.Divide(leftDouble, rightDouble));

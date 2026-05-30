@@ -12,6 +12,7 @@ using LabelTarget = YantraJS.Expressions.YLabelTarget;
 using SwitchCase = YantraJS.Expressions.YSwitchCaseExpression;
 using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
+using YantraJS.Core.LambdaGen;
 namespace YantraJS.Core.FastParser.Compiler
 {
     partial class FastCompiler
@@ -34,7 +35,8 @@ namespace YantraJS.Core.FastParser.Compiler
             if (var != null)
                 return var.Expression;
 
-            return ExpHelper.JSContextBuilder.Index(KeyOfName(identifier.Name));
+            // return ExpHelper.JSContextBuilder.Index(this.scope.Top.Context,KeyOfName(identifier.Name));
+            return this.scope.Top.Context.MakeIndexExpression<JSContext,KeyString,JSValue>(() => (x,n) => x[n], KeyOfName(identifier.Name));
         }
     }
 }

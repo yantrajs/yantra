@@ -10,6 +10,7 @@ using System.Diagnostics.Contracts;
 using YantraJS.Core.Types;
 using YantraJS.Expressions;
 using YantraJS.ExpHelper;
+using YantraJS.Utils;
 
 namespace YantraJS.Core.LambdaGen;
 
@@ -145,6 +146,11 @@ internal static class NewLambdaExpression
 
     public static bool TryReduceToDouble(this Expression exp, out Expression output)
     {
+        if (exp.Type == typeof(double))
+        {
+            output = exp;
+            return true;
+        }
         if (exp is YTypeAsExpression typeAs)
         {
             exp = typeAs.Target;
@@ -167,6 +173,11 @@ internal static class NewLambdaExpression
 
     public static bool TryReduceToString(this Expression exp, out Expression output)
     {
+        if (exp.Type == typeof(string))
+        {
+            output = exp;
+            return true;
+        }
         if (exp is YTypeAsExpression typeAs)
         {
             exp = typeAs.Target;
@@ -189,6 +200,11 @@ internal static class NewLambdaExpression
 
     public static bool TryReduceToBoolean(this Expression exp, out Expression output)
     {
+        if (exp.Type == typeof(bool))
+        {
+            output = exp;
+            return true;
+        }
         if (exp is YTypeAsExpression typeAs)
         {
             exp = typeAs.Target;
@@ -215,6 +231,22 @@ internal static class NewLambdaExpression
             return true;
         }
         output = default;
+        return false;
+    }
+
+    public static bool TryReduceToLiteral(this Expression exp, out Expression doubleValue, out Expression stringValue)
+    {
+        if (exp.TryReduceToDouble(out doubleValue))
+        {
+            stringValue = default;
+            return true;
+        }
+        if (exp.TryReduceToString(out stringValue)) {
+            doubleValue = default;
+            return true;
+        }
+        doubleValue = default;
+        stringValue = default;
         return false;
     }
 

@@ -115,7 +115,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 {
                     case FastNodeType.Identifier:
                         var id = (me.Property as AstIdentifier)!;
-                        name = me.Computed ? VisitExpression(id) : KeyOfName(id.Name);
+                        name = me.Computed ? VisitIdentifier(id) : KeyOfName(id.Name);
                         // name = KeyOfName(id.Name);
                         break;
                     case FastNodeType.Literal:

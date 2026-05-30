@@ -312,47 +312,95 @@ namespace YantraJS.Core
 
         public override bool Less(JSValue value)
         {
-            if (value.IsUndefined)
+            if (value.IsNullOrUndefined) {
                 return false;
-            if (value.CanBeNumber)
-            {
-                return this.DoubleValue < value.DoubleValue;
             }
-            return this.value.Less(value.ToString());
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return value.IsNumberOrBoolean
+                ? this.DoubleValue < value.DoubleValue
+                : this.ToString().Less(value.ToString());
+        }
 
+        public override bool LessLiteral(double value)
+        {
+            return this.DoubleValue < value;
+        }
+
+        public override bool LessLiteral(string value)
+        {
+            return this.value.Less(value);
         }
 
         public override bool LessOrEqual(JSValue value)
         {
-            if (value.IsUndefined)
+            if (value.IsNullOrUndefined) {
                 return false;
-            if (value.CanBeNumber)
-            {
-                return (this.DoubleValue <= value.DoubleValue);
             }
-            return this.value.LessOrEqual(value.ToString());
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return value.IsNumberOrBoolean
+                ? this.DoubleValue <= value.DoubleValue
+                : this.ToString().LessOrEqual(value.ToString());
+        }
+
+        public override bool LessOrEqualLiteral(double value)
+        {
+            return this.DoubleValue <= value;
+        }
+
+        public override bool LessOrEqualLiteral(string value)
+        {
+            return this.value.LessOrEqual(value);
         }
 
         public override bool Greater(JSValue value)
         {
-            if (value.IsUndefined)
+            if (value.IsNullOrUndefined) {
                 return false;
-            if (value.CanBeNumber)
-            {
-                return (this.DoubleValue > value.DoubleValue);
             }
-            return this.value.Greater(value.ToString());
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return value.IsNumberOrBoolean
+                ? this.DoubleValue > value.DoubleValue
+                : this.ToString().Greater(value.ToString());
         }
+
+        public override bool GreaterLiteral(double value)
+        {
+            return this.DoubleValue > value;
+        }
+
+        public override bool GreaterLiteral(string value)
+        {
+            return this.value.Greater(value);
+        }
+
 
         public override bool GreaterOrEqual(JSValue value)
         {
-            if (value.IsUndefined)
+            if (value.IsNullOrUndefined) {
                 return false;
-            if (value.CanBeNumber)
-            {
-                return (this.DoubleValue >= value.DoubleValue);
             }
-            return this.value.GreaterOrEqual(value.ToString());
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return value.IsNumberOrBoolean
+                ? this.DoubleValue > value.DoubleValue
+                : this.ToString().GreaterOrEqual(value.ToString());
+        }
+
+        public override bool GreaterOrEqualLiteral(double value)
+        {
+            return this.DoubleValue > value;
+        }
+
+        public override bool GreaterOrEqualLiteral(string value)
+        {
+            return this.value.GreaterOrEqual(value);
         }
 
         public override bool StrictEquals(JSValue value)

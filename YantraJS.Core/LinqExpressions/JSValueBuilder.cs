@@ -113,6 +113,15 @@ namespace YantraJS.ExpHelper
             return exp.PropertyExpression<JSValue, double>(() => (x) => x.DoubleValue);
         }
 
+        public static Expression StringValue(Expression exp)
+        {
+            if (exp.TryReduceToString(out var d))
+            {
+                return d;
+            }
+            return exp.CallExpression<JSValue, string>(() => (x) => x.ToString());
+        }
+
         public static Expression IntValue(Expression exp)
         {
             // return Expression.Property(exp, _IntValue);
@@ -423,99 +432,170 @@ namespace YantraJS.ExpHelper
 
         public static Expression Equals(Expression target, Expression value)
         {
-            if (value.Type == typeof(string))
-                // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralString, value));
+            if(value.TryReduceToLiteral(out var doubleValue, out  var stringValue))
+            {
+                if (doubleValue != null)
+                {
+                    return JSBooleanBuilder.NewFromCLRBoolean(
+                        target.CallExpression<JSValue,double, bool>(() =>
+                        (x,y) => x.EqualsLiteral(y) , doubleValue
+                        ));
+                }
                 return JSBooleanBuilder.NewFromCLRBoolean(
-                    target.CallExpression<JSValue, string, bool>(() => (x, a) => x.EqualsLiteral(a), value)
-                    );
-            if (value.Type == typeof(double))
-                // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _EqualsLiteralDouble, value));
-                return JSBooleanBuilder.NewFromCLRBoolean(
-                    target.CallExpression<JSValue,double, bool>(() =>(x, a) => x.EqualsLiteral(a), value)
-                    );
-            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _Equals, value));
+                    target.CallExpression<JSValue,string, bool>(() =>
+                    (x,y) => x.EqualsLiteral(y) , stringValue
+                    ));
+                
+            }
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.Equals(y) , value
+                ));
         }
 
         public static Expression NotEquals(Expression target, Expression value)
         {
-            if (value.Type == typeof(string))
+            if(value.TryReduceToLiteral(out var doubleValue, out  var stringValue))
+            {
+                if (doubleValue != null)
+                {
+                    return JSBooleanBuilder.NewFromCLRBoolean(
+                        Expression.Not(target.CallExpression<JSValue,double, bool>(() =>
+                        (x,y) => x.EqualsLiteral(y) , doubleValue)
+                        ));
+                }
                 return JSBooleanBuilder.NewFromCLRBoolean(
-                    // Expression.Not(Expression.Call(target, _EqualsLiteralString, value))
-                    Expression.Not(target.CallExpression<JSValue, string, bool>(() => (x, a) => x.EqualsLiteral(a), value))
-                    );
-            if (value.Type == typeof(double))
-                return JSBooleanBuilder.NewFromCLRBoolean(
-                    // Expression.Not( Expression.Call(target, _EqualsLiteralDouble, value))
-                    Expression.Not(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.EqualsLiteral(a), value))
-                    );
-            return
-                ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
-                    Expression.Not(
-                    Expression.Call(target, _Equals, value)
+                    Expression.Not(target.CallExpression<JSValue,string, bool>(() =>
+                    (x,y) => x.EqualsLiteral(y) , stringValue)
+                    ));
+                
+            }
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                Expression.Not(target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.Equals(y) , value)
                 ));
         }
 
         public static Expression StrictEquals(Expression target, Expression value)
         {
-            if (value.Type == typeof(string))
-                return JSBooleanBuilder.NewFromCLRBoolean( target.CallExpression<JSValue, string, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value));
-            if (value.Type == typeof(double))
-                return JSBooleanBuilder.NewFromCLRBoolean(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value));
+            if(value.TryReduceToLiteral(out var doubleValue, out  var stringValue))
+            {
+                if (doubleValue != null)
+                {
+                    return JSBooleanBuilder.NewFromCLRBoolean(
+                        target.CallExpression<JSValue,double, bool>(() =>
+                        (x,y) => x.StrictEqualsLiteral(y) , doubleValue
+                        ));
+                }
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    target.CallExpression<JSValue,string, bool>(() =>
+                    (x,y) => x.StrictEqualsLiteral(y) , stringValue
+                    ));
+                
+            }
             return JSBooleanBuilder.NewFromCLRBoolean(
                 target.CallExpression<JSValue,JSValue, bool>(() =>
-                (x,y) => x.StrictEquals(y), value));
+                (x,y) => x.StrictEquals(y) , value
+                ));
         }
 
         public static Expression NotStrictEquals(Expression target, Expression value)
         {
-            if (value.Type == typeof(string))
+            if(value.TryReduceToLiteral(out var doubleValue, out  var stringValue))
+            {
+                if (doubleValue != null)
+                {
+                    return JSBooleanBuilder.NewFromCLRBoolean(
+                        Expression.Not(target.CallExpression<JSValue,double, bool>(() =>
+                        (x,y) => x.StrictEqualsLiteral(y) , doubleValue)
+                        ));
+                }
                 return JSBooleanBuilder.NewFromCLRBoolean(
-                    Expression.Not(target.CallExpression<JSValue, string, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value)));
-            if (value.Type == typeof(double))
-                return JSBooleanBuilder.NewFromCLRBoolean(
-                    Expression.Not(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value)));
-
+                    Expression.Not(target.CallExpression<JSValue,string, bool>(() =>
+                    (x,y) => x.StrictEqualsLiteral(y) , stringValue)
+                    ));
+                
+            }
             return JSBooleanBuilder.NewFromCLRBoolean(
-                Expression.Not(
-                target.CallExpression<JSValue,JSValue, bool>(() =>
-                (x,y) => x.StrictEquals(y), value)));
-
+                Expression.Not(target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.StrictEquals(y) , value)
+                ));
         }
 
         public static Expression Less(Expression target, Expression value)
         {
-            target = ValueOf(target);
-            value = ValueOf(value);
+            if(value.TryReduceToLiteral(out var doubleValue, out  var stringValue))
+            {
+                if (doubleValue != null)
+                {
+                    return JSBooleanBuilder.NewFromCLRBoolean(
+                        target.CallExpression<JSValue,double, bool>(() =>
+                        (x,y) => x.LessLiteral(y) , doubleValue
+                        ));
+                }
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    target.CallExpression<JSValue,string, bool>(() =>
+                    (x,y) => x.LessLiteral(y) , stringValue
+                    ));
+                
+            }
             return JSBooleanBuilder.NewFromCLRBoolean(
                 target.CallExpression<JSValue,JSValue, bool>(() =>
-                (x,y) => x.Less(y), value));
+                (x,y) => x.Less(y) , value
+                ));
         }
 
 
         public static Expression LessOrEqual(Expression target, Expression value)
         {
-            // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _LessOrEqual, ValueOf(value)));
-            target = ValueOf(target);
-            value = ValueOf(value);
+            if(value.TryReduceToLiteral(out var doubleValue, out  var stringValue))
+            {
+                if (doubleValue != null)
+                {
+                    return JSBooleanBuilder.NewFromCLRBoolean(
+                        target.CallExpression<JSValue,double, bool>(() =>
+                        (x,y) => x.LessOrEqualLiteral(y) , doubleValue
+                        ));
+                }
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    target.CallExpression<JSValue,string, bool>(() =>
+                    (x,y) => x.LessOrEqualLiteral(y) , stringValue
+                    ));
+                
+            }
             return JSBooleanBuilder.NewFromCLRBoolean(
                 target.CallExpression<JSValue,JSValue, bool>(() =>
-                (x,y) => x.LessOrEqual(y), value));
-
+                (x,y) => x.LessOrEqual(y) , value
+                ));
         }
 
         public static Expression Greater(Expression target, Expression value)
         {
-            target = ValueOf(target);
-            value = ValueOf(value);
+            if(value.TryReduceToLiteral(out var doubleValue, out  var stringValue))
+            {
+                if (doubleValue != null)
+                {
+                    return JSBooleanBuilder.NewFromCLRBoolean(
+                        target.CallExpression<JSValue,double, bool>(() =>
+                        (x,y) => x.GreaterLiteral(y) , doubleValue
+                        ));
+                }
+                return JSBooleanBuilder.NewFromCLRBoolean(
+                    target.CallExpression<JSValue,string, bool>(() =>
+                    (x,y) => x.GreaterLiteral(y) , stringValue
+                    ));
+                
+            }
             return JSBooleanBuilder.NewFromCLRBoolean(
-                target.CallExpression<JSValue, JSValue, bool>(() => (x, y) => x.Greater(y), value)
-            );
+                target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.Greater(y) , value
+                ));
         }
 
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
-            target = ValueOf(target);
-            value = ValueOf(value);
+            // target = ValueOf(target);
+            // value = ValueOf(value);
             return JSBooleanBuilder.NewFromCLRBoolean(
                 target.CallExpression<JSValue,JSValue, bool>(() =>
                 (x,y) => x.GreaterOrEqual(y), value));

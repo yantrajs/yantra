@@ -385,6 +385,98 @@ namespace YantraJS.Core
             return this.value == value;
         }
 
+        public override bool Less(JSValue value)
+        {
+            if (value.IsObject)
+            {
+                value = value.ValueOf();
+            }
+            if (value.IsNullOrUndefined)
+            {
+                return false;
+            }
+            return this.value < value.DoubleValue;
+        }
+
+        public override bool LessLiteral(double value)
+        {
+            return this.value < value;
+        }
+
+        public override bool LessLiteral(string value)
+        {
+            return this.value < NumberParser.CoerceToNumber(value);
+        }
+
+        public override bool LessOrEqual(JSValue value)
+        {
+            if (value.IsObject)
+            {
+                value = value.ValueOf();
+            }
+            if (value.IsNullOrUndefined)
+            {
+                return false;
+            }
+            return this.value <= value.DoubleValue;
+        }
+
+        public override bool LessOrEqualLiteral(double value)
+        {
+            return this.value <= value;
+        }
+
+        public override bool LessOrEqualLiteral(string value)
+        {
+            return this.value <= NumberParser.CoerceToNumber(value);
+        }
+
+        public override bool Greater(JSValue value)
+        {
+             if (value.IsObject)
+            {
+                value = value.ValueOf();
+            }
+            if (value.IsNullOrUndefined)
+            {
+                return false;
+            }
+            return this.value > value.DoubleValue;
+        }
+
+        public override bool GreaterLiteral(double value)
+        {
+            return this.value > value;
+        }
+
+        public override bool GreaterLiteral(string value)
+        {
+            return this.value > NumberParser.CoerceToNumber(value);
+        }
+
+        public override bool GreaterOrEqual(JSValue value)
+        {
+             if (value.IsObject)
+            {
+                value = value.ValueOf();
+            }
+            if (value.IsNullOrUndefined)
+            {
+                return false;
+            }
+            return this.value >= value.DoubleValue;
+        }
+
+        public override bool GreaterOrEqualLiteral(double value)
+        {
+            return this.value >= value;
+        }
+
+        public override bool GreaterOrEqualLiteral(string value)
+        {
+            return this.value >= NumberParser.CoerceToNumber(value);
+        }
+
         public override JSValue InvokeFunction(in Arguments a)
         {
             throw JSContext.Current.NewTypeError($"{this.value} is not a function");
@@ -408,5 +500,15 @@ namespace YantraJS.Core
             }
             return JSBoolean.False;
         }
+
+        public override JSValue Multiply(JSValue value)
+        {
+            return new JSNumber(this.value * value.DoubleValue);
+        }
+        public override JSValue Multiply(double value)
+        {
+            return new JSNumber(this.value * value);
+        }
+
     }
 }

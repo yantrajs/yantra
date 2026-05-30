@@ -37,9 +37,9 @@ namespace YantraJS.Core.FastParser.Compiler
             switch (@operator)
             {
                 case TokenTypes.Plus:
-                    if (isLeftNumber && isRightNumber)
-                            return JSNumberBuilder.New( Expression.Add(left, right) );
-                    
+                    if (isLeftNumber && isRightNumber) {
+                        return JSNumberBuilder.New( Expression.Add(left, right));
+                    }                    
                     if (isLeftString && isRightString)
                     {
                         return JSStringBuilder.New(ClrStringBuilder.Concat(left, right));

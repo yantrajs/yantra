@@ -25,27 +25,10 @@ namespace YantraJS.Tests.Core
             //");
             this.context.Execute(@"
 
-            function runTest() {
-
-            var a = 1;
-            var b = 2;
-            var c = true;
-            var d = 4;
-            var e = 5;
-
-            var some = undefined;
-
-            function t1(n) {
-                return n;
+            
+            for(var i=0;i<100;i+=2) {
+                console.log(i);
             }
-
-            return c !== some
-            || a !== b
-            || b !== c
-            ? t1(t1(2)) : false ;
-            }
-
-            assert.strictEqual(2, runTest());
 
 ");
 

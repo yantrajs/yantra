@@ -142,6 +142,22 @@ namespace YantraJS.Core {
             }
         } 
 
+        
+        public bool IsNumberOrBoolean
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                switch(ValueType)
+                {
+                    case JSValueType.Boolean:
+                    case JSValueType.Number:
+                        return true;
+                }
+                return false;
+            }
+        } 
+
         public virtual int Length {
             get => 0;
             set { }
@@ -268,6 +284,12 @@ namespace YantraJS.Core {
         {
             return new JSNumber(this.DoubleValue * value.DoubleValue);
         }
+
+        public virtual JSValue Multiply(double value)
+        {
+            return new JSNumber(this.DoubleValue * value);
+        }
+
 
         /// <summary>
         public virtual JSValue Divide(JSValue value)
@@ -727,64 +749,144 @@ namespace YantraJS.Core {
             return this.StrictEquals(value);
         }
 
+        public virtual bool LessLiteral(double value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? this.DoubleValue < value
+                : this.ToString().Less(value.ToString());
+        }
+
+        public virtual bool LessLiteral(string value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? this.DoubleValue < NumberParser.CoerceToNumber(value)
+                : this.ToString().Less(value.ToString());
+        }
+
+        public virtual bool LessOrEqualLiteral(double value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? this.DoubleValue <= value
+                : this.ToString().LessOrEqual(value.ToString());
+        }
+
+        public virtual bool LessOrEqualLiteral(string value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? this.DoubleValue <= NumberParser.CoerceToNumber(value)
+                : this.ToString().LessOrEqual(value.ToString());
+        }        
+
+        public virtual bool GreaterLiteral(double value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? this.DoubleValue > value
+                : this.ToString().Greater(value.ToString());
+        }
+
+        public virtual bool GreaterLiteral(string value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? double.TryParse(value, out var dv) && this.DoubleValue > dv
+                : this.ToString().Greater(value.ToString());
+        }
+
+        public virtual bool GreaterOrEqualLiteral(double value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? this.DoubleValue >= value
+                : this.ToString().GreaterOrEqual(value.ToString());
+        }
+
+        public virtual bool GreaterOrEqualLiteral(string value)
+        {
+            if (this.IsNullOrUndefined)
+            {
+                 return false;
+            }
+            return this.IsNumberOrBoolean
+                ? this.DoubleValue >= NumberParser.CoerceToNumber(value)
+                : this.ToString().GreaterOrEqual(value.ToString());
+        }
+
         public virtual bool Less(JSValue value)
         {
-            if (!(this.IsUndefined || value.IsUndefined))
-            {
-                if (this.CanBeNumber || value.CanBeNumber)
-                {
-                    if (this.DoubleValue < value.DoubleValue)
-                        return true;
-                }
-                else if (this.ToString().Less(value.ToString()))
-                    return true;
+            if (this.IsNullOrUndefined || value.IsNullOrUndefined) {
+                return false;
             }
-            return false;
-
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return this.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? this.DoubleValue < value.DoubleValue
+                : this.ToString().Less(value.ToString());
         }
         public virtual bool LessOrEqual(JSValue value)
         {
-            if (!(this.IsUndefined || value.IsUndefined))
-            {
-                if (this.CanBeNumber || value.CanBeNumber)
-                {
-                    if (this.DoubleValue <= value.DoubleValue)
-                        return true;
-                }
-                else if (this.ToString().LessOrEqual(value.ToString()))
-                    return true;
+            if (this.IsNullOrUndefined || value.IsNullOrUndefined) {
+                return false;
             }
-            return false;
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return this.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? this.DoubleValue <= value.DoubleValue
+                : this.ToString().LessOrEqual(value.ToString());
 
         }
 
         public virtual bool Greater(JSValue value)
         {
-            if (!(this.IsUndefined || value.IsUndefined))
-            {
-                if (this.CanBeNumber || value.CanBeNumber)
-                {
-                    if (this.DoubleValue > value.DoubleValue)
-                        return true;
-                }
-                else if (this.ToString().Greater(value.ToString()))
-                    return true;
+            if (this.IsNullOrUndefined || value.IsNullOrUndefined) {
+                return false;
             }
-            return false;
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return this.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? this.DoubleValue > value.DoubleValue
+                : this.ToString().Greater(value.ToString());
 
         }
         public virtual bool GreaterOrEqual(JSValue value)
         {
-            if (!(this.IsUndefined || value.IsUndefined)) {
-                if (this.CanBeNumber || value.CanBeNumber)
-                {
-                    if (this.DoubleValue >= value.DoubleValue)
-                        return true;
-                }
-                else if (this.ToString().Greater(value.ToString()))
-                    return true;
+            if (this.IsNullOrUndefined || value.IsNullOrUndefined) {
+                return false;
             }
-            return false;
+            if (value.IsObject) {
+                value = value.ValueOf();
+            }
+            return this.IsNumberOrBoolean || value.IsNumberOrBoolean
+                ? this.DoubleValue >= value.DoubleValue
+                : this.ToString().GreaterOrEqual(value.ToString());
         }
 
         //internal virtual IEnumerable<JSValue> GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
