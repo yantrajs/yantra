@@ -61,7 +61,7 @@ namespace YantraJS.Core.FastParser.Compiler
             }
             else
             {
-                superExp = JSContextBuilder.Object;
+                superExp = JSContextBuilder.Object(JSContextBuilder.Current);
             }
 
             var superVar = Exp.Parameter(typeof(JSFunction));

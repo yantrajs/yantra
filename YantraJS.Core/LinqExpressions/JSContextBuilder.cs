@@ -63,47 +63,11 @@ namespace YantraJS.ExpHelper
     public class JSContextBuilder
     {
 
-        private static Type type = typeof(JSContext);
-
-
         public static Expression Current =
             NewLambdaExpression.StaticFieldExpression<JSContext>(() => () => JSContext.Current);
-        // Expression.Field(null, type.PublicField(nameof(JSContext.Current)));
 
-        //public static Expression Current =
-        //    Expression.Field(null, type.InternalField(nameof(JSContext.CurrentContext)));
-
-        public static Expression Object =
-            Current.FieldExpression<JSContext, JSObject>(() => (x) => x.Object);
-            // Expression.Field(Current, type.GetField(nameof(JSContext.Object)));
-
-        //public static FieldInfo TopField =
-        //    type.InternalField(nameof(JSContext.Top));
-
-
-        //public static MethodInfo _Register =
-        //    type.InternalMethod(nameof(JSContext.Register), typeof(JSVariable));
-
-        //public static MethodInfo _NewSyntaxError =
-        //type.InternalMethod(nameof(JSContext.NewSyntaxError), typeof(string),typeof(string),typeof(string),typeof(int));
-
-        //public static Expression NewSyntaxError(string error) {
-        //    return Expression.Call(Current, _NewSyntaxError, 
-        //        Expression.Constant(error),
-        //        Expression.Null,
-        //        Expression.Null,
-        //        Expression.Constant(0)
-        //        );
-        //}
-
-        private static PropertyInfo _Index =
-            type.IndexProperty(typeof(Core.KeyString));
-        public static Expression Index(Expression key)
-        {
-            // return Current.CallExpression<JSContext, KeyString, JSValue>(() => (x, a) => x[a], key);
-            // return Current.IndexExpression<JSContext, KeyString>()
-            // return Expression.MakeIndex(Current, , key);
-            return Expression.MakeIndex(Current, _Index, new Expression[] { key });
+        public static Expression Object(Expression current) {
+            return current.FieldExpression<JSContext, JSObject>(() => (x) => x.Object);
         }
 
         public static Expression NewTarget()
@@ -114,41 +78,12 @@ namespace YantraJS.ExpHelper
                 .FieldExpression<CallStackItem, JSFunction>(() => (x) => x.NewTarget);
         }
 
-        //public static Expression Pop(Expression context)s
-        //{
-        //    return Expression.Call(context, _Pop);
-        //}
-
-        //public static void Push(List<Expression> stmtList,
-        //    ParameterExpression refStack,
-        //    Expression fileName, 
-        //    Expression str, 
-        //    int line, 
-        //    int column)
-        //{
-        //    //return Expression.Call(
-        //    //    context,
-        //    //    _Push,
-        //    //    fileName,
-        //    //    str,
-        //    //    Expression.Constant(line),
-        //    //    Expression.Constant(column));
-        //}
-        //public static Expression Update(
-        //    ParameterExpression stack, 
-        //    Expression function,
-        //    int line, int column)
-        //{
-        //    return Expression.Block();
-        //}
-
 
         public static Expression Register(ParameterExpression lScope, ParameterExpression variable)
         {
             return lScope.CallExpression<JSContext, JSVariable, JSValue>(
                 () => (x, a) => x.Register(a),
                 variable);
-            // return Expression.Call(lScope, _Register, variable);
         }
     }
 }
